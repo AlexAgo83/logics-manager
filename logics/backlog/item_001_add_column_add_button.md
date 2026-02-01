@@ -1,8 +1,8 @@
 ## item_001_add_column_add_button - Add “+” action in column headers
 > From version: 0.0.0
-> Understanding: 80%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 90%
+> Confidence: 90%
+> Progress: 100%
 
 # Problem
 Add an in-column “+” action to create new Logics items directly from the board, and simplify the top header actions accordingly.

@@ -154,7 +154,11 @@
       item.references.forEach((ref) => {
         const row = document.createElement("div");
         row.className = "details__reference";
-        row.textContent = ref;
+        if (typeof ref === "string") {
+          row.textContent = ref;
+        } else {
+          row.textContent = `${ref.label}: ${ref.path}`;
+        }
         refList.appendChild(row);
       });
 
@@ -243,7 +247,12 @@
   }
 
   function isRequestUsed(item) {
-    return item && item.stage === "request" && Array.isArray(item.usedBy) && item.usedBy.length > 0;
+    if (!item || item.stage !== "request") {
+      return false;
+    }
+    const hasBacklogRefs =
+      Array.isArray(item.references) && item.references.some((ref) => ref && ref.kind === "backlog");
+    return hasBacklogRefs || (Array.isArray(item.usedBy) && item.usedBy.length > 0);
   }
 
   function progressState(item) {

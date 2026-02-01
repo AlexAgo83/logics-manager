@@ -13,8 +13,14 @@ export interface LogicsItem {
   updatedAt: string;
   indicators: Record<string, string>;
   isPromoted: boolean;
-  references: string[];
+  references: LogicsReference[];
   usedBy: LogicsUsage[];
+}
+
+export interface LogicsReference {
+  kind: "from" | "backlog";
+  label: string;
+  path: string;
 }
 
 export interface LogicsUsage {
@@ -53,8 +59,12 @@ export function indexLogics(root: string): LogicsItem[] {
       const fullPath = path.join(dirPath, entry.name);
       const content = fs.readFileSync(fullPath, "utf8");
       const relPath = path.relative(root, fullPath).replace(/\\/g, "/");
-      for (const ref of extractPromotedRefs(content)) {
-        promotedSources.add(ref.replace(/\\/g, "/"));
+      const references = extractReferences(content);
+      const fromRefs = references
+        .filter((ref) => ref.kind === "from")
+        .map((ref) => normalizeRef(ref.path));
+      for (const ref of fromRefs) {
+        promotedSources.add(ref);
       }
       const lines = content.split(/\r?\n/);
       const title = parseTitle(lines, entry.name.replace(/\.md$/, ""));
@@ -71,7 +81,7 @@ export function indexLogics(root: string): LogicsItem[] {
         updatedAt: stat.mtime.toISOString(),
         indicators,
         isPromoted: false,
-        references: extractPromotedRefs(content),
+        references,
         usedBy: []
       });
     }
@@ -83,7 +93,10 @@ export function indexLogics(root: string): LogicsItem[] {
 
   for (const item of items) {
     for (const ref of item.references) {
-      const normalized = ref.replace(/\\/g, "/");
+      if (ref.kind !== "from") {
+        continue;
+      }
+      const normalized = normalizeRef(ref.path);
       const existing = usageMap.get(normalized) ?? [];
       existing.push({
         id: item.id,
@@ -133,21 +146,58 @@ function parseIndicators(lines: string[]): Record<string, string> {
   return indicators;
 }
 
-function extractPromotedRefs(content: string): string[] {
-  const refs: string[] = [];
-  const patterns = [
-    /Promoted from `([^`]+)`/g,
-    /Derived from `([^`]+)`/g
+function extractReferences(content: string): LogicsReference[] {
+  const refs: LogicsReference[] = [];
+  const patterns: Array<{ label: string; regex: RegExp }> = [
+    { label: "Promoted from", regex: /Promoted from `([^`]+)`/g },
+    { label: "Derived from", regex: /Derived from `([^`]+)`/g }
   ];
   for (const pattern of patterns) {
     let match: RegExpExecArray | null;
-    while ((match = pattern.exec(content)) !== null) {
+    while ((match = pattern.regex.exec(content)) !== null) {
       if (match[1]) {
-        refs.push(match[1]);
+        refs.push({ kind: "from", label: pattern.label, path: match[1] });
       }
     }
   }
+
+  for (const backlogRef of extractBacklogLinks(content)) {
+    refs.push({ kind: "backlog", label: "Backlog", path: backlogRef });
+  }
+
   return refs;
+}
+
+function extractBacklogLinks(content: string): string[] {
+  const lines = content.split(/\r?\n/);
+  const links: string[] = [];
+  let inSection = false;
+
+  for (const line of lines) {
+    if (line.trim() === "# Backlog") {
+      inSection = true;
+      continue;
+    }
+    if (!inSection) {
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      break;
+    }
+    if (line.includes("(none yet)")) {
+      continue;
+    }
+    const match = line.match(/`([^`]+)`/);
+    if (match && match[1]) {
+      links.push(match[1]);
+    }
+  }
+
+  return links;
+}
+
+function normalizeRef(value: string): string {
+  return value.replace(/\\/g, "/");
 }
 
 export function canPromote(stage: LogicsStage): boolean {
@@ -155,7 +205,11 @@ export function canPromote(stage: LogicsStage): boolean {
 }
 
 export function isRequestUsed(item: LogicsItem): boolean {
-  return item.stage === "request" && Array.isArray(item.usedBy) && item.usedBy.length > 0;
+  if (item.stage !== "request") {
+    return false;
+  }
+  const hasBacklogRefs = item.references.some((ref) => ref.kind === "backlog");
+  return hasBacklogRefs || (Array.isArray(item.usedBy) && item.usedBy.length > 0);
 }
 
 export function promotionCommand(stage: LogicsStage): string | null {

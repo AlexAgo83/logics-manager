@@ -106,6 +106,34 @@ body {
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+.column__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.column__add {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.column__add svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
 .column__toggle {
   width: 22px;
   height: 22px;
@@ -125,6 +153,37 @@ body {
   width: 16px;
   height: 16px;
   display: block;
+}
+
+.column__menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  min-width: 170px;
+  background: var(--vscode-editorWidget-background, #202020);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 10;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.column__menu-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.column__menu-item:hover {
+  background: var(--vscode-list-hoverBackground, #2a2d2e);
 }
 
 .column--collapsed {

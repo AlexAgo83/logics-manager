@@ -5,11 +5,11 @@
   const detailsBody = document.getElementById("details-body");
   const detailsToggle = document.getElementById("details-toggle");
   const detailsTitle = document.getElementById("details-title");
-  const newRequestButton = document.querySelector('[data-action="new-request"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
   const openButton = document.querySelector('[data-action="open"]');
+  const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
   const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
 
@@ -20,6 +20,8 @@
   let collapsedStages = new Set();
   let detailsCollapsed = false;
   let collapsedDetailSections = new Set();
+  let activeColumnMenu = null;
+  let activeColumnMenuButton = null;
 
   const stageOrder = ["request", "backlog", "task"];
 
@@ -39,6 +41,70 @@
         <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
       </svg>
     `;
+  }
+
+  function plusIcon() {
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  function buildColumnMenu() {
+    const menu = document.createElement("div");
+    menu.className = "column__menu";
+    menu.setAttribute("role", "menu");
+
+    const options = [
+      { label: "New Request", kind: "request" },
+      { label: "New Backlog item", kind: "backlog" },
+      { label: "New Task", kind: "task" }
+    ];
+
+    options.forEach((option) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "column__menu-item";
+      item.textContent = option.label;
+      item.addEventListener("click", (event) => {
+        event.stopPropagation();
+        closeColumnMenu();
+        vscode.postMessage({ type: "create-item", kind: option.kind });
+      });
+      menu.appendChild(item);
+    });
+
+    return menu;
+  }
+
+  function closeColumnMenu() {
+    if (activeColumnMenu) {
+      activeColumnMenu.remove();
+    }
+    if (activeColumnMenuButton) {
+      activeColumnMenuButton.setAttribute("aria-expanded", "false");
+    }
+    activeColumnMenu = null;
+    activeColumnMenuButton = null;
+  }
+
+  function toggleColumnMenu(button) {
+    if (activeColumnMenu && activeColumnMenuButton === button) {
+      closeColumnMenu();
+      return;
+    }
+
+    closeColumnMenu();
+    const menu = buildColumnMenu();
+    activeColumnMenu = menu;
+    activeColumnMenuButton = button;
+    button.setAttribute("aria-expanded", "true");
+
+    const container = button.parentElement;
+    if (container) {
+      container.appendChild(menu);
+    }
   }
 
   function createChevronIcon() {
@@ -113,9 +179,11 @@
     return item.stage === "request" || item.stage === "backlog";
   }
 
-  function setState(nextItems) {
+  function setState(nextItems, nextSelectedId) {
     items = Array.isArray(nextItems) ? nextItems : [];
-    if (!items.find((item) => item.id === selectedId)) {
+    if (typeof nextSelectedId === "string") {
+      selectedId = nextSelectedId;
+    } else if (!items.find((item) => item.id === selectedId)) {
       selectedId = null;
     }
     render();
@@ -148,6 +216,7 @@
   }
 
   function renderBoard() {
+    closeColumnMenu();
     board.innerHTML = "";
     const visibleItems = items.filter((item) => isVisible(item));
     if (!visibleItems.length) {
@@ -183,6 +252,21 @@
       title.textContent = stage;
       header.appendChild(title);
 
+      const actions = document.createElement("div");
+      actions.className = "column__actions";
+
+      const addButton = document.createElement("button");
+      addButton.type = "button";
+      addButton.className = "column__add";
+      addButton.innerHTML = plusIcon();
+      addButton.setAttribute("aria-label", "Add Logics item");
+      addButton.setAttribute("aria-haspopup", "menu");
+      addButton.setAttribute("aria-expanded", "false");
+      addButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleColumnMenu(addButton);
+      });
+
       const toggle = document.createElement("button");
       toggle.type = "button";
       toggle.className = "column__toggle";
@@ -202,7 +286,10 @@
         persistState();
         render();
       });
-      header.appendChild(toggle);
+
+      actions.appendChild(addButton);
+      actions.appendChild(toggle);
+      header.appendChild(actions);
 
       column.appendChild(header);
 
@@ -372,6 +459,9 @@
     const item = items.find((entry) => entry.id === selectedId);
     openButton.disabled = !item;
     promoteButton.disabled = !canPromote(item);
+    if (readButton) {
+      readButton.disabled = !item;
+    }
   }
 
   function groupByStage(allItems) {
@@ -450,7 +540,6 @@
   if (fixDocsButton) {
     fixDocsButton.addEventListener("click", () => vscode.postMessage({ type: "fix-docs" }));
   }
-  newRequestButton.addEventListener("click", () => vscode.postMessage({ type: "new-request" }));
   function persistState() {
     vscode.setState({
       hideCompleted,
@@ -486,6 +575,12 @@
     if (!selectedId) return;
     vscode.postMessage({ type: "open", id: selectedId });
   });
+  if (readButton) {
+    readButton.addEventListener("click", () => {
+      if (!selectedId) return;
+      vscode.postMessage({ type: "read", id: selectedId });
+    });
+  }
   promoteButton.addEventListener("click", () => {
     if (!selectedId) return;
     vscode.postMessage({ type: "promote", id: selectedId });
@@ -502,7 +597,9 @@
         }
         return;
       }
-      setState(payload.items || []);
+      const nextItems = payload && payload.items ? payload.items : [];
+      const nextSelected = payload ? payload.selectedId : undefined;
+      setState(nextItems, nextSelected);
     }
   });
 
@@ -522,6 +619,20 @@
   if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
     collapsedDetailSections = new Set(previousState.collapsedDetailSections);
   }
+
+  document.addEventListener("click", (event) => {
+    if (!activeColumnMenu) {
+      return;
+    }
+    const target = event.target;
+    if (activeColumnMenu.contains(target)) {
+      return;
+    }
+    if (activeColumnMenuButton && activeColumnMenuButton.contains(target)) {
+      return;
+    }
+    closeColumnMenu();
+  });
 
   vscode.postMessage({ type: "ready" });
 })();

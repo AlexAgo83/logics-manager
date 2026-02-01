@@ -34,8 +34,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "open":
           await this.openItem(message.id);
           break;
+        case "read":
+          await this.readItem(message.id);
+          break;
         case "promote":
           await this.promoteItem(message.id);
+          break;
+        case "create-item":
+          await this.createItem(message.kind);
           break;
         case "new-request":
           await this.createRequest();
@@ -50,7 +56,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   }
 
-  async refresh(): Promise<void> {
+  async refresh(selectedId?: string): Promise<void> {
     const root = getWorkspaceRoot();
     if (!root) {
       this.items = [];
@@ -65,7 +71,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.items = indexLogics(root);
-    this.postData({ items: this.items, root });
+    this.postData({ items: this.items, root, selectedId });
     await this.maybeOfferBootstrap(root);
   }
 
@@ -136,6 +142,57 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
     await this.refresh();
+  }
+
+  async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
+    const root = getWorkspaceRoot();
+    if (!root) {
+      void vscode.window.showErrorMessage("No workspace root found.");
+      return;
+    }
+
+    const config = getCreateConfig(kind);
+    if (!config) {
+      void vscode.window.showErrorMessage("Unsupported item type.");
+      return;
+    }
+
+    const title = await vscode.window.showInputBox({
+      title: `New Logics ${config.label}`,
+      prompt: `Title for the ${config.label}`
+    });
+    if (!title) {
+      return;
+    }
+
+    const logicsRoot = path.join(root, "logics");
+    if (!fs.existsSync(logicsRoot)) {
+      fs.mkdirSync(logicsRoot, { recursive: true });
+    }
+
+    const dirPath = path.join(root, config.dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    const nextId = getNextSequence(dirPath, config.prefix);
+    const slug = slugify(title);
+    const baseId = `${config.prefix}${String(nextId).padStart(3, "0")}`;
+    const slugPart = slug ? `_${slug}` : "";
+    const fileId = `${baseId}${slugPart}`;
+    const filePath = path.join(dirPath, `${fileId}.md`);
+
+    if (fs.existsSync(filePath)) {
+      void vscode.window.showErrorMessage("A file with that name already exists.");
+      return;
+    }
+
+    const template = buildMinimalTemplate(fileId, title);
+    fs.writeFileSync(filePath, template, "utf8");
+
+    const document = await vscode.workspace.openTextDocument(filePath);
+    await vscode.window.showTextDocument(document, { preview: false });
+    await this.refresh(fileId);
   }
 
   async fixDocs(): Promise<void> {
@@ -261,7 +318,12 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     return pick?.item;
   }
 
-  private postData(payload: { items?: LogicsItem[]; root?: string; error?: string }): void {
+  private postData(payload: {
+    items?: LogicsItem[];
+    root?: string;
+    error?: string;
+    selectedId?: string;
+  }): void {
     if (!this.view) {
       return;
     }
@@ -278,6 +340,21 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
     const document = await vscode.workspace.openTextDocument(item.path);
     await vscode.window.showTextDocument(document, { preview: false });
+  }
+
+  private async readItem(id: string): Promise<void> {
+    const item = this.items.find((entry) => entry.id === id);
+    if (!item) {
+      return;
+    }
+    try {
+      const uri = vscode.Uri.file(item.path);
+      await vscode.commands.executeCommand("markdown.showPreview", uri);
+      await vscode.commands.executeCommand("workbench.action.keepEditor");
+    } catch (error) {
+      void vscode.window.showErrorMessage("Could not open Markdown preview. Opening in Edit.");
+      await this.openItem(id);
+    }
   }
 
   private async promoteItem(id: string): Promise<void> {
@@ -352,7 +429,6 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         </label>
       </div>
       <div class="toolbar__buttons">
-        <button class="btn" data-action="new-request">New Request</button>
         <button class="btn" data-action="fix-docs">Fix Logics</button>
         <button class="btn" data-action="refresh">Refresh</button>
       </div>
@@ -381,7 +457,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </div>
       <div class="details__actions">
         <button class="btn" data-action="promote" disabled>Promote</button>
-        <button class="btn" data-action="open" disabled>Open</button>
+        <button class="btn" data-action="open" disabled>Edit</button>
+        <button class="btn" data-action="read" disabled>Read</button>
       </div>
     </aside>
   </div>
@@ -433,6 +510,73 @@ function hasLogicsSubmodule(root: string): boolean {
   } catch {
     return false;
   }
+}
+
+type CreateItemConfig = { dir: string; prefix: string; label: string };
+
+function getCreateConfig(kind: "request" | "backlog" | "task"): CreateItemConfig | null {
+  if (kind === "request") {
+    return { dir: "logics/request", prefix: "req_", label: "request" };
+  }
+  if (kind === "backlog") {
+    return { dir: "logics/backlog", prefix: "item_", label: "backlog item" };
+  }
+  if (kind === "task") {
+    return { dir: "logics/tasks", prefix: "task_", label: "task" };
+  }
+  return null;
+}
+
+function getNextSequence(dirPath: string, prefix: string): number {
+  if (!fs.existsSync(dirPath)) {
+    return 1;
+  }
+  const entries = fs.readdirSync(dirPath);
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`^${escaped}(\\d+)`);
+  let max = 0;
+  for (const entry of entries) {
+    const match = entry.match(regex);
+    if (!match) {
+      continue;
+    }
+    const value = Number(match[1]);
+    if (Number.isFinite(value)) {
+      max = Math.max(max, value);
+    }
+  }
+  return max + 1;
+}
+
+function slugify(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  if (!normalized) {
+    return "";
+  }
+  return normalized.slice(0, 40);
+}
+
+function buildMinimalTemplate(id: string, title: string): string {
+  return `## ${id} - ${title}
+> From version: 0.0.0
+> Understanding: 75%
+> Confidence: 75%
+
+# Needs
+- TBD
+
+# Context
+- TBD
+
+# Clarifications
+- TBD
+
+# Backlog
+- (none yet)
+`;
 }
 
 async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {

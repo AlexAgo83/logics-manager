@@ -19,3 +19,5 @@ in the VS Code view.
 
 # Report
 Built the flow board UI with stage columns, selectable cards, and a details panel. Added empty/error states and VS Code-themed styling in the webview assets.
+
+# Notes

@@ -19,3 +19,5 @@ the Logics Orchestrator UI.
 
 # Report
 Scaffolded a VS Code extension with activity bar view container, commands, and a webview view. Added HTML/CSS/JS assets and a message bridge for refresh/open/promote actions.
+
+# Notes

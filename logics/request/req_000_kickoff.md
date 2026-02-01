@@ -17,3 +17,6 @@
 - Define actions supported in v1. :: Open file, promote item via scripts, and refresh index.
 - Define the source of truth. :: Files on disk under `logics/*` are canonical.
 - Define empty states and errors. :: Show onboarding tips if no items; show file-level errors inline.
+
+# Backlog
+- `logics/backlog/item_000_kickoff.md`

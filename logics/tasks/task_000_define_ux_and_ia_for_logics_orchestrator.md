@@ -19,3 +19,5 @@ inside VS Code (board + details panel + commands), aligned with the kickoff and 
 
 # Report
 UX/IA defined as a VS Code activity bar view with a flow board (Requests/Backlog/Tasks/Specs) and a right-side details panel. Core actions: select card, open file, refresh index, and optional promote from request/backlog. Empty state messaging and error handling added to the UI plan and backlog notes.
+
+# Notes

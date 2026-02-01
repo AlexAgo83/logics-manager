@@ -43,3 +43,4 @@ Create a VS Code extension that provides a visual workspace to orchestrate the L
   - `logics/tasks/task_004_wire_actions_open_refresh_promote.md`
 - Implementation scaffolded in `src/` + `media/` with commands and webview; needs manual validation in VS Code.
 - Dev setup: `npm install`, `npm run compile`, then launch Extension Host (F5).
+- Derived from `logics/request/req_000_kickoff.md`.

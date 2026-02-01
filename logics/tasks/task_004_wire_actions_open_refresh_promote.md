@@ -19,3 +19,5 @@ promote via the Logics flow script.
 
 # Report
 Wired open/refresh/promote actions from the webview to extension commands. Promote uses the existing flow manager script for request/backlog items and surfaces errors in VS Code.
+
+# Notes

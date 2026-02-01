@@ -19,3 +19,5 @@ status, path, updated time) to power the board and details panel.
 
 # Report
 Implemented a file-system indexer that scans `logics/*` folders, parses titles and indicators from Markdown, and returns a normalized data model for the UI. Added stage-based promotion rules (request/backlog only).
+
+# Notes

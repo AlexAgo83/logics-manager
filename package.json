@@ -1,0 +1,70 @@
+{
+  "name": "cdx-logics-vscode",
+  "displayName": "Logics Orchestrator",
+  "description": "Visual orchestration for Logics workflows inside VS Code.",
+  "version": "0.0.1",
+  "publisher": "cdx",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:logics.orchestrator",
+    "onCommand:logics.refresh",
+    "onCommand:logics.open",
+    "onCommand:logics.promote",
+    "onCommand:logics.newRequest"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "logics",
+          "title": "Logics",
+          "icon": "media/logics.svg"
+        }
+      ]
+    },
+    "views": {
+      "logics": [
+        {
+          "id": "logics.orchestrator",
+          "name": "Orchestrator",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "logics.refresh",
+        "title": "Logics: Refresh"
+      },
+      {
+        "command": "logics.open",
+        "title": "Logics: Open Item"
+      },
+      {
+        "command": "logics.promote",
+        "title": "Logics: Promote Item"
+      },
+      {
+        "command": "logics.newRequest",
+        "title": "Logics: New Request"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "echo \"No lint configured\"",
+    "dev": "npm run compile && code --extensionDevelopmentPath=."
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.86.0",
+    "typescript": "^5.3.3"
+  }
+}

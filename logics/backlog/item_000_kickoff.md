@@ -2,7 +2,7 @@
 > From version: 0.0.0
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 80%
 
 # Problem
 Create a VS Code extension that provides a visual workspace to orchestrate the Logics flow
@@ -41,3 +41,5 @@ Create a VS Code extension that provides a visual workspace to orchestrate the L
   - `logics/tasks/task_002_scaffold_vs_code_extension_and_view_containers.md`
   - `logics/tasks/task_003_build_flow_board_ui_and_details_panel.md`
   - `logics/tasks/task_004_wire_actions_open_refresh_promote.md`
+- Implementation scaffolded in `src/` + `media/` with commands and webview; needs manual validation in VS Code.
+- Dev setup: `npm install`, `npm run compile`, then launch Extension Host (F5).

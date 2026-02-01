@@ -16,8 +16,21 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 - A workspace that contains a `logics/` folder.
 - Logics skills kit installed at `logics/skills/` (for promote/new request).
 - `python3` available on PATH (required for Logics flow scripts).
+- Node.js + npm (for build/package).
+- VS Code CLI `code` available on PATH (for VSIX install).
 
-## Quick start (dev)
+## Installation
+
+### Install from VSIX (recommended for users)
+
+```bash
+code --install-extension cdx-logics-vscode-<version>.vsix --force
+```
+
+If you don't have the `code` CLI on PATH, enable it in VS Code:
+**Command Palette → Shell Command: Install 'code' command in PATH**.
+
+### Install from source (dev)
 
 ```bash
 npm install
@@ -29,17 +42,24 @@ Run the extension:
 - The Extension Development Host opens.
 - Open the **Logics** panel at the bottom → **Orchestrator**.
 
-## Local install (VSIX)
+## Deploy / Release (VSIX)
+
+1. Bump the version in `package.json`.
+2. Build and package:
 
 ```bash
 npm run package
-code --install-extension *.vsix
 ```
 
-One-shot:
+This creates `cdx-logics-vscode-<version>.vsix` in the repo root.
+
+3. Smoke-test the package locally:
+
 ```bash
 npm run install:vsix
 ```
+
+4. Distribute the `.vsix` (e.g., attach to a GitHub release or share internally).
 
 ## Commands
 

@@ -2,7 +2,7 @@
 > From version: 0.0.0
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 80%
+> Progress: 100%
 
 # Problem
 Create a VS Code extension that provides a visual workspace to orchestrate the Logics flow

@@ -2,8 +2,13 @@
   "name": "cdx-logics-vscode",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "cdx",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexAgo83/cdx-logics-vscode.git"
+  },
   "engines": {
     "vscode": "^1.86.0"
   },
@@ -60,7 +65,9 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "echo \"No lint configured\"",
-    "dev": "npm run compile && code --extensionDevelopmentPath=."
+    "dev": "npm run compile && code --extensionDevelopmentPath=.",
+    "package": "npm run compile && npx @vscode/vsce package",
+    "install:vsix": "npm run package && code --install-extension *.vsix"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

@@ -4,4 +4,7 @@
 **/node_modules/**
 **/.vscode/**
 **/out/**
+!out/extension.js
+!out/**/*.js
+!out/**/*.js.map
 logics/**

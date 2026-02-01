@@ -1,7 +1,7 @@
 ## req_001_add_column_add_button - Add “+” action in column headers
 > From version: 0.0.0
 > Understanding: 80%
-> Confidence: 75%
+> Confidence: 85%
 
 # Needs
 - Add a “+” button in each column header, positioned to the left of the eye toggle, to create new Logics items (Request, Backlog item, or Task).
@@ -18,4 +18,4 @@
 - Rename the “Open” button in the details actions to “Edit”.
 
 # Backlog
-- TBD (create a backlog item when the implementation task is defined).
+- `logics/backlog/item_001_add_column_add_button.md`

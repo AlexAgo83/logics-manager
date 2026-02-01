@@ -32,3 +32,5 @@ Provide a read-only, rendered Markdown view for the selected Logics item directl
 
 # Notes
 - Derived from `logics/request/req_002_add_read_button.md`.
+- Related task:
+  - `logics/tasks/task_006_add_read_button.md`

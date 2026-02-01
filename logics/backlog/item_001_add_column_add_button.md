@@ -37,3 +37,5 @@ Add an in-column “+” action to create new Logics items directly from the boa
 
 # Notes
 - Derived from `logics/request/req_001_add_column_add_button.md`.
+- Related task:
+  - `logics/tasks/task_005_add_column_add_button.md`

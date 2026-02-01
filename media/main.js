@@ -5,6 +5,8 @@
   const detailsBody = document.getElementById("details-body");
   const detailsToggle = document.getElementById("details-toggle");
   const detailsTitle = document.getElementById("details-title");
+  const filterToggle = document.getElementById("filter-toggle");
+  const filterPanel = document.getElementById("filter-panel");
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
@@ -22,6 +24,7 @@
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
+  let filterPanelOpen = false;
 
   const stageOrder = ["request", "backlog", "task"];
 
@@ -207,6 +210,7 @@
     renderBoard();
     renderDetails();
     updateButtons();
+    updateFilterState();
     if (hideCompleteToggle) {
       hideCompleteToggle.checked = hideCompleted;
     }
@@ -464,6 +468,24 @@
     }
   }
 
+  function updateFilterState() {
+    if (!filterToggle) {
+      return;
+    }
+    filterToggle.classList.toggle("toolbar__filter--active", hideCompleted || hideUsedRequests);
+  }
+
+  function setFilterPanelOpen(isOpen) {
+    filterPanelOpen = isOpen;
+    if (filterPanel) {
+      filterPanel.classList.toggle("filter-panel--open", isOpen);
+      filterPanel.setAttribute("aria-hidden", String(!isOpen));
+    }
+    if (filterToggle) {
+      filterToggle.setAttribute("aria-expanded", String(isOpen));
+    }
+  }
+
   function groupByStage(allItems) {
     return allItems.reduce((acc, item) => {
       acc[item.stage] = acc[item.stage] || [];
@@ -540,6 +562,12 @@
   if (fixDocsButton) {
     fixDocsButton.addEventListener("click", () => vscode.postMessage({ type: "fix-docs" }));
   }
+  if (filterToggle) {
+    filterToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setFilterPanelOpen(!filterPanelOpen);
+    });
+  }
   function persistState() {
     vscode.setState({
       hideCompleted,
@@ -554,6 +582,7 @@
     hideCompleteToggle.addEventListener("change", (event) => {
       hideCompleted = Boolean(event.target && event.target.checked);
       persistState();
+      updateFilterState();
       render();
     });
   }
@@ -561,6 +590,7 @@
     hideUsedRequestsToggle.addEventListener("change", (event) => {
       hideUsedRequests = Boolean(event.target && event.target.checked);
       persistState();
+      updateFilterState();
       render();
     });
   }
@@ -621,6 +651,12 @@
   }
 
   document.addEventListener("click", (event) => {
+    if (filterPanelOpen && filterPanel && filterToggle) {
+      const target = event.target;
+      if (!filterPanel.contains(target) && !filterToggle.contains(target)) {
+        setFilterPanelOpen(false);
+      }
+    }
     if (!activeColumnMenu) {
       return;
     }
@@ -632,6 +668,12 @@
       return;
     }
     closeColumnMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && filterPanelOpen) {
+      setFilterPanelOpen(false);
+    }
   });
 
   vscode.postMessage({ type: "ready" });

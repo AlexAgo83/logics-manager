@@ -39,10 +39,11 @@ body {
   width: 100%;
 }
 
-.toolbar__options {
+.toolbar__filters {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
 }
 
 .toolbar__buttons {
@@ -50,6 +51,51 @@ body {
   align-items: center;
   gap: 8px;
   margin-left: auto;
+}
+
+.toolbar__filter {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.toolbar__filter svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.toolbar__filter--active {
+  border-color: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-background, #0e639c);
+}
+
+.filter-panel {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  min-width: 220px;
+  background: var(--vscode-editorWidget-background, #202020);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.filter-panel--open {
+  display: flex;
 }
 
 .btn {
@@ -458,21 +504,12 @@ body {
 
   .toolbar__actions {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     gap: 8px;
   }
 
   .toolbar__buttons {
-    order: 1;
     justify-content: flex-end;
-  }
-
-  .toolbar__options {
-    order: 2;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
   }
 
   .layout {

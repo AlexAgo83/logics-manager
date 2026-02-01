@@ -145,6 +145,15 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
+    const confirm = await vscode.window.showWarningMessage(
+      "Run Logics fixer? This will update Logics docs on disk.",
+      { modal: true },
+      "Run Fix Logics"
+    );
+    if (confirm !== "Run Fix Logics") {
+      return;
+    }
+
     const scriptPath = path.join(
       root,
       "logics",
@@ -324,34 +333,56 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="${styleUri}" rel="stylesheet" />
   <title>Logics Orchestrator</title>
 </head>
 <body>
   <div class="toolbar">
-    <div class="toolbar__title">Logics Orchestrator</div>
     <div class="toolbar__actions">
-      <label class="toggle">
-        <input type="checkbox" id="hide-used-requests" />
-        <span>Hide used requests</span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="hide-complete" />
-        <span>Hide completed</span>
-      </label>
-      <button class="btn" data-action="new-request">New Request</button>
-      <button class="btn" data-action="refresh">Refresh</button>
-      <button class="btn" data-action="fix-docs">Fix Docs</button>
-      <button class="btn" data-action="promote" disabled>Promote</button>
-      <button class="btn" data-action="open" disabled>Open</button>
+      <div class="toolbar__options">
+        <label class="toggle">
+          <input type="checkbox" id="hide-used-requests" />
+          <span>Hide used requests</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-complete" />
+          <span>Hide completed</span>
+        </label>
+      </div>
+      <div class="toolbar__buttons">
+        <button class="btn" data-action="new-request">New Request</button>
+        <button class="btn" data-action="fix-docs">Fix Logics</button>
+        <button class="btn" data-action="refresh">Refresh</button>
+      </div>
     </div>
   </div>
   <div class="layout">
     <div class="board" id="board"></div>
     <aside class="details" id="details">
-      <div class="details__empty">Select a card to see details.</div>
+      <div class="details__header">
+        <div class="details__header-title" id="details-title">Details</div>
+        <button class="details__toggle" id="details-toggle" aria-label="Collapse details" aria-expanded="true">
+          <svg class="details__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 9l6 6 6-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="details__body" id="details-body">
+        <div class="details__empty">Select a card to see details.</div>
+      </div>
+      <div class="details__actions">
+        <button class="btn" data-action="open" disabled>Open</button>
+        <button class="btn" data-action="promote" disabled>Promote</button>
+      </div>
     </aside>
   </div>
   <script nonce="${nonce}" src="${scriptUri}"></script>

@@ -2,6 +2,9 @@
   const vscode = acquireVsCodeApi();
   const board = document.getElementById("board");
   const details = document.getElementById("details");
+  const detailsBody = document.getElementById("details-body");
+  const detailsToggle = document.getElementById("details-toggle");
+  const detailsTitle = document.getElementById("details-title");
   const newRequestButton = document.querySelector('[data-action="new-request"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
@@ -14,8 +17,28 @@
   let selectedId = null;
   let hideCompleted = false;
   let hideUsedRequests = false;
+  let collapsedStages = new Set();
+  let detailsCollapsed = false;
 
   const stageOrder = ["request", "backlog", "task"];
+
+  function eyeIcon(isHidden) {
+    if (isHidden) {
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    `;
+  }
 
   function canPromote(item) {
     if (!item) {
@@ -42,6 +65,16 @@
     const selectedItem = items.find((item) => item.id === selectedId);
     if (selectedItem && !isVisible(selectedItem)) {
       selectedId = null;
+    }
+    if (details) {
+      details.classList.toggle("details--collapsed", detailsCollapsed);
+    }
+    if (detailsToggle) {
+      detailsToggle.setAttribute("aria-expanded", String(!detailsCollapsed));
+      detailsToggle.setAttribute(
+        "aria-label",
+        detailsCollapsed ? "Expand details" : "Collapse details"
+      );
     }
     renderBoard();
     renderDetails();
@@ -79,12 +112,39 @@
     const grouped = groupByStage(visibleItems);
     stageOrder.forEach((stage) => {
       const column = document.createElement("div");
-      column.className = "column";
+      const isCollapsed = collapsedStages.has(stage);
+      column.className = isCollapsed ? "column column--collapsed" : "column";
+
+      const header = document.createElement("div");
+      header.className = "column__header";
 
       const title = document.createElement("div");
       title.className = "column__title";
       title.textContent = stage;
-      column.appendChild(title);
+      header.appendChild(title);
+
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "column__toggle";
+      toggle.innerHTML = eyeIcon(isCollapsed);
+      toggle.setAttribute(
+        "aria-label",
+        isCollapsed ? `Show ${stage} items` : `Hide ${stage} items`
+      );
+      toggle.setAttribute("aria-pressed", String(isCollapsed));
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (collapsedStages.has(stage)) {
+          collapsedStages.delete(stage);
+        } else {
+          collapsedStages.add(stage);
+        }
+        persistState();
+        render();
+      });
+      header.appendChild(toggle);
+
+      column.appendChild(header);
 
       const body = document.createElement("div");
       body.className = "column__body";
@@ -101,12 +161,20 @@
           const doneClass = isComplete(item) ? " card--done" : "";
           const progressClass = progressState(item);
           const usedClass = isRequestUsed(item) ? " card--used" : "";
+          const progressValue = getProgressValue(item);
+          const hasProgressBar =
+            typeof progressValue === "number" && progressValue > 0 && progressValue < 100;
           card.className =
             "card" +
             (item.id === selectedId ? " card--selected" : "") +
             doneClass +
             (progressClass ? ` ${progressClass}` : "") +
-            usedClass;
+            usedClass +
+            (hasProgressBar ? " card--progress-bar" : "");
+          if (hasProgressBar) {
+            const clamped = Math.max(0, Math.min(100, progressValue));
+            card.style.setProperty("--progress", `${clamped}%`);
+          }
           card.dataset.id = item.id;
 
           const titleEl = document.createElement("div");
@@ -133,16 +201,22 @@
   }
 
   function renderDetails() {
-    details.innerHTML = "";
+    detailsBody.innerHTML = "";
     const item = items.find((entry) => entry.id === selectedId);
     if (!item) {
+      if (detailsTitle) {
+        detailsTitle.textContent = "Details";
+      }
       const empty = document.createElement("div");
       empty.className = "details__empty";
       empty.textContent = "Select a card to see details.";
-      details.appendChild(empty);
+      detailsBody.appendChild(empty);
       return;
     }
 
+    if (detailsTitle) {
+      detailsTitle.textContent = item.title;
+    }
     const title = document.createElement("div");
     title.className = "details__title";
     title.textContent = item.title;
@@ -156,8 +230,8 @@
       <div>Updated: <span>${formatDate(item.updatedAt)}</span></div>
     `;
 
-    details.appendChild(title);
-    details.appendChild(list);
+    detailsBody.appendChild(title);
+    detailsBody.appendChild(list);
 
     if (item.references && item.references.length) {
       const refSection = document.createElement("div");
@@ -183,7 +257,7 @@
 
       refSection.appendChild(refTitle);
       refSection.appendChild(refList);
-      details.appendChild(refSection);
+      detailsBody.appendChild(refSection);
     }
 
     if (item.usedBy && item.usedBy.length) {
@@ -206,7 +280,7 @@
 
       usedSection.appendChild(usedTitle);
       usedSection.appendChild(usedList);
-      details.appendChild(usedSection);
+      detailsBody.appendChild(usedSection);
     }
 
     const indicators = item.indicators || {};
@@ -231,7 +305,7 @@
 
       section.appendChild(sectionTitle);
       section.appendChild(indicatorList);
-      details.appendChild(section);
+      detailsBody.appendChild(section);
     }
   }
 
@@ -319,7 +393,12 @@
   }
   newRequestButton.addEventListener("click", () => vscode.postMessage({ type: "new-request" }));
   function persistState() {
-    vscode.setState({ hideCompleted, hideUsedRequests });
+    vscode.setState({
+      hideCompleted,
+      hideUsedRequests,
+      collapsedStages: Array.from(collapsedStages),
+      detailsCollapsed
+    });
   }
 
   if (hideCompleteToggle) {
@@ -332,6 +411,13 @@
   if (hideUsedRequestsToggle) {
     hideUsedRequestsToggle.addEventListener("change", (event) => {
       hideUsedRequests = Boolean(event.target && event.target.checked);
+      persistState();
+      render();
+    });
+  }
+  if (detailsToggle) {
+    detailsToggle.addEventListener("click", () => {
+      detailsCollapsed = !detailsCollapsed;
       persistState();
       render();
     });
@@ -350,7 +436,10 @@
     if (type === "data") {
       if (payload && payload.error) {
         board.innerHTML = `<div class="state-message">${payload.error}</div>`;
-        details.innerHTML = "";
+        detailsBody.innerHTML = "";
+        if (detailsTitle) {
+          detailsTitle.textContent = "Details";
+        }
         return;
       }
       setState(payload.items || []);
@@ -363,6 +452,12 @@
   }
   if (previousState && typeof previousState.hideUsedRequests === "boolean") {
     hideUsedRequests = previousState.hideUsedRequests;
+  }
+  if (previousState && Array.isArray(previousState.collapsedStages)) {
+    collapsedStages = new Set(previousState.collapsedStages);
+  }
+  if (previousState && typeof previousState.detailsCollapsed === "boolean") {
+    detailsCollapsed = previousState.detailsCollapsed;
   }
 
   vscode.postMessage({ type: "ready" });

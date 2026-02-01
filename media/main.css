@@ -17,9 +17,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 8px;
   background: var(--vscode-titleBar-activeBackground, #2d2d2d);
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .toolbar__title {
@@ -31,8 +34,22 @@ body {
 
 .toolbar__actions {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.toolbar__options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar__buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .btn {
@@ -59,7 +76,7 @@ body {
   flex: 1;
   display: flex;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 0;
   overflow: auto;
 }
 
@@ -74,12 +91,49 @@ body {
   height: 100%;
 }
 
+.column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 10px 6px 12px;
+}
+
 .column__title {
-  padding: 10px 12px 6px;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.column__toggle {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.column__toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.column--collapsed {
+  min-width: 150px;
+  max-width: 180px;
+}
+
+.column--collapsed .column__body {
+  display: none;
 }
 
 .column__body {
@@ -104,6 +158,29 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.card--progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.card--progress-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(249, 115, 22, 0.38) 0%,
+    rgba(249, 115, 22, 0.38) var(--progress, 0%),
+    rgba(0, 0, 0, 0) var(--progress, 0%)
+  );
+  pointer-events: none;
+}
+
+.card--progress-bar > * {
+  position: relative;
+  z-index: 1;
 }
 
 .card__title {
@@ -150,7 +227,71 @@ body {
   border-left: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-sideBar-background, #252526);
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  bottom: 0;
+  align-self: stretch;
+}
+
+.details__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.details__header-title {
+  font-size: 12px;
+  color: var(--vscode-foreground, #d4d4d4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.details__toggle {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.details__toggle-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.details--collapsed .details__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.details__body {
+  flex: 1;
   overflow: auto;
+}
+
+.details--collapsed .details__body {
+  display: none;
+}
+
+.details__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.details__actions .btn {
+  flex: 1;
 }
 
 .details__empty {
@@ -218,6 +359,30 @@ body {
 }
 
 @media (max-width: 900px) {
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .toolbar__actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .toolbar__buttons {
+    order: 1;
+    justify-content: flex-end;
+  }
+
+  .toolbar__options {
+    order: 2;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
   .layout {
     flex-direction: column;
   }

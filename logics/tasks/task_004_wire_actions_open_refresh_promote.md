@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_000_kickoff.md`.
 Connect UI actions to VS Code commands: open file, refresh/reindex, and (optional)
 promote via the Logics flow script.
 

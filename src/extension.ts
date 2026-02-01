@@ -227,6 +227,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     <div class="toolbar__title">Logics Orchestrator</div>
     <div class="toolbar__actions">
       <label class="toggle">
+        <input type="checkbox" id="hide-used-requests" />
+        <span>Hide used requests</span>
+      </label>
+      <label class="toggle">
         <input type="checkbox" id="hide-complete" />
         <span>Hide completed</span>
       </label>

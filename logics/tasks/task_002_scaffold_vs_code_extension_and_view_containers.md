@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_000_kickoff.md`.
 Create the VS Code extension skeleton, commands, and view containers needed to host
 the Logics Orchestrator UI.
 

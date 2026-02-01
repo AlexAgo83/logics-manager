@@ -7,10 +7,12 @@
   const promoteButton = document.querySelector('[data-action="promote"]');
   const openButton = document.querySelector('[data-action="open"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
+  const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
 
   let items = [];
   let selectedId = null;
   let hideCompleted = false;
+  let hideUsedRequests = false;
 
   const stageOrder = ["request", "backlog", "task"];
 
@@ -36,23 +38,39 @@
   }
 
   function render() {
+    const selectedItem = items.find((item) => item.id === selectedId);
+    if (selectedItem && !isVisible(selectedItem)) {
+      selectedId = null;
+    }
     renderBoard();
     renderDetails();
     updateButtons();
     if (hideCompleteToggle) {
       hideCompleteToggle.checked = hideCompleted;
     }
+    if (hideUsedRequestsToggle) {
+      hideUsedRequestsToggle.checked = hideUsedRequests;
+    }
   }
 
   function renderBoard() {
     board.innerHTML = "";
-    const visibleItems = hideCompleted ? items.filter((item) => !isComplete(item)) : items;
+    const visibleItems = items.filter((item) => isVisible(item));
     if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "state-message";
-      empty.textContent = hideCompleted
-        ? "No active items. Toggle off \"Hide completed\" to see all items."
-        : "No Logics items found. Add files under logics/ to populate the board.";
+      if (hideCompleted || hideUsedRequests) {
+        const filters = [];
+        if (hideCompleted) {
+          filters.push('"Hide completed"');
+        }
+        if (hideUsedRequests) {
+          filters.push('"Hide used requests"');
+        }
+        empty.textContent = `No items match the current filters. Toggle off ${filters.join(" and ")} to see all items.`;
+      } else {
+        empty.textContent = "No Logics items found. Add files under logics/ to populate the board.";
+      }
       board.appendChild(empty);
       return;
     }
@@ -230,6 +248,16 @@
     }, {});
   }
 
+  function isVisible(item) {
+    if (hideCompleted && isComplete(item)) {
+      return false;
+    }
+    if (hideUsedRequests && item.stage === "request" && isRequestUsed(item)) {
+      return false;
+    }
+    return true;
+  }
+
   function isComplete(item) {
     const value = getProgressValue(item);
     return value !== null && value >= 100;
@@ -286,11 +314,24 @@
 
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
   newRequestButton.addEventListener("click", () => vscode.postMessage({ type: "new-request" }));
-  hideCompleteToggle.addEventListener("change", (event) => {
-    hideCompleted = Boolean(event.target && event.target.checked);
-    vscode.setState({ hideCompleted });
-    render();
-  });
+  function persistState() {
+    vscode.setState({ hideCompleted, hideUsedRequests });
+  }
+
+  if (hideCompleteToggle) {
+    hideCompleteToggle.addEventListener("change", (event) => {
+      hideCompleted = Boolean(event.target && event.target.checked);
+      persistState();
+      render();
+    });
+  }
+  if (hideUsedRequestsToggle) {
+    hideUsedRequestsToggle.addEventListener("change", (event) => {
+      hideUsedRequests = Boolean(event.target && event.target.checked);
+      persistState();
+      render();
+    });
+  }
   openButton.addEventListener("click", () => {
     if (!selectedId) return;
     vscode.postMessage({ type: "open", id: selectedId });
@@ -315,6 +356,9 @@
   const previousState = vscode.getState();
   if (previousState && typeof previousState.hideCompleted === "boolean") {
     hideCompleted = previousState.hideCompleted;
+  }
+  if (previousState && typeof previousState.hideUsedRequests === "boolean") {
+    hideUsedRequests = previousState.hideUsedRequests;
   }
 
   vscode.postMessage({ type: "ready" });

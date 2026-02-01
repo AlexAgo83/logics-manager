@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_000_kickoff.md`.
 Implement the Logics flow board UI (columns + cards) and a details panel
 in the VS Code view.
 

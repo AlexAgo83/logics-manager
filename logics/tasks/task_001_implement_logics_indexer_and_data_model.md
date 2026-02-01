@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_000_kickoff.md`.
 Define how the extension discovers Logics files and extracts metadata (id, title, stage,
 status, path, updated time) to power the board and details panel.
 

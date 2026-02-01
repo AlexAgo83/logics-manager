@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_000_kickoff.md`.
 Define the information architecture, layout, and interaction model for the Logics Orchestrator
 inside VS Code (board + details panel + commands), aligned with the kickoff and mockup.
 

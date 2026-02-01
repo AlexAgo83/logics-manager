@@ -380,8 +380,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         <div class="details__empty">Select a card to see details.</div>
       </div>
       <div class="details__actions">
-        <button class="btn" data-action="open" disabled>Open</button>
         <button class="btn" data-action="promote" disabled>Promote</button>
+        <button class="btn" data-action="open" disabled>Open</button>
       </div>
     </aside>
   </div>

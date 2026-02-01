@@ -19,6 +19,7 @@
   let hideUsedRequests = false;
   let collapsedStages = new Set();
   let detailsCollapsed = false;
+  let collapsedDetailSections = new Set();
 
   const stageOrder = ["request", "backlog", "task"];
 
@@ -38,6 +39,65 @@
         <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
       </svg>
     `;
+  }
+
+  function createChevronIcon() {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.classList.add("details__section-chevron");
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M6 9l6 6 6-6");
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "currentColor");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function createSectionTitle(label, key) {
+    const title = document.createElement("button");
+    title.className = "details__section-title";
+    title.type = "button";
+    title.setAttribute("aria-expanded", "true");
+    if (key) {
+      title.dataset.section = key;
+    }
+
+    const text = document.createElement("span");
+    text.textContent = label;
+
+    title.appendChild(text);
+    title.appendChild(createChevronIcon());
+    return title;
+  }
+
+  function applySectionCollapse(section, title, content, isCollapsed) {
+    section.classList.toggle("details__section--collapsed", isCollapsed);
+    title.setAttribute("aria-expanded", String(!isCollapsed));
+    if (content) {
+      content.setAttribute("aria-hidden", String(isCollapsed));
+    }
+  }
+
+  function attachSectionToggle(section, title, content, key) {
+    title.addEventListener("click", () => {
+      const isCollapsed = !section.classList.contains("details__section--collapsed");
+      applySectionCollapse(section, title, content, isCollapsed);
+      if (key) {
+        if (isCollapsed) {
+          collapsedDetailSections.add(key);
+        } else {
+          collapsedDetailSections.delete(key);
+        }
+        persistState();
+      }
+    });
   }
 
   function canPromote(item) {
@@ -217,32 +277,25 @@
     if (detailsTitle) {
       detailsTitle.textContent = item.title;
     }
-    const title = document.createElement("div");
-    title.className = "details__title";
-    title.textContent = item.title;
-
     const list = document.createElement("div");
     list.className = "details__list";
     list.innerHTML = `
       <div>ID: <span>${item.id}</span></div>
-      <div>Stage: <span>${item.stage}</span></div>
-      <div>Path: <span>${item.path}</span></div>
       <div>Updated: <span>${formatDate(item.updatedAt)}</span></div>
     `;
 
-    detailsBody.appendChild(title);
     detailsBody.appendChild(list);
 
     if (item.references && item.references.length) {
       const refSection = document.createElement("div");
       refSection.className = "details__section";
 
-      const refTitle = document.createElement("div");
-      refTitle.className = "details__title";
-      refTitle.textContent = "References";
+      const refKey = "references";
+      const refTitle = createSectionTitle("References", refKey);
 
       const refList = document.createElement("div");
       refList.className = "details__references";
+      refList.setAttribute("aria-hidden", "false");
 
       item.references.forEach((ref) => {
         const row = document.createElement("div");
@@ -257,6 +310,8 @@
 
       refSection.appendChild(refTitle);
       refSection.appendChild(refList);
+      applySectionCollapse(refSection, refTitle, refList, collapsedDetailSections.has(refKey));
+      attachSectionToggle(refSection, refTitle, refList, refKey);
       detailsBody.appendChild(refSection);
     }
 
@@ -264,12 +319,12 @@
       const usedSection = document.createElement("div");
       usedSection.className = "details__section";
 
-      const usedTitle = document.createElement("div");
-      usedTitle.className = "details__title";
-      usedTitle.textContent = "Used by";
+      const usedKey = "usedBy";
+      const usedTitle = createSectionTitle("Used by", usedKey);
 
       const usedList = document.createElement("div");
       usedList.className = "details__references";
+      usedList.setAttribute("aria-hidden", "false");
 
       item.usedBy.forEach((usage) => {
         const row = document.createElement("div");
@@ -280,6 +335,8 @@
 
       usedSection.appendChild(usedTitle);
       usedSection.appendChild(usedList);
+      applySectionCollapse(usedSection, usedTitle, usedList, collapsedDetailSections.has(usedKey));
+      attachSectionToggle(usedSection, usedTitle, usedList, usedKey);
       detailsBody.appendChild(usedSection);
     }
 
@@ -289,12 +346,12 @@
       const section = document.createElement("div");
       section.className = "details__section";
 
-      const sectionTitle = document.createElement("div");
-      sectionTitle.className = "details__title";
-      sectionTitle.textContent = "Indicators";
+      const indicatorKey = "indicators";
+      const sectionTitle = createSectionTitle("Indicators", indicatorKey);
 
       const indicatorList = document.createElement("div");
       indicatorList.className = "details__indicators";
+      indicatorList.setAttribute("aria-hidden", "false");
 
       indicatorKeys.forEach((key) => {
         const row = document.createElement("div");
@@ -305,6 +362,8 @@
 
       section.appendChild(sectionTitle);
       section.appendChild(indicatorList);
+      applySectionCollapse(section, sectionTitle, indicatorList, collapsedDetailSections.has(indicatorKey));
+      attachSectionToggle(section, sectionTitle, indicatorList, indicatorKey);
       detailsBody.appendChild(section);
     }
   }
@@ -397,7 +456,8 @@
       hideCompleted,
       hideUsedRequests,
       collapsedStages: Array.from(collapsedStages),
-      detailsCollapsed
+      detailsCollapsed,
+      collapsedDetailSections: Array.from(collapsedDetailSections)
     });
   }
 
@@ -458,6 +518,9 @@
   }
   if (previousState && typeof previousState.detailsCollapsed === "boolean") {
     detailsCollapsed = previousState.detailsCollapsed;
+  }
+  if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
+    collapsedDetailSections = new Set(previousState.collapsedDetailSections);
   }
 
   vscode.postMessage({ type: "ready" });

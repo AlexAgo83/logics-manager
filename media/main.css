@@ -304,6 +304,39 @@ body {
   margin-bottom: 8px;
 }
 
+.details__section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--vscode-foreground, #d4d4d4);
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.details__section-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.details__section--collapsed .details__section-chevron {
+  transform: rotate(-90deg);
+}
+
+.details__section--collapsed .details__references,
+.details__section--collapsed .details__indicators {
+  display: none;
+}
+
 .details__list {
   display: grid;
   gap: 6px;

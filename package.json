@@ -67,7 +67,7 @@
     "lint": "echo \"No lint configured\"",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
     "package": "npm run compile && npx @vscode/vsce package",
-    "install:vsix": "npm run package && code --install-extension *.vsix"
+    "install:vsix": "npm run package && code --install-extension cdx-logics-vscode-$(node -p \"require('./package.json').version\").vsix --force"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

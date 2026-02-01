@@ -9,6 +9,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private view?: vscode.WebviewView;
   private items: LogicsItem[] = [];
+  private bootstrapPrompted = false;
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -39,6 +40,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "new-request":
           await this.createRequest();
           break;
+        case "fix-docs":
+          await this.fixDocs();
+          break;
         default:
           break;
       }
@@ -53,9 +57,16 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       this.postData({ error: "Open a workspace that contains a logics/ folder." });
       return;
     }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      this.items = [];
+      this.postData({ error: "Open a workspace that contains a logics/ folder." });
+      await this.maybeOfferBootstrap(root);
+      return;
+    }
 
     this.items = indexLogics(root);
     this.postData({ items: this.items, root });
+    await this.maybeOfferBootstrap(root);
   }
 
   async openFromPalette(): Promise<void> {
@@ -124,6 +135,102 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         await vscode.window.showTextDocument(document, { preview: false });
       }
     }
+    await this.refresh();
+  }
+
+  async fixDocs(): Promise<void> {
+    const root = getWorkspaceRoot();
+    if (!root) {
+      void vscode.window.showErrorMessage("No workspace root found.");
+      return;
+    }
+
+    const scriptPath = path.join(
+      root,
+      "logics",
+      "skills",
+      "logics-doc-fixer",
+      "scripts",
+      "fix_logics_docs.py"
+    );
+
+    if (!fs.existsSync(scriptPath)) {
+      void vscode.window.showErrorMessage("Logics doc fixer script not found in logics/skills.");
+      return;
+    }
+
+    const result = await runPythonWithOutput(root, scriptPath, ["--write"]);
+    if (result.error) {
+      void vscode.window.showErrorMessage(`Doc fixer failed: ${result.stderr || result.error.message}`);
+      return;
+    }
+
+    void vscode.window.showInformationMessage("Logics docs fixer completed.");
+    await this.refresh();
+  }
+
+  private async maybeOfferBootstrap(root: string): Promise<void> {
+    if (this.bootstrapPrompted) {
+      return;
+    }
+    if (hasLogicsSubmodule(root)) {
+      return;
+    }
+    this.bootstrapPrompted = true;
+
+    const choice = await vscode.window.showInformationMessage(
+      "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      "Bootstrap Logics",
+      "Not now"
+    );
+    if (choice !== "Bootstrap Logics") {
+      return;
+    }
+    await this.bootstrapLogics(root);
+  }
+
+  private async bootstrapLogics(root: string): Promise<void> {
+    const gitCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
+    if (gitCheck.error || gitCheck.stdout.trim() !== "true") {
+      void vscode.window.showErrorMessage("Bootstrap requires a git repository (run git init first).");
+      return;
+    }
+
+    const logicsDir = path.join(root, "logics");
+    if (!fs.existsSync(logicsDir)) {
+      fs.mkdirSync(logicsDir, { recursive: true });
+    }
+
+    const submoduleResult = await runGitWithOutput(root, [
+      "submodule",
+      "add",
+      "https://github.com/AlexAgo83/cdx-logics-kit",
+      "logics/skills"
+    ]);
+    if (submoduleResult.error) {
+      void vscode.window.showErrorMessage(
+        `Failed to add logics kit submodule: ${submoduleResult.stderr || submoduleResult.error.message}`
+      );
+      return;
+    }
+
+    const bootstrapScript = path.join(
+      root,
+      "logics",
+      "skills",
+      "logics-bootstrapper",
+      "scripts",
+      "logics_bootstrap.py"
+    );
+    if (fs.existsSync(bootstrapScript)) {
+      const result = await runPythonWithOutput(root, bootstrapScript, []);
+      if (result.error) {
+        void vscode.window.showErrorMessage(`Bootstrap script failed: ${result.stderr || result.error.message}`);
+        return;
+      }
+    }
+
+    void vscode.window.showInformationMessage("Logics bootstrapped. Refreshing.");
     await this.refresh();
   }
 
@@ -236,6 +343,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </label>
       <button class="btn" data-action="new-request">New Request</button>
       <button class="btn" data-action="refresh">Refresh</button>
+      <button class="btn" data-action="fix-docs">Fix Docs</button>
       <button class="btn" data-action="promote" disabled>Promote</button>
       <button class="btn" data-action="open" disabled>Open</button>
     </div>
@@ -279,6 +387,23 @@ function getWorkspaceRoot(): string | null {
   return folders[0].uri.fsPath;
 }
 
+function hasLogicsSubmodule(root: string): boolean {
+  const skillsDir = path.join(root, "logics", "skills");
+  if (fs.existsSync(skillsDir)) {
+    return true;
+  }
+  const gitmodulesPath = path.join(root, ".gitmodules");
+  if (!fs.existsSync(gitmodulesPath)) {
+    return false;
+  }
+  try {
+    const content = fs.readFileSync(gitmodulesPath, "utf8");
+    return content.includes("cdx-logics-kit") || content.includes("logics/skills");
+  } catch {
+    return false;
+  }
+}
+
 async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {
   await new Promise<void>((resolve) => {
     execFile("python3", [scriptPath, ...args], { cwd }, (error, stdout, stderr) => {
@@ -301,6 +426,21 @@ async function runPythonWithOutput(
 ): Promise<{ stdout: string; stderr: string; error?: Error }> {
   return new Promise((resolve) => {
     execFile("python3", [scriptPath, ...args], { cwd }, (error, stdout, stderr) => {
+      resolve({
+        error: error ?? undefined,
+        stdout: stdout || "",
+        stderr: stderr || ""
+      });
+    });
+  });
+}
+
+async function runGitWithOutput(
+  cwd: string,
+  args: string[]
+): Promise<{ stdout: string; stderr: string; error?: Error }> {
+  return new Promise((resolve) => {
+    execFile("git", args, { cwd }, (error, stdout, stderr) => {
       resolve({
         error: error ?? undefined,
         stdout: stdout || "",

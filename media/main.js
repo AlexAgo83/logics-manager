@@ -4,6 +4,7 @@
   const details = document.getElementById("details");
   const newRequestButton = document.querySelector('[data-action="new-request"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
+  const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
   const openButton = document.querySelector('[data-action="open"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
@@ -313,6 +314,9 @@
   }
 
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
+  if (fixDocsButton) {
+    fixDocsButton.addEventListener("click", () => vscode.postMessage({ type: "fix-docs" }));
+  }
   newRequestButton.addEventListener("click", () => vscode.postMessage({ type: "new-request" }));
   function persistState() {
     vscode.setState({ hideCompleted, hideUsedRequests });

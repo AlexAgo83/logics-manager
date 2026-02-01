@@ -2,7 +2,7 @@
   "name": "cdx-logics-vscode",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "cdx",
   "icon": "media/icon.png",
   "repository": {

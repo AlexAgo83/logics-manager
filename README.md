@@ -11,6 +11,8 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 - Open, refresh, and promote actions (with safeguards against double promotion).
 - Progress-based card styling + optional hide completed.
 
+<img width="789" height="727" alt="image" src="https://github.com/user-attachments/assets/baac84fa-a06c-477d-8fe1-aee23f1f1a57" />
+
 ## Requirements
 
 - A workspace that contains a `logics/` folder.

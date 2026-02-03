@@ -146,6 +146,39 @@
     return title;
   }
 
+  function createSectionHeader(label, key, addLabel, onAdd) {
+    const header = document.createElement("div");
+    header.className = "details__section-header";
+
+    const title = createSectionTitle(label, key);
+    header.appendChild(title);
+
+    if (addLabel && typeof onAdd === "function") {
+      const addButton = document.createElement("button");
+      addButton.type = "button";
+      addButton.className = "details__section-add";
+      addButton.textContent = "+";
+      addButton.setAttribute("aria-label", addLabel);
+      addButton.title = addLabel;
+      addButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onAdd();
+      });
+      header.appendChild(addButton);
+    }
+
+    return { header, title };
+  }
+
+  function createInlineCta(label, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "details__inline-cta";
+    button.textContent = label;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
   function applySectionCollapse(section, title, content, isCollapsed) {
     section.classList.toggle("details__section--collapsed", isCollapsed);
     title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -377,17 +410,22 @@
 
     detailsBody.appendChild(list);
 
+    const refSection = document.createElement("div");
+    refSection.className = "details__section";
+
+    const refKey = "references";
+    const refHeader = createSectionHeader(
+      "References",
+      refKey,
+      "Add reference",
+      () => vscode.postMessage({ type: "add-reference", id: item.id })
+    );
+
+    const refList = document.createElement("div");
+    refList.className = "details__references";
+    refList.setAttribute("aria-hidden", "false");
+
     if (item.references && item.references.length) {
-      const refSection = document.createElement("div");
-      refSection.className = "details__section";
-
-      const refKey = "references";
-      const refTitle = createSectionTitle("References", refKey);
-
-      const refList = document.createElement("div");
-      refList.className = "details__references";
-      refList.setAttribute("aria-hidden", "false");
-
       item.references.forEach((ref) => {
         const row = document.createElement("div");
         row.className = "details__reference";
@@ -398,38 +436,53 @@
         }
         refList.appendChild(row);
       });
-
-      refSection.appendChild(refTitle);
-      refSection.appendChild(refList);
-      applySectionCollapse(refSection, refTitle, refList, collapsedDetailSections.has(refKey));
-      attachSectionToggle(refSection, refTitle, refList, refKey);
-      detailsBody.appendChild(refSection);
+    } else {
+      const cta = createInlineCta("+ Add reference", () =>
+        vscode.postMessage({ type: "add-reference", id: item.id })
+      );
+      refList.appendChild(cta);
     }
 
+    refSection.appendChild(refHeader.header);
+    refSection.appendChild(refList);
+    applySectionCollapse(refSection, refHeader.title, refList, collapsedDetailSections.has(refKey));
+    attachSectionToggle(refSection, refHeader.title, refList, refKey);
+    detailsBody.appendChild(refSection);
+
+    const usedSection = document.createElement("div");
+    usedSection.className = "details__section";
+
+    const usedKey = "usedBy";
+    const usedHeader = createSectionHeader(
+      "Used by",
+      usedKey,
+      "Add used-by link",
+      () => vscode.postMessage({ type: "add-used-by", id: item.id })
+    );
+
+    const usedList = document.createElement("div");
+    usedList.className = "details__references";
+    usedList.setAttribute("aria-hidden", "false");
+
     if (item.usedBy && item.usedBy.length) {
-      const usedSection = document.createElement("div");
-      usedSection.className = "details__section";
-
-      const usedKey = "usedBy";
-      const usedTitle = createSectionTitle("Used by", usedKey);
-
-      const usedList = document.createElement("div");
-      usedList.className = "details__references";
-      usedList.setAttribute("aria-hidden", "false");
-
       item.usedBy.forEach((usage) => {
         const row = document.createElement("div");
         row.className = "details__reference";
         row.textContent = `${usage.stage} • ${usage.id} — ${usage.title}`;
         usedList.appendChild(row);
       });
-
-      usedSection.appendChild(usedTitle);
-      usedSection.appendChild(usedList);
-      applySectionCollapse(usedSection, usedTitle, usedList, collapsedDetailSections.has(usedKey));
-      attachSectionToggle(usedSection, usedTitle, usedList, usedKey);
-      detailsBody.appendChild(usedSection);
+    } else {
+      const cta = createInlineCta("+ Add used by", () =>
+        vscode.postMessage({ type: "add-used-by", id: item.id })
+      );
+      usedList.appendChild(cta);
     }
+
+    usedSection.appendChild(usedHeader.header);
+    usedSection.appendChild(usedList);
+    applySectionCollapse(usedSection, usedHeader.title, usedList, collapsedDetailSections.has(usedKey));
+    attachSectionToggle(usedSection, usedHeader.title, usedList, usedKey);
+    detailsBody.appendChild(usedSection);
 
     const indicators = item.indicators || {};
     const indicatorKeys = Object.keys(indicators);
@@ -438,7 +491,7 @@
       section.className = "details__section";
 
       const indicatorKey = "indicators";
-      const sectionTitle = createSectionTitle("Indicators", indicatorKey);
+      const sectionHeader = createSectionHeader("Indicators", indicatorKey);
 
       const indicatorList = document.createElement("div");
       indicatorList.className = "details__indicators";
@@ -451,10 +504,10 @@
         indicatorList.appendChild(row);
       });
 
-      section.appendChild(sectionTitle);
+      section.appendChild(sectionHeader.header);
       section.appendChild(indicatorList);
-      applySectionCollapse(section, sectionTitle, indicatorList, collapsedDetailSections.has(indicatorKey));
-      attachSectionToggle(section, sectionTitle, indicatorList, indicatorKey);
+      applySectionCollapse(section, sectionHeader.title, indicatorList, collapsedDetailSections.has(indicatorKey));
+      attachSectionToggle(section, sectionHeader.title, indicatorList, indicatorKey);
       detailsBody.appendChild(section);
     }
   }

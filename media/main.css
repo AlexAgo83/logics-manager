@@ -409,20 +409,41 @@ body {
   margin-bottom: 8px;
 }
 
+.details__section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 .details__section-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   font-size: 14px;
-  margin-bottom: 8px;
+  margin: 0;
   color: var(--vscode-foreground, #d4d4d4);
   background: transparent;
   border: none;
   padding: 0;
-  width: 100%;
+  width: auto;
+  flex: 1;
   text-align: left;
   cursor: pointer;
+}
+
+.details__section-add {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 14px;
+  padding: 0;
 }
 
 .details__section-chevron {
@@ -472,6 +493,17 @@ body {
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   color: var(--vscode-foreground, #d4d4d4);
+}
+
+.details__inline-cta {
+  justify-self: start;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .details__indicators {

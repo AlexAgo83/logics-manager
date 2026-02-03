@@ -40,6 +40,12 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "promote":
           await this.promoteItem(message.id);
           break;
+        case "add-reference":
+          await this.addReference(message.id);
+          break;
+        case "add-used-by":
+          await this.addUsedBy(message.id);
+          break;
         case "create-item":
           await this.createItem(message.kind);
           break;
@@ -401,6 +407,130 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh();
   }
 
+  private async addReference(id: string): Promise<void> {
+    await this.addLinksToSection(id, "References", "reference");
+  }
+
+  private async addUsedBy(id: string): Promise<void> {
+    await this.addLinksToSection(id, "Used by", "used-by link");
+  }
+
+  private async addLinksToSection(
+    id: string,
+    sectionTitle: "References" | "Used by",
+    relationLabel: string
+  ): Promise<void> {
+    const item = this.items.find((entry) => entry.id === id);
+    if (!item) {
+      return;
+    }
+
+    const root = getWorkspaceRoot();
+    if (!root) {
+      void vscode.window.showErrorMessage("No workspace root found.");
+      return;
+    }
+
+    const pickedLinks = await this.pickRelationLinks(item, sectionTitle, relationLabel, root);
+    if (!pickedLinks.length) {
+      return;
+    }
+
+    let addedCount = 0;
+    for (const link of pickedLinks) {
+      const result = addLinkToSectionOnDisk(item.path, sectionTitle, link);
+      if (result.changed) {
+        addedCount += 1;
+      }
+    }
+
+    if (addedCount === 0) {
+      void vscode.window.showInformationMessage(`All selected ${relationLabel}s already exist.`);
+      return;
+    }
+
+    void vscode.window.showInformationMessage(`Added ${addedCount} ${relationLabel}${addedCount > 1 ? "s" : ""}.`);
+    await this.refresh(item.id);
+  }
+
+  private async pickRelationLinks(
+    sourceItem: LogicsItem,
+    sectionTitle: "References" | "Used by",
+    relationLabel: string,
+    root: string
+  ): Promise<string[]> {
+    const links: string[] = [];
+    const seen = new Set<string>();
+
+    while (true) {
+      const pick = await this.pickSingleRelationLink(sourceItem, sectionTitle);
+      if (!pick) {
+        break;
+      }
+      const normalized = normalizeRelationPath(pick, this.items, root);
+      if (!normalized) {
+        continue;
+      }
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        links.push(normalized);
+      }
+
+      const nextAction = await vscode.window.showQuickPick(
+        [
+          { label: "Done", value: "done" },
+          { label: `Add another ${relationLabel}`, value: "again" }
+        ],
+        {
+          title: sectionTitle,
+          placeHolder: "Choose next action"
+        }
+      );
+      if (!nextAction || nextAction.value === "done") {
+        break;
+      }
+    }
+
+    return links;
+  }
+
+  private async pickSingleRelationLink(
+    sourceItem: LogicsItem,
+    sectionTitle: "References" | "Used by"
+  ): Promise<string | undefined> {
+    const choices = this.items
+      .filter((item) => item.id !== sourceItem.id)
+      .map((item) => ({
+        label: `${item.stage} • ${item.id}`,
+        description: item.title,
+        value: item.relPath
+      }));
+
+    choices.unshift({
+      label: "Custom path…",
+      description: "Type a relative path (ex: logics/tasks/task_008_example.md)",
+      value: "__custom__"
+    });
+
+    const pick = await vscode.window.showQuickPick(choices, {
+      title: sectionTitle,
+      placeHolder: "Pick a target item or enter a custom path"
+    });
+    if (!pick) {
+      return undefined;
+    }
+    if (pick.value !== "__custom__") {
+      return pick.value;
+    }
+
+    const custom = await vscode.window.showInputBox({
+      title: sectionTitle,
+      prompt: "Path to link (relative path recommended)",
+      placeHolder: "logics/backlog/item_004_add_references_and_used_by_links.md"
+    });
+    return custom?.trim();
+  }
+
   private getHtmlForWebview(webview: vscode.Webview): string {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js"));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"));
@@ -591,6 +721,104 @@ function buildMinimalTemplate(id: string, title: string): string {
 # Backlog
 - (none yet)
 `;
+}
+
+function normalizeRelationPath(value: string, items: LogicsItem[], root: string): string | null {
+  const trimmed = value.replace(/`/g, "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const byId = items.find((item) => item.id === trimmed);
+  let normalized = byId ? byId.relPath : trimmed;
+  normalized = normalized.replace(/\\/g, "/").replace(/^\.\//, "");
+
+  if (path.isAbsolute(normalized)) {
+    const rel = path.relative(root, normalized);
+    if (!rel.startsWith("..") && !path.isAbsolute(rel)) {
+      normalized = rel.replace(/\\/g, "/");
+    }
+  }
+
+  return normalized;
+}
+
+function addLinkToSectionOnDisk(
+  filePath: string,
+  sectionTitle: "References" | "Used by",
+  linkPath: string
+): { changed: boolean } {
+  const content = fs.readFileSync(filePath, "utf8");
+  const updated = addLinkToSection(content, sectionTitle, linkPath);
+  if (!updated.changed) {
+    return { changed: false };
+  }
+  fs.writeFileSync(filePath, updated.content, "utf8");
+  return { changed: true };
+}
+
+function addLinkToSection(
+  content: string,
+  sectionTitle: "References" | "Used by",
+  linkPath: string
+): { changed: boolean; content: string } {
+  const normalizedLink = linkPath.replace(/\\/g, "/").trim();
+  if (!normalizedLink) {
+    return { changed: false, content };
+  }
+
+  const lines = content.split(/\r?\n/);
+  const section = findSection(lines, sectionTitle);
+
+  if (!section) {
+    const suffix = content.endsWith("\n") ? "" : "\n";
+    const appended = `${content}${suffix}\n# ${sectionTitle}\n- \`${normalizedLink}\`\n`;
+    return { changed: true, content: appended };
+  }
+
+  const sectionLines = lines.slice(section.start, section.end);
+  const existingLinks = sectionLines
+    .flatMap((line) => Array.from(line.matchAll(/`([^`]+)`/g)).map((match) => (match[1] || "").trim()))
+    .map((entry) => entry.replace(/\\/g, "/"));
+
+  if (existingLinks.includes(normalizedLink)) {
+    return { changed: false, content };
+  }
+
+  const cleanedSectionLines = sectionLines.filter((line) => !line.includes("(none yet)"));
+  while (cleanedSectionLines.length > 0 && cleanedSectionLines[cleanedSectionLines.length - 1].trim() === "") {
+    cleanedSectionLines.pop();
+  }
+  cleanedSectionLines.push(`- \`${normalizedLink}\``);
+
+  const updatedLines = [
+    ...lines.slice(0, section.start),
+    ...cleanedSectionLines,
+    ...lines.slice(section.end)
+  ];
+
+  return { changed: true, content: `${updatedLines.join("\n")}\n` };
+}
+
+function findSection(
+  lines: string[],
+  sectionTitle: "References" | "Used by"
+): { start: number; end: number } | null {
+  const expected = `# ${sectionTitle}`.toLowerCase();
+  for (let i = 0; i < lines.length; i += 1) {
+    if (lines[i].trim().toLowerCase() !== expected) {
+      continue;
+    }
+    let end = lines.length;
+    for (let j = i + 1; j < lines.length; j += 1) {
+      if (lines[j].startsWith("# ")) {
+        end = j;
+        break;
+      }
+    }
+    return { start: i + 1, end };
+  }
+  return null;
 }
 
 async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {

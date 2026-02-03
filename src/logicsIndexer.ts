@@ -18,7 +18,7 @@ export interface LogicsItem {
 }
 
 export interface LogicsReference {
-  kind: "from" | "backlog";
+  kind: "from" | "backlog" | "manual";
   label: string;
   path: string;
 }
@@ -40,6 +40,7 @@ export function indexLogics(root: string): LogicsItem[] {
   const items: LogicsItem[] = [];
   const promotedSources = new Set<string>();
   const usageMap = new Map<string, LogicsUsage[]>();
+  const manualUsedByMap = new Map<string, string[]>();
 
   for (const stageInfo of STAGES) {
     const dirPath = path.join(root, stageInfo.dir);
@@ -60,6 +61,8 @@ export function indexLogics(root: string): LogicsItem[] {
       const content = fs.readFileSync(fullPath, "utf8");
       const relPath = path.relative(root, fullPath).replace(/\\/g, "/");
       const references = extractReferences(content);
+      const manualUsedBy = extractSectionLinks(content, "Used by").map(normalizeRef);
+      manualUsedByMap.set(relPath, manualUsedBy);
       const fromRefs = references
         .filter((ref) => ref.kind === "from")
         .map((ref) => normalizeRef(ref.path));
@@ -109,7 +112,10 @@ export function indexLogics(root: string): LogicsItem[] {
   }
 
   for (const item of items) {
-    item.usedBy = usageMap.get(item.relPath) ?? [];
+    const autoUsedBy = usageMap.get(item.relPath) ?? [];
+    const manualPaths = manualUsedByMap.get(item.relPath) ?? [];
+    const manualUsedBy = manualPaths.map((relPath) => toUsage(relPath, items, root));
+    item.usedBy = mergeUsages(autoUsedBy, manualUsedBy);
   }
 
   items.sort((a, b) => a.stage.localeCompare(b.stage) || a.id.localeCompare(b.id));
@@ -165,16 +171,25 @@ function extractReferences(content: string): LogicsReference[] {
     refs.push({ kind: "backlog", label: "Backlog", path: backlogRef });
   }
 
+  for (const manualRef of extractSectionLinks(content, "References")) {
+    refs.push({ kind: "manual", label: "Reference", path: manualRef });
+  }
+
   return refs;
 }
 
 function extractBacklogLinks(content: string): string[] {
+  return extractSectionLinks(content, "Backlog");
+}
+
+function extractSectionLinks(content: string, sectionTitle: string): string[] {
   const lines = content.split(/\r?\n/);
   const links: string[] = [];
   let inSection = false;
+  const expectedHeader = `# ${sectionTitle}`.toLowerCase();
 
   for (const line of lines) {
-    if (line.trim() === "# Backlog") {
+    if (line.trim().toLowerCase() === expectedHeader) {
       inSection = true;
       continue;
     }
@@ -187,17 +202,72 @@ function extractBacklogLinks(content: string): string[] {
     if (line.includes("(none yet)")) {
       continue;
     }
-    const match = line.match(/`([^`]+)`/);
-    if (match && match[1]) {
-      links.push(match[1]);
+
+    let match: RegExpExecArray | null;
+    const regex = /`([^`]+)`/g;
+    while ((match = regex.exec(line)) !== null) {
+      if (match[1]) {
+        links.push(match[1]);
+      }
     }
   }
 
-  return links;
+  return Array.from(new Set(links));
 }
 
 function normalizeRef(value: string): string {
   return value.replace(/\\/g, "/");
+}
+
+function toUsage(relPath: string, items: LogicsItem[], root: string): LogicsUsage {
+  const normalized = normalizeRef(relPath);
+  const matched = items.find((item) => item.relPath === normalized);
+  if (matched) {
+    return {
+      id: matched.id,
+      title: matched.title,
+      stage: matched.stage,
+      relPath: matched.relPath
+    };
+  }
+
+  const fileName = path.basename(normalized, ".md");
+  const relLower = normalized.toLowerCase();
+  const stage: LogicsStage = inferStage(relLower, fileName);
+  const title = fileName || path.relative(root, normalized);
+
+  return {
+    id: fileName || normalized,
+    title,
+    stage,
+    relPath: normalized
+  };
+}
+
+function inferStage(relPathLower: string, fileName: string): LogicsStage {
+  if (relPathLower.includes("/request/") || fileName.startsWith("req_")) {
+    return "request";
+  }
+  if (relPathLower.includes("/backlog/") || fileName.startsWith("item_")) {
+    return "backlog";
+  }
+  if (relPathLower.includes("/tasks/") || fileName.startsWith("task_")) {
+    return "task";
+  }
+  return "spec";
+}
+
+function mergeUsages(...groups: LogicsUsage[][]): LogicsUsage[] {
+  const deduped = new Map<string, LogicsUsage>();
+  for (const group of groups) {
+    for (const usage of group) {
+      if (!usage.relPath) {
+        continue;
+      }
+      deduped.set(usage.relPath, usage);
+    }
+  }
+  return Array.from(deduped.values()).sort((a, b) => a.stage.localeCompare(b.stage) || a.id.localeCompare(b.id));
 }
 
 export function canPromote(stage: LogicsStage): boolean {

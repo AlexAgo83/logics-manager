@@ -17,4 +17,4 @@
 - Changes should update the underlying Markdown file (source of truth) and refresh the board view.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_004_add_references_and_used_by_links.md`

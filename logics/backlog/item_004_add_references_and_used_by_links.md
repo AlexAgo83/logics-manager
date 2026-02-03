@@ -2,7 +2,7 @@
 > From version: 1.0.3
 > Understanding: 85%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Allow users to add and edit `References` and/or `Used by` links directly on Logics entries across Request, Backlog, and Task stages.

@@ -470,8 +470,48 @@ body {
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
-.details__list span {
+.details__list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.details__name-value-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.details__name-value,
+.details__list-value {
   color: var(--vscode-foreground, #d4d4d4);
+}
+
+.details__name-value {
+  font-family: var(--vscode-editor-font-family, var(--vscode-font-family, "Segoe UI", sans-serif));
+}
+
+.details__rename {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.details__rename svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 .details__section {

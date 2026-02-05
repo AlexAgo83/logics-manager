@@ -54,6 +54,22 @@
     `;
   }
 
+  function pencilIcon() {
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 20h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path
+          d="M16.5 3.5a2.1 2.1 0 013 3L8 18l-4 1 1-4 11.5-11.5z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    `;
+  }
+
   function buildColumnMenu() {
     const menu = document.createElement("div");
     menu.className = "column__menu";
@@ -403,10 +419,48 @@
     }
     const list = document.createElement("div");
     list.className = "details__list";
-    list.innerHTML = `
-      <div>ID: <span>${item.id}</span></div>
-      <div>Updated: <span>${formatDate(item.updatedAt)}</span></div>
-    `;
+
+    const nameRow = document.createElement("div");
+    nameRow.className = "details__list-row details__list-row--name";
+
+    const nameLabel = document.createElement("span");
+    nameLabel.textContent = "Name:";
+    nameRow.appendChild(nameLabel);
+
+    const nameValueWrap = document.createElement("span");
+    nameValueWrap.className = "details__name-value-wrap";
+
+    const nameValue = document.createElement("span");
+    nameValue.className = "details__name-value";
+    nameValue.textContent = item.id;
+    nameValueWrap.appendChild(nameValue);
+
+    const renameButton = document.createElement("button");
+    renameButton.type = "button";
+    renameButton.className = "details__rename";
+    renameButton.setAttribute("aria-label", "Rename entry");
+    renameButton.title = "Rename entry";
+    renameButton.innerHTML = pencilIcon();
+    renameButton.addEventListener("click", () => {
+      vscode.postMessage({ type: "rename-entry", id: item.id });
+    });
+    nameValueWrap.appendChild(renameButton);
+    nameRow.appendChild(nameValueWrap);
+    list.appendChild(nameRow);
+
+    const updatedRow = document.createElement("div");
+    updatedRow.className = "details__list-row";
+
+    const updatedLabel = document.createElement("span");
+    updatedLabel.textContent = "Updated:";
+    updatedRow.appendChild(updatedLabel);
+
+    const updatedValue = document.createElement("span");
+    updatedValue.className = "details__list-value";
+    updatedValue.textContent = formatDate(item.updatedAt);
+    updatedRow.appendChild(updatedValue);
+
+    list.appendChild(updatedRow);
 
     detailsBody.appendChild(list);
 

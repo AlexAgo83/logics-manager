@@ -46,6 +46,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "add-used-by":
           await this.addUsedBy(message.id);
           break;
+        case "rename-entry":
+          await this.renameItem(message.id);
+          break;
         case "create-item":
           await this.createItem(message.kind);
           break;
@@ -415,6 +418,80 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.addLinksToSection(id, "Used by", "used-by link");
   }
 
+  private async renameItem(id: string): Promise<void> {
+    const item = this.items.find((entry) => entry.id === id);
+    if (!item) {
+      return;
+    }
+
+    const root = getWorkspaceRoot();
+    if (!root) {
+      void vscode.window.showErrorMessage("No workspace root found.");
+      return;
+    }
+
+    const parsed = parseRenameTarget(item.id);
+    if (!parsed) {
+      void vscode.window.showErrorMessage("Only request/backlog/task entries can be renamed.");
+      return;
+    }
+
+    const suffixInput = await vscode.window.showInputBox({
+      title: "Rename Logics entry",
+      prompt: `Only edit the suffix after ${parsed.immutablePrefix}`,
+      placeHolder: "new_entry_name",
+      value: parsed.suffix,
+      validateInput: (value) => validateRenameSuffix(value, parsed, item.path)
+    });
+    if (suffixInput === undefined) {
+      return;
+    }
+
+    const normalizedSuffix = normalizeEntrySuffix(suffixInput);
+    if (!normalizedSuffix) {
+      void vscode.window.showErrorMessage("Invalid name suffix. Use letters or numbers.");
+      return;
+    }
+
+    const newId = `${parsed.immutablePrefix}${normalizedSuffix}`;
+    if (newId === item.id) {
+      void vscode.window.showInformationMessage("No changes detected.");
+      return;
+    }
+
+    const newPath = path.join(path.dirname(item.path), `${newId}.md`);
+    if (fs.existsSync(newPath)) {
+      void vscode.window.showErrorMessage("A file with that name already exists.");
+      return;
+    }
+
+    const oldRelPath = item.relPath;
+    const newRelPath = path.relative(root, newPath).replace(/\\/g, "/");
+
+    try {
+      fs.renameSync(item.path, newPath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Rename failed: ${message}`);
+      return;
+    }
+
+    try {
+      updateMainHeadingId(newPath, item.id, newId);
+      updateManagedReferencesForRename(root, oldRelPath, newRelPath, item.id, newId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showWarningMessage(
+        `Entry renamed to ${newId}, but some references may need manual updates: ${message}`
+      );
+      await this.refresh(newId);
+      return;
+    }
+
+    void vscode.window.showInformationMessage(`Renamed entry to ${newId}.`);
+    await this.refresh(newId);
+  }
+
   private async addLinksToSection(
     id: string,
     sectionTitle: "References" | "Used by",
@@ -703,6 +780,46 @@ function slugify(value: string): string {
   return normalized.slice(0, 40);
 }
 
+type RenameTarget = {
+  immutablePrefix: string;
+  suffix: string;
+};
+
+function parseRenameTarget(id: string): RenameTarget | null {
+  const match = id.match(/^(req|item|task)_(\d+)(?:_(.+))?$/);
+  if (!match) {
+    return null;
+  }
+  return {
+    immutablePrefix: `${match[1]}_${match[2]}_`,
+    suffix: match[3] ?? ""
+  };
+}
+
+function validateRenameSuffix(value: string, parsed: RenameTarget, currentPath: string): string | undefined {
+  const raw = value.trim();
+  if (!raw) {
+    return "Name suffix is required.";
+  }
+  if (raw.includes("/") || raw.includes("\\")) {
+    return "Use a name, not a path.";
+  }
+  const normalized = normalizeEntrySuffix(raw);
+  if (!normalized) {
+    return "Use letters or numbers.";
+  }
+  const nextId = `${parsed.immutablePrefix}${normalized}`;
+  const nextPath = path.join(path.dirname(currentPath), `${nextId}.md`);
+  if (fs.existsSync(nextPath) && nextPath !== currentPath) {
+    return "Another entry already uses this name.";
+  }
+  return undefined;
+}
+
+function normalizeEntrySuffix(value: string): string {
+  return slugify(value.trim());
+}
+
 function buildMinimalTemplate(id: string, title: string): string {
   return `## ${id} - ${title}
 > From version: 0.0.0
@@ -723,6 +840,34 @@ function buildMinimalTemplate(id: string, title: string): string {
 `;
 }
 
+function updateMainHeadingId(filePath: string, oldId: string, newId: string): void {
+  const content = fs.readFileSync(filePath, "utf8");
+  const lines = content.split(/\r?\n/);
+  let changed = false;
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (!line.startsWith("## ")) {
+      continue;
+    }
+    const match = line.match(/^##\s+(\S+)(\s*-\s*.*)?$/);
+    if (!match) {
+      break;
+    }
+    if (match[1] !== oldId) {
+      break;
+    }
+    const suffix = match[2] ?? "";
+    lines[i] = `## ${newId}${suffix}`;
+    changed = true;
+    break;
+  }
+
+  if (changed) {
+    fs.writeFileSync(filePath, `${lines.join("\n")}\n`, "utf8");
+  }
+}
+
 function normalizeRelationPath(value: string, items: LogicsItem[], root: string): string | null {
   const trimmed = value.replace(/`/g, "").trim();
   if (!trimmed) {
@@ -741,6 +886,101 @@ function normalizeRelationPath(value: string, items: LogicsItem[], root: string)
   }
 
   return normalized;
+}
+
+function normalizePathToken(value: string): string {
+  return value.replace(/\\/g, "/").replace(/^\.\//, "").trim();
+}
+
+function updateManagedReferencesForRename(
+  root: string,
+  oldRelPath: string,
+  newRelPath: string,
+  oldId: string,
+  newId: string
+): number {
+  const files = collectManagedMarkdownFiles(root);
+  let changedCount = 0;
+
+  for (const filePath of files) {
+    const content = fs.readFileSync(filePath, "utf8");
+    const updated = replaceManagedReferenceTokens(content, oldRelPath, newRelPath, oldId, newId);
+    if (!updated.changed) {
+      continue;
+    }
+    fs.writeFileSync(filePath, updated.content, "utf8");
+    changedCount += 1;
+  }
+
+  return changedCount;
+}
+
+function collectManagedMarkdownFiles(root: string): string[] {
+  const targets = [
+    path.join(root, "logics", "request"),
+    path.join(root, "logics", "backlog"),
+    path.join(root, "logics", "tasks"),
+    path.join(root, "logics", "specs")
+  ];
+  const files: string[] = [];
+
+  for (const dir of targets) {
+    if (!fs.existsSync(dir)) {
+      continue;
+    }
+    collectMarkdownFilesRecursive(dir, files);
+  }
+
+  return files;
+}
+
+function collectMarkdownFilesRecursive(dirPath: string, files: string[]): void {
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      collectMarkdownFilesRecursive(fullPath, files);
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      files.push(fullPath);
+    }
+  }
+}
+
+function replaceManagedReferenceTokens(
+  content: string,
+  oldRelPath: string,
+  newRelPath: string,
+  oldId: string,
+  newId: string
+): { changed: boolean; content: string } {
+  let changed = false;
+  const oldNormalized = normalizePathToken(oldRelPath);
+
+  const withCodeTokens = content.replace(/`([^`]+)`/g, (fullMatch, rawToken: string) => {
+    const token = rawToken.trim();
+    if (token === oldId) {
+      changed = true;
+      return `\`${newId}\``;
+    }
+    if (normalizePathToken(token) === oldNormalized) {
+      changed = true;
+      return `\`${newRelPath}\``;
+    }
+    return fullMatch;
+  });
+
+  const withMarkdownLinks = withCodeTokens.replace(/\]\(([^)]+)\)/g, (fullMatch, rawTarget: string) => {
+    const target = rawTarget.trim();
+    if (normalizePathToken(target) !== oldNormalized) {
+      return fullMatch;
+    }
+    changed = true;
+    return `](${newRelPath})`;
+  });
+
+  return { changed, content: withMarkdownLinks };
 }
 
 function addLinkToSectionOnDisk(

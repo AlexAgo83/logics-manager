@@ -205,6 +205,21 @@
     return button;
   }
 
+  function createIndicatorRow(label, value) {
+    const row = document.createElement("div");
+    row.className = "details__indicator";
+
+    const left = document.createElement("div");
+    left.textContent = label;
+
+    const right = document.createElement("span");
+    right.textContent = value ?? "";
+
+    row.appendChild(left);
+    row.appendChild(right);
+    return row;
+  }
+
   function applySectionCollapse(section, title, content, isCollapsed) {
     section.classList.toggle("details__section--collapsed", isCollapsed);
     title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -512,6 +527,32 @@
 
     detailsBody.appendChild(list);
 
+    const indicators = item.indicators || {};
+    const indicatorKeys = Object.keys(indicators).filter(
+      (key) => key.toLowerCase() !== "reminder"
+    );
+    if (indicatorKeys.length) {
+      const section = document.createElement("div");
+      section.className = "details__section";
+
+      const indicatorKey = "indicators";
+      const sectionHeader = createSectionHeader("Indicators", indicatorKey);
+
+      const indicatorList = document.createElement("div");
+      indicatorList.className = "details__indicators";
+      indicatorList.setAttribute("aria-hidden", "false");
+
+      indicatorKeys.forEach((key) => {
+        indicatorList.appendChild(createIndicatorRow(key, indicators[key]));
+      });
+
+      section.appendChild(sectionHeader.header);
+      section.appendChild(indicatorList);
+      applySectionCollapse(section, sectionHeader.title, indicatorList, collapsedDetailSections.has(indicatorKey));
+      attachSectionToggle(section, sectionHeader.title, indicatorList, indicatorKey);
+      detailsBody.appendChild(section);
+    }
+
     const refSection = document.createElement("div");
     refSection.className = "details__section";
 
@@ -524,19 +565,16 @@
     );
 
     const refList = document.createElement("div");
-    refList.className = "details__references";
+    refList.className = "details__indicators";
     refList.setAttribute("aria-hidden", "false");
 
     if (item.references && item.references.length) {
       item.references.forEach((ref) => {
-        const row = document.createElement("div");
-        row.className = "details__reference";
         if (typeof ref === "string") {
-          row.textContent = ref;
+          refList.appendChild(createIndicatorRow(ref, ""));
         } else {
-          row.textContent = `${ref.label}: ${ref.path}`;
+          refList.appendChild(createIndicatorRow(ref.label, ref.path));
         }
-        refList.appendChild(row);
       });
     } else {
       const cta = createInlineCta("+ Add reference", () =>
@@ -563,15 +601,14 @@
     );
 
     const usedList = document.createElement("div");
-    usedList.className = "details__references";
+    usedList.className = "details__indicators";
     usedList.setAttribute("aria-hidden", "false");
 
     if (item.usedBy && item.usedBy.length) {
       item.usedBy.forEach((usage) => {
-        const row = document.createElement("div");
-        row.className = "details__reference";
-        row.textContent = `${usage.stage} • ${usage.id} — ${usage.title}`;
-        usedList.appendChild(row);
+        usedList.appendChild(
+          createIndicatorRow(`${usage.stage} • ${usage.id}`, usage.title)
+        );
       });
     } else {
       const cta = createInlineCta("+ Add used by", () =>
@@ -585,35 +622,6 @@
     applySectionCollapse(usedSection, usedHeader.title, usedList, collapsedDetailSections.has(usedKey));
     attachSectionToggle(usedSection, usedHeader.title, usedList, usedKey);
     detailsBody.appendChild(usedSection);
-
-    const indicators = item.indicators || {};
-    const indicatorKeys = Object.keys(indicators).filter(
-      (key) => key.toLowerCase() !== "reminder"
-    );
-    if (indicatorKeys.length) {
-      const section = document.createElement("div");
-      section.className = "details__section";
-
-      const indicatorKey = "indicators";
-      const sectionHeader = createSectionHeader("Indicators", indicatorKey);
-
-      const indicatorList = document.createElement("div");
-      indicatorList.className = "details__indicators";
-      indicatorList.setAttribute("aria-hidden", "false");
-
-      indicatorKeys.forEach((key) => {
-        const row = document.createElement("div");
-        row.className = "details__indicator";
-        row.innerHTML = `<div>${key}</div><span>${indicators[key]}</span>`;
-        indicatorList.appendChild(row);
-      });
-
-      section.appendChild(sectionHeader.header);
-      section.appendChild(indicatorList);
-      applySectionCollapse(section, sectionHeader.title, indicatorList, collapsedDetailSections.has(indicatorKey));
-      attachSectionToggle(section, sectionHeader.title, indicatorList, indicatorKey);
-      detailsBody.appendChild(section);
-    }
   }
 
   function updateButtons() {

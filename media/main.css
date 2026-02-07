@@ -317,9 +317,15 @@ body {
 .column--collapsed {
   min-width: 150px;
   max-width: 180px;
+  background: transparent;
+  border-color: transparent;
 }
 
 .column--collapsed .column__body {
+  display: none;
+}
+
+.column--collapsed .column__add {
   display: none;
 }
 
@@ -602,19 +608,12 @@ body {
   padding-top: 10px;
 }
 
-.details__references {
+.details__references,
+.details__indicators {
   display: grid;
   gap: 6px;
   font-size: 12px;
   color: var(--vscode-descriptionForeground, #9da5b4);
-}
-
-.details__reference {
-  padding: 6px 8px;
-  background: var(--vscode-editorWidget-background, #202020);
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 6px;
-  color: var(--vscode-foreground, #d4d4d4);
 }
 
 .details__inline-cta {
@@ -628,20 +627,26 @@ body {
   cursor: pointer;
 }
 
-.details__indicators {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-}
-
+.details__reference,
 .details__indicator {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+.details__reference > div,
+.details__reference > span,
+.details__indicator > div,
+.details__indicator > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.details__reference span,
 .details__indicator span {
   color: var(--vscode-foreground, #d4d4d4);
+  text-align: right;
 }
 
 .state-message {

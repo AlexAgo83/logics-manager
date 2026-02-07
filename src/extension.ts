@@ -711,6 +711,37 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("logics.promote", () => provider.promoteFromPalette()),
     vscode.commands.registerCommand("logics.newRequest", () => provider.createRequest())
   );
+
+  let refreshTimer: NodeJS.Timeout | undefined;
+  const scheduleRefresh = () => {
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+    }
+    refreshTimer = setTimeout(() => provider.refresh(), 300);
+  };
+
+  let watcher: vscode.FileSystemWatcher | undefined;
+  const setupWatcher = () => {
+    if (watcher) {
+      watcher.dispose();
+      watcher = undefined;
+    }
+    const root = getWorkspaceRoot();
+    if (!root) {
+      return;
+    }
+    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown}");
+    watcher = vscode.workspace.createFileSystemWatcher(pattern);
+    watcher.onDidChange(scheduleRefresh);
+    watcher.onDidCreate(scheduleRefresh);
+    watcher.onDidDelete(scheduleRefresh);
+    context.subscriptions.push(watcher);
+  };
+
+  setupWatcher();
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeWorkspaceFolders(() => setupWatcher())
+  );
 }
 
 export function deactivate(): void {}

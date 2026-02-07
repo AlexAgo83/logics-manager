@@ -1,6 +1,8 @@
 (() => {
   const vscode = acquireVsCodeApi();
   const board = document.getElementById("board");
+  const layout = document.getElementById("layout");
+  const splitter = document.getElementById("splitter");
   const details = document.getElementById("details");
   const detailsBody = document.getElementById("details-body");
   const detailsToggle = document.getElementById("details-toggle");
@@ -25,8 +27,13 @@
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
   let filterPanelOpen = false;
+  let splitRatio = 0.6;
+  let isDraggingSplit = false;
 
   const stageOrder = ["request", "backlog", "task"];
+  const stackedQuery = window.matchMedia("(max-width: 900px)");
+  const minBoardHeight = 160;
+  const minDetailsHeight = 180;
 
   function eyeIcon(isHidden) {
     if (isHidden) {
@@ -539,7 +546,9 @@
     detailsBody.appendChild(usedSection);
 
     const indicators = item.indicators || {};
-    const indicatorKeys = Object.keys(indicators);
+    const indicatorKeys = Object.keys(indicators).filter(
+      (key) => key.toLowerCase() !== "reminder"
+    );
     if (indicatorKeys.length) {
       const section = document.createElement("div");
       section.className = "details__section";
@@ -681,8 +690,103 @@
       hideUsedRequests,
       collapsedStages: Array.from(collapsedStages),
       detailsCollapsed,
-      collapsedDetailSections: Array.from(collapsedDetailSections)
+      collapsedDetailSections: Array.from(collapsedDetailSections),
+      splitRatio
     });
+  }
+
+  function isStackedLayout() {
+    return Boolean(stackedQuery && stackedQuery.matches);
+  }
+
+  function clearSplitSizing() {
+    if (!board || !details) {
+      return;
+    }
+    board.style.flex = "";
+    board.style.height = "";
+    details.style.flex = "";
+    details.style.height = "";
+  }
+
+  function applySplitRatio(nextRatio, shouldPersist = false) {
+    if (!layout || !board || !details || !isStackedLayout()) {
+      return;
+    }
+    const splitterHeight = splitter ? splitter.getBoundingClientRect().height : 0;
+    const available = layout.clientHeight - splitterHeight;
+    if (!Number.isFinite(available) || available <= 0) {
+      return;
+    }
+    const minBoard = Math.min(minBoardHeight, available);
+    const minDetails = Math.min(minDetailsHeight, Math.max(0, available - minBoard));
+    const minRatio = minBoard / available;
+    const maxRatio = (available - minDetails) / available;
+    const clampedRatio = Math.min(Math.max(nextRatio, minRatio), maxRatio);
+    const boardHeight = Math.round(available * clampedRatio);
+    board.style.flex = `0 0 ${boardHeight}px`;
+    board.style.height = `${boardHeight}px`;
+    details.style.flex = "1 1 auto";
+    details.style.height = "";
+    splitRatio = clampedRatio;
+    if (shouldPersist) {
+      persistState();
+    }
+  }
+
+  function updateLayoutMode() {
+    if (!layout) {
+      return;
+    }
+    const stacked = isStackedLayout();
+    layout.classList.toggle("layout--stacked", stacked);
+    if (stacked) {
+      applySplitRatio(splitRatio, false);
+    } else {
+      clearSplitSizing();
+    }
+  }
+
+  function startSplitDrag(event) {
+    if (!splitter || !layout || !isStackedLayout()) {
+      return;
+    }
+    event.preventDefault();
+    isDraggingSplit = true;
+    splitter.classList.add("splitter--dragging");
+    document.body.classList.add("is-resizing");
+    splitter.setPointerCapture(event.pointerId);
+  }
+
+  function updateSplitDrag(event) {
+    if (!isDraggingSplit || !layout || !isStackedLayout()) {
+      return;
+    }
+    const rect = layout.getBoundingClientRect();
+    const splitterHeight = splitter ? splitter.getBoundingClientRect().height : 0;
+    const available = rect.height - splitterHeight;
+    if (available <= 0) {
+      return;
+    }
+    const offsetY = event.clientY - rect.top - splitterHeight / 2;
+    const minBoard = Math.min(minBoardHeight, available);
+    const minDetails = Math.min(minDetailsHeight, Math.max(0, available - minBoard));
+    const boardHeight = Math.min(Math.max(offsetY, minBoard), available - minDetails);
+    const ratio = boardHeight / available;
+    applySplitRatio(ratio, false);
+  }
+
+  function endSplitDrag(event) {
+    if (!isDraggingSplit) {
+      return;
+    }
+    isDraggingSplit = false;
+    if (splitter) {
+      splitter.classList.remove("splitter--dragging");
+      splitter.releasePointerCapture(event.pointerId);
+    }
+    document.body.classList.remove("is-resizing");
+    persistState();
   }
 
   if (hideCompleteToggle) {
@@ -756,6 +860,9 @@
   if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
     collapsedDetailSections = new Set(previousState.collapsedDetailSections);
   }
+  if (previousState && typeof previousState.splitRatio === "number") {
+    splitRatio = previousState.splitRatio;
+  }
 
   document.addEventListener("click", (event) => {
     if (filterPanelOpen && filterPanel && filterToggle) {
@@ -783,5 +890,24 @@
     }
   });
 
+  if (splitter) {
+    splitter.addEventListener("pointerdown", (event) => startSplitDrag(event));
+    splitter.addEventListener("pointermove", (event) => updateSplitDrag(event));
+    splitter.addEventListener("pointerup", (event) => endSplitDrag(event));
+    splitter.addEventListener("pointercancel", (event) => endSplitDrag(event));
+  }
+
+  if (stackedQuery && typeof stackedQuery.addEventListener === "function") {
+    stackedQuery.addEventListener("change", updateLayoutMode);
+  } else if (stackedQuery && typeof stackedQuery.addListener === "function") {
+    stackedQuery.addListener(updateLayoutMode);
+  }
+  window.addEventListener("resize", () => {
+    if (isStackedLayout()) {
+      applySplitRatio(splitRatio, false);
+    }
+  });
+
+  updateLayoutMode();
   vscode.postMessage({ type: "ready" });
 })();

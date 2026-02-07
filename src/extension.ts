@@ -636,8 +636,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </div>
     </div>
   </div>
-  <div class="layout">
+  <div class="layout" id="layout">
     <div class="board" id="board"></div>
+    <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
     <aside class="details" id="details">
       <div class="details__header">
         <div class="details__header-title" id="details-title">Details</div>

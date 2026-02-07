@@ -629,9 +629,34 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             <span>Hide completed</span>
           </label>
         </div>
+        <div class="toolbar__tools">
+          <button
+            class="toolbar__filter"
+            id="tools-toggle"
+            aria-label="Tools"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M4 7h16M6 12h12M8 17h8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <div class="tools-panel" id="tools-panel" aria-hidden="true">
+            <button class="tools-panel__item" type="button" data-action="fix-docs">Fix Logics</button>
+            <button class="tools-panel__item" type="button" data-action="tools-secondary" disabled>
+              Another action
+            </button>
+          </div>
+        </div>
       </div>
       <div class="toolbar__buttons">
-        <button class="btn" data-action="fix-docs">Fix Logics</button>
         <button class="btn" data-action="refresh">Refresh</button>
       </div>
     </div>

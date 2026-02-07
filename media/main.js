@@ -9,6 +9,8 @@
   const detailsTitle = document.getElementById("details-title");
   const filterToggle = document.getElementById("filter-toggle");
   const filterPanel = document.getElementById("filter-panel");
+  const toolsToggle = document.getElementById("tools-toggle");
+  const toolsPanel = document.getElementById("tools-panel");
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
@@ -27,6 +29,7 @@
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
   let filterPanelOpen = false;
+  let toolsPanelOpen = false;
   let splitRatio = 0.6;
   let isDraggingSplit = false;
 
@@ -602,6 +605,17 @@
     }
   }
 
+  function setToolsPanelOpen(isOpen) {
+    toolsPanelOpen = isOpen;
+    if (toolsPanel) {
+      toolsPanel.classList.toggle("tools-panel--open", isOpen);
+      toolsPanel.setAttribute("aria-hidden", String(!isOpen));
+    }
+    if (toolsToggle) {
+      toolsToggle.setAttribute("aria-expanded", String(isOpen));
+    }
+  }
+
   function groupByStage(allItems) {
     return allItems.reduce((acc, item) => {
       acc[item.stage] = acc[item.stage] || [];
@@ -676,12 +690,27 @@
 
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
   if (fixDocsButton) {
-    fixDocsButton.addEventListener("click", () => vscode.postMessage({ type: "fix-docs" }));
+    fixDocsButton.addEventListener("click", () => {
+      vscode.postMessage({ type: "fix-docs" });
+      setToolsPanelOpen(false);
+    });
   }
   if (filterToggle) {
     filterToggle.addEventListener("click", (event) => {
       event.stopPropagation();
+      if (toolsPanelOpen) {
+        setToolsPanelOpen(false);
+      }
       setFilterPanelOpen(!filterPanelOpen);
+    });
+  }
+  if (toolsToggle) {
+    toolsToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (filterPanelOpen) {
+        setFilterPanelOpen(false);
+      }
+      setToolsPanelOpen(!toolsPanelOpen);
     });
   }
   function persistState() {
@@ -871,6 +900,12 @@
         setFilterPanelOpen(false);
       }
     }
+    if (toolsPanelOpen && toolsPanel && toolsToggle) {
+      const target = event.target;
+      if (!toolsPanel.contains(target) && !toolsToggle.contains(target)) {
+        setToolsPanelOpen(false);
+      }
+    }
     if (!activeColumnMenu) {
       return;
     }
@@ -887,6 +922,9 @@
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && filterPanelOpen) {
       setFilterPanelOpen(false);
+    }
+    if (event.key === "Escape" && toolsPanelOpen) {
+      setToolsPanelOpen(false);
     }
   });
 

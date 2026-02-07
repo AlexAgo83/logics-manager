@@ -278,7 +278,42 @@
     }
   }
 
+  function captureBoardScroll() {
+    if (!board) {
+      return null;
+    }
+    const scrollLeft = board.scrollLeft;
+    const columnScroll = new Map();
+    board.querySelectorAll(".column").forEach((column) => {
+      const stage = column.dataset.stage;
+      const body = column.querySelector(".column__body");
+      if (stage && body) {
+        columnScroll.set(stage, body.scrollTop);
+      }
+    });
+    return { scrollLeft, columnScroll };
+  }
+
+  function restoreBoardScroll(state) {
+    if (!board || !state) {
+      return;
+    }
+    board.scrollLeft = state.scrollLeft;
+    board.querySelectorAll(".column").forEach((column) => {
+      const stage = column.dataset.stage;
+      const body = column.querySelector(".column__body");
+      if (!stage || !body) {
+        return;
+      }
+      const scrollTop = state.columnScroll.get(stage);
+      if (typeof scrollTop === "number") {
+        body.scrollTop = scrollTop;
+      }
+    });
+  }
+
   function renderBoard() {
+    const scrollState = captureBoardScroll();
     closeColumnMenu();
     board.innerHTML = "";
     const visibleItems = items.filter((item) => isVisible(item));
@@ -306,6 +341,7 @@
       const column = document.createElement("div");
       const isCollapsed = collapsedStages.has(stage);
       column.className = isCollapsed ? "column column--collapsed" : "column";
+      column.dataset.stage = stage;
 
       const header = document.createElement("div");
       header.className = "column__header";
@@ -408,6 +444,8 @@
       column.appendChild(body);
       board.appendChild(column);
     });
+
+    restoreBoardScroll(scrollState);
   }
 
   function renderDetails() {

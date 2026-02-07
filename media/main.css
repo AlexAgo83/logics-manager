@@ -82,7 +82,9 @@ body {
   position: absolute;
   top: 34px;
   left: 0;
+  right: auto;
   min-width: 220px;
+  max-width: calc(100vw - 16px);
   background: var(--vscode-editorWidget-background, #202020);
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 8px;
@@ -105,8 +107,10 @@ body {
 .tools-panel {
   position: absolute;
   top: 34px;
-  right: 0;
+  left: 0;
+  right: auto;
   min-width: 180px;
+  max-width: calc(100vw - 16px);
   background: var(--vscode-editorWidget-background, #202020);
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 8px;

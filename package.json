@@ -2,7 +2,7 @@
   "name": "cdx-logics-vscode",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
-  "version": "1.0.5",
+  "version": "1.0.5-b3",
   "publisher": "cdx",
   "icon": "media/icon.png",
   "repository": {
@@ -14,13 +14,6 @@
   },
   "categories": [
     "Other"
-  ],
-  "activationEvents": [
-    "onView:logics.orchestrator",
-    "onCommand:logics.refresh",
-    "onCommand:logics.open",
-    "onCommand:logics.promote",
-    "onCommand:logics.newRequest"
   ],
   "main": "./out/extension.js",
   "contributes": {

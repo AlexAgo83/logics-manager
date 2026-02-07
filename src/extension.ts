@@ -113,6 +113,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage("Open a workspace that contains a logics/ folder.");
+      await this.maybeOfferBootstrap(root);
+      return;
+    }
 
     const title = await vscode.window.showInputBox({
       title: "New Logics request",
@@ -122,17 +127,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const scriptPath = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-flow-manager",
-      "scripts",
-      "logics_flow.py"
-    );
-
-    if (!fs.existsSync(scriptPath)) {
-      void vscode.window.showErrorMessage("Logics flow script not found in logics/skills.");
+    const scriptPath = getFlowManagerScriptPath(root);
+    if (!scriptPath) {
+      void vscode.window.showErrorMessage(
+        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
+      );
       return;
     }
 
@@ -142,14 +141,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const match = result.stdout.match(/Wrote (.+)/);
-    if (match) {
-      const createdPath = match[1].trim();
-      if (fs.existsSync(createdPath)) {
-        const document = await vscode.workspace.openTextDocument(createdPath);
-        await vscode.window.showTextDocument(document, { preview: false });
-      }
-    }
+    await openCreatedDocFromOutput(result.stdout);
     await this.refresh();
   }
 
@@ -157,6 +149,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     const root = getWorkspaceRoot();
     if (!root) {
       void vscode.window.showErrorMessage("No workspace root found.");
+      return;
+    }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage("Open a workspace that contains a logics/ folder.");
+      await this.maybeOfferBootstrap(root);
       return;
     }
 
@@ -174,34 +171,24 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const logicsRoot = path.join(root, "logics");
-    if (!fs.existsSync(logicsRoot)) {
-      fs.mkdirSync(logicsRoot, { recursive: true });
-    }
-
-    const dirPath = path.join(root, config.dir);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-
-    const nextId = getNextSequence(dirPath, config.prefix);
-    const slug = slugify(title);
-    const baseId = `${config.prefix}${String(nextId).padStart(3, "0")}`;
-    const slugPart = slug ? `_${slug}` : "";
-    const fileId = `${baseId}${slugPart}`;
-    const filePath = path.join(dirPath, `${fileId}.md`);
-
-    if (fs.existsSync(filePath)) {
-      void vscode.window.showErrorMessage("A file with that name already exists.");
+    const scriptPath = getFlowManagerScriptPath(root);
+    if (!scriptPath) {
+      void vscode.window.showErrorMessage(
+        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
+      );
       return;
     }
 
-    const template = buildMinimalTemplate(fileId, title);
-    fs.writeFileSync(filePath, template, "utf8");
+    const result = await runPythonWithOutput(root, scriptPath, ["new", kind, "--title", title]);
+    if (result.error) {
+      void vscode.window.showErrorMessage(
+        `Creation failed: ${result.stderr || result.error.message}`
+      );
+      return;
+    }
 
-    const document = await vscode.workspace.openTextDocument(filePath);
-    await vscode.window.showTextDocument(document, { preview: false });
-    await this.refresh(fileId);
+    await openCreatedDocFromOutput(result.stdout);
+    await this.refresh();
   }
 
   async fixDocs(): Promise<void> {
@@ -392,17 +379,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const scriptPath = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-flow-manager",
-      "scripts",
-      "logics_flow.py"
-    );
-
-    if (!fs.existsSync(scriptPath)) {
-      void vscode.window.showErrorMessage("Logics flow script not found in logics/skills.");
+    const scriptPath = getFlowManagerScriptPath(root);
+    if (!scriptPath) {
+      void vscode.window.showErrorMessage(
+        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
+      );
       return;
     }
 
@@ -825,6 +806,9 @@ function buildMinimalTemplate(id: string, title: string): string {
 > From version: 0.0.0
 > Understanding: 75%
 > Confidence: 75%
+> Complexity: Medium
+> Theme: Workflow
+> Reminder: Update Understanding/Confidence and dependencies/references when you edit this doc.
 
 # Needs
 - TBD
@@ -1059,6 +1043,31 @@ function findSection(
     return { start: i + 1, end };
   }
   return null;
+}
+
+function getFlowManagerScriptPath(root: string): string | null {
+  const scriptPath = path.join(
+    root,
+    "logics",
+    "skills",
+    "logics-flow-manager",
+    "scripts",
+    "logics_flow.py"
+  );
+  return fs.existsSync(scriptPath) ? scriptPath : null;
+}
+
+async function openCreatedDocFromOutput(stdout: string): Promise<void> {
+  const match = stdout.match(/Wrote (.+)/);
+  if (!match) {
+    return;
+  }
+  const createdPath = match[1].trim();
+  if (!createdPath || !fs.existsSync(createdPath)) {
+    return;
+  }
+  const document = await vscode.workspace.openTextDocument(createdPath);
+  await vscode.window.showTextDocument(document, { preview: false });
 }
 
 async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {

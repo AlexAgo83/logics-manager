@@ -45,6 +45,10 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 
 ## Installation
 
+### Install from Marketplace
+
+https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
+
 ### Install from VSIX (recommended for users)
 
 ```bash

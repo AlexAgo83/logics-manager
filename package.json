@@ -3,7 +3,7 @@
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
   "version": "1.6.0",
-  "publisher": "cdx",
+  "publisher": "cdx-logics",
   "icon": "media/icon.png",
   "repository": {
     "type": "git",

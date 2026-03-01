@@ -843,6 +843,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             <input type="checkbox" id="hide-complete" />
             <span>Hide completed</span>
           </label>
+          <label class="toggle">
+            <input type="checkbox" id="hide-spec" />
+            <span>Hide SPEC</span>
+          </label>
         </div>
         <div class="toolbar__tools">
           <button

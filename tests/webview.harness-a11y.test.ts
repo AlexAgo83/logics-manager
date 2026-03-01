@@ -35,6 +35,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
         <button data-action="read"></button>
         <input id="hide-complete" type="checkbox" />
         <input id="hide-used-requests" type="checkbox" />
+        <input id="hide-spec" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
           <div id="splitter" role="separator"></div>
@@ -155,6 +156,19 @@ const baseItem = {
   stage: "request",
   relPath: "logics/request/req_000_kickoff.md",
   path: "/workspace/mock/logics/request/req_000_kickoff.md",
+  indicators: {
+    Status: "Draft"
+  },
+  references: [],
+  usedBy: []
+};
+
+const specItem = {
+  id: "spec_001_reference_contract",
+  title: "Reference Contract Spec",
+  stage: "spec",
+  relPath: "logics/specs/spec_001_reference_contract.md",
+  path: "/workspace/mock/logics/specs/spec_001_reference_contract.md",
   indicators: {
     Status: "Draft"
   },
@@ -327,6 +341,42 @@ describe("webview harness controls and accessibility", () => {
     expect(
       persistedStates.some((state) => state.viewMode === "list")
     ).toBe(true);
+  });
+
+  it("hides SPEC by default and applies the toggle in board and list modes", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [specItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+
+    expect(hideSpecToggle?.checked).toBe(true);
+    expect(board?.textContent?.includes("No items match the current filters.")).toBe(true);
+    expect(document.querySelector('[data-stage="spec"]')).toBeNull();
+
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = false;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelectorAll('.column[data-stage="spec"]').length).toBe(1);
+    expect(persistedStates.some((state) => state.hideSpec === false)).toBe(true);
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.querySelectorAll('.list-view__section[data-stage="spec"]').length).toBe(1);
+
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = true;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelector('[data-stage="spec"]')).toBeNull();
+    expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 
   it("opens selected item on card double-click in non-harness mode", () => {

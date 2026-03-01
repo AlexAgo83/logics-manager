@@ -32,6 +32,7 @@
   const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
   const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
+  const hideSpecToggle = document.getElementById("hide-spec");
   const harnessBridge = window.__CDX_LOGICS_HARNESS__;
   const isHarnessMode = Boolean(harnessBridge && harnessBridge.isHarness);
 
@@ -39,6 +40,7 @@
   let selectedId = null;
   let hideCompleted = false;
   let hideUsedRequests = false;
+  let hideSpec = true;
   let collapsedStages = new Set();
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;
@@ -385,6 +387,9 @@
     if (hideUsedRequestsToggle) {
       hideUsedRequestsToggle.checked = hideUsedRequests;
     }
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = hideSpec;
+    }
   }
 
   function captureBoardScroll() {
@@ -429,13 +434,16 @@
     if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "state-message";
-      if (hideCompleted || hideUsedRequests) {
+      if (hideCompleted || hideUsedRequests || hideSpec) {
         const filters = [];
         if (hideCompleted) {
           filters.push('"Hide completed"');
         }
         if (hideUsedRequests) {
           filters.push('"Hide used requests"');
+        }
+        if (hideSpec) {
+          filters.push('"Hide SPEC"');
         }
         empty.textContent = `No items match the current filters. Toggle off ${filters.join(" and ")} to see all items.`;
       } else {
@@ -518,7 +526,7 @@
   }
 
   function renderBoardColumns(grouped) {
-    stageOrder.forEach((stage) => {
+    getVisibleStages().forEach((stage) => {
       const column = document.createElement("div");
       const isCollapsed = collapsedStages.has(stage);
       column.className = isCollapsed ? "column column--collapsed" : "column";
@@ -595,7 +603,7 @@
   function renderListView(grouped) {
     const listView = document.createElement("div");
     listView.className = "list-view";
-    stageOrder.forEach((stage) => {
+    getVisibleStages().forEach((stage) => {
       const section = document.createElement("section");
       section.className = "list-view__section";
       section.dataset.stage = stage;
@@ -822,7 +830,7 @@
     if (!filterToggle) {
       return;
     }
-    filterToggle.classList.toggle("toolbar__filter--active", hideCompleted || hideUsedRequests);
+    filterToggle.classList.toggle("toolbar__filter--active", hideCompleted || hideUsedRequests || hideSpec);
   }
 
   function setFilterPanelOpen(isOpen) {
@@ -862,7 +870,14 @@
     if (hideUsedRequests && item.stage === "request" && isRequestUsed(item)) {
       return false;
     }
+    if (hideSpec && item.stage === "spec") {
+      return false;
+    }
     return true;
+  }
+
+  function getVisibleStages() {
+    return stageOrder.filter((stage) => !(hideSpec && stage === "spec"));
   }
 
   function isComplete(item) {
@@ -1463,6 +1478,7 @@
     vscode.setState({
       hideCompleted,
       hideUsedRequests,
+      hideSpec,
       collapsedStages: Array.from(collapsedStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -1627,6 +1643,14 @@
       render();
     });
   }
+  if (hideSpecToggle) {
+    hideSpecToggle.addEventListener("change", (event) => {
+      hideSpec = Boolean(event.target && event.target.checked);
+      persistState();
+      updateFilterState();
+      render();
+    });
+  }
   if (detailsToggle) {
     detailsToggle.addEventListener("click", () => {
       uiState.detailsCollapsed = !uiState.detailsCollapsed;
@@ -1701,6 +1725,9 @@
   }
   if (previousState && typeof previousState.hideUsedRequests === "boolean") {
     hideUsedRequests = previousState.hideUsedRequests;
+  }
+  if (previousState && typeof previousState.hideSpec === "boolean") {
+    hideSpec = previousState.hideSpec;
   }
   if (previousState && Array.isArray(previousState.collapsedStages)) {
     collapsedStages = new Set(previousState.collapsedStages);

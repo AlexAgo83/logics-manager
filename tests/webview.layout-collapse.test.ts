@@ -21,6 +21,7 @@ function bootstrapWebview(stacked: boolean) {
         <button data-action="read"></button>
         <input id="hide-complete" type="checkbox" />
         <input id="hide-used-requests" type="checkbox" />
+        <input id="hide-spec" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
           <div id="splitter" role="separator"></div>

@@ -25,6 +25,14 @@ jobs:
       - name: Compile
         run: npm run compile
 
+      - name: Lint
+        run: npm run lint
+
       - name: Unit tests
         run: npm run test
 
+      - name: Logics docs lint
+        run: npm run lint:logics
+
+      - name: VSIX package validation
+        run: npm run package:ci

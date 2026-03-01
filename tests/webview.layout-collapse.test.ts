@@ -38,14 +38,24 @@ function bootstrapWebview(stacked: boolean) {
   const postedMessages: Array<{ type?: string }> = [];
   const state = {};
 
+  let mediaMatches = stacked;
+  const listeners: Array<(event: { matches: boolean }) => void> = [];
+  const mediaQuery = {
+    get matches() {
+      return mediaMatches;
+    },
+    addEventListener: (_type: string, callback: (event: { matches: boolean }) => void) => {
+      listeners.push(callback);
+    },
+    removeEventListener: () => undefined,
+    addListener: (callback: (event: { matches: boolean }) => void) => {
+      listeners.push(callback);
+    },
+    removeListener: () => undefined
+  };
+
   Object.defineProperty(dom.window, "matchMedia", {
-    value: () => ({
-      matches: stacked,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      addListener: () => undefined,
-      removeListener: () => undefined
-    })
+    value: () => mediaQuery
   });
 
   Object.defineProperty(dom.window, "acquireVsCodeApi", {
@@ -59,7 +69,12 @@ function bootstrapWebview(stacked: boolean) {
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(mainScript);
 
-  return { dom, postedMessages };
+  const setStacked = (nextValue: boolean) => {
+    mediaMatches = nextValue;
+    listeners.forEach((callback) => callback({ matches: nextValue }));
+  };
+
+  return { dom, postedMessages, setStacked };
 }
 
 describe("webview collapsed details layout behavior", () => {
@@ -103,5 +118,21 @@ describe("webview collapsed details layout behavior", () => {
     expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
     expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);
+  });
+
+  it("clears splitter dragging state when switching from stacked to horizontal layout", () => {
+    const { dom, setStacked } = bootstrapWebview(true);
+    const document = dom.window.document;
+    const splitter = document.getElementById("splitter");
+
+    splitter?.dispatchEvent(new dom.window.Event("pointerdown", { bubbles: true, cancelable: true }));
+    expect(splitter?.classList.contains("splitter--dragging")).toBe(true);
+    expect(document.body.classList.contains("is-resizing")).toBe(true);
+
+    setStacked(false);
+
+    expect(splitter?.classList.contains("splitter--dragging")).toBe(false);
+    expect(document.body.classList.contains("is-resizing")).toBe(false);
+    expect((splitter as HTMLElement | null)?.style.display).toBe("none");
   });
 });

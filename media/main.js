@@ -1,5 +1,12 @@
 (() => {
-  const vscode = acquireVsCodeApi();
+  const vscode =
+    typeof acquireVsCodeApi === "function"
+      ? acquireVsCodeApi()
+      : {
+          postMessage: () => undefined,
+          getState: () => null,
+          setState: () => undefined
+        };
   const board = document.getElementById("board");
   const layout = document.getElementById("layout");
   const splitter = document.getElementById("splitter");
@@ -33,14 +40,11 @@
   let hideCompleted = false;
   let hideUsedRequests = false;
   let collapsedStages = new Set();
-  let detailsCollapsed = false;
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
   let filterPanelOpen = false;
   let toolsPanelOpen = false;
-  let viewMode = "board";
-  let splitRatio = 0.6;
   let isDraggingSplit = false;
   let currentRoot = null;
   let harnessRootHandle = null;
@@ -54,6 +58,31 @@
   const minBoardHeight = 160;
   const minDetailsHeight = 180;
   const projectGithubUrl = "https://github.com/AlexAgo83/cdx-logics-vscode";
+  const uiState = {
+    layoutMode: "horizontal",
+    detailsCollapsed: false,
+    viewMode: "board",
+    splitRatio: 0.6
+  };
+  const debugUi = (() => {
+    const globalFlag = Boolean(window.__CDX_LOGICS_DEBUG__);
+    let queryFlag = false;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const value = params.get("debug-ui");
+      queryFlag = value === "1" || value === "true";
+    } catch {
+      queryFlag = false;
+    }
+    return globalFlag || queryFlag;
+  })();
+
+  function debugLog(eventName, payload = {}) {
+    if (!debugUi) {
+      return;
+    }
+    console.debug("[cdx-logics-webview]", eventName, payload);
+  }
 
   function eyeIcon(isHidden) {
     if (isHidden) {
@@ -118,7 +147,7 @@
       item.addEventListener("click", (event) => {
         event.stopPropagation();
         closeColumnMenu();
-        vscode.postMessage({ type: "create-item", kind: option.kind });
+        hostApi.createItem(option.kind);
       });
       menu.appendChild(item);
     });
@@ -278,7 +307,7 @@
   }
 
   function isListMode() {
-    return viewMode === "list";
+    return uiState.viewMode === "list";
   }
 
   function updateViewModeToggle() {
@@ -287,11 +316,17 @@
     }
     const switchToList = !isListMode();
     viewModeToggleButton.textContent = switchToList ? "List" : "Board";
+    viewModeToggleButton.dataset.currentMode = uiState.viewMode;
+    viewModeToggleButton.setAttribute("aria-pressed", String(isListMode()));
     viewModeToggleButton.setAttribute(
       "aria-label",
-      switchToList ? "Switch to list mode" : "Switch to board mode"
+      switchToList
+        ? `Current mode: ${uiState.viewMode}. Switch to list mode`
+        : `Current mode: ${uiState.viewMode}. Switch to board mode`
     );
-    viewModeToggleButton.title = switchToList ? "Switch to list mode" : "Switch to board mode";
+    viewModeToggleButton.title = switchToList
+      ? `Current mode: ${uiState.viewMode}. Switch to list mode`
+      : `Current mode: ${uiState.viewMode}. Switch to board mode`;
   }
 
   function setState(nextItems, nextSelectedId) {
@@ -301,6 +336,13 @@
     } else if (!items.find((item) => item.id === selectedId)) {
       selectedId = null;
     }
+    debugLog("state:update", {
+      itemCount: items.length,
+      selectedId,
+      layoutMode: uiState.layoutMode,
+      viewMode: uiState.viewMode,
+      detailsCollapsed: uiState.detailsCollapsed
+    });
     render();
   }
 
@@ -318,15 +360,15 @@
       selectedId = null;
     }
     if (details) {
-      details.classList.toggle("details--collapsed", detailsCollapsed);
+      details.classList.toggle("details--collapsed", uiState.detailsCollapsed);
     }
     if (detailsToggle) {
-      detailsToggle.setAttribute("aria-expanded", String(!detailsCollapsed));
+      detailsToggle.setAttribute("aria-expanded", String(!uiState.detailsCollapsed));
       detailsToggle.setAttribute(
         "aria-label",
-        detailsCollapsed ? "Expand details" : "Collapse details"
+        uiState.detailsCollapsed ? "Expand details" : "Collapse details"
       );
-      detailsToggle.title = detailsCollapsed ? "Expand details" : "Collapse details";
+      detailsToggle.title = uiState.detailsCollapsed ? "Expand details" : "Collapse details";
     }
     updateSplitterA11y();
     if (board) {
@@ -623,7 +665,7 @@
     renameButton.title = "Rename entry";
     renameButton.innerHTML = pencilIcon();
     renameButton.addEventListener("click", () => {
-      vscode.postMessage({ type: "rename-entry", id: item.id });
+      hostApi.renameEntry(item.id);
     });
     nameValueWrap.appendChild(renameButton);
     nameRow.appendChild(nameValueWrap);
@@ -679,7 +721,7 @@
       "References",
       refKey,
       "Add reference",
-      () => vscode.postMessage({ type: "add-reference", id: item.id })
+      () => hostApi.addReference(item.id)
     );
 
     const refList = document.createElement("div");
@@ -696,7 +738,7 @@
       });
     } else {
       const cta = createInlineCta("+ Add reference", () =>
-        vscode.postMessage({ type: "add-reference", id: item.id })
+        hostApi.addReference(item.id)
       );
       refList.appendChild(cta);
     }
@@ -715,7 +757,7 @@
       "Used by",
       usedKey,
       "Add used-by link",
-      () => vscode.postMessage({ type: "add-used-by", id: item.id })
+      () => hostApi.addUsedBy(item.id)
     );
 
     const usedList = document.createElement("div");
@@ -730,7 +772,7 @@
       });
     } else {
       const cta = createInlineCta("+ Add used by", () =>
-        vscode.postMessage({ type: "add-used-by", id: item.id })
+        hostApi.addUsedBy(item.id)
       );
       usedList.appendChild(cta);
     }
@@ -937,6 +979,102 @@
     }
   }
 
+  function createHostApi() {
+    function post(message) {
+      debugLog("host:post", message);
+      vscode.postMessage(message);
+    }
+
+    function invokeHostOnly(type, payload, label) {
+      if (isHarnessMode) {
+        showStatus(`${label} requires the VS Code extension host. Action forwarded to harness mock.`, "warn");
+      }
+      post({ type, ...payload });
+    }
+
+    return {
+      post,
+      ready() {
+        post({ type: "ready" });
+      },
+      refresh() {
+        post({ type: "refresh" });
+      },
+      createItem(kind) {
+        invokeHostOnly("create-item", { kind }, "Create item");
+      },
+      renameEntry(id) {
+        invokeHostOnly("rename-entry", { id }, "Rename entry");
+      },
+      addReference(id) {
+        invokeHostOnly("add-reference", { id }, "Add reference");
+      },
+      addUsedBy(id) {
+        invokeHostOnly("add-used-by", { id }, "Add used-by link");
+      },
+      fixDocs() {
+        invokeHostOnly("fix-docs", {}, "Fix Logics");
+      },
+      bootstrapLogics() {
+        invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
+      },
+      promote(id) {
+        invokeHostOnly("promote", { id }, "Promote");
+      },
+      markDone(id) {
+        invokeHostOnly("mark-done", { id }, "Mark as done");
+      },
+      markObsolete(id) {
+        invokeHostOnly("mark-obsolete", { id }, "Mark as obsolete");
+      },
+      async changeProjectRoot() {
+        if (isHarnessMode) {
+          await handleHarnessChangeProjectRoot();
+          return;
+        }
+        post({ type: "change-project-root" });
+      },
+      resetProjectRoot() {
+        if (isHarnessMode) {
+          applyHarnessRoot(null);
+          if (harnessBridge && typeof harnessBridge.resetProjectRoot === "function") {
+            harnessBridge.resetProjectRoot();
+          }
+          canResetProjectRoot = false;
+          showStatus("Harness project root reset to default mock workspace.", "info");
+          return;
+        }
+        post({ type: "reset-project-root" });
+      },
+      about() {
+        if (isHarnessMode) {
+          const opened = window.open(projectGithubUrl, "_blank", "noopener,noreferrer");
+          if (!opened) {
+            showStatus("Popup blocked by the browser. Enable popups to open project page.", "warn");
+          }
+          return;
+        }
+        post({ type: "about" });
+      },
+      openItem(item, mode) {
+        if (!item) {
+          return;
+        }
+        if (isHarnessMode) {
+          if (mode === "read") {
+            void openHarnessReadTab(item);
+          } else {
+            void openHarnessEditTab(item);
+          }
+          return;
+        }
+        post({ type: mode, id: item.id });
+      }
+    };
+  }
+
+  const hostApi = createHostApi();
+
   function encodePathForUrl(relativePath) {
     return relativePath
       .split("/")
@@ -1124,15 +1262,7 @@
     if (!item) {
       return;
     }
-    if (isHarnessMode) {
-      if (mode === "read") {
-        void openHarnessReadTab(item);
-      } else {
-        void openHarnessEditTab(item);
-      }
-      return;
-    }
-    vscode.postMessage({ type: mode, id: selectedId });
+    hostApi.openItem(item, mode);
   }
 
   function pickDirectoryFromInput() {
@@ -1229,45 +1359,19 @@
   }
 
   async function handleChangeProjectRoot() {
-    if (isHarnessMode) {
-      await handleHarnessChangeProjectRoot();
-      return;
-    }
-    vscode.postMessage({ type: "change-project-root" });
+    await hostApi.changeProjectRoot();
   }
 
   function handleResetProjectRoot() {
-    if (isHarnessMode) {
-      applyHarnessRoot(null);
-      if (harnessBridge && typeof harnessBridge.resetProjectRoot === "function") {
-        harnessBridge.resetProjectRoot();
-      }
-      canResetProjectRoot = false;
-      showStatus("Harness project root reset to default mock workspace.", "info");
-      return;
-    }
-    vscode.postMessage({ type: "reset-project-root" });
+    hostApi.resetProjectRoot();
   }
 
   function handleBootstrapLogics() {
-    if (isHarnessMode) {
-      showStatus("Bootstrap Logics requires the VS Code extension host. Action forwarded to harness mock.", "warn");
-      vscode.postMessage({ type: "bootstrap-logics" });
-      return;
-    }
-    vscode.postMessage({ type: "bootstrap-logics" });
+    hostApi.bootstrapLogics();
   }
 
   function handleAbout() {
-    if (isHarnessMode) {
-      const opened = window.open(projectGithubUrl, "_blank", "noopener,noreferrer");
-      if (!opened) {
-        showStatus("Popup blocked by the browser. Enable popups to open project page.", "warn");
-        return;
-      }
-      return;
-    }
-    vscode.postMessage({ type: "about" });
+    hostApi.about();
   }
 
   function updateSplitterA11y() {
@@ -1280,7 +1384,7 @@
     if (isStackedLayout() && !splitDisabled) {
       splitter.setAttribute("aria-valuemin", "0");
       splitter.setAttribute("aria-valuemax", "100");
-      splitter.setAttribute("aria-valuenow", String(Math.round(splitRatio * 100)));
+      splitter.setAttribute("aria-valuenow", String(Math.round(uiState.splitRatio * 100)));
     } else {
       splitter.removeAttribute("aria-valuemin");
       splitter.removeAttribute("aria-valuemax");
@@ -1292,14 +1396,17 @@
     if (!isStackedLayout() || isSplitInteractionDisabled()) {
       return;
     }
-    applySplitRatio(splitRatio + delta, true);
+    applySplitRatio(uiState.splitRatio + delta, true);
     render();
   }
 
-  refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
+  if (refreshButton) {
+    refreshButton.addEventListener("click", () => hostApi.refresh());
+  }
   if (viewModeToggleButton) {
     viewModeToggleButton.addEventListener("click", () => {
-      viewMode = isListMode() ? "board" : "list";
+      uiState.viewMode = isListMode() ? "board" : "list";
+      debugLog("view-mode:toggle", { nextMode: uiState.viewMode });
       persistState();
       render();
     });
@@ -1324,10 +1431,7 @@
   }
   if (fixDocsButton) {
     fixDocsButton.addEventListener("click", () => {
-      vscode.postMessage({ type: "fix-docs" });
-      if (isHarnessMode) {
-        showStatus("Fix Logics requires the VS Code extension host. Action forwarded to harness mock.", "warn");
-      }
+      hostApi.fixDocs();
       setToolsPanelOpen(false);
     });
   }
@@ -1360,19 +1464,23 @@
       hideCompleted,
       hideUsedRequests,
       collapsedStages: Array.from(collapsedStages),
-      detailsCollapsed,
+      detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
-      viewMode,
-      splitRatio
+      viewMode: uiState.viewMode,
+      splitRatio: uiState.splitRatio
     });
   }
 
+  function detectLayoutMode() {
+    return Boolean(stackedQuery && stackedQuery.matches) ? "stacked" : "horizontal";
+  }
+
   function isStackedLayout() {
-    return Boolean(stackedQuery && stackedQuery.matches);
+    return uiState.layoutMode === "stacked";
   }
 
   function isSplitInteractionDisabled() {
-    return isStackedLayout() && detailsCollapsed;
+    return isStackedLayout() && uiState.detailsCollapsed;
   }
 
   function clearSplitSizing() {
@@ -1415,7 +1523,8 @@
     board.style.height = `${boardHeight}px`;
     details.style.flex = "1 1 auto";
     details.style.height = "";
-    splitRatio = clampedRatio;
+    uiState.splitRatio = clampedRatio;
+    debugLog("split-ratio:update", { splitRatio: uiState.splitRatio });
     updateSplitterA11y();
     if (shouldPersist) {
       persistState();
@@ -1426,22 +1535,28 @@
     if (!layout) {
       return;
     }
+    const previousLayoutMode = uiState.layoutMode;
+    uiState.layoutMode = detectLayoutMode();
     const stacked = isStackedLayout();
     layout.classList.toggle("layout--stacked", stacked);
     layout.classList.toggle("layout--horizontal", !stacked);
-    layout.classList.toggle("layout--split-disabled", stacked && detailsCollapsed);
+    layout.classList.toggle("layout--split-disabled", stacked && uiState.detailsCollapsed);
+    if (previousLayoutMode !== uiState.layoutMode) {
+      debugLog("layout-mode:change", { from: previousLayoutMode, to: uiState.layoutMode });
+    }
     if (!stacked && isDraggingSplit) {
       isDraggingSplit = false;
       if (splitter) {
         splitter.classList.remove("splitter--dragging");
       }
       document.body.classList.remove("is-resizing");
+      debugLog("splitter:drag-reset", { reason: "layout-not-stacked" });
     }
     if (stacked) {
       if (splitter) {
         splitter.style.display = "";
       }
-      applySplitRatio(splitRatio, false);
+      applySplitRatio(uiState.splitRatio, false);
     } else {
       if (splitter) {
         splitter.style.display = "none";
@@ -1458,7 +1573,9 @@
     isDraggingSplit = true;
     splitter.classList.add("splitter--dragging");
     document.body.classList.add("is-resizing");
-    splitter.setPointerCapture(event.pointerId);
+    if (typeof splitter.setPointerCapture === "function" && typeof event.pointerId === "number") {
+      splitter.setPointerCapture(event.pointerId);
+    }
   }
 
   function updateSplitDrag(event) {
@@ -1486,7 +1603,9 @@
     isDraggingSplit = false;
     if (splitter) {
       splitter.classList.remove("splitter--dragging");
-      splitter.releasePointerCapture(event.pointerId);
+      if (typeof splitter.releasePointerCapture === "function" && typeof event.pointerId === "number") {
+        splitter.releasePointerCapture(event.pointerId);
+      }
     }
     document.body.classList.remove("is-resizing");
     persistState();
@@ -1510,7 +1629,8 @@
   }
   if (detailsToggle) {
     detailsToggle.addEventListener("click", () => {
-      detailsCollapsed = !detailsCollapsed;
+      uiState.detailsCollapsed = !uiState.detailsCollapsed;
+      debugLog("details:toggle", { collapsed: uiState.detailsCollapsed });
       persistState();
       render();
     });
@@ -1525,33 +1645,29 @@
   }
   promoteButton.addEventListener("click", () => {
     if (!selectedId) return;
-    vscode.postMessage({ type: "promote", id: selectedId });
-    if (isHarnessMode) {
-      showStatus("Promote requires the VS Code extension host. Action forwarded to harness mock.", "warn");
-    }
+    hostApi.promote(selectedId);
   });
   if (markDoneButton) {
     markDoneButton.addEventListener("click", () => {
       if (!selectedId) return;
-      vscode.postMessage({ type: "mark-done", id: selectedId });
-      if (isHarnessMode) {
-        showStatus("Mark as done requires the VS Code extension host. Action forwarded to harness mock.", "warn");
-      }
+      hostApi.markDone(selectedId);
     });
   }
   if (markObsoleteButton) {
     markObsoleteButton.addEventListener("click", () => {
       if (!selectedId) return;
-      vscode.postMessage({ type: "mark-obsolete", id: selectedId });
-      if (isHarnessMode) {
-        showStatus("Mark as obsolete requires the VS Code extension host. Action forwarded to harness mock.", "warn");
-      }
+      hostApi.markObsolete(selectedId);
     });
   }
 
   window.addEventListener("message", (event) => {
     const { type, payload } = event.data || {};
     if (type === "data") {
+      debugLog("host:data", {
+        hasError: Boolean(payload && payload.error),
+        itemCount: Array.isArray(payload && payload.items) ? payload.items.length : 0,
+        selectedId: payload ? payload.selectedId : undefined
+      });
       if (payload && typeof payload.root === "string") {
         currentRoot = payload.root;
       }
@@ -1562,6 +1678,7 @@
         canBootstrapLogics = payload.canBootstrapLogics;
       }
       if (payload && payload.error) {
+        debugLog("host:data:error", { error: payload.error });
         board.innerHTML = `<div class="state-message">${payload.error}</div>`;
         detailsBody.innerHTML = "";
         if (detailsTitle) {
@@ -1589,16 +1706,16 @@
     collapsedStages = new Set(previousState.collapsedStages);
   }
   if (previousState && typeof previousState.detailsCollapsed === "boolean") {
-    detailsCollapsed = previousState.detailsCollapsed;
+    uiState.detailsCollapsed = previousState.detailsCollapsed;
   }
   if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
     collapsedDetailSections = new Set(previousState.collapsedDetailSections);
   }
   if (previousState && (previousState.viewMode === "board" || previousState.viewMode === "list")) {
-    viewMode = previousState.viewMode;
+    uiState.viewMode = previousState.viewMode;
   }
   if (previousState && typeof previousState.splitRatio === "number") {
-    splitRatio = previousState.splitRatio;
+    uiState.splitRatio = previousState.splitRatio;
   }
 
   document.addEventListener("click", (event) => {
@@ -1663,14 +1780,18 @@
     });
   }
 
+  const handleLayoutMediaChange = () => {
+    updateLayoutMode();
+    updateSplitterA11y();
+  };
   if (stackedQuery && typeof stackedQuery.addEventListener === "function") {
-    stackedQuery.addEventListener("change", updateLayoutMode);
+    stackedQuery.addEventListener("change", handleLayoutMediaChange);
   } else if (stackedQuery && typeof stackedQuery.addListener === "function") {
-    stackedQuery.addListener(updateLayoutMode);
+    stackedQuery.addListener(handleLayoutMediaChange);
   }
   window.addEventListener("resize", () => {
     if (isStackedLayout()) {
-      applySplitRatio(splitRatio, false);
+      applySplitRatio(uiState.splitRatio, false);
     }
   });
 
@@ -1683,7 +1804,7 @@
   setControlDescription(resetProjectRootButton, "Use workspace root");
   setControlDescription(fixDocsButton, "Fix Logics");
   setControlDescription(aboutButton, "About this extension");
-  setControlDescription(detailsToggle, detailsCollapsed ? "Expand details" : "Collapse details");
+  setControlDescription(detailsToggle, uiState.detailsCollapsed ? "Expand details" : "Collapse details");
   setControlDescription(markDoneButton, "Mark selected item as done");
   setControlDescription(markObsoleteButton, "Mark selected item as obsolete");
   setControlDescription(openButton, "Edit selected item");
@@ -1704,5 +1825,6 @@
   }
 
   updateLayoutMode();
-  vscode.postMessage({ type: "ready" });
+  debugLog("webview:init", { mode: isHarnessMode ? "harness" : "vscode" });
+  hostApi.ready();
 })();

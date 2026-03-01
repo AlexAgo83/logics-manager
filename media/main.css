@@ -173,6 +173,24 @@ body {
   cursor: default;
 }
 
+.btn[data-current-mode="list"] {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, #e7e7e7);
+}
+
+.btn[data-current-mode="board"] {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+input[type="checkbox"]:focus-visible,
+.splitter:focus-visible {
+  outline: 2px solid var(--vscode-focusBorder, #007acc);
+  outline-offset: 2px;
+}
+
 .layout {
   display: flex;
   height: calc(100vh - 42px);

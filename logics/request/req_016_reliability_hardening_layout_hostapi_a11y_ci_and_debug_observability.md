@@ -1,8 +1,8 @@
 ## req_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability - Reliability hardening for layout state, host API abstraction, accessibility, CI, and debug observability
 > From version: 1.4.0
-> Status: Draft
-> Understanding: 99%
-> Confidence: 96%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: High
 > Theme: Reliability and maintainability hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -63,10 +63,10 @@ This request consolidates these improvements into one hardening track focused on
   - Telemetry backend or remote logging infrastructure.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability.md`

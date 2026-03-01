@@ -342,6 +342,17 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
+    const workspaceRoot = getWorkspaceRoot();
+    if (workspaceRoot && areSamePath(nextRoot, workspaceRoot)) {
+      this.projectRootOverride = null;
+      this.invalidRootNotice = undefined;
+      await this.context.workspaceState.update(ROOT_OVERRIDE_STATE_KEY, undefined);
+      void vscode.window.showInformationMessage("Selected folder is already the workspace root.");
+      this.onProjectRootChanged();
+      await this.refresh();
+      return;
+    }
+
     this.projectRootOverride = nextRoot;
     this.invalidRootNotice = undefined;
     await this.context.workspaceState.update(ROOT_OVERRIDE_STATE_KEY, nextRoot);
@@ -367,7 +378,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private canResetProjectRoot(): boolean {
-    return Boolean(this.projectRootOverride);
+    if (!this.projectRootOverride) {
+      return false;
+    }
+    const workspaceRoot = getWorkspaceRoot();
+    if (!workspaceRoot) {
+      return true;
+    }
+    return !areSamePath(this.projectRootOverride, workspaceRoot);
   }
 
   private resolveProjectRoot(): {
@@ -967,6 +985,15 @@ function isExistingDirectory(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function areSamePath(left: string, right: string): boolean {
+  const normalizedLeft = path.resolve(left);
+  const normalizedRight = path.resolve(right);
+  if (process.platform === "win32") {
+    return normalizedLeft.toLowerCase() === normalizedRight.toLowerCase();
+  }
+  return normalizedLeft === normalizedRight;
 }
 
 function hasLogicsSubmodule(root: string): boolean {

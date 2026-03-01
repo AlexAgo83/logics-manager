@@ -1,9 +1,9 @@
 ## item_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability - Reliability hardening: layout state, host API abstraction, a11y, CI, and debug observability
 > From version: 1.4.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Reliability and maintainability hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

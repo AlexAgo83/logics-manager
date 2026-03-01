@@ -321,10 +321,25 @@ describe("webview harness controls and accessibility", () => {
 
     const board = dom.window.document.getElementById("board");
     expect(board?.classList.contains("board--list")).toBe(true);
+    expect(modeButton?.getAttribute("data-current-mode")).toBe("list");
+    expect(modeButton?.getAttribute("aria-pressed")).toBe("true");
     expect(dom.window.document.querySelectorAll(".list-view__section").length).toBeGreaterThan(0);
     expect(
       persistedStates.some((state) => state.viewMode === "list")
     ).toBe(true);
+  });
+
+  it("opens selected item on card double-click in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const card = dom.window.document.querySelector(".card");
+    card?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open")).toBe(true);
   });
 
   it("posts lifecycle actions in non-harness mode", () => {

@@ -76,9 +76,12 @@ npm run install:vsix
 ## Validation
 
 - Compile: `npm run compile`
+- Lint TS: `npm run lint`
 - Unit tests: `npm run test`
+- Logics docs lint: `npm run lint:logics`
+- Full CI-equivalent local check: `npm run ci:check`
 
-CI runs these checks on every `push` and `pull_request` via `.github/workflows/ci.yml`.
+CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
 
 ## Webview Browser Debug
 
@@ -94,6 +97,7 @@ In harness mode:
 - `Change Project Root` uses browser-native directory selection fallbacks.
 - `Edit` and `Read` open selected files in new browser tabs (preferring File System Access API content when available).
 - Host-only actions (for example `Promote`, `Fix Logics`) show explicit guidance instead of silent no-op.
+- Add `?debug-ui=1` to the harness URL to enable verbose UI state transition logs in browser console.
 
 ## Accessibility Baseline
 

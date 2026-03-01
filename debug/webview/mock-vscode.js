@@ -3,13 +3,19 @@
   const scenarios = {
     empty: {
       items: [],
-      root: "/workspace/mock"
+      root: "/workspace/mock",
+      canResetProjectRoot: false,
+      canBootstrapLogics: true
     },
     error: {
-      error: "Simulated debug error: no logics/ folder found in /workspace/mock."
+      error: "Simulated debug error: no logics/ folder found in /workspace/mock.",
+      canResetProjectRoot: false,
+      canBootstrapLogics: true
     },
     populated: {
       root: "/workspace/mock",
+      canResetProjectRoot: false,
+      canBootstrapLogics: false,
       selectedId: "item_008_web_debug_harness",
       items: [
         {
@@ -133,6 +139,10 @@
     if (projectRootLabel) {
       nextPayload.root = projectRootLabel;
     }
+    nextPayload.canResetProjectRoot = projectRootLabel !== "/workspace/mock";
+    if (typeof nextPayload.canBootstrapLogics !== "boolean") {
+      nextPayload.canBootstrapLogics = true;
+    }
     return nextPayload;
   }
 
@@ -234,7 +244,10 @@
 
   const hostOnlyActions = new Set([
     "promote",
+    "bootstrap-logics",
     "fix-docs",
+    "mark-done",
+    "mark-obsolete",
     "create-item",
     "add-reference",
     "add-used-by",

@@ -54,13 +54,16 @@
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
           </div>
         </div>
       </div>
       <div class="toolbar__buttons">
+        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
         <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
       </div>
     </div>
@@ -89,6 +92,8 @@
       </div>
       <div class="details__actions">
         <button class="btn" data-action="promote" disabled title="Promote selected item">Promote</button>
+        <button class="btn" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
+        <button class="btn" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
         <button class="btn" data-action="open" disabled title="Edit selected item">Edit</button>
         <button class="btn" data-action="read" disabled title="Read selected item">Read</button>
       </div>

@@ -6,9 +6,11 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 ## Features
 
 - Flow board view (Requests / Backlog / Tasks / Specs).
+- Board/List display mode switch for compact navigation.
 - Details panel with indicators and references (Promoted from / Derived from) + reverse “Used by”.
+- Details lifecycle actions (`Done`, `Obsolete`) for fast status updates.
 - Create new requests from the UI (uses Logics templates).
-- Open, refresh, and promote actions (with safeguards against double promotion).
+- Open, refresh, promote, bootstrap, and root-management actions from the UI.
 - Progress-based card styling + optional hide completed.
 
 <img width="789" height="727" alt="image" src="https://github.com/user-attachments/assets/baac84fa-a06c-477d-8fe1-aee23f1f1a57" />

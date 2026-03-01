@@ -11,11 +11,16 @@
   const filterPanel = document.getElementById("filter-panel");
   const toolsToggle = document.getElementById("tools-toggle");
   const toolsPanel = document.getElementById("tools-panel");
+  const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
+  const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
+  const aboutButton = document.querySelector('[data-action="about"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
+  const markDoneButton = document.querySelector('[data-action="mark-done"]');
+  const markObsoleteButton = document.querySelector('[data-action="mark-obsolete"]');
   const openButton = document.querySelector('[data-action="open"]');
   const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
@@ -34,10 +39,13 @@
   let activeColumnMenuButton = null;
   let filterPanelOpen = false;
   let toolsPanelOpen = false;
+  let viewMode = "board";
   let splitRatio = 0.6;
   let isDraggingSplit = false;
   let currentRoot = null;
   let harnessRootHandle = null;
+  let canResetProjectRoot = false;
+  let canBootstrapLogics = false;
   let statusBanner = null;
   let noticeTimeoutId = null;
 
@@ -45,6 +53,7 @@
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const minBoardHeight = 160;
   const minDetailsHeight = 180;
+  const projectGithubUrl = "https://github.com/AlexAgo83/cdx-logics-vscode";
 
   function eyeIcon(isHidden) {
     if (isHidden) {
@@ -268,6 +277,23 @@
     return item.stage === "request" || item.stage === "backlog";
   }
 
+  function isListMode() {
+    return viewMode === "list";
+  }
+
+  function updateViewModeToggle() {
+    if (!viewModeToggleButton) {
+      return;
+    }
+    const switchToList = !isListMode();
+    viewModeToggleButton.textContent = switchToList ? "List" : "Board";
+    viewModeToggleButton.setAttribute(
+      "aria-label",
+      switchToList ? "Switch to list mode" : "Switch to board mode"
+    );
+    viewModeToggleButton.title = switchToList ? "Switch to list mode" : "Switch to board mode";
+  }
+
   function setState(nextItems, nextSelectedId) {
     items = Array.isArray(nextItems) ? nextItems : [];
     if (typeof nextSelectedId === "string") {
@@ -303,6 +329,10 @@
       detailsToggle.title = detailsCollapsed ? "Expand details" : "Collapse details";
     }
     updateSplitterA11y();
+    if (board) {
+      board.classList.toggle("board--list", isListMode());
+    }
+    updateViewModeToggle();
     renderBoard();
     renderDetails();
     updateButtons();
@@ -374,6 +404,78 @@
     }
 
     const grouped = groupByStage(visibleItems);
+    if (isListMode()) {
+      renderListView(grouped);
+    } else {
+      renderBoardColumns(grouped);
+    }
+
+    restoreBoardScroll(scrollState);
+  }
+
+  function createItemCard(item, compact = false) {
+    const card = document.createElement("div");
+    const doneClass = isComplete(item) ? " card--done" : "";
+    const progressClass = progressState(item);
+    const usedClass = isRequestUsed(item) ? " card--used" : "";
+    const progressValue = getProgressValue(item);
+    const hasProgressBar = typeof progressValue === "number" && progressValue > 0 && progressValue < 100;
+    card.className =
+      "card" +
+      (compact ? " card--compact" : "") +
+      (item.id === selectedId ? " card--selected" : "") +
+      doneClass +
+      (progressClass ? ` ${progressClass}` : "") +
+      usedClass +
+      (hasProgressBar ? " card--progress-bar" : "");
+    if (hasProgressBar) {
+      const clamped = Math.max(0, Math.min(100, progressValue));
+      card.style.setProperty("--progress", `${clamped}%`);
+    }
+    card.dataset.id = item.id;
+    card.setAttribute("role", "button");
+    card.tabIndex = 0;
+    card.setAttribute("aria-label", `${item.stage} item ${item.id}: ${item.title}`);
+    card.title = item.title;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "card__title";
+    titleEl.textContent = item.title;
+    card.appendChild(titleEl);
+
+    if (compact) {
+      const meta = document.createElement("div");
+      meta.className = "card__meta";
+      meta.textContent = `${item.stage} • ${item.id}`;
+      card.appendChild(meta);
+    }
+
+    card.addEventListener("click", () => {
+      selectedId = item.id;
+      render();
+    });
+    card.addEventListener("dblclick", () => {
+      selectedId = item.id;
+      render();
+      openSelectedItem("open");
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectedId = item.id;
+        render();
+      }
+      if (event.key === "Enter" && event.shiftKey) {
+        event.preventDefault();
+        selectedId = item.id;
+        render();
+        openSelectedItem("open");
+      }
+    });
+    return card;
+  }
+
+  function renderBoardColumns(grouped) {
     stageOrder.forEach((stage) => {
       const column = document.createElement("div");
       const isCollapsed = collapsedStages.has(stage);
@@ -428,7 +530,6 @@
       actions.appendChild(addButton);
       actions.appendChild(toggle);
       header.appendChild(actions);
-
       column.appendChild(header);
 
       const body = document.createElement("div");
@@ -441,61 +542,43 @@
         empty.textContent = "No items";
         body.appendChild(empty);
       } else {
-        stageItems.forEach((item) => {
-          const card = document.createElement("div");
-          const doneClass = isComplete(item) ? " card--done" : "";
-          const progressClass = progressState(item);
-          const usedClass = isRequestUsed(item) ? " card--used" : "";
-          const progressValue = getProgressValue(item);
-          const hasProgressBar =
-            typeof progressValue === "number" && progressValue > 0 && progressValue < 100;
-          card.className =
-            "card" +
-            (item.id === selectedId ? " card--selected" : "") +
-            doneClass +
-            (progressClass ? ` ${progressClass}` : "") +
-            usedClass +
-            (hasProgressBar ? " card--progress-bar" : "");
-          if (hasProgressBar) {
-            const clamped = Math.max(0, Math.min(100, progressValue));
-            card.style.setProperty("--progress", `${clamped}%`);
-          }
-          card.dataset.id = item.id;
-          card.setAttribute("role", "button");
-          card.tabIndex = 0;
-          card.setAttribute("aria-label", `${item.stage} item ${item.id}: ${item.title}`);
-          card.title = item.title;
-
-          const titleEl = document.createElement("div");
-          titleEl.className = "card__title";
-          titleEl.textContent = item.title;
-
-          card.appendChild(titleEl);
-          card.addEventListener("click", () => {
-            selectedId = item.id;
-            render();
-          });
-          card.addEventListener("dblclick", () => {
-            selectedId = item.id;
-            render();
-            openSelectedItem("open");
-          });
-          card.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              selectedId = item.id;
-              render();
-            }
-          });
-          body.appendChild(card);
-        });
+        stageItems.forEach((item) => body.appendChild(createItemCard(item)));
       }
 
       column.appendChild(body);
       board.appendChild(column);
     });
+  }
 
-    restoreBoardScroll(scrollState);
+  function renderListView(grouped) {
+    const listView = document.createElement("div");
+    listView.className = "list-view";
+    stageOrder.forEach((stage) => {
+      const section = document.createElement("section");
+      section.className = "list-view__section";
+      section.dataset.stage = stage;
+
+      const header = document.createElement("div");
+      header.className = "list-view__header";
+      const stageItems = grouped[stage] || [];
+      header.textContent = `${stage} (${stageItems.length})`;
+      section.appendChild(header);
+
+      const body = document.createElement("div");
+      body.className = "list-view__body";
+      if (!stageItems.length) {
+        const empty = document.createElement("div");
+        empty.className = "list-view__empty";
+        empty.textContent = "No items";
+        body.appendChild(empty);
+      } else {
+        stageItems.forEach((item) => body.appendChild(createItemCard(item, true)));
+      }
+      section.appendChild(body);
+      listView.appendChild(section);
+    });
+
+    board.appendChild(listView);
   }
 
   function renderDetails() {
@@ -663,6 +746,14 @@
     const item = items.find((entry) => entry.id === selectedId);
     openButton.disabled = !item;
     promoteButton.disabled = !canPromote(item);
+    if (markDoneButton) {
+      markDoneButton.disabled = !item;
+      markDoneButton.title = item ? "Mark selected item as done" : "Select an item first";
+    }
+    if (markObsoleteButton) {
+      markObsoleteButton.disabled = !item;
+      markObsoleteButton.title = item ? "Mark selected item as obsolete" : "Select an item first";
+    }
     openButton.title = item ? "Edit selected item" : "Select an item to edit";
     promoteButton.title = canPromote(item)
       ? "Promote selected item"
@@ -670,6 +761,18 @@
     if (readButton) {
       readButton.disabled = !item;
       readButton.title = item ? "Read selected item" : "Select an item to read";
+    }
+    if (resetProjectRootButton) {
+      resetProjectRootButton.disabled = !canResetProjectRoot;
+      resetProjectRootButton.title = canResetProjectRoot
+        ? "Use workspace root"
+        : "Already using workspace root";
+    }
+    if (bootstrapLogicsButton) {
+      bootstrapLogicsButton.disabled = !canBootstrapLogics;
+      bootstrapLogicsButton.title = canBootstrapLogics
+        ? "Bootstrap Logics in this project"
+        : "Bootstrap already completed";
     }
   }
 
@@ -1081,6 +1184,7 @@
   function applyHarnessRoot(rootLabel, nextHandle = null) {
     currentRoot = rootLabel || null;
     harnessRootHandle = nextHandle || null;
+    canResetProjectRoot = Boolean(rootLabel);
     if (harnessBridge && typeof harnessBridge.setProjectRootLabel === "function") {
       harnessBridge.setProjectRootLabel(rootLabel || null);
     }
@@ -1138,10 +1242,32 @@
       if (harnessBridge && typeof harnessBridge.resetProjectRoot === "function") {
         harnessBridge.resetProjectRoot();
       }
+      canResetProjectRoot = false;
       showStatus("Harness project root reset to default mock workspace.", "info");
       return;
     }
     vscode.postMessage({ type: "reset-project-root" });
+  }
+
+  function handleBootstrapLogics() {
+    if (isHarnessMode) {
+      showStatus("Bootstrap Logics requires the VS Code extension host. Action forwarded to harness mock.", "warn");
+      vscode.postMessage({ type: "bootstrap-logics" });
+      return;
+    }
+    vscode.postMessage({ type: "bootstrap-logics" });
+  }
+
+  function handleAbout() {
+    if (isHarnessMode) {
+      const opened = window.open(projectGithubUrl, "_blank", "noopener,noreferrer");
+      if (!opened) {
+        showStatus("Popup blocked by the browser. Enable popups to open project page.", "warn");
+        return;
+      }
+      return;
+    }
+    vscode.postMessage({ type: "about" });
   }
 
   function updateSplitterA11y() {
@@ -1171,6 +1297,19 @@
   }
 
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
+  if (viewModeToggleButton) {
+    viewModeToggleButton.addEventListener("click", () => {
+      viewMode = isListMode() ? "board" : "list";
+      persistState();
+      render();
+    });
+  }
+  if (bootstrapLogicsButton) {
+    bootstrapLogicsButton.addEventListener("click", () => {
+      handleBootstrapLogics();
+      setToolsPanelOpen(false);
+    });
+  }
   if (changeProjectRootButton) {
     changeProjectRootButton.addEventListener("click", async () => {
       await handleChangeProjectRoot();
@@ -1189,6 +1328,12 @@
       if (isHarnessMode) {
         showStatus("Fix Logics requires the VS Code extension host. Action forwarded to harness mock.", "warn");
       }
+      setToolsPanelOpen(false);
+    });
+  }
+  if (aboutButton) {
+    aboutButton.addEventListener("click", () => {
+      handleAbout();
       setToolsPanelOpen(false);
     });
   }
@@ -1217,6 +1362,7 @@
       collapsedStages: Array.from(collapsedStages),
       detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
+      viewMode,
       splitRatio
     });
   }
@@ -1370,6 +1516,24 @@
       showStatus("Promote requires the VS Code extension host. Action forwarded to harness mock.", "warn");
     }
   });
+  if (markDoneButton) {
+    markDoneButton.addEventListener("click", () => {
+      if (!selectedId) return;
+      vscode.postMessage({ type: "mark-done", id: selectedId });
+      if (isHarnessMode) {
+        showStatus("Mark as done requires the VS Code extension host. Action forwarded to harness mock.", "warn");
+      }
+    });
+  }
+  if (markObsoleteButton) {
+    markObsoleteButton.addEventListener("click", () => {
+      if (!selectedId) return;
+      vscode.postMessage({ type: "mark-obsolete", id: selectedId });
+      if (isHarnessMode) {
+        showStatus("Mark as obsolete requires the VS Code extension host. Action forwarded to harness mock.", "warn");
+      }
+    });
+  }
 
   window.addEventListener("message", (event) => {
     const { type, payload } = event.data || {};
@@ -1377,12 +1541,21 @@
       if (payload && typeof payload.root === "string") {
         currentRoot = payload.root;
       }
+      if (payload && typeof payload.canResetProjectRoot === "boolean") {
+        canResetProjectRoot = payload.canResetProjectRoot;
+      }
+      if (payload && typeof payload.canBootstrapLogics === "boolean") {
+        canBootstrapLogics = payload.canBootstrapLogics;
+      }
       if (payload && payload.error) {
         board.innerHTML = `<div class="state-message">${payload.error}</div>`;
         detailsBody.innerHTML = "";
         if (detailsTitle) {
           detailsTitle.textContent = "Details";
         }
+        selectedId = null;
+        updateButtons();
+        updateViewModeToggle();
         return;
       }
       const nextItems = payload && payload.items ? payload.items : [];
@@ -1406,6 +1579,9 @@
   }
   if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
     collapsedDetailSections = new Set(previousState.collapsedDetailSections);
+  }
+  if (previousState && (previousState.viewMode === "board" || previousState.viewMode === "list")) {
+    viewMode = previousState.viewMode;
   }
   if (previousState && typeof previousState.splitRatio === "number") {
     splitRatio = previousState.splitRatio;
@@ -1486,11 +1662,16 @@
 
   setControlDescription(filterToggle, "Filter options");
   setControlDescription(toolsToggle, "Tools");
+  setControlDescription(viewModeToggleButton, "Switch display mode");
   setControlDescription(refreshButton, "Refresh");
+  setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
   setControlDescription(changeProjectRootButton, "Change project root");
   setControlDescription(resetProjectRootButton, "Use workspace root");
   setControlDescription(fixDocsButton, "Fix Logics");
+  setControlDescription(aboutButton, "About this extension");
   setControlDescription(detailsToggle, detailsCollapsed ? "Expand details" : "Collapse details");
+  setControlDescription(markDoneButton, "Mark selected item as done");
+  setControlDescription(markObsoleteButton, "Mark selected item as obsolete");
   setControlDescription(openButton, "Edit selected item");
   setControlDescription(readButton, "Read selected item");
   setControlDescription(promoteButton, "Promote selected item");

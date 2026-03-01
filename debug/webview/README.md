@@ -31,3 +31,4 @@ Open:
 - `Change Project Root` tries `showDirectoryPicker`, then directory-input fallback, then manual path hint prompt.
 - `Edit`/`Read` first try reading content from the selected directory handle, then fall back to server-relative file paths.
 - `Read` opens a markdown preview tab (or raw file fallback if preview content is unavailable).
+- Board/List mode switch is available from the toolbar for compact rendering checks.

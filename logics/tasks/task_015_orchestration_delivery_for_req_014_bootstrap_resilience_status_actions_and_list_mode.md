@@ -1,9 +1,9 @@
 ## task_015_orchestration_delivery_for_req_014_bootstrap_resilience_status_actions_and_list_mode - Orchestration delivery for req_014 bootstrap resilience, status actions, and list mode
 > From version: 1.3.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: In progress
+> Understanding: 99%
+> Confidence: 96%
+> Progress: 88%
 > Complexity: High
 > Theme: Bootstrap resilience and compact navigation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -22,16 +22,16 @@ Constraint:
 - preserve existing runtime parity and do not regress current board/details interactions.
 
 # Plan
-- [ ] 1. Harden bootstrap flow: if repo is not git-initialized, offer `git init` then retry bootstrap.
-- [ ] 2. Add Tools actions: `Bootstrap Logics` rerun and `About` (open project GitHub page).
-- [ ] 3. Ensure item double-click open behavior is consistent across board and list mode item surfaces.
-- [ ] 4. Add details lifecycle actions (`Mark as done`, `Mark as obsolete`) with markdown/status update logic.
-- [ ] 5. Disable `Use Workspace Root` action when workspace root is already active.
-- [ ] 6. Implement Board/List display mode switch (button before `Refresh`) and compact list renderer with stage separators.
-- [ ] 7. Persist display mode in webview state and verify compatibility with filters/details/collapse behaviors.
-- [ ] 8. Add/extend automated tests for bootstrap preflight, action states, display mode switch, and status actions.
+- [x] 1. Harden bootstrap flow: if repo is not git-initialized, offer `git init` then retry bootstrap.
+- [x] 2. Add Tools actions: `Bootstrap Logics` rerun and `About` (open project GitHub page).
+- [x] 3. Ensure item double-click open behavior is consistent across board and list mode item surfaces.
+- [x] 4. Add details lifecycle actions (`Mark as done`, `Mark as obsolete`) with markdown/status update logic.
+- [x] 5. Disable `Use Workspace Root` action when workspace root is already active.
+- [x] 6. Implement Board/List display mode switch (button before `Refresh`) and compact list renderer with stage separators.
+- [x] 7. Persist display mode in webview state and verify compatibility with filters/details/collapse behaviors.
+- [x] 8. Add/extend automated tests for bootstrap preflight, action states, display mode switch, and status actions.
 - [ ] 9. Validate behavior in both VS Code runtime and web harness mode.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Extension bootstrap preflight (`git init` offer + retry bootstrap).
@@ -57,6 +57,18 @@ Constraint:
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Implemented:
+  - `src/extension.ts`: new webview actions (`bootstrap-logics`, `about`, `mark-done`, `mark-obsolete`), bootstrap preflight with optional `git init`, payload flags for root/bootstrap control state, and lifecycle indicator updates (`Status`, `Progress`).
+  - `media/main.js`: tools controls wiring, disabled state handling, board/list mode switch with persisted state, compact list renderer with stage separators, and details lifecycle actions.
+  - `src/extension.ts` + `debug/webview/index.html`: added toolbar/tools/details action controls (`Bootstrap Logics`, `About`, `List/Board`, `Done`, `Obsolete`).
+  - `debug/webview/mock-vscode.js`: scenario payload flags and host-only message handling for new actions.
+  - `tests/webview.harness-a11y.test.ts`: coverage for reset-root disabled state, view-mode persistence, and lifecycle message routing.
+  - `README.md` and `debug/webview/README.md`: updated feature/harness behavior docs.
+- Validation executed:
+  - `npm run compile`
+  - `npm run test`
+- Pending:
+  - Manual verification in real VS Code runtime for git-init bootstrap path and end-to-end status action writes.
 - Risks:
   - markdown mutation rules for done/obsolete could diverge from existing indicator conventions.
   - list-mode renderer may introduce regressions in selection/collapse/filter interactions.

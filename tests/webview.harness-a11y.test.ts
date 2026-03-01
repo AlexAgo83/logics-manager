@@ -20,12 +20,17 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <div id="filter-panel"></div>
           <button id="tools-toggle" class="toolbar__filter"></button>
           <div id="tools-panel"></div>
+          <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
+          <button data-action="bootstrap-logics"></button>
           <button data-action="change-project-root"></button>
           <button data-action="reset-project-root"></button>
           <button data-action="fix-docs"></button>
+          <button data-action="about"></button>
         </div>
         <button data-action="promote"></button>
+        <button data-action="mark-done"></button>
+        <button data-action="mark-obsolete"></button>
         <button data-action="open"></button>
         <button data-action="read"></button>
         <input id="hide-complete" type="checkbox" />
@@ -46,6 +51,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://localhost/" });
   const postedMessages: Array<{ type?: string }> = [];
   const state = {};
+  const persistedStates: Array<Record<string, unknown>> = [];
   const openedUrls: string[] = [];
   const fetchCalls: string[] = [];
   const setProjectRootCalls: Array<string | null> = [];
@@ -111,14 +117,16 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
     value: () => ({
       postMessage: (message: { type?: string }) => postedMessages.push(message),
       getState: () => state,
-      setState: () => undefined
+      setState: (nextState: Record<string, unknown>) => {
+        persistedStates.push(nextState);
+      }
     })
   });
 
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(mainScript);
 
-  return { dom, postedMessages, openedUrls, setProjectRootCalls, fetchCalls };
+  return { dom, postedMessages, openedUrls, setProjectRootCalls, fetchCalls, persistedStates };
 }
 
 function pushData(
@@ -126,6 +134,8 @@ function pushData(
   payload: {
     selectedId?: string;
     root?: string;
+    canResetProjectRoot?: boolean;
+    canBootstrapLogics?: boolean;
     items: Array<Record<string, unknown>>;
   }
 ) {
@@ -276,6 +286,62 @@ describe("webview harness controls and accessibility", () => {
     expect(postedMessages.some((message) => message.type === "open")).toBe(true);
     expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(true);
     expect(openedUrls.length).toBe(0);
+  });
+
+  it("disables use-workspace-root when payload indicates no override", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      canResetProjectRoot: false,
+      items: [baseItem]
+    });
+
+    const resetButton = dom.window.document.querySelector(
+      '[data-action="reset-project-root"]'
+    ) as HTMLButtonElement | null;
+    expect(resetButton?.disabled).toBe(true);
+
+    pushData(dom, {
+      root: "/workspace/mock/other",
+      canResetProjectRoot: true,
+      items: [baseItem]
+    });
+    expect(resetButton?.disabled).toBe(false);
+  });
+
+  it("switches to list mode and persists view mode state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const modeButton = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const board = dom.window.document.getElementById("board");
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(dom.window.document.querySelectorAll(".list-view__section").length).toBeGreaterThan(0);
+    expect(
+      persistedStates.some((state) => state.viewMode === "list")
+    ).toBe(true);
+  });
+
+  it("posts lifecycle actions in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
+    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
+    doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    obsoleteButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "mark-done")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "mark-obsolete")).toBe(true);
   });
 
   it("adds discoverable labels/tooltips and keyboard-accessible card interactions", () => {

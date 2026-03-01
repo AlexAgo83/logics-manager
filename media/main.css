@@ -224,6 +224,11 @@ body {
   overflow: auto;
 }
 
+.board--list {
+  display: block;
+  padding: 8px 0;
+}
+
 .column {
   min-width: 220px;
   max-width: 280px;
@@ -497,6 +502,7 @@ body {
 .details__actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .details--collapsed .details__actions {
@@ -504,7 +510,7 @@ body {
 }
 
 .details__actions .btn {
-  flex: 1;
+  flex: 1 1 120px;
 }
 
 .details__empty {
@@ -673,6 +679,41 @@ body {
   padding: 16px;
   font-size: 12px;
   color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.list-view {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.list-view__section {
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  padding-top: 8px;
+}
+
+.list-view__header {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  padding: 0 12px 6px;
+}
+
+.list-view__body {
+  display: grid;
+  gap: 4px;
+}
+
+.list-view__empty {
+  padding: 0 12px 8px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card--compact {
+  margin: 2px 10px;
+  padding: 6px 8px;
 }
 
 @media (max-width: 900px) {

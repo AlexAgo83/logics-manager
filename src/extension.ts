@@ -5,6 +5,7 @@ import { canPromote, indexLogics, isRequestUsed, LogicsItem, promotionCommand } 
 import { execFile } from "child_process";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
+const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 
 class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
@@ -68,11 +69,23 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "fix-docs":
           await this.fixDocs();
           break;
+        case "bootstrap-logics":
+          await this.bootstrapFromTools();
+          break;
+        case "about":
+          await this.openAbout();
+          break;
         case "change-project-root":
           await this.changeProjectRoot();
           break;
         case "reset-project-root":
           await this.resetProjectRoot();
+          break;
+        case "mark-done":
+          await this.markItemDone(message.id);
+          break;
+        case "mark-obsolete":
+          await this.markItemObsolete(message.id);
           break;
         default:
           break;
@@ -87,10 +100,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async refresh(selectedId?: string): Promise<void> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
+    const canResetProjectRoot = this.canResetProjectRoot();
+    const canBootstrapLogics = root ? !hasLogicsSubmodule(root) : false;
     this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
       this.items = [];
       this.postData({
+        canBootstrapLogics,
+        canResetProjectRoot,
         error: invalidOverridePath
           ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
           : "Open a workspace or set a project root from Tools > Change Project Root."
@@ -101,6 +118,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!fs.existsSync(path.join(root, "logics"))) {
       this.items = [];
       this.postData({
+        canBootstrapLogics,
+        canResetProjectRoot,
         error: `No logics/ folder found in: ${root}.`
       });
       await this.maybeOfferBootstrap(root);
@@ -108,7 +127,13 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.items = indexLogics(root);
-    this.postData({ items: this.items, root, selectedId });
+    this.postData({
+      items: this.items,
+      root,
+      selectedId,
+      canBootstrapLogics,
+      canResetProjectRoot
+    });
     await this.maybeOfferBootstrap(root);
   }
 
@@ -256,6 +281,48 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh();
   }
 
+  private async bootstrapFromTools(): Promise<void> {
+    const root = this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    if (hasLogicsSubmodule(root)) {
+      void vscode.window.showInformationMessage("Logics bootstrap already configured.");
+      return;
+    }
+    await this.bootstrapLogics(root);
+  }
+
+  private async openAbout(): Promise<void> {
+    await vscode.env.openExternal(vscode.Uri.parse(PROJECT_GITHUB_URL));
+  }
+
+  private async markItemDone(id: string): Promise<void> {
+    await this.updateItemLifecycle(id, "Done", "100%");
+  }
+
+  private async markItemObsolete(id: string): Promise<void> {
+    await this.updateItemLifecycle(id, "Obsolete", "100%");
+  }
+
+  private async updateItemLifecycle(id: string, status: string, progress: string): Promise<void> {
+    const item = this.items.find((entry) => entry.id === id);
+    if (!item) {
+      return;
+    }
+
+    const updated = updateIndicatorsOnDisk(item.path, {
+      Status: status,
+      Progress: progress
+    });
+    if (!updated) {
+      void vscode.window.showInformationMessage(`Item already marked as ${status.toLowerCase()}.`);
+      return;
+    }
+    void vscode.window.showInformationMessage(`Marked ${item.id} as ${status.toLowerCase()}.`);
+    await this.refresh(item.id);
+  }
+
   private async changeProjectRoot(): Promise<void> {
     const currentRoot = this.resolveProjectRoot().root;
     const picked = await vscode.window.showOpenDialog({
@@ -297,6 +364,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     void vscode.window.showInformationMessage("Switched back to workspace root.");
     this.onProjectRootChanged();
     await this.refresh();
+  }
+
+  private canResetProjectRoot(): boolean {
+    return Boolean(this.projectRootOverride);
   }
 
   private resolveProjectRoot(): {
@@ -366,8 +437,23 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async bootstrapLogics(root: string): Promise<void> {
     const gitCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (gitCheck.error || gitCheck.stdout.trim() !== "true") {
-      void vscode.window.showErrorMessage("Bootstrap requires a git repository (run git init first).");
-      return;
+      const initChoice = await vscode.window.showWarningMessage(
+        "Bootstrap requires a git repository. Initialize this folder with git now?",
+        "Initialize Git and Bootstrap",
+        "Cancel"
+      );
+      if (initChoice !== "Initialize Git and Bootstrap") {
+        return;
+      }
+
+      const gitInit = await runGitWithOutput(root, ["init"]);
+      if (gitInit.error) {
+        void vscode.window.showErrorMessage(
+          `Failed to initialize git repository: ${gitInit.stderr || gitInit.error.message}`
+        );
+        return;
+      }
+      void vscode.window.showInformationMessage("Git repository initialized.");
     }
 
     const logicsDir = path.join(root, "logics");
@@ -431,6 +517,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     root?: string;
     error?: string;
     selectedId?: string;
+    canBootstrapLogics?: boolean;
+    canResetProjectRoot?: boolean;
   }): void {
     if (!this.view) {
       return;
@@ -760,13 +848,16 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
           </div>
         </div>
       </div>
       <div class="toolbar__buttons">
+        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
         <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
       </div>
     </div>
@@ -795,6 +886,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </div>
       <div class="details__actions">
         <button class="btn" data-action="promote" disabled title="Promote selected item">Promote</button>
+        <button class="btn" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
+        <button class="btn" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
         <button class="btn" data-action="open" disabled title="Edit selected item">Edit</button>
         <button class="btn" data-action="read" disabled title="Read selected item">Read</button>
       </div>
@@ -1222,6 +1315,68 @@ function findSection(
     return { start: i + 1, end };
   }
   return null;
+}
+
+function updateIndicatorsOnDisk(filePath: string, updates: Record<string, string>): boolean {
+  const content = fs.readFileSync(filePath, "utf8");
+  const lines = content.split(/\r?\n/);
+  const normalizedUpdates = Object.entries(updates)
+    .map(([key, value]) => [key.trim(), value.trim()] as const)
+    .filter(([key, value]) => key.length > 0 && value.length > 0);
+  if (!normalizedUpdates.length) {
+    return false;
+  }
+
+  const indicatorIndexes = new Map<string, number>();
+  let headingIndex = -1;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (headingIndex < 0 && line.startsWith("## ")) {
+      headingIndex = i;
+    }
+    if (!line.startsWith(">")) {
+      continue;
+    }
+    const trimmed = line.replace(/^>\s*/, "").trim();
+    const separator = trimmed.indexOf(":");
+    if (separator <= 0) {
+      continue;
+    }
+    const key = trimmed.slice(0, separator).trim().toLowerCase();
+    if (!indicatorIndexes.has(key)) {
+      indicatorIndexes.set(key, i);
+    }
+  }
+
+  let changed = false;
+  const missing: Array<[string, string]> = [];
+  for (const [key, value] of normalizedUpdates) {
+    const targetLine = `> ${key}: ${value}`;
+    const existingIndex = indicatorIndexes.get(key.toLowerCase());
+    if (typeof existingIndex === "number") {
+      if (lines[existingIndex] !== targetLine) {
+        lines[existingIndex] = targetLine;
+        changed = true;
+      }
+    } else {
+      missing.push([key, value]);
+    }
+  }
+
+  if (missing.length > 0) {
+    let insertAt = headingIndex >= 0 ? headingIndex + 1 : 0;
+    while (insertAt < lines.length && lines[insertAt].startsWith(">")) {
+      insertAt += 1;
+    }
+    const insertion = missing.map(([key, value]) => `> ${key}: ${value}`);
+    lines.splice(insertAt, 0, ...insertion);
+    changed = true;
+  }
+
+  if (changed) {
+    fs.writeFileSync(filePath, `${lines.join("\n")}\n`, "utf8");
+  }
+  return changed;
 }
 
 function getFlowManagerScriptPath(root: string): string | null {

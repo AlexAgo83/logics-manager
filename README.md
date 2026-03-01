@@ -20,7 +20,7 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 - Open, refresh, promote, bootstrap, and root-management actions from the UI.
 - Progress-based card styling + optional hide completed.
 
-<img width="789" height="727" alt="image" src="https://github.com/user-attachments/assets/baac84fa-a06c-477d-8fe1-aee23f1f1a57" />
+<img width="1151" height="641" alt="image" src="https://github.com/user-attachments/assets/9a732d99-6b21-4d29-9ea4-927f11f6bf58" />
 
 ## Requirements
 

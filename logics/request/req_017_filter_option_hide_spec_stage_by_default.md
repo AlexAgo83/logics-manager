@@ -2,7 +2,7 @@
 > From version: 1.5.0
 > Status: Done
 > Understanding: 100%
-> Confidence: 98%
+> Confidence: 99%
 > Complexity: Medium
 > Theme: Filtering and view ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -39,3 +39,6 @@ The UI already has a filter panel and persisted filter state, so this change sho
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Backlog
+- `logics/backlog/item_017_hide_spec_stage_by_default_filter_option.md`

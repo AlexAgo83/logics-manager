@@ -4,14 +4,24 @@ import * as vscode from "vscode";
 import { canPromote, indexLogics, isRequestUsed, LogicsItem, promotionCommand } from "./logicsIndexer";
 import { execFile } from "child_process";
 
+const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
+
 class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
 
   private view?: vscode.WebviewView;
   private items: LogicsItem[] = [];
-  private bootstrapPrompted = false;
+  private readonly bootstrapPromptedRoots = new Set<string>();
+  private projectRootOverride: string | null;
+  private invalidRootNotice?: string;
 
-  constructor(private readonly context: vscode.ExtensionContext) {}
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    private readonly onProjectRootChanged: () => void
+  ) {
+    const storedOverride = this.context.workspaceState.get<string>(ROOT_OVERRIDE_STATE_KEY);
+    this.projectRootOverride = storedOverride?.trim() || null;
+  }
 
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
@@ -58,6 +68,12 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "fix-docs":
           await this.fixDocs();
           break;
+        case "change-project-root":
+          await this.changeProjectRoot();
+          break;
+        case "reset-project-root":
+          await this.resetProjectRoot();
+          break;
         default:
           break;
       }
@@ -65,16 +81,28 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   }
 
+  getWatcherRoot(): string | null {
+    return this.resolveProjectRoot().root;
+  }
+
   async refresh(selectedId?: string): Promise<void> {
-    const root = getWorkspaceRoot();
+    const { root, invalidOverridePath } = this.resolveProjectRoot();
+    this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
       this.items = [];
-      this.postData({ error: "Open a workspace that contains a logics/ folder." });
+      this.postData({
+        error: invalidOverridePath
+          ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
+          : "Open a workspace or set a project root from Tools > Change Project Root."
+      });
       return;
     }
+
     if (!fs.existsSync(path.join(root, "logics"))) {
       this.items = [];
-      this.postData({ error: "Open a workspace that contains a logics/ folder." });
+      this.postData({
+        error: `No logics/ folder found in: ${root}.`
+      });
       await this.maybeOfferBootstrap(root);
       return;
     }
@@ -108,13 +136,12 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async createRequest(): Promise<void> {
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
     if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage("Open a workspace that contains a logics/ folder.");
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
       await this.maybeOfferBootstrap(root);
       return;
     }
@@ -146,13 +173,12 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
     if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage("Open a workspace that contains a logics/ folder.");
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
       await this.maybeOfferBootstrap(root);
       return;
     }
@@ -192,9 +218,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async fixDocs(): Promise<void> {
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
 
@@ -231,14 +256,101 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh();
   }
 
+  private async changeProjectRoot(): Promise<void> {
+    const currentRoot = this.resolveProjectRoot().root;
+    const picked = await vscode.window.showOpenDialog({
+      canSelectFiles: false,
+      canSelectFolders: true,
+      canSelectMany: false,
+      openLabel: "Use as Project Root",
+      defaultUri: currentRoot ? vscode.Uri.file(currentRoot) : undefined
+    });
+    if (!picked || picked.length === 0) {
+      return;
+    }
+
+    const nextRoot = picked[0].fsPath;
+    if (!isExistingDirectory(nextRoot)) {
+      void vscode.window.showErrorMessage("Selected path is not a folder.");
+      return;
+    }
+
+    this.projectRootOverride = nextRoot;
+    this.invalidRootNotice = undefined;
+    await this.context.workspaceState.update(ROOT_OVERRIDE_STATE_KEY, nextRoot);
+
+    void vscode.window.showInformationMessage(`Logics project root set to: ${nextRoot}`);
+    this.onProjectRootChanged();
+    await this.refresh();
+  }
+
+  private async resetProjectRoot(): Promise<void> {
+    if (!this.projectRootOverride) {
+      void vscode.window.showInformationMessage("Already using the workspace root.");
+      return;
+    }
+
+    this.projectRootOverride = null;
+    this.invalidRootNotice = undefined;
+    await this.context.workspaceState.update(ROOT_OVERRIDE_STATE_KEY, undefined);
+
+    void vscode.window.showInformationMessage("Switched back to workspace root.");
+    this.onProjectRootChanged();
+    await this.refresh();
+  }
+
+  private resolveProjectRoot(): {
+    root: string | null;
+    invalidOverridePath?: string;
+  } {
+    const workspaceRoot = getWorkspaceRoot();
+    if (!this.projectRootOverride) {
+      return { root: workspaceRoot };
+    }
+    if (isExistingDirectory(this.projectRootOverride)) {
+      return { root: this.projectRootOverride };
+    }
+    return {
+      root: workspaceRoot,
+      invalidOverridePath: this.projectRootOverride
+    };
+  }
+
+  private notifyInvalidRootOverride(invalidOverridePath: string | undefined, hasFallbackRoot: boolean): void {
+    if (!invalidOverridePath) {
+      this.invalidRootNotice = undefined;
+      return;
+    }
+    if (this.invalidRootNotice === invalidOverridePath) {
+      return;
+    }
+    this.invalidRootNotice = invalidOverridePath;
+    const suffix = hasFallbackRoot ? " Falling back to workspace root." : "";
+    void vscode.window.showWarningMessage(`Configured project root not found: ${invalidOverridePath}.${suffix}`);
+  }
+
+  private getActionRoot(): string | null {
+    const { root, invalidOverridePath } = this.resolveProjectRoot();
+    this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
+    if (!root) {
+      void vscode.window.showErrorMessage(
+        invalidOverridePath
+          ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
+          : "No project root found. Open a workspace or use Tools > Change Project Root."
+      );
+      return null;
+    }
+    return root;
+  }
+
   private async maybeOfferBootstrap(root: string): Promise<void> {
-    if (this.bootstrapPrompted) {
+    if (this.bootstrapPromptedRoots.has(root)) {
       return;
     }
     if (hasLogicsSubmodule(root)) {
       return;
     }
-    this.bootstrapPrompted = true;
+    this.bootstrapPromptedRoots.add(root);
 
     const choice = await vscode.window.showInformationMessage(
       "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
@@ -359,9 +471,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
 
@@ -405,9 +516,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
 
@@ -483,9 +593,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = getWorkspaceRoot();
+    const root = this.getActionRoot();
     if (!root) {
-      void vscode.window.showErrorMessage("No workspace root found.");
       return;
     }
 
@@ -649,10 +758,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true">
+            <button class="tools-panel__item" type="button" data-action="change-project-root">Change Project Root</button>
+            <button class="tools-panel__item" type="button" data-action="reset-project-root">Use Workspace Root</button>
             <button class="tools-panel__item" type="button" data-action="fix-docs">Fix Logics</button>
-            <button class="tools-panel__item" type="button" data-action="tools-secondary" disabled>
-              Another action
-            </button>
           </div>
         </div>
       </div>
@@ -697,7 +805,37 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-  const provider = new LogicsViewProvider(context);
+  let provider: LogicsViewProvider | undefined;
+  let refreshTimer: NodeJS.Timeout | undefined;
+  let watcher: vscode.FileSystemWatcher | undefined;
+
+  const scheduleRefresh = () => {
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+    }
+    refreshTimer = setTimeout(() => {
+      void provider?.refresh();
+    }, 300);
+  };
+
+  const setupWatcher = () => {
+    if (watcher) {
+      watcher.dispose();
+      watcher = undefined;
+    }
+    const root = provider?.getWatcherRoot();
+    if (!root) {
+      return;
+    }
+    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown}");
+    watcher = vscode.workspace.createFileSystemWatcher(pattern);
+    watcher.onDidChange(scheduleRefresh);
+    watcher.onDidCreate(scheduleRefresh);
+    watcher.onDidDelete(scheduleRefresh);
+    context.subscriptions.push(watcher);
+  };
+
+  provider = new LogicsViewProvider(context, setupWatcher);
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(LogicsViewProvider.viewType, provider, {
@@ -711,32 +849,6 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("logics.promote", () => provider.promoteFromPalette()),
     vscode.commands.registerCommand("logics.newRequest", () => provider.createRequest())
   );
-
-  let refreshTimer: NodeJS.Timeout | undefined;
-  const scheduleRefresh = () => {
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
-    }
-    refreshTimer = setTimeout(() => provider.refresh(), 300);
-  };
-
-  let watcher: vscode.FileSystemWatcher | undefined;
-  const setupWatcher = () => {
-    if (watcher) {
-      watcher.dispose();
-      watcher = undefined;
-    }
-    const root = getWorkspaceRoot();
-    if (!root) {
-      return;
-    }
-    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown}");
-    watcher = vscode.workspace.createFileSystemWatcher(pattern);
-    watcher.onDidChange(scheduleRefresh);
-    watcher.onDidCreate(scheduleRefresh);
-    watcher.onDidDelete(scheduleRefresh);
-    context.subscriptions.push(watcher);
-  };
 
   setupWatcher();
   context.subscriptions.push(
@@ -752,6 +864,14 @@ function getWorkspaceRoot(): string | null {
     return null;
   }
   return folders[0].uri.fsPath;
+}
+
+function isExistingDirectory(value: string): boolean {
+  try {
+    return fs.existsSync(value) && fs.statSync(value).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 function hasLogicsSubmodule(root: string): boolean {

@@ -12,6 +12,8 @@
   const toolsToggle = document.getElementById("tools-toggle");
   const toolsPanel = document.getElementById("tools-panel");
   const refreshButton = document.querySelector('[data-action="refresh"]');
+  const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
+  const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
   const openButton = document.querySelector('[data-action="open"]');
@@ -735,6 +737,18 @@
   }
 
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
+  if (changeProjectRootButton) {
+    changeProjectRootButton.addEventListener("click", () => {
+      vscode.postMessage({ type: "change-project-root" });
+      setToolsPanelOpen(false);
+    });
+  }
+  if (resetProjectRootButton) {
+    resetProjectRootButton.addEventListener("click", () => {
+      vscode.postMessage({ type: "reset-project-root" });
+      setToolsPanelOpen(false);
+    });
+  }
   if (fixDocsButton) {
     fixDocsButton.addEventListener("click", () => {
       vscode.postMessage({ type: "fix-docs" });

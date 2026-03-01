@@ -18,6 +18,7 @@ Open:
 - `acquireVsCodeApi().setState()`
 - `acquireVsCodeApi().postMessage()`
 - Extension-to-webview `type: "data"` payload dispatch
+- Harness bridge `window.__CDX_LOGICS_HARNESS__` for browser-only fallbacks and notices
 
 ## What is not mocked
 
@@ -25,3 +26,8 @@ Open:
 - File system writes triggered by extension host handlers
 - Webview CSP/resource URI behavior (`asWebviewUri`) specific to VS Code runtime
 
+## Browser fallback behavior
+
+- `Change Project Root` tries `showDirectoryPicker`, then directory-input fallback, then manual path hint prompt.
+- `Edit` opens the selected item file in a new browser tab when a relative path is available.
+- `Read` opens a markdown preview tab (or raw file fallback if preview fetch fails).

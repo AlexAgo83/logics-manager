@@ -118,16 +118,42 @@
   }
 
   let persistedState = {};
+  let projectRootLabel = scenarios[scenarioName].root || "/workspace/mock";
+  let panelNoticeNode = null;
 
   function postData(payload) {
     window.postMessage({ type: "data", payload }, "*");
   }
 
+  function withRoot(payload) {
+    if (!payload || typeof payload !== "object") {
+      return payload;
+    }
+    const nextPayload = { ...payload };
+    if (projectRootLabel) {
+      nextPayload.root = projectRootLabel;
+    }
+    return nextPayload;
+  }
+
+  function notify(message, tone = "info") {
+    if (panelNoticeNode) {
+      panelNoticeNode.textContent = message;
+      panelNoticeNode.style.opacity = "1";
+      panelNoticeNode.style.color = tone === "warn" ? "#ffb86c" : "inherit";
+    }
+    console.info("[webview-harness]", message);
+  }
+
   function publishScenario() {
-    postData(scenarios[scenarioName]);
+    postData(withRoot(scenarios[scenarioName]));
     const badge = document.getElementById("debug-scenario-name");
     if (badge) {
       badge.textContent = scenarioName;
+    }
+    const root = document.getElementById("debug-scenario-root");
+    if (root) {
+      root.textContent = projectRootLabel || "(default)";
     }
   }
 
@@ -188,8 +214,32 @@
     current.textContent = scenarioName;
     panel.appendChild(current);
 
+    const root = document.createElement("span");
+    root.id = "debug-scenario-root";
+    root.textContent = projectRootLabel;
+    panel.appendChild(root);
+
+    const notice = document.createElement("span");
+    notice.id = "debug-scenario-notice";
+    notice.style.opacity = "0.85";
+    notice.style.maxWidth = "340px";
+    notice.style.whiteSpace = "nowrap";
+    notice.style.overflow = "hidden";
+    notice.style.textOverflow = "ellipsis";
+    panelNoticeNode = notice;
+    panel.appendChild(notice);
+
     document.body.appendChild(panel);
   }
+
+  const hostOnlyActions = new Set([
+    "promote",
+    "fix-docs",
+    "create-item",
+    "add-reference",
+    "add-used-by",
+    "rename-entry"
+  ]);
 
   const vscodeApi = {
     postMessage(message) {
@@ -200,8 +250,11 @@
         publishScenario();
         return;
       }
-      // In harness mode, commands are logged only.
-      console.info("[webview-harness] outbound message", message);
+      if (hostOnlyActions.has(message.type)) {
+        notify(`"${message.type}" requires VS Code extension host.`, "warn");
+      } else {
+        notify(`Message relayed to harness mock: ${message.type}`, "info");
+      }
     },
     getState() {
       return persistedState;
@@ -211,7 +264,21 @@
     }
   };
 
+  window.__CDX_LOGICS_HARNESS__ = {
+    isHarness: true,
+    notify,
+    setProjectRootLabel(nextRoot) {
+      projectRootLabel = nextRoot || "/workspace/mock";
+      notify(`Harness root set to ${projectRootLabel}`, "info");
+      publishScenario();
+    },
+    resetProjectRoot() {
+      projectRootLabel = "/workspace/mock";
+      notify("Harness root reset to default mock workspace.", "info");
+      publishScenario();
+    }
+  };
+
   window.acquireVsCodeApi = () => vscodeApi;
   window.addEventListener("DOMContentLoaded", createPanel);
 })();
-

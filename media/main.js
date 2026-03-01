@@ -20,6 +20,8 @@
   const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
   const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
+  const harnessBridge = window.__CDX_LOGICS_HARNESS__;
+  const isHarnessMode = Boolean(harnessBridge && harnessBridge.isHarness);
 
   let items = [];
   let selectedId = null;
@@ -34,6 +36,9 @@
   let toolsPanelOpen = false;
   let splitRatio = 0.6;
   let isDraggingSplit = false;
+  let currentRoot = null;
+  let statusBanner = null;
+  let noticeTimeoutId = null;
 
   const stageOrder = ["request", "backlog", "task", "spec"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
@@ -98,6 +103,8 @@
       item.type = "button";
       item.className = "column__menu-item";
       item.textContent = option.label;
+      item.setAttribute("role", "menuitem");
+      item.title = option.label;
       item.addEventListener("click", (event) => {
         event.stopPropagation();
         closeColumnMenu();
@@ -162,6 +169,7 @@
     title.className = "details__section-title";
     title.type = "button";
     title.setAttribute("aria-expanded", "true");
+    title.title = `Toggle ${label}`;
     if (key) {
       title.dataset.section = key;
     }
@@ -203,6 +211,7 @@
     button.type = "button";
     button.className = "details__inline-cta";
     button.textContent = label;
+    button.title = label;
     button.addEventListener("click", onClick);
     return button;
   }
@@ -290,12 +299,9 @@
         "aria-label",
         detailsCollapsed ? "Expand details" : "Collapse details"
       );
+      detailsToggle.title = detailsCollapsed ? "Expand details" : "Collapse details";
     }
-    if (splitter) {
-      const splitDisabled = isSplitInteractionDisabled();
-      splitter.setAttribute("aria-disabled", String(splitDisabled));
-      splitter.tabIndex = splitDisabled ? -1 : 0;
-    }
+    updateSplitterA11y();
     renderBoard();
     renderDetails();
     updateButtons();
@@ -389,6 +395,7 @@
       addButton.className = "column__add";
       addButton.innerHTML = plusIcon();
       addButton.setAttribute("aria-label", "Add Logics item");
+      addButton.title = "Add Logics item";
       addButton.setAttribute("aria-haspopup", "menu");
       addButton.setAttribute("aria-expanded", "false");
       addButton.addEventListener("click", (event) => {
@@ -404,6 +411,7 @@
         "aria-label",
         isCollapsed ? `Show ${stage} items` : `Hide ${stage} items`
       );
+      toggle.title = isCollapsed ? `Show ${stage} items` : `Hide ${stage} items`;
       toggle.setAttribute("aria-pressed", String(isCollapsed));
       toggle.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -452,6 +460,10 @@
             card.style.setProperty("--progress", `${clamped}%`);
           }
           card.dataset.id = item.id;
+          card.setAttribute("role", "button");
+          card.tabIndex = 0;
+          card.setAttribute("aria-label", `${item.stage} item ${item.id}: ${item.title}`);
+          card.title = item.title;
 
           const titleEl = document.createElement("div");
           titleEl.className = "card__title";
@@ -465,7 +477,14 @@
           card.addEventListener("dblclick", () => {
             selectedId = item.id;
             render();
-            vscode.postMessage({ type: "open", id: item.id });
+            openSelectedItem("open");
+          });
+          card.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              selectedId = item.id;
+              render();
+            }
           });
           body.appendChild(card);
         });
@@ -643,8 +662,13 @@
     const item = items.find((entry) => entry.id === selectedId);
     openButton.disabled = !item;
     promoteButton.disabled = !canPromote(item);
+    openButton.title = item ? "Edit selected item" : "Select an item to edit";
+    promoteButton.title = canPromote(item)
+      ? "Promote selected item"
+      : "Select a request/backlog item that can be promoted";
     if (readButton) {
       readButton.disabled = !item;
+      readButton.title = item ? "Read selected item" : "Select an item to read";
     }
   }
 
@@ -749,22 +773,341 @@
     return Number.isFinite(value) ? value : null;
   }
 
+  function setControlDescription(element, label) {
+    if (!element || !label) {
+      return;
+    }
+    if (!element.getAttribute("aria-label")) {
+      element.setAttribute("aria-label", label);
+    }
+    element.title = label;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function ensureStatusBanner() {
+    if (statusBanner && statusBanner.isConnected) {
+      return statusBanner;
+    }
+    const anchor = layout && layout.parentElement ? layout.parentElement : document.body;
+    if (!anchor) {
+      return null;
+    }
+    statusBanner = document.createElement("div");
+    statusBanner.className = "status-banner";
+    statusBanner.hidden = true;
+    statusBanner.setAttribute("role", "status");
+    statusBanner.setAttribute("aria-live", "polite");
+    anchor.insertBefore(statusBanner, layout || anchor.firstChild);
+    return statusBanner;
+  }
+
+  function showStatus(message, tone = "info") {
+    if (!message) {
+      return;
+    }
+    const banner = ensureStatusBanner();
+    if (banner) {
+      banner.hidden = false;
+      banner.textContent = message;
+      banner.dataset.tone = tone;
+      if (noticeTimeoutId) {
+        window.clearTimeout(noticeTimeoutId);
+      }
+      noticeTimeoutId = window.setTimeout(() => {
+        if (!statusBanner) {
+          return;
+        }
+        statusBanner.hidden = true;
+      }, 4500);
+    }
+    if (harnessBridge && typeof harnessBridge.notify === "function") {
+      harnessBridge.notify(message, tone);
+    }
+  }
+
+  function encodePathForUrl(relativePath) {
+    return relativePath
+      .split("/")
+      .filter((part) => part.length > 0)
+      .map((part) => encodeURIComponent(part))
+      .join("/");
+  }
+
+  function getItemRelativePath(item) {
+    if (!item) {
+      return "";
+    }
+    if (typeof item.relPath === "string" && item.relPath.trim()) {
+      return item.relPath.trim().replace(/\\/g, "/").replace(/^\.?\//, "");
+    }
+    if (typeof item.path === "string" && item.path.trim()) {
+      const normalizedPath = item.path.replace(/\\/g, "/");
+      if (currentRoot && normalizedPath.startsWith(currentRoot)) {
+        const relative = normalizedPath.slice(currentRoot.length).replace(/^\/+/, "");
+        if (relative) {
+          return relative;
+        }
+      }
+      if (!normalizedPath.startsWith("/") && !normalizedPath.includes(":")) {
+        return normalizedPath.replace(/^\.?\//, "");
+      }
+    }
+    return "";
+  }
+
+  function buildHarnessDocUrl(item) {
+    const relativePath = getItemRelativePath(item);
+    if (!relativePath) {
+      return "";
+    }
+    return `/${encodePathForUrl(relativePath)}`;
+  }
+
+  function openHarnessInfoTab(item, heading, message) {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) {
+      showStatus("Popup blocked by the browser. Enable popups for harness preview.", "warn");
+      return;
+    }
+    const safeTitle = escapeHtml(item && item.title ? item.title : "Logics item");
+    const safeHeading = escapeHtml(heading);
+    const safeMessage = escapeHtml(message);
+    popup.document.open();
+    popup.document.write(`<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>${safeTitle}</title><style>body{font-family:system-ui,sans-serif;margin:24px;line-height:1.5;}code{background:#f4f4f4;padding:2px 4px;border-radius:4px;}</style></head><body><h1>${safeHeading}</h1><p>${safeMessage}</p></body></html>`);
+    popup.document.close();
+  }
+
+  function openHarnessEditTab(item) {
+    const target = buildHarnessDocUrl(item);
+    if (!target) {
+      openHarnessInfoTab(item, "Edit view unavailable", "No file path is available for this mocked item in harness mode.");
+      showStatus("No file path available for this item in harness mode.", "warn");
+      return;
+    }
+    const opened = window.open(target, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      showStatus("Popup blocked by the browser. Enable popups to open files from harness mode.", "warn");
+      return;
+    }
+    showStatus(`Opened ${target} in a new tab.`, "info");
+  }
+
+  async function openHarnessReadTab(item) {
+    const target = buildHarnessDocUrl(item);
+    if (!target) {
+      openHarnessInfoTab(item, "Read view unavailable", "No file path is available for this mocked item in harness mode.");
+      showStatus("No file path available for this item in harness mode.", "warn");
+      return;
+    }
+
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) {
+      showStatus("Popup blocked by the browser. Enable popups for harness preview.", "warn");
+      return;
+    }
+
+    try {
+      const response = await fetch(target);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const markdown = await response.text();
+      const safeTitle = escapeHtml(item && item.title ? item.title : "Logics item");
+      popup.document.open();
+      popup.document.write(`<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>${safeTitle}</title><style>body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:20px;line-height:1.45;}pre{white-space:pre-wrap;word-break:break-word;}</style></head><body><h1>${safeTitle}</h1><p>Source: <code>${escapeHtml(target)}</code></p><pre>${escapeHtml(markdown)}</pre></body></html>`);
+      popup.document.close();
+      showStatus(`Opened read preview for ${target}.`, "info");
+      return;
+    } catch (error) {
+      popup.location.href = target;
+      const reason = error instanceof Error ? error.message : String(error);
+      showStatus(`Preview unavailable (${reason}). Opened raw file instead.`, "warn");
+    }
+  }
+
+  function openSelectedItem(mode) {
+    if (!selectedId) {
+      return;
+    }
+    const item = items.find((entry) => entry.id === selectedId);
+    if (!item) {
+      return;
+    }
+    if (isHarnessMode) {
+      if (mode === "read") {
+        void openHarnessReadTab(item);
+      } else {
+        openHarnessEditTab(item);
+      }
+      return;
+    }
+    vscode.postMessage({ type: mode, id: selectedId });
+  }
+
+  function pickDirectoryFromInput() {
+    return new Promise((resolve) => {
+      const input = document.createElement("input");
+      let settled = false;
+      const finalize = (value) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        window.removeEventListener("focus", onWindowFocus, true);
+        input.remove();
+        resolve(value);
+      };
+      const onWindowFocus = () => {
+        window.setTimeout(() => {
+          if (settled) {
+            return;
+          }
+          const files = input.files;
+          if (!files || files.length === 0) {
+            finalize(null);
+          }
+        }, 0);
+      };
+
+      input.type = "file";
+      input.multiple = true;
+      input.webkitdirectory = true;
+      input.style.display = "none";
+      input.addEventListener("change", () => {
+        const files = input.files;
+        if (!files || files.length === 0) {
+          finalize(null);
+          return;
+        }
+        const first = files[0];
+        const relative = typeof first.webkitRelativePath === "string" ? first.webkitRelativePath : "";
+        const rootName = relative.split("/")[0] || first.name;
+        finalize(rootName || null);
+      });
+      document.body.appendChild(input);
+      window.addEventListener("focus", onWindowFocus, true);
+      input.click();
+    });
+  }
+
+  function applyHarnessRoot(rootLabel) {
+    currentRoot = rootLabel || null;
+    if (harnessBridge && typeof harnessBridge.setProjectRootLabel === "function") {
+      harnessBridge.setProjectRootLabel(rootLabel || null);
+    }
+  }
+
+  async function handleHarnessChangeProjectRoot() {
+    try {
+      if (typeof window.showDirectoryPicker === "function") {
+        const directoryHandle = await window.showDirectoryPicker({ mode: "read" });
+        const label = directoryHandle && directoryHandle.name ? directoryHandle.name : "selected-folder";
+        applyHarnessRoot(label);
+        showStatus(`Harness project root set to "${label}".`, "info");
+        return;
+      }
+    } catch (error) {
+      if (!(error && error.name === "AbortError")) {
+        const reason = error instanceof Error ? error.message : String(error);
+        showStatus(`Directory picker unavailable (${reason}). Trying fallback.`, "warn");
+      } else {
+        showStatus("Project root selection canceled.", "warn");
+        return;
+      }
+    }
+
+    const fallbackRoot = await pickDirectoryFromInput();
+    if (fallbackRoot) {
+      applyHarnessRoot(fallbackRoot);
+      showStatus(`Harness project root set to "${fallbackRoot}" (directory selection fallback).`, "info");
+      return;
+    }
+
+    const manual = window.prompt(
+      "Directory picker unavailable. Enter a root hint/path for harness mode:",
+      currentRoot || ""
+    );
+    if (manual && manual.trim()) {
+      applyHarnessRoot(manual.trim());
+      showStatus(`Harness project root set to "${manual.trim()}".`, "info");
+      return;
+    }
+    showStatus("Project root selection canceled.", "warn");
+  }
+
+  async function handleChangeProjectRoot() {
+    if (isHarnessMode) {
+      await handleHarnessChangeProjectRoot();
+      return;
+    }
+    vscode.postMessage({ type: "change-project-root" });
+  }
+
+  function handleResetProjectRoot() {
+    if (isHarnessMode) {
+      applyHarnessRoot(null);
+      if (harnessBridge && typeof harnessBridge.resetProjectRoot === "function") {
+        harnessBridge.resetProjectRoot();
+      }
+      showStatus("Harness project root reset to default mock workspace.", "info");
+      return;
+    }
+    vscode.postMessage({ type: "reset-project-root" });
+  }
+
+  function updateSplitterA11y() {
+    if (!splitter) {
+      return;
+    }
+    const splitDisabled = isSplitInteractionDisabled();
+    splitter.setAttribute("aria-disabled", String(splitDisabled));
+    splitter.tabIndex = splitDisabled ? -1 : 0;
+    if (isStackedLayout() && !splitDisabled) {
+      splitter.setAttribute("aria-valuemin", "0");
+      splitter.setAttribute("aria-valuemax", "100");
+      splitter.setAttribute("aria-valuenow", String(Math.round(splitRatio * 100)));
+    } else {
+      splitter.removeAttribute("aria-valuemin");
+      splitter.removeAttribute("aria-valuemax");
+      splitter.removeAttribute("aria-valuenow");
+    }
+  }
+
+  function nudgeSplitFromKeyboard(delta) {
+    if (!isStackedLayout() || isSplitInteractionDisabled()) {
+      return;
+    }
+    applySplitRatio(splitRatio + delta, true);
+    render();
+  }
+
   refreshButton.addEventListener("click", () => vscode.postMessage({ type: "refresh" }));
   if (changeProjectRootButton) {
-    changeProjectRootButton.addEventListener("click", () => {
-      vscode.postMessage({ type: "change-project-root" });
+    changeProjectRootButton.addEventListener("click", async () => {
+      await handleChangeProjectRoot();
       setToolsPanelOpen(false);
     });
   }
   if (resetProjectRootButton) {
     resetProjectRootButton.addEventListener("click", () => {
-      vscode.postMessage({ type: "reset-project-root" });
+      handleResetProjectRoot();
       setToolsPanelOpen(false);
     });
   }
   if (fixDocsButton) {
     fixDocsButton.addEventListener("click", () => {
       vscode.postMessage({ type: "fix-docs" });
+      if (isHarnessMode) {
+        showStatus("Fix Logics requires the VS Code extension host. Action forwarded to harness mock.", "warn");
+      }
       setToolsPanelOpen(false);
     });
   }
@@ -824,6 +1167,7 @@
       board.style.height = "";
       details.style.flex = "0 0 auto";
       details.style.height = "auto";
+      updateSplitterA11y();
       if (shouldPersist) {
         persistState();
       }
@@ -845,6 +1189,7 @@
     details.style.flex = "1 1 auto";
     details.style.height = "";
     splitRatio = clampedRatio;
+    updateSplitterA11y();
     if (shouldPersist) {
       persistState();
     }
@@ -930,23 +1275,27 @@
     });
   }
   openButton.addEventListener("click", () => {
-    if (!selectedId) return;
-    vscode.postMessage({ type: "open", id: selectedId });
+    openSelectedItem("open");
   });
   if (readButton) {
     readButton.addEventListener("click", () => {
-      if (!selectedId) return;
-      vscode.postMessage({ type: "read", id: selectedId });
+      openSelectedItem("read");
     });
   }
   promoteButton.addEventListener("click", () => {
     if (!selectedId) return;
     vscode.postMessage({ type: "promote", id: selectedId });
+    if (isHarnessMode) {
+      showStatus("Promote requires the VS Code extension host. Action forwarded to harness mock.", "warn");
+    }
   });
 
   window.addEventListener("message", (event) => {
     const { type, payload } = event.data || {};
     if (type === "data") {
+      if (payload && typeof payload.root === "string") {
+        currentRoot = payload.root;
+      }
       if (payload && payload.error) {
         board.innerHTML = `<div class="state-message">${payload.error}</div>`;
         detailsBody.innerHTML = "";
@@ -1014,6 +1363,9 @@
     if (event.key === "Escape" && toolsPanelOpen) {
       setToolsPanelOpen(false);
     }
+    if (event.key === "Escape" && activeColumnMenu) {
+      closeColumnMenu();
+    }
   });
 
   if (splitter) {
@@ -1021,6 +1373,23 @@
     splitter.addEventListener("pointermove", (event) => updateSplitDrag(event));
     splitter.addEventListener("pointerup", (event) => endSplitDrag(event));
     splitter.addEventListener("pointercancel", (event) => endSplitDrag(event));
+    splitter.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        nudgeSplitFromKeyboard(0.03);
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        nudgeSplitFromKeyboard(-0.03);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        applySplitRatio(0.9, true);
+        render();
+      } else if (event.key === "End") {
+        event.preventDefault();
+        applySplitRatio(0.1, true);
+        render();
+      }
+    });
   }
 
   if (stackedQuery && typeof stackedQuery.addEventListener === "function") {
@@ -1033,6 +1402,30 @@
       applySplitRatio(splitRatio, false);
     }
   });
+
+  setControlDescription(filterToggle, "Filter options");
+  setControlDescription(toolsToggle, "Tools");
+  setControlDescription(refreshButton, "Refresh");
+  setControlDescription(changeProjectRootButton, "Change project root");
+  setControlDescription(resetProjectRootButton, "Use workspace root");
+  setControlDescription(fixDocsButton, "Fix Logics");
+  setControlDescription(detailsToggle, detailsCollapsed ? "Expand details" : "Collapse details");
+  setControlDescription(openButton, "Edit selected item");
+  setControlDescription(readButton, "Read selected item");
+  setControlDescription(promoteButton, "Promote selected item");
+  if (toolsPanel) {
+    toolsPanel.setAttribute("role", "menu");
+  }
+  if (filterPanel) {
+    filterPanel.setAttribute("role", "group");
+    filterPanel.setAttribute("aria-label", "Filter options");
+  }
+  if (filterToggle && filterPanel && filterPanel.id) {
+    filterToggle.setAttribute("aria-controls", filterPanel.id);
+  }
+  if (toolsToggle && toolsPanel && toolsPanel.id) {
+    toolsToggle.setAttribute("aria-controls", toolsPanel.id);
+  }
 
   updateLayoutMode();
   vscode.postMessage({ type: "ready" });

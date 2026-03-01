@@ -25,6 +25,18 @@ body {
   z-index: 10;
 }
 
+.status-banner {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+  background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-descriptionForeground, #c7c7c7);
+}
+
+.status-banner[data-tone="warn"] {
+  color: var(--vscode-editorWarning-foreground, #d7ba7d);
+}
+
 .toolbar__title {
   font-size: 13px;
   text-transform: uppercase;

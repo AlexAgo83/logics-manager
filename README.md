@@ -88,6 +88,20 @@ npm run debug:webview
 
 Then open `http://localhost:4173/` and switch scenarios from the in-page debug control.
 
+In harness mode:
+- `Change Project Root` uses browser-native directory selection fallbacks.
+- `Edit` and `Read` open selected files in new browser tabs.
+- Host-only actions (for example `Promote`, `Fix Logics`) show explicit guidance instead of silent no-op.
+
+## Accessibility Baseline
+
+For new UI controls in this project:
+- Every interactive control must expose an accessible name (`aria-label` or visible text).
+- Icon-only controls must include a `title` tooltip for discoverability.
+- Dynamic toggles must keep ARIA state in sync (`aria-expanded`, `aria-disabled`, `aria-pressed`).
+- Custom interactive elements must be keyboard reachable (`tabindex`) and activatable (`Enter`/`Space`).
+- Keep hover/focus descriptions consistent across toolbar, board, menus, and details panel.
+
 ## Notes
 
 - Promotion is only allowed for request/backlog items that are not already used.

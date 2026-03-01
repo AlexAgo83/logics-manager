@@ -1,9 +1,9 @@
 ## item_011_horizontal_layout_keep_details_action_buttons_pinned_to_bottom_when_collapsed - Horizontal layout: keep details action buttons pinned to bottom when collapsed
 > From version: 1.1.0
-> Status: In progress
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 70%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX Layout Consistency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

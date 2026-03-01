@@ -118,6 +118,8 @@ describe("webview collapsed details layout behavior", () => {
     expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
     expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);
+    expect(css.includes(".layout--stacked .details")).toBe(true);
+    expect(css.includes("z-index: 2;")).toBe(true);
   });
 
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {

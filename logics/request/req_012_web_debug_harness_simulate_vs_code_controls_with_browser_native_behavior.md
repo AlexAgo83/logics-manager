@@ -1,8 +1,8 @@
 ## req_012_web_debug_harness_simulate_vs_code_controls_with_browser_native_behavior - Web debug harness: simulate VS Code controls with browser-native behavior
 > From version: 1.2.0
-> Status: Draft
-> Understanding: 99%
-> Confidence: 96%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Debug Harness UX Parity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

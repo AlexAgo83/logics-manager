@@ -1,9 +1,9 @@
 ## task_014_orchestration_delivery_for_req_012_and_req_013_harness_controls_and_accessibility - Orchestration delivery for req_012 and req_013 harness controls and accessibility
 > From version: 1.2.0
-> Status: In progress
-> Understanding: 99%
-> Confidence: 96%
-> Progress: 92%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: Medium-High
 > Theme: Harness UX and Accessibility Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -26,7 +26,7 @@ Constraint:
 - [x] 3. Implement `Open`/`Edit` fallback opening target files/views in new tabs in harness mode.
 - [x] 4. Run a11y control audit and apply consistent labels/tooltips/ARIA state fixes.
 - [x] 5. Add or update tests for harness fallback behavior and critical a11y expectations.
-- [ ] 6. Validate in both harness and VS Code runtime contexts.
+- [x] 6. Validate in both harness and VS Code runtime contexts.
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -48,7 +48,7 @@ Constraint:
 - [x] Scope implemented and acceptance criteria covered.
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Implemented:
@@ -62,8 +62,7 @@ Constraint:
   - `npm run compile`
   - `npm run test`
   - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
-- Pending:
-  - Manual in-app verification in real VS Code runtime (parity smoke checks for AC5).
+  - Manual in-app verification in real VS Code runtime (parity smoke checks for AC5) completed on 2026-03-01.
 - Risks:
   - drift between harness behavior and VS Code runtime behavior.
   - browser capability differences for filesystem APIs.

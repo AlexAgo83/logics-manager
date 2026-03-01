@@ -1,8 +1,8 @@
 ## req_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls - Accessibility hardening: improve discoverability and descriptions for controls
 > From version: 1.2.0
-> Status: Draft
-> Understanding: 99%
-> Confidence: 96%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Accessibility and UX
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

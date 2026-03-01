@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE.txt)
-![Version](https://img.shields.io/badge/version-v1.5.0-4C8BF5)
+![Version](https://img.shields.io/badge/version-v1.6.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.9-6E9F18?logo=vitest&logoColor=white)
@@ -29,6 +29,19 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 - `python3` available on PATH (required for Logics flow scripts).
 - Node.js + npm (for build/package).
 - VS Code CLI `code` available on PATH (for VSIX install).
+
+## Flow Manager Compatibility
+
+- Minimum supported Logics kit baseline: `v1.0.5+`.
+- Required script path: `logics/skills/logics-flow-manager/scripts/logics_flow.py`.
+- If the script is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
+
+### Flow-manager smoke checklist
+
+- Create a request from UI (`New Request`) and confirm markdown is generated.
+- Promote request -> backlog and confirm links are updated.
+- Promote backlog -> task and confirm task document is generated.
+- Refresh board/details and confirm data remains consistent.
 
 ## Installation
 

@@ -1,7 +1,8 @@
 ## req_006_update_extension_for_flow_manager_changes - Update extension for flow manager changes
 > From version: 1.0.5
-> Understanding: 85%
-> Confidence: 80%
+> Status: Done
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence and dependencies/references when you edit this doc.

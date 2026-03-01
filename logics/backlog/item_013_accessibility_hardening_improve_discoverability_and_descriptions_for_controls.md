@@ -1,9 +1,9 @@
 ## item_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls - Accessibility hardening: improve discoverability and descriptions for controls
 > From version: 1.2.0
-> Status: In progress
-> Understanding: 99%
-> Confidence: 96%
-> Progress: 90%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility and UX
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

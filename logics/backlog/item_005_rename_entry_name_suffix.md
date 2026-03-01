@@ -1,8 +1,9 @@
 ## item_005_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
 > From version: 1.0.4
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100%
 
 # Problem
 Allow users to rename entry names for `request`, `item`, and `task` while keeping stable identifiers.

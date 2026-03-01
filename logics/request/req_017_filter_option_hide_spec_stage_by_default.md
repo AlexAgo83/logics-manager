@@ -1,8 +1,8 @@
 ## req_017_filter_option_hide_spec_stage_by_default - Add filter option to hide SPEC stage by default
 > From version: 1.5.0
-> Status: Draft
-> Understanding: 99%
-> Confidence: 96%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Filtering and view ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

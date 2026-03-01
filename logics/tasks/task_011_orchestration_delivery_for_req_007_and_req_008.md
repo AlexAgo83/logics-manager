@@ -1,9 +1,9 @@
 ## task_011_orchestration_delivery_for_req_007_and_req_008 - Orchestration Delivery for req_007 and req_008
 > From version: 1.0.6-b1
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium-High
 > Theme: Cross-Item Delivery Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -21,11 +21,11 @@ Execution constraint:
 - land item_007 foundations first (reference contract + parser/render validation), then deliver item_008 on top of that stable behavior.
 
 # Plan
-- [ ] 1. Define and document canonical Logics reference patterns (sections + lineage markers + examples) for request/backlog/task.
-- [ ] 2. Implement alignment changes in indexer/extension docs where needed, and validate references/promotion behavior manually in the board.
-- [ ] 3. Build the web debug harness (HTML shell + bridge mock + scenario injection) using existing webview assets.
-- [ ] 4. Validate empty/error/populated harness scenarios and confirm parity expectations vs VS Code runtime.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Define and document canonical Logics reference patterns (sections + lineage markers + examples) for request/backlog/task.
+- [x] 2. Implement alignment changes in indexer/extension docs where needed, and validate references/promotion behavior manually in the board.
+- [x] 3. Build the web debug harness (HTML shell + bridge mock + scenario injection) using existing webview assets.
+- [x] 4. Validate empty/error/populated harness scenarios and confirm parity expectations vs VS Code runtime.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 (reference contract defined) -> `logics/instructions.md` and/or `README.md` updated with canonical patterns.
@@ -40,10 +40,10 @@ Execution constraint:
 - Manual: verify documented limitations (actions needing VS Code runtime) are explicit.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Dependencies:
@@ -54,3 +54,9 @@ Execution constraint:
 - Mitigation:
   - document migration path for legacy markdown;
   - keep mock API limited to methods currently used by `media/main.js`.
+- Current snapshot:
+  - Added explicit reference contract guidance in docs.
+  - Added indexer support for `req_`-prefixed files inside `logics/specs`.
+  - Added browser debug harness under `debug/webview/` with empty/error/populated scenarios.
+  - Added compatibility parsing for legacy list-style references (`- References:` / `- Used by:`).
+  - Validation executed: `npm run compile`, `npm run test`, `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`, plus harness startup smoke check.

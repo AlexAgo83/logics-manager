@@ -5,7 +5,7 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 
 ## Features
 
-- Flow board view (Requests / Backlog / Tasks).
+- Flow board view (Requests / Backlog / Tasks / Specs).
 - Details panel with indicators and references (Promoted from / Derived from) + reverse “Used by”.
 - Create new requests from the UI (uses Logics templates).
 - Open, refresh, and promote actions (with safeguards against double promotion).
@@ -37,6 +37,7 @@ If you don't have the `code` CLI on PATH, enable it in VS Code:
 ```bash
 npm install
 npm run compile
+npm run test
 ```
 
 Run the extension:
@@ -70,8 +71,30 @@ npm run install:vsix
 - `Logics: Promote Item`
 - `Logics: New Request`
 
+## Validation
+
+- Compile: `npm run compile`
+- Unit tests: `npm run test`
+
+CI runs these checks on every `push` and `pull_request` via `.github/workflows/ci.yml`.
+
+## Webview Browser Debug
+
+Run the harness server:
+
+```bash
+npm run debug:webview
+```
+
+Then open `http://localhost:4173/` and switch scenarios from the in-page debug control.
+
 ## Notes
 
 - Promotion is only allowed for request/backlog items that are not already used.
 - Items with `Progress: 100%` are treated as completed.
 - The UI reads and writes the existing Markdown files; it does not manage a separate database.
+- For stable references in the board/details panel, use canonical markdown links:
+  - `Derived from \`logics/<stage>/<file>.md\`` or `Promoted from \`...\``
+  - `# Backlog` section in requests
+  - `# References` and `# Used by` sections with backticked relative paths
+- Legacy nested list blocks (`- References:` / `- Used by:`) are also parsed for backward compatibility.

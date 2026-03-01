@@ -38,3 +38,24 @@ This repository uses a reusable Logics skills kit (usually imported as a submodu
 
 Project validation commands are project-specific.
 Add the relevant ones to task docs under `# Validation` (tests/lint/build/typecheck).
+
+- Compile: `npm run compile`
+- Unit tests: `npm run test`
+
+## Reference Contract (Plugin Compatibility)
+
+Use the following markdown patterns for deterministic indexing in the VS Code extension:
+
+- Lineage links:
+  - `Derived from \`logics/request/req_XXX_name.md\``
+  - `Derived from \`logics/backlog/item_XXX_name.md\``
+  - `Promoted from \`...\``
+- Request-to-backlog mapping:
+  - Keep links under `# Backlog` as backticked relative paths.
+- Manual references:
+  - Keep links under `# References` as backticked relative paths.
+- Reverse links:
+  - Keep links under `# Used by` as backticked relative paths.
+
+Avoid storing critical links only in free-form prose when they need to appear in plugin references/promotion guards.
+Legacy nested list labels (`- References:` / `- Used by:`) are parsed for backward compatibility, but canonical headings remain preferred.

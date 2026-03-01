@@ -1,9 +1,9 @@
 ## task_012_orchestration_delivery_for_req_009_tests_and_github_ci - Orchestration delivery for req_009 tests and GitHub CI
 > From version: 1.0.6-b1
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium-High
 > Theme: CI and Test Baseline Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -20,11 +20,11 @@ Constraint:
 - keep implementation pragmatic and small (fast baseline), then extend coverage in follow-up items.
 
 # Plan
-- [ ] 1. Select and configure test stack (runner + TS config), then add `npm run test`.
-- [ ] 2. Add baseline tests for indexer behavior and promotion guard logic.
-- [ ] 3. Add GitHub Actions workflow for compile + test on push/pull_request.
-- [ ] 4. Update README with local validation and CI scope.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Select and configure test stack (runner + TS config), then add `npm run test`.
+- [x] 2. Add baseline tests for indexer behavior and promotion guard logic.
+- [x] 3. Add GitHub Actions workflow for compile + test on push/pull_request.
+- [x] 4. Update README with local validation and CI scope.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 (local tests runnable) -> `package.json` scripts + test config committed.
@@ -39,10 +39,10 @@ Constraint:
 - Manual: intentionally break a test locally to confirm fail-fast behavior.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Dependencies:
@@ -53,3 +53,8 @@ Constraint:
 - Mitigation:
   - use explicit fixture files and deterministic temp directories;
   - pin Node version in CI workflow.
+- Delivery outcome:
+  - Added Vitest setup (`vitest.config.ts`) and baseline indexer tests (`tests/logicsIndexer.test.ts`).
+  - Added CI workflow (`.github/workflows/ci.yml`) for `npm run compile` + `npm run test`.
+  - Added npm scripts: `test`, `test:watch`.
+  - Updated README with validation and CI details.

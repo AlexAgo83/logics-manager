@@ -29,11 +29,11 @@ export interface LogicsUsage {
   stage: LogicsStage;
   relPath: string;
 }
-const STAGES: Array<{ stage: LogicsStage; dir: string; prefix: string }> = [
-  { stage: "request", dir: "logics/request", prefix: "req_" },
-  { stage: "backlog", dir: "logics/backlog", prefix: "item_" },
-  { stage: "task", dir: "logics/tasks", prefix: "task_" },
-  { stage: "spec", dir: "logics/specs", prefix: "spec_" }
+const STAGES: Array<{ stage: LogicsStage; dir: string; prefixes: string[] }> = [
+  { stage: "request", dir: "logics/request", prefixes: ["req_"] },
+  { stage: "backlog", dir: "logics/backlog", prefixes: ["item_"] },
+  { stage: "task", dir: "logics/tasks", prefixes: ["task_"] },
+  { stage: "spec", dir: "logics/specs", prefixes: ["spec_", "req_"] }
 ];
 
 export function indexLogics(root: string): LogicsItem[] {
@@ -53,7 +53,7 @@ export function indexLogics(root: string): LogicsItem[] {
       if (!entry.isFile() || !entry.name.endsWith(".md")) {
         continue;
       }
-      if (!entry.name.startsWith(stageInfo.prefix)) {
+      if (!stageInfo.prefixes.some((prefix) => entry.name.startsWith(prefix))) {
         continue;
       }
 
@@ -61,7 +61,10 @@ export function indexLogics(root: string): LogicsItem[] {
       const content = fs.readFileSync(fullPath, "utf8");
       const relPath = path.relative(root, fullPath).replace(/\\/g, "/");
       const references = extractReferences(content);
-      const manualUsedBy = extractSectionLinks(content, "Used by").map(normalizeRef);
+      const manualUsedBy = [
+        ...extractSectionLinks(content, "Used by"),
+        ...extractListLinks(content, "Used by")
+      ].map(normalizeRef);
       manualUsedByMap.set(relPath, manualUsedBy);
       const fromRefs = references
         .filter((ref) => ref.kind === "from")
@@ -171,7 +174,11 @@ function extractReferences(content: string): LogicsReference[] {
     refs.push({ kind: "backlog", label: "Backlog", path: backlogRef });
   }
 
-  for (const manualRef of extractSectionLinks(content, "References")) {
+  const manualReferences = [
+    ...extractSectionLinks(content, "References"),
+    ...extractListLinks(content, "References")
+  ];
+  for (const manualRef of manualReferences) {
     refs.push({ kind: "manual", label: "Reference", path: manualRef });
   }
 
@@ -203,16 +210,66 @@ function extractSectionLinks(content: string, sectionTitle: string): string[] {
       continue;
     }
 
-    let match: RegExpExecArray | null;
-    const regex = /`([^`]+)`/g;
-    while ((match = regex.exec(line)) !== null) {
-      if (match[1]) {
-        links.push(match[1]);
-      }
-    }
+    collectBacktickedLinks(line, links);
   }
 
   return Array.from(new Set(links));
+}
+
+function extractListLinks(content: string, listLabel: string): string[] {
+  const lines = content.split(/\r?\n/);
+  const links: string[] = [];
+  const expectedLabel = listLabel.toLowerCase();
+  let inList = false;
+  let baseIndent = 0;
+
+  for (const line of lines) {
+    const labelMatch = line.match(/^(\s*)-\s*([^:]+):\s*(.*)$/);
+    if (labelMatch) {
+      const indent = labelMatch[1].length;
+      const label = labelMatch[2].trim().toLowerCase();
+      const inlineContent = labelMatch[3] ?? "";
+
+      if (inList && indent <= baseIndent && label !== expectedLabel) {
+        inList = false;
+      }
+
+      if (label === expectedLabel) {
+        inList = true;
+        baseIndent = indent;
+        collectBacktickedLinks(inlineContent, links);
+        continue;
+      }
+    }
+
+    if (!inList) {
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      inList = false;
+      continue;
+    }
+
+    const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
+    if (line.trim() !== "" && indent <= baseIndent) {
+      inList = false;
+      continue;
+    }
+
+    collectBacktickedLinks(line, links);
+  }
+
+  return Array.from(new Set(links));
+}
+
+function collectBacktickedLinks(line: string, links: string[]): void {
+  let match: RegExpExecArray | null;
+  const regex = /`([^`]+)`/g;
+  while ((match = regex.exec(line)) !== null) {
+    if (match[1]) {
+      links.push(match[1]);
+    }
+  }
 }
 
 function normalizeRef(value: string): string {

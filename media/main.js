@@ -35,7 +35,7 @@
   let splitRatio = 0.6;
   let isDraggingSplit = false;
 
-  const stageOrder = ["request", "backlog", "task"];
+  const stageOrder = ["request", "backlog", "task", "spec"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const minBoardHeight = 160;
   const minDetailsHeight = 180;

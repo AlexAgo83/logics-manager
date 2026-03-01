@@ -57,14 +57,18 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "echo \"No lint configured\"",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
+    "debug:webview": "node debug/webview/server.mjs",
     "package": "npm run compile && npx @vscode/vsce package",
     "install:vsix": "npm run package && code --install-extension cdx-logics-vscode-$(node -p \"require('./package.json').version\").vsix --force"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.86.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^2.1.8"
   }
 }

@@ -1,9 +1,9 @@
 ## item_010_stacked_layout_disable_splitter_and_compact_details_when_collapsed - Stacked layout: disable splitter and compact details when collapsed
 > From version: 1.1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 75%
 > Complexity: Medium
 > Theme: UX Behavior and Interaction Guardrails
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

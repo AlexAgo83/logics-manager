@@ -269,6 +269,14 @@
   }
 
   function render() {
+    updateLayoutMode();
+    if (isSplitInteractionDisabled() && isDraggingSplit) {
+      isDraggingSplit = false;
+      if (splitter) {
+        splitter.classList.remove("splitter--dragging");
+      }
+      document.body.classList.remove("is-resizing");
+    }
     const selectedItem = items.find((item) => item.id === selectedId);
     if (selectedItem && !isVisible(selectedItem)) {
       selectedId = null;
@@ -282,6 +290,11 @@
         "aria-label",
         detailsCollapsed ? "Expand details" : "Collapse details"
       );
+    }
+    if (splitter) {
+      const splitDisabled = isSplitInteractionDisabled();
+      splitter.setAttribute("aria-disabled", String(splitDisabled));
+      splitter.tabIndex = splitDisabled ? -1 : 0;
     }
     renderBoard();
     renderDetails();
@@ -788,6 +801,10 @@
     return Boolean(stackedQuery && stackedQuery.matches);
   }
 
+  function isSplitInteractionDisabled() {
+    return isStackedLayout() && detailsCollapsed;
+  }
+
   function clearSplitSizing() {
     if (!board || !details) {
       return;
@@ -800,6 +817,16 @@
 
   function applySplitRatio(nextRatio, shouldPersist = false) {
     if (!layout || !board || !details || !isStackedLayout()) {
+      return;
+    }
+    if (isSplitInteractionDisabled()) {
+      board.style.flex = "1 1 auto";
+      board.style.height = "";
+      details.style.flex = "0 0 auto";
+      details.style.height = "auto";
+      if (shouldPersist) {
+        persistState();
+      }
       return;
     }
     const splitterHeight = splitter ? splitter.getBoundingClientRect().height : 0;
@@ -829,6 +856,7 @@
     }
     const stacked = isStackedLayout();
     layout.classList.toggle("layout--stacked", stacked);
+    layout.classList.toggle("layout--split-disabled", stacked && detailsCollapsed);
     if (stacked) {
       applySplitRatio(splitRatio, false);
     } else {
@@ -837,7 +865,7 @@
   }
 
   function startSplitDrag(event) {
-    if (!splitter || !layout || !isStackedLayout()) {
+    if (!splitter || !layout || !isStackedLayout() || isSplitInteractionDisabled()) {
       return;
     }
     event.preventDefault();
@@ -848,7 +876,7 @@
   }
 
   function updateSplitDrag(event) {
-    if (!isDraggingSplit || !layout || !isStackedLayout()) {
+    if (!isDraggingSplit || !layout || !isStackedLayout() || isSplitInteractionDisabled()) {
       return;
     }
     const rect = layout.getBoundingClientRect();

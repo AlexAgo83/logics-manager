@@ -1,9 +1,9 @@
 ## task_013_orchestration_delivery_for_req_010_and_req_011_details_panel_collapse_ux - Orchestration delivery for req_010 and req_011 details panel collapse UX
 > From version: 1.1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 95%
 > Complexity: Medium-High
 > Theme: Split Layout Interaction Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -18,10 +18,10 @@ This orchestration task coordinates details-panel collapse behavior across both 
 - horizontal layout: keep actions pinned at panel bottom when collapsed.
 
 # Plan
-- [ ] 1. Implement stacked-mode guards: ignore splitter interactions when `detailsCollapsed` is true.
-- [ ] 2. Implement compact collapsed details layout for stacked mode and preserve re-expand behavior.
-- [ ] 3. Implement horizontal collapsed layout anchoring so actions remain pinned at bottom.
-- [ ] 4. Add/adjust tests for collapse + layout interactions where feasible.
+- [x] 1. Implement stacked-mode guards: ignore splitter interactions when `detailsCollapsed` is true.
+- [x] 2. Implement compact collapsed details layout for stacked mode and preserve re-expand behavior.
+- [x] 3. Implement horizontal collapsed layout anchoring so actions remain pinned at bottom.
+- [x] 4. Add/adjust tests for collapse + layout interactions where feasible.
 - [ ] 5. Run harness + VS Code runtime smoke validation for both modes.
 - [ ] FINAL: Update related Logics docs
 
@@ -50,3 +50,8 @@ This orchestration task coordinates details-panel collapse behavior across both 
   - collapse state persistence edge cases (`detailsCollapsed`, `splitRatio`).
 - Mitigation:
   - validate transitions (collapse/expand + resize + viewport changes) in both harness and VS Code runtime.
+- Current implementation:
+  - `media/main.js`: splitter disabled in stacked+collapsed mode (`isSplitInteractionDisabled`), stacked collapsed layout class wiring, compact split application.
+  - `media/main.css`: splitter hidden when split disabled, stacked collapsed compact rules, horizontal collapsed action bar pinned to bottom.
+  - Added tests: `tests/webview.layout-collapse.test.ts` (stacked disabled splitter + horizontal non-disabled splitter + CSS rule assertions).
+  - Validation executed: `npm run compile`, `npm run test`, `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`, harness startup smoke.

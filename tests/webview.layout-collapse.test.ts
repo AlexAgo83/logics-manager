@@ -1,0 +1,105 @@
+import * as fs from "fs";
+import * as path from "path";
+import { describe, expect, it } from "vitest";
+import { JSDOM } from "jsdom";
+
+function bootstrapWebview(stacked: boolean) {
+  const html = `
+    <!doctype html>
+    <html>
+      <body>
+        <button id="filter-toggle"></button>
+        <div id="filter-panel"></div>
+        <button id="tools-toggle"></button>
+        <div id="tools-panel"></div>
+        <button data-action="refresh"></button>
+        <button data-action="change-project-root"></button>
+        <button data-action="reset-project-root"></button>
+        <button data-action="fix-docs"></button>
+        <button data-action="promote"></button>
+        <button data-action="open"></button>
+        <button data-action="read"></button>
+        <input id="hide-complete" type="checkbox" />
+        <input id="hide-used-requests" type="checkbox" />
+        <div id="layout" class="layout">
+          <div id="board"></div>
+          <div id="splitter" role="separator"></div>
+          <aside id="details" class="details">
+            <div id="details-title"></div>
+            <button id="details-toggle" aria-expanded="true"></button>
+            <div id="details-body"></div>
+          </aside>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://localhost/" });
+  const postedMessages: Array<{ type?: string }> = [];
+  const state = {};
+
+  Object.defineProperty(dom.window, "matchMedia", {
+    value: () => ({
+      matches: stacked,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined
+    })
+  });
+
+  Object.defineProperty(dom.window, "acquireVsCodeApi", {
+    value: () => ({
+      postMessage: (message: { type?: string }) => postedMessages.push(message),
+      getState: () => state,
+      setState: () => undefined
+    })
+  });
+
+  const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
+  dom.window.eval(mainScript);
+
+  return { dom, postedMessages };
+}
+
+describe("webview collapsed details layout behavior", () => {
+  it("disables splitter interactions when stacked layout is collapsed", () => {
+    const { dom } = bootstrapWebview(true);
+    const document = dom.window.document;
+    const layout = document.getElementById("layout");
+    const splitter = document.getElementById("splitter");
+    const detailsToggle = document.getElementById("details-toggle");
+    const details = document.getElementById("details");
+    expect(layout).toBeTruthy();
+    expect(splitter).toBeTruthy();
+    expect(detailsToggle).toBeTruthy();
+
+    detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(details?.classList.contains("details--collapsed")).toBe(true);
+    expect(layout?.classList.contains("layout--split-disabled")).toBe(true);
+    expect(splitter?.getAttribute("aria-disabled")).toBe("true");
+    expect(splitter?.tabIndex).toBe(-1);
+  });
+
+  it("keeps splitter enabled in horizontal layout even when collapsed", () => {
+    const { dom } = bootstrapWebview(false);
+    const document = dom.window.document;
+    const layout = document.getElementById("layout");
+    const splitter = document.getElementById("splitter");
+    const detailsToggle = document.getElementById("details-toggle");
+
+    detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(layout?.classList.contains("layout--split-disabled")).toBe(false);
+    expect(splitter?.getAttribute("aria-disabled")).toBe("false");
+    expect(splitter?.tabIndex).toBe(0);
+  });
+
+  it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "media/main.css"), "utf8");
+    expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
+    expect(css.includes(".details--collapsed .details__actions")).toBe(true);
+  });
+});
+

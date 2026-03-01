@@ -186,6 +186,10 @@ body {
   display: block;
 }
 
+.layout--stacked.layout--split-disabled .splitter {
+  display: none;
+}
+
 .layout--stacked .board {
   min-height: 160px;
 }
@@ -483,6 +487,10 @@ body {
   gap: 8px;
 }
 
+.details--collapsed .details__actions {
+  margin-top: auto;
+}
+
 .details__actions .btn {
   flex: 1;
 }
@@ -679,6 +687,15 @@ body {
     width: 100%;
     border-left: none;
     border-top: 1px solid var(--vscode-panel-border, #333333);
+  }
+
+  .layout--stacked .details--collapsed {
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+
+  .layout--stacked .details--collapsed .details__actions {
+    margin-top: 0;
   }
 }
 .toggle {

@@ -90,7 +90,7 @@ Then open `http://localhost:4173/` and switch scenarios from the in-page debug c
 
 In harness mode:
 - `Change Project Root` uses browser-native directory selection fallbacks.
-- `Edit` and `Read` open selected files in new browser tabs.
+- `Edit` and `Read` open selected files in new browser tabs (preferring File System Access API content when available).
 - Host-only actions (for example `Promote`, `Fix Logics`) show explicit guidance instead of silent no-op.
 
 ## Accessibility Baseline

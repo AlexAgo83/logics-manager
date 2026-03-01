@@ -3,7 +3,7 @@
 > Status: In progress
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 85%
+> Progress: 92%
 > Complexity: Medium-High
 > Theme: Harness UX and Accessibility Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -52,11 +52,11 @@ Constraint:
 
 # Report
 - Implemented:
-  - `media/main.js`: harness detection, browser fallbacks (`Change Project Root`, `Edit`, `Read`), non-silent harness notices, keyboard support for cards/splitter, and consistent tooltip/ARIA hardening.
+  - `media/main.js`: harness detection, browser fallbacks (`Change Project Root`, `Edit`, `Read`) with File System Access API handle-based read path + server fallback, non-silent harness notices, keyboard support for cards/splitter, and consistent tooltip/ARIA hardening.
   - `debug/webview/mock-vscode.js`: explicit harness bridge (`window.__CDX_LOGICS_HARNESS__`) and action guidance for host-only commands.
   - `debug/webview/index.html` and `src/extension.ts`: aligned static tooltip/ARIA/menu metadata.
   - `media/main.css`: status banner styling.
-  - `tests/webview.harness-a11y.test.ts`: harness fallback and a11y behavior coverage.
+  - `tests/webview.harness-a11y.test.ts`: harness fallback and a11y behavior coverage, including handle-based file reads and non-harness routing assertions.
   - `README.md` and `debug/webview/README.md`: documented harness fallback behavior + project a11y baseline checklist.
 - Validation executed:
   - `npm run compile`

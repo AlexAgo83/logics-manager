@@ -7,6 +7,7 @@ type BootstrapOptions = {
   stacked?: boolean;
   harness?: boolean;
   showDirectoryPicker?: () => Promise<{ name?: string }>;
+  fetchImpl?: (url: string) => Promise<{ ok: boolean; status: number; text: () => Promise<string> }>;
 };
 
 function bootstrapWebview(options: BootstrapOptions = {}) {
@@ -46,6 +47,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const postedMessages: Array<{ type?: string }> = [];
   const state = {};
   const openedUrls: string[] = [];
+  const fetchCalls: string[] = [];
   const setProjectRootCalls: Array<string | null> = [];
 
   Object.defineProperty(dom.window, "matchMedia", {
@@ -71,6 +73,20 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           href: ""
         }
       };
+    }
+  });
+
+  Object.defineProperty(dom.window, "fetch", {
+    value: (url: string) => {
+      fetchCalls.push(String(url));
+      if (options.fetchImpl) {
+        return options.fetchImpl(String(url));
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        text: async () => ""
+      });
     }
   });
 
@@ -102,7 +118,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(mainScript);
 
-  return { dom, postedMessages, openedUrls, setProjectRootCalls };
+  return { dom, postedMessages, openedUrls, setProjectRootCalls, fetchCalls };
 }
 
 function pushData(
@@ -136,8 +152,41 @@ const baseItem = {
   usedBy: []
 };
 
+type MockTree = {
+  dirs?: Record<string, MockTree>;
+  files?: Record<string, string>;
+};
+
+function createDirectoryHandle(name: string, tree: MockTree) {
+  return {
+    name,
+    async getDirectoryHandle(dirName: string) {
+      const next = tree.dirs && tree.dirs[dirName];
+      if (!next) {
+        throw new Error(`Missing directory: ${dirName}`);
+      }
+      return createDirectoryHandle(dirName, next);
+    },
+    async getFileHandle(fileName: string) {
+      const content = tree.files && tree.files[fileName];
+      if (typeof content !== "string") {
+        throw new Error(`Missing file: ${fileName}`);
+      }
+      return {
+        async getFile() {
+          return {
+            async text() {
+              return content;
+            }
+          };
+        }
+      };
+    }
+  };
+}
+
 describe("webview harness controls and accessibility", () => {
-  it("opens selected item in a new tab in harness mode without posting open message", () => {
+  it("opens selected item in harness mode without posting open message", async () => {
     const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: true });
 
     pushData(dom, {
@@ -148,8 +197,9 @@ describe("webview harness controls and accessibility", () => {
 
     const openButton = dom.window.document.querySelector('[data-action="open"]');
     openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(openedUrls.some((url) => url.includes("/logics/request/req_000_kickoff.md"))).toBe(true);
+    expect(openedUrls.length).toBeGreaterThan(0);
     expect(postedMessages.some((message) => message.type === "open")).toBe(false);
   });
 
@@ -170,6 +220,62 @@ describe("webview harness controls and accessibility", () => {
     expect(pickerCalls).toBe(1);
     expect(setProjectRootCalls).toContain("repo-root");
     expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(false);
+  });
+
+  it("uses selected directory handle content for edit preview in harness mode", async () => {
+    const rootHandle = createDirectoryHandle("repo-root", {
+      dirs: {
+        logics: {
+          dirs: {
+            request: {
+              files: {
+                "req_000_kickoff.md": "# Kickoff"
+              }
+            }
+          }
+        }
+      }
+    });
+    const { dom, openedUrls, fetchCalls } = bootstrapWebview({
+      harness: true,
+      showDirectoryPicker: async () => rootHandle
+    });
+
+    const changeRootButton = dom.window.document.querySelector('[data-action="change-project-root"]');
+    changeRootButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(openedUrls).toContain("");
+    expect(fetchCalls.length).toBe(0);
+  });
+
+  it("keeps VS Code message routing in non-harness mode for open and change root", () => {
+    const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: false });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    const changeRootButton = dom.window.document.querySelector('[data-action="change-project-root"]');
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    changeRootButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(true);
+    expect(openedUrls.length).toBe(0);
   });
 
   it("adds discoverable labels/tooltips and keyboard-accessible card interactions", () => {

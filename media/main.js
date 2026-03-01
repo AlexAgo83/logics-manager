@@ -37,6 +37,7 @@
   let splitRatio = 0.6;
   let isDraggingSplit = false;
   let currentRoot = null;
+  let harnessRootHandle = null;
   let statusBanner = null;
   let noticeTimeoutId = null;
 
@@ -871,6 +872,82 @@
     return `/${encodePathForUrl(relativePath)}`;
   }
 
+  async function readHarnessFileFromHandle(relativePath) {
+    if (!harnessRootHandle || typeof harnessRootHandle.getDirectoryHandle !== "function") {
+      return null;
+    }
+    const segments = relativePath
+      .split("/")
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0 && part !== ".");
+    if (!segments.length || segments.includes("..")) {
+      return null;
+    }
+    const filename = segments[segments.length - 1];
+    if (!filename) {
+      return null;
+    }
+
+    let directoryHandle = harnessRootHandle;
+    for (const segment of segments.slice(0, -1)) {
+      directoryHandle = await directoryHandle.getDirectoryHandle(segment, { create: false });
+    }
+    const fileHandle = await directoryHandle.getFileHandle(filename, { create: false });
+    const file = await fileHandle.getFile();
+    return file.text();
+  }
+
+  function openHarnessContentTab(item, mode, sourceLabel, content) {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) {
+      showStatus("Popup blocked by the browser. Enable popups for harness preview.", "warn");
+      return false;
+    }
+    const safeTitle = escapeHtml(item && item.title ? item.title : "Logics item");
+    const safeSourceLabel = escapeHtml(sourceLabel || "unknown");
+    const safeContent = escapeHtml(content || "");
+    const editMode = mode === "edit";
+    const body = editMode
+      ? `<textarea style="width:100%;height:70vh;font:13px ui-monospace,SFMono-Regular,Menlo,monospace;">${safeContent}</textarea><p style="font-size:12px;opacity:0.8;">Harness edit mode is preview-only (saving is disabled).</p>`
+      : `<pre style="white-space:pre-wrap;word-break:break-word;">${safeContent}</pre>`;
+    popup.document.open();
+    popup.document.write(`<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>${safeTitle}</title><style>body{font-family:system-ui,sans-serif;margin:20px;line-height:1.45;}code{background:#f4f4f4;padding:2px 4px;border-radius:4px;}</style></head><body><h1>${safeTitle}</h1><p>Source: <code>${safeSourceLabel}</code></p>${body}</body></html>`);
+    popup.document.close();
+    return true;
+  }
+
+  async function resolveHarnessItemContent(item) {
+    const relativePath = getItemRelativePath(item);
+    if (!relativePath) {
+      return { relativePath: "", content: "", source: "", error: "missing-path" };
+    }
+
+    if (harnessRootHandle) {
+      try {
+        const content = await readHarnessFileFromHandle(relativePath);
+        if (typeof content === "string") {
+          return { relativePath, content, source: `filesystem:${currentRoot || "selected-root"}`, error: "" };
+        }
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        showStatus(`Could not read from selected root (${reason}). Falling back to server path.`, "warn");
+      }
+    }
+
+    const target = `/${encodePathForUrl(relativePath)}`;
+    try {
+      const response = await fetch(target);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const content = await response.text();
+      return { relativePath, content, source: target, error: "" };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      return { relativePath, content: "", source: target, error: reason };
+    }
+  }
+
   function openHarnessInfoTab(item, heading, message) {
     const popup = window.open("", "_blank", "noopener,noreferrer");
     if (!popup) {
@@ -885,13 +962,23 @@
     popup.document.close();
   }
 
-  function openHarnessEditTab(item) {
+  async function openHarnessEditTab(item) {
     const target = buildHarnessDocUrl(item);
     if (!target) {
       openHarnessInfoTab(item, "Edit view unavailable", "No file path is available for this mocked item in harness mode.");
       showStatus("No file path available for this item in harness mode.", "warn");
       return;
     }
+
+    const resolved = await resolveHarnessItemContent(item);
+    if (!resolved.error) {
+      const opened = openHarnessContentTab(item, "edit", resolved.source, resolved.content);
+      if (opened) {
+        showStatus(`Opened edit tab for ${resolved.relativePath} (${resolved.source}).`, "info");
+      }
+      return;
+    }
+
     const opened = window.open(target, "_blank", "noopener,noreferrer");
     if (!opened) {
       showStatus("Popup blocked by the browser. Enable popups to open files from harness mode.", "warn");
@@ -908,29 +995,22 @@
       return;
     }
 
-    const popup = window.open("", "_blank", "noopener,noreferrer");
-    if (!popup) {
-      showStatus("Popup blocked by the browser. Enable popups for harness preview.", "warn");
+    const resolved = await resolveHarnessItemContent(item);
+    if (!resolved.error) {
+      const opened = openHarnessContentTab(item, "read", resolved.source, resolved.content);
+      if (opened) {
+        showStatus(`Opened read preview for ${resolved.relativePath} (${resolved.source}).`, "info");
+      }
       return;
     }
 
-    try {
-      const response = await fetch(target);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const markdown = await response.text();
-      const safeTitle = escapeHtml(item && item.title ? item.title : "Logics item");
-      popup.document.open();
-      popup.document.write(`<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>${safeTitle}</title><style>body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:20px;line-height:1.45;}pre{white-space:pre-wrap;word-break:break-word;}</style></head><body><h1>${safeTitle}</h1><p>Source: <code>${escapeHtml(target)}</code></p><pre>${escapeHtml(markdown)}</pre></body></html>`);
-      popup.document.close();
-      showStatus(`Opened read preview for ${target}.`, "info");
+    const opened = window.open(target, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      showStatus("Popup blocked by the browser. Enable popups for harness preview.", "warn");
       return;
-    } catch (error) {
-      popup.location.href = target;
-      const reason = error instanceof Error ? error.message : String(error);
-      showStatus(`Preview unavailable (${reason}). Opened raw file instead.`, "warn");
     }
+    const reason = resolved.error || "preview unavailable";
+    showStatus(`Preview unavailable (${reason}). Opened raw file instead.`, "warn");
   }
 
   function openSelectedItem(mode) {
@@ -945,7 +1025,7 @@
       if (mode === "read") {
         void openHarnessReadTab(item);
       } else {
-        openHarnessEditTab(item);
+        void openHarnessEditTab(item);
       }
       return;
     }
@@ -998,8 +1078,9 @@
     });
   }
 
-  function applyHarnessRoot(rootLabel) {
+  function applyHarnessRoot(rootLabel, nextHandle = null) {
     currentRoot = rootLabel || null;
+    harnessRootHandle = nextHandle || null;
     if (harnessBridge && typeof harnessBridge.setProjectRootLabel === "function") {
       harnessBridge.setProjectRootLabel(rootLabel || null);
     }
@@ -1010,7 +1091,7 @@
       if (typeof window.showDirectoryPicker === "function") {
         const directoryHandle = await window.showDirectoryPicker({ mode: "read" });
         const label = directoryHandle && directoryHandle.name ? directoryHandle.name : "selected-folder";
-        applyHarnessRoot(label);
+        applyHarnessRoot(label, directoryHandle);
         showStatus(`Harness project root set to "${label}".`, "info");
         return;
       }
@@ -1026,7 +1107,7 @@
 
     const fallbackRoot = await pickDirectoryFromInput();
     if (fallbackRoot) {
-      applyHarnessRoot(fallbackRoot);
+      applyHarnessRoot(fallbackRoot, null);
       showStatus(`Harness project root set to "${fallbackRoot}" (directory selection fallback).`, "info");
       return;
     }
@@ -1036,7 +1117,7 @@
       currentRoot || ""
     );
     if (manual && manual.trim()) {
-      applyHarnessRoot(manual.trim());
+      applyHarnessRoot(manual.trim(), null);
       showStatus(`Harness project root set to "${manual.trim()}".`, "info");
       return;
     }

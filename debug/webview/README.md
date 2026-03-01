@@ -29,5 +29,5 @@ Open:
 ## Browser fallback behavior
 
 - `Change Project Root` tries `showDirectoryPicker`, then directory-input fallback, then manual path hint prompt.
-- `Edit` opens the selected item file in a new browser tab when a relative path is available.
-- `Read` opens a markdown preview tab (or raw file fallback if preview fetch fails).
+- `Edit`/`Read` first try reading content from the selected directory handle, then fall back to server-relative file paths.
+- `Read` opens a markdown preview tab (or raw file fallback if preview content is unavailable).

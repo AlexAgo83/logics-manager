@@ -1,8 +1,8 @@
 ## req_015_add_project_badges_to_readme - Add project badges to README
 > From version: 1.4.0
-> Status: Draft
-> Understanding: 99%
-> Confidence: 97%
+> Status: Done
+> Understanding: 100%
+> Confidence: 99%
 > Complexity: Low-Medium
 > Theme: Repository metadata and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -42,10 +42,10 @@ For `cdx-logics-vscode`, we need a tailored set:
   - Marketing/landing page redesign.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_015_add_project_badges_to_readme.md`

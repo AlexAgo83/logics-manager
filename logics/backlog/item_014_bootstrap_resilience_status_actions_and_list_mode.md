@@ -1,9 +1,9 @@
 ## item_014_bootstrap_resilience_status_actions_and_list_mode - Bootstrap resilience, status actions, and compact list mode
 > From version: 1.3.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 88%
+> Progress: 100%
 > Complexity: High
 > Theme: UX and workflow resilience
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

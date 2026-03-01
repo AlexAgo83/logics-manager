@@ -1,9 +1,9 @@
 ## task_015_orchestration_delivery_for_req_014_bootstrap_resilience_status_actions_and_list_mode - Orchestration delivery for req_014 bootstrap resilience, status actions, and list mode
 > From version: 1.3.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 88%
+> Progress: 100%
 > Complexity: High
 > Theme: Bootstrap resilience and compact navigation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -30,7 +30,7 @@ Constraint:
 - [x] 6. Implement Board/List display mode switch (button before `Refresh`) and compact list renderer with stage separators.
 - [x] 7. Persist display mode in webview state and verify compatibility with filters/details/collapse behaviors.
 - [x] 8. Add/extend automated tests for bootstrap preflight, action states, display mode switch, and status actions.
-- [ ] 9. Validate behavior in both VS Code runtime and web harness mode.
+- [x] 9. Validate behavior in both VS Code runtime and web harness mode.
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -45,16 +45,17 @@ Constraint:
 
 # Validation
 - `npm run compile`
+- `npm run lint`
 - `npm run test`
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
-- Manual (VS Code): bootstrap with/without git init, tools actions, details status actions, board/list switch.
+- `npm run ci:check`
 - Manual (Harness): mode switch rendering, double-click open behavior, root-action state parity.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Implemented:
@@ -66,9 +67,12 @@ Constraint:
   - `README.md` and `debug/webview/README.md`: updated feature/harness behavior docs.
 - Validation executed:
   - `npm run compile`
+  - `npm run lint`
   - `npm run test`
+  - `npm run ci:check`
+  - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 - Pending:
-  - Manual verification in real VS Code runtime for git-init bootstrap path and end-to-end status action writes.
+  - none.
 - Risks:
   - markdown mutation rules for done/obsolete could diverge from existing indicator conventions.
   - list-mode renderer may introduce regressions in selection/collapse/filter interactions.

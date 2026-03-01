@@ -1428,10 +1428,24 @@
     }
     const stacked = isStackedLayout();
     layout.classList.toggle("layout--stacked", stacked);
+    layout.classList.toggle("layout--horizontal", !stacked);
     layout.classList.toggle("layout--split-disabled", stacked && detailsCollapsed);
+    if (!stacked && isDraggingSplit) {
+      isDraggingSplit = false;
+      if (splitter) {
+        splitter.classList.remove("splitter--dragging");
+      }
+      document.body.classList.remove("is-resizing");
+    }
     if (stacked) {
+      if (splitter) {
+        splitter.style.display = "";
+      }
       applySplitRatio(splitRatio, false);
     } else {
+      if (splitter) {
+        splitter.style.display = "none";
+      }
       clearSplitSizing();
     }
   }

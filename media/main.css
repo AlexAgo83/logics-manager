@@ -198,6 +198,10 @@ body {
   display: block;
 }
 
+.layout--horizontal .splitter {
+  display: none !important;
+}
+
 .layout--stacked.layout--split-disabled .splitter {
   display: none;
 }

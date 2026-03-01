@@ -92,14 +92,16 @@ describe("webview collapsed details layout behavior", () => {
     detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(layout?.classList.contains("layout--split-disabled")).toBe(false);
+    expect(layout?.classList.contains("layout--horizontal")).toBe(true);
     expect(splitter?.getAttribute("aria-disabled")).toBe("false");
     expect(splitter?.tabIndex).toBe(0);
+    expect((splitter as HTMLElement | null)?.style.display).toBe("none");
   });
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "media/main.css"), "utf8");
     expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
+    expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);
   });
 });
-

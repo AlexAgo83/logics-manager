@@ -93,6 +93,8 @@ npm run install:vsix
 ## Commands
 
 - `Logics: Refresh`
+- `Logics: Refresh Agents`
+- `Logics: Select Agent`
 - `Logics: Open Item`
 - `Logics: Promote Item`
 - `Logics: New Request`

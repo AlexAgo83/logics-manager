@@ -20,6 +20,7 @@
   const toolsPanel = document.getElementById("tools-panel");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
+  const selectAgentButton = document.querySelector('[data-action="select-agent"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
@@ -1033,6 +1034,9 @@
       bootstrapLogics() {
         invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
       },
+      selectAgent() {
+        invokeHostOnly("select-agent", {}, "Select Agent");
+      },
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");
       },
@@ -1432,6 +1436,12 @@
       setToolsPanelOpen(false);
     });
   }
+  if (selectAgentButton) {
+    selectAgentButton.addEventListener("click", () => {
+      hostApi.selectAgent();
+      setToolsPanelOpen(false);
+    });
+  }
   if (changeProjectRootButton) {
     changeProjectRootButton.addEventListener("click", async () => {
       await handleChangeProjectRoot();
@@ -1826,6 +1836,7 @@
   setControlDescription(toolsToggle, "Tools");
   setControlDescription(viewModeToggleButton, "Switch display mode");
   setControlDescription(refreshButton, "Refresh");
+  setControlDescription(selectAgentButton, "Select active agent");
   setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
   setControlDescription(changeProjectRootButton, "Change project root");
   setControlDescription(resetProjectRootButton, "Use workspace root");

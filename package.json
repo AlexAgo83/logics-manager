@@ -41,6 +41,14 @@
         "title": "Logics: Refresh"
       },
       {
+        "command": "logics.refreshAgents",
+        "title": "Logics: Refresh Agents"
+      },
+      {
+        "command": "logics.selectAgent",
+        "title": "Logics: Select Agent"
+      },
+      {
         "command": "logics.open",
         "title": "Logics: Open Item"
       },

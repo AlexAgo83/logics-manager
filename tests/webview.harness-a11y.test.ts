@@ -22,6 +22,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <div id="tools-panel"></div>
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
+          <button data-action="select-agent"></button>
           <button data-action="bootstrap-logics"></button>
           <button data-action="change-project-root"></button>
           <button data-action="reset-project-root"></button>
@@ -283,7 +284,7 @@ describe("webview harness controls and accessibility", () => {
     expect(fetchCalls.length).toBe(0);
   });
 
-  it("keeps VS Code message routing in non-harness mode for open and change root", () => {
+  it("keeps VS Code message routing in non-harness mode for open, change root, and select agent", () => {
     const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: false });
 
     pushData(dom, {
@@ -294,11 +295,14 @@ describe("webview harness controls and accessibility", () => {
 
     const openButton = dom.window.document.querySelector('[data-action="open"]');
     const changeRootButton = dom.window.document.querySelector('[data-action="change-project-root"]');
+    const selectAgentButton = dom.window.document.querySelector('[data-action="select-agent"]');
     openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     changeRootButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    selectAgentButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "open")).toBe(true);
     expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "select-agent")).toBe(true);
     expect(openedUrls.length).toBe(0);
   });
 

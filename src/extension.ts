@@ -2,9 +2,17 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { canPromote, indexLogics, isRequestUsed, LogicsItem, promotionCommand } from "./logicsIndexer";
+import {
+  AgentDefinition,
+  AgentRegistrySnapshot,
+  createEmptyAgentRegistry,
+  extractExplicitAgentInvocation,
+  loadAgentRegistry
+} from "./agentRegistry";
 import { execFile } from "child_process";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
+const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 
 class LogicsViewProvider implements vscode.WebviewViewProvider {
@@ -15,13 +23,18 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   private readonly bootstrapPromptedRoots = new Set<string>();
   private projectRootOverride: string | null;
   private invalidRootNotice?: string;
+  private activeAgentId: string | null;
+  private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly onProjectRootChanged: () => void
+    private readonly onProjectRootChanged: () => void,
+    private readonly agentsOutput: vscode.OutputChannel
   ) {
     const storedOverride = this.context.workspaceState.get<string>(ROOT_OVERRIDE_STATE_KEY);
     this.projectRootOverride = storedOverride?.trim() || null;
+    const storedAgentId = this.context.workspaceState.get<string>(ACTIVE_AGENT_STATE_KEY);
+    this.activeAgentId = storedAgentId?.trim() || null;
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
@@ -69,6 +82,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "fix-docs":
           await this.fixDocs();
           break;
+        case "select-agent":
+          await this.selectAgentFromPalette();
+          break;
         case "bootstrap-logics":
           await this.bootstrapFromTools();
           break;
@@ -105,6 +121,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
       this.items = [];
+      await this.clearAgentRegistry();
       this.postData({
         canBootstrapLogics,
         canResetProjectRoot,
@@ -117,6 +134,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (!fs.existsSync(path.join(root, "logics"))) {
       this.items = [];
+      await this.clearAgentRegistry();
       this.postData({
         canBootstrapLogics,
         canResetProjectRoot,
@@ -127,12 +145,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.items = indexLogics(root);
+    await this.refreshAgents("silent", root);
     this.postData({
       items: this.items,
       root,
       selectedId,
       canBootstrapLogics,
-      canResetProjectRoot
+      canResetProjectRoot,
+      activeAgentId: this.activeAgentId ?? undefined
     });
     await this.maybeOfferBootstrap(root);
   }
@@ -158,6 +178,60 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (pick) {
       await this.promoteItem(pick.id);
     }
+  }
+
+  async selectAgentFromPalette(): Promise<void> {
+    const root = this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
+      return;
+    }
+
+    await this.refreshAgents("silent", root);
+    if (!this.agentRegistry.agents.length) {
+      const issueHint = this.agentRegistry.issues.length > 0 ? " Check 'Logics Agents' output for validation errors." : "";
+      void vscode.window.showWarningMessage(`No agents found in logics/skills/*/agents/openai.yaml.${issueHint}`);
+      if (this.agentRegistry.issues.length > 0) {
+        this.agentsOutput.show(true);
+      }
+      return;
+    }
+
+    const pick = await vscode.window.showQuickPick(
+      this.agentRegistry.agents.map((agent) => ({
+        label: agent.displayName,
+        description: agent.shortDescription,
+        detail: agent.id,
+        agent
+      })),
+      {
+        title: "Logics: Select Agent",
+        placeHolder: "Choose an agent to use in Codex chat"
+      }
+    );
+    if (!pick) {
+      return;
+    }
+
+    await this.setActiveAgent(pick.agent.id);
+    await this.injectAgentPromptIntoCodexChat(pick.agent);
+    void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
+  }
+
+  async refreshAgentsFromCommand(): Promise<void> {
+    const root = this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
+      return;
+    }
+
+    await this.refreshAgents("notify", root);
   }
 
   async createRequest(): Promise<void> {
@@ -432,6 +506,149 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     return root;
   }
 
+  private async clearAgentRegistry(): Promise<void> {
+    this.agentRegistry = createEmptyAgentRegistry();
+    if (this.activeAgentId) {
+      await this.setActiveAgent(null);
+    }
+  }
+
+  private async refreshAgents(mode: "silent" | "notify", root: string): Promise<void> {
+    const snapshot = loadAgentRegistry(root);
+    this.agentRegistry = snapshot;
+
+    const activeStillExists = this.activeAgentId
+      ? snapshot.agents.some((agent) => agent.id === this.activeAgentId)
+      : false;
+    if (this.activeAgentId && !activeStillExists) {
+      await this.setActiveAgent(null);
+    }
+
+    if (mode === "notify") {
+      this.writeAgentScanOutput(snapshot, root, true);
+      if (snapshot.issues.length > 0) {
+        void vscode.window.showWarningMessage(
+          `Logics agents refreshed: ${snapshot.agents.length} loaded, ${snapshot.issues.length} issue(s).`
+        );
+      } else {
+        void vscode.window.showInformationMessage(`Logics agents refreshed: ${snapshot.agents.length} loaded.`);
+      }
+      return;
+    }
+
+    if (snapshot.issues.length > 0) {
+      this.writeAgentScanOutput(snapshot, root, false);
+    }
+  }
+
+  private writeAgentScanOutput(snapshot: AgentRegistrySnapshot, root: string, reveal: boolean): void {
+    this.agentsOutput.clear();
+    this.agentsOutput.appendLine(`Logics agent scan @ ${new Date().toISOString()}`);
+    this.agentsOutput.appendLine(`Root: ${root}`);
+    this.agentsOutput.appendLine(`Scanned files: ${snapshot.scannedFiles}`);
+    this.agentsOutput.appendLine(`Loaded agents: ${snapshot.agents.length}`);
+    if (!snapshot.issues.length) {
+      this.agentsOutput.appendLine("No validation issues.");
+      if (reveal) {
+        this.agentsOutput.show(true);
+      }
+      return;
+    }
+
+    this.agentsOutput.appendLine(`Validation issues: ${snapshot.issues.length}`);
+    for (const issue of snapshot.issues) {
+      this.agentsOutput.appendLine(`[ERROR] ${issue.sourcePath} -> ${issue.message}`);
+    }
+    if (reveal) {
+      this.agentsOutput.show(true);
+    }
+  }
+
+  private async setActiveAgent(agentId: string | null): Promise<void> {
+    this.activeAgentId = agentId;
+    if (agentId) {
+      await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, agentId);
+      return;
+    }
+    await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, undefined);
+  }
+
+  private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
+    const prompt = agent.defaultPrompt.trim();
+    if (!prompt) {
+      return;
+    }
+
+    try {
+      const availableCommands = await vscode.commands.getCommands(true);
+      const hasCodexSidebarCommand = availableCommands.includes("chatgpt.openSidebar");
+      const hasCodexNewChatCommand = availableCommands.includes("chatgpt.newChat");
+
+      if (hasCodexSidebarCommand) {
+        await vscode.commands.executeCommand("chatgpt.openSidebar");
+        await vscode.env.clipboard.writeText(prompt);
+        if (hasCodexNewChatCommand) {
+          const action = await vscode.window.showInformationMessage(
+            "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
+            "New Codex Thread"
+          );
+          if (action === "New Codex Thread") {
+            await vscode.commands.executeCommand("chatgpt.newChat");
+          }
+        } else {
+          void vscode.window.showInformationMessage(
+            "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer."
+          );
+        }
+        return;
+      }
+
+      await vscode.commands.executeCommand("workbench.action.chat.open");
+      await vscode.commands.executeCommand("workbench.action.chat.focusInput");
+      const existingInput = await this.captureCurrentChatInput();
+      if (existingInput && extractExplicitAgentInvocation(existingInput)) {
+        void vscode.window.showInformationMessage(
+          "Chat input already contains an explicit $logics-... invocation. Leaving current draft unchanged."
+        );
+        return;
+      }
+
+      const merged = existingInput && existingInput.trim().length > 0 ? `${prompt}\n\n${existingInput}` : prompt;
+      await vscode.commands.executeCommand("workbench.action.chat.open", {
+        query: merged,
+        isPartialQuery: true
+      });
+      await vscode.commands.executeCommand("workbench.action.chat.focusInput");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await vscode.env.clipboard.writeText(prompt);
+      void vscode.window.showWarningMessage(
+        `Could not inject prompt into Codex chat (${message}). Prompt copied to clipboard.`
+      );
+    }
+  }
+
+  private async captureCurrentChatInput(): Promise<string | null> {
+    const originalClipboard = await vscode.env.clipboard.readText();
+    const sentinel = `__logics_capture_${Date.now()}_${Math.random().toString(16).slice(2)}__`;
+
+    try {
+      await vscode.env.clipboard.writeText(sentinel);
+      await vscode.commands.executeCommand("editor.action.selectAll");
+      await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+      await delay(40);
+      const captured = await vscode.env.clipboard.readText();
+      if (captured === sentinel) {
+        return null;
+      }
+      return captured;
+    } catch {
+      return null;
+    } finally {
+      await vscode.env.clipboard.writeText(originalClipboard);
+    }
+  }
+
   private async maybeOfferBootstrap(root: string): Promise<void> {
     if (this.bootstrapPromptedRoots.has(root)) {
       return;
@@ -537,6 +754,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     selectedId?: string;
     canBootstrapLogics?: boolean;
     canResetProjectRoot?: boolean;
+    activeAgentId?: string;
   }): void {
     if (!this.view) {
       return;
@@ -870,6 +1088,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
@@ -925,6 +1144,8 @@ export function activate(context: vscode.ExtensionContext): void {
   let provider: LogicsViewProvider | undefined;
   let refreshTimer: NodeJS.Timeout | undefined;
   let watcher: vscode.FileSystemWatcher | undefined;
+  const agentsOutput = vscode.window.createOutputChannel("Logics Agents");
+  context.subscriptions.push(agentsOutput);
 
   const scheduleRefresh = () => {
     if (refreshTimer) {
@@ -944,7 +1165,7 @@ export function activate(context: vscode.ExtensionContext): void {
     if (!root) {
       return;
     }
-    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown}");
+    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown,yaml,yml}");
     watcher = vscode.workspace.createFileSystemWatcher(pattern);
     watcher.onDidChange(scheduleRefresh);
     watcher.onDidCreate(scheduleRefresh);
@@ -952,7 +1173,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(watcher);
   };
 
-  provider = new LogicsViewProvider(context, setupWatcher);
+  provider = new LogicsViewProvider(context, setupWatcher, agentsOutput);
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(LogicsViewProvider.viewType, provider, {
@@ -962,6 +1183,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("logics.refresh", () => provider.refresh()),
+    vscode.commands.registerCommand("logics.refreshAgents", () => provider.refreshAgentsFromCommand()),
+    vscode.commands.registerCommand("logics.selectAgent", () => provider.selectAgentFromPalette()),
     vscode.commands.registerCommand("logics.open", () => provider.openFromPalette()),
     vscode.commands.registerCommand("logics.promote", () => provider.promoteFromPalette()),
     vscode.commands.registerCommand("logics.newRequest", () => provider.createRequest())
@@ -974,6 +1197,10 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function getWorkspaceRoot(): string | null {
   const folders = vscode.workspace.workspaceFolders;

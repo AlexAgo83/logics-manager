@@ -1,8 +1,8 @@
 ## req_018_support_vscode_agent_selection_from_skills_openai_yaml - Support VS Code agent selection from skills openai.yaml
 > From version: 1.6.1
-> Status: Draft
+> Status: Done
 > Understanding: 100%
-> Confidence: 98%
+> Confidence: 99%
 > Complexity: Medium
 > Theme: Agent orchestration and chat routing
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

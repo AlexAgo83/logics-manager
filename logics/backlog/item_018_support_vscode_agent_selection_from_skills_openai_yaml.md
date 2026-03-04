@@ -1,9 +1,9 @@
 ## item_018_support_vscode_agent_selection_from_skills_openai_yaml - Support VS Code agent selection from skills openai.yaml
 > From version: 1.6.1
-> Status: Draft
+> Status: Done
 > Understanding: 100%
-> Confidence: 97%
-> Progress: 0%
+> Confidence: 99%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent discovery and Codex chat integration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

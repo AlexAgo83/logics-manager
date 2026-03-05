@@ -26,10 +26,11 @@ This orchestration task coordinates details-panel collapse behavior across both 
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (stacked splitter disabled on collapse) -> interaction guards in `media/main.js`.
-- AC2 (stacked compact bottom details) -> collapsed/staked CSS + render logic in `media/main.css` and `media/main.js`.
-- AC3 (horizontal actions pinned bottom) -> horizontal collapsed CSS behavior in `media/main.css`.
-- AC4 (no regression across modes) -> harness scenarios + manual VS Code validation evidence.
+- AC1 (stacked splitter disabled on collapse) -> interaction guards in `media/main.js`. Proof: TODO.
+- AC2 (stacked compact bottom details) -> collapsed/staked CSS + render logic in `media/main.css` and `media/main.js`. Proof: TODO.
+- AC3 (horizontal actions pinned bottom) -> horizontal collapsed CSS behavior in `media/main.css`. Proof: TODO.
+- AC4 (no regression across modes) -> harness scenarios + manual VS Code validation evidence. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Validation
 - `npm run compile`

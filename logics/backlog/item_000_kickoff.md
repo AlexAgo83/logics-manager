@@ -1,5 +1,6 @@
 ## item_000_kickoff - Kickoff
 > From version: 0.0.0
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
 > Progress: 100%

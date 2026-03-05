@@ -1,5 +1,6 @@
 ## item_004_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
 > From version: 1.0.3
+> Status: Done
 > Understanding: 85%
 > Confidence: 85%
 > Progress: 100%

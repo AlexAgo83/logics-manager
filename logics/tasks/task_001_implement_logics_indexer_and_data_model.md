@@ -1,5 +1,6 @@
 ## task_001_implement_logics_indexer_and_data_model - Implement Logics indexer and data model
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 75%
 > Progress: 100%

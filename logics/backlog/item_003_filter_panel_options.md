@@ -1,5 +1,6 @@
 ## item_003_filter_panel_options - Regroup options into filter panel
 > From version: 0.0.0
+> Status: Done
 > Understanding: 85%
 > Confidence: 85%
 > Progress: 100%

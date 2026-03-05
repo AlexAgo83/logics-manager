@@ -35,14 +35,14 @@ The current orchestrator UX still has workflow gaps around bootstrap recovery, i
 - Harness and VS Code runtime behaviors remain context-appropriate without regressions.
 
 # AC Traceability
-- AC1 -> Bootstrap preflight in extension host (`git init` proposal + retry path).
-- AC2 -> Tools menu additions + command wiring for bootstrap rerun and about action.
-- AC3 -> Double-click open behavior in board/list item surfaces.
-- AC4 -> Details status actions + markdown updates for done/obsolete semantics.
-- AC5 -> Root control state logic and disabled UI affordance.
-- AC6 -> Board/List renderer toggle and compact list separators.
-- AC7 -> Persisted view mode in webview state with filter/details compatibility.
-- AC8 -> Tests/manual validation in both harness and VS Code contexts.
+- AC1 -> Bootstrap preflight in extension host (`git init` proposal + retry path). Proof: TODO.
+- AC2 -> Tools menu additions + command wiring for bootstrap rerun and about action. Proof: TODO.
+- AC3 -> Double-click open behavior in board/list item surfaces. Proof: TODO.
+- AC4 -> Details status actions + markdown updates for done/obsolete semantics. Proof: TODO.
+- AC5 -> Root control state logic and disabled UI affordance. Proof: TODO.
+- AC6 -> Board/List renderer toggle and compact list separators. Proof: TODO.
+- AC7 -> Persisted view mode in webview state with filter/details compatibility. Proof: TODO.
+- AC8 -> Tests/manual validation in both harness and VS Code contexts. Proof: TODO.
 
 # Priority
 - Impact:

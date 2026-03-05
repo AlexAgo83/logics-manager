@@ -1,5 +1,6 @@
 ## task_000_define_ux_and_ia_for_logics_orchestrator - Define UX and IA for Logics Orchestrator
 > From version: 0.0.0
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
 > Progress: 100%

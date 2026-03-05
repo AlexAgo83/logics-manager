@@ -2,6 +2,7 @@
 > From version: 0.0.0
 > Understanding: 85%
 > Confidence: 80%
+> Status: Done
 
 # Needs
 - Build a VS Code extension that provides a visual workspace to orchestrate everything in `logics` (requests, backlog, tasks, specs, etc.).

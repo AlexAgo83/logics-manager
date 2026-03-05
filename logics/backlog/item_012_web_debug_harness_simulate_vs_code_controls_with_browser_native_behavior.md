@@ -29,10 +29,11 @@ In web debug mode, many controls currently post VS Code messages without meaning
 - Unsupported capabilities show clear user feedback and fallback guidance.
 
 # AC Traceability
-- AC1 -> Runtime-detection and action routing in `media/main.js` and harness scripts.
-- AC2 -> Root selection fallback flow implemented in harness context.
-- AC3 -> Open/Edit fallback tab behavior implemented and validated.
-- AC4 -> Tests/manual checks capture both harness and VS Code contexts.
+- AC1 -> Runtime-detection and action routing in `media/main.js` and harness scripts. Proof: TODO.
+- AC2 -> Root selection fallback flow implemented in harness context. Proof: TODO.
+- AC3 -> Open/Edit fallback tab behavior implemented and validated. Proof: TODO.
+- AC4 -> Tests/manual checks capture both harness and VS Code contexts. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

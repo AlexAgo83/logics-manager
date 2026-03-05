@@ -28,9 +28,11 @@ In stacked (vertical split) layout, collapsing Details still leaves splitter int
 - Non-stacked behavior is unchanged.
 
 # AC Traceability
-- AC1 -> Splitter guard logic in `media/main.js` for collapsed stacked mode.
-- AC2 -> Compact collapsed layout rules in `media/main.css`.
-- AC3 -> Validation evidence from harness + VS Code runtime smoke checks.
+- AC1 -> Splitter guard logic in `media/main.js` for collapsed stacked mode. Proof: TODO.
+- AC2 -> Compact collapsed layout rules in `media/main.css`. Proof: TODO.
+- AC3 -> Validation evidence from harness + VS Code runtime smoke checks. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

@@ -2,6 +2,7 @@
 > From version: 0.0.0
 > Understanding: 75%
 > Confidence: 85%
+> Status: Done
 
 # Needs
 - Add a new “Read” button next to the “Edit” button in the details actions.

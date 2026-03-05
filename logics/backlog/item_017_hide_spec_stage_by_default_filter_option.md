@@ -32,9 +32,9 @@ SPEC entries are useful but can add noise to daily execution views. Users need a
 - Filter state persistence includes this option.
 
 # AC Traceability
-- AC1/AC2 -> `media/main.js` filter state (`hideSpec`) + `src/extension.ts` / `debug/webview/index.html` checkbox markup.
-- AC3/AC4/AC5 -> `media/main.js` `isVisible()` and visible-stage rendering (`renderBoardColumns` / `renderListView`).
-- AC6 -> `persistState()` + previous-state restore in `media/main.js`.
+- AC1/AC2 -> `media/main.js` filter state (`hideSpec`) + `src/extension.ts` / `debug/webview/index.html` checkbox markup. Proof: TODO.
+- AC3/AC4/AC5 -> `media/main.js` `isVisible()` and visible-stage rendering (`renderBoardColumns` / `renderListView`). Proof: TODO.
+- AC6 -> `persistState()` + previous-state restore in `media/main.js`. Proof: TODO.
 
 # Priority
 - Impact:

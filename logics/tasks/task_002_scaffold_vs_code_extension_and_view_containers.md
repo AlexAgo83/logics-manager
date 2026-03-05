@@ -1,5 +1,6 @@
 ## task_002_scaffold_vs_code_extension_and_view_containers - Scaffold VS Code extension and view containers
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 75%
 > Progress: 100%

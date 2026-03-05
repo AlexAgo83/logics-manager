@@ -29,9 +29,11 @@ A significant set of controls still lacks consistent discoverable descriptions a
 - A concise project a11y baseline/checklist is documented for future additions.
 
 # AC Traceability
-- AC1 -> UI control attributes/tooltip updates in `media/main.js` and related markup.
-- AC2 -> A11y smoke checks and/or tests added for key interactions.
-- AC3 -> Documentation updates in README or logics guidance.
+- AC1 -> UI control attributes/tooltip updates in `media/main.js` and related markup. Proof: TODO.
+- AC2 -> A11y smoke checks and/or tests added for key interactions. Proof: TODO.
+- AC3 -> Documentation updates in README or logics guidance. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

@@ -1,5 +1,6 @@
 ## item_002_add_read_button - Add Read button for rendered Markdown
 > From version: 0.0.0
+> Status: Done
 > Understanding: 90%
 > Confidence: 90%
 > Progress: 100%

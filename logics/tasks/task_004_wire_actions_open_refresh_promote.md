@@ -1,5 +1,6 @@
 ## task_004_wire_actions_open_refresh_promote - Wire actions: open, refresh, promote
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 75%
 > Progress: 100%

@@ -1,6 +1,6 @@
 ## req_014_bootstrap_resilience_status_actions_and_list_mode - Bootstrap resilience, status actions, and compact list mode
 > From version: 1.3.0
-> Status: Draft
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
 > Complexity: High
@@ -57,10 +57,10 @@ Desired direction:
   - Advanced multi-select or bulk-edit interactions.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_014_bootstrap_resilience_status_actions_and_list_mode.md`

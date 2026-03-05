@@ -29,12 +29,12 @@ The README currently lacks a concise badge section to surface build status, lice
 - Badge links are valid and clickable.
 
 # AC Traceability
-- AC1 -> README badge section placement and markdown rendering.
-- AC2 -> CI badge source/link wiring.
-- AC3 -> License badge source/link wiring.
-- AC4 -> Version badge value and update process.
-- AC5 -> Curated tech badges aligned with actual stack.
-- AC6 -> Link validation (manual or lightweight check).
+- AC1 -> README badge section placement and markdown rendering. Proof: TODO.
+- AC2 -> CI badge source/link wiring. Proof: TODO.
+- AC3 -> License badge source/link wiring. Proof: TODO.
+- AC4 -> Version badge value and update process. Proof: TODO.
+- AC5 -> Curated tech badges aligned with actual stack. Proof: TODO.
+- AC6 -> Link validation (manual or lightweight check). Proof: TODO.
 
 # Priority
 - Impact:

@@ -30,11 +30,11 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (harness controls usable) -> fallback action handlers in `media/main.js`/harness scripts.
-- AC2 (root picker/path fallback) -> browser fallback flow with explicit guidance.
-- AC3 (open/edit new tab) -> fallback target opening behavior in harness runtime.
-- AC4 (a11y discoverability) -> tooltip/title + ARIA/name coverage updates in UI controls.
-- AC5 (no runtime regression) -> manual parity checks for VS Code-hosted webview.
+- AC1 (harness controls usable) -> fallback action handlers in `media/main.js`/harness scripts. Proof: TODO.
+- AC2 (root picker/path fallback) -> browser fallback flow with explicit guidance. Proof: TODO.
+- AC3 (open/edit new tab) -> fallback target opening behavior in harness runtime. Proof: TODO.
+- AC4 (a11y discoverability) -> tooltip/title + ARIA/name coverage updates in UI controls. Proof: TODO.
+- AC5 (no runtime regression) -> manual parity checks for VS Code-hosted webview. Proof: TODO.
 
 # Validation
 - `npm run compile`

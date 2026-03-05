@@ -1,6 +1,6 @@
 ## req_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
 > From version: 1.0.6-b1
-> Status: Draft
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium-High

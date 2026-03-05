@@ -28,13 +28,13 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 1.
-- AC2/AC3 -> Step 3.
-- AC4 -> Step 4.
-- AC5/AC6 -> Step 5.
-- AC7 -> Step 6.
-- AC8 -> Step 2.
-- AC9/AC10 -> Step 7.
+- AC1 -> Step 1. Proof: TODO.
+- AC2/AC3 -> Step 3. Proof: TODO.
+- AC4 -> Step 4. Proof: TODO.
+- AC5/AC6 -> Step 5. Proof: TODO.
+- AC7 -> Step 6. Proof: TODO.
+- AC8 -> Step 2. Proof: TODO.
+- AC9/AC10 -> Step 7. Proof: TODO.
 - Regression safety -> Step 8.
 
 # Validation

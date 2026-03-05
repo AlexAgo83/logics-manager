@@ -1,5 +1,6 @@
 ## task_008_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 80%
 > Progress: 100%

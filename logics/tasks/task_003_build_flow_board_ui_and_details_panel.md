@@ -1,5 +1,6 @@
 ## task_003_build_flow_board_ui_and_details_panel - Build Flow Board UI and details panel
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 75%
 > Progress: 100%

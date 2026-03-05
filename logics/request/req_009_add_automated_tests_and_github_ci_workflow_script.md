@@ -1,6 +1,6 @@
 ## req_009_add_automated_tests_and_github_ci_workflow_script - Add automated tests and GitHub CI workflow script
 > From version: 1.0.6-b1
-> Status: Draft
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium

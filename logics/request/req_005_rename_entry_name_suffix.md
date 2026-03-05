@@ -2,6 +2,7 @@
 > From version: 1.0.4
 > Understanding: 90%
 > Confidence: 85%
+> Status: Done
 
 # Needs
 - Give users the ability to rename entry names for `request`, `item`, and `task`.

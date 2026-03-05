@@ -27,16 +27,16 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Steps 1 and 2.
-- AC2 -> Step 2.
-- AC3 -> Step 4.
-- AC4 -> Step 3.
-- AC5 -> Step 3 plus fallback behavior checks.
-- AC6 -> Step 5.
-- AC7 -> Step 6.
-- AC8 -> Step 7.
-- AC9 -> Step 7.
-- AC10 -> Step 8.
+- AC1 -> Steps 1 and 2. Proof: TODO.
+- AC2 -> Step 2. Proof: TODO.
+- AC3 -> Step 4. Proof: TODO.
+- AC4 -> Step 3. Proof: TODO.
+- AC5 -> Step 3 plus fallback behavior checks. Proof: TODO.
+- AC6 -> Step 5. Proof: TODO.
+- AC7 -> Step 6. Proof: TODO.
+- AC8 -> Step 7. Proof: TODO.
+- AC9 -> Step 7. Proof: TODO.
+- AC10 -> Step 8. Proof: TODO.
 
 # Validation
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

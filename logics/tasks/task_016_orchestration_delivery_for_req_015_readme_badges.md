@@ -23,12 +23,12 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Badge block placement and rendering in README.
-- AC2 -> CI badge target/link points to repo workflow.
-- AC3 -> License badge target/link points to repo license.
-- AC4 -> Version badge aligns with current package version.
-- AC5 -> Additional badges are project-relevant.
-- AC6 -> Link validity and markdown correctness checks.
+- AC1 -> Badge block placement and rendering in README. Proof: TODO.
+- AC2 -> CI badge target/link points to repo workflow. Proof: TODO.
+- AC3 -> License badge target/link points to repo license. Proof: TODO.
+- AC4 -> Version badge aligns with current package version. Proof: TODO.
+- AC5 -> Additional badges are project-relevant. Proof: TODO.
+- AC6 -> Link validity and markdown correctness checks. Proof: TODO.
 
 # Validation
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

@@ -40,11 +40,11 @@ Agent metadata exists in `logics/skills/*/agents/openai.yaml`, but the extension
 - AC10: Validation outputs are available in Output Channel plus summary notification.
 
 # AC Traceability
-- AC1/AC8/AC9/AC10 -> Agent registry loader, validator, and refresh command.
-- AC2/AC3 -> Quick Pick item mapping and rendering.
-- AC4 -> Active-agent state persistence/update logic.
-- AC5/AC6 -> Codex chat prefill merge rules and guard clauses.
-- AC7 -> Per-message routing/override resolution.
+- AC1/AC8/AC9/AC10 -> Agent registry loader, validator, and refresh command. Proof: TODO.
+- AC2/AC3 -> Quick Pick item mapping and rendering. Proof: TODO.
+- AC4 -> Active-agent state persistence/update logic. Proof: TODO.
+- AC5/AC6 -> Codex chat prefill merge rules and guard clauses. Proof: TODO.
+- AC7 -> Per-message routing/override resolution. Proof: TODO.
 
 # Priority
 - Impact:

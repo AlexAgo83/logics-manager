@@ -28,9 +28,11 @@ In horizontal split layout, collapsing Details can visually shift action buttons
 - Keyboard navigation for actions remains intact.
 
 # AC Traceability
-- AC1 -> Details collapsed/horizontal CSS rules in `media/main.css`.
-- AC2 -> Collapse toggle and rendering behavior in `media/main.js`.
-- AC3 -> Manual validation evidence in harness and VS Code runtime.
+- AC1 -> Details collapsed/horizontal CSS rules in `media/main.css`. Proof: TODO.
+- AC2 -> Collapse toggle and rendering behavior in `media/main.js`. Proof: TODO.
+- AC3 -> Manual validation evidence in harness and VS Code runtime. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

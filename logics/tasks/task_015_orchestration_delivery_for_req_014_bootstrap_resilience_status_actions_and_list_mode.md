@@ -34,14 +34,14 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Extension bootstrap preflight (`git init` offer + retry bootstrap).
-- AC2 -> Tools menu command additions and availability logic.
-- AC3 -> UI interaction handlers for double-click open parity.
-- AC4 -> Details action handlers + document indicator/state mutation.
-- AC5 -> Root state evaluation and disabled Tools control.
-- AC6 -> View-mode toggle + list-mode renderer and stage separator UX.
-- AC7 -> Persisted webview state and regression checks for existing UI states.
-- AC8 -> Harness/VS Code parity validation and test evidence.
+- AC1 -> Extension bootstrap preflight (`git init` offer + retry bootstrap). Proof: TODO.
+- AC2 -> Tools menu command additions and availability logic. Proof: TODO.
+- AC3 -> UI interaction handlers for double-click open parity. Proof: TODO.
+- AC4 -> Details action handlers + document indicator/state mutation. Proof: TODO.
+- AC5 -> Root state evaluation and disabled Tools control. Proof: TODO.
+- AC6 -> View-mode toggle + list-mode renderer and stage separator UX. Proof: TODO.
+- AC7 -> Persisted webview state and regression checks for existing UI states. Proof: TODO.
+- AC8 -> Harness/VS Code parity validation and test evidence. Proof: TODO.
 
 # Validation
 - `npm run compile`

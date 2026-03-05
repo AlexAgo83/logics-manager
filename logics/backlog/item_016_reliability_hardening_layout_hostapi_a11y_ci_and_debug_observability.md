@@ -37,15 +37,16 @@ The extension still has fragile paths across layout/splitter state transitions, 
 - Debug logs are available behind a flag and disabled by default.
 
 # AC Traceability
-- AC1 -> explicit UI state model and deterministic layout rendering.
-- AC2 -> mode guards and splitter drag reset logic.
-- AC3 -> extended regression tests and assertions.
-- AC4 -> host API abstraction boundaries and runtime adapters.
-- AC5 -> accessibility attributes and keyboard/focus validations.
-- AC6 -> CI workflow and local validation alignment.
-- AC7 -> bootstrap fallback flow and tools action availability.
-- AC8 -> persisted display mode + active state UX checks.
-- AC9 -> debug-flagged observability hooks.
+- AC1 -> explicit UI state model and deterministic layout rendering. Proof: TODO.
+- AC2 -> mode guards and splitter drag reset logic. Proof: TODO.
+- AC3 -> extended regression tests and assertions. Proof: TODO.
+- AC4 -> host API abstraction boundaries and runtime adapters. Proof: TODO.
+- AC5 -> accessibility attributes and keyboard/focus validations. Proof: TODO.
+- AC6 -> CI workflow and local validation alignment. Proof: TODO.
+- AC7 -> bootstrap fallback flow and tools action availability. Proof: TODO.
+- AC8 -> persisted display mode + active state UX checks. Proof: TODO.
+- AC9 -> debug-flagged observability hooks. Proof: TODO.
+- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

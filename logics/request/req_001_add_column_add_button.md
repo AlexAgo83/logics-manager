@@ -2,6 +2,7 @@
 > From version: 0.0.0
 > Understanding: 80%
 > Confidence: 85%
+> Status: Done
 
 # Needs
 - Add a “+” button in each column header, positioned to the left of the eye toggle, to create new Logics items (Request, Backlog item, or Task).

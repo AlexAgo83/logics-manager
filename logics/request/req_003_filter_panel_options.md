@@ -2,6 +2,7 @@
 > From version: 0.0.0
 > Understanding: 80%
 > Confidence: 80%
+> Status: Done
 
 # Needs
 - Regroup the existing options into a dedicated panel that opens when clicking a filter-like icon.

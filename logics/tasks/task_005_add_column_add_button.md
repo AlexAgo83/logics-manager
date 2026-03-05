@@ -1,5 +1,6 @@
 ## task_005_add_column_add_button - Add “+” action in column headers
 > From version: 0.0.0
+> Status: Done
 > Understanding: 80%
 > Confidence: 80%
 > Progress: 100%

@@ -2,6 +2,7 @@
 > From version: 1.0.3
 > Understanding: 85%
 > Confidence: 85%
+> Status: Done
 
 # Needs
 - Allow adding and editing `References` and/or `Used by` links on entries in Request, Backlog, and Task stages.

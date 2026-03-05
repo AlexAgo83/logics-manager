@@ -1,5 +1,6 @@
 ## task_009_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
 > From version: 1.0.4
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
 > Progress: 100%

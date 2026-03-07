@@ -1,8 +1,8 @@
 ## req_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 96%
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

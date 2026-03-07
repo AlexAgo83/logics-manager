@@ -1,8 +1,8 @@
 ## req_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 96%
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

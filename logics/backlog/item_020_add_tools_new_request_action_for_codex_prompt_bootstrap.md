@@ -1,9 +1,9 @@
 ## item_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -39,12 +39,12 @@ flowchart LR
 - AC6: Fallback behavior is clear when Codex prompt injection is unavailable.
 
 # AC Traceability
-- AC1 -> Tools menu markup and action wiring. Proof: TODO.
-- AC2 -> Agent activation + Codex bootstrap logic. Proof: TODO.
-- AC3 -> Prompt template and no-auto-send flow. Proof: TODO.
-- AC4 -> Regression checks on existing creation paths. Proof: TODO.
-- AC5 -> UI copy and README/help text updates. Proof: TODO.
-- AC6 -> Clipboard or fallback messaging. Proof: TODO.
+- AC1 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts), [debug/webview/index.html](/Users/alexandreagostini/Documents/cdx-logics-vscode/debug/webview/index.html), and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js). Proof: `Tools > New Request` added and wired in host + harness markup.
+- AC2 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: guided flow resolves `$logics-flow-manager`, activates it, and boots a dedicated request prompt.
+- AC3 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts). Proof: explicit guided request prompt scaffold and no-auto-send Codex injection path.
+- AC4 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [tests/webview.harness-a11y.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/webview.harness-a11y.test.ts). Proof: existing `createRequest` flow kept, new action tested separately.
+- AC5 -> [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: Tools menu and feature docs now distinguish guided request drafting from direct file creation.
+- AC6 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: clipboard fallback and user-facing warning preserved in generic prompt injection helper.
 
 # Links
 - Request: `logics/request/req_020_add_tools_new_request_action_for_codex_prompt_bootstrap.md`
@@ -58,6 +58,7 @@ flowchart LR
 
 # Notes
 - Derived from `logics/request/req_020_add_tools_new_request_action_for_codex_prompt_bootstrap.md`.
+- Implemented in [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts), [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts), and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js).
 
 # Tasks
 - `logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md`

@@ -1,8 +1,8 @@
 ## task_020_orchestration_delivery_for_req_019_req_020_and_req_021 - Orchestration delivery for req_019 req_020 and req_021
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -40,13 +40,13 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1-req019 -> Step 1. Proof: TODO.
-- AC2-req019 -> Step 1 and Step 4. Proof: TODO.
-- AC1-req020 -> Step 2. Proof: TODO.
-- AC2-req020 -> Step 2 and Step 5. Proof: TODO.
-- AC1-req021 -> Step 3. Proof: TODO.
-- AC2-req021 -> Step 3 and Step 5. Proof: TODO.
-- Cross-regression safety -> Step 4.
+- AC1-req019 -> Step 1. Proof: [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts), [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts), and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js).
+- AC2-req019 -> Step 1 and Step 4. Proof: [tests/workflowSupport.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/workflowSupport.test.ts) and [tests/webview.harness-a11y.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/webview.harness-a11y.test.ts).
+- AC1-req020 -> Step 2. Proof: [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts), [debug/webview/index.html](/Users/alexandreagostini/Documents/cdx-logics-vscode/debug/webview/index.html), and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js).
+- AC2-req020 -> Step 2 and Step 5. Proof: [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md).
+- AC1-req021 -> Step 3. Proof: [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts).
+- AC2-req021 -> Step 3 and Step 5. Proof: [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md).
+- Cross-regression safety -> Step 4. Proof: [tests/webview.layout-collapse.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/webview.layout-collapse.test.ts), [tests/webview.harness-a11y.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/webview.harness-a11y.test.ts), and [tests/workflowSupport.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/workflowSupport.test.ts).
 
 # Links
 - Backlog item(s):

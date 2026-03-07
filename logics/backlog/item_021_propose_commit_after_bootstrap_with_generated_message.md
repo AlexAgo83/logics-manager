@@ -1,9 +1,9 @@
 ## item_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap workflow and git ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -38,11 +38,11 @@ flowchart LR
 - AC5: User-facing messaging makes it clear that the proposal concerns bootstrap changes, not arbitrary project work.
 
 # AC Traceability
-- AC1 -> Post-bootstrap completion hook and success-only prompt. Proof: TODO.
-- AC2 -> Commit-message generation logic. Proof: TODO.
-- AC3 -> Accept/skip UX path and non-blocking behavior. Proof: TODO.
-- AC4 -> Git-status inspection and safe staging/commit path. Proof: TODO.
-- AC5 -> Prompt copy and docs/README updates. Proof: TODO.
+- AC1 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: post-bootstrap prompt is called only after successful bootstrap completion.
+- AC2 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts). Proof: generated bootstrap commit message derives from bootstrap-scoped changed paths.
+- AC3 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: explicit `Commit Bootstrap Changes` / `Not now` flow is non-blocking.
+- AC4 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: pre/post bootstrap git-status parsing skips commit proposal on dirty repos and handles nothing-to-commit.
+- AC5 -> [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: Tools menu docs now mention the bootstrap commit proposal and generated message behavior.
 
 # Links
 - Request: `logics/request/req_021_propose_commit_after_bootstrap_with_generated_message.md`
@@ -56,6 +56,7 @@ flowchart LR
 
 # Notes
 - Derived from `logics/request/req_021_propose_commit_after_bootstrap_with_generated_message.md`.
+- Implemented in [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts).
 
 # Tasks
 - `logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md`

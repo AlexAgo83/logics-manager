@@ -1,9 +1,9 @@
 ## item_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 93%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -38,11 +38,11 @@ flowchart LR
 - AC5: Validation covers both generated Flow Manager docs and at least one manual smoke path.
 
 # AC Traceability
-- AC1 -> Read preview implementation and smoke fixture docs. Proof: TODO.
-- AC2 -> Regression checks on existing markdown rendering path. Proof: TODO.
-- AC3 -> Error/fallback handling in preview path. Proof: TODO.
-- AC4 -> Harness/runtime validation notes and docs. Proof: TODO.
-- AC5 -> Task validation commands and manual checks. Proof: TODO.
+- AC1 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts). Proof: dedicated read preview panel + Mermaid-aware markdown renderer.
+- AC2 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [tests/workflowSupport.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/workflowSupport.test.ts). Proof: markdown headings/lists/code fences kept under renderer tests.
+- AC3 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js). Proof: Mermaid fallback banners preserved when rendering fails.
+- AC4 -> [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js) and [debug/webview/README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/debug/webview/README.md). Proof: harness read preview now renders Mermaid and docs explain parity/limits.
+- AC5 -> [task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md). Proof: compile/lint/test/logics-lint validations and manual read checks captured there.
 
 # Links
 - Request: `logics/request/req_019_render_mermaid_diagrams_in_read_markdown_view.md`
@@ -56,6 +56,7 @@ flowchart LR
 
 # Notes
 - Derived from `logics/request/req_019_render_mermaid_diagrams_in_read_markdown_view.md`.
+- Implemented in [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts), [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts), and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js).
 
 # Tasks
 - `logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md`

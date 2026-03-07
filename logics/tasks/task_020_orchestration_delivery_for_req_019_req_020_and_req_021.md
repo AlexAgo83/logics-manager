@@ -1,9 +1,9 @@
 ## task_020_orchestration_delivery_for_req_019_req_020_and_req_021 - Orchestration delivery for req_019 req_020 and req_021
 > From version: 1.7.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -32,12 +32,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Implement Mermaid-aware `Read` preview path and confirm fallback behavior in VS Code runtime and harness mode.
-- [ ] 2. Add `Tools > New Request` action that activates the request-authoring agent and bootstraps a Codex drafting prompt without breaking current create-file flows.
-- [ ] 3. Extend bootstrap completion flow to propose a commit with a generated message, while keeping git handling safe for dirty or empty states.
-- [ ] 4. Add or adjust tests, harness checks, and manual smoke validation for all three workflows.
-- [ ] 5. Update user-facing documentation, including the README, to reflect the new `Read`, `Tools`, and bootstrap behaviors.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Implement Mermaid-aware `Read` preview path and confirm fallback behavior in VS Code runtime and harness mode.
+- [x] 2. Add `Tools > New Request` action that activates the request-authoring agent and bootstraps a Codex drafting prompt without breaking current create-file flows.
+- [x] 3. Extend bootstrap completion flow to propose a commit with a generated message, while keeping git handling safe for dirty or empty states.
+- [x] 4. Add or adjust tests, harness checks, and manual smoke validation for all three workflows.
+- [x] 5. Update user-facing documentation, including the README, to reflect the new `Read`, `Tools`, and bootstrap behaviors.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1-req019 -> Step 1. Proof: TODO.
@@ -68,11 +68,22 @@ flowchart LR
 - Manual: validate bootstrap success path, commit proposal UX, and safe no-commit edge cases.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] README updated to describe the new behaviors.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] README updated to describe the new behaviors.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending execution.
+- Implemented:
+  - Replaced the `Read` host flow with a dedicated rendered preview panel that parses markdown and renders Mermaid diagrams through a packaged Mermaid runtime.
+  - Upgraded harness `Read` previews to render markdown and Mermaid diagrams instead of showing raw markdown in a `<pre>` block.
+  - Added `Tools > New Request` in the webview and debug harness, wired to a guided Codex drafting flow that activates `$logics-flow-manager` and bootstraps a request-writing prompt.
+  - Added a post-bootstrap commit proposal that generates a bootstrap-specific commit message and commits safely only when the repository was clean before bootstrap.
+  - Added pure helper coverage for markdown rendering, guided request prompts, git status parsing, and bootstrap commit message generation.
+  - Updated README and harness docs to describe Mermaid-aware `Read`, the guided Tools flow, and the post-bootstrap commit prompt.
+- Validation executed:
+  - `npm run compile`
+  - `npm run lint`
+  - `npm run test`
+  - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

@@ -30,5 +30,6 @@ Open:
 
 - `Change Project Root` tries `showDirectoryPicker`, then directory-input fallback, then manual path hint prompt.
 - `Edit`/`Read` first try reading content from the selected directory handle, then fall back to server-relative file paths.
-- `Read` opens a markdown preview tab (or raw file fallback if preview content is unavailable).
+- `Read` opens a markdown preview tab with Mermaid rendering when diagram blocks are present (or raw file fallback if preview content is unavailable).
+- `Tools > New Request` remains host-only and shows harness guidance instead of trying to emulate Codex integration.
 - Board/List mode switch is available from the toolbar for compact rendering checks.

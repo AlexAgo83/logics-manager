@@ -14,6 +14,7 @@ function bootstrapWebview(stacked: boolean) {
         <div id="tools-panel"></div>
         <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
+        <button data-action="new-request-guided"></button>
         <button data-action="change-project-root"></button>
         <button data-action="reset-project-root"></button>
         <button data-action="fix-docs"></button>

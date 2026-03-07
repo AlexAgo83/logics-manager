@@ -244,6 +244,7 @@
 
   const hostOnlyActions = new Set([
     "promote",
+    "new-request-guided",
     "bootstrap-logics",
     "fix-docs",
     "mark-done",

@@ -19,7 +19,10 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 - Details panel with indicators and references (Promoted from / Derived from) + reverse “Used by”.
 - Details lifecycle actions (`Done`, `Obsolete`) for fast status updates.
 - Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
+- `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
+- Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
+- Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
 - Progress-based card styling + optional hide completed.
 
 ## Why This Matters For AI Projects
@@ -52,6 +55,7 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 
 - Create a request from UI (`New Request`) and confirm markdown is generated.
 - Create a backlog item and a task from the UI and confirm markdown is generated.
+- Open `Read` on a Mermaid-bearing doc and confirm the graph is rendered.
 - Promote request -> backlog and confirm links are updated.
 - Promote backlog -> task and confirm task document is generated.
 - Refresh board/details and confirm data remains consistent.
@@ -115,7 +119,9 @@ npm run install:vsix
 ## Tools Menu
 
 - `Select Agent` picks the active Logics agent and prepares Codex chat context.
+- `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
+- After successful bootstrap, the extension can propose a git commit with a generated message.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
@@ -143,6 +149,7 @@ Then open `http://localhost:4173/` and switch scenarios from the in-page debug c
 In harness mode:
 - `Change Project Root` uses browser-native directory selection fallbacks.
 - `Edit` and `Read` open selected files in new browser tabs (preferring File System Access API content when available).
+- `Read` renders markdown with Mermaid support in the browser preview tab.
 - Host-only actions (for example `Promote`, `Fix Logics`) show explicit guidance instead of silent no-op.
 - Add `?debug-ui=1` to the harness URL to enable verbose UI state transition logs in browser console.
 

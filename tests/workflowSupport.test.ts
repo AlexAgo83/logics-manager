@@ -1,0 +1,70 @@
+import { describe, expect, it } from "vitest";
+import {
+  buildBootstrapCommitMessage,
+  buildGuidedRequestPrompt,
+  isBootstrapScopedPath,
+  parseGitStatusEntries,
+  renderMarkdownToHtml
+} from "../src/workflowSupport";
+
+describe("workflowSupport", () => {
+  it("renders headings, lists, and Mermaid fences into preview html", () => {
+    const html = renderMarkdownToHtml(
+      [
+        "# Title",
+        "",
+        "- first item",
+        "- second item",
+        "",
+        "```mermaid",
+        "flowchart TD",
+        "A[One] --> B[Two]",
+        "```"
+      ].join("\n")
+    );
+
+    expect(html.includes("<h1>Title</h1>")).toBe(true);
+    expect(html.includes("<ul>")).toBe(true);
+    expect(html.includes('class="mermaid"')).toBe(true);
+    expect(html.includes("A[One] --&gt; B[Two]")).toBe(true);
+  });
+
+  it("keeps indented list items as list entries instead of flattening them into paragraphs", () => {
+    const html = renderMarkdownToHtml(
+      [
+        "# Scope",
+        "",
+        "- In:",
+        "  - First nested item",
+        "  - Second nested item"
+      ].join("\n")
+    );
+
+    expect(html.includes("<li>In:</li>")).toBe(true);
+    expect(html.includes("<li>First nested item</li>")).toBe(true);
+    expect(html.includes("<li>Second nested item</li>")).toBe(true);
+  });
+
+  it("builds a guided request prompt from the agent default prompt", () => {
+    const prompt = buildGuidedRequestPrompt("Use $logics-flow-manager to manage workflow docs.");
+    expect(prompt.includes("Use $logics-flow-manager")).toBe(true);
+    expect(prompt.includes("Help me draft a new Logics request")).toBe(true);
+    expect(prompt.includes("My need:")).toBe(true);
+  });
+
+  it("parses git porcelain output and recognizes bootstrap-scoped paths", () => {
+    const entries = parseGitStatusEntries([" M README.md", "?? .gitmodules", "?? logics/request/req_001_demo.md"].join("\n"));
+    expect(entries.map((entry) => entry.path)).toEqual(["README.md", ".gitmodules", "logics/request/req_001_demo.md"]);
+    expect(isBootstrapScopedPath(".gitmodules")).toBe(true);
+    expect(isBootstrapScopedPath("logics/request/req_001_demo.md")).toBe(true);
+    expect(isBootstrapScopedPath("README.md")).toBe(false);
+  });
+
+  it("generates specific bootstrap commit messages from changed paths", () => {
+    expect(buildBootstrapCommitMessage([".gitmodules", "logics/skills"])).toBe("Bootstrap Logics kit");
+    expect(buildBootstrapCommitMessage([".gitmodules", "logics/request/req_001_demo.md"])).toBe(
+      "Bootstrap Logics kit and initialize workflow docs"
+    );
+    expect(buildBootstrapCommitMessage(["logics/request/req_001_demo.md"])).toBe("Initialize Logics workflow docs");
+  });
+});

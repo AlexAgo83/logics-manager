@@ -10,6 +10,13 @@ import {
   loadAgentRegistry
 } from "./agentRegistry";
 import { execFile } from "child_process";
+import {
+  buildBootstrapCommitMessage,
+  buildGuidedRequestPrompt,
+  isBootstrapScopedPath,
+  parseGitStatusEntries,
+  renderMarkdownToHtml
+} from "./workflowSupport";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
@@ -25,6 +32,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   private invalidRootNotice?: string;
   private activeAgentId: string | null;
   private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
+  private readPreviewPanel?: vscode.WebviewPanel;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -78,6 +86,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           break;
         case "new-request":
           await this.createRequest();
+          break;
+        case "new-request-guided":
+          await this.startGuidedRequestFromTools();
           break;
         case "fix-docs":
           await this.fixDocs();
@@ -268,6 +279,38 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await openCreatedDocFromOutput(result.stdout);
+    await this.refresh();
+  }
+
+  async startGuidedRequestFromTools(): Promise<void> {
+    const root = this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
+      await this.maybeOfferBootstrap(root);
+      return;
+    }
+
+    await this.refreshAgents("silent", root);
+    const agent = this.findRequestAuthoringAgent();
+    if (!agent) {
+      const issueHint = this.agentRegistry.issues.length > 0 ? " Check 'Logics Agents' output for validation errors." : "";
+      void vscode.window.showWarningMessage(`No request-authoring agent found in logics/skills.${issueHint}`);
+      if (this.agentRegistry.issues.length > 0) {
+        this.agentsOutput.show(true);
+      }
+      return;
+    }
+
+    await this.setActiveAgent(agent.id);
+    const prompt = buildGuidedRequestPrompt(agent.defaultPrompt);
+    await this.injectPromptIntoCodexChat(prompt, {
+      codexCopiedMessage: "Codex opened. New-request prompt copied to clipboard. Paste it in the Codex composer.",
+      fallbackCopiedMessage: "Could not inject the new-request prompt into Codex chat."
+    });
+    void vscode.window.showInformationMessage(`Active Logics agent: ${agent.displayName} (${agent.id})`);
     await this.refresh();
   }
 
@@ -573,11 +616,24 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, undefined);
   }
 
-  private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
-    const prompt = agent.defaultPrompt.trim();
-    if (!prompt) {
+  private findRequestAuthoringAgent(): AgentDefinition | undefined {
+    return this.agentRegistry.agents.find((agent) => agent.id === "$logics-flow-manager");
+  }
+
+  private async injectPromptIntoCodexChat(
+    prompt: string,
+    options?: {
+      codexCopiedMessage?: string;
+      fallbackCopiedMessage?: string;
+    }
+  ): Promise<void> {
+    const normalizedPrompt = prompt.trim();
+    if (!normalizedPrompt) {
       return;
     }
+
+    const codexCopiedMessage = options?.codexCopiedMessage || "Codex opened. Prompt copied to clipboard. Paste it in the Codex composer.";
+    const fallbackCopiedMessage = options?.fallbackCopiedMessage || "Could not inject prompt into Codex chat.";
 
     try {
       const availableCommands = await vscode.commands.getCommands(true);
@@ -586,19 +642,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
       if (hasCodexSidebarCommand) {
         await vscode.commands.executeCommand("chatgpt.openSidebar");
-        await vscode.env.clipboard.writeText(prompt);
+        await vscode.env.clipboard.writeText(normalizedPrompt);
         if (hasCodexNewChatCommand) {
-          const action = await vscode.window.showInformationMessage(
-            "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
-            "New Codex Thread"
-          );
+          const action = await vscode.window.showInformationMessage(codexCopiedMessage, "New Codex Thread");
           if (action === "New Codex Thread") {
             await vscode.commands.executeCommand("chatgpt.newChat");
           }
         } else {
-          void vscode.window.showInformationMessage(
-            "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer."
-          );
+          void vscode.window.showInformationMessage(codexCopiedMessage);
         }
         return;
       }
@@ -613,7 +664,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         return;
       }
 
-      const merged = existingInput && existingInput.trim().length > 0 ? `${prompt}\n\n${existingInput}` : prompt;
+      const merged =
+        existingInput && existingInput.trim().length > 0 ? `${normalizedPrompt}\n\n${existingInput}` : normalizedPrompt;
       await vscode.commands.executeCommand("workbench.action.chat.open", {
         query: merged,
         isPartialQuery: true
@@ -621,11 +673,16 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       await vscode.commands.executeCommand("workbench.action.chat.focusInput");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      await vscode.env.clipboard.writeText(prompt);
-      void vscode.window.showWarningMessage(
-        `Could not inject prompt into Codex chat (${message}). Prompt copied to clipboard.`
-      );
+      await vscode.env.clipboard.writeText(normalizedPrompt);
+      void vscode.window.showWarningMessage(`${fallbackCopiedMessage} (${message}). Prompt copied to clipboard.`);
     }
+  }
+
+  private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
+    await this.injectPromptIntoCodexChat(agent.defaultPrompt, {
+      codexCopiedMessage: "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
+      fallbackCopiedMessage: "Could not inject prompt into Codex chat"
+    });
   }
 
   private async captureCurrentChatInput(): Promise<string | null> {
@@ -691,6 +748,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       void vscode.window.showInformationMessage("Git repository initialized.");
     }
 
+    const beforeBootstrapStatusResult = await runGitWithOutput(root, ["status", "--porcelain"]);
+    const beforeBootstrapStatus = beforeBootstrapStatusResult.error
+      ? []
+      : parseGitStatusEntries(beforeBootstrapStatusResult.stdout);
+
     const logicsDir = path.join(root, "logics");
     if (!fs.existsSync(logicsDir)) {
       fs.mkdirSync(logicsDir, { recursive: true });
@@ -725,8 +787,88 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus);
     void vscode.window.showInformationMessage("Logics bootstrapped. Refreshing.");
     await this.refresh();
+  }
+
+  private async maybeOfferBootstrapCommit(root: string, beforeBootstrapStatus: ReturnType<typeof parseGitStatusEntries>): Promise<void> {
+    if (beforeBootstrapStatus.length > 0) {
+      void vscode.window.showInformationMessage(
+        "Bootstrap completed. Commit proposal skipped because the repository already had uncommitted changes."
+      );
+      return;
+    }
+
+    const afterBootstrapStatusResult = await runGitWithOutput(root, ["status", "--porcelain"]);
+    if (afterBootstrapStatusResult.error) {
+      return;
+    }
+
+    const afterBootstrapStatus = parseGitStatusEntries(afterBootstrapStatusResult.stdout);
+    const bootstrapPaths = Array.from(
+      new Set(afterBootstrapStatus.map((entry) => entry.path).filter((entry) => isBootstrapScopedPath(entry)))
+    ).sort((left, right) => left.localeCompare(right));
+
+    if (bootstrapPaths.length === 0) {
+      return;
+    }
+
+    const commitMessage = buildBootstrapCommitMessage(bootstrapPaths);
+    const action = await vscode.window.showInformationMessage(
+      `Bootstrap completed. Create commit now with message: "${commitMessage}"?`,
+      "Commit Bootstrap Changes",
+      "Not now"
+    );
+    if (action !== "Commit Bootstrap Changes") {
+      return;
+    }
+
+    const addResult = await runGitWithOutput(root, ["add", "-A", "--", ...bootstrapPaths]);
+    if (addResult.error) {
+      void vscode.window.showErrorMessage(`Failed to stage bootstrap changes: ${addResult.stderr || addResult.error.message}`);
+      return;
+    }
+
+    const commitResult = await runGitWithOutput(root, ["commit", "-m", commitMessage]);
+    if (commitResult.error) {
+      const detail = `${commitResult.stderr}\n${commitResult.stdout}`.trim();
+      if (/nothing to commit/i.test(detail)) {
+        void vscode.window.showInformationMessage("Bootstrap changes were already clean; nothing to commit.");
+        return;
+      }
+      void vscode.window.showErrorMessage(`Failed to create bootstrap commit: ${detail || commitResult.error.message}`);
+      return;
+    }
+
+    void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
+  }
+
+  private getReadPreviewPanel(): vscode.WebviewPanel {
+    if (this.readPreviewPanel) {
+      return this.readPreviewPanel;
+    }
+
+    const mermaidRoot = vscode.Uri.file(path.join(this.context.extensionPath, "node_modules", "mermaid", "dist"));
+    const panel = vscode.window.createWebviewPanel(
+      "logics.readPreview",
+      "Read: Logics item",
+      vscode.ViewColumn.Beside,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [this.context.extensionUri, mermaidRoot]
+      }
+    );
+
+    panel.onDidDispose(() => {
+      if (this.readPreviewPanel === panel) {
+        this.readPreviewPanel = undefined;
+      }
+    });
+
+    this.readPreviewPanel = panel;
+    return panel;
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {
@@ -780,11 +922,21 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     try {
-      const uri = vscode.Uri.file(item.path);
-      await vscode.commands.executeCommand("markdown.showPreview", uri);
-      await vscode.commands.executeCommand("workbench.action.keepEditor");
+      const markdown = fs.readFileSync(item.path, "utf8");
+      const panel = this.getReadPreviewPanel();
+      panel.title = `Read: ${item.id}`;
+      panel.webview.html = buildReadPreviewHtml({
+        title: item.title,
+        itemId: item.id,
+        relPath: item.relPath,
+        markdown,
+        webview: panel.webview,
+        extensionPath: this.context.extensionPath
+      });
+      panel.reveal(vscode.ViewColumn.Beside, false);
     } catch (error) {
-      void vscode.window.showErrorMessage("Could not open Markdown preview. Opening in Edit.");
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Could not open rendered Markdown preview (${message}). Opening in Edit.`);
       await this.openItem(id);
     }
   }
@@ -1089,6 +1241,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
             <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
@@ -1138,6 +1291,201 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 </body>
 </html>`;
   }
+}
+
+function buildReadPreviewHtml(params: {
+  title: string;
+  itemId: string;
+  relPath: string;
+  markdown: string;
+  webview: vscode.Webview;
+  extensionPath: string;
+}): string {
+  const nonce = getNonce();
+  const { title, itemId, relPath, markdown, webview, extensionPath } = params;
+  const mermaidScriptPath = path.join(extensionPath, "node_modules", "mermaid", "dist", "mermaid.min.js");
+  const mermaidScriptUri = fs.existsSync(mermaidScriptPath)
+    ? webview.asWebviewUri(vscode.Uri.file(mermaidScriptPath)).toString()
+    : "";
+  const renderedMarkdown = renderMarkdownToHtml(markdown);
+  const escapedTitle = escapeHtmlForHtml(title);
+  const escapedItemId = escapeHtmlForHtml(itemId);
+  const escapedRelPath = escapeHtmlForHtml(relPath);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}';"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapedItemId}</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.28);
+      --accent: #38bdf8;
+      --code-bg: rgba(148, 163, 184, 0.14);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+      color: var(--ink);
+    }
+    .read-preview {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 24px 48px;
+    }
+    .read-preview__header {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(10px);
+    }
+    .read-preview__eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .read-preview__title {
+      margin: 0 0 4px;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+    .read-preview__path {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .markdown-preview {
+      padding: 26px 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+    }
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3,
+    .markdown-preview h4,
+    .markdown-preview h5,
+    .markdown-preview h6 {
+      line-height: 1.15;
+      margin: 1.4em 0 0.6em;
+    }
+    .markdown-preview h1:first-child,
+    .markdown-preview h2:first-child,
+    .markdown-preview h3:first-child {
+      margin-top: 0;
+    }
+    .markdown-preview p,
+    .markdown-preview li {
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .markdown-preview ul,
+    .markdown-preview ol {
+      padding-left: 1.4rem;
+    }
+    .markdown-preview a {
+      color: #7dd3fc;
+    }
+    .markdown-preview pre {
+      overflow-x: auto;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--code-bg);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .markdown-preview code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    .markdown-preview p code,
+    .markdown-preview li code,
+    .markdown-preview h1 code,
+    .markdown-preview h2 code,
+    .markdown-preview h3 code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--code-bg);
+    }
+    .markdown-preview__diagram {
+      margin: 24px 0;
+    }
+    .markdown-preview__diagram svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .markdown-preview__mermaid-fallback {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.35);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="read-preview">
+    <header class="read-preview__header">
+      <p class="read-preview__eyebrow">${escapedItemId}</p>
+      <h1 class="read-preview__title">${escapedTitle}</h1>
+      <p class="read-preview__path">${escapedRelPath}</p>
+    </header>
+    <main class="markdown-preview">${renderedMarkdown}</main>
+  </div>
+  ${mermaidScriptUri ? `<script src="${mermaidScriptUri}"></script>` : ""}
+  <script nonce="${nonce}">
+    (() => {
+      const fallbackNodes = Array.from(document.querySelectorAll(".markdown-preview__mermaid-fallback"));
+      const showFallback = (message) => {
+        fallbackNodes.forEach((node) => {
+          node.hidden = false;
+          if (message) {
+            node.textContent = message;
+          }
+        });
+      };
+
+      if (!window.mermaid) {
+        showFallback("Mermaid preview unavailable. Raw diagram source shown below.");
+        return;
+      }
+
+      try {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "dark" });
+        const nodes = Array.from(document.querySelectorAll(".mermaid"));
+        if (nodes.length === 0) {
+          return;
+        }
+        Promise.resolve(window.mermaid.run({ nodes })).catch((error) => {
+          const detail = error instanceof Error ? error.message : String(error);
+          showFallback("Mermaid preview unavailable. Raw diagram source shown below. (" + detail + ")");
+        });
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        showFallback("Mermaid preview unavailable. Raw diagram source shown below. (" + detail + ")");
+      }
+    })();
+  </script>
+</body>
+</html>`;
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -1706,6 +2054,15 @@ async function runGitWithOutput(
       });
     });
   });
+}
+
+function escapeHtmlForHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function getNonce(): string {

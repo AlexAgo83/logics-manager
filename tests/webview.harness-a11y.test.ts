@@ -23,6 +23,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
           <button data-action="select-agent"></button>
+          <button data-action="new-request-guided"></button>
           <button data-action="bootstrap-logics"></button>
           <button data-action="change-project-root"></button>
           <button data-action="reset-project-root"></button>
@@ -55,6 +56,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const state = {};
   const persistedStates: Array<Record<string, unknown>> = [];
   const openedUrls: string[] = [];
+  const openedDocuments: string[] = [];
   const fetchCalls: string[] = [];
   const setProjectRootCalls: Array<string | null> = [];
 
@@ -71,11 +73,16 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   Object.defineProperty(dom.window, "open", {
     value: (url?: string) => {
       openedUrls.push(String(url || ""));
+      const writes: string[] = [];
       return {
         document: {
           open: () => undefined,
-          write: () => undefined,
-          close: () => undefined
+          write: (value?: string) => {
+            writes.push(String(value || ""));
+          },
+          close: () => {
+            openedDocuments.push(writes.join(""));
+          }
         },
         location: {
           href: ""
@@ -128,7 +135,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(mainScript);
 
-  return { dom, postedMessages, openedUrls, setProjectRootCalls, fetchCalls, persistedStates };
+  return { dom, postedMessages, openedUrls, openedDocuments, setProjectRootCalls, fetchCalls, persistedStates };
 }
 
 function pushData(
@@ -306,6 +313,15 @@ describe("webview harness controls and accessibility", () => {
     expect(openedUrls.length).toBe(0);
   });
 
+  it("posts guided new-request action in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const guidedButton = dom.window.document.querySelector('[data-action="new-request-guided"]');
+    guidedButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
+  });
+
   it("disables use-workspace-root when payload indicates no override", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
@@ -424,12 +440,14 @@ describe("webview harness controls and accessibility", () => {
     const document = dom.window.document;
     const filterToggle = document.getElementById("filter-toggle");
     const toolsToggle = document.getElementById("tools-toggle");
+    const newRequestButton = document.querySelector('[data-action="new-request-guided"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
     const card = document.querySelector(".card") as HTMLDivElement | null;
     const detailsToggle = document.getElementById("details-toggle");
 
     expect(filterToggle?.getAttribute("title")).toBe("Filter options");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
+    expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);
@@ -444,5 +462,44 @@ describe("webview harness controls and accessibility", () => {
 
     detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(detailsToggle?.getAttribute("title")).toBe("Expand details");
+  });
+
+  it("renders markdown preview with Mermaid bootstrap in harness read mode", async () => {
+    const mermaidItem = {
+      ...baseItem,
+      path: "/workspace/mock/logics/request/req_000_kickoff.md",
+      relPath: "logics/request/req_000_kickoff.md"
+    };
+    const { dom, openedDocuments } = bootstrapWebview({
+      harness: true,
+      fetchImpl: async () => ({
+        ok: true,
+        status: 200,
+        text: async () =>
+          [
+            "# Kickoff",
+            "",
+            "```mermaid",
+            "flowchart TD",
+            "A[Need] --> B[Result]",
+            "```"
+          ].join("\n")
+      })
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [mermaidItem]
+    });
+
+    const readButton = dom.window.document.querySelector('[data-action="read"]');
+    readButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const html = openedDocuments[0] || "";
+    expect(html.includes('class="mermaid"')).toBe(true);
+    expect(html.includes("/node_modules/mermaid/dist/mermaid.min.js")).toBe(true);
+    expect(html.includes("Mermaid preview unavailable")).toBe(true);
   });
 });

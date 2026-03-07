@@ -1,9 +1,9 @@
 ## item_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100% complete
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -43,6 +43,7 @@ flowchart LR
 - AC3 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js). Proof: Mermaid fallback banners preserved when rendering fails.
 - AC4 -> [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js) and [debug/webview/README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/debug/webview/README.md). Proof: harness read preview now renders Mermaid and docs explain parity/limits.
 - AC5 -> [task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md). Proof: compile/lint/test/logics-lint validations and manual read checks captured there.
+- AC6 -> [media/main.js](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js), [debug/webview/README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/debug/webview/README.md), and [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: harness preview parity and documented limits are explicit for browser mode.
 
 # Links
 - Request: `logics/request/req_019_render_mermaid_diagrams_in_read_markdown_view.md`

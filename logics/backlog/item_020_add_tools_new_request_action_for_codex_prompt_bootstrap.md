@@ -1,9 +1,9 @@
 ## item_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100% complete
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -45,6 +45,7 @@ flowchart LR
 - AC4 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [tests/webview.harness-a11y.test.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/tests/webview.harness-a11y.test.ts). Proof: existing `createRequest` flow kept, new action tested separately.
 - AC5 -> [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: Tools menu and feature docs now distinguish guided request drafting from direct file creation.
 - AC6 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: clipboard fallback and user-facing warning preserved in generic prompt injection helper.
+- AC7 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: fallback messaging explicitly explains the guided drafting path when direct Codex injection is unavailable.
 
 # Links
 - Request: `logics/request/req_020_add_tools_new_request_action_for_codex_prompt_bootstrap.md`

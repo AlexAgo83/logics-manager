@@ -1,9 +1,9 @@
 ## item_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100% complete
 > Complexity: Medium
 > Theme: Bootstrap workflow and git ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -43,6 +43,8 @@ flowchart LR
 - AC3 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: explicit `Commit Bootstrap Changes` / `Not now` flow is non-blocking.
 - AC4 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: pre/post bootstrap git-status parsing skips commit proposal on dirty repos and handles nothing-to-commit.
 - AC5 -> [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: Tools menu docs now mention the bootstrap commit proposal and generated message behavior.
+- AC6 -> [src/workflowSupport.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/workflowSupport.ts) and [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts). Proof: bootstrap commit proposal compares pre-bootstrap dirtiness and only stages bootstrap-scoped paths.
+- AC7 -> [src/extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) and [README.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/README.md). Proof: user-facing dialog text frames the commit as bootstrap/setup work, not arbitrary project changes.
 
 # Links
 - Request: `logics/request/req_021_propose_commit_after_bootstrap_with_generated_message.md`

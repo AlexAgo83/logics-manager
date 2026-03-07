@@ -132,9 +132,27 @@ npm run install:vsix
 - Lint TS: `npm run lint`
 - Unit tests: `npm run test`
 - Logics docs lint: `npm run lint:logics`
+- Logics workflow audit + docs lint: `npm run audit:logics`
 - Full CI-equivalent local check: `npm run ci:check`
 
 CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
+
+## Closing Logics Work
+
+Do not mark a Logics task as `Done` by editing markdown indicators manually.
+Use the flow-manager guarded finish command so closure propagates correctly from task -> backlog -> request and the linked chain is verified.
+
+```bash
+npm run logics:finish:task -- logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md
+```
+
+This uses the kit-native command:
+- `logics_flow.py finish task ...`
+
+If you want a full repository-wide check afterward, run:
+- `npm run audit:logics`
+
+If you edit statuses by hand, the docs can look valid while the request/backlog chain is left out of sync.
 
 ## Webview Browser Debug
 

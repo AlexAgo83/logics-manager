@@ -70,6 +70,8 @@
     "lint": "npm run lint:ts",
     "lint:ts": "tsc -p ./ --noEmit",
     "lint:logics": "python3 logics/skills/logics-doc-linter/scripts/logics_lint.py",
+    "audit:logics": "python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py && python3 logics/skills/logics-doc-linter/scripts/logics_lint.py",
+    "logics:finish:task": "python3 logics/skills/logics-flow-manager/scripts/logics_flow.py finish task",
     "ci:check": "npm run compile && npm run lint && npm run test && npm run lint:logics && npm run package:ci",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
     "debug:webview": "node debug/webview/server.mjs",

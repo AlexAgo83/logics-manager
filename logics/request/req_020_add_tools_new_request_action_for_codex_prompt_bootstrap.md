@@ -1,8 +1,8 @@
 ## req_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -91,4 +91,4 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_020_add_tools_new_request_action_for_codex_prompt_bootstrap.md`

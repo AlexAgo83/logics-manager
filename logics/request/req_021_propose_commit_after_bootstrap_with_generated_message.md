@@ -1,8 +1,8 @@
 ## req_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
 > From version: 1.7.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Bootstrap workflow and git ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -85,4 +85,4 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_021_propose_commit_after_bootstrap_with_generated_message.md`

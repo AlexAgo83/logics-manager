@@ -1,8 +1,8 @@
 ## req_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
 > From version: 1.7.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -69,4 +69,4 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_019_render_mermaid_diagrams_in_read_markdown_view.md`

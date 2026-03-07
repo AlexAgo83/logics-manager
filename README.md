@@ -10,22 +10,34 @@
 VS Code extension that provides a visual orchestration panel for the Logics workflow
 (requests → backlog → tasks → specs), backed by the existing Markdown files in `logics/*`.
 
+It is not only a workflow UI: the Logics kit is also a way to persist project context in structured Markdown so AI assistants do not need the whole project to be re-explained in every prompt. In practice, that gives teams a durable, inspectable project memory, reduces token usage, and makes AI-driven development sessions more stable over time.
+
 ## Features
 
 - Flow board view (Requests / Backlog / Tasks / Specs).
 - Board/List display mode switch for compact navigation.
 - Details panel with indicators and references (Promoted from / Derived from) + reverse “Used by”.
 - Details lifecycle actions (`Done`, `Obsolete`) for fast status updates.
-- Create new requests from the UI (uses Logics templates).
-- Open, refresh, promote, bootstrap, and root-management actions from the UI.
+- Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
+- Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Progress-based card styling + optional hide completed.
+
+## Why This Matters For AI Projects
+
+- Logics turns scattered AI chat history into explicit project artifacts stored in the repo.
+- Requests, backlog items, tasks, specs, and links act as long-lived context that can be reused across sessions and across assistants.
+- Instead of repasting large amounts of project history into every prompt, the assistant can rely on the structured `logics/*` corpus as the project memory.
+- That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing prior decisions.
+- Because the context is written as Markdown in the repository, it stays reviewable by humans, diffable in git, and portable across tools.
 
 <img width="1151" height="641" alt="image" src="https://github.com/user-attachments/assets/9a732d99-6b21-4d29-9ea4-927f11f6bf58" />
 
 ## Requirements
 
-- A workspace that contains a `logics/` folder.
-- Logics skills kit installed at `logics/skills/` (for promote/new request).
+- A workspace folder open in VS Code.
+- Git available on PATH for bootstrap and submodule operations.
+- `logics/` is recommended if the project is already initialized; otherwise the extension can bootstrap it for you.
+- Logics skills kit at `logics/skills/` is required for create/promote/fix flows after initialization, and can be installed via `Bootstrap Logics`.
 - `python3` available on PATH (required for Logics flow scripts).
 - Node.js + npm (for build/package).
 - VS Code CLI `code` available on PATH (for VSIX install).
@@ -39,6 +51,7 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 ### Flow-manager smoke checklist
 
 - Create a request from UI (`New Request`) and confirm markdown is generated.
+- Create a backlog item and a task from the UI and confirm markdown is generated.
 - Promote request -> backlog and confirm links are updated.
 - Promote backlog -> task and confirm task document is generated.
 - Refresh board/details and confirm data remains consistent.
@@ -98,6 +111,14 @@ npm run install:vsix
 - `Logics: Open Item`
 - `Logics: Promote Item`
 - `Logics: New Request`
+
+## Tools Menu
+
+- `Select Agent` picks the active Logics agent and prepares Codex chat context.
+- `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
+- `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
+- `Fix Logics` runs Logics doc-fix flows when available.
+- `About` opens the project repository information.
 
 ## Validation
 

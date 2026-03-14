@@ -687,6 +687,7 @@
     getVisibleStages().forEach((stage) => {
       const column = document.createElement("div");
       const isCollapsed = collapsedStages.has(stage);
+      const canCreateFromColumn = isPrimaryFlowStage(stage);
       column.className = isCollapsed ? "column column--collapsed" : "column";
       column.dataset.stage = stage;
 
@@ -701,18 +702,21 @@
       const actions = document.createElement("div");
       actions.className = "column__actions";
 
-      const addButton = document.createElement("button");
-      addButton.type = "button";
-      addButton.className = "column__add";
-      addButton.innerHTML = plusIcon();
-      addButton.setAttribute("aria-label", "Add Logics item");
-      addButton.title = "Add Logics item";
-      addButton.setAttribute("aria-haspopup", "menu");
-      addButton.setAttribute("aria-expanded", "false");
-      addButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        toggleColumnMenu(addButton);
-      });
+      if (canCreateFromColumn) {
+        const addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.className = "column__add";
+        addButton.innerHTML = plusIcon();
+        addButton.setAttribute("aria-label", "Add Logics item");
+        addButton.title = "Add Logics item";
+        addButton.setAttribute("aria-haspopup", "menu");
+        addButton.setAttribute("aria-expanded", "false");
+        addButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleColumnMenu(addButton);
+        });
+        actions.appendChild(addButton);
+      }
 
       const toggle = document.createElement("button");
       toggle.type = "button";
@@ -735,7 +739,6 @@
         render();
       });
 
-      actions.appendChild(addButton);
       actions.appendChild(toggle);
       header.appendChild(actions);
       column.appendChild(header);
@@ -747,7 +750,7 @@
       if (!stageItems.length) {
         const empty = document.createElement("div");
         empty.className = "column__empty";
-        empty.textContent = "No items";
+        empty.textContent = canCreateFromColumn ? "No items" : "No linked docs";
         body.appendChild(empty);
       } else {
         stageItems.forEach((item) => body.appendChild(createItemCard(item)));

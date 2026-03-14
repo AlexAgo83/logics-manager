@@ -596,6 +596,8 @@ describe("webview harness controls and accessibility", () => {
     expect(document.querySelector('.column[data-stage="architecture"] .column__title')?.textContent).toBe(
       "Architecture decisions"
     );
+    expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
+    expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
 
     if (hideSpecToggle) {

@@ -525,7 +525,7 @@ input[type="checkbox"]:focus-visible,
 
 .details__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
@@ -533,10 +533,12 @@ input[type="checkbox"]:focus-visible,
 .details__header-title {
   font-size: 12px;
   color: var(--vscode-foreground, #d4d4d4);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
 }
 
 .details__toggle {
@@ -665,9 +667,15 @@ input[type="checkbox"]:focus-visible,
   gap: 8px;
 }
 
+.details__list-row--name {
+  align-items: flex-start;
+}
+
 .details__name-value-wrap {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex: 1 1 auto;
   gap: 6px;
   min-width: 0;
 }
@@ -679,6 +687,11 @@ input[type="checkbox"]:focus-visible,
 
 .details__name-value {
   font-family: var(--vscode-editor-font-family, var(--vscode-font-family, "Segoe UI", sans-serif));
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: right;
 }
 
 .details__rename {

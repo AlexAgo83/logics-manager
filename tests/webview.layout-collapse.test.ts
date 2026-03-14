@@ -125,6 +125,18 @@ describe("webview collapsed details layout behavior", () => {
     expect(css.includes("z-index: 2;")).toBe(true);
   });
 
+  it("allows long detail titles and ids to wrap without ellipsis overflow", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "media/main.css"), "utf8");
+    const headerTitleRule = css.match(/\.details__header-title\s*\{[^}]+\}/)?.[0] || "";
+    const nameValueRule = css.match(/\.details__name-value\s*\{[^}]+\}/)?.[0] || "";
+
+    expect(headerTitleRule.includes("white-space: normal;")).toBe(true);
+    expect(headerTitleRule.includes("overflow-wrap: anywhere;")).toBe(true);
+    expect(headerTitleRule.includes("text-overflow: ellipsis;")).toBe(false);
+    expect(nameValueRule.includes("overflow-wrap: anywhere;")).toBe(true);
+    expect(nameValueRule.includes("word-break: break-word;")).toBe(true);
+  });
+
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {
     const { dom, setStacked } = bootstrapWebview(true);
     const document = dom.window.document;

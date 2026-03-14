@@ -3,7 +3,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 70%
+> Progress: 90%
 > Complexity: High
 > Theme: Shared Logics kit workflow hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -87,5 +87,9 @@ flowchart LR
 - The preferred implementation order is:
   - V1: richer promotion, explicit split, robust id allocation, scoped audit
   - V2: stronger traceability seeding, better finish/close propagation, more actionable decision framing
+- Current progress:
+  - V1 is in place.
+  - V2 now also covers richer AC traceability seeding, stronger finish/report propagation, and written decision follow-up guidance.
+  - remaining work is mostly close-out, release hygiene, and deciding whether one more conservative synchronization step is worth the extra complexity.
 - The work must remain generic for all repositories consuming `logics/skills`.
 - The work should also measurably reduce repetitive cleanup for the agent using Logics as an execution framework.

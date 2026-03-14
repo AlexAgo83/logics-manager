@@ -59,8 +59,66 @@
       closeColumnMenu,
       toggleColumnMenu,
       persistState,
-      getCollapsedStages
+      getCollapsedStages,
+      getHideCompleted,
+      getHideProcessedRequests,
+      getHideSpec,
+      getShowCompanionDocs
     } = options;
+
+    function captureBoardScroll() {
+      if (!board) {
+        return null;
+      }
+      const scrollLeft = board.scrollLeft;
+      const columnScroll = new Map();
+      board.querySelectorAll(".column").forEach((column) => {
+        const stage = column.dataset.stage;
+        const body = column.querySelector(".column__body");
+        if (stage && body) {
+          columnScroll.set(stage, body.scrollTop);
+        }
+      });
+      return { scrollLeft, columnScroll };
+    }
+
+    function restoreBoardScroll(state) {
+      if (!board || !state) {
+        return;
+      }
+      board.scrollLeft = state.scrollLeft;
+      board.querySelectorAll(".column").forEach((column) => {
+        const stage = column.dataset.stage;
+        const body = column.querySelector(".column__body");
+        if (!stage || !body) {
+          return;
+        }
+        const scrollTop = state.columnScroll.get(stage);
+        if (typeof scrollTop === "number") {
+          body.scrollTop = scrollTop;
+        }
+      });
+    }
+
+    function getEmptyBoardMessage() {
+      if (getHideCompleted() || getHideProcessedRequests() || getHideSpec() || getShowCompanionDocs()) {
+        const filters = [];
+        if (getHideCompleted()) {
+          filters.push('"Hide completed"');
+        }
+        if (getHideProcessedRequests()) {
+          filters.push('"Hide processed requests"');
+        }
+        if (getHideSpec()) {
+          filters.push('"Hide SPEC"');
+        }
+        if (getShowCompanionDocs()) {
+          filters.push('"Show companion docs"');
+        }
+        return `No items match the current filters. Adjust ${filters.join(" and ")} to change the view.`;
+      }
+      return "No Logics items found. Add files under logics/ to populate the board.";
+    }
 
     function createCompanionBadges(item) {
       const companionDocs = collectCompanionDocs(item);
@@ -300,6 +358,7 @@
     }
 
     function renderBoard() {
+      const scrollState = captureBoardScroll();
       if (typeof closeColumnMenu === "function") {
         closeColumnMenu();
       }
@@ -308,7 +367,7 @@
       if (!visibleItems.length) {
         const empty = document.createElement("div");
         empty.className = "state-message";
-        empty.textContent = "No items match the current filters. Adjust the active filters to change the view.";
+        empty.textContent = getEmptyBoardMessage();
         board.appendChild(empty);
         return;
       }
@@ -318,6 +377,7 @@
       } else {
         renderBoardColumns(grouped);
       }
+      restoreBoardScroll(scrollState);
     }
 
     return {

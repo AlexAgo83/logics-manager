@@ -1327,6 +1327,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "hostApi.js"));
     const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderBoard.js"));
     const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderDetails.js"));
+    const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderMarkdown.js"));
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js"));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"));
     const nonce = getNonce();
@@ -1451,6 +1452,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
   <script nonce="${nonce}" src="${renderBoardScriptUri}"></script>
   <script nonce="${nonce}" src="${renderDetailsScriptUri}"></script>
+  <script nonce="${nonce}" src="${renderMarkdownScriptUri}"></script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

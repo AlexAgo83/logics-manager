@@ -1,0 +1,305 @@
+.board {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  overflow: auto;
+}
+
+.board--list {
+  display: block;
+  padding: 8px 0;
+}
+
+.column {
+  min-width: 220px;
+  max-width: 280px;
+  background: var(--vscode-sideBar-background, #252526);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 10px 6px 12px;
+}
+
+.column__title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.column__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.column__add {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.column__add svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.column__toggle {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vscode-foreground, #d4d4d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.column__toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.column__menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  min-width: 170px;
+  background: var(--vscode-editorWidget-background, #202020);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 10;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.column__menu-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.column__menu-item:hover {
+  background: var(--vscode-list-hoverBackground, #2a2d2e);
+}
+
+.column--collapsed {
+  min-width: 150px;
+  max-width: 180px;
+  background: transparent;
+  border-color: transparent;
+}
+
+.column--collapsed .column__body {
+  display: none;
+}
+
+.column--collapsed .column__add {
+  display: none;
+}
+
+.column__body {
+  flex: 1;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.column__empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card {
+  margin: 6px 10px;
+  padding: 8px 10px;
+  background: var(--vscode-editorWidget-background, #202020);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card--progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.card--progress-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(249, 115, 22, 0.38) 0%,
+    rgba(249, 115, 22, 0.38) var(--progress, 0%),
+    rgba(0, 0, 0, 0) var(--progress, 0%)
+  );
+  pointer-events: none;
+}
+
+.card--progress-bar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card__title {
+  font-size: 13px;
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.card__meta {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card__meta--linkage {
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
+.card__meta--linkage.card__meta--orphan {
+  font-style: italic;
+}
+
+.card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.card__badge--product {
+  color: #fef3c7;
+  background: rgba(217, 119, 6, 0.22);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.card__badge--architecture {
+  color: #dbeafe;
+  background: rgba(37, 99, 235, 0.22);
+  border-color: rgba(59, 130, 246, 0.42);
+}
+
+.card__badge--spec {
+  color: #dcfce7;
+  background: rgba(22, 163, 74, 0.22);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.card--selected {
+  border-color: var(--vscode-button-background, #0e639c);
+  box-shadow: 0 0 0 1px var(--vscode-button-background, #0e639c);
+}
+
+.card--done {
+  opacity: 0.55;
+}
+
+.card--progress-zero {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.card--progress-active {
+  background: rgba(249, 115, 22, 0.16);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.card--progress-done {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.card--used {
+  background: rgba(234, 179, 8, 0.18);
+  border-color: rgba(234, 179, 8, 0.5);
+}
+
+.state-message {
+  padding: 16px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.list-view {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.list-view__section {
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  padding-top: 8px;
+}
+
+.list-view__header {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  padding: 0 12px 6px;
+}
+
+.list-view__body {
+  display: grid;
+  gap: 4px;
+}
+
+.list-view__empty {
+  padding: 0 12px 8px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card--compact {
+  margin: 2px 10px;
+  padding: 6px 8px;
+}

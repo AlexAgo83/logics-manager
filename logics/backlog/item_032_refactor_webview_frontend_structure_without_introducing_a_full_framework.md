@@ -3,7 +3,7 @@
 > Status: In progress
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 65%
+> Progress: 85%
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -83,4 +83,7 @@ flowchart TD
   - detail renderer
   - board/list renderer
   - CSS decomposition
+- Current progress:
+  - shared model, host bridge, renderers, markdown preview, and CSS concern files are now extracted;
+  - the main remaining work is close-out and any final thin-bootstrap cleanup.
 - A companion architecture decision is still expected because the refactor changes frontend structure and runtime boundaries inside the webview.

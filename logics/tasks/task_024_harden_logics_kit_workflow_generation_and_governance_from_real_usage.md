@@ -3,7 +3,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 70%
+> Progress: 90%
 > Complexity: High
 > Theme: Shared Logics kit hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -34,7 +34,7 @@ flowchart LR
   - explicit split workflow
   - robust id allocation
   - scoped audit
-- [ ] 3. Deliver V2 workflow follow-up without breaking generic behavior:
+- [x] 3. Deliver V2 workflow follow-up without breaking generic behavior:
   - stronger AC traceability seeding
   - better finish/close propagation
   - more actionable decision framing
@@ -94,6 +94,9 @@ flowchart LR
   - `logics_flow.py split request|backlog` now creates multiple child docs explicitly and keeps request/backlog links synchronized.
   - id allocation now uses atomic file reservation to avoid duplicate refs under repeated creation attempts.
   - `workflow_audit.py` now supports scoped execution via `--refs`, `--paths`, and `--since-version`.
+  - seeded AC traceability now carries forward the acceptance-criterion summary instead of only a generic placeholder.
+  - generated backlog/task docs now include explicit decision follow-up guidance in `# Decision framing`.
+  - `finish task` now appends finish/report evidence to the task and leaves a completion note in linked backlog items.
   - tests and CLI smoke checks were extended to cover promotion seeding, split flows, and scoped audit usage.
 - Remaining work:
-  - finish the V2 layer more completely, especially broader close/report synchronization and stronger decision-framing guidance in generated docs.
+  - close out the remaining docs/changelog pass cleanly and decide whether any extra conservative request-level synchronization is still worth adding in this iteration.

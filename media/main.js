@@ -87,6 +87,8 @@
   })();
   const modelApi = window.CdxLogicsModel || {};
   const hostApiFactory = window.createCdxLogicsHostApi;
+  const boardRendererFactory = window.createCdxLogicsBoardRenderer;
+  const detailsRendererFactory = window.createCdxLogicsDetailsRenderer;
 
   function debugLog(eventName, payload = {}) {
     if (!debugUi) {
@@ -601,6 +603,11 @@
   }
 
   function renderBoard() {
+    if (boardRenderer && typeof boardRenderer.renderBoard === "function") {
+      boardRenderer.renderBoard();
+      return;
+    }
+
     const scrollState = captureBoardScroll();
     closeColumnMenu();
     board.innerHTML = "";
@@ -834,6 +841,11 @@
   }
 
   function renderDetails() {
+    if (detailsRenderer && typeof detailsRenderer.renderDetails === "function") {
+      detailsRenderer.renderDetails();
+      return;
+    }
+
     detailsBody.innerHTML = "";
     const item = items.find((entry) => entry.id === selectedId);
     if (!item) {
@@ -1721,6 +1733,58 @@
         projectGithubUrl
       })
     : createHostApi();
+
+  const boardRenderer = typeof boardRendererFactory === "function"
+    ? boardRendererFactory({
+        board,
+        hostApi,
+        getItems: () => items,
+        getSelectedId: () => selectedId,
+        setSelectedId(value) {
+          selectedId = value;
+        },
+        isListMode,
+        getVisibleStages,
+        groupByStage,
+        isVisible,
+        isPrimaryFlowStage,
+        isRequestProcessed,
+        getStageHeading,
+        getStageLabel,
+        collectCompanionDocs,
+        collectSpecs,
+        collectPrimaryFlowItems,
+        progressState,
+        getProgressValue,
+        isComplete,
+        render,
+        openSelectedItem,
+        closeColumnMenu,
+        toggleColumnMenu,
+        persistState,
+        getCollapsedStages: () => collapsedStages
+      })
+    : null;
+
+  const detailsRenderer = typeof detailsRendererFactory === "function"
+    ? detailsRendererFactory({
+        detailsBody,
+        detailsTitle,
+        detailsEyebrow,
+        hostApi,
+        getItems: () => items,
+        getSelectedId: () => selectedId,
+        getCollapsedDetailSections: () => collapsedDetailSections,
+        persistState,
+        getStageLabel,
+        isPrimaryFlowStage,
+        collectCompanionDocs,
+        collectSpecs,
+        collectPrimaryFlowItems,
+        findManagedItemByReference,
+        formatDate
+      })
+    : null;
 
   function encodePathForUrl(relativePath) {
     return relativePath

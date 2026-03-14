@@ -1323,6 +1323,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
+    const modelScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "logicsModel.js"));
+    const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "hostApi.js"));
+    const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderBoard.js"));
+    const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderDetails.js"));
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js"));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"));
     const nonce = getNonce();
@@ -1443,6 +1447,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </div>
     </aside>
   </div>
+  <script nonce="${nonce}" src="${modelScriptUri}"></script>
+  <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
+  <script nonce="${nonce}" src="${renderBoardScriptUri}"></script>
+  <script nonce="${nonce}" src="${renderDetailsScriptUri}"></script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

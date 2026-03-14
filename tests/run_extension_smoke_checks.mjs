@@ -33,6 +33,8 @@ assertHas(entries, "extension/package.json");
 assertHas(entries, "extension/out/extension.js");
 assertHas(entries, "extension/media/main.js");
 assertHas(entries, "extension/media/main.css");
+assertHas(entries, "extension/media/renderBoard.js");
+assertHas(entries, "extension/media/renderDetails.js");
 assertHas(entries, "extension/media/css/layout.css");
 assertHas(entries, "extension/media/css/details.css");
 assertMissingPrefix(entries, "extension/tests/");

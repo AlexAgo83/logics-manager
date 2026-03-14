@@ -88,9 +88,13 @@ function bootstrapWebview(stacked: boolean) {
 
   const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
   const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
+  const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
+  const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(modelScript);
   dom.window.eval(hostApiScript);
+  dom.window.eval(renderBoardScript);
+  dom.window.eval(renderDetailsScript);
   dom.window.eval(mainScript);
 
   const setStacked = (nextValue: boolean) => {

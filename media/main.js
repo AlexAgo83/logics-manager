@@ -278,6 +278,31 @@
     return row;
   }
 
+  function createLinkedIndicatorRow(label, value, targetItem) {
+    if (!targetItem) {
+      return createIndicatorRow(label, value);
+    }
+
+    const row = document.createElement("div");
+    row.className = "details__indicator";
+
+    const left = document.createElement("div");
+    left.textContent = label;
+
+    const right = document.createElement("span");
+    right.appendChild(document.createTextNode(value ?? ""));
+    right.appendChild(document.createTextNode(" "));
+    right.appendChild(
+      createInlineCta("Open", () => {
+        hostApi.openItem(targetItem, "open");
+      })
+    );
+
+    row.appendChild(left);
+    row.appendChild(right);
+    return row;
+  }
+
   function createCompanionDocRow(companion) {
     const row = document.createElement("div");
     row.className = "details__indicator";
@@ -868,9 +893,9 @@
     if (item.references && item.references.length) {
       item.references.forEach((ref) => {
         if (typeof ref === "string") {
-          refList.appendChild(createIndicatorRow(ref, ""));
+          refList.appendChild(createLinkedIndicatorRow(ref, "", findManagedItemByReference(ref)));
         } else {
-          refList.appendChild(createIndicatorRow(ref.label, ref.path));
+          refList.appendChild(createLinkedIndicatorRow(ref.label, ref.path, findManagedItemByReference(ref.path)));
         }
       });
     } else {
@@ -903,8 +928,9 @@
 
     if (item.usedBy && item.usedBy.length) {
       item.usedBy.forEach((usage) => {
+        const targetItem = findManagedItemByReference(usage.relPath || usage.id, usage);
         usedList.appendChild(
-          createIndicatorRow(`${usage.stage} • ${usage.id}`, usage.title)
+          createLinkedIndicatorRow(`${usage.stage} • ${usage.id}`, usage.title, targetItem)
         );
       });
     } else {

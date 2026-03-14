@@ -312,6 +312,46 @@
     return row;
   }
 
+  function createCompanionBadges(item) {
+    const companionDocs = collectCompanionDocs(item);
+    if (!isPrimaryFlowStage(item.stage) || companionDocs.length === 0) {
+      return null;
+    }
+
+    const counts = companionDocs.reduce(
+      (acc, companion) => {
+        if (companion.stage === "product") {
+          acc.product += 1;
+        }
+        if (companion.stage === "architecture") {
+          acc.architecture += 1;
+        }
+        return acc;
+      },
+      { product: 0, architecture: 0 }
+    );
+
+    const badges = document.createElement("div");
+    badges.className = "card__badges";
+
+    if (counts.product > 0) {
+      badges.appendChild(createCompanionBadge("PROD", counts.product, "product"));
+    }
+    if (counts.architecture > 0) {
+      badges.appendChild(createCompanionBadge("ADR", counts.architecture, "architecture"));
+    }
+
+    return badges.childElementCount > 0 ? badges : null;
+  }
+
+  function createCompanionBadge(label, count, tone) {
+    const badge = document.createElement("span");
+    badge.className = `card__badge card__badge--${tone}`;
+    badge.textContent = count > 1 ? `${label} ${count}` : label;
+    badge.title = count > 1 ? `${count} linked ${tone} companion docs` : `Linked ${tone} companion doc`;
+    return badge;
+  }
+
   function applySectionCollapse(section, title, content, isCollapsed) {
     section.classList.toggle("details__section--collapsed", isCollapsed);
     title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -538,6 +578,11 @@
     titleEl.className = "card__title";
     titleEl.textContent = item.title;
     card.appendChild(titleEl);
+
+    const companionBadges = createCompanionBadges(item);
+    if (companionBadges) {
+      card.appendChild(companionBadges);
+    }
 
     if (compact) {
       const meta = document.createElement("div");

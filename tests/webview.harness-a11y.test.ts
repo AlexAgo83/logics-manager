@@ -487,6 +487,30 @@ describe("webview harness controls and accessibility", () => {
     expect(postedMessages.some((message) => message.type === "open" && message.id === "prod_000_plugin_ux")).toBe(true);
   });
 
+  it("shows companion badges on delivery cards when linked docs exist", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          references: [
+            { kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" },
+            { kind: "manual", label: "Reference", path: "logics/architecture/adr_000_plugin_model.md" }
+          ]
+        },
+        productItem,
+        architectureItem
+      ]
+    });
+
+    const card = dom.window.document.querySelector(".card");
+    expect(card?.textContent).toContain("PROD");
+    expect(card?.textContent).toContain("ADR");
+    expect(card?.querySelector(".card__badge--product")).not.toBeNull();
+    expect(card?.querySelector(".card__badge--architecture")).not.toBeNull();
+  });
+
   it("posts companion doc creation from the details panel", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {

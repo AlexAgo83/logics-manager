@@ -509,6 +509,28 @@ describe("webview harness controls and accessibility", () => {
     expect(postedMessages.some((message) => message.type === "open" && message.id === "prod_000_plugin_ux")).toBe(true);
   });
 
+  it("reads managed references from the details panel", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [
+        {
+          ...baseItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" }]
+        },
+        productItem
+      ]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    const actionButtons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
+    const readButton = actionButtons.find((button) => button.textContent?.trim() === "Read");
+    readButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "prod_000_plugin_ux")).toBe(true);
+  });
+
   it("shows companion badges on delivery cards when linked docs exist", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {

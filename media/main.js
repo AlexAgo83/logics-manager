@@ -278,6 +278,24 @@
     return row;
   }
 
+  function appendManagedDocActions(container, targetItem) {
+    if (!targetItem) {
+      return;
+    }
+    container.appendChild(document.createTextNode(" "));
+    container.appendChild(
+      createInlineCta("Open", () => {
+        hostApi.openItem(targetItem, "open");
+      })
+    );
+    container.appendChild(document.createTextNode(" "));
+    container.appendChild(
+      createInlineCta("Read", () => {
+        hostApi.openItem(targetItem, "read");
+      })
+    );
+  }
+
   function createLinkedIndicatorRow(label, value, targetItem) {
     if (!targetItem) {
       return createIndicatorRow(label, value);
@@ -291,12 +309,7 @@
 
     const right = document.createElement("span");
     right.appendChild(document.createTextNode(value ?? ""));
-    right.appendChild(document.createTextNode(" "));
-    right.appendChild(
-      createInlineCta("Open", () => {
-        hostApi.openItem(targetItem, "open");
-      })
-    );
+    appendManagedDocActions(right, targetItem);
 
     row.appendChild(left);
     row.appendChild(right);
@@ -318,18 +331,9 @@
     }
 
     if (companion.item) {
-      const openButton = document.createElement("button");
-      openButton.type = "button";
-      openButton.className = "details__inline-cta";
-      openButton.textContent = "Open";
-      openButton.title = `Open ${companion.id}`;
-      openButton.addEventListener("click", () => {
-        hostApi.openItem(companion.item, "open");
-      });
       actions.textContent = "";
       actions.appendChild(document.createTextNode(companion.title || companion.relPath || companion.id));
-      actions.appendChild(document.createTextNode(" "));
-      actions.appendChild(openButton);
+      appendManagedDocActions(actions, companion.item);
     }
 
     row.appendChild(info);

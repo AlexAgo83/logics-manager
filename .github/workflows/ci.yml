@@ -52,6 +52,9 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Extension smoke checks
+        run: npm run test:smoke
+
       - name: Logics docs lint
         run: npm run lint:logics
 

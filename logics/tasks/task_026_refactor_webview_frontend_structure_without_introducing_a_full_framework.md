@@ -1,9 +1,9 @@
 ## task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0
-> Status: Ready
+> Status: In progress
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 65%
 > Complexity: High
 > Theme: Webview frontend refactor orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -27,11 +27,11 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Extract shared workflow/model helpers so stage logic and related document resolution stop being duplicated across rendering paths.
-- [ ] 2. Isolate the host communication layer behind clearer frontend bridge functions instead of mixed inline messaging calls.
+- [x] 1. Extract shared workflow/model helpers so stage logic and related document resolution stop being duplicated across rendering paths.
+- [x] 2. Isolate the host communication layer behind clearer frontend bridge functions instead of mixed inline messaging calls.
 - [ ] 3. Split detail-panel and board/list rendering into clearer units while keeping `main.js` as a thin bootstrap entry point.
-- [ ] 4. Reorganize CSS by concern so layout, cards, detail panel, preview, and responsive rules are easier to maintain.
-- [ ] 5. Update tests and wiring so the refactor preserves current behavior and loading simplicity.
+- [x] 4. Reorganize CSS by concern so layout, cards, detail panel, preview, and responsive rules are easier to maintain.
+- [x] 5. Update tests and wiring so the refactor preserves current behavior and loading simplicity.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -79,3 +79,10 @@ flowchart LR
   - keep `main.js` as the bootstrap entry point;
   - do not introduce React, Vue, Svelte, or a comparable framework in this task;
   - prefer clear responsibility boundaries over splitting files mechanically without a model.
+- Current implementation status:
+  - stage/workflow helpers moved into `media/logicsModel.js`.
+  - host bridge logic moved into `media/hostApi.js`.
+  - CSS is no longer only one monolith: `media/css/layout.css` and `media/css/details.css` now carry dedicated concerns behind `media/main.css`.
+  - tests and smoke checks were rewired to load the modular assets and still pass.
+- Remaining work:
+  - finish the rendering split itself so board/list and detail rendering no longer live primarily inside `media/main.js`.

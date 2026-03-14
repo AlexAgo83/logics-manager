@@ -1,0 +1,49 @@
+.layout {
+  display: flex;
+  height: calc(100vh - 42px);
+}
+
+.splitter {
+  display: none;
+  height: 6px;
+  width: 100%;
+  background: var(--vscode-panel-border, #333333);
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+  cursor: row-resize;
+  touch-action: none;
+}
+
+.splitter:hover,
+.splitter--dragging {
+  background: var(--vscode-button-background, #0e639c);
+}
+
+.layout--stacked .splitter {
+  display: block;
+}
+
+.layout--horizontal .splitter {
+  display: none !important;
+}
+
+.layout--stacked.layout--split-disabled .splitter {
+  display: none;
+}
+
+.layout--stacked .board {
+  min-height: 160px;
+  position: relative;
+  z-index: 0;
+}
+
+.layout--stacked .details {
+  min-height: 180px;
+  border-top: none;
+  z-index: 2;
+}
+
+.is-resizing {
+  cursor: row-resize;
+  user-select: none;
+}

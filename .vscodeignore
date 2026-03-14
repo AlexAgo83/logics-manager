@@ -7,4 +7,12 @@
 !out/extension.js
 !out/**/*.js
 !out/**/*.js.map
+src/**
+tests/**
+debug/**
+.github/**
+.gitignore
+.gitmodules
+tsconfig.json
+vitest.config.ts
 logics/**

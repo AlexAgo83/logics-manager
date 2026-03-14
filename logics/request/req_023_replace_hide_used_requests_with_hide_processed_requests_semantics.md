@@ -1,6 +1,6 @@
 ## req_023_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.0
-> Status: Draft
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

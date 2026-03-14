@@ -12,7 +12,7 @@ import {
   canPromote,
   getManagedDocDirectories,
   indexLogics,
-  isRequestUsed,
+  isRequestProcessed,
   LogicsItem,
   promotionCommand
 } from "./logicsIndexer";
@@ -20,7 +20,6 @@ import {
   AgentDefinition,
   AgentRegistrySnapshot,
   createEmptyAgentRegistry,
-  extractExplicitAgentInvocation,
   loadAgentRegistry
 } from "./agentRegistry";
 import { execFile } from "child_process";
@@ -200,7 +199,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       await this.refresh();
     }
     const promotable = this.items.filter(
-      (item) => canPromote(item.stage) && !item.isPromoted && !isRequestUsed(item)
+      (item) => canPromote(item.stage) && !item.isPromoted && !isRequestProcessed(item, this.items)
     );
     const pick = await this.pickItem(promotable, "Promote Logics item");
     if (pick) {
@@ -209,7 +208,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async selectAgentFromPalette(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -250,7 +249,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async refreshAgentsFromCommand(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -263,7 +262,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async createRequest(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -300,7 +299,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async startGuidedRequestFromTools(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -332,7 +331,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -380,7 +379,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     sourceId: string,
     preferredKind?: "product" | "architecture"
   ): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -475,7 +474,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async fixDocs(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -514,7 +513,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async bootstrapFromTools(): Promise<void> {
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -650,14 +649,16 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     void vscode.window.showWarningMessage(`Configured project root not found: ${invalidOverridePath}.${suffix}`);
   }
 
-  private getActionRoot(): string | null {
+  private async getActionRoot(): Promise<string | null> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
       void vscode.window.showErrorMessage(
         invalidOverridePath
           ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
-          : "No project root found. Open a workspace or use Tools > Change Project Root."
+          : hasMultipleWorkspaceFolders()
+            ? "Multiple workspace folders detected. Use Tools > Change Project Root to choose the active root."
+            : "No project root found. Open a workspace or use Tools > Change Project Root."
       );
       return null;
     }
@@ -754,6 +755,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       const availableCommands = await vscode.commands.getCommands(true);
       const hasCodexSidebarCommand = availableCommands.includes("chatgpt.openSidebar");
       const hasCodexNewChatCommand = availableCommands.includes("chatgpt.newChat");
+      const hasWorkbenchChatCommand = availableCommands.includes("workbench.action.chat.open");
 
       if (hasCodexSidebarCommand) {
         await vscode.commands.executeCommand("chatgpt.openSidebar");
@@ -769,23 +771,16 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         return;
       }
 
-      await vscode.commands.executeCommand("workbench.action.chat.open");
-      await vscode.commands.executeCommand("workbench.action.chat.focusInput");
-      const existingInput = await this.captureCurrentChatInput();
-      if (existingInput && extractExplicitAgentInvocation(existingInput)) {
-        void vscode.window.showInformationMessage(
-          "Chat input already contains an explicit $logics-... invocation. Leaving current draft unchanged."
-        );
+      if (hasWorkbenchChatCommand) {
+        await vscode.commands.executeCommand("workbench.action.chat.open", {
+          query: normalizedPrompt,
+          isPartialQuery: true
+        });
+        await vscode.commands.executeCommand("workbench.action.chat.focusInput");
         return;
       }
 
-      const merged =
-        existingInput && existingInput.trim().length > 0 ? `${normalizedPrompt}\n\n${existingInput}` : normalizedPrompt;
-      await vscode.commands.executeCommand("workbench.action.chat.open", {
-        query: merged,
-        isPartialQuery: true
-      });
-      await vscode.commands.executeCommand("workbench.action.chat.focusInput");
+      throw new Error("No supported chat open command available");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await vscode.env.clipboard.writeText(normalizedPrompt);
@@ -798,27 +793,6 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       codexCopiedMessage: "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
       fallbackCopiedMessage: "Could not inject prompt into Codex chat"
     });
-  }
-
-  private async captureCurrentChatInput(): Promise<string | null> {
-    const originalClipboard = await vscode.env.clipboard.readText();
-    const sentinel = `__logics_capture_${Date.now()}_${Math.random().toString(16).slice(2)}__`;
-
-    try {
-      await vscode.env.clipboard.writeText(sentinel);
-      await vscode.commands.executeCommand("editor.action.selectAll");
-      await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
-      await delay(40);
-      const captured = await vscode.env.clipboard.readText();
-      if (captured === sentinel) {
-        return null;
-      }
-      return captured;
-    } catch {
-      return null;
-    } finally {
-      await vscode.env.clipboard.writeText(originalClipboard);
-    }
   }
 
   private async maybeOfferBootstrap(root: string): Promise<void> {
@@ -1121,7 +1095,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -1131,8 +1105,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       void vscode.window.showInformationMessage("Promotion is only available for request or backlog items.");
       return;
     }
-    if (isRequestUsed(item)) {
-      void vscode.window.showInformationMessage("This request has already been used and cannot be promoted.");
+    if (isRequestProcessed(item, this.items)) {
+      void vscode.window.showInformationMessage("This request has already been processed and cannot be promoted.");
       return;
     }
     if (item.isPromoted) {
@@ -1166,7 +1140,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -1243,7 +1217,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const root = this.getActionRoot();
+    const root = await this.getActionRoot();
     if (!root) {
       return;
     }
@@ -1380,8 +1354,8 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         </button>
         <div class="filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="Filter options">
           <label class="toggle">
-            <input type="checkbox" id="hide-used-requests" />
-            <span>Hide used requests</span>
+            <input type="checkbox" id="hide-processed-requests" />
+            <span>Hide processed requests</span>
           </label>
           <label class="toggle">
             <input type="checkbox" id="hide-complete" />
@@ -1440,7 +1414,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
     <aside class="details" id="details">
       <div class="details__header">
-        <div class="details__header-title" id="details-title">Details</div>
+        <div class="details__header-copy">
+          <div class="details__header-eyebrow" id="details-eyebrow">Logics item</div>
+          <div class="details__header-title" id="details-title">Details</div>
+        </div>
         <button class="details__toggle" id="details-toggle" aria-label="Collapse details" aria-expanded="true" title="Collapse details">
           <svg class="details__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path
@@ -1458,11 +1435,11 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         <div class="details__empty">Select a card to see details.</div>
       </div>
       <div class="details__actions">
-        <button class="btn" data-action="promote" disabled title="Promote selected item">Promote</button>
-        <button class="btn" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
-        <button class="btn" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
-        <button class="btn" data-action="open" disabled title="Edit selected item">Edit</button>
-        <button class="btn" data-action="read" disabled title="Read selected item">Read</button>
+        <button class="btn btn--primary" data-action="open" disabled title="Edit selected item">Edit</button>
+        <button class="btn btn--primary" data-action="read" disabled title="Read selected item">Read</button>
+        <button class="btn btn--contextual" data-action="promote" disabled title="Promote selected item">Promote</button>
+        <button class="btn btn--secondary" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
+        <button class="btn btn--caution" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
       </div>
     </aside>
   </div>
@@ -1726,16 +1703,24 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {}
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getWorkspaceRoots(): string[] {
+  const folders = vscode.workspace.workspaceFolders;
+  if (!folders || folders.length === 0) {
+    return [];
+  }
+  return folders.map((folder) => folder.uri.fsPath);
+}
+
+function hasMultipleWorkspaceFolders(): boolean {
+  return getWorkspaceRoots().length > 1;
 }
 
 function getWorkspaceRoot(): string | null {
-  const folders = vscode.workspace.workspaceFolders;
-  if (!folders || folders.length === 0) {
+  const roots = getWorkspaceRoots();
+  if (roots.length !== 1) {
     return null;
   }
-  return folders[0].uri.fsPath;
+  return roots[0];
 }
 
 function isExistingDirectory(value: string): boolean {

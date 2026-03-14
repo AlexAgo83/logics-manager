@@ -1,9 +1,9 @@
 ## task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.0
-> Status: Ready
+> Status: In progress
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 70%
 > Complexity: High
 > Theme: Shared Logics kit hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,8 +28,8 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Lock the phased execution model and shared-submodule constraints, then turn the broad request into an executable hardening sequence.
-- [ ] 2. Deliver V1 foundations first:
+- [x] 1. Lock the phased execution model and shared-submodule constraints, then turn the broad request into an executable hardening sequence.
+- [x] 2. Deliver V1 foundations first:
   - richer promotion output
   - explicit split workflow
   - robust id allocation
@@ -38,7 +38,7 @@ flowchart LR
   - stronger AC traceability seeding
   - better finish/close propagation
   - more actionable decision framing
-- [ ] 4. Add or adjust tests, docs, and changelog/release notes across the shared kit.
+- [x] 4. Add or adjust tests, docs, and changelog/release notes across the shared kit.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -89,3 +89,11 @@ flowchart LR
   - no repo-specific assumptions;
   - no overly free-form generated summaries by default;
   - conservative automation where user-authored report content could otherwise be overwritten.
+- Current implementation status:
+  - `logics_flow.py` now seeds richer backlog/task content from the source docs instead of leaving near-empty placeholders.
+  - `logics_flow.py split request|backlog` now creates multiple child docs explicitly and keeps request/backlog links synchronized.
+  - id allocation now uses atomic file reservation to avoid duplicate refs under repeated creation attempts.
+  - `workflow_audit.py` now supports scoped execution via `--refs`, `--paths`, and `--since-version`.
+  - tests and CLI smoke checks were extended to cover promotion seeding, split flows, and scoped audit usage.
+- Remaining work:
+  - finish the V2 layer more completely, especially broader close/report synchronization and stronger decision-framing guidance in generated docs.

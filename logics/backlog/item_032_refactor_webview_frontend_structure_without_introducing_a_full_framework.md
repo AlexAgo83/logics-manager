@@ -1,9 +1,9 @@
 ## item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0
-> Status: Ready
+> Status: In progress
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 65%
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

@@ -1,11 +1,11 @@
 ## task_022_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
-> From version: X.X.X
-> Status: Ready
-> Understanding: ??%
-> Confidence: ??%
-> Progress: 0%
+> From version: 1.9.1
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
+> Progress: 100%
 > Complexity: Medium
-> Theme: General
+> Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
@@ -23,10 +23,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Clarify scope and acceptance criteria
-- [ ] 2. Implement changes
-- [ ] 3. Add/adjust tests and polish UX
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Clarify scope and acceptance criteria
+- [x] 2. Implement changes
+- [x] 3. Add/adjust tests and polish UX
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Implemented in the steps above. Proof: add test/commit/file links.
@@ -48,9 +48,16 @@ flowchart LR
 - npm run lint
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Delivered:
+  - replaced the UI toggle wording with `Hide processed requests`;
+  - introduced delivery-centric processed-request semantics instead of relying on the old `used` heuristic;
+  - kept `Draft` child items and companion-doc-only links out of the first processed rule.
+- Validation:
+  - `npm run compile` OK
+  - `npm run test` OK

@@ -1,6 +1,6 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.0+
-> Status: Draft
+> Status: In progress
 > Understanding: 100%
 > Confidence: 100%
 > Complexity: High

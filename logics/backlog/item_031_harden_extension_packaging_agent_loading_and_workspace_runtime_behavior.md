@@ -1,9 +1,9 @@
 ## item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Extension runtime robustness and release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

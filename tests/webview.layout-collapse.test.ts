@@ -3,6 +3,23 @@ import * as path from "path";
 import { describe, expect, it } from "vitest";
 import { JSDOM } from "jsdom";
 
+function readCssBundle(entryPath: string, seen = new Set<string>()) {
+  const resolved = path.resolve(process.cwd(), entryPath);
+  if (seen.has(resolved)) {
+    return "";
+  }
+  seen.add(resolved);
+  const css = fs.readFileSync(resolved, "utf8");
+  const importPattern = /@import url\("(.+?)"\);/g;
+  let match: RegExpExecArray | null;
+  let bundled = css;
+  while ((match = importPattern.exec(css)) !== null) {
+    const importPath = path.resolve(path.dirname(resolved), match[1]);
+    bundled += "\n" + readCssBundle(importPath, seen);
+  }
+  return bundled;
+}
+
 function bootstrapWebview(stacked: boolean) {
   const html = `
     <!doctype html>
@@ -22,7 +39,7 @@ function bootstrapWebview(stacked: boolean) {
         <button data-action="open"></button>
         <button data-action="read"></button>
         <input id="hide-complete" type="checkbox" />
-        <input id="hide-used-requests" type="checkbox" />
+        <input id="hide-processed-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
@@ -69,7 +86,11 @@ function bootstrapWebview(stacked: boolean) {
     })
   });
 
+  const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
+  const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
+  dom.window.eval(modelScript);
+  dom.window.eval(hostApiScript);
   dom.window.eval(mainScript);
 
   const setStacked = (nextValue: boolean) => {
@@ -117,7 +138,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
-    const css = fs.readFileSync(path.resolve(process.cwd(), "media/main.css"), "utf8");
+    const css = readCssBundle("media/main.css");
     expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
     expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);
@@ -126,7 +147,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("allows long detail titles and ids to wrap without ellipsis overflow", () => {
-    const css = fs.readFileSync(path.resolve(process.cwd(), "media/main.css"), "utf8");
+    const css = readCssBundle("media/main.css");
     const headerTitleRule = css.match(/\.details__header-title\s*\{[^}]+\}/)?.[0] || "";
     const nameValueRule = css.match(/\.details__name-value\s*\{[^}]+\}/)?.[0] || "";
 

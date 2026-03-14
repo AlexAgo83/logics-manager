@@ -14,6 +14,7 @@
   const detailsBody = document.getElementById("details-body");
   const detailsToggle = document.getElementById("details-toggle");
   const detailsTitle = document.getElementById("details-title");
+  const detailsEyebrow = document.getElementById("details-eyebrow");
   const filterToggle = document.getElementById("filter-toggle");
   const filterPanel = document.getElementById("filter-panel");
   const toolsToggle = document.getElementById("tools-toggle");
@@ -34,7 +35,7 @@
   const openButton = document.querySelector('[data-action="open"]');
   const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
-  const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
+  const hideProcessedRequestsToggle = document.getElementById("hide-processed-requests");
   const hideSpecToggle = document.getElementById("hide-spec");
   const showCompanionDocsToggle = document.getElementById("show-companion-docs");
   const harnessBridge = window.__CDX_LOGICS_HARNESS__;
@@ -43,7 +44,7 @@
   let items = [];
   let selectedId = null;
   let hideCompleted = false;
-  let hideUsedRequests = false;
+  let hideProcessedRequests = false;
   let hideSpec = true;
   let showCompanionDocs = false;
   let collapsedStages = new Set();
@@ -84,6 +85,8 @@
     }
     return globalFlag || queryFlag;
   })();
+  const modelApi = window.CdxLogicsModel || {};
+  const hostApiFactory = window.createCdxLogicsHostApi;
 
   function debugLog(eventName, payload = {}) {
     if (!debugUi) {
@@ -93,41 +96,11 @@
   }
 
   function getStageLabel(stage) {
-    switch (stage) {
-      case "request":
-        return "request";
-      case "backlog":
-        return "backlog";
-      case "task":
-        return "task";
-      case "product":
-        return "product brief";
-      case "architecture":
-        return "architecture decision";
-      case "spec":
-        return "spec";
-      default:
-        return String(stage || "item");
-    }
+    return typeof modelApi.getStageLabel === "function" ? modelApi.getStageLabel(stage) : String(stage || "item");
   }
 
   function getStageHeading(stage) {
-    switch (stage) {
-      case "request":
-        return "Requests";
-      case "backlog":
-        return "Backlog";
-      case "task":
-        return "Tasks";
-      case "product":
-        return "Product briefs";
-      case "architecture":
-        return "Architecture decisions";
-      case "spec":
-        return "Specs";
-      default:
-        return String(stage || "").trim();
-    }
+    return typeof modelApi.getStageHeading === "function" ? modelApi.getStageHeading(stage) : String(stage || "").trim();
   }
 
   function eyeIcon(isHidden) {
@@ -500,7 +473,7 @@
     if (item.isPromoted) {
       return false;
     }
-    if (isRequestUsed(item)) {
+    if (isRequestProcessed(item)) {
       return false;
     }
     return item.stage === "request" || item.stage === "backlog";
@@ -582,8 +555,8 @@
     if (hideCompleteToggle) {
       hideCompleteToggle.checked = hideCompleted;
     }
-    if (hideUsedRequestsToggle) {
-      hideUsedRequestsToggle.checked = hideUsedRequests;
+    if (hideProcessedRequestsToggle) {
+      hideProcessedRequestsToggle.checked = hideProcessedRequests;
     }
     if (hideSpecToggle) {
       hideSpecToggle.checked = hideSpec;
@@ -635,13 +608,13 @@
     if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "state-message";
-      if (hideCompleted || hideUsedRequests || hideSpec || showCompanionDocs) {
+      if (hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs) {
         const filters = [];
         if (hideCompleted) {
           filters.push('"Hide completed"');
         }
-        if (hideUsedRequests) {
-          filters.push('"Hide used requests"');
+        if (hideProcessedRequests) {
+          filters.push('"Hide processed requests"');
         }
         if (hideSpec) {
           filters.push('"Hide SPEC"');
@@ -671,7 +644,7 @@
     const card = document.createElement("div");
     const doneClass = isComplete(item) ? " card--done" : "";
     const progressClass = progressState(item);
-    const usedClass = isRequestUsed(item) ? " card--used" : "";
+    const usedClass = isRequestProcessed(item) ? " card--used" : "";
     const progressValue = getProgressValue(item);
     const hasProgressBar = typeof progressValue === "number" && progressValue > 0 && progressValue < 100;
     card.className =
@@ -864,6 +837,9 @@
     detailsBody.innerHTML = "";
     const item = items.find((entry) => entry.id === selectedId);
     if (!item) {
+      if (detailsEyebrow) {
+        detailsEyebrow.textContent = "Logics item";
+      }
       if (detailsTitle) {
         detailsTitle.textContent = "Details";
       }
@@ -874,6 +850,14 @@
       return;
     }
 
+    if (detailsEyebrow) {
+      const headerBits = [getStageLabel(item.stage)];
+      const status = item.indicators && item.indicators.Status ? String(item.indicators.Status).trim() : "";
+      if (status) {
+        headerBits.push(status);
+      }
+      detailsEyebrow.textContent = headerBits.join(" • ");
+    }
     if (detailsTitle) {
       detailsTitle.textContent = item.title;
     }
@@ -884,7 +868,7 @@
     nameRow.className = "details__list-row details__list-row--name";
 
     const nameLabel = document.createElement("span");
-    nameLabel.textContent = "Name:";
+    nameLabel.textContent = "Name";
     nameRow.appendChild(nameLabel);
 
     const nameValueWrap = document.createElement("span");
@@ -1156,6 +1140,7 @@
     promoteButton.title = canPromote(item)
       ? "Promote selected item"
       : "Select a request/backlog item that can be promoted";
+    promoteButton.classList.toggle("btn--contextual-active", canPromote(item));
     if (readButton) {
       readButton.disabled = !item;
       readButton.title = item ? "Read selected item" : "Select an item to read";
@@ -1180,7 +1165,7 @@
     }
     filterToggle.classList.toggle(
       "toolbar__filter--active",
-      hideCompleted || hideUsedRequests || hideSpec || showCompanionDocs
+      hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs
     );
   }
 
@@ -1218,7 +1203,7 @@
     if (hideCompleted && isComplete(item)) {
       return false;
     }
-    if (hideUsedRequests && item.stage === "request" && isRequestUsed(item)) {
+    if (hideProcessedRequests && item.stage === "request" && isRequestProcessed(item)) {
       return false;
     }
     if (hideSpec && item.stage === "spec") {
@@ -1231,189 +1216,33 @@
   }
 
   function isPrimaryFlowStage(stage) {
-    return stage === "request" || stage === "backlog" || stage === "task";
+    return typeof modelApi.isPrimaryFlowStage === "function" ? modelApi.isPrimaryFlowStage(stage) : false;
   }
 
   function isCompanionStage(stage) {
-    return companionStageOrder.includes(stage);
+    return typeof modelApi.isCompanionStage === "function" ? modelApi.isCompanionStage(stage) : false;
   }
 
   function collectCompanionDocs(item) {
-    const companions = new Map();
-
-    const registerCompanion = (candidate) => {
-      if (!candidate || !isCompanionStage(candidate.stage)) {
-        return;
-      }
-      const key = candidate.relPath || candidate.id;
-      if (!key || companions.has(key)) {
-        return;
-      }
-      companions.set(key, candidate);
-    };
-
-    (item.references || []).forEach((reference) => {
-      if (!reference || typeof reference !== "object") {
-        return;
-      }
-      registerCompanion(resolveCompanionFromValue(reference.path));
-    });
-
-    (item.usedBy || []).forEach((usage) => {
-      registerCompanion(resolveCompanionFromValue(usage.relPath || usage.id, usage));
-    });
-
-    return Array.from(companions.values()).sort((left, right) => {
-      const leftIndex = companionStageOrder.indexOf(left.stage);
-      const rightIndex = companionStageOrder.indexOf(right.stage);
-      if (leftIndex !== rightIndex) {
-        return leftIndex - rightIndex;
-      }
-      return String(left.id).localeCompare(String(right.id));
-    });
+    return typeof modelApi.collectCompanionDocs === "function" ? modelApi.collectCompanionDocs(item, items) : [];
   }
 
   function collectSpecs(item) {
-    const specs = new Map();
-
-    const registerSpec = (candidate) => {
-      if (!candidate || candidate.stage !== "spec") {
-        return;
-      }
-      const key = candidate.relPath || candidate.id;
-      if (!key || specs.has(key)) {
-        return;
-      }
-      specs.set(key, candidate);
-    };
-
-    (item.references || []).forEach((reference) => {
-      if (!reference || typeof reference !== "object") {
-        return;
-      }
-      registerSpec(findManagedItemByReference(reference.path));
-    });
-
-    (item.usedBy || []).forEach((usage) => {
-      registerSpec(findManagedItemByReference(usage.relPath || usage.id, usage));
-    });
-
-    return Array.from(specs.values()).sort((left, right) => String(left.id).localeCompare(String(right.id)));
+    return typeof modelApi.collectSpecs === "function" ? modelApi.collectSpecs(item, items) : [];
   }
 
   function collectPrimaryFlowItems(item) {
-    const linkedItems = new Map();
-
-    const registerItem = (candidate) => {
-      if (!candidate || !isPrimaryFlowStage(candidate.stage)) {
-        return;
-      }
-      const key = candidate.relPath || candidate.id;
-      if (!key || linkedItems.has(key)) {
-        return;
-      }
-      linkedItems.set(key, candidate);
-    };
-
-    (item.references || []).forEach((reference) => {
-      if (!reference || typeof reference !== "object") {
-        return;
-      }
-      registerItem(findManagedItemByReference(reference.path));
-    });
-
-    (item.usedBy || []).forEach((usage) => {
-      registerItem(findManagedItemByReference(usage.relPath || usage.id, usage));
-    });
-
-    const primaryIndex = new Map(primaryStageOrder.map((stage, index) => [stage, index]));
-    return Array.from(linkedItems.values()).sort((left, right) => {
-      const leftIndex = primaryIndex.get(left.stage) ?? Number.MAX_SAFE_INTEGER;
-      const rightIndex = primaryIndex.get(right.stage) ?? Number.MAX_SAFE_INTEGER;
-      if (leftIndex !== rightIndex) {
-        return leftIndex - rightIndex;
-      }
-      return String(left.id).localeCompare(String(right.id));
-    });
-  }
-
-  function resolveCompanionFromValue(rawValue, fallbackUsage) {
-    const normalizedValue = normalizeManagedDocValue(rawValue);
-    const matchedItem = findManagedItemByReference(normalizedValue, fallbackUsage);
-    if (matchedItem && isCompanionStage(matchedItem.stage)) {
-      return {
-        id: matchedItem.id,
-        title: matchedItem.title,
-        stage: matchedItem.stage,
-        relPath: matchedItem.relPath,
-        item: matchedItem
-      };
-    }
-
-    const fallbackStage = inferCompanionStage(normalizedValue, fallbackUsage);
-    if (!fallbackStage) {
-      return null;
-    }
-
-    const fallbackId = inferManagedDocId(normalizedValue, fallbackUsage);
-    return {
-      id: fallbackId || normalizedValue,
-      title: fallbackUsage && fallbackUsage.title ? fallbackUsage.title : normalizedValue,
-      stage: fallbackStage,
-      relPath: normalizedValue,
-      item: null
-    };
+    return typeof modelApi.collectPrimaryFlowItems === "function" ? modelApi.collectPrimaryFlowItems(item, items) : [];
   }
 
   function findManagedItemByReference(rawValue, fallbackUsage) {
-    const normalizedValue = normalizeManagedDocValue(rawValue);
-    if (fallbackUsage && fallbackUsage.id) {
-      const byUsageId = items.find((entry) => entry.id === fallbackUsage.id);
-      if (byUsageId) {
-        return byUsageId;
-      }
-    }
-    if (!normalizedValue) {
-      return null;
-    }
-    const fileStem = normalizedValue.split("/").pop()?.replace(/\.md$/i, "") || "";
-    return (
-      items.find((entry) => entry.relPath === normalizedValue) ||
-      items.find((entry) => entry.id === normalizedValue) ||
-      items.find((entry) => entry.id === fileStem) ||
-      null
-    );
-  }
-
-  function inferCompanionStage(normalizedValue, fallbackUsage) {
-    if (fallbackUsage && isCompanionStage(fallbackUsage.stage)) {
-      return fallbackUsage.stage;
-    }
-    const fileStem = inferManagedDocId(normalizedValue);
-    if (normalizedValue.startsWith("logics/product/") || fileStem.startsWith("prod_")) {
-      return "product";
-    }
-    if (normalizedValue.startsWith("logics/architecture/") || fileStem.startsWith("adr_")) {
-      return "architecture";
-    }
-    return null;
-  }
-
-  function inferManagedDocId(normalizedValue, fallbackUsage) {
-    if (fallbackUsage && typeof fallbackUsage.id === "string" && fallbackUsage.id) {
-      return fallbackUsage.id;
-    }
-    if (!normalizedValue) {
-      return "";
-    }
-    return normalizedValue.split("/").pop()?.replace(/\.md$/i, "") || normalizedValue;
+    return typeof modelApi.findManagedItemByReference === "function"
+      ? modelApi.findManagedItemByReference(rawValue, items, fallbackUsage)
+      : null;
   }
 
   function normalizeManagedDocValue(value) {
-    return String(value || "")
-      .replace(/\\/g, "/")
-      .replace(/^\.?\//, "")
-      .trim();
+    return typeof modelApi.normalizeManagedDocValue === "function" ? modelApi.normalizeManagedDocValue(value) : String(value || "");
   }
 
   function getVisibleStages() {
@@ -1443,13 +1272,45 @@
     return date.toLocaleString();
   }
 
-  function isRequestUsed(item) {
+  function normalizeStatus(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function isProcessedWorkflowStatus(value) {
+    const normalized = normalizeStatus(value);
+    return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
+  }
+
+  function collectLinkedWorkflowItems(item) {
     if (!item || item.stage !== "request") {
-      return false;
+      return [];
     }
-    const hasBacklogRefs =
-      Array.isArray(item.references) && item.references.some((ref) => ref && ref.kind === "backlog");
-    return hasBacklogRefs || (Array.isArray(item.usedBy) && item.usedBy.length > 0);
+    const linkedPaths = new Set();
+    if (Array.isArray(item.references)) {
+      item.references.forEach((ref) => {
+        if (ref && typeof ref.path === "string") {
+          linkedPaths.add(ref.path.replace(/\\/g, "/"));
+        }
+      });
+    }
+    if (Array.isArray(item.usedBy)) {
+      item.usedBy.forEach((usage) => {
+        if (usage && typeof usage.relPath === "string") {
+          linkedPaths.add(usage.relPath.replace(/\\/g, "/"));
+        }
+      });
+    }
+    return items.filter(
+      (candidate) =>
+        linkedPaths.has(String(candidate.relPath || "").replace(/\\/g, "/")) &&
+        (candidate.stage === "backlog" || candidate.stage === "task")
+    );
+  }
+
+  function isRequestProcessed(item) {
+    return typeof modelApi.isRequestProcessed === "function" ? modelApi.isRequestProcessed(item, items) : false;
   }
 
   function progressState(item) {
@@ -1838,7 +1699,28 @@
     };
   }
 
-  const hostApi = createHostApi();
+  const hostApi = typeof hostApiFactory === "function"
+    ? hostApiFactory({
+        vscode,
+        debugLog,
+        showStatus,
+        isHarnessMode,
+        handleHarnessChangeProjectRoot,
+        applyHarnessRoot,
+        openHarnessItem(item, mode) {
+          if (mode === "read") {
+            void openHarnessReadTab(item);
+          } else {
+            void openHarnessEditTab(item);
+          }
+        },
+        harnessBridge,
+        setCanResetProjectRoot(value) {
+          canResetProjectRoot = value;
+        },
+        projectGithubUrl
+      })
+    : createHostApi();
 
   function encodePathForUrl(relativePath) {
     return relativePath
@@ -2248,7 +2130,7 @@
   function persistState() {
     vscode.setState({
       hideCompleted,
-      hideUsedRequests,
+      hideProcessedRequests,
       hideSpec,
       showCompanionDocs,
       collapsedStages: Array.from(collapsedStages),
@@ -2407,9 +2289,9 @@
       render();
     });
   }
-  if (hideUsedRequestsToggle) {
-    hideUsedRequestsToggle.addEventListener("change", (event) => {
-      hideUsedRequests = Boolean(event.target && event.target.checked);
+  if (hideProcessedRequestsToggle) {
+    hideProcessedRequestsToggle.addEventListener("change", (event) => {
+      hideProcessedRequests = Boolean(event.target && event.target.checked);
       persistState();
       updateFilterState();
       render();
@@ -2503,8 +2385,10 @@
   if (previousState && typeof previousState.hideCompleted === "boolean") {
     hideCompleted = previousState.hideCompleted;
   }
-  if (previousState && typeof previousState.hideUsedRequests === "boolean") {
-    hideUsedRequests = previousState.hideUsedRequests;
+  if (previousState && typeof previousState.hideProcessedRequests === "boolean") {
+    hideProcessedRequests = previousState.hideProcessedRequests;
+  } else if (previousState && typeof previousState.hideUsedRequests === "boolean") {
+    hideProcessedRequests = previousState.hideUsedRequests;
   }
   if (previousState && typeof previousState.hideSpec === "boolean") {
     hideSpec = previousState.hideSpec;

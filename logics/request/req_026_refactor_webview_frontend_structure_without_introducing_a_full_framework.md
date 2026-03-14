@@ -1,6 +1,6 @@
 ## req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0
-> Status: Draft
+> Status: In progress
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: High

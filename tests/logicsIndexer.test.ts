@@ -8,6 +8,7 @@ import {
   getManagedDocDirectories,
   indexLogics,
   inferStage,
+  isRequestProcessed,
   isRequestUsed,
   promotionCommand,
   STAGE_ORDER
@@ -217,7 +218,19 @@ describe("logicsIndexer", () => {
       references: [],
       usedBy: []
     } as any;
-    expect(isRequestUsed(requestLike)).toBe(true);
-    expect(isRequestUsed(untouchedRequest)).toBe(false);
+    const draftBacklog = {
+      stage: "backlog",
+      relPath: "logics/backlog/item_001.md",
+      indicators: { Status: "Draft" }
+    } as any;
+    const readyBacklog = {
+      stage: "backlog",
+      relPath: "logics/backlog/item_001.md",
+      indicators: { Status: "Ready" }
+    } as any;
+    expect(isRequestProcessed(requestLike, [draftBacklog])).toBe(false);
+    expect(isRequestProcessed(requestLike, [readyBacklog])).toBe(true);
+    expect(isRequestUsed(requestLike, [readyBacklog])).toBe(true);
+    expect(isRequestUsed(untouchedRequest, [readyBacklog])).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 ## req_024_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
 > From version: 1.9.0
-> Status: Draft
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Medium

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { parseDocument } from "yaml";
 
 export interface AgentDefinition {
   id: string;
@@ -22,14 +23,8 @@ export interface AgentRegistrySnapshot {
   scannedFiles: number;
 }
 
-type ParsedScalar =
-  | { kind: "string"; value: string }
-  | { kind: "number"; value: number }
-  | { kind: "boolean"; value: boolean }
-  | { kind: "null"; value: null };
-
 type ParsedOpenAiInterface = {
-  values: Record<string, ParsedScalar>;
+  values: Record<string, unknown>;
   issues: AgentValidationIssue[];
 };
 
@@ -144,12 +139,42 @@ export function loadAgentRegistry(root: string): AgentRegistrySnapshot {
 }
 
 function parseOpenAiInterface(content: string, sourcePath: string): ParsedOpenAiInterface {
-  const lines = content.split(/\r?\n/);
   const issues: AgentValidationIssue[] = [];
-  const values: Record<string, ParsedScalar> = {};
+  const values: Record<string, unknown> = {};
 
-  const interfaceIndex = lines.findIndex((line) => /^\s*interface\s*:\s*(?:#.*)?$/.test(line));
-  if (interfaceIndex < 0) {
+  let document;
+  try {
+    document = parseDocument(content, { prettyErrors: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    issues.push({
+      sourcePath,
+      message: `Invalid YAML: ${message}`
+    });
+    return { values, issues };
+  }
+
+  if (Array.isArray(document.errors) && document.errors.length > 0) {
+    document.errors.forEach((error) => {
+      issues.push({
+        sourcePath,
+        message: `Invalid YAML: ${error.message}`
+      });
+    });
+    return { values, issues };
+  }
+
+  const parsed = document.toJSON();
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    issues.push({
+      sourcePath,
+      message: "Expected a top-level YAML mapping."
+    });
+    return { values, issues };
+  }
+
+  const interfaceSection = (parsed as Record<string, unknown>).interface;
+  if (!interfaceSection || typeof interfaceSection !== "object" || Array.isArray(interfaceSection)) {
     issues.push({
       sourcePath,
       message: "Missing top-level 'interface' section."
@@ -157,101 +182,35 @@ function parseOpenAiInterface(content: string, sourcePath: string): ParsedOpenAi
     return { values, issues };
   }
 
-  for (let i = interfaceIndex + 1; i < lines.length; i += 1) {
-    const line = lines[i];
-    if (line.trim() === "" || line.trimStart().startsWith("#")) {
-      continue;
-    }
-
-    const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
-    if (indent < 2) {
-      break;
-    }
-
-    const match = line.match(/^\s{2}([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*(.*)$/);
-    if (!match) {
-      issues.push({
-        sourcePath,
-        message: `Unsupported interface line format at line ${i + 1}: ${line.trim()}`
-      });
-      continue;
-    }
-
-    const key = match[1];
-    const rawValue = match[2] ?? "";
-    values[key] = parseYamlScalar(rawValue);
+  for (const [key, value] of Object.entries(interfaceSection)) {
+    values[key] = value;
   }
 
   return { values, issues };
 }
 
-function parseYamlScalar(rawValue: string): ParsedScalar {
-  const trimmed = rawValue.trim();
-  if (trimmed === "" || trimmed === "~" || /^null$/i.test(trimmed)) {
-    return { kind: "null", value: null };
-  }
-
-  if ((trimmed.startsWith("\"") && trimmed.endsWith("\"")) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
-    return { kind: "string", value: decodeQuotedString(trimmed) };
-  }
-
-  const withoutComment = stripInlineYamlComment(trimmed);
-  if (/^(true|false)$/i.test(withoutComment)) {
-    return { kind: "boolean", value: /^true$/i.test(withoutComment) };
-  }
-  if (/^[+-]?\d+(\.\d+)?$/.test(withoutComment)) {
-    return { kind: "number", value: Number(withoutComment) };
-  }
-  if (withoutComment === "" || withoutComment === "~" || /^null$/i.test(withoutComment)) {
-    return { kind: "null", value: null };
-  }
-  return { kind: "string", value: withoutComment };
-}
-
-function decodeQuotedString(value: string): string {
-  const quote = value[0];
-  const body = value.slice(1, -1);
-  if (quote === "'") {
-    return body.replace(/''/g, "'");
-  }
-  return body
-    .replace(/\\n/g, "\n")
-    .replace(/\\r/g, "\r")
-    .replace(/\\t/g, "\t")
-    .replace(/\\"/g, "\"")
-    .replace(/\\\\/g, "\\");
-}
-
-function stripInlineYamlComment(value: string): string {
-  const commentIndex = value.search(/\s#/);
-  if (commentIndex < 0) {
-    return value.trim();
-  }
-  return value.slice(0, commentIndex).trim();
-}
-
 function expectRequiredString(
-  values: Record<string, ParsedScalar>,
+  values: Record<string, unknown>,
   key: string,
   sourcePath: string,
   issues: AgentValidationIssue[]
 ): string | null {
   const value = values[key];
-  if (!value) {
+  if (value === undefined) {
     issues.push({
       sourcePath,
       message: `Missing required field: interface.${key}`
     });
     return null;
   }
-  if (value.kind !== "string") {
+  if (typeof value !== "string") {
     issues.push({
       sourcePath,
       message: `Field interface.${key} must be a string.`
     });
     return null;
   }
-  const normalized = value.value.trim();
+  const normalized = value.trim();
   if (!normalized) {
     issues.push({
       sourcePath,

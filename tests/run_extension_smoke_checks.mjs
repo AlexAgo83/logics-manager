@@ -1,0 +1,80 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { promisify } from "node:util";
+import yauzl from "yauzl";
+
+const openZip = promisify(yauzl.open);
+const root = process.cwd();
+const outPath = path.join(root, "out", "extension.js");
+
+if (!fs.existsSync(outPath)) {
+  throw new Error("Missing compiled extension bundle at out/extension.js. Run npm run compile first.");
+}
+
+const compiledBundle = fs.readFileSync(outPath, "utf8");
+if (!/function activate\(/.test(compiledBundle) || !/exports\.activate\s*=/.test(compiledBundle)) {
+  throw new Error("Compiled extension bundle does not expose an activate() export.");
+}
+if (!/function deactivate\(/.test(compiledBundle) || !/exports\.deactivate\s*=/.test(compiledBundle)) {
+  throw new Error("Compiled extension bundle does not expose a deactivate() export.");
+}
+
+const vsixPath = path.join(os.tmpdir(), `cdx-logics-vscode-smoke-${Date.now()}.vsix`);
+const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+execFileSync(npxCommand, ["@vscode/vsce", "package", "--out", vsixPath], {
+  cwd: root,
+  stdio: "ignore"
+});
+
+const entries = await listZipEntries(vsixPath);
+assertHas(entries, "extension/package.json");
+assertHas(entries, "extension/out/extension.js");
+assertHas(entries, "extension/media/main.js");
+assertHas(entries, "extension/media/main.css");
+assertHas(entries, "extension/media/css/layout.css");
+assertHas(entries, "extension/media/css/details.css");
+assertMissingPrefix(entries, "extension/tests/");
+assertMissingPrefix(entries, "extension/debug/");
+assertMissingPrefix(entries, "extension/src/");
+assertMissingPrefix(entries, "extension/.github/");
+assertMissing(entries, "extension/.gitignore");
+assertMissing(entries, "extension/.gitmodules");
+assertMissing(entries, "extension/tsconfig.json");
+assertMissing(entries, "extension/vitest.config.ts");
+
+console.log("Extension smoke checks: OK");
+
+async function listZipEntries(vsixFile) {
+  const zip = await openZip(vsixFile, { lazyEntries: true });
+  const names = [];
+  await new Promise((resolve, reject) => {
+    zip.readEntry();
+    zip.on("entry", (entry) => {
+      names.push(entry.fileName);
+      zip.readEntry();
+    });
+    zip.once("end", resolve);
+    zip.once("error", reject);
+  });
+  return names;
+}
+
+function assertHas(entries, expected) {
+  if (!entries.includes(expected)) {
+    throw new Error(`Expected VSIX to include ${expected}.`);
+  }
+}
+
+function assertMissingPrefix(entries, prefix) {
+  if (entries.some((entry) => entry.startsWith(prefix))) {
+    throw new Error(`Expected VSIX to exclude ${prefix}`);
+  }
+}
+
+function assertMissing(entries, unexpected) {
+  if (entries.includes(unexpected)) {
+    throw new Error(`Expected VSIX to exclude ${unexpected}`);
+  }
+}

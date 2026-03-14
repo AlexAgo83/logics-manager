@@ -70,13 +70,14 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "vitest run",
+    "test:smoke": "node tests/run_extension_smoke_checks.mjs",
     "test:watch": "vitest",
     "lint": "npm run lint:ts",
     "lint:ts": "tsc -p ./ --noEmit",
     "lint:logics": "python3 logics/skills/logics-doc-linter/scripts/logics_lint.py",
     "audit:logics": "python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py && python3 logics/skills/logics-doc-linter/scripts/logics_lint.py",
     "logics:finish:task": "python3 logics/skills/logics-flow-manager/scripts/logics_flow.py finish task",
-    "ci:check": "npm run compile && npm run lint && npm run test && npm run lint:logics && npm run package:ci",
+    "ci:check": "npm run compile && npm run lint && npm run test && npm run test:smoke && npm run lint:logics && npm run package:ci",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
     "debug:webview": "node debug/webview/server.mjs",
     "package:ci": "npx @vscode/vsce package --out /tmp/cdx-logics-vscode-ci.vsix",
@@ -88,9 +89,11 @@
     "@types/vscode": "^1.86.0",
     "jsdom": "^25.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "yauzl": "^3.2.0"
   },
   "dependencies": {
-    "mermaid": "^11.12.3"
+    "mermaid": "^11.12.3",
+    "yaml": "^2.8.1"
   }
 }

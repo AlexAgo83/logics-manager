@@ -79,6 +79,28 @@ describe("agentRegistry", () => {
     expect(snapshot.issues.some((issue) => issue.message.includes("default_prompt cannot be empty"))).toBe(true);
   });
 
+  it("loads multiline prompt bodies and YAML comments", () => {
+    const root = mkRepo();
+    writeYaml(
+      root,
+      "logics-flow-manager",
+      [
+        "# Agent file",
+        "interface:",
+        "  display_name: \"Flow Manager\"",
+        "  short_description: \"Manage workflow docs\"",
+        "  default_prompt: |",
+        "    Use $logics-flow-manager",
+        "    Keep the workflow clean."
+      ].join("\n")
+    );
+
+    const snapshot = loadAgentRegistry(root);
+    expect(snapshot.issues).toHaveLength(0);
+    expect(snapshot.agents).toHaveLength(1);
+    expect(snapshot.agents[0].defaultPrompt).toContain("Keep the workflow clean.");
+  });
+
   it("flags duplicate derived invocation ids", () => {
     const root = mkRepo();
     writeYaml(

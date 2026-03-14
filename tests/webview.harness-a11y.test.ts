@@ -31,19 +31,20 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <button data-action="fix-docs"></button>
           <button data-action="about"></button>
         </div>
-        <button data-action="promote"></button>
-        <button data-action="mark-done"></button>
-        <button data-action="mark-obsolete"></button>
-        <button data-action="open"></button>
-        <button data-action="read"></button>
+        <button class="btn btn--primary" data-action="open"></button>
+        <button class="btn btn--primary" data-action="read"></button>
+        <button class="btn btn--contextual" data-action="promote"></button>
+        <button class="btn btn--secondary" data-action="mark-done"></button>
+        <button class="btn btn--caution" data-action="mark-obsolete"></button>
         <input id="hide-complete" type="checkbox" />
-        <input id="hide-used-requests" type="checkbox" />
+        <input id="hide-processed-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />
         <input id="show-companion-docs" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
           <div id="splitter" role="separator"></div>
           <aside id="details" class="details">
+            <div id="details-eyebrow"></div>
             <div id="details-title"></div>
             <button id="details-toggle" aria-expanded="true"></button>
             <div id="details-body"></div>
@@ -134,7 +135,11 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
     })
   });
 
+  const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
+  const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
+  dom.window.eval(modelScript);
+  dom.window.eval(hostApiScript);
   dom.window.eval(mainScript);
 
   return { dom, postedMessages, openedUrls, openedDocuments, setProjectRootCalls, fetchCalls, persistedStates };
@@ -442,6 +447,88 @@ describe("webview harness controls and accessibility", () => {
 
     expect(document.querySelector('[data-stage="spec"]')).toBeNull();
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
+  });
+
+  it("hides only processed requests when the processed filter is enabled", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "req_001_processed",
+          title: "Processed request",
+          relPath: "logics/request/req_001_processed.md",
+          path: "/workspace/mock/logics/request/req_001_processed.md",
+          references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_001_processed.md" }]
+        },
+        {
+          ...baseItem,
+          id: "req_002_draft_linked",
+          title: "Linked draft request",
+          relPath: "logics/request/req_002_draft_linked.md",
+          path: "/workspace/mock/logics/request/req_002_draft_linked.md",
+          references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_002_draft_linked.md" }]
+        },
+        {
+          ...baseItem,
+          id: "item_001_processed",
+          title: "Processed backlog",
+          stage: "backlog",
+          relPath: "logics/backlog/item_001_processed.md",
+          path: "/workspace/mock/logics/backlog/item_001_processed.md",
+          indicators: { Status: "Ready" }
+        },
+        {
+          ...baseItem,
+          id: "item_002_draft_linked",
+          title: "Draft backlog",
+          stage: "backlog",
+          relPath: "logics/backlog/item_002_draft_linked.md",
+          path: "/workspace/mock/logics/backlog/item_002_draft_linked.md",
+          indicators: { Status: "Draft" }
+        }
+      ]
+    });
+
+    const document = dom.window.document;
+    const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
+
+    expect(document.querySelector('[data-id="req_001_processed"]')).not.toBeNull();
+    expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
+
+    if (processedToggle) {
+      processedToggle.checked = true;
+      processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelector('[data-id="req_001_processed"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
+    expect(persistedStates.some((state) => state.hideProcessedRequests === true)).toBe(true);
+  });
+
+  it("applies detail header hierarchy and action emphasis for the selected item", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const eyebrow = dom.window.document.getElementById("details-eyebrow");
+    const title = dom.window.document.getElementById("details-title");
+    const promoteButton = dom.window.document.querySelector('[data-action="promote"]');
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    const readButton = dom.window.document.querySelector('[data-action="read"]');
+    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
+
+    expect(eyebrow?.textContent).toContain("request");
+    expect(title?.textContent).toContain("Kickoff");
+    expect(openButton?.classList.contains("btn--primary")).toBe(true);
+    expect(readButton?.classList.contains("btn--primary")).toBe(true);
+    expect(promoteButton?.classList.contains("btn--contextual")).toBe(true);
+    expect(promoteButton?.classList.contains("btn--contextual-active")).toBe(true);
+    expect(obsoleteButton?.classList.contains("btn--caution")).toBe(true);
   });
 
   it("opens selected item on card double-click in non-harness mode", () => {

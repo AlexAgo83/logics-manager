@@ -360,12 +360,58 @@ export function canPromote(stage: LogicsStage): boolean {
   return stage === "request" || stage === "backlog";
 }
 
-export function isRequestUsed(item: LogicsItem): boolean {
+function normalizeStatus(value: string | undefined): string {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function isProcessedWorkflowStatus(value: string | undefined): boolean {
+  const normalized = normalizeStatus(value);
+  return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
+}
+
+function collectLinkedWorkflowPaths(item: LogicsItem): string[] {
+  if (item.stage !== "request") {
+    return [];
+  }
+  const paths = new Set<string>();
+  for (const ref of item.references) {
+    if (ref.kind === "backlog" || ref.kind === "from" || ref.kind === "manual") {
+      paths.add(normalizeRef(ref.path));
+    }
+  }
+  for (const usage of item.usedBy ?? []) {
+    if (usage.relPath) {
+      paths.add(normalizeRef(usage.relPath));
+    }
+  }
+  return Array.from(paths);
+}
+
+export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {
   if (item.stage !== "request") {
     return false;
   }
-  const hasBacklogRefs = item.references.some((ref) => ref.kind === "backlog");
-  return hasBacklogRefs || (Array.isArray(item.usedBy) && item.usedBy.length > 0);
+  const linkedPaths = collectLinkedWorkflowPaths(item);
+  if (linkedPaths.length === 0 || !Array.isArray(allItems) || allItems.length === 0) {
+    return false;
+  }
+  const linkedItems = new Map(allItems.map((candidate) => [normalizeRef(candidate.relPath), candidate]));
+  return linkedPaths.some((linkedPath) => {
+    const linked = linkedItems.get(linkedPath);
+    if (!linked) {
+      return false;
+    }
+    if (linked.stage !== "backlog" && linked.stage !== "task") {
+      return false;
+    }
+    return isProcessedWorkflowStatus(linked.indicators?.Status);
+  });
+}
+
+export function isRequestUsed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {
+  return isRequestProcessed(item, allItems);
 }
 
 export function promotionCommand(stage: LogicsStage): string | null {

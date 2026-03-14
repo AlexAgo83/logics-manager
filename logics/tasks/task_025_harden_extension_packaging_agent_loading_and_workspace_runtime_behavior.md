@@ -1,9 +1,9 @@
 ## task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Extension hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -27,12 +27,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Lock packaging boundaries so the shipped VSIX contains only runtime assets and the packaging contract is explicit.
-- [ ] 2. Harden agent definition loading with clearer parsing, validation, and test coverage for richer YAML prompt bodies.
-- [ ] 3. Make prompt injection more defensive by preferring reliable fallback behavior earlier and minimizing clipboard interference.
-- [ ] 4. Improve multi-root workspace handling with an explicit active-root model instead of silent first-folder assumptions.
-- [ ] 5. Add integration-level smoke coverage for package-and-activate or equivalent activation-readiness validation.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Lock packaging boundaries so the shipped VSIX contains only runtime assets and the packaging contract is explicit.
+- [x] 2. Harden agent definition loading with clearer parsing, validation, and test coverage for richer YAML prompt bodies.
+- [x] 3. Make prompt injection more defensive by preferring reliable fallback behavior earlier and minimizing clipboard interference.
+- [x] 4. Improve multi-root workspace handling with an explicit active-root model instead of silent first-folder assumptions.
+- [x] 5. Add integration-level smoke coverage for package-and-activate or equivalent activation-readiness validation.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Step 1. Proof: packaging rules exclude dev-only files while preserving runtime assets.
@@ -60,15 +60,16 @@ flowchart LR
 - `npm run compile`
 - `npm run lint`
 - `npm run test`
+- `npm run test:smoke`
 - `npm run package:ci`
 - Manual: validate multi-root root selection behavior in a workspace with more than one folder.
 - Manual: validate Codex/chat fallback still keeps the prompt usable when automatic injection is unavailable.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Main focus:
@@ -81,3 +82,15 @@ flowchart LR
   - stay out of shared-kit work tracked in `req_025`;
   - stay out of the webview-structure refactor tracked in `req_026`;
   - prefer defensive runtime behavior over clever but fragile automation.
+- Delivered:
+  - `.vscodeignore` now keeps the VSIX focused on runtime assets only.
+  - `src/agentRegistry.ts` now uses a real YAML parser and supports richer multiline agent prompts.
+  - `src/extension.ts` now degrades prompt injection earlier to safer paths and avoids clipboard-capture tricks.
+  - multi-root handling no longer silently falls back to the first workspace folder.
+  - `tests/run_extension_smoke_checks.mjs` plus `npm run test:smoke` and CI now validate package-and-activate readiness.
+- Validation results:
+  - `npm run compile` OK
+  - `npm run lint` OK
+  - `npm run test` OK
+  - `npm run test:smoke` OK
+  - `npm run package:ci` OK

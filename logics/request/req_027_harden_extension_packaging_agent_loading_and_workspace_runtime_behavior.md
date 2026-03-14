@@ -1,6 +1,6 @@
 ## req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.0
-> Status: Draft
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: High

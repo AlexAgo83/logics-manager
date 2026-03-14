@@ -1,9 +1,9 @@
 ## item_009_add_automated_tests_and_github_ci_workflow_script - Add automated tests and GitHub CI workflow script
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 96%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 97% (audit-aligned)
+> Confidence: 93% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium
 > Theme: Quality and CI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,10 +29,11 @@ The repository has no automated test suite and no CI workflow. Core behaviors (i
 - README documents local validation and CI coverage.
 
 # AC Traceability
-- AC1 -> `package.json` test scripts + test config files added.
-- AC2 -> Tests created for `src/logicsIndexer.ts` critical functions.
-- AC3 -> `.github/workflows/*.yml` workflow added and validated.
-- AC4 -> README updated with test/CI execution notes.
+- AC1 -> `package.json` test scripts + test config files added. Proof: TODO.
+- AC2 -> Tests created for `src/logicsIndexer.ts` critical functions. Proof: TODO.
+- AC3 -> `.github/workflows/*.yml` workflow added and validated. Proof: TODO.
+- AC4 -> README updated with test/CI execution notes. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

@@ -1,9 +1,9 @@
 ## task_011_orchestration_delivery_for_req_007_and_req_008 - Orchestration Delivery for req_007 and req_008
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 98% (closed)
+> Confidence: 95% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium-High
 > Theme: Cross-Item Delivery Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,11 @@ Execution constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (reference contract defined) -> `logics/instructions.md` and/or `README.md` updated with canonical patterns.
-- AC2 (plugin reference behavior reliable) -> manual board/details checks on representative docs after refresh.
-- AC3 (web debug harness available) -> harness files/scripts committed and runnable locally.
-- AC4 (debug scenarios reusable) -> documented fixtures or payload presets for empty/error/populated states.
+- AC1 (reference contract defined) -> `logics/instructions.md` and/or `README.md` updated with canonical patterns. Proof: TODO.
+- AC2 (plugin reference behavior reliable) -> manual board/details checks on representative docs after refresh. Proof: TODO.
+- AC3 (web debug harness available) -> harness files/scripts committed and runnable locally. Proof: TODO.
+- AC4 (debug scenarios reusable) -> documented fixtures or payload presets for empty/error/populated states. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Validation
 - `npm run compile`

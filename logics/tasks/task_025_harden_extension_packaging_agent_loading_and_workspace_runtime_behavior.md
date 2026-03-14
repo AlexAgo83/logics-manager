@@ -3,7 +3,7 @@
 > Status: Done
 > Understanding: 100% (closed)
 > Confidence: 99% (validated)
-> Progress: 100% (release-aligned)
+> Progress: 100% (audit-aligned)
 > Complexity: High
 > Theme: Extension hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -43,6 +43,7 @@ flowchart LR
 - AC6 -> Step 4. Proof: root-selection behavior becomes explicit in multi-root contexts.
 - AC7 -> Step 5. Proof: extension-host smoke check validates activation-readiness.
 - AC8 -> FINAL. Proof: work stays scoped to the extension project and docs/tests are updated.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Consider

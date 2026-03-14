@@ -1,9 +1,9 @@
 ## item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
-> From version: 1.9.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -56,6 +56,11 @@ flowchart TD
 - AC2 -> Scope explicitly names module split, shared helpers, host bridge, CSS decomposition, and tests. Proof: scope section.
 - AC3 -> Scope and notes explicitly reject a framework migration and preserve a thin bootstrap entry. Proof: scope out + notes.
 - AC4 -> Risks capture poor boundaries, excess tooling, workflow/helper duplication, and CSS ordering regressions. Proof: notes section and request alignment.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

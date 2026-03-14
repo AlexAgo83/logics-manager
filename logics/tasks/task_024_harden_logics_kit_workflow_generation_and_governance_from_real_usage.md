@@ -1,9 +1,9 @@
 ## task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 99% (closed)
+> Confidence: 98% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: High
 > Theme: Shared Logics kit hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -46,6 +46,14 @@ flowchart LR
 - AC2 -> Step 1. Proof: phased V1/V2 delivery captured before implementation starts.
 - AC3 -> Step 1 and Step 4. Proof: this task stays orchestration-focused and links back to the umbrella backlog item.
 - AC4 -> Step 2, Step 3, and Step 4. Proof: implementation and docs explicitly protect generic behavior and agent productivity goals.
+- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC11 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC12 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

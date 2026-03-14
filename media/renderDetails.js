@@ -125,8 +125,10 @@
       const row = document.createElement("div");
       row.className = "details__indicator";
       const left = document.createElement("div");
+      left.className = "details__indicator-label";
       left.textContent = label;
       const right = document.createElement("span");
+      right.className = "details__indicator-value";
       right.textContent = value ?? "";
       row.appendChild(left);
       row.appendChild(right);
@@ -150,8 +152,10 @@
       const row = document.createElement("div");
       row.className = "details__indicator";
       const left = document.createElement("div");
+      left.className = "details__indicator-label";
       left.textContent = label;
       const right = document.createElement("span");
+      right.className = "details__indicator-value";
       right.appendChild(document.createTextNode(value ?? ""));
       appendManagedDocActions(right, targetItem);
       row.appendChild(left);
@@ -163,9 +167,11 @@
       const row = document.createElement("div");
       row.className = "details__indicator";
       const info = document.createElement("div");
+      info.className = "details__indicator-label";
       info.textContent = `${getStageLabel(companion.stage)} • ${companion.id}`;
 
       const actions = document.createElement("span");
+      actions.className = "details__indicator-value";
       if (companion.title && companion.title !== companion.relPath && companion.title !== companion.id) {
         actions.textContent = companion.title;
       } else if (companion.relPath) {

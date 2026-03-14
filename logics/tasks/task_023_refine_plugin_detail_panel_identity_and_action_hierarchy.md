@@ -1,9 +1,9 @@
 ## task_023_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
 > From version: 1.9.1
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 100% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium
 > Theme: VS Code plugin detail panel UX and action hierarchy
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -30,6 +30,15 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Implemented in the steps above. Proof: add test/commit/file links.
+- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

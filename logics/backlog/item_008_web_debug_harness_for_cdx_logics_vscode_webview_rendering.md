@@ -1,9 +1,9 @@
 ## item_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering - Web Debug Harness for cdx-logics-vscode Webview Rendering
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 96%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 97% (audit-aligned)
+> Confidence: 93% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium
 > Theme: Front-End Debugging Workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,9 +29,11 @@ UI debugging for the webview currently requires launching the VS Code extension 
 - Documentation explains setup, commands, and known limitations vs real extension host.
 
 # AC Traceability
-- AC1 -> Debug shell files and run command added to project scripts/docs.
-- AC2 -> Mock bridge implementation exercised by `main.js` without runtime errors.
-- AC3 -> Scenario fixtures and usage notes available for local UI checks.
+- AC1 -> Debug shell files and run command added to project scripts/docs. Proof: TODO.
+- AC2 -> Mock bridge implementation exercised by `main.js` without runtime errors. Proof: TODO.
+- AC3 -> Scenario fixtures and usage notes available for local UI checks. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

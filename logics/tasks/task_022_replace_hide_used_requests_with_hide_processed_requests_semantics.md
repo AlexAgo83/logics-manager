@@ -1,9 +1,9 @@
 ## task_022_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.1
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 100% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium
 > Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -30,6 +30,14 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Implemented in the steps above. Proof: add test/commit/file links.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Consider

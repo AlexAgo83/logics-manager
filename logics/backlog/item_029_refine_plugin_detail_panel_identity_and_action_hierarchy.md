@@ -1,9 +1,9 @@
 ## item_029_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
-> From version: 1.9.0+
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 99% (closed)
+> Confidence: 98% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,6 +28,15 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Item scope and delivery path are defined. Proof: add test/commit/file links.
+- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

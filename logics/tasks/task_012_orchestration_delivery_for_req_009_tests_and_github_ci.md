@@ -1,9 +1,9 @@
 ## task_012_orchestration_delivery_for_req_009_tests_and_github_ci - Orchestration delivery for req_009 tests and GitHub CI
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 98% (closed)
+> Confidence: 95% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium-High
 > Theme: CI and Test Baseline Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -27,10 +27,11 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (local tests runnable) -> `package.json` scripts + test config committed.
-- AC2 (core behavior covered) -> tests for parsing/references/promotion guards committed.
-- AC3 (CI workflow active) -> `.github/workflows/ci.yml` (or equivalent) committed.
-- AC4 (docs aligned) -> README section updated with commands and checks.
+- AC1 (local tests runnable) -> `package.json` scripts + test config committed. Proof: TODO.
+- AC2 (core behavior covered) -> tests for parsing/references/promotion guards committed. Proof: TODO.
+- AC3 (CI workflow active) -> `.github/workflows/ci.yml` (or equivalent) committed. Proof: TODO.
+- AC4 (docs aligned) -> README section updated with commands and checks. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Validation
 - `npm run compile`

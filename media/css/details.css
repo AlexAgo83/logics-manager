@@ -273,24 +273,37 @@
 .details__reference,
 .details__indicator {
   display: grid;
-  grid-template-columns: minmax(88px, 120px) minmax(0, 1fr);
+  grid-template-columns: minmax(96px, 116px) minmax(0, 1fr);
   align-items: start;
   gap: 8px;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+.details__indicator-label,
+.details__indicator-value,
 .details__reference > div,
-.details__reference > span,
-.details__indicator > div,
-.details__indicator > span {
+.details__reference > span {
   min-width: 0;
+}
+
+.details__indicator-label,
+.details__reference > div {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+}
+
+.details__indicator-value,
+.details__reference > span {
+  color: var(--vscode-foreground, #d4d4d4);
+  text-align: left;
+  justify-self: stretch;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.details__reference span,
-.details__indicator span {
-  color: var(--vscode-foreground, #d4d4d4);
-  text-align: left;
-  justify-self: stretch;
+.details__indicator-value .details__inline-cta,
+.details__reference > span .details__inline-cta {
+  margin-top: 4px;
 }

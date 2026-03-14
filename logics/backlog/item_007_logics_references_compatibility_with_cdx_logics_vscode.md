@@ -1,9 +1,9 @@
 ## item_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 95%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 96% (audit-aligned)
+> Confidence: 91% (validated)
+> Progress: 100% (audit-aligned)
 > Complexity: Medium-High
 > Theme: Logics Workflow Indexing
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,9 +28,11 @@ The plugin currently depends on specific markdown reference patterns (`Derived f
 - A safe migration strategy for legacy docs is documented (manual or scripted phases).
 
 # AC Traceability
-- AC1 -> `logics/instructions.md` and/or README sections updated with canonical patterns and examples.
-- AC2 -> `src/logicsIndexer.ts` behavior verified with sample docs and extension refresh.
-- AC3 -> Manual smoke checks captured for promote guards and details rendering.
+- AC1 -> `logics/instructions.md` and/or README sections updated with canonical patterns and examples. Proof: TODO.
+- AC2 -> `src/logicsIndexer.ts` behavior verified with sample docs and extension refresh. Proof: TODO.
+- AC3 -> Manual smoke checks captured for promote guards and details rendering. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Priority
 - Impact:

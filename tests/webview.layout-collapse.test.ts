@@ -187,12 +187,17 @@ describe("webview collapsed details layout behavior", () => {
   it("keeps detail indicators in a stable two-column grid for long labels and values", () => {
     const css = readCssBundle("media/main.css");
     const indicatorRule = css.match(/\.details__reference,\s*\.details__indicator\s*\{[^}]+\}/)?.[0] || "";
-    const indicatorValueRule = css.match(/\.details__reference span,\s*\.details__indicator span\s*\{[^}]+\}/)?.[0] || "";
+    const indicatorLabelRule = css.match(/\.details__indicator-label,\s*\.details__reference > div\s*\{[^}]+\}/)?.[0] || "";
+    const indicatorValueRule =
+      css.match(/\.details__indicator-value,\s*\.details__reference > span\s*\{[^}]+\}/)?.[0] || "";
 
     expect(indicatorRule.includes("display: grid;")).toBe(true);
-    expect(indicatorRule.includes("grid-template-columns: minmax(88px, 120px) minmax(0, 1fr);")).toBe(true);
+    expect(indicatorRule.includes("grid-template-columns: minmax(96px, 116px) minmax(0, 1fr);")).toBe(true);
+    expect(indicatorLabelRule.includes("overflow-wrap: normal;")).toBe(true);
+    expect(indicatorLabelRule.includes("word-break: normal;")).toBe(true);
     expect(indicatorValueRule.includes("text-align: left;")).toBe(true);
     expect(indicatorValueRule.includes("justify-self: stretch;")).toBe(true);
+    expect(indicatorValueRule.includes("overflow-wrap: anywhere;")).toBe(true);
   });
 
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {

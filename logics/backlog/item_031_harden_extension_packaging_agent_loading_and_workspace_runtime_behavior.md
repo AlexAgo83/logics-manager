@@ -3,7 +3,7 @@
 > Status: Done
 > Understanding: 100% (closed)
 > Confidence: 99% (validated)
-> Progress: 100% (release-aligned)
+> Progress: 100% (audit-aligned)
 > Complexity: High
 > Theme: Extension runtime robustness and release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -67,6 +67,11 @@ flowchart LR
 - AC2 -> Scope and mermaid identify the five main hardening areas. Proof: listed above.
 - AC3 -> Out-of-scope explicitly excludes `req_025` and `req_026`. Proof: scope boundaries above.
 - AC4 -> Priority and notes frame the work around robustness and release quality. Proof: sections below.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Consider

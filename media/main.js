@@ -419,6 +419,27 @@
     return badge;
   }
 
+  function createPrimaryFlowSummary(item) {
+    if (isPrimaryFlowStage(item.stage)) {
+      return "";
+    }
+
+    const linkedItems = collectPrimaryFlowItems(item);
+    if (linkedItems.length === 0) {
+      return "";
+    }
+
+    const preview = linkedItems
+      .slice(0, 2)
+      .map((linkedItem) => `${getStageLabel(linkedItem.stage)} • ${linkedItem.id}`)
+      .join(", ");
+
+    if (linkedItems.length > 2) {
+      return `For ${preview}, +${linkedItems.length - 2} more`;
+    }
+    return `For ${preview}`;
+  }
+
   function applySectionCollapse(section, title, content, isCollapsed) {
     section.classList.toggle("details__section--collapsed", isCollapsed);
     title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -649,6 +670,14 @@
     const companionBadges = createCompanionBadges(item);
     if (companionBadges) {
       card.appendChild(companionBadges);
+    }
+
+    const primaryFlowSummary = createPrimaryFlowSummary(item);
+    if (primaryFlowSummary) {
+      const linkage = document.createElement("div");
+      linkage.className = "card__meta card__meta--linkage";
+      linkage.textContent = primaryFlowSummary;
+      card.appendChild(linkage);
     }
 
     if (compact) {
@@ -1118,6 +1147,42 @@
     return Array.from(companions.values()).sort((left, right) => {
       const leftIndex = companionStageOrder.indexOf(left.stage);
       const rightIndex = companionStageOrder.indexOf(right.stage);
+      if (leftIndex !== rightIndex) {
+        return leftIndex - rightIndex;
+      }
+      return String(left.id).localeCompare(String(right.id));
+    });
+  }
+
+  function collectPrimaryFlowItems(item) {
+    const linkedItems = new Map();
+
+    const registerItem = (candidate) => {
+      if (!candidate || !isPrimaryFlowStage(candidate.stage)) {
+        return;
+      }
+      const key = candidate.relPath || candidate.id;
+      if (!key || linkedItems.has(key)) {
+        return;
+      }
+      linkedItems.set(key, candidate);
+    };
+
+    (item.references || []).forEach((reference) => {
+      if (!reference || typeof reference !== "object") {
+        return;
+      }
+      registerItem(findManagedItemByReference(reference.path));
+    });
+
+    (item.usedBy || []).forEach((usage) => {
+      registerItem(findManagedItemByReference(usage.relPath || usage.id, usage));
+    });
+
+    const primaryIndex = new Map(primaryStageOrder.map((stage, index) => [stage, index]));
+    return Array.from(linkedItems.values()).sort((left, right) => {
+      const leftIndex = primaryIndex.get(left.stage) ?? Number.MAX_SAFE_INTEGER;
+      const rightIndex = primaryIndex.get(right.stage) ?? Number.MAX_SAFE_INTEGER;
       if (leftIndex !== rightIndex) {
         return leftIndex - rightIndex;
       }

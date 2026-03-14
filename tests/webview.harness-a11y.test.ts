@@ -575,7 +575,15 @@ describe("webview harness controls and accessibility", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
-      items: [baseItem, productItem, architectureItem, specItem]
+      items: [
+        baseItem,
+        {
+          ...productItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/request/req_000_kickoff.md" }]
+        },
+        architectureItem,
+        specItem
+      ]
     });
 
     const document = dom.window.document;
@@ -598,6 +606,9 @@ describe("webview harness controls and accessibility", () => {
     );
     expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
+    expect(document.querySelector('.column[data-stage="product"] .card__meta--linkage')?.textContent).toContain(
+      "For request • req_000_kickoff"
+    );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
 
     if (hideSpecToggle) {

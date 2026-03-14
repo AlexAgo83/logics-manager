@@ -432,6 +432,10 @@ input[type="checkbox"]:focus-visible,
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+.card__meta--linkage {
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
 .card__badges {
   display: flex;
   flex-wrap: wrap;

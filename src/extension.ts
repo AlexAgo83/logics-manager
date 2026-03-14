@@ -2,6 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
+  addLinkToSection,
+  normalizeEntrySuffix,
+  parseRenameTarget,
+  replaceManagedReferenceTokens,
+  validateRenameSuffix
+} from "./logicsDocMaintenance";
+import {
   canPromote,
   getManagedDocDirectories,
   indexLogics,
@@ -87,6 +94,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           break;
         case "rename-entry":
           await this.renameItem(message.id);
+          break;
+        case "create-companion-doc":
+          await this.createCompanionDoc(message.id);
           break;
         case "create-item":
           await this.createItem(message.kind);
@@ -364,6 +374,80 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     await openCreatedDocFromOutput(result.stdout);
     await this.refresh();
+  }
+
+  async createCompanionDoc(sourceId: string): Promise<void> {
+    const root = this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    if (!fs.existsSync(path.join(root, "logics"))) {
+      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
+      await this.maybeOfferBootstrap(root);
+      return;
+    }
+
+    const sourceItem = this.items.find((entry) => entry.id === sourceId);
+    if (!sourceItem) {
+      void vscode.window.showErrorMessage("Select a Logics item before creating a companion doc.");
+      return;
+    }
+
+    const kindPick = await vscode.window.showQuickPick<{ label: string; description: string; value: "product" | "architecture" }>(
+      [
+        {
+          label: "Product brief",
+          description: "Create a non-technical product framing companion doc",
+          value: "product"
+        },
+        {
+          label: "Architecture decision",
+          description: "Create a structural technical companion doc",
+          value: "architecture"
+        }
+      ],
+      {
+        title: "Create companion doc",
+        placeHolder: `Choose the companion doc type for ${sourceItem.id}`
+      }
+    );
+    if (!kindPick) {
+      return;
+    }
+
+    const title = await vscode.window.showInputBox({
+      title: `New ${kindPick.label.toLowerCase()}`,
+      prompt: `Title for the ${kindPick.label.toLowerCase()}`,
+      value: sourceItem.title
+    });
+    if (!title) {
+      return;
+    }
+
+    const scriptPath = getCompanionDocScriptPath(root, kindPick.value);
+    if (!scriptPath) {
+      void vscode.window.showErrorMessage(`Companion doc script not found for ${kindPick.label.toLowerCase()}.`);
+      return;
+    }
+
+    const outDir = kindPick.value === "product" ? "logics/product" : "logics/architecture";
+    const result = await runPythonWithOutput(root, scriptPath, ["--title", title, "--out-dir", outDir]);
+    if (result.error) {
+      void vscode.window.showErrorMessage(
+        `${kindPick.label} creation failed: ${result.stderr || result.error.message}`
+      );
+      return;
+    }
+
+    const createdPath = findCreatedDocPathFromOutput(result.stdout);
+    if (createdPath && fs.existsSync(createdPath)) {
+      const createdRelPath = path.relative(root, createdPath).replace(/\\/g, "/");
+      addLinkToSectionOnDisk(sourceItem.path, "References", createdRelPath);
+      addLinkToSectionOnDisk(createdPath, "References", sourceItem.relPath);
+    }
+
+    await openCreatedDocFromOutput(result.stdout);
+    await this.refresh(sourceItem.id);
   }
 
   async fixDocs(): Promise<void> {
@@ -1006,7 +1090,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     const parsed = parseRenameTarget(item.id);
     if (!parsed) {
-      void vscode.window.showErrorMessage("Only request/backlog/task entries can be renamed.");
+      void vscode.window.showErrorMessage("Only request/backlog/task/product/architecture entries can be renamed.");
       return;
     }
 
@@ -1223,6 +1307,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           <label class="toggle">
             <input type="checkbox" id="hide-spec" />
             <span>Hide SPEC</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="show-companion-docs" />
+            <span>Show companion docs</span>
           </label>
         </div>
         <div class="toolbar__tools">
@@ -1635,57 +1723,6 @@ function getNextSequence(dirPath: string, prefix: string): number {
   return max + 1;
 }
 
-function slugify(value: string): string {
-  const normalized = value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-  if (!normalized) {
-    return "";
-  }
-  return normalized.slice(0, 40);
-}
-
-type RenameTarget = {
-  immutablePrefix: string;
-  suffix: string;
-};
-
-function parseRenameTarget(id: string): RenameTarget | null {
-  const match = id.match(/^(req|item|task|prod|adr)_(\d+)(?:_(.+))?$/);
-  if (!match) {
-    return null;
-  }
-  return {
-    immutablePrefix: `${match[1]}_${match[2]}_`,
-    suffix: match[3] ?? ""
-  };
-}
-
-function validateRenameSuffix(value: string, parsed: RenameTarget, currentPath: string): string | undefined {
-  const raw = value.trim();
-  if (!raw) {
-    return "Name suffix is required.";
-  }
-  if (raw.includes("/") || raw.includes("\\")) {
-    return "Use a name, not a path.";
-  }
-  const normalized = normalizeEntrySuffix(raw);
-  if (!normalized) {
-    return "Use letters or numbers.";
-  }
-  const nextId = `${parsed.immutablePrefix}${normalized}`;
-  const nextPath = path.join(path.dirname(currentPath), `${nextId}.md`);
-  if (fs.existsSync(nextPath) && nextPath !== currentPath) {
-    return "Another entry already uses this name.";
-  }
-  return undefined;
-}
-
-function normalizeEntrySuffix(value: string): string {
-  return slugify(value.trim());
-}
-
 function buildMinimalTemplate(id: string, title: string): string {
   return `## ${id} - ${title}
 > From version: 0.0.0
@@ -1757,10 +1794,6 @@ function normalizeRelationPath(value: string, items: LogicsItem[], root: string)
   return normalized;
 }
 
-function normalizePathToken(value: string): string {
-  return value.replace(/\\/g, "/").replace(/^\.\//, "").trim();
-}
-
 function updateManagedReferencesForRename(
   root: string,
   oldRelPath: string,
@@ -1812,41 +1845,6 @@ function collectMarkdownFilesRecursive(dirPath: string, files: string[]): void {
   }
 }
 
-function replaceManagedReferenceTokens(
-  content: string,
-  oldRelPath: string,
-  newRelPath: string,
-  oldId: string,
-  newId: string
-): { changed: boolean; content: string } {
-  let changed = false;
-  const oldNormalized = normalizePathToken(oldRelPath);
-
-  const withCodeTokens = content.replace(/`([^`]+)`/g, (fullMatch, rawToken: string) => {
-    const token = rawToken.trim();
-    if (token === oldId) {
-      changed = true;
-      return `\`${newId}\``;
-    }
-    if (normalizePathToken(token) === oldNormalized) {
-      changed = true;
-      return `\`${newRelPath}\``;
-    }
-    return fullMatch;
-  });
-
-  const withMarkdownLinks = withCodeTokens.replace(/\]\(([^)]+)\)/g, (fullMatch, rawTarget: string) => {
-    const target = rawTarget.trim();
-    if (normalizePathToken(target) !== oldNormalized) {
-      return fullMatch;
-    }
-    changed = true;
-    return `](${newRelPath})`;
-  });
-
-  return { changed, content: withMarkdownLinks };
-}
-
 function addLinkToSectionOnDisk(
   filePath: string,
   sectionTitle: "References" | "Used by",
@@ -1859,70 +1857,6 @@ function addLinkToSectionOnDisk(
   }
   fs.writeFileSync(filePath, updated.content, "utf8");
   return { changed: true };
-}
-
-function addLinkToSection(
-  content: string,
-  sectionTitle: "References" | "Used by",
-  linkPath: string
-): { changed: boolean; content: string } {
-  const normalizedLink = linkPath.replace(/\\/g, "/").trim();
-  if (!normalizedLink) {
-    return { changed: false, content };
-  }
-
-  const lines = content.split(/\r?\n/);
-  const section = findSection(lines, sectionTitle);
-
-  if (!section) {
-    const suffix = content.endsWith("\n") ? "" : "\n";
-    const appended = `${content}${suffix}\n# ${sectionTitle}\n- \`${normalizedLink}\`\n`;
-    return { changed: true, content: appended };
-  }
-
-  const sectionLines = lines.slice(section.start, section.end);
-  const existingLinks = sectionLines
-    .flatMap((line) => Array.from(line.matchAll(/`([^`]+)`/g)).map((match) => (match[1] || "").trim()))
-    .map((entry) => entry.replace(/\\/g, "/"));
-
-  if (existingLinks.includes(normalizedLink)) {
-    return { changed: false, content };
-  }
-
-  const cleanedSectionLines = sectionLines.filter((line) => !line.includes("(none yet)"));
-  while (cleanedSectionLines.length > 0 && cleanedSectionLines[cleanedSectionLines.length - 1].trim() === "") {
-    cleanedSectionLines.pop();
-  }
-  cleanedSectionLines.push(`- \`${normalizedLink}\``);
-
-  const updatedLines = [
-    ...lines.slice(0, section.start),
-    ...cleanedSectionLines,
-    ...lines.slice(section.end)
-  ];
-
-  return { changed: true, content: `${updatedLines.join("\n")}\n` };
-}
-
-function findSection(
-  lines: string[],
-  sectionTitle: "References" | "Used by"
-): { start: number; end: number } | null {
-  const expected = `# ${sectionTitle}`.toLowerCase();
-  for (let i = 0; i < lines.length; i += 1) {
-    if (lines[i].trim().toLowerCase() !== expected) {
-      continue;
-    }
-    let end = lines.length;
-    for (let j = i + 1; j < lines.length; j += 1) {
-      if (lines[j].startsWith("# ")) {
-        end = j;
-        break;
-      }
-    }
-    return { start: i + 1, end };
-  }
-  return null;
 }
 
 function updateIndicatorsOnDisk(filePath: string, updates: Record<string, string>): boolean {
@@ -1999,13 +1933,39 @@ function getFlowManagerScriptPath(root: string): string | null {
   return fs.existsSync(scriptPath) ? scriptPath : null;
 }
 
-async function openCreatedDocFromOutput(stdout: string): Promise<void> {
+function getCompanionDocScriptPath(root: string, kind: "product" | "architecture"): string | null {
+  const scriptPath =
+    kind === "product"
+      ? path.join(
+          root,
+          "logics",
+          "skills",
+          "logics-product-brief-writer",
+          "scripts",
+          "new_product_brief.py"
+        )
+      : path.join(
+          root,
+          "logics",
+          "skills",
+          "logics-architecture-decision-writer",
+          "scripts",
+          "new_adr.py"
+        );
+  return fs.existsSync(scriptPath) ? scriptPath : null;
+}
+
+function findCreatedDocPathFromOutput(stdout: string): string {
   const match = stdout.match(/Wrote (.+)/);
-  if (!match) {
+  return match ? match[1].trim() : "";
+}
+
+async function openCreatedDocFromOutput(stdout: string): Promise<void> {
+  const createdPath = findCreatedDocPathFromOutput(stdout);
+  if (!createdPath) {
     return;
   }
-  const createdPath = match[1].trim();
-  if (!createdPath || !fs.existsSync(createdPath)) {
+  if (!fs.existsSync(createdPath)) {
     return;
   }
   const document = await vscode.workspace.openTextDocument(createdPath);

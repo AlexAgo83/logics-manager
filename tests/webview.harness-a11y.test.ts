@@ -38,6 +38,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
         <input id="hide-complete" type="checkbox" />
         <input id="hide-used-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />
+        <input id="show-companion-docs" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
           <div id="splitter" role="separator"></div>
@@ -179,6 +180,32 @@ const specItem = {
   path: "/workspace/mock/logics/specs/spec_001_reference_contract.md",
   indicators: {
     Status: "Draft"
+  },
+  references: [],
+  usedBy: []
+};
+
+const productItem = {
+  id: "prod_000_plugin_ux",
+  title: "Plugin companion UX",
+  stage: "product",
+  relPath: "logics/product/prod_000_plugin_ux.md",
+  path: "/workspace/mock/logics/product/prod_000_plugin_ux.md",
+  indicators: {
+    Status: "Proposed"
+  },
+  references: [],
+  usedBy: []
+};
+
+const architectureItem = {
+  id: "adr_000_plugin_model",
+  title: "Plugin companion architecture",
+  stage: "architecture",
+  relPath: "logics/architecture/adr_000_plugin_model.md",
+  path: "/workspace/mock/logics/architecture/adr_000_plugin_model.md",
+  indicators: {
+    Status: "Accepted"
   },
   references: [],
   usedBy: []
@@ -410,6 +437,75 @@ describe("webview harness controls and accessibility", () => {
     card?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "open")).toBe(true);
+  });
+
+  it("shows companion docs in details and opens linked companion items", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [
+        {
+          ...baseItem,
+          references: [
+            { kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" },
+            { kind: "manual", label: "Reference", path: "logics/architecture/adr_000_plugin_model.md" }
+          ]
+        },
+        productItem,
+        architectureItem
+      ]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("Companion docs");
+    expect(detailsBody?.textContent).toContain("product • prod_000_plugin_ux");
+    expect(detailsBody?.textContent).toContain("architecture • adr_000_plugin_model");
+
+    const openButtons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
+    const companionOpenButton = openButtons.find((button) => button.textContent?.trim() === "Open");
+    companionOpenButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open" && message.id === "prod_000_plugin_ux")).toBe(true);
+  });
+
+  it("posts companion doc creation from the details panel", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const createButton = dom.window.document.querySelector('[aria-label="Create companion doc"]');
+    createButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some((message) => message.type === "create-companion-doc" && message.id === "req_000_kickoff")
+    ).toBe(true);
+  });
+
+  it("keeps companion docs hidden by default and reveals them with the toggle", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [productItem, architectureItem]
+    });
+
+    const document = dom.window.document;
+    const showCompanionDocsToggle = document.getElementById("show-companion-docs") as HTMLInputElement | null;
+
+    expect(document.querySelector('.column[data-stage="product"]')).toBeNull();
+    expect(document.querySelector('.column[data-stage="architecture"]')).toBeNull();
+
+    if (showCompanionDocsToggle) {
+      showCompanionDocsToggle.checked = true;
+      showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
+    expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
+    expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
   });
 
   it("posts lifecycle actions in non-harness mode", () => {

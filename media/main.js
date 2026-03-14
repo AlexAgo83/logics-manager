@@ -35,6 +35,7 @@
   const hideCompleteToggle = document.getElementById("hide-complete");
   const hideUsedRequestsToggle = document.getElementById("hide-used-requests");
   const hideSpecToggle = document.getElementById("hide-spec");
+  const showCompanionDocsToggle = document.getElementById("show-companion-docs");
   const harnessBridge = window.__CDX_LOGICS_HARNESS__;
   const isHarnessMode = Boolean(harnessBridge && harnessBridge.isHarness);
 
@@ -43,6 +44,7 @@
   let hideCompleted = false;
   let hideUsedRequests = false;
   let hideSpec = true;
+  let showCompanionDocs = false;
   let collapsedStages = new Set();
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;
@@ -58,6 +60,7 @@
   let noticeTimeoutId = null;
 
   const stageOrder = ["request", "backlog", "task", "spec"];
+  const companionStageOrder = ["product", "architecture"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const minBoardHeight = 160;
   const minDetailsHeight = 180;
@@ -274,6 +277,40 @@
     return row;
   }
 
+  function createCompanionDocRow(companion) {
+    const row = document.createElement("div");
+    row.className = "details__indicator";
+
+    const info = document.createElement("div");
+    info.textContent = `${companion.stage} • ${companion.id}`;
+
+    const actions = document.createElement("span");
+    if (companion.title && companion.title !== companion.relPath && companion.title !== companion.id) {
+      actions.textContent = companion.title;
+    } else if (companion.relPath) {
+      actions.textContent = companion.relPath;
+    }
+
+    if (companion.item) {
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "details__inline-cta";
+      openButton.textContent = "Open";
+      openButton.title = `Open ${companion.id}`;
+      openButton.addEventListener("click", () => {
+        hostApi.openItem(companion.item, "open");
+      });
+      actions.textContent = "";
+      actions.appendChild(document.createTextNode(companion.title || companion.relPath || companion.id));
+      actions.appendChild(document.createTextNode(" "));
+      actions.appendChild(openButton);
+    }
+
+    row.appendChild(info);
+    row.appendChild(actions);
+    return row;
+  }
+
   function applySectionCollapse(section, title, content, isCollapsed) {
     section.classList.toggle("details__section--collapsed", isCollapsed);
     title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -392,6 +429,9 @@
     if (hideSpecToggle) {
       hideSpecToggle.checked = hideSpec;
     }
+    if (showCompanionDocsToggle) {
+      showCompanionDocsToggle.checked = showCompanionDocs;
+    }
   }
 
   function captureBoardScroll() {
@@ -436,7 +476,7 @@
     if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "state-message";
-      if (hideCompleted || hideUsedRequests || hideSpec) {
+      if (hideCompleted || hideUsedRequests || hideSpec || showCompanionDocs) {
         const filters = [];
         if (hideCompleted) {
           filters.push('"Hide completed"');
@@ -447,7 +487,10 @@
         if (hideSpec) {
           filters.push('"Hide SPEC"');
         }
-        empty.textContent = `No items match the current filters. Toggle off ${filters.join(" and ")} to see all items.`;
+        if (showCompanionDocs) {
+          filters.push('"Show companion docs"');
+        }
+        empty.textContent = `No items match the current filters. Adjust ${filters.join(" and ")} to change the view.`;
       } else {
         empty.textContent = "No Logics items found. Add files under logics/ to populate the board.";
       }
@@ -723,6 +766,44 @@
       detailsBody.appendChild(section);
     }
 
+    const companionDocs = collectCompanionDocs(item);
+    if (isPrimaryFlowStage(item.stage) || companionDocs.length) {
+      const companionSection = document.createElement("div");
+      companionSection.className = "details__section";
+
+      const companionKey = "companionDocs";
+      const companionHeader = createSectionHeader(
+        "Companion docs",
+        companionKey,
+        "Create companion doc",
+        () => hostApi.createCompanionDoc(item.id)
+      );
+
+      const companionList = document.createElement("div");
+      companionList.className = "details__indicators";
+      companionList.setAttribute("aria-hidden", "false");
+
+      if (companionDocs.length) {
+        companionDocs.forEach((companion) => {
+          companionList.appendChild(createCompanionDocRow(companion));
+        });
+      } else {
+        const cta = createInlineCta("+ Create companion doc", () => hostApi.createCompanionDoc(item.id));
+        companionList.appendChild(cta);
+      }
+
+      companionSection.appendChild(companionHeader.header);
+      companionSection.appendChild(companionList);
+      applySectionCollapse(
+        companionSection,
+        companionHeader.title,
+        companionList,
+        collapsedDetailSections.has(companionKey)
+      );
+      attachSectionToggle(companionSection, companionHeader.title, companionList, companionKey);
+      detailsBody.appendChild(companionSection);
+    }
+
     const refSection = document.createElement("div");
     refSection.className = "details__section";
 
@@ -832,7 +913,10 @@
     if (!filterToggle) {
       return;
     }
-    filterToggle.classList.toggle("toolbar__filter--active", hideCompleted || hideUsedRequests || hideSpec);
+    filterToggle.classList.toggle(
+      "toolbar__filter--active",
+      hideCompleted || hideUsedRequests || hideSpec || showCompanionDocs
+    );
   }
 
   function setFilterPanelOpen(isOpen) {
@@ -875,11 +959,140 @@
     if (hideSpec && item.stage === "spec") {
       return false;
     }
+    if (!showCompanionDocs && isCompanionStage(item.stage)) {
+      return false;
+    }
     return true;
   }
 
+  function isPrimaryFlowStage(stage) {
+    return stage === "request" || stage === "backlog" || stage === "task";
+  }
+
+  function isCompanionStage(stage) {
+    return companionStageOrder.includes(stage);
+  }
+
+  function collectCompanionDocs(item) {
+    const companions = new Map();
+
+    const registerCompanion = (candidate) => {
+      if (!candidate || !isCompanionStage(candidate.stage)) {
+        return;
+      }
+      const key = candidate.relPath || candidate.id;
+      if (!key || companions.has(key)) {
+        return;
+      }
+      companions.set(key, candidate);
+    };
+
+    (item.references || []).forEach((reference) => {
+      if (!reference || typeof reference !== "object") {
+        return;
+      }
+      registerCompanion(resolveCompanionFromValue(reference.path));
+    });
+
+    (item.usedBy || []).forEach((usage) => {
+      registerCompanion(resolveCompanionFromValue(usage.relPath || usage.id, usage));
+    });
+
+    return Array.from(companions.values()).sort((left, right) => {
+      const leftIndex = companionStageOrder.indexOf(left.stage);
+      const rightIndex = companionStageOrder.indexOf(right.stage);
+      if (leftIndex !== rightIndex) {
+        return leftIndex - rightIndex;
+      }
+      return String(left.id).localeCompare(String(right.id));
+    });
+  }
+
+  function resolveCompanionFromValue(rawValue, fallbackUsage) {
+    const normalizedValue = normalizeManagedDocValue(rawValue);
+    const matchedItem = findManagedItemByReference(normalizedValue, fallbackUsage);
+    if (matchedItem && isCompanionStage(matchedItem.stage)) {
+      return {
+        id: matchedItem.id,
+        title: matchedItem.title,
+        stage: matchedItem.stage,
+        relPath: matchedItem.relPath,
+        item: matchedItem
+      };
+    }
+
+    const fallbackStage = inferCompanionStage(normalizedValue, fallbackUsage);
+    if (!fallbackStage) {
+      return null;
+    }
+
+    const fallbackId = inferManagedDocId(normalizedValue, fallbackUsage);
+    return {
+      id: fallbackId || normalizedValue,
+      title: fallbackUsage && fallbackUsage.title ? fallbackUsage.title : normalizedValue,
+      stage: fallbackStage,
+      relPath: normalizedValue,
+      item: null
+    };
+  }
+
+  function findManagedItemByReference(rawValue, fallbackUsage) {
+    const normalizedValue = normalizeManagedDocValue(rawValue);
+    if (fallbackUsage && fallbackUsage.id) {
+      const byUsageId = items.find((entry) => entry.id === fallbackUsage.id);
+      if (byUsageId) {
+        return byUsageId;
+      }
+    }
+    if (!normalizedValue) {
+      return null;
+    }
+    const fileStem = normalizedValue.split("/").pop()?.replace(/\.md$/i, "") || "";
+    return (
+      items.find((entry) => entry.relPath === normalizedValue) ||
+      items.find((entry) => entry.id === normalizedValue) ||
+      items.find((entry) => entry.id === fileStem) ||
+      null
+    );
+  }
+
+  function inferCompanionStage(normalizedValue, fallbackUsage) {
+    if (fallbackUsage && isCompanionStage(fallbackUsage.stage)) {
+      return fallbackUsage.stage;
+    }
+    const fileStem = inferManagedDocId(normalizedValue);
+    if (normalizedValue.startsWith("logics/product/") || fileStem.startsWith("prod_")) {
+      return "product";
+    }
+    if (normalizedValue.startsWith("logics/architecture/") || fileStem.startsWith("adr_")) {
+      return "architecture";
+    }
+    return null;
+  }
+
+  function inferManagedDocId(normalizedValue, fallbackUsage) {
+    if (fallbackUsage && typeof fallbackUsage.id === "string" && fallbackUsage.id) {
+      return fallbackUsage.id;
+    }
+    if (!normalizedValue) {
+      return "";
+    }
+    return normalizedValue.split("/").pop()?.replace(/\.md$/i, "") || normalizedValue;
+  }
+
+  function normalizeManagedDocValue(value) {
+    return String(value || "")
+      .replace(/\\/g, "/")
+      .replace(/^\.?\//, "")
+      .trim();
+  }
+
   function getVisibleStages() {
-    return stageOrder.filter((stage) => !(hideSpec && stage === "spec"));
+    const visibleStages = stageOrder.filter((stage) => !(hideSpec && stage === "spec"));
+    if (showCompanionDocs) {
+      return [...visibleStages, ...companionStageOrder];
+    }
+    return visibleStages;
   }
 
   function isComplete(item) {
@@ -1213,6 +1426,9 @@
       },
       createItem(kind) {
         invokeHostOnly("create-item", { kind }, "Create item");
+      },
+      createCompanionDoc(id) {
+        invokeHostOnly("create-companion-doc", { id }, "Create companion doc");
       },
       renameEntry(id) {
         invokeHostOnly("rename-entry", { id }, "Rename entry");
@@ -1696,6 +1912,7 @@
       hideCompleted,
       hideUsedRequests,
       hideSpec,
+      showCompanionDocs,
       collapsedStages: Array.from(collapsedStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -1868,6 +2085,14 @@
       render();
     });
   }
+  if (showCompanionDocsToggle) {
+    showCompanionDocsToggle.addEventListener("change", (event) => {
+      showCompanionDocs = Boolean(event.target && event.target.checked);
+      persistState();
+      updateFilterState();
+      render();
+    });
+  }
   if (detailsToggle) {
     detailsToggle.addEventListener("click", () => {
       uiState.detailsCollapsed = !uiState.detailsCollapsed;
@@ -1945,6 +2170,9 @@
   }
   if (previousState && typeof previousState.hideSpec === "boolean") {
     hideSpec = previousState.hideSpec;
+  }
+  if (previousState && typeof previousState.showCompanionDocs === "boolean") {
+    showCompanionDocs = previousState.showCompanionDocs;
   }
   if (previousState && Array.isArray(previousState.collapsedStages)) {
     collapsedStages = new Set(previousState.collapsedStages);

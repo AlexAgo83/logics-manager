@@ -1,8 +1,8 @@
 ## req_023_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -48,13 +48,16 @@ flowchart LR
 
 # Acceptance criteria
 - AC1: The plugin no longer exposes the wording `Hide used requests` in the UI once this request is implemented.
-- AC2: The replacement wording makes the intent understandable to a user who does not know the internal Logics data model.
+- AC2: The replacement wording is `Hide processed requests`, or a wording with the same meaning, and remains understandable to a user who does not know the internal Logics data model.
 - AC3: The filtering rule is explicitly redefined in code and tests through a dedicated notion such as `processed` or equivalent, instead of silently reusing the current `used` heuristic.
 - AC4: The implementation distinguishes between:
   - a request that is merely referenced or linked;
   - and a request that has been meaningfully processed in the workflow.
-- AC5: The chosen rule is documented well enough that future changes do not reintroduce ambiguity between `used` and `processed`.
-- AC6: Existing request visibility behavior remains predictable and regression-tested in board/list views after the rename.
+- AC5: In the first implementation, a request is considered `processed` only when it is linked to at least one backlog item or task whose status is already meaningful for delivery (for example `Ready`, `In progress`, `Blocked`, or `Done`).
+- AC6: A request linked only to a `Draft` backlog item or `Draft` task remains visible.
+- AC7: A request linked only to `product` or `architecture` companion docs is not considered `processed` in the first implementation.
+- AC8: The chosen rule is documented well enough that future changes do not reintroduce ambiguity between `used` and `processed`.
+- AC9: Existing request visibility behavior remains predictable and regression-tested in board/list views after the rename.
 
 # Scope
 - In:
@@ -78,6 +81,12 @@ flowchart LR
 - The main point is not only to rename a toggle, but to align the filter semantics with actual workflow intent.
 - A transitional implementation can start with a pragmatic rule, as long as that rule is clearly named and test-covered.
 - The preferred direction is a user-facing concept equivalent to `already treated` rather than an internal concept equivalent to `already referenced`.
+- The preferred UI wording is `Hide processed requests`.
+- The preferred implementation direction is to introduce a dedicated helper such as `isRequestProcessed(...)` rather than keep the old `used` naming internally.
+- For V1, `processed` should remain delivery-centric:
+  - backlog/task links matter;
+  - companion-doc links alone do not.
+- For V1, a `Draft` child item is not enough to hide the originating request.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -86,4 +95,4 @@ flowchart LR
 - [x] Dependencies and known risks are listed.
 
 # Backlog
-- (none yet)
+- `item_028_replace_hide_used_requests_with_hide_processed_requests_semantics`

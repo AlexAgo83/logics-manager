@@ -1,8 +1,8 @@
 ## req_024_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
 > From version: 1.9.0
 > Status: Draft
-> Understanding: 97%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: VS Code plugin detail panel UX and action hierarchy
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -56,7 +56,13 @@ flowchart TD
 - AC5: `Obsolete` no longer has the same visual emphasis as safe/high-frequency actions if its semantics remain more sensitive.
 - AC6: Disabled actions such as `Promote` when unavailable remain understandable without creating unnecessary visual noise.
 - AC7: The detail panel keeps the current companion-doc and supporting-doc workflow affordances intact after the refinement.
-- AC8: The refinement is covered by automated tests where reasonable, especially for layout-related CSS or visible UI states that are currently locked by tests.
+- AC8: The preferred visual hierarchy is explicit in the implementation:
+  - `Edit` and `Read` are primary actions;
+  - `Promote` is visually strong only when available;
+  - `Done` is secondary but still clearly actionable;
+  - `Obsolete` is visually more cautious than primary actions.
+- AC9: The main title can wrap and remain dominant, but should not expand uncontrolled forever; the preferred direction is to keep it within roughly two or three visible lines if technically feasible.
+- AC10: The refinement is covered by automated tests where reasonable, especially for layout-related CSS or visible UI states that are currently locked by tests.
 
 # Scope
 - In:
@@ -84,6 +90,16 @@ flowchart TD
 - The panel should remain delivery-oriented and operational, not become a decorative summary card.
 - The footer should keep fast access to important actions, but with clearer hierarchy.
 - If a button remains disabled, the visual treatment should help the user understand that it is currently inactive rather than making it look like a broken primary action.
+- The preferred footer hierarchy is:
+  - primary: `Edit`, `Read`
+  - secondary/contextual: `Promote`, `Done`
+  - sensitive/cautious: `Obsolete`
+- `Promote` should only look primary when it is actually available.
+- The `Name` row should stay visible, but as quieter technical metadata rather than as a second title.
+- The preferred title treatment is:
+  - the title remains the visual entry point;
+  - the internal id remains available;
+  - the title may wrap, but should stay reasonably bounded in height if possible.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -92,4 +108,4 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # Backlog
-- (none yet)
+- `item_029_refine_plugin_detail_panel_identity_and_action_hierarchy`

@@ -22,6 +22,7 @@
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
   const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
+  const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
@@ -1856,6 +1857,12 @@
   if (newRequestToolButton) {
     newRequestToolButton.addEventListener("click", () => {
       hostApi.newGuidedRequest();
+      setToolsPanelOpen(false);
+    });
+  }
+  if (createCompanionDocToolButton) {
+    createCompanionDocToolButton.addEventListener("click", () => {
+      hostApi.createCompanionDoc(selectedId || undefined);
       setToolsPanelOpen(false);
     });
   }

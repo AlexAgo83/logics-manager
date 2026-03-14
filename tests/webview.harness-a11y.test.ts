@@ -24,6 +24,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <button data-action="refresh"></button>
           <button data-action="select-agent"></button>
           <button data-action="new-request-guided"></button>
+          <button data-action="create-companion-doc" title="Create a companion doc"></button>
           <button data-action="bootstrap-logics"></button>
           <button data-action="change-project-root"></button>
           <button data-action="reset-project-root"></button>
@@ -349,6 +350,23 @@ describe("webview harness controls and accessibility", () => {
     expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
   });
 
+  it("posts create companion doc action from tools in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const createCompanionDocButton = dom.window.document.querySelector('[data-action="create-companion-doc"]');
+    createCompanionDocButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some((message) => message.type === "create-companion-doc" && message.id === "req_000_kickoff")
+    ).toBe(true);
+  });
+
   it("disables use-workspace-root when payload indicates no override", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
@@ -537,6 +555,7 @@ describe("webview harness controls and accessibility", () => {
     const filterToggle = document.getElementById("filter-toggle");
     const toolsToggle = document.getElementById("tools-toggle");
     const newRequestButton = document.querySelector('[data-action="new-request-guided"]');
+    const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
     const card = document.querySelector(".card") as HTMLDivElement | null;
     const detailsToggle = document.getElementById("details-toggle");
@@ -544,6 +563,7 @@ describe("webview harness controls and accessibility", () => {
     expect(filterToggle?.getAttribute("title")).toBe("Filter options");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
+    expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);

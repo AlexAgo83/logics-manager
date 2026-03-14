@@ -59,6 +59,10 @@
       {
         "command": "logics.newRequest",
         "title": "Logics: New Request"
+      },
+      {
+        "command": "logics.createCompanionDoc",
+        "title": "Logics: Create Companion Doc"
       }
     ]
   },

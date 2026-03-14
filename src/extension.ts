@@ -96,7 +96,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.renameItem(message.id);
           break;
         case "create-companion-doc":
-          await this.createCompanionDoc(message.id);
+          await this.createCompanionDocFromPalette(message.id);
           break;
         case "create-item":
           await this.createItem(message.kind);
@@ -448,6 +448,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     await openCreatedDocFromOutput(result.stdout);
     await this.refresh(sourceItem.id);
+  }
+
+  async createCompanionDocFromPalette(preferredSourceId?: string): Promise<void> {
+    const sourceItem = await this.resolveCompanionDocSource(preferredSourceId);
+    if (!sourceItem) {
+      return;
+    }
+    await this.createCompanionDoc(sourceItem.id);
   }
 
   async fixDocs(): Promise<void> {
@@ -980,6 +988,24 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     return pick?.item;
   }
 
+  private async resolveCompanionDocSource(preferredSourceId?: string): Promise<LogicsItem | undefined> {
+    if (preferredSourceId) {
+      const matched = this.items.find((item) => item.id === preferredSourceId);
+      if (matched) {
+        return matched;
+      }
+    }
+
+    if (!this.items.length) {
+      await this.refresh();
+    }
+
+    const sourceCandidates = this.items.filter((item) =>
+      item.stage === "request" || item.stage === "backlog" || item.stage === "task"
+    );
+    return this.pickItem(sourceCandidates, "Choose the source item for the companion doc");
+  }
+
   private postData(payload: {
     items?: LogicsItem[];
     root?: string;
@@ -1337,6 +1363,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
             <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Create Companion Doc</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
@@ -1630,7 +1657,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("logics.selectAgent", () => provider.selectAgentFromPalette()),
     vscode.commands.registerCommand("logics.open", () => provider.openFromPalette()),
     vscode.commands.registerCommand("logics.promote", () => provider.promoteFromPalette()),
-    vscode.commands.registerCommand("logics.newRequest", () => provider.createRequest())
+    vscode.commands.registerCommand("logics.newRequest", () => provider.createRequest()),
+    vscode.commands.registerCommand("logics.createCompanionDoc", () => provider.createCompanionDocFromPalette())
   );
 
   setupWatcher();

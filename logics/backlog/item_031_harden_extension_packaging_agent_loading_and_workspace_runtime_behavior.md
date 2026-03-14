@@ -1,9 +1,9 @@
 ## item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
-> From version: 1.9.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100% (release-aligned)
 > Complexity: High
 > Theme: Extension runtime robustness and release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -76,7 +76,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_003_harden_extension_runtime_with_explicit_packaging_and_workspace_selection`
 - Request: `req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
 - Primary task(s): `task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
 

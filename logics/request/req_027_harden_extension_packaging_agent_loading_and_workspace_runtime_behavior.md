@@ -1,8 +1,8 @@
 ## req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
-> From version: 1.9.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
 > Complexity: High
 > Theme: Extension runtime robustness, packaging hygiene, and integration safety
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -119,6 +119,12 @@ flowchart TD
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Companion docs
+- `adr_003_harden_extension_runtime_with_explicit_packaging_and_workspace_selection`
+
+# Task
+- `task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
 
 # Backlog
 - `item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`

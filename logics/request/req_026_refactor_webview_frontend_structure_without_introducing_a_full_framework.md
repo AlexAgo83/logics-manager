@@ -1,8 +1,8 @@
 ## req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
-> From version: 1.9.0
-> Status: In progress
-> Understanding: 98%
-> Confidence: 97%
+> From version: 1.9.1
+> Status: Done
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
 > Complexity: High
 > Theme: VS Code webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -103,6 +103,12 @@ flowchart TD
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Companion docs
+- `adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend`
+
+# Task
+- `task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 
 # Backlog
 - `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`

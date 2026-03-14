@@ -1,9 +1,9 @@
 ## task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 85%
+> Progress: 100%
 > Complexity: High
 > Theme: Webview frontend refactor orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -32,7 +32,7 @@ flowchart LR
 - [x] 3. Split detail-panel and board/list rendering into clearer units while keeping `main.js` as a thin bootstrap entry point.
 - [x] 4. Reorganize CSS by concern so layout, cards, detail panel, preview, and responsive rules are easier to maintain.
 - [x] 5. Update tests and wiring so the refactor preserves current behavior and loading simplicity.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Step 1, Step 2, and Step 3. Proof: webview logic is decomposed into explicit modules instead of staying concentrated in one file.
@@ -53,7 +53,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend`
 - Backlog item: `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 - Request(s): `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 
@@ -65,10 +65,10 @@ flowchart LR
 - Manual: validate markdown read mode and companion-doc interactions after renderer split.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Main focus:
@@ -85,8 +85,10 @@ flowchart LR
   - board/list rendering now lives in `media/renderBoard.js`.
   - detail-panel rendering now lives in `media/renderDetails.js`.
   - markdown read-preview rendering now lives in `media/renderMarkdown.js`.
+  - status UI, harness behavior, and split-layout control now also live in dedicated runtime modules.
   - `media/main.js` was reduced significantly and now acts much more like a bootstrap/state shell than a rendering monolith.
   - CSS is no longer only one monolith: `media/css/layout.css`, `media/css/toolbar.css`, `media/css/board.css`, and `media/css/details.css` now carry dedicated concerns behind `media/main.css`.
   - tests and smoke checks were rewired to load the modular assets and still pass, including packaged VSIX checks for the new assets.
-- Remaining work:
-  - finish the final close-out pass so the updated boundaries are reflected in related Logics docs and, if needed, one or two last low-risk extractions are handled without reintroducing duplication.
+- Close-out:
+  - the accepted architectural direction is now recorded in `adr_002`.
+  - related request/backlog/task docs were synchronized at close-out.

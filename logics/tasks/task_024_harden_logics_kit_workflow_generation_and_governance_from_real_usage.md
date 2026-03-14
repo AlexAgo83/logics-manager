@@ -1,9 +1,9 @@
 ## task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.0
-> Status: In progress
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Shared Logics kit hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -39,7 +39,7 @@ flowchart LR
   - better finish/close propagation
   - more actionable decision framing
 - [x] 4. Add or adjust tests, docs, and changelog/release notes across the shared kit.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Step 1 and Step 4. Proof: execution framing and docs preserve shared-submodule constraints.
@@ -55,7 +55,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_001_keep_logics_kit_hardening_incremental_generic_and_agent_productive`
 - Backlog item: `item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 - Request(s): `req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 
@@ -69,10 +69,10 @@ flowchart LR
 - Manual: validate scoped audit usage on a bounded perimeter.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Current focus:
@@ -99,4 +99,4 @@ flowchart LR
   - `finish task` now appends finish/report evidence to the task and leaves a completion note in linked backlog items.
   - tests and CLI smoke checks were extended to cover promotion seeding, split flows, and scoped audit usage.
 - Remaining work:
-  - close out the remaining docs/changelog pass cleanly and decide whether any extra conservative request-level synchronization is still worth adding in this iteration.
+  - no further implementation work is required for this iteration; future changes can build on `adr_001` if additional conservative synchronization is later justified.

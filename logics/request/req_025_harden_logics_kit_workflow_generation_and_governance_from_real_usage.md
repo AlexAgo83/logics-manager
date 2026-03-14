@@ -1,8 +1,8 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.0+
-> Status: In progress
-> Understanding: 100%
-> Confidence: 100%
+> From version: 1.9.1
+> Status: Done
+> Understanding: 100% (closed)
+> Confidence: 100% (validated)
 > Complexity: High
 > Theme: Logics kit workflow quality, generation, and governance hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -153,6 +153,9 @@ flowchart TD
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Companion docs
+- `adr_001_keep_logics_kit_hardening_incremental_generic_and_agent_productive`
 
 # Backlog
 - `item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage`

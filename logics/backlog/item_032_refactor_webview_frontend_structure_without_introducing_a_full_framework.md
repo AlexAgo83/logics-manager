@@ -1,9 +1,9 @@
 ## item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 85%
+> Progress: 100%
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -65,7 +65,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend`
 - Request: `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 - Primary task(s): `task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 
@@ -84,6 +84,7 @@ flowchart TD
   - board/list renderer
   - CSS decomposition
 - Current progress:
-  - shared model, host bridge, renderers, markdown preview, and CSS concern files are now extracted;
-  - the main remaining work is close-out and any final thin-bootstrap cleanup.
+  - shared model, host bridge, renderers, markdown preview, status UI, harness behavior, and layout control are now extracted into dedicated files;
+  - CSS concern files and packaged asset checks are in place;
+  - the refactor is complete for this iteration with the accepted direction captured in `adr_002`.
 - A companion architecture decision is still expected because the refactor changes frontend structure and runtime boundaries inside the webview.

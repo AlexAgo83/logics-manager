@@ -1,9 +1,9 @@
 ## item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.0
-> Status: In progress
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Shared Logics kit workflow hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -72,7 +72,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_001_keep_logics_kit_hardening_incremental_generic_and_agent_productive`
 - Request: `req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 - Primary task(s): `task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 
@@ -90,6 +90,6 @@ flowchart LR
 - Current progress:
   - V1 is in place.
   - V2 now also covers richer AC traceability seeding, stronger finish/report propagation, and written decision follow-up guidance.
-  - remaining work is mostly close-out, release hygiene, and deciding whether one more conservative synchronization step is worth the extra complexity.
+  - close-out is complete for this iteration, with the shared-kit architectural direction captured in `adr_001`.
 - The work must remain generic for all repositories consuming `logics/skills`.
 - The work should also measurably reduce repetitive cleanup for the agent using Logics as an execution framework.

@@ -575,11 +575,12 @@ describe("webview harness controls and accessibility", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
-      items: [productItem, architectureItem]
+      items: [baseItem, productItem, architectureItem, specItem]
     });
 
     const document = dom.window.document;
     const showCompanionDocsToggle = document.getElementById("show-companion-docs") as HTMLInputElement | null;
+    const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
 
     expect(document.querySelector('.column[data-stage="product"]')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"]')).toBeNull();
@@ -591,7 +592,19 @@ describe("webview harness controls and accessibility", () => {
 
     expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
     expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
+    expect(document.querySelector('.column[data-stage="product"] .column__title')?.textContent).toBe("Product briefs");
+    expect(document.querySelector('.column[data-stage="architecture"] .column__title')?.textContent).toBe(
+      "Architecture decisions"
+    );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
+
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = false;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const stageSequence = Array.from(document.querySelectorAll(".column")).map((column) => column.getAttribute("data-stage"));
+    expect(stageSequence).toEqual(["request", "backlog", "task", "product", "architecture", "spec"]);
   });
 
   it("posts lifecycle actions in non-harness mode", () => {
@@ -635,6 +648,7 @@ describe("webview harness controls and accessibility", () => {
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);
+    expect(card?.getAttribute("aria-label")).toContain("request item");
 
     card?.dispatchEvent(
       new dom.window.KeyboardEvent("keydown", {

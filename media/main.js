@@ -60,7 +60,7 @@
   let statusBanner = null;
   let noticeTimeoutId = null;
 
-  const stageOrder = ["request", "backlog", "task", "spec"];
+  const primaryStageOrder = ["request", "backlog", "task"];
   const companionStageOrder = ["product", "architecture"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const minBoardHeight = 160;
@@ -90,6 +90,44 @@
       return;
     }
     console.debug("[cdx-logics-webview]", eventName, payload);
+  }
+
+  function getStageLabel(stage) {
+    switch (stage) {
+      case "request":
+        return "request";
+      case "backlog":
+        return "backlog";
+      case "task":
+        return "task";
+      case "product":
+        return "product brief";
+      case "architecture":
+        return "architecture decision";
+      case "spec":
+        return "spec";
+      default:
+        return String(stage || "item");
+    }
+  }
+
+  function getStageHeading(stage) {
+    switch (stage) {
+      case "request":
+        return "Requests";
+      case "backlog":
+        return "Backlog";
+      case "task":
+        return "Tasks";
+      case "product":
+        return "Product briefs";
+      case "architecture":
+        return "Architecture decisions";
+      case "spec":
+        return "Specs";
+      default:
+        return String(stage || "").trim();
+    }
   }
 
   function eyeIcon(isHidden) {
@@ -600,7 +638,7 @@
     card.dataset.id = item.id;
     card.setAttribute("role", "button");
     card.tabIndex = 0;
-    card.setAttribute("aria-label", `${item.stage} item ${item.id}: ${item.title}`);
+    card.setAttribute("aria-label", `${getStageLabel(item.stage)} item ${item.id}: ${item.title}`);
     card.title = item.title;
 
     const titleEl = document.createElement("div");
@@ -616,7 +654,7 @@
     if (compact) {
       const meta = document.createElement("div");
       meta.className = "card__meta";
-      meta.textContent = `${item.stage} • ${item.id}`;
+      meta.textContent = `${getStageLabel(item.stage)} • ${item.id}`;
       card.appendChild(meta);
     }
 
@@ -657,7 +695,7 @@
 
       const title = document.createElement("div");
       title.className = "column__title";
-      title.textContent = stage;
+      title.textContent = getStageHeading(stage);
       header.appendChild(title);
 
       const actions = document.createElement("div");
@@ -682,9 +720,9 @@
       toggle.innerHTML = eyeIcon(isCollapsed);
       toggle.setAttribute(
         "aria-label",
-        isCollapsed ? `Show ${stage} items` : `Hide ${stage} items`
+        isCollapsed ? `Show ${getStageHeading(stage)}` : `Hide ${getStageHeading(stage)}`
       );
-      toggle.title = isCollapsed ? `Show ${stage} items` : `Hide ${stage} items`;
+      toggle.title = isCollapsed ? `Show ${getStageHeading(stage)}` : `Hide ${getStageHeading(stage)}`;
       toggle.setAttribute("aria-pressed", String(isCollapsed));
       toggle.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -731,7 +769,7 @@
       const header = document.createElement("div");
       header.className = "list-view__header";
       const stageItems = grouped[stage] || [];
-      header.textContent = `${stage} (${stageItems.length})`;
+      header.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
       section.appendChild(header);
 
       const body = document.createElement("div");
@@ -1164,9 +1202,12 @@
   }
 
   function getVisibleStages() {
-    const visibleStages = stageOrder.filter((stage) => !(hideSpec && stage === "spec"));
+    const visibleStages = [...primaryStageOrder];
     if (showCompanionDocs) {
-      return [...visibleStages, ...companionStageOrder];
+      visibleStages.push(...companionStageOrder);
+    }
+    if (!hideSpec) {
+      visibleStages.push("spec");
     }
     return visibleStages;
   }

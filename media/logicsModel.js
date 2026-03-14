@@ -239,26 +239,29 @@
     if (!item || item.stage !== "request") {
       return [];
     }
-    const linkedPaths = new Set();
+    const linkedValues = new Set();
     if (Array.isArray(item.references)) {
       item.references.forEach((ref) => {
         if (ref && typeof ref.path === "string") {
-          linkedPaths.add(ref.path.replace(/\\/g, "/"));
+          linkedValues.add(ref.path.replace(/\\/g, "/"));
         }
       });
     }
     if (Array.isArray(item.usedBy)) {
       item.usedBy.forEach((usage) => {
         if (usage && typeof usage.relPath === "string") {
-          linkedPaths.add(usage.relPath.replace(/\\/g, "/"));
+          linkedValues.add(usage.relPath.replace(/\\/g, "/"));
         }
       });
     }
-    return allItems.filter(
-      (candidate) =>
-        linkedPaths.has(String(candidate.relPath || "").replace(/\\/g, "/")) &&
-        (candidate.stage === "backlog" || candidate.stage === "task")
-    );
+    return Array.from(linkedValues)
+      .map((rawValue) => findManagedItemByReference(rawValue, allItems))
+      .filter((candidate, index, collection) => {
+        if (!candidate || (candidate.stage !== "backlog" && candidate.stage !== "task")) {
+          return false;
+        }
+        return collection.indexOf(candidate) === index;
+      });
   }
 
   function isRequestProcessed(item, allItems) {

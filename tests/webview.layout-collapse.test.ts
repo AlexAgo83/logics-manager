@@ -87,12 +87,18 @@ function bootstrapWebview(stacked: boolean) {
   });
 
   const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
+  const uiStatusScript = fs.readFileSync(path.resolve(process.cwd(), "media/uiStatus.js"), "utf8");
+  const harnessApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/harnessApi.js"), "utf8");
+  const layoutControllerScript = fs.readFileSync(path.resolve(process.cwd(), "media/layoutController.js"), "utf8");
   const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
   const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
   const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
   const renderMarkdownScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderMarkdown.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(modelScript);
+  dom.window.eval(uiStatusScript);
+  dom.window.eval(harnessApiScript);
+  dom.window.eval(layoutControllerScript);
   dom.window.eval(hostApiScript);
   dom.window.eval(renderBoardScript);
   dom.window.eval(renderDetailsScript);

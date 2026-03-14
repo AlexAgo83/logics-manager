@@ -232,5 +232,18 @@ describe("logicsIndexer", () => {
     expect(isRequestProcessed(requestLike, [readyBacklog])).toBe(true);
     expect(isRequestUsed(requestLike, [readyBacklog])).toBe(true);
     expect(isRequestUsed(untouchedRequest, [readyBacklog])).toBe(false);
+
+    const requestLikeById = {
+      stage: "request",
+      references: [{ kind: "backlog", label: "Backlog", path: "item_001" }],
+      usedBy: []
+    } as any;
+    const readyBacklogWithId = {
+      id: "item_001",
+      stage: "backlog",
+      relPath: "logics/backlog/item_001.md",
+      indicators: { Status: "Done" }
+    } as any;
+    expect(isRequestProcessed(requestLikeById, [readyBacklogWithId])).toBe(true);
   });
 });

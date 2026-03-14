@@ -389,6 +389,19 @@ function collectLinkedWorkflowPaths(item: LogicsItem): string[] {
   return Array.from(paths);
 }
 
+function workflowCandidateKeys(candidate: LogicsItem): string[] {
+  const keys = new Set<string>();
+  if (candidate.relPath) {
+    const normalizedPath = normalizeRef(candidate.relPath);
+    keys.add(normalizedPath);
+    keys.add(path.basename(normalizedPath, ".md"));
+  }
+  if (candidate.id) {
+    keys.add(candidate.id);
+  }
+  return Array.from(keys);
+}
+
 export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {
   if (item.stage !== "request") {
     return false;
@@ -397,7 +410,14 @@ export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []
   if (linkedPaths.length === 0 || !Array.isArray(allItems) || allItems.length === 0) {
     return false;
   }
-  const linkedItems = new Map(allItems.map((candidate) => [normalizeRef(candidate.relPath), candidate]));
+  const linkedItems = new Map<string, LogicsItem>();
+  for (const candidate of allItems) {
+    for (const key of workflowCandidateKeys(candidate)) {
+      if (!linkedItems.has(key)) {
+        linkedItems.set(key, candidate);
+      }
+    }
+  }
   return linkedPaths.some((linkedPath) => {
     const linked = linkedItems.get(linkedPath);
     if (!linked) {

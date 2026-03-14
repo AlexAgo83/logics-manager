@@ -136,12 +136,18 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   });
 
   const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
+  const uiStatusScript = fs.readFileSync(path.resolve(process.cwd(), "media/uiStatus.js"), "utf8");
+  const harnessApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/harnessApi.js"), "utf8");
+  const layoutControllerScript = fs.readFileSync(path.resolve(process.cwd(), "media/layoutController.js"), "utf8");
   const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
   const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
   const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
   const renderMarkdownScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderMarkdown.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(modelScript);
+  dom.window.eval(uiStatusScript);
+  dom.window.eval(harnessApiScript);
+  dom.window.eval(layoutControllerScript);
   dom.window.eval(hostApiScript);
   dom.window.eval(renderBoardScript);
   dom.window.eval(renderDetailsScript);
@@ -511,6 +517,44 @@ describe("webview harness controls and accessibility", () => {
     expect(document.querySelector('[data-id="req_001_processed"]')).toBeNull();
     expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
     expect(persistedStates.some((state) => state.hideProcessedRequests === true)).toBe(true);
+  });
+
+  it("hides processed requests when the linked backlog reference is stored as an id", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "req_003_processed_by_id",
+          title: "Processed request by id",
+          relPath: "logics/request/req_003_processed_by_id.md",
+          path: "/workspace/mock/logics/request/req_003_processed_by_id.md",
+          indicators: { Status: "Done" },
+          references: [{ kind: "backlog", label: "Backlog", path: "item_003_processed_by_id" }]
+        },
+        {
+          ...baseItem,
+          id: "item_003_processed_by_id",
+          title: "Processed backlog by id",
+          stage: "backlog",
+          relPath: "logics/backlog/item_003_processed_by_id.md",
+          path: "/workspace/mock/logics/backlog/item_003_processed_by_id.md",
+          indicators: { Status: "Done" }
+        }
+      ]
+    });
+
+    const document = dom.window.document;
+    const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
+    expect(document.querySelector('[data-id="req_003_processed_by_id"]')).not.toBeNull();
+
+    if (processedToggle) {
+      processedToggle.checked = true;
+      processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
   });
 
   it("applies detail header hierarchy and action emphasis for the selected item", () => {

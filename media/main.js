@@ -949,6 +949,36 @@
       detailsBody.appendChild(companionSection);
     }
 
+    const specs = collectSpecs(item);
+    if (isPrimaryFlowStage(item.stage) || specs.length) {
+      const specsSection = document.createElement("div");
+      specsSection.className = "details__section";
+
+      const specsKey = "specs";
+      const specsHeader = createSectionHeader("Specs", specsKey);
+
+      const specsList = document.createElement("div");
+      specsList.className = "details__indicators";
+      specsList.setAttribute("aria-hidden", "false");
+
+      if (specs.length) {
+        specs.forEach((spec) => {
+          specsList.appendChild(createLinkedIndicatorRow(`${getStageLabel(spec.stage)} • ${spec.id}`, spec.title, spec));
+        });
+      } else {
+        const empty = document.createElement("div");
+        empty.className = "details__empty";
+        empty.textContent = "No spec linked yet.";
+        specsList.appendChild(empty);
+      }
+
+      specsSection.appendChild(specsHeader.header);
+      specsSection.appendChild(specsList);
+      applySectionCollapse(specsSection, specsHeader.title, specsList, collapsedDetailSections.has(specsKey));
+      attachSectionToggle(specsSection, specsHeader.title, specsList, specsKey);
+      detailsBody.appendChild(specsSection);
+    }
+
     const primaryFlowItems = collectPrimaryFlowItems(item);
     if (!isPrimaryFlowStage(item.stage)) {
       const primaryFlowSection = document.createElement("div");
@@ -1189,6 +1219,34 @@
       }
       return String(left.id).localeCompare(String(right.id));
     });
+  }
+
+  function collectSpecs(item) {
+    const specs = new Map();
+
+    const registerSpec = (candidate) => {
+      if (!candidate || candidate.stage !== "spec") {
+        return;
+      }
+      const key = candidate.relPath || candidate.id;
+      if (!key || specs.has(key)) {
+        return;
+      }
+      specs.set(key, candidate);
+    };
+
+    (item.references || []).forEach((reference) => {
+      if (!reference || typeof reference !== "object") {
+        return;
+      }
+      registerSpec(findManagedItemByReference(reference.path));
+    });
+
+    (item.usedBy || []).forEach((usage) => {
+      registerSpec(findManagedItemByReference(usage.relPath || usage.id, usage));
+    });
+
+    return Array.from(specs.values()).sort((left, right) => String(left.id).localeCompare(String(right.id)));
   }
 
   function collectPrimaryFlowItems(item) {

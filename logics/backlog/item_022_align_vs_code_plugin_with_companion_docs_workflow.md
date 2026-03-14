@@ -1,11 +1,11 @@
 ## item_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
-> From version: X.X.X
-> Status: Ready
-> Understanding: ??%
-> Confidence: ??%
-> Progress: 0%
-> Complexity: Medium
-> Theme: General
+> From version: 1.9.0
+> Status: In Progress
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 92%
+> Complexity: High
+> Theme: VS Code orchestration and companion docs
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
@@ -60,8 +60,8 @@ flowchart LR
 - Primary task(s): `task_021_align_vs_code_plugin_with_companion_docs_workflow`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High. This umbrella item coordinates the plugin-side adoption of the companion-doc workflow now supported by the Logics kit.
+- Urgency: High. The plugin is the primary cockpit for this repository, so the model must stay coherent while companion-doc support lands.
 
 # Notes
 - Derived from request `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
@@ -72,3 +72,10 @@ flowchart LR
   - `item_025_add_companion_docs_section_and_navigation_in_plugin_details_panel`
   - `item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views`
   - `item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin`
+- Current state:
+  - managed-doc indexing and stage modeling delivered;
+  - rename/reference maintenance delivered;
+  - details-panel companion/supporting-doc navigation delivered;
+  - visibility controls for supporting docs delivered;
+  - companion-doc creation flows and regression coverage delivered;
+  - remaining work is mostly final convergence and close-out of the orchestration task.

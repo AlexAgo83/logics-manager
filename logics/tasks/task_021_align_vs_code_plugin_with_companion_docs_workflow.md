@@ -1,9 +1,9 @@
 ## task_021_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.8.1
-> Status: Ready
+> Status: In Progress
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 92%
 > Complexity: High
 > Theme: Companion docs workflow orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -42,10 +42,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Lock the execution order and implementation constraints from the product brief and ADR, then propagate them into child backlog items where needed.
-- [ ] 2. Deliver `item_023` and `item_024` first so managed-doc typing, indexing, and reference maintenance are stable before UI work starts.
-- [ ] 3. Deliver `item_025` and `item_026` on top of the new managed-doc model so the details panel, navigation flows, and visibility controls stay coherent.
-- [ ] 4. Deliver `item_027`, including explicit companion-doc creation flows and regression coverage across host logic, webview behavior, and managed-doc operations.
+- [x] 1. Lock the execution order and implementation constraints from the product brief and ADR, then propagate them into child backlog items where needed.
+- [x] 2. Deliver `item_023` and `item_024` first so managed-doc typing, indexing, and reference maintenance are stable before UI work starts.
+- [x] 3. Deliver `item_025` and `item_026` on top of the new managed-doc model so the details panel, navigation flows, and visibility controls stay coherent.
+- [x] 4. Deliver `item_027`, including explicit companion-doc creation flows and regression coverage across host logic, webview behavior, and managed-doc operations.
 - [ ] 5. Run full validation across compile, lint, tests, and Logics checks, then update all linked request/backlog/task docs with the final traceability evidence.
 - [ ] FINAL: Update related Logics docs
 
@@ -84,10 +84,16 @@ flowchart LR
 - Manual: validate companion-doc creation flow from the plugin without regressing existing request/backlog/task flows.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
+- [x] Scope implemented and acceptance criteria covered for child items `023` to `027`; orchestration close-out still pending.
 - [ ] Validation commands executed and results captured.
 - [ ] Linked request/backlog/task docs updated.
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending.
+- Current state:
+  - managed-doc model and indexing aligned with `product` / `architecture`;
+  - rename and reference maintenance aligned across managed doc families;
+  - details panel now exposes companion docs, specs, and primary-flow backlinks with `Open` / `Read`;
+  - supporting-doc visibility remains secondary and explicitly toggleable;
+  - companion-doc creation is available from details, tools, and command palette;
+  - automated coverage currently passes on compile and test.

@@ -1,19 +1,25 @@
 ## item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs - Align plugin indexer and managed doc model for companion docs
-> From version: X.X.X
-> Status: Ready
-> Understanding: ??%
-> Confidence: ??%
-> Progress: 0%
+> From version: 1.9.0
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: Medium
-> Theme: General
+> Theme: Plugin managed-doc model and indexing
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-Describe the problem and user impact
+The plugin originally treated only `request`, `backlog`, `task`, and `spec` as managed Logics docs.
+That made `product` and `architecture` companion docs invisible or weakly typed in the main workflow cockpit.
+Without a shared managed-doc model, later UI and maintenance work would have been forced into duplicated hardcoded exceptions.
 
 # Scope
 - In:
+- Extend the plugin stage model to include `product` and `architecture`.
+- Centralize managed-doc families, ordering, and directory coverage.
+- Ensure indexer inference and usage extraction work for companion-doc paths and ids.
 - Out:
+- UI affordances beyond what is needed to validate the shared model.
 
 ```mermaid
 flowchart LR
@@ -28,8 +34,8 @@ flowchart LR
 - AC2: Stage/type assumptions are centralized enough that future doc-family additions do not require scattered hardcoded changes.
 
 # AC Traceability
-- AC1 -> Indexer/model changes implemented with proof in tests and code references.
-- AC2 -> Shared stage/type registry or equivalent centralization introduced with proof in code references.
+- AC1 -> Implemented in `src/logicsIndexer.ts` with coverage in `tests/logicsIndexer.test.ts`.
+- AC2 -> Managed-doc families, ordering, and directory helpers centralized in `src/logicsIndexer.ts` and reused by `src/extension.ts`.
 
 # Decision framing
 - Product framing: Not needed
@@ -41,12 +47,17 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): `logics/architecture/adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model.md`
 - Request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
-- Primary task(s): (none yet)
+- Primary task(s): `task_021_align_vs_code_plugin_with_companion_docs_workflow`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High. This item provides the shared model required by the rest of the plugin work.
+- Urgency: High. UI and maintenance work would be brittle without it.
 
 # Notes
 - Derived from umbrella item `item_022_align_vs_code_plugin_with_companion_docs_workflow`.
 - Derived from request `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
+- Delivered:
+  - `LogicsStage` extended to `product` and `architecture`;
+  - managed-doc family registry introduced;
+  - stage ordering and directory helpers centralized;
+  - targeted regression coverage added.

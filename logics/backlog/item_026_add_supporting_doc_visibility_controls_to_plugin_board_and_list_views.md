@@ -1,19 +1,25 @@
 ## item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views - Add supporting doc visibility controls to plugin board and list views
-> From version: X.X.X
-> Status: Ready
-> Understanding: ??%
-> Confidence: ??%
-> Progress: 0%
+> From version: 1.9.0
+> Status: Done
+> Understanding: 98%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
-> Theme: General
+> Theme: Board/list visibility control model
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-Describe the problem and user impact
+Supporting docs needed to be discoverable globally without taking over the board by default.
+If exposed naively as permanent first-class columns, they would reduce scanability of the delivery workflow.
 
 # Scope
 - In:
+- Add an explicit secondary visibility toggle for companion docs.
+- Preserve hidden-by-default behavior for supporting docs unless explicitly requested.
+- Keep supporting-doc columns navigable while restricting primary creation controls to delivery stages.
+- Improve stage labels/order when supporting docs are shown.
 - Out:
+- A full alternate board product just for documentation governance.
 
 ```mermaid
 flowchart LR
@@ -28,8 +34,8 @@ flowchart LR
 - AC2: Default delivery-board readability is preserved while companion/supporting docs remain discoverable when explicitly enabled.
 
 # AC Traceability
-- AC1 -> Visibility/filter control model implemented with proof in webview tests and code references.
-- AC2 -> Default-state and toggle behavior covered with proof in tests.
+- AC1 -> Implemented in `media/main.js` with regression coverage in `tests/webview.harness-a11y.test.ts`.
+- AC2 -> Toggle defaults, visible-stage ordering, and board-column behavior covered in `tests/webview.harness-a11y.test.ts`.
 
 # Decision framing
 - Product framing: Not needed
@@ -41,12 +47,17 @@ flowchart LR
 - Product brief(s): `logics/product/prod_000_companion_docs_ux_for_the_vs_code_plugin.md`
 - Architecture decision(s): (none yet)
 - Request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
-- Primary task(s): (none yet)
+- Primary task(s): `task_021_align_vs_code_plugin_with_companion_docs_workflow`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High. This controls whether the plugin remains delivery-first while still surfacing supporting docs.
+- Urgency: Medium-High. It had to land once companion docs became visible in the UI.
 
 # Notes
 - Derived from umbrella item `item_022_align_vs_code_plugin_with_companion_docs_workflow`.
 - Derived from request `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
+- Delivered:
+  - `Show companion docs` toggle with default hidden state;
+  - supporting-doc stage labels refined;
+  - supporting-doc columns kept non-authoring;
+  - cards show contextual badges and primary-flow linkage when relevant.

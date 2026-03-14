@@ -555,6 +555,33 @@ describe("webview harness controls and accessibility", () => {
     expect(card?.querySelector(".card__badge--architecture")).not.toBeNull();
   });
 
+  it("shows linked specs in a dedicated details section", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [
+        {
+          ...baseItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/specs/spec_001_reference_contract.md" }]
+        },
+        specItem
+      ]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("Specs");
+    expect(detailsBody?.textContent).toContain("spec • spec_001_reference_contract");
+
+    const actionButtons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
+    const readButton = actionButtons.find((button) => button.textContent?.trim() === "Read");
+    readButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "spec_001_reference_contract")).toBe(
+      true
+    );
+  });
+
   it("posts companion doc creation from the details panel", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {

@@ -38,6 +38,7 @@
   const hideProcessedRequestsToggle = document.getElementById("hide-processed-requests");
   const hideSpecToggle = document.getElementById("hide-spec");
   const showCompanionDocsToggle = document.getElementById("show-companion-docs");
+  const hideEmptyColumnsToggle = document.getElementById("hide-empty-columns");
   const harnessBridge = window.__CDX_LOGICS_HARNESS__;
   const isHarnessMode = Boolean(harnessBridge && harnessBridge.isHarness);
 
@@ -47,6 +48,7 @@
   let hideProcessedRequests = false;
   let hideSpec = true;
   let showCompanionDocs = false;
+  let hideEmptyColumns = false;
   let collapsedStages = new Set();
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;
@@ -266,6 +268,9 @@
     if (showCompanionDocsToggle) {
       showCompanionDocsToggle.checked = showCompanionDocs;
     }
+    if (hideEmptyColumnsToggle) {
+      hideEmptyColumnsToggle.checked = hideEmptyColumns;
+    }
   }
 
   function renderBoard() {
@@ -321,7 +326,7 @@
     }
     filterToggle.classList.toggle(
       "toolbar__filter--active",
-      hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs
+      hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs || hideEmptyColumns
     );
   }
 
@@ -599,7 +604,8 @@
         getHideCompleted: () => hideCompleted,
         getHideProcessedRequests: () => hideProcessedRequests,
         getHideSpec: () => hideSpec,
-        getShowCompanionDocs: () => showCompanionDocs
+        getShowCompanionDocs: () => showCompanionDocs,
+        getHideEmptyColumns: () => hideEmptyColumns
       })
     : null;
 
@@ -746,6 +752,7 @@
       hideProcessedRequests,
       hideSpec,
       showCompanionDocs,
+      hideEmptyColumns,
       collapsedStages: Array.from(collapsedStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -781,6 +788,14 @@
   if (showCompanionDocsToggle) {
     showCompanionDocsToggle.addEventListener("change", (event) => {
       showCompanionDocs = Boolean(event.target && event.target.checked);
+      persistState();
+      updateFilterState();
+      render();
+    });
+  }
+  if (hideEmptyColumnsToggle) {
+    hideEmptyColumnsToggle.addEventListener("change", (event) => {
+      hideEmptyColumns = Boolean(event.target && event.target.checked);
       persistState();
       updateFilterState();
       render();
@@ -873,6 +888,9 @@
   }
   if (previousState && typeof previousState.showCompanionDocs === "boolean") {
     showCompanionDocs = previousState.showCompanionDocs;
+  }
+  if (previousState && typeof previousState.hideEmptyColumns === "boolean") {
+    hideEmptyColumns = previousState.hideEmptyColumns;
   }
   if (previousState && Array.isArray(previousState.collapsedStages)) {
     collapsedStages = new Set(previousState.collapsedStages);

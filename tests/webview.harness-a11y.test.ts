@@ -40,6 +40,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
         <input id="hide-processed-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />
         <input id="show-companion-docs" type="checkbox" />
+        <input id="hide-empty-columns" type="checkbox" />
         <div id="layout" class="layout">
           <div id="board"></div>
           <div id="splitter" role="separator"></div>
@@ -555,6 +556,31 @@ describe("webview harness controls and accessibility", () => {
     }
 
     expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
+  });
+
+  it("hides empty columns in board view when the filter is enabled", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const hideEmptyColumnsToggle = document.getElementById("hide-empty-columns") as HTMLInputElement | null;
+
+    expect(document.querySelector('.column[data-stage="request"]')).not.toBeNull();
+    expect(document.querySelector('.column[data-stage="backlog"]')).not.toBeNull();
+    expect(document.querySelector('.column[data-stage="task"]')).not.toBeNull();
+
+    if (hideEmptyColumnsToggle) {
+      hideEmptyColumnsToggle.checked = true;
+      hideEmptyColumnsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelector('.column[data-stage="request"]')).not.toBeNull();
+    expect(document.querySelector('.column[data-stage="backlog"]')).toBeNull();
+    expect(document.querySelector('.column[data-stage="task"]')).toBeNull();
+    expect(persistedStates.some((state) => state.hideEmptyColumns === true)).toBe(true);
   });
 
   it("applies detail header hierarchy and action emphasis for the selected item", () => {

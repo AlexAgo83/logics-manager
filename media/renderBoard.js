@@ -63,7 +63,8 @@
       getHideCompleted,
       getHideProcessedRequests,
       getHideSpec,
-      getShowCompanionDocs
+      getShowCompanionDocs,
+      getHideEmptyColumns
     } = options;
 
     function captureBoardScroll() {
@@ -101,7 +102,7 @@
     }
 
     function getEmptyBoardMessage() {
-      if (getHideCompleted() || getHideProcessedRequests() || getHideSpec() || getShowCompanionDocs()) {
+      if (getHideCompleted() || getHideProcessedRequests() || getHideSpec() || getShowCompanionDocs() || getHideEmptyColumns()) {
         const filters = [];
         if (getHideCompleted()) {
           filters.push('"Hide completed"');
@@ -114,6 +115,9 @@
         }
         if (getShowCompanionDocs()) {
           filters.push('"Show companion docs"');
+        }
+        if (getHideEmptyColumns()) {
+          filters.push('"Hide empty columns"');
         }
         return `No items match the current filters. Adjust ${filters.join(" and ")} to change the view.`;
       }
@@ -254,6 +258,10 @@
 
     function renderBoardColumns(grouped) {
       getVisibleStages().forEach((stage) => {
+        const stageItems = grouped[stage] || [];
+        if (getHideEmptyColumns() && stageItems.length === 0) {
+          return;
+        }
         const column = document.createElement("div");
         const isCollapsed = getCollapsedStages().has(stage);
         const canCreateFromColumn = isPrimaryFlowStage(stage);
@@ -311,7 +319,6 @@
 
         const body = document.createElement("div");
         body.className = "column__body";
-        const stageItems = grouped[stage] || [];
         if (!stageItems.length) {
           const empty = document.createElement("div");
           empty.className = "column__empty";

@@ -1377,6 +1377,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             <input type="checkbox" id="show-companion-docs" />
             <span>Show companion docs</span>
           </label>
+          <label class="toggle">
+            <input type="checkbox" id="hide-empty-columns" />
+            <span>Hide empty columns</span>
+          </label>
         </div>
         <div class="toolbar__tools">
           <button

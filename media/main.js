@@ -949,6 +949,43 @@
       detailsBody.appendChild(companionSection);
     }
 
+    const primaryFlowItems = collectPrimaryFlowItems(item);
+    if (!isPrimaryFlowStage(item.stage)) {
+      const primaryFlowSection = document.createElement("div");
+      primaryFlowSection.className = "details__section";
+
+      const primaryFlowKey = "primaryFlow";
+      const primaryFlowHeader = createSectionHeader("Primary flow", primaryFlowKey);
+
+      const primaryFlowList = document.createElement("div");
+      primaryFlowList.className = "details__indicators";
+      primaryFlowList.setAttribute("aria-hidden", "false");
+
+      if (primaryFlowItems.length) {
+        primaryFlowItems.forEach((linkedItem) => {
+          primaryFlowList.appendChild(
+            createLinkedIndicatorRow(`${getStageLabel(linkedItem.stage)} • ${linkedItem.id}`, linkedItem.title, linkedItem)
+          );
+        });
+      } else {
+        const empty = document.createElement("div");
+        empty.className = "details__empty";
+        empty.textContent = "No primary workflow item linked yet.";
+        primaryFlowList.appendChild(empty);
+      }
+
+      primaryFlowSection.appendChild(primaryFlowHeader.header);
+      primaryFlowSection.appendChild(primaryFlowList);
+      applySectionCollapse(
+        primaryFlowSection,
+        primaryFlowHeader.title,
+        primaryFlowList,
+        collapsedDetailSections.has(primaryFlowKey)
+      );
+      attachSectionToggle(primaryFlowSection, primaryFlowHeader.title, primaryFlowList, primaryFlowKey);
+      detailsBody.appendChild(primaryFlowSection);
+    }
+
     const refSection = document.createElement("div");
     refSection.className = "details__section";
 

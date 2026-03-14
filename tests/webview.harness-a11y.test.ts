@@ -620,6 +620,48 @@ describe("webview harness controls and accessibility", () => {
     expect(stageSequence).toEqual(["request", "backlog", "task", "product", "architecture", "spec"]);
   });
 
+  it("shows primary flow links in details for supporting docs", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        {
+          ...productItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/request/req_000_kickoff.md" }]
+        }
+      ]
+    });
+
+    const showCompanionDocsToggle = dom.window.document.getElementById("show-companion-docs") as HTMLInputElement | null;
+    if (showCompanionDocsToggle) {
+      showCompanionDocsToggle.checked = true;
+      showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "prod_000_plugin_ux",
+      items: [
+        baseItem,
+        {
+          ...productItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/request/req_000_kickoff.md" }]
+        }
+      ]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("Primary flow");
+    expect(detailsBody?.textContent).toContain("request • req_000_kickoff");
+
+    const openButtons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
+    const openButton = openButtons.find((button) => button.textContent?.trim() === "Open");
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open" && message.id === "req_000_kickoff")).toBe(true);
+  });
+
   it("posts lifecycle actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {

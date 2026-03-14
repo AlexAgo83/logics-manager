@@ -1,8 +1,8 @@
 ## item_028_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
-> From version: X.X.X
+> From version: 1.9.0+
 > Status: Ready
-> Understanding: ??%
-> Confidence: ??%
+> Understanding: 98%
+> Confidence: 97%
 > Progress: 0%
 > Complexity: Medium
 > Theme: General
@@ -39,7 +39,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_023_replace_hide_used_requests_with_hide_processed_requests_semantics`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_022_replace_hide_used_requests_with_hide_processed_requests_semantics`
 
 # Priority
 - Impact:

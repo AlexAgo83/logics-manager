@@ -1,8 +1,8 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.0
+> From version: 1.9.0+
 > Status: Draft
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Complexity: High
 > Theme: Logics kit workflow quality, generation, and governance hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -133,6 +133,7 @@ flowchart TD
 - The preferred execution model is to treat this request as an umbrella topic that will almost certainly split into several focused backlog items rather than one monolithic implementation item.
 - Placeholder handling should start as a strong warning/lint path before becoming a hard blocking rule, to avoid breaking existing repositories too abruptly.
 - The preferred split workflow is explicit, such as `split request` or `split backlog`, rather than an implicit side effect hidden inside another command.
+- The preferred first split implementation is a CLI-driven workflow with explicit parameters and generated links, before any richer interactive UX is attempted.
 - The preferred id-allocation solution is robust under concurrency, for example via a light locking mechanism or an equivalent atomic allocation strategy.
 - For scoped audit, the preferred priority order is:
   - `--refs`

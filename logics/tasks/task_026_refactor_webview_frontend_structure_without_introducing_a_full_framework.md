@@ -1,0 +1,81 @@
+## task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
+> From version: 1.9.0
+> Status: Ready
+> Understanding: 99%
+> Confidence: 98%
+> Progress: 0%
+> Complexity: High
+> Theme: Webview frontend refactor orchestration
+> Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+# Context
+- Derived from backlog item `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`.
+- Source file: `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`.
+- Related request(s): `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`.
+
+This is an orchestration task for the frontend-structure refactor of the webview.
+It should improve maintainability without changing the plugin into a framework-heavy frontend or destabilizing current behavior.
+
+```mermaid
+flowchart LR
+    Backlog[Umbrella backlog item] --> Model[Shared model helpers]
+    Model --> Host[Host bridge extraction]
+    Host --> Details[Detail renderer split]
+    Details --> Board[Board and list renderer split]
+    Board --> CSS[CSS decomposition]
+    CSS --> Validation[Regression validation]
+```
+
+# Plan
+- [ ] 1. Extract shared workflow/model helpers so stage logic and related document resolution stop being duplicated across rendering paths.
+- [ ] 2. Isolate the host communication layer behind clearer frontend bridge functions instead of mixed inline messaging calls.
+- [ ] 3. Split detail-panel and board/list rendering into clearer units while keeping `main.js` as a thin bootstrap entry point.
+- [ ] 4. Reorganize CSS by concern so layout, cards, detail panel, preview, and responsive rules are easier to maintain.
+- [ ] 5. Update tests and wiring so the refactor preserves current behavior and loading simplicity.
+- [ ] FINAL: Update related Logics docs
+
+# AC Traceability
+- AC1 -> Step 1, Step 2, and Step 3. Proof: webview logic is decomposed into explicit modules instead of staying concentrated in one file.
+- AC2 -> Step 1. Proof: shared workflow/model helpers are extracted and reused.
+- AC3 -> Step 2. Proof: host communication moves behind a bridge layer.
+- AC4 -> Step 3. Proof: board/list and detail rendering are separated.
+- AC5 -> Step 4. Proof: CSS structure is organized by UI concern.
+- AC6 -> Step 3 and Step 4. Proof: bootstrap remains lightweight and no framework is introduced.
+- AC7 -> Step 5. Proof: packaging, CSP compatibility, extension loading, and behavior remain stable.
+- AC8 -> Step 5 and FINAL. Proof: automated tests remain green and docs are updated where boundaries change.
+- AC9 -> FINAL. Proof: module boundaries remain pragmatic and understandable to future contributors.
+
+# Decision framing
+- Product framing: Not needed
+- Product signals: (none detected)
+- Architecture framing: Required
+- Architecture signals: data model and persistence, contracts and integration, runtime and boundaries
+
+# Links
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)
+- Backlog item: `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`
+- Request(s): `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
+
+# Validation
+- `npm run compile`
+- `npm run lint`
+- `npm run test`
+- Manual: validate webview load and core interactions after asset/module rewiring.
+- Manual: validate markdown read mode and companion-doc interactions after renderer split.
+
+# Definition of Done (DoD)
+- [ ] Scope implemented and acceptance criteria covered.
+- [ ] Validation commands executed and results captured.
+- [ ] Linked request/backlog/task docs updated.
+- [ ] Status is `Done` and progress is `100%`.
+
+# Report
+- Main focus:
+  - improve maintainability and reviewability of the webview frontend;
+  - preserve the current lightweight asset-loading model;
+  - reduce future regression risk for detail-panel, board, and companion-doc changes.
+- Refactor guardrails:
+  - keep `main.js` as the bootstrap entry point;
+  - do not introduce React, Vue, Svelte, or a comparable framework in this task;
+  - prefer clear responsibility boundaries over splitting files mechanically without a model.

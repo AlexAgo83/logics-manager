@@ -1,8 +1,8 @@
 ## item_029_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
-> From version: X.X.X
+> From version: 1.9.0+
 > Status: Ready
-> Understanding: ??%
-> Confidence: ??%
+> Understanding: 98%
+> Confidence: 97%
 > Progress: 0%
 > Complexity: Medium
 > Theme: General
@@ -39,7 +39,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_024_refine_plugin_detail_panel_identity_and_action_hierarchy`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_023_refine_plugin_detail_panel_identity_and_action_hierarchy`
 
 # Priority
 - Impact:

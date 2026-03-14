@@ -16,6 +16,8 @@
 - Improved detail-panel behavior for long titles and identifiers so the layout remains stable instead of forcing broken overflow behavior.
 - Added a `Hide empty columns` filter option so empty `request`, `backlog`, `task`, and supporting-doc columns can disappear from the board when desired.
 - Fixed `Hide processed requests` so requests are hidden correctly whether linked backlog/task refs are stored as full paths or as Logics ids.
+- Hardened supporting-doc card containment so long titles, ids, and linkage text no longer widen board columns or trigger broken horizontal scrolling.
+- Stabilized the detail-panel `Indicators` grid so long labels and values no longer overlap or collapse into each other.
 
 ### Extension hardening and runtime behavior
 

@@ -272,8 +272,9 @@
 
 .details__reference,
 .details__indicator {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(88px, 120px) minmax(0, 1fr);
+  align-items: start;
   gap: 8px;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
@@ -284,10 +285,12 @@
 .details__indicator > span {
   min-width: 0;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .details__reference span,
 .details__indicator span {
   color: var(--vscode-foreground, #d4d4d4);
-  text-align: right;
+  text-align: left;
+  justify-self: stretch;
 }

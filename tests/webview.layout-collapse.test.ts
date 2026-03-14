@@ -170,6 +170,31 @@ describe("webview collapsed details layout behavior", () => {
     expect(nameValueRule.includes("word-break: break-word;")).toBe(true);
   });
 
+  it("keeps board columns and cards from widening on long supporting-doc text", () => {
+    const css = readCssBundle("media/main.css");
+    const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
+    const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
+    const titleRule = css.match(/\.card__title\s*\{[^}]+\}/)?.[0] || "";
+    const metaRule = css.match(/\.card__meta\s*\{[^}]+\}/)?.[0] || "";
+
+    expect(columnRule.includes("min-inline-size: 0;")).toBe(true);
+    expect(cardRule.includes("min-width: 0;")).toBe(true);
+    expect(cardRule.includes("overflow: hidden;")).toBe(true);
+    expect(titleRule.includes("overflow-wrap: anywhere;")).toBe(true);
+    expect(metaRule.includes("overflow-wrap: anywhere;")).toBe(true);
+  });
+
+  it("keeps detail indicators in a stable two-column grid for long labels and values", () => {
+    const css = readCssBundle("media/main.css");
+    const indicatorRule = css.match(/\.details__reference,\s*\.details__indicator\s*\{[^}]+\}/)?.[0] || "";
+    const indicatorValueRule = css.match(/\.details__reference span,\s*\.details__indicator span\s*\{[^}]+\}/)?.[0] || "";
+
+    expect(indicatorRule.includes("display: grid;")).toBe(true);
+    expect(indicatorRule.includes("grid-template-columns: minmax(88px, 120px) minmax(0, 1fr);")).toBe(true);
+    expect(indicatorValueRule.includes("text-align: left;")).toBe(true);
+    expect(indicatorValueRule.includes("justify-self: stretch;")).toBe(true);
+  });
+
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {
     const { dom, setStacked } = bootstrapWebview(true);
     const document = dom.window.document;

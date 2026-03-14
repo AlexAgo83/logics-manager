@@ -14,6 +14,7 @@
 .column {
   min-width: 220px;
   max-width: 280px;
+  min-inline-size: 0;
   background: var(--vscode-sideBar-background, #252526);
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 8px;
@@ -28,6 +29,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 10px 10px 6px 12px;
+  min-width: 0;
 }
 
 .column__title {
@@ -35,6 +37,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--vscode-descriptionForeground, #9da5b4);
+  min-width: 0;
 }
 
 .column__actions {
@@ -136,6 +139,7 @@
   flex: 1;
   overflow: auto;
   padding-bottom: 8px;
+  min-width: 0;
 }
 
 .column__empty {
@@ -154,6 +158,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .card--progress-bar {
@@ -182,11 +188,17 @@
 .card__title {
   font-size: 13px;
   color: var(--vscode-foreground, #d4d4d4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .card__meta {
   font-size: 11px;
   color: var(--vscode-descriptionForeground, #9da5b4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .card__meta--linkage {

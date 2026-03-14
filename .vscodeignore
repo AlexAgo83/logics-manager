@@ -7,6 +7,8 @@
 !out/extension.js
 !out/**/*.js
 !out/**/*.js.map
+!node_modules/yaml/**
+!node_modules/mermaid/dist/mermaid.min.js
 src/**
 tests/**
 debug/**

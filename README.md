@@ -91,7 +91,14 @@ Run the extension:
 ## Deploy / Release (VSIX)
 
 1. Bump the version in `package.json`.
-2. Build and package:
+2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`.
+3. Validate that the changelog matches the current package version:
+
+```bash
+npm run release:changelog:validate
+```
+
+4. Build and package:
 
 ```bash
 npm run package
@@ -99,13 +106,23 @@ npm run package
 
 This creates `cdx-logics-vscode-<version>.vsix` in the repo root.
 
-3. Smoke-test the package locally:
+5. Smoke-test the package locally:
 
 ```bash
 npm run install:vsix
 ```
 
-4. Distribute the `.vsix` (e.g., attach to a GitHub release or share internally).
+6. Distribute the `.vsix` and use the curated file in `changelogs/` for the GitHub release body when publishing.
+
+## Curated Changelogs
+
+Versioned release notes for the main extension live in [`changelogs/`](/Users/alexandreagostini/Documents/cdx-logics-vscode/changelogs).
+
+Contract:
+- filename pattern: `CHANGELOGS_X_Y_Z.md`
+- version source of truth: root `package.json`
+- helper: `npm run release:changelog:resolve`
+- validation: `npm run release:changelog:validate`
 
 ## Commands
 

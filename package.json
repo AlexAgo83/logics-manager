@@ -82,7 +82,9 @@
     "debug:webview": "node debug/webview/server.mjs",
     "package:ci": "npx @vscode/vsce package --out /tmp/cdx-logics-vscode-ci.vsix",
     "package": "npm run compile && npx @vscode/vsce package",
-    "install:vsix": "npm run package && code --install-extension cdx-logics-vscode-$(node -p \"require('./package.json').version\").vsix --force"
+    "install:vsix": "npm run package && code --install-extension cdx-logics-vscode-$(node -p \"require('./package.json').version\").vsix --force",
+    "release:changelog:resolve": "node scripts/release/resolve-release-changelog.mjs --validate-current",
+    "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

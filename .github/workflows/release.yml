@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure tag matches package version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "v${PACKAGE_VERSION}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version v${PACKAGE_VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Extension smoke checks
+        run: npm run test:smoke
+
+      - name: Logics docs lint
+        run: npm run lint:logics
+
+      - name: Resolve curated changelog
+        id: release_changelog
+        run: node scripts/release/resolve-release-changelog.mjs "${{ github.ref_name }}" --github-output "$GITHUB_OUTPUT"
+
+      - name: Package VSIX
+        run: npm run package
+
+      - name: Create GitHub release (curated changelog)
+        if: steps.release_changelog.outputs.found == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.release_changelog.outputs.body_path }}
+          generate_release_notes: false
+          files: cdx-logics-vscode-${{ steps.release_changelog.outputs.version }}.vsix
+
+      - name: Create GitHub release (generated fallback)
+        if: steps.release_changelog.outputs.found != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: cdx-logics-vscode-${{ steps.release_changelog.outputs.version }}.vsix

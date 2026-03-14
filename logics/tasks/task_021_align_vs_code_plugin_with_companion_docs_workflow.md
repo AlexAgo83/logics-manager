@@ -1,9 +1,9 @@
 ## task_021_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.8.1
-> Status: In Progress
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 92%
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Companion docs workflow orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -46,8 +46,8 @@ flowchart LR
 - [x] 2. Deliver `item_023` and `item_024` first so managed-doc typing, indexing, and reference maintenance are stable before UI work starts.
 - [x] 3. Deliver `item_025` and `item_026` on top of the new managed-doc model so the details panel, navigation flows, and visibility controls stay coherent.
 - [x] 4. Deliver `item_027`, including explicit companion-doc creation flows and regression coverage across host logic, webview behavior, and managed-doc operations.
-- [ ] 5. Run full validation across compile, lint, tests, and Logics checks, then update all linked request/backlog/task docs with the final traceability evidence.
-- [ ] FINAL: Update related Logics docs
+- [x] 5. Run full validation across compile, lint, tests, and Logics checks, then update all linked request/backlog/task docs with the final traceability evidence.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Step 2 and Step 3. Proof: child items `023` to `026` completed with linked code and test evidence.
@@ -82,12 +82,13 @@ flowchart LR
 - Manual: validate companion-doc navigation from the details panel in both board and list modes.
 - Manual: validate supporting-doc visibility controls and default hide/show behavior.
 - Manual: validate companion-doc creation flow from the plugin without regressing existing request/backlog/task flows.
+- Note: `npm run audit:logics` still reports unrelated historical debt in older Logics docs; request/item/task `022/021` were aligned during this close-out.
 
 # Definition of Done (DoD)
-- [x] Scope implemented and acceptance criteria covered for child items `023` to `027`; orchestration close-out still pending.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered for child items `023` to `027`.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Current state:
@@ -96,4 +97,9 @@ flowchart LR
   - details panel now exposes companion docs, specs, and primary-flow backlinks with `Open` / `Read`;
   - supporting-doc visibility remains secondary and explicitly toggleable;
   - companion-doc creation is available from details, tools, and command palette;
-  - automated coverage currently passes on compile and test.
+  - automated coverage passes on compile, lint, and test.
+- Validation evidence:
+  - `npm run compile`: OK
+  - `npm run lint`: OK
+  - `npm run test`: OK (`48` tests green at close-out)
+  - `npm run audit:logics`: global audit still fails on pre-existing older Logics debt outside this task scope.

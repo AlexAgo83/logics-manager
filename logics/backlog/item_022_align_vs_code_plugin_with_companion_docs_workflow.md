@@ -1,9 +1,9 @@
 ## item_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.9.0
-> Status: In Progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 92%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: VS Code orchestration and companion docs
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -46,6 +46,15 @@ flowchart LR
 # AC Traceability
 - AC1 -> Child items `item_023` to `item_027` created. Proof: linked below.
 - AC2 -> Each child item references `req_022_align_vs_code_plugin_with_companion_docs_workflow`. Proof: linked below.
+- AC3 -> `item_025` and `task_021`. Proof: details panel exposes `Companion docs` with navigation and read/open actions.
+- AC4 -> `item_024` and `task_021`. Proof: rename and reference maintenance cover `request`, `backlog`, `task`, `spec`, `product`, and `architecture`.
+- AC5 -> `item_027` and `task_021`. Proof: generic and contextual companion-doc creation flows are available from the plugin.
+- AC6 -> `item_026` and `task_021`. Proof: secondary visibility toggles, labels, and controls stay consistent with the delivery-first model.
+- AC7 -> `item_027` and `task_021`. Proof: compile, lint, and test validations remain green after the rollout.
+- AC8 -> `item_023` to `item_027` and `task_021`. Proof: regression coverage spans indexer, maintenance, and webview behavior.
+- AC9 -> `item_026`, `item_027`, and `task_021`. Proof: tests cover filter defaults, toggles, and companion-doc action routing.
+- AC10 -> `item_023` and `task_021`. Proof: stage-family assumptions are centralized instead of scattered.
+- AC11 -> `item_026` and `task_021`. Proof: supporting docs stay secondary and filterable rather than default-dominant.
 
 # Decision framing
 - Product framing: Required
@@ -78,4 +87,4 @@ flowchart LR
   - details-panel companion/supporting-doc navigation delivered;
   - visibility controls for supporting docs delivered;
   - companion-doc creation flows and regression coverage delivered;
-  - remaining work is mostly final convergence and close-out of the orchestration task.
+  - orchestration and close-out handled in `task_021`.

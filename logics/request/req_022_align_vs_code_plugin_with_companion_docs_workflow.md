@@ -1,8 +1,8 @@
 ## req_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.8.1
-> Status: Draft
+> Status: Done
 > Understanding: 99%
-> Confidence: 97%
+> Confidence: 99%
 > Complexity: High
 > Theme: VS Code orchestration, companion docs, and workflow coherence
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -145,9 +145,25 @@ flowchart TD
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
 
+# AC Traceability
+- AC1 -> `item_023` and `task_021`. Proof: `src/logicsIndexer.ts` and `tests/logicsIndexer.test.ts` cover `product` / `architecture` managed-doc indexing.
+- AC2 -> `item_025`, `item_026`, and `task_021`. Proof: `media/main.js` keeps `request` / `backlog` / `task` primary while exposing `product` / `architecture` contextually and secondarily.
+- AC3 -> `item_025` and `task_021`. Proof: `media/main.js` details panel exposes a dedicated `Companion docs` section with linked navigation.
+- AC4 -> `item_024` and `task_021`. Proof: `src/logicsDocMaintenance.ts`, `src/extension.ts`, and `tests/logicsDocMaintenance.test.ts` cover rename/reference maintenance across managed doc families.
+- AC5 -> `item_027` and `task_021`. Proof: `package.json`, `src/extension.ts`, `media/main.js`, and `tests/webview.harness-a11y.test.ts` cover generic and contextual companion-doc creation flows.
+- AC6 -> `item_026`, `item_027`, and `task_021`. Proof: `media/main.js` and `tests/webview.harness-a11y.test.ts` cover labels, toggles, button routing, and secondary visibility behavior.
+- AC7 -> `item_027` and `task_021`. Proof: `npm run compile`, `npm run lint`, and `npm run test` pass after companion-doc support landed.
+- AC8 -> `item_023`, `item_024`, `item_025`, `item_026`, `item_027`, and `task_021`. Proof: automated coverage spans indexer, maintenance, and webview layers.
+- AC9 -> `item_026`, `item_027`, and `task_021`. Proof: `tests/webview.harness-a11y.test.ts` covers default filter state, toggle behavior, and creation/open routing.
+- AC10 -> `item_023` and `task_021`. Proof: `src/logicsIndexer.ts` centralizes stage families, ordering, and managed-doc directories shared by host logic.
+- AC11 -> `item_026` and `task_021`. Proof: companion docs remain hidden by default and are only surfaced through explicit secondary visibility controls.
+
 # Companion docs
 - Product brief(s): `logics/product/prod_000_companion_docs_ux_for_the_vs_code_plugin.md`
 - Architecture decision(s): `logics/architecture/adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model.md`
+
+# Task
+- `logics/tasks/task_021_align_vs_code_plugin_with_companion_docs_workflow.md`
 
 # Backlog
 - `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`
@@ -156,3 +172,17 @@ flowchart TD
 - `logics/backlog/item_025_add_companion_docs_section_and_navigation_in_plugin_details_panel.md`
 - `logics/backlog/item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md`
 - `logics/backlog/item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md`
+
+# Report
+- Delivered:
+  - managed-doc indexing and shared stage modeling for `product` and `architecture`;
+  - rename/reference maintenance coverage across all managed-doc families;
+  - contextual `Companion docs`, `Specs`, and `Primary flow` sections in plugin details;
+  - secondary supporting-doc visibility controls and card badges in board/list views;
+  - companion-doc creation from details, tools, and command palette with regression coverage.
+- Validation:
+  - `npm run compile`: OK
+  - `npm run lint`: OK
+  - `npm run test`: OK
+  - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`: OK
+  - `npm run audit:logics`: plugin request/task changes are aligned, but the global audit still reports older historical Logics debt elsewhere in the repo.

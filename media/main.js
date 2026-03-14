@@ -676,6 +676,13 @@
       card.appendChild(companionBadges);
     }
 
+    if (!compact && !isPrimaryFlowStage(item.stage)) {
+      const supportMeta = document.createElement("div");
+      supportMeta.className = "card__meta";
+      supportMeta.textContent = `${getStageLabel(item.stage)} • ${item.id}`;
+      card.appendChild(supportMeta);
+    }
+
     const primaryFlowSummary = createPrimaryFlowSummary(item);
     if (primaryFlowSummary) {
       const linkage = document.createElement("div");

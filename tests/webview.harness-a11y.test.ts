@@ -637,6 +637,9 @@ describe("webview harness controls and accessibility", () => {
     );
     expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
+    expect(document.querySelector('.column[data-stage="product"] .card__meta')?.textContent).toContain(
+      "product brief • prod_000_plugin_ux"
+    );
     expect(document.querySelector('.column[data-stage="product"] .card__meta--linkage')?.textContent).toContain(
       "For request • req_000_kickoff"
     );

@@ -1,8 +1,8 @@
 ## req_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
-> From version: 1.8.0
+> From version: 1.8.1
 > Status: Draft
-> Understanding: 97%
-> Confidence: 94%
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: High
 > Theme: VS Code orchestration, companion docs, and workflow coherence
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -146,8 +146,13 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # Companion docs
-- Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Product brief(s): `logics/product/prod_000_companion_docs_ux_for_the_vs_code_plugin.md`
+- Architecture decision(s): `logics/architecture/adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model.md`
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`
+- `logics/backlog/item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md`
+- `logics/backlog/item_024_extend_plugin_rename_and_reference_maintenance_to_companion_docs.md`
+- `logics/backlog/item_025_add_companion_docs_section_and_navigation_in_plugin_details_panel.md`
+- `logics/backlog/item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md`
+- `logics/backlog/item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md`

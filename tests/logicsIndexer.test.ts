@@ -2,14 +2,30 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { afterEach, describe, expect, it } from "vitest";
-import { canPromote, indexLogics, isRequestUsed, promotionCommand } from "../src/logicsIndexer";
+import {
+  canPromote,
+  compareStages,
+  getManagedDocDirectories,
+  indexLogics,
+  inferStage,
+  isRequestUsed,
+  promotionCommand,
+  STAGE_ORDER
+} from "../src/logicsIndexer";
 
 const tempRoots: string[] = [];
 
 function mkRepo(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-indexer-"));
   tempRoots.push(root);
-  for (const dir of ["logics/request", "logics/backlog", "logics/tasks", "logics/specs"]) {
+  for (const dir of [
+    "logics/request",
+    "logics/backlog",
+    "logics/tasks",
+    "logics/product",
+    "logics/architecture",
+    "logics/specs"
+  ]) {
     fs.mkdirSync(path.join(root, dir), { recursive: true });
   }
   return root;
@@ -146,6 +162,40 @@ describe("logicsIndexer", () => {
     expect(items).toHaveLength(1);
     expect(items[0].stage).toBe("spec");
     expect(items[0].id).toBe("req_002_acceptance_traceability");
+  });
+
+  it("indexes product and architecture companion docs and preserves stage order", () => {
+    const root = mkRepo();
+    write(root, "logics/product/prod_000_plugin_ux.md", "## prod_000_plugin_ux - Plugin UX");
+    write(root, "logics/architecture/adr_000_plugin_model.md", "## adr_000_plugin_model - Plugin Model");
+    write(root, "logics/request/req_003_plugin.md", "## req_003_plugin - Plugin Request");
+    write(root, "logics/specs/spec_003_plugin.md", "## spec_003_plugin - Plugin Spec");
+
+    const items = indexLogics(root);
+    expect(items.map((item) => item.stage)).toEqual(["request", "product", "architecture", "spec"]);
+    expect(items.find((item) => item.id === "prod_000_plugin_ux")?.stage).toBe("product");
+    expect(items.find((item) => item.id === "adr_000_plugin_model")?.stage).toBe("architecture");
+  });
+
+  it("infers companion doc stages from managed directories and prefixes", () => {
+    expect(inferStage("logics/product/prod_002_flow.md", "prod_002_flow")).toBe("product");
+    expect(inferStage("logics/architecture/adr_002_flow.md", "adr_002_flow")).toBe("architecture");
+    expect(inferStage("logics/specs/req_004_traceability.md", "req_004_traceability")).toBe("spec");
+  });
+
+  it("exposes managed directories and ordering helpers for all logics doc families", () => {
+    const root = mkRepo();
+    expect(STAGE_ORDER).toEqual(["request", "backlog", "task", "product", "architecture", "spec"]);
+    expect(compareStages("task", "product")).toBeLessThan(0);
+    expect(compareStages("architecture", "spec")).toBeLessThan(0);
+    expect(getManagedDocDirectories(root).map((dir) => path.relative(root, dir).replace(/\\/g, "/"))).toEqual([
+      "logics/request",
+      "logics/backlog",
+      "logics/tasks",
+      "logics/product",
+      "logics/architecture",
+      "logics/specs"
+    ]);
   });
 
   it("exposes promotion guard helpers", () => {

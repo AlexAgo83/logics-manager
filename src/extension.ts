@@ -1,7 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { canPromote, indexLogics, isRequestUsed, LogicsItem, promotionCommand } from "./logicsIndexer";
+import {
+  canPromote,
+  getManagedDocDirectories,
+  indexLogics,
+  isRequestUsed,
+  LogicsItem,
+  promotionCommand
+} from "./logicsIndexer";
 import {
   AgentDefinition,
   AgentRegistrySnapshot,
@@ -1645,7 +1652,7 @@ type RenameTarget = {
 };
 
 function parseRenameTarget(id: string): RenameTarget | null {
-  const match = id.match(/^(req|item|task)_(\d+)(?:_(.+))?$/);
+  const match = id.match(/^(req|item|task|prod|adr)_(\d+)(?:_(.+))?$/);
   if (!match) {
     return null;
   }
@@ -1778,12 +1785,7 @@ function updateManagedReferencesForRename(
 }
 
 function collectManagedMarkdownFiles(root: string): string[] {
-  const targets = [
-    path.join(root, "logics", "request"),
-    path.join(root, "logics", "backlog"),
-    path.join(root, "logics", "tasks"),
-    path.join(root, "logics", "specs")
-  ];
+  const targets = getManagedDocDirectories(root);
   const files: string[] = [];
 
   for (const dir of targets) {

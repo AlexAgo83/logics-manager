@@ -1,7 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
 
-export type LogicsStage = "request" | "backlog" | "task" | "spec";
+export type LogicsStage = "request" | "backlog" | "task" | "product" | "architecture" | "spec";
+
+export type ManagedDocFamily = {
+  stage: LogicsStage;
+  dir: string;
+  prefixes: string[];
+  isPrimaryFlow: boolean;
+};
 
 export interface LogicsItem {
   id: string;
@@ -29,12 +36,18 @@ export interface LogicsUsage {
   stage: LogicsStage;
   relPath: string;
 }
-const STAGES: Array<{ stage: LogicsStage; dir: string; prefixes: string[] }> = [
-  { stage: "request", dir: "logics/request", prefixes: ["req_"] },
-  { stage: "backlog", dir: "logics/backlog", prefixes: ["item_"] },
-  { stage: "task", dir: "logics/tasks", prefixes: ["task_"] },
-  { stage: "spec", dir: "logics/specs", prefixes: ["spec_", "req_"] }
+
+export const MANAGED_DOC_FAMILIES: ManagedDocFamily[] = [
+  { stage: "request", dir: "logics/request", prefixes: ["req_"], isPrimaryFlow: true },
+  { stage: "backlog", dir: "logics/backlog", prefixes: ["item_"], isPrimaryFlow: true },
+  { stage: "task", dir: "logics/tasks", prefixes: ["task_"], isPrimaryFlow: true },
+  { stage: "product", dir: "logics/product", prefixes: ["prod_"], isPrimaryFlow: false },
+  { stage: "architecture", dir: "logics/architecture", prefixes: ["adr_"], isPrimaryFlow: false },
+  { stage: "spec", dir: "logics/specs", prefixes: ["spec_", "req_"], isPrimaryFlow: false }
 ];
+
+export const STAGE_ORDER = MANAGED_DOC_FAMILIES.map((family) => family.stage);
+const STAGE_ORDER_INDEX = new Map(STAGE_ORDER.map((stage, index) => [stage, index]));
 
 export function indexLogics(root: string): LogicsItem[] {
   const items: LogicsItem[] = [];
@@ -42,8 +55,8 @@ export function indexLogics(root: string): LogicsItem[] {
   const usageMap = new Map<string, LogicsUsage[]>();
   const manualUsedByMap = new Map<string, string[]>();
 
-  for (const stageInfo of STAGES) {
-    const dirPath = path.join(root, stageInfo.dir);
+  for (const family of MANAGED_DOC_FAMILIES) {
+    const dirPath = path.join(root, family.dir);
     if (!fs.existsSync(dirPath)) {
       continue;
     }
@@ -53,7 +66,7 @@ export function indexLogics(root: string): LogicsItem[] {
       if (!entry.isFile() || !entry.name.endsWith(".md")) {
         continue;
       }
-      if (!stageInfo.prefixes.some((prefix) => entry.name.startsWith(prefix))) {
+      if (!family.prefixes.some((prefix) => entry.name.startsWith(prefix))) {
         continue;
       }
 
@@ -80,7 +93,7 @@ export function indexLogics(root: string): LogicsItem[] {
       items.push({
         id: entry.name.replace(/\.md$/, ""),
         title,
-        stage: stageInfo.stage,
+        stage: family.stage,
         path: fullPath,
         relPath,
         filename: entry.name,
@@ -121,7 +134,7 @@ export function indexLogics(root: string): LogicsItem[] {
     item.usedBy = mergeUsages(autoUsedBy, manualUsedBy);
   }
 
-  items.sort((a, b) => a.stage.localeCompare(b.stage) || a.id.localeCompare(b.id));
+  items.sort((a, b) => compareStages(a.stage, b.stage) || a.id.localeCompare(b.id));
   return items;
 }
 
@@ -301,17 +314,33 @@ function toUsage(relPath: string, items: LogicsItem[], root: string): LogicsUsag
   };
 }
 
-function inferStage(relPathLower: string, fileName: string): LogicsStage {
-  if (relPathLower.includes("/request/") || fileName.startsWith("req_")) {
-    return "request";
+export function inferStage(relPathLower: string, fileName: string): LogicsStage {
+  const normalizedRelPath = relPathLower.replace(/\\/g, "/").replace(/^\.\//, "");
+  for (const family of MANAGED_DOC_FAMILIES) {
+    const normalizedDir = family.dir.toLowerCase();
+    if (
+      normalizedRelPath.startsWith(`${normalizedDir}/`) ||
+      normalizedRelPath.includes(`/${normalizedDir}/`)
+    ) {
+      return family.stage;
+    }
   }
-  if (relPathLower.includes("/backlog/") || fileName.startsWith("item_")) {
-    return "backlog";
-  }
-  if (relPathLower.includes("/tasks/") || fileName.startsWith("task_")) {
-    return "task";
+  for (const family of MANAGED_DOC_FAMILIES) {
+    if (family.prefixes.some((prefix) => fileName.startsWith(prefix))) {
+      return family.stage;
+    }
   }
   return "spec";
+}
+
+export function compareStages(left: LogicsStage, right: LogicsStage): number {
+  const leftIndex = STAGE_ORDER_INDEX.get(left) ?? Number.MAX_SAFE_INTEGER;
+  const rightIndex = STAGE_ORDER_INDEX.get(right) ?? Number.MAX_SAFE_INTEGER;
+  return leftIndex - rightIndex;
+}
+
+export function getManagedDocDirectories(root: string): string[] {
+  return MANAGED_DOC_FAMILIES.map((family) => path.join(root, family.dir));
 }
 
 function mergeUsages(...groups: LogicsUsage[][]): LogicsUsage[] {
@@ -324,7 +353,7 @@ function mergeUsages(...groups: LogicsUsage[][]): LogicsUsage[] {
       deduped.set(usage.relPath, usage);
     }
   }
-  return Array.from(deduped.values()).sort((a, b) => a.stage.localeCompare(b.stage) || a.id.localeCompare(b.id));
+  return Array.from(deduped.values()).sort((a, b) => compareStages(a.stage, b.stage) || a.id.localeCompare(b.id));
 }
 
 export function canPromote(stage: LogicsStage): boolean {

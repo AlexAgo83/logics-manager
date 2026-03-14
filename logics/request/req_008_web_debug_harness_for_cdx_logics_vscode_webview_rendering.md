@@ -1,8 +1,8 @@
 ## req_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering - Web Debug Harness for cdx-logics-vscode Webview Rendering
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 99% (audit-aligned)
+> Confidence: 97% (governed)
 > Complexity: Medium
 > Theme: Front-End Debugging Workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -46,10 +46,10 @@ A local harness should serve the same assets and emulate extension messages to r
   - Production packaging/distribution changes.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering.md`

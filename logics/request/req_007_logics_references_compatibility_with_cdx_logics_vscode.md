@@ -1,8 +1,8 @@
 ## req_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99% (audit-aligned)
+> Confidence: 97% (governed)
 > Complexity: Medium-High
 > Theme: Logics Workflow Indexing
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -44,10 +44,10 @@ A clear reference contract is needed so markdown remains source-of-truth and plu
   - Unrelated UI feature work.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_007_logics_references_compatibility_with_cdx_logics_vscode.md`

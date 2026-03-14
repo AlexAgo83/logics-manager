@@ -1,8 +1,8 @@
 ## req_009_add_automated_tests_and_github_ci_workflow_script - Add automated tests and GitHub CI workflow script
-> From version: 1.0.6-b1
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99% (audit-aligned)
+> Confidence: 97% (governed)
 > Complexity: Medium
 > Theme: Quality and CI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -44,10 +44,10 @@ The request focuses on a practical baseline:
   - Advanced quality gates not required for initial baseline.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `logics/backlog/item_009_add_automated_tests_and_github_ci_workflow_script.md`

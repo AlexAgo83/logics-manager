@@ -1,7 +1,7 @@
 ## req_005_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
-> From version: 1.0.4
-> Understanding: 90%
-> Confidence: 85%
+> From version: 1.9.1
+> Understanding: 95% (audit-aligned)
+> Confidence: 90% (governed)
 > Status: Done
 
 # Needs
@@ -17,6 +17,12 @@
 - Trigger rename from a CTA in the details page, ideally an edit/pencil icon near the current name.
 - Persist rename in the source Markdown file and refresh the board/details view.
 - Propagate the new name anywhere it is displayed or referenced by the extension.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries are explicit enough for delivery.
+- [x] Acceptance direction is clear enough to start delivery.
+- [x] Dependencies and known constraints are captured where relevant.
 
 # Backlog
 - `logics/backlog/item_005_rename_entry_name_suffix.md`

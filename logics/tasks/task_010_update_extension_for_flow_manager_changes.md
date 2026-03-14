@@ -1,9 +1,9 @@
 ## task_010_update_extension_for_flow_manager_changes - Update extension for flow manager changes
-> From version: 1.0.5
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 99% (audit-aligned)
+> Confidence: 96% (governed)
+> Progress: 100% (governed)
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -28,6 +28,12 @@ Align extension flow-manager invocations and UX with the latest Logics skills ki
 - Manual: Promote Backlog -> Task (if used) creates a valid task doc.
 - Manual: Error messaging is clear when scripts are missing or fail.
 - Manual: Refresh preserves correct board/details data.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Updated the extension to use the flow manager script for all create actions (request/backlog/task), added consistent script-path checks and clearer error messaging, and kept indicator parsing compatible with new templates (Complexity/Theme/Reminder). Manual smoke checks were validated end-to-end (new request, request->backlog promotion, backlog->task promotion, board/details refresh), and README now documents flow-manager compatibility baseline plus a smoke checklist. Validation passes via `npm run compile`, `npm run test`, and `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`.

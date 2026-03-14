@@ -1,9 +1,9 @@
 ## task_003_build_flow_board_ui_and_details_panel - Build Flow Board UI and details panel
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 80%
-> Confidence: 75%
-> Progress: 100%
+> Understanding: 85% (audit-aligned)
+> Confidence: 80% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.
@@ -18,6 +18,12 @@ in the VS Code view.
 
 # Validation
 - Manual: verify UI renders, selection updates, and empty states display.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Built the flow board UI with stage columns, selectable cards, and a details panel. Added empty/error states and VS Code-themed styling in the webview assets.

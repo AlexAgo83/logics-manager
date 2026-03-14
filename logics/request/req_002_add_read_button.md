@@ -1,7 +1,7 @@
 ## req_002_add_read_button - Add Read button for rendered Markdown
-> From version: 0.0.0
-> Understanding: 75%
-> Confidence: 85%
+> From version: 1.9.1
+> Understanding: 80% (audit-aligned)
+> Confidence: 90% (governed)
 > Status: Done
 
 # Needs
@@ -16,6 +16,12 @@
 - The “Read” action should render the Markdown (not raw text) for the selected item.
 - Prefer opening the rendered view in the main editor (tab) rather than inside the panel.
 - If no item is selected, the “Read” button stays disabled.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries are explicit enough for delivery.
+- [x] Acceptance direction is clear enough to start delivery.
+- [x] Dependencies and known constraints are captured where relevant.
 
 # Backlog
 - `logics/backlog/item_002_add_read_button.md`

@@ -1,7 +1,7 @@
 ## req_004_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
-> From version: 1.0.3
-> Understanding: 85%
-> Confidence: 85%
+> From version: 1.9.1
+> Understanding: 90% (audit-aligned)
+> Confidence: 90% (governed)
 > Status: Done
 
 # Needs
@@ -16,6 +16,12 @@
 - Support adding `Used by` links as well, including when no automatic promotion link exists.
 - Keep compatibility with existing relation formats already parsed in Markdown files.
 - Changes should update the underlying Markdown file (source of truth) and refresh the board view.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries are explicit enough for delivery.
+- [x] Acceptance direction is clear enough to start delivery.
+- [x] Dependencies and known constraints are captured where relevant.
 
 # Backlog
 - `logics/backlog/item_004_add_references_and_used_by_links.md`

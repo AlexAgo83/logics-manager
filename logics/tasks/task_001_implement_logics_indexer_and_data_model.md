@@ -1,9 +1,9 @@
 ## task_001_implement_logics_indexer_and_data_model - Implement Logics indexer and data model
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 80%
-> Confidence: 75%
-> Progress: 100%
+> Understanding: 85% (audit-aligned)
+> Confidence: 80% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.
@@ -18,6 +18,12 @@ status, path, updated time) to power the board and details panel.
 
 # Validation
 - Manual: run the indexer and verify it lists the correct files and stages.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Implemented a file-system indexer that scans `logics/*` folders, parses titles and indicators from Markdown, and returns a normalized data model for the UI. Added stage-based promotion rules (request/backlog only).

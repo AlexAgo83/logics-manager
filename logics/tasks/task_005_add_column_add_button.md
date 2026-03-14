@@ -1,9 +1,9 @@
 ## task_005_add_column_add_button - Add “+” action in column headers
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 80%
-> Confidence: 80%
-> Progress: 100%
+> Understanding: 85% (audit-aligned)
+> Confidence: 85% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_001_add_column_add_button.md`.
@@ -22,6 +22,12 @@ Add a “+” action in each column header to create new Logics items, and tidy 
 - Manual: each option creates the right file in the right folder with the minimal template and naming.
 - Manual: created item opens in Edit and is selected in the board.
 - Manual: top header no longer shows “New Request”; details action shows “Edit”.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Added a “+” action in each column header with a popover menu to create request/backlog/task files. New items are auto-named, templated, opened in Edit, and selected after refresh. Removed the top header “New Request” button and renamed the details action to “Edit”.

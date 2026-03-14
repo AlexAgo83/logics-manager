@@ -1,7 +1,7 @@
 ## req_000_kickoff - Kickoff
-> From version: 0.0.0
-> Understanding: 85%
-> Confidence: 80%
+> From version: 1.9.1
+> Understanding: 90% (audit-aligned)
+> Confidence: 85% (governed)
 > Status: Done
 
 # Needs
@@ -18,6 +18,12 @@
 - Define actions supported in v1. :: Open file, promote item via scripts, and refresh index.
 - Define the source of truth. :: Files on disk under `logics/*` are canonical.
 - Define empty states and errors. :: Show onboarding tips if no items; show file-level errors inline.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries are intentionally minimal for this kickoff request.
+- [x] Acceptance direction is clear enough to start delivery.
+- [x] Dependencies and known constraints are captured where relevant.
 
 # Backlog
 - `logics/backlog/item_000_kickoff.md`

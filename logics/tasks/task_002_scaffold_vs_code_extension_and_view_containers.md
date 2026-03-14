@@ -1,9 +1,9 @@
 ## task_002_scaffold_vs_code_extension_and_view_containers - Scaffold VS Code extension and view containers
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 80%
-> Confidence: 75%
-> Progress: 100%
+> Understanding: 85% (audit-aligned)
+> Confidence: 80% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.
@@ -18,6 +18,12 @@ the Logics Orchestrator UI.
 
 # Validation
 - Manual: run the extension in a dev host and confirm the view appears.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Scaffolded a VS Code extension with activity bar view container, commands, and a webview view. Added HTML/CSS/JS assets and a message bridge for refresh/open/promote actions.

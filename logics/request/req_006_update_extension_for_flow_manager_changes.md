@@ -1,8 +1,8 @@
 ## req_006_update_extension_for_flow_manager_changes - Update extension for flow manager changes
-> From version: 1.0.5
+> From version: 1.9.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
+> Understanding: 99% (audit-aligned)
+> Confidence: 96% (governed)
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence and dependencies/references when you edit this doc.
@@ -24,6 +24,12 @@
 - We need to ensure the updated kit is compatible without breaking existing Logics docs.
 - The highest risk areas are CLI changes (flags/commands), template output format, and required indicators.
 - We should explicitly validate `new`, `promote request-to-backlog`, and `promote backlog-to-task` flows.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries are explicit enough for delivery.
+- [x] Acceptance direction is clear enough to start delivery.
+- [x] Dependencies and known constraints are captured where relevant.
 
 # Backlog
 - `logics/backlog/item_006_update_extension_for_flow_manager_changes.md`

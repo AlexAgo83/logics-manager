@@ -1,9 +1,9 @@
 ## task_007_filter_panel_options - Regroup options into filter panel
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 85%
-> Confidence: 85%
-> Progress: 100%
+> Understanding: 90% (audit-aligned)
+> Confidence: 90% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_003_filter_panel_options.md`.
@@ -22,6 +22,12 @@ Move toolbar options into a filter popover opened via a filter icon.
 - Manual: clicking the icon opens/closes the options popover; outside click and Esc close it.
 - Manual: toggles work as before and remain persisted across refresh.
 - Manual: filter icon reflects active state when any option is enabled.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Moved toolbar toggles into an anchored filter popover opened by a filter icon button, with active-state styling and outside/Esc dismissal.

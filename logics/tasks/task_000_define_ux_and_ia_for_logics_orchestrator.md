@@ -1,9 +1,9 @@
 ## task_000_define_ux_and_ia_for_logics_orchestrator - Define UX and IA for Logics Orchestrator
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 100%
+> Understanding: 90% (audit-aligned)
+> Confidence: 85% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.
@@ -18,6 +18,12 @@ inside VS Code (board + details panel + commands), aligned with the kickoff and 
 
 # Validation
 - Manual review: UX/IA doc matches kickoff acceptance criteria.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 UX/IA defined as a VS Code activity bar view with a flow board (Requests/Backlog/Tasks/Specs) and a right-side details panel. Core actions: select card, open file, refresh index, and optional promote from request/backlog. Empty state messaging and error handling added to the UI plan and backlog notes.

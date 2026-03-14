@@ -1,9 +1,9 @@
 ## task_009_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
-> From version: 1.0.4
+> From version: 1.9.1
 > Status: Done
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 100%
+> Understanding: 90% (audit-aligned)
+> Confidence: 85% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_005_rename_entry_name_suffix.md`.
@@ -27,6 +27,12 @@ Implement suffix-only rename for Logics entries, triggered from details view, wi
 - Manual: invalid names and collisions are blocked with explicit feedback.
 - Manual: changes persist after refresh/reload.
 - Automated: `npm run compile` ✅
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Implemented suffix-only rename from details panel with an inline pencil CTA near the entry name. Added a new webview action (`rename-entry`) and extension handler that validates input, preserves immutable `<type>_<num>_` prefix, renames the Markdown file, updates the top heading ID when it matches old ID, rewrites managed relation references (`References`, `Used by`, promotion/derived/backlog links) across Logics docs, and refreshes board/details with the new selected ID. Added guardrails for invalid suffixes, collisions, unsupported stages, and rename/update failures.

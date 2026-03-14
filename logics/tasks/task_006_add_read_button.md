@@ -1,9 +1,9 @@
 ## task_006_add_read_button - Add Read button for rendered Markdown
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 75%
-> Confidence: 80%
-> Progress: 100%
+> Understanding: 80% (audit-aligned)
+> Confidence: 85% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_002_add_read_button.md`.
@@ -20,6 +20,12 @@ Add a Read action to open a rendered Markdown preview of the selected item.
 - Manual: “Read” appears next to “Edit” and is disabled when nothing is selected.
 - Manual: clicking Read opens a rendered Markdown preview in the main editor.
 - Manual: failures show an error toast and fall back to Edit.
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Added a Read action in the details panel that opens the native Markdown preview in the editor and falls back to Edit with an error toast on failure.

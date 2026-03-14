@@ -1,9 +1,9 @@
 ## task_008_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
-> From version: 0.0.0
+> From version: 1.9.1
 > Status: Done
-> Understanding: 80%
-> Confidence: 80%
-> Progress: 100%
+> Understanding: 85% (audit-aligned)
+> Confidence: 85% (governed)
+> Progress: 100% (governed)
 
 # Context
 Derived from `logics/backlog/item_004_add_references_and_used_by_links.md`.
@@ -27,6 +27,12 @@ UX decision: place `+` actions in `References` / `Used by` section headers, with
 - Manual: links are written to disk and still present after refresh/reload.
 - Manual: existing relation formats still render correctly in details.
 - Automated: `npm run compile` ✅
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance direction covered.
+- [x] Validation executed at the level expected for this task.
+- [x] Linked request/backlog/task docs updated where relevant.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 Implemented contextual relation editing in the details panel (`References` / `Used by`) with section-header `+` actions and empty-state CTAs. Added extension handlers to pick links (existing items or custom path), write updates into Markdown sections, refresh selection, and avoid duplicates. Extended indexer parsing to include manual references and manual used-by links while preserving existing promoted/derived/backlog relation parsing.

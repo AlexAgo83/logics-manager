@@ -436,6 +436,14 @@ input[type="checkbox"]:focus-visible,
   color: var(--vscode-textLink-foreground, #4ea1ff);
 }
 
+.card__meta--linkage.card__meta--orphan {
+  font-style: italic;
+}
+
+.details__inline-cta--primary {
+  font-weight: 600;
+}
+
 .card__badges {
   display: flex;
   flex-wrap: wrap;

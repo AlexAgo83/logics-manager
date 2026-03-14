@@ -96,7 +96,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.renameItem(message.id);
           break;
         case "create-companion-doc":
-          await this.createCompanionDocFromPalette(message.id);
+          await this.createCompanionDocFromPalette(message.id, message.preferredKind);
           break;
         case "create-item":
           await this.createItem(message.kind);
@@ -376,7 +376,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh();
   }
 
-  async createCompanionDoc(sourceId: string): Promise<void> {
+  async createCompanionDoc(
+    sourceId: string,
+    preferredKind?: "product" | "architecture"
+  ): Promise<void> {
     const root = this.getActionRoot();
     if (!root) {
       return;
@@ -393,24 +396,34 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const kindPick = await vscode.window.showQuickPick<{ label: string; description: string; value: "product" | "architecture" }>(
-      [
-        {
-          label: "Product brief",
-          description: "Create a non-technical product framing companion doc",
-          value: "product"
-        },
-        {
-          label: "Architecture decision",
-          description: "Create a structural technical companion doc",
-          value: "architecture"
-        }
-      ],
+    const allKinds: Array<{
+      label: string;
+      description: string;
+      value: "product" | "architecture";
+    }> = [
       {
-        title: "Create companion doc",
-        placeHolder: `Choose the companion doc type for ${sourceItem.id}`
+        label: "Product brief",
+        description: "Create a non-technical product framing companion doc",
+        value: "product"
+      },
+      {
+        label: "Architecture decision",
+        description: "Create a structural technical companion doc",
+        value: "architecture"
       }
-    );
+    ];
+    const suggestedKinds = this.getSuggestedCompanionDocKinds(sourceItem, allKinds);
+    const availableKinds = suggestedKinds.length > 0 ? suggestedKinds : allKinds;
+
+    const kindPick =
+      preferredKind && availableKinds.some((kind) => kind.value === preferredKind)
+        ? availableKinds.find((kind) => kind.value === preferredKind)
+        : availableKinds.length === 1
+          ? availableKinds[0]
+        : await vscode.window.showQuickPick(availableKinds, {
+            title: "Create companion doc",
+            placeHolder: `Choose the companion doc type for ${sourceItem.id}`
+          });
     if (!kindPick) {
       return;
     }
@@ -450,12 +463,15 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh(sourceItem.id);
   }
 
-  async createCompanionDocFromPalette(preferredSourceId?: string): Promise<void> {
+  async createCompanionDocFromPalette(
+    preferredSourceId?: string,
+    preferredKind?: "product" | "architecture"
+  ): Promise<void> {
     const sourceItem = await this.resolveCompanionDocSource(preferredSourceId);
     if (!sourceItem) {
       return;
     }
-    await this.createCompanionDoc(sourceItem.id);
+    await this.createCompanionDoc(sourceItem.id, preferredKind);
   }
 
   async fixDocs(): Promise<void> {
@@ -1004,6 +1020,47 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       item.stage === "request" || item.stage === "backlog" || item.stage === "task"
     );
     return this.pickItem(sourceCandidates, "Choose the source item for the companion doc");
+  }
+
+  private getSuggestedCompanionDocKinds(
+    sourceItem: LogicsItem,
+    allKinds: Array<{ label: string; description: string; value: "product" | "architecture" }>
+  ): Array<{ label: string; description: string; value: "product" | "architecture" }> {
+    const linkedStages = new Set<"product" | "architecture">();
+
+    for (const reference of sourceItem.references) {
+      const candidate = this.resolveManagedItemForCompanionDoc(reference.path);
+      if (candidate?.stage === "product" || candidate?.stage === "architecture") {
+        linkedStages.add(candidate.stage);
+      }
+    }
+
+    for (const usage of sourceItem.usedBy) {
+      if (usage.stage === "product" || usage.stage === "architecture") {
+        linkedStages.add(usage.stage);
+        continue;
+      }
+      const candidate = this.resolveManagedItemForCompanionDoc(usage.relPath || usage.id);
+      if (candidate?.stage === "product" || candidate?.stage === "architecture") {
+        linkedStages.add(candidate.stage);
+      }
+    }
+
+    return allKinds.filter((kind) => !linkedStages.has(kind.value));
+  }
+
+  private resolveManagedItemForCompanionDoc(reference: string): LogicsItem | undefined {
+    const normalized = String(reference || "")
+      .replace(/\\/g, "/")
+      .replace(/^\.?\//, "")
+      .trim();
+    if (!normalized) {
+      return undefined;
+    }
+    const fileStem = path.basename(normalized, ".md");
+    return this.items.find(
+      (item) => item.relPath === normalized || item.id === normalized || item.id === fileStem
+    );
   }
 
   private postData(payload: {

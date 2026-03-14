@@ -477,8 +477,8 @@ describe("webview harness controls and accessibility", () => {
 
     const detailsBody = dom.window.document.getElementById("details-body");
     expect(detailsBody?.textContent).toContain("Companion docs");
-    expect(detailsBody?.textContent).toContain("product • prod_000_plugin_ux");
-    expect(detailsBody?.textContent).toContain("architecture • adr_000_plugin_model");
+    expect(detailsBody?.textContent).toContain("product brief • prod_000_plugin_ux");
+    expect(detailsBody?.textContent).toContain("architecture decision • adr_000_plugin_model");
 
     const openButtons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
     const companionOpenButton = openButtons.find((button) => button.textContent?.trim() === "Open");
@@ -594,11 +594,51 @@ describe("webview harness controls and accessibility", () => {
       items: [baseItem]
     });
 
+    const detailsBody = dom.window.document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("No companion docs linked yet.");
+
     const createButton = dom.window.document.querySelector('[aria-label="Create companion doc"]');
     createButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(
       postedMessages.some((message) => message.type === "create-companion-doc" && message.id === "req_000_kickoff")
+    ).toBe(true);
+  });
+
+  it("offers explicit product and architecture companion actions when framing docs are missing", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    const buttons = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []);
+    const productButton = buttons.find((button) => button.textContent?.trim() === "+ Product brief");
+    const architectureButton = buttons.find((button) => button.textContent?.trim() === "+ Architecture decision");
+
+    expect(productButton).toBeTruthy();
+    expect(architectureButton).toBeTruthy();
+
+    productButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    architectureButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some(
+        (message) =>
+          message.type === "create-companion-doc" &&
+          message.id === "req_000_kickoff" &&
+          (message as { preferredKind?: string }).preferredKind === "product"
+      )
+    ).toBe(true);
+    expect(
+      postedMessages.some(
+        (message) =>
+          message.type === "create-companion-doc" &&
+          message.id === "req_000_kickoff" &&
+          (message as { preferredKind?: string }).preferredKind === "architecture"
+      )
     ).toBe(true);
   });
 
@@ -642,6 +682,9 @@ describe("webview harness controls and accessibility", () => {
     );
     expect(document.querySelector('.column[data-stage="product"] .card__meta--linkage')?.textContent).toContain(
       "For request • req_000_kickoff"
+    );
+    expect(document.querySelector('.column[data-stage="architecture"] .card__meta--linkage')?.textContent).toContain(
+      "Unlinked to primary flow"
     );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
 
@@ -694,6 +737,41 @@ describe("webview harness controls and accessibility", () => {
     openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "open" && message.id === "req_000_kickoff")).toBe(true);
+  });
+
+  it("offers a direct link-to-primary-flow action for unlinked supporting docs", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [architectureItem]
+    });
+
+    const showCompanionDocsToggle = dom.window.document.getElementById("show-companion-docs") as HTMLInputElement | null;
+    if (showCompanionDocsToggle) {
+      showCompanionDocsToggle.checked = true;
+      showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "adr_000_plugin_model",
+      items: [architectureItem]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("Primary flow");
+    expect(detailsBody?.textContent).toContain("No primary workflow item linked yet.");
+
+    const linkButton = Array.from(detailsBody?.querySelectorAll(".details__inline-cta") || []).find(
+      (button) => button.textContent?.trim() === "+ Link to primary flow"
+    );
+    expect(linkButton).toBeTruthy();
+
+    linkButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "add-reference" && message.id === "adr_000_plugin_model")).toBe(
+      true
+    );
   });
 
   it("posts lifecycle actions in non-harness mode", () => {

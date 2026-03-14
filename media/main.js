@@ -291,14 +291,40 @@
     return { header, title };
   }
 
-  function createInlineCta(label, onClick) {
+  function createInlineCta(label, onClick, className = "") {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "details__inline-cta";
+    button.className = ["details__inline-cta", className].filter(Boolean).join(" ");
     button.textContent = label;
     button.title = label;
     button.addEventListener("click", onClick);
     return button;
+  }
+
+  function createCompanionDocCtas(item, companionDocs) {
+    if (!isPrimaryFlowStage(item.stage)) {
+      return [];
+    }
+
+    const existingStages = new Set(companionDocs.map((companion) => companion.stage));
+    const actions = [];
+
+    if (!existingStages.has("product")) {
+      actions.push(
+        createInlineCta("+ Product brief", () => hostApi.createCompanionDoc(item.id, "product"), "details__inline-cta--primary")
+      );
+    }
+    if (!existingStages.has("architecture")) {
+      actions.push(
+        createInlineCta(
+          "+ Architecture decision",
+          () => hostApi.createCompanionDoc(item.id, "architecture"),
+          "details__inline-cta--primary"
+        )
+      );
+    }
+
+    return actions;
   }
 
   function createIndicatorRow(label, value) {
@@ -359,7 +385,7 @@
     row.className = "details__indicator";
 
     const info = document.createElement("div");
-    info.textContent = `${companion.stage} • ${companion.id}`;
+    info.textContent = `${getStageLabel(companion.stage)} • ${companion.id}`;
 
     const actions = document.createElement("span");
     if (companion.title && companion.title !== companion.relPath && companion.title !== companion.id) {
@@ -430,7 +456,7 @@
 
     const linkedItems = collectPrimaryFlowItems(item);
     if (linkedItems.length === 0) {
-      return "";
+      return "Unlinked to primary flow";
     }
 
     const preview = linkedItems
@@ -686,7 +712,9 @@
     const primaryFlowSummary = createPrimaryFlowSummary(item);
     if (primaryFlowSummary) {
       const linkage = document.createElement("div");
-      linkage.className = "card__meta card__meta--linkage";
+      linkage.className =
+        "card__meta card__meta--linkage" +
+        (primaryFlowSummary === "Unlinked to primary flow" ? " card__meta--orphan" : "");
       linkage.textContent = primaryFlowSummary;
       card.appendChild(linkage);
     }
@@ -820,7 +848,7 @@
       if (!stageItems.length) {
         const empty = document.createElement("div");
         empty.className = "list-view__empty";
-        empty.textContent = "No items";
+        empty.textContent = isPrimaryFlowStage(stage) ? "No items" : "No linked docs";
         body.appendChild(empty);
       } else {
         stageItems.forEach((item) => body.appendChild(createItemCard(item, true)));
@@ -944,8 +972,18 @@
           companionList.appendChild(createCompanionDocRow(companion));
         });
       } else {
+        const empty = document.createElement("div");
+        empty.className = "details__empty";
+        empty.textContent = "No companion docs linked yet.";
+        companionList.appendChild(empty);
+
         const cta = createInlineCta("+ Create companion doc", () => hostApi.createCompanionDoc(item.id));
         companionList.appendChild(cta);
+      }
+
+      const suggestedCompanionCtas = createCompanionDocCtas(item, companionDocs);
+      if (suggestedCompanionCtas.length) {
+        suggestedCompanionCtas.forEach((cta) => companionList.appendChild(cta));
       }
 
       companionSection.appendChild(companionHeader.header);
@@ -1013,6 +1051,9 @@
         empty.className = "details__empty";
         empty.textContent = "No primary workflow item linked yet.";
         primaryFlowList.appendChild(empty);
+
+        const cta = createInlineCta("+ Link to primary flow", () => hostApi.addReference(item.id), "details__inline-cta--primary");
+        primaryFlowList.appendChild(cta);
       }
 
       primaryFlowSection.appendChild(primaryFlowHeader.header);
@@ -1082,7 +1123,7 @@
       item.usedBy.forEach((usage) => {
         const targetItem = findManagedItemByReference(usage.relPath || usage.id, usage);
         usedList.appendChild(
-          createLinkedIndicatorRow(`${usage.stage} • ${usage.id}`, usage.title, targetItem)
+          createLinkedIndicatorRow(`${getStageLabel(usage.stage)} • ${usage.id}`, usage.title, targetItem)
         );
       });
     } else {
@@ -1718,8 +1759,8 @@
       createItem(kind) {
         invokeHostOnly("create-item", { kind }, "Create item");
       },
-      createCompanionDoc(id) {
-        invokeHostOnly("create-companion-doc", { id }, "Create companion doc");
+      createCompanionDoc(id, preferredKind) {
+        invokeHostOnly("create-companion-doc", { id, preferredKind }, "Create companion doc");
       },
       renameEntry(id) {
         invokeHostOnly("rename-entry", { id }, "Rename entry");

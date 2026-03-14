@@ -540,19 +540,23 @@ describe("webview harness controls and accessibility", () => {
           ...baseItem,
           references: [
             { kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" },
-            { kind: "manual", label: "Reference", path: "logics/architecture/adr_000_plugin_model.md" }
+            { kind: "manual", label: "Reference", path: "logics/architecture/adr_000_plugin_model.md" },
+            { kind: "manual", label: "Reference", path: "logics/specs/spec_001_reference_contract.md" }
           ]
         },
         productItem,
-        architectureItem
+        architectureItem,
+        specItem
       ]
     });
 
     const card = dom.window.document.querySelector(".card");
     expect(card?.textContent).toContain("PROD");
     expect(card?.textContent).toContain("ADR");
+    expect(card?.textContent).toContain("SPEC");
     expect(card?.querySelector(".card__badge--product")).not.toBeNull();
     expect(card?.querySelector(".card__badge--architecture")).not.toBeNull();
+    expect(card?.querySelector(".card__badge--spec")).not.toBeNull();
   });
 
   it("shows linked specs in a dedicated details section", () => {

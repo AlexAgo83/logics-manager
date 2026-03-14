@@ -381,7 +381,8 @@
 
   function createCompanionBadges(item) {
     const companionDocs = collectCompanionDocs(item);
-    if (!isPrimaryFlowStage(item.stage) || companionDocs.length === 0) {
+    const specs = collectSpecs(item);
+    if (!isPrimaryFlowStage(item.stage) || (companionDocs.length === 0 && specs.length === 0)) {
       return null;
     }
 
@@ -406,6 +407,9 @@
     }
     if (counts.architecture > 0) {
       badges.appendChild(createCompanionBadge("ADR", counts.architecture, "architecture"));
+    }
+    if (specs.length > 0) {
+      badges.appendChild(createCompanionBadge("SPEC", specs.length, "spec"));
     }
 
     return badges.childElementCount > 0 ? badges : null;

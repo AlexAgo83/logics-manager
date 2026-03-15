@@ -54,3 +54,6 @@ This is not a missing filter option. It is a missing recovery action. Without a 
 
 # Notes
 - Derived from `logics/request/req_028_add_reset_action_for_filter_defaults.md`.
+
+# Tasks
+- `logics/tasks/task_027_add_reset_action_for_filter_defaults.md`

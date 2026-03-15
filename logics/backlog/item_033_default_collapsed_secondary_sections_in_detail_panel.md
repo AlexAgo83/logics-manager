@@ -54,3 +54,5 @@ Users usually need the top identity block and workflow indicators immediately, b
 # Notes
 - Derived from `logics/request/req_029_default_collapsed_secondary_sections_in_detail_panel.md`.
 
+# Tasks
+- `logics/tasks/task_028_default_collapsed_secondary_sections_in_detail_panel.md`

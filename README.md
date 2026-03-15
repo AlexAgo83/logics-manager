@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
-![Version](https://img.shields.io/badge/version-v1.9.2-4C8BF5)
+![Version](https://img.shields.io/badge/version-v1.10.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -14,16 +14,19 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 
 ## Features
 
-- Flow board view (Requests / Backlog / Tasks / Specs).
-- Board/List display mode switch for compact navigation.
-- Details panel with indicators and references (Promoted from / Derived from) + reverse “Used by”.
-- Details lifecycle actions (`Done`, `Obsolete`) for fast status updates.
+- Flow board view plus grouped list view, with forced list mode below `500px`.
+- Horizontal board scrolling, list-group collapse/expand, and improved keyboard navigation across cards and groups.
+- Instant local search, explicit sorting/grouping controls, and an `Attention` triage filter for actionable items.
+- Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
+- Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
+- Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
+- Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
+- Lightweight onboarding guidance and more actionable empty states.
 - Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
 - `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
-- Progress-based card styling + optional hide completed.
 
 ## Why This Matters For AI Projects
 

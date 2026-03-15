@@ -308,4 +308,76 @@ describe("logicsIndexer", () => {
     } as any;
     expect(isRequestProcessed(requestLikeById, [readyBacklogWithId])).toBe(true);
   });
+
+  it("treats backlog and task items with Progress 100 as processed even when Status is absent", () => {
+    const requestLike = {
+      stage: "request",
+      references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_001_done_without_status.md" }],
+      usedBy: []
+    } as any;
+    const doneByProgress = {
+      stage: "backlog",
+      relPath: "logics/backlog/item_001_done_without_status.md",
+      indicators: { Progress: "100%" }
+    } as any;
+
+    expect(isRequestProcessed(requestLike, [doneByProgress])).toBe(true);
+  });
+
+  it("treats archived linked workflow items as processed", () => {
+    const requestLike = {
+      stage: "request",
+      references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_001_archived.md" }],
+      usedBy: []
+    } as any;
+    const archivedBacklog = {
+      stage: "backlog",
+      relPath: "logics/backlog/item_001_archived.md",
+      indicators: { Status: "Archived" }
+    } as any;
+
+    expect(isRequestProcessed(requestLike, [archivedBacklog])).toBe(true);
+  });
+
+  it("normalizes bare .md backlog references and derived from request backlinks", () => {
+    const root = mkRepo();
+    write(
+      root,
+      "logics/request/req_107_feature.md",
+      [
+        "## req_107_feature - Feature Request",
+        "> Status: Done",
+        "# Backlog",
+        "- `item_525_feature.md`"
+      ].join("\n")
+    );
+    write(
+      root,
+      "logics/backlog/item_525_feature.md",
+      [
+        "## item_525_feature - Feature Backlog",
+        "> Progress: 100%",
+        "# Notes",
+        "- Derived from request `req_107_feature`."
+      ].join("\n")
+    );
+
+    const items = indexLogics(root);
+    const request = items.find((item) => item.id === "req_107_feature");
+    const backlog = items.find((item) => item.id === "item_525_feature");
+
+    expect(request).toBeDefined();
+    expect(backlog).toBeDefined();
+    expect(request?.references).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "backlog", path: "logics/backlog/item_525_feature.md" })
+      ])
+    );
+    expect(request?.usedBy).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "item_525_feature", stage: "backlog" })
+      ])
+    );
+    expect(isRequestProcessed(request as any, items)).toBe(true);
+  });
 });

@@ -172,7 +172,7 @@ function extractReferences(content: string): LogicsReference[] {
   const refs: LogicsReference[] = [];
   const patterns: Array<{ label: string; regex: RegExp }> = [
     { label: "Promoted from", regex: /Promoted from `([^`]+)`/g },
-    { label: "Derived from", regex: /Derived from `([^`]+)`/g }
+    { label: "Derived from", regex: /Derived from(?: [a-z][a-z ]+)? `([^`]+)`/gi }
   ];
   for (const pattern of patterns) {
     let match: RegExpExecArray | null;
@@ -316,13 +316,15 @@ function normalizeIndexedRef(value: string): string {
   if (!normalized) {
     return normalized;
   }
-  if (normalized.includes("/") || normalized.endsWith(".md")) {
+  if (normalized.includes("/")) {
     return normalized;
   }
 
+  const bareName = normalized.endsWith(".md") ? normalized.slice(0, -3) : normalized;
+
   for (const family of MANAGED_DOC_FAMILIES) {
-    if (family.prefixes.some((prefix) => normalized.startsWith(prefix))) {
-      return `${family.dir}/${normalized}.md`;
+    if (family.prefixes.some((prefix) => bareName.startsWith(prefix))) {
+      return `${family.dir}/${bareName}.md`;
     }
   }
 
@@ -423,7 +425,38 @@ function normalizeStatus(value: string | undefined): string {
 
 function isProcessedWorkflowStatus(value: string | undefined): boolean {
   const normalized = normalizeStatus(value);
-  return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
+  return (
+    normalized === "ready" ||
+    normalized === "in progress" ||
+    normalized === "blocked" ||
+    normalized === "done" ||
+    normalized === "archived"
+  );
+}
+
+function parseProgress(value: string | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+  const match = value.match(/(\d{1,3})/);
+  if (!match) {
+    return null;
+  }
+  const parsed = Number.parseInt(match[1], 10);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return Math.max(0, Math.min(100, parsed));
+}
+
+function isProcessedWorkflowItem(item: LogicsItem): boolean {
+  if (item.stage !== "backlog" && item.stage !== "task") {
+    return false;
+  }
+  if (isProcessedWorkflowStatus(item.indicators?.Status)) {
+    return true;
+  }
+  return parseProgress(item.indicators?.Progress) === 100;
 }
 
 function collectLinkedWorkflowPaths(item: LogicsItem): string[] {
@@ -478,10 +511,7 @@ export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []
     if (!linked) {
       return false;
     }
-    if (linked.stage !== "backlog" && linked.stage !== "task") {
-      return false;
-    }
-    return isProcessedWorkflowStatus(linked.indicators?.Status);
+    return isProcessedWorkflowItem(linked);
   });
 }
 

@@ -37,7 +37,25 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 - That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing prior decisions.
 - Because the context is written as Markdown in the repository, it stays reviewable by humans, diffable in git, and portable across tools.
 
-<img width="1151" height="641" alt="image" src="https://github.com/user-attachments/assets/9a732d99-6b21-4d29-9ea4-927f11f6bf58" />
+<table>
+  <tr>
+    <td align="center">
+      <img width="100%" alt="Board panel" src="https://i.postimg.cc/4K65cLzv/board-panel.png" />
+      <br />
+      <sub><strong>Board panel</strong></sub>
+    </td>
+    <td align="center">
+      <img width="100%" alt="Filter panel" src="https://i.postimg.cc/p9fZjGDD/filter-panel.png" />
+      <br />
+      <sub><strong>Filter panel</strong></sub>
+    </td>
+    <td align="center">
+      <img width="100%" alt="List panel" src="https://i.postimg.cc/TyV9b7rn/list-panel.png" />
+      <br />
+      <sub><strong>List panel</strong></sub>
+    </td>
+  </tr>
+</table>
 
 ## Requirements
 

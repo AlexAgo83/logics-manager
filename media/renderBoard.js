@@ -357,6 +357,47 @@
       return `For ${preview}`;
     }
 
+    function formatPreviewDate(value) {
+      const timestamp = Date.parse(value || "");
+      if (!timestamp) {
+        return "Unknown";
+      }
+      return new Date(timestamp).toLocaleDateString("en-CA");
+    }
+
+    function createPreviewRow(label, value) {
+      const row = document.createElement("div");
+      row.className = "card__preview-row";
+
+      const term = document.createElement("span");
+      term.className = "card__preview-label";
+      term.textContent = label;
+      row.appendChild(term);
+
+      const description = document.createElement("span");
+      description.className = "card__preview-value";
+      description.textContent = value;
+      row.appendChild(description);
+
+      return row;
+    }
+
+    function createCardPreview(item) {
+      const preview = document.createElement("div");
+      preview.className = "card__preview";
+      preview.hidden = true;
+      preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
+      preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
+      preview.appendChild(createPreviewRow("References", String((item.references || []).length)));
+      preview.appendChild(createPreviewRow("Used by", String((item.usedBy || []).length)));
+
+      const linkage = createPrimaryFlowSummary(item);
+      if (linkage) {
+        preview.appendChild(createPreviewRow("Flow", linkage));
+      }
+      return preview;
+    }
+
     function createItemCard(item, compact = false) {
       const card = document.createElement("div");
       const doneClass = isComplete(item) ? " card--done" : "";
@@ -381,6 +422,12 @@
       card.tabIndex = 0;
       card.setAttribute("aria-label", `${getStageLabel(item.stage)} item ${item.id}: ${item.title}`);
       card.title = item.title;
+      const preview = createCardPreview(item);
+
+      function setPreviewOpen(isOpen) {
+        preview.hidden = !isOpen;
+        card.classList.toggle("card--preview-open", isOpen);
+      }
 
       const titleEl = document.createElement("div");
       titleEl.className = "card__title";
@@ -416,6 +463,8 @@
         card.appendChild(meta);
       }
 
+      card.appendChild(preview);
+
       card.addEventListener("click", () => {
         setSelectedId(item.id);
         render();
@@ -426,8 +475,17 @@
         openSelectedItem("open");
       });
       card.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !preview.hidden) {
+          event.preventDefault();
+          setPreviewOpen(false);
+          return;
+        }
         handleCardKeydown(event, item);
       });
+      card.addEventListener("mouseenter", () => setPreviewOpen(true));
+      card.addEventListener("mouseleave", () => setPreviewOpen(false));
+      card.addEventListener("focus", () => setPreviewOpen(true));
+      card.addEventListener("blur", () => setPreviewOpen(false));
       return card;
     }
 

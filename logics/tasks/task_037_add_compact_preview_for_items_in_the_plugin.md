@@ -1,9 +1,9 @@
 ## task_037_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,13 +14,13 @@
 - Related request(s): `req_038_add_compact_preview_for_items_in_the_plugin`.
 
 # Plan
-- [ ] 1. Define the compact preview trigger and the minimal useful content set.
-- [ ] 2. Add the preview interaction without regressing current selection behavior.
-- [ ] 3. Render a concise preview surface using existing item metadata where possible.
-- [ ] 4. Keep dismissal and interaction behavior clean and predictable.
-- [ ] 5. Verify coherence in board mode and list mode where supported.
-- [ ] 6. Add/adjust regression tests for preview activation and rendering.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Define the compact preview trigger and the minimal useful content set.
+- [x] 2. Add the preview interaction without regressing current selection behavior.
+- [x] 3. Render a concise preview surface using existing item metadata where possible.
+- [x] 4. Keep dismissal and interaction behavior clean and predictable.
+- [x] 5. Verify coherence in board mode and list mode where supported.
+- [x] 6. Add/adjust regression tests for preview activation and rendering.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 1, 2, and 3.
@@ -38,7 +38,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

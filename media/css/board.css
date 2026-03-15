@@ -130,6 +130,10 @@
   overflow: hidden;
 }
 
+.card--preview-open {
+  border-color: var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+}
+
 .card--progress-bar {
   position: relative;
   overflow: hidden;
@@ -181,6 +185,32 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.card__preview {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card__preview-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.card__preview-label {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card__preview-value {
+  color: var(--vscode-foreground, #d4d4d4);
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .card__badge {

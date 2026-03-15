@@ -1,9 +1,9 @@
 ## item_043_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -34,11 +34,11 @@ A compact preview would reduce that friction and make scanning denser workspaces
 - AC6: Tests cover the preview trigger and visible content where practical.
 
 # AC Traceability
-- AC1/AC2 -> preview trigger and compact metadata surface are introduced. Proof: TODO.
-- AC3 -> existing detail/open/read flows remain unchanged after preview integration. Proof: TODO.
-- AC4 -> preview works across board/list item surfaces where supported. Proof: TODO.
-- AC5 -> dismissal behavior is explicit and preserves useful state. Proof: TODO.
-- AC6 -> regression tests cover preview activation and rendering. Proof: TODO.
+- AC1/AC2 -> item cards now expose a compact preview surface on hover/focus with a concise metadata set: status, updated date, references, used-by, and flow summary where relevant. Proof: `media/renderBoard.js`.
+- AC3 -> preview rendering lives inside the card surface and does not alter the existing detail, open, or read actions. Proof: `media/renderBoard.js`.
+- AC4 -> the preview is attached to the shared item-card component used in board and list modes. Proof: `media/renderBoard.js`.
+- AC5 -> preview dismissal is handled on mouse leave, blur, or `Escape` without changing the current selection. Proof: `media/renderBoard.js`, `tests/webview.harness-a11y.test.ts`.
+- AC6 -> harness coverage verifies preview visibility and dismissal behavior. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

@@ -774,6 +774,38 @@ describe("webview harness controls and accessibility", () => {
     expect(cardTitles).toEqual(["Newer request", "Older request"]);
   });
 
+  it("shows a compact preview on hover and dismisses it cleanly", () => {
+    const previewItem = {
+      ...baseItem,
+      updatedAt: "2024-02-03T00:00:00.000Z",
+      references: [{ kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" }],
+      usedBy: [{ id: "item_001_plan_followup", title: "Plan Followup", stage: "backlog", relPath: "logics/backlog/item_001_plan_followup.md" }]
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [previewItem]
+    });
+
+    const document = dom.window.document;
+    const card = document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+    const getPreview = () => card?.querySelector(".card__preview") as HTMLDivElement | null;
+
+    expect(getPreview()?.hidden).toBe(true);
+
+    card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+    expect(getPreview()?.hidden).toBe(false);
+    expect(getPreview()?.textContent).toContain("Status");
+    expect(getPreview()?.textContent).toContain("Draft");
+    expect(getPreview()?.textContent).toContain("References");
+    expect(getPreview()?.textContent).toContain("Used by");
+
+    card?.dispatchEvent(new dom.window.MouseEvent("mouseleave", { bubbles: true }));
+    expect(getPreview()?.hidden).toBe(true);
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
+  });
+
   it("hides SPEC by default and applies the toggle in board and list modes", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {

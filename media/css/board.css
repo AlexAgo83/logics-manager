@@ -1,4 +1,5 @@
 .board {
+  --board-column-width: 260px;
   flex: 1;
   display: flex;
   align-items: stretch;
@@ -16,8 +17,10 @@
 }
 
 .column {
-  min-width: 220px;
-  max-width: 280px;
+  flex: 0 0 var(--board-column-width);
+  width: var(--board-column-width);
+  min-width: var(--board-column-width);
+  max-width: var(--board-column-width);
   min-inline-size: 0;
   background: var(--vscode-sideBar-background, #252526);
   border: 1px solid var(--vscode-panel-border, #333333);

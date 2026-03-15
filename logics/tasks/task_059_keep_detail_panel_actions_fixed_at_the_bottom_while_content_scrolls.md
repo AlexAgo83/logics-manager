@@ -1,8 +1,8 @@
 ## task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
-> From version: 1.10.0
+> From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
@@ -12,6 +12,7 @@
 - Derived from backlog item `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`.
 - Source file: `logics/backlog/item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`.
 - Related request(s): `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`.
+- Related architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`.
 
 # Plan
 - [x] 1. Separate the scrollable detail body from a fixed bottom action footer.
@@ -23,6 +24,7 @@
 # Links
 - Backlog item: `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`
 - Request(s): `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`
+- Architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`
 
 # Validation
 - `npm run compile`

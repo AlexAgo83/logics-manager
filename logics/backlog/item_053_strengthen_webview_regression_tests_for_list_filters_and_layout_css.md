@@ -1,8 +1,8 @@
 ## item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
-> From version: 1.10.0
+> From version: 1.10.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
@@ -48,6 +48,7 @@ That leaves the suite less trustworthy than it should be for recent UI work.
 - Derived from `logics/request/req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`.
 - The first pass should target regressions already seen plus a small number of nearby high-risk cases.
 - Behavior- and DOM-level assertions should take priority over CSS-string locking unless a layout contract is otherwise hard to verify.
+- Related architecture decision: `logics/architecture/adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views.md`.
 
 # Tasks
 - `logics/tasks/task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`

@@ -1,8 +1,8 @@
 ## task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
-> From version: 1.10.0
+> From version: 1.10.1
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
@@ -12,6 +12,7 @@
 - Derived from backlog item `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`.
 - Source file: `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`.
 - Related request(s): `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`.
+- Related architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`.
 
 # Plan
 - [x] 1. Add regression coverage for `Hide empty columns` in list mode.
@@ -29,6 +30,7 @@
 # Links
 - Backlog item: `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`
 - Request(s): `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`
+- Architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`
 
 # Validation
 - `npm test -- tests/webview.harness-a11y.test.ts`

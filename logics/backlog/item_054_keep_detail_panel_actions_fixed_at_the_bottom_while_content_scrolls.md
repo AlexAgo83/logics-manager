@@ -1,8 +1,8 @@
 ## item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
-> From version: 1.10.0
+> From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
@@ -52,6 +52,7 @@ The plugin needs a clearer vertical budget and clearer scroll ownership so `Deta
 - Prefer a structural separation between the fixed action footer and the scrollable detail body rather than relying only on sticky positioning.
 - When vertical space gets tight, `Activity` should give up space before the detail footer does.
 - This item is really about vertical layout ownership, not just about pinning buttons.
+- Related architecture decision: `logics/architecture/adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views.md`.
 
 # Tasks
 - `logics/tasks/task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`

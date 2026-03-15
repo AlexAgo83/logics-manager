@@ -1,8 +1,8 @@
 ## task_031_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
-> From version: 1.9.3
+> From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
@@ -12,6 +12,7 @@
 - Derived from backlog item `item_037_enable_horizontal_scrolling_for_board_columns`.
 - Source file: `logics/backlog/item_037_enable_horizontal_scrolling_for_board_columns.md`.
 - Related request(s): `req_032_enable_horizontal_scrolling_for_board_columns`.
+- Related architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`.
 
 ```mermaid
 flowchart LR
@@ -42,6 +43,7 @@ flowchart LR
 # Links
 - Backlog item: `item_037_enable_horizontal_scrolling_for_board_columns`
 - Request(s): `req_032_enable_horizontal_scrolling_for_board_columns`
+- Architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`
 
 # Validation
 - `npm run compile`

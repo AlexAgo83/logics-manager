@@ -1,8 +1,8 @@
 ## item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row - Move secondary view controls into a toggleable second toolbar row
-> From version: 1.10.0
+> From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
@@ -56,6 +56,7 @@ The plugin needs a cleaner toolbar structure:
 - Derived from `logics/request/req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`.
 - The change should improve information architecture, not merely relocate the same clutter.
 - The primary-row toggle should make active non-default controls visible even when the second row is hidden.
+- Related architecture decision: `logics/architecture/adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views.md`.
 
 # Tasks
 - `logics/tasks/task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`

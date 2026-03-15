@@ -292,6 +292,9 @@ describe("webview collapsed details layout behavior", () => {
     const horizontalBoardRule = getCssRule(css, ".layout--horizontal .board");
     const horizontalDetailsRule = getCssRule(css, ".layout--horizontal .details");
     const stackedDetailsRule = getCssRule(css, ".layout--stacked .details");
+    const boardRules = getCssRules(css, ".board");
+    const boardRule = boardRules.find((rule) => rule.includes("--board-column-width: 260px;")) || "";
+    const columnRule = getCssRule(css, ".column");
 
     expect(bodyRule.includes("display: flex;")).toBe(true);
     expect(bodyRule.includes("flex-direction: column;")).toBe(true);
@@ -329,6 +332,10 @@ describe("webview collapsed details layout behavior", () => {
     expect(stackedDetailsRule.includes("min-height: 220px;")).toBe(true);
     expect(stackedDetailsRule.includes("overflow: hidden;")).toBe(true);
     expect(stackedDetailsRule.includes("z-index: 2;")).toBe(true);
+    expect(boardRule.includes("--board-column-width: 260px;")).toBe(true);
+    expect(columnRule.includes("flex: 0 0 var(--board-column-width);")).toBe(true);
+    expect(columnRule.includes("width: var(--board-column-width);")).toBe(true);
+    expect(columnRule.includes("min-width: var(--board-column-width);")).toBe(true);
   });
 
   it("allows long detail titles and ids to wrap without ellipsis overflow", () => {

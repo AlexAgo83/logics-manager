@@ -1,8 +1,8 @@
 ## item_037_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
-> From version: 1.9.3
+> From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
@@ -51,6 +51,7 @@ The board should behave like a horizontally scrollable column rail: columns keep
 # Notes
 - Derived from `logics/request/req_032_enable_horizontal_scrolling_for_board_columns.md`.
 - The preferred first implementation is native horizontal overflow on the board rail with stable minimum readable column widths.
+- Related architecture decision: `logics/architecture/adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views.md`.
 
 # Tasks
 - `logics/tasks/task_031_enable_horizontal_scrolling_for_board_columns.md`

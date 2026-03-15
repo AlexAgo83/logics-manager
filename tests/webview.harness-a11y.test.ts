@@ -558,7 +558,7 @@ describe("webview harness controls and accessibility", () => {
     expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
   });
 
-  it("hides empty columns in board view when the filter is enabled", () => {
+  it("hides empty columns in board view by default and can be disabled", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -568,19 +568,20 @@ describe("webview harness controls and accessibility", () => {
     const document = dom.window.document;
     const hideEmptyColumnsToggle = document.getElementById("hide-empty-columns") as HTMLInputElement | null;
 
+    expect(hideEmptyColumnsToggle?.checked).toBe(true);
     expect(document.querySelector('.column[data-stage="request"]')).not.toBeNull();
-    expect(document.querySelector('.column[data-stage="backlog"]')).not.toBeNull();
-    expect(document.querySelector('.column[data-stage="task"]')).not.toBeNull();
+    expect(document.querySelector('.column[data-stage="backlog"]')).toBeNull();
+    expect(document.querySelector('.column[data-stage="task"]')).toBeNull();
 
     if (hideEmptyColumnsToggle) {
-      hideEmptyColumnsToggle.checked = true;
+      hideEmptyColumnsToggle.checked = false;
       hideEmptyColumnsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
     expect(document.querySelector('.column[data-stage="request"]')).not.toBeNull();
-    expect(document.querySelector('.column[data-stage="backlog"]')).toBeNull();
-    expect(document.querySelector('.column[data-stage="task"]')).toBeNull();
-    expect(persistedStates.some((state) => state.hideEmptyColumns === true)).toBe(true);
+    expect(document.querySelector('.column[data-stage="backlog"]')).not.toBeNull();
+    expect(document.querySelector('.column[data-stage="task"]')).not.toBeNull();
+    expect(persistedStates.some((state) => state.hideEmptyColumns === false)).toBe(true);
   });
 
   it("applies detail header hierarchy and action emphasis for the selected item", () => {
@@ -857,7 +858,7 @@ describe("webview harness controls and accessibility", () => {
     }
 
     const stageSequence = Array.from(document.querySelectorAll(".column")).map((column) => column.getAttribute("data-stage"));
-    expect(stageSequence).toEqual(["request", "backlog", "task", "product", "architecture", "spec"]);
+    expect(stageSequence).toEqual(["request", "product", "architecture", "spec"]);
   });
 
   it("shows primary flow links in details for supporting docs", () => {

@@ -48,7 +48,7 @@
   let hideProcessedRequests = false;
   let hideSpec = true;
   let showCompanionDocs = false;
-  let hideEmptyColumns = false;
+  let hideEmptyColumns = true;
   let collapsedStages = new Set();
   let collapsedDetailSections = new Set();
   let activeColumnMenu = null;

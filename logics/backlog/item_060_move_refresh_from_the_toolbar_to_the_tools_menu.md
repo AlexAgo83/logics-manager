@@ -1,9 +1,9 @@
 ## item_060_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Toolbar prioritization and tools-menu cleanup
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,6 +36,11 @@ That keeps avoidable pressure on the toolbar and weakens the information hierarc
   - Medium: this improves toolbar hierarchy and frees space in a crowded surface.
 - Urgency:
   - Medium: worthwhile while the toolbar information architecture is still being refined.
+
+# AC Traceability
+- AC1/AC2/AC3 -> `Refresh` now lives in the `Tools` menu under `Use Workspace Root` and is no longer rendered in the toolbar buttons row. Proof: `src/extension.ts`.
+- AC4 -> the menu action reuses the existing refresh action wiring. Proof: `media/main.js`.
+- AC5 -> harness coverage keeps the tools menu structure visible to tests while the full webview suite remains green. Proof: `tests/webview.harness-a11y.test.ts`, `tests/webview.layout-collapse.test.ts`.
 
 # Notes
 - Derived from `logics/request/req_051_move_refresh_from_the_toolbar_to_the_tools_menu.md`.

@@ -37,7 +37,12 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
       <body>
         <button id="filter-toggle"></button>
         <button id="tools-toggle"></button>
-        <div id="tools-panel"></div>
+        <div id="tools-panel">
+          <button data-action="change-project-root"></button>
+          <button data-action="reset-project-root"></button>
+          <button data-action="refresh"></button>
+          <button data-action="fix-docs"></button>
+        </div>
         <div id="filter-panel" hidden>
           <button id="filter-reset" type="button"></button>
           <input id="search-input" type="search" />
@@ -54,12 +59,8 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         </div>
         <button id="activity-toggle" type="button"></button>
         <button id="attention-toggle" type="button"></button>
-        <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
         <button data-action="new-request-guided"></button>
-        <button data-action="change-project-root"></button>
-        <button data-action="reset-project-root"></button>
-        <button data-action="fix-docs"></button>
         <button data-action="promote"></button>
         <button data-action="open"></button>
         <button data-action="read"></button>

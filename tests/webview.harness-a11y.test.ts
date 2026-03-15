@@ -22,18 +22,19 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <div class="toolbar__row toolbar__row--primary">
             <button id="filter-toggle" class="toolbar__filter"></button>
             <button id="tools-toggle" class="toolbar__filter"></button>
-            <div id="tools-panel"></div>
+            <div id="tools-panel">
+              <button data-action="new-request-guided"></button>
+              <button data-action="change-project-root"></button>
+              <button data-action="reset-project-root"></button>
+              <button data-action="refresh"></button>
+              <button data-action="fix-docs"></button>
+            </div>
             <button id="activity-toggle" type="button"></button>
             <button id="attention-toggle" type="button"></button>
             <button data-action="toggle-view-mode"></button>
-            <button data-action="refresh"></button>
             <button data-action="select-agent"></button>
-            <button data-action="new-request-guided"></button>
             <button data-action="create-companion-doc" title="Create a companion doc"></button>
             <button data-action="bootstrap-logics"></button>
-            <button data-action="change-project-root"></button>
-            <button data-action="reset-project-root"></button>
-            <button data-action="fix-docs"></button>
             <button data-action="about"></button>
           </div>
           <div id="filter-panel" class="toolbar__row toolbar__row--secondary" hidden>
@@ -1707,6 +1708,7 @@ describe("webview harness controls and accessibility", () => {
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
+    expect(Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))).toContain("refresh");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);

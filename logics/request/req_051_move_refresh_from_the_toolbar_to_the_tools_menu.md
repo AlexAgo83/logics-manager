@@ -1,6 +1,6 @@
 ## req_051_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Low
@@ -59,6 +59,11 @@ The expected move is specific:
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Implementation notes
+- `Refresh` is no longer rendered as a standalone primary-toolbar button.
+- The same refresh action is now exposed from the `Tools` menu directly under `Use Workspace Root`.
+- The existing refresh wiring was reused, so the move changes placement, not behavior.
 
 # Backlog
 - `logics/backlog/item_060_move_refresh_from_the_toolbar_to_the_tools_menu.md`

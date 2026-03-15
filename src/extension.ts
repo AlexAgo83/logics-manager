@@ -1388,6 +1388,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
           </div>
@@ -1397,7 +1398,6 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
         <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
         <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
-        <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
       </div>
     </div>
     <div class="toolbar__row toolbar__row--secondary" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>

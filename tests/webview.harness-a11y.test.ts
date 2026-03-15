@@ -5,6 +5,7 @@ import { JSDOM } from "jsdom";
 
 type BootstrapOptions = {
   stacked?: boolean;
+  narrow?: boolean;
   harness?: boolean;
   showDirectoryPicker?: () => Promise<{ name?: string }>;
   fetchImpl?: (url: string) => Promise<{ ok: boolean; status: number; text: () => Promise<string> }>;
@@ -64,12 +65,39 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   const fetchCalls: string[] = [];
   const setProjectRootCalls: Array<string | null> = [];
 
+  const mediaState = {
+    stacked: Boolean(options.stacked),
+    narrow: Boolean(options.narrow)
+  };
+  const listeners = new Map<string, Array<(event: { matches: boolean }) => void>>();
+  const getMatches = (query: string) => {
+    if (query === "(max-width: 900px)") {
+      return mediaState.stacked;
+    }
+    if (query === "(max-width: 500px)") {
+      return mediaState.narrow;
+    }
+    return false;
+  };
+  const registerListener = (query: string, callback: (event: { matches: boolean }) => void) => {
+    const callbacks = listeners.get(query) || [];
+    callbacks.push(callback);
+    listeners.set(query, callbacks);
+  };
+
   Object.defineProperty(dom.window, "matchMedia", {
-    value: () => ({
-      matches: Boolean(options.stacked),
-      addEventListener: () => undefined,
+    value: (query: string) => ({
+      media: query,
+      get matches() {
+        return getMatches(query);
+      },
+      addEventListener: (_type: string, callback: (event: { matches: boolean }) => void) => {
+        registerListener(query, callback);
+      },
       removeEventListener: () => undefined,
-      addListener: () => undefined,
+      addListener: (callback: (event: { matches: boolean }) => void) => {
+        registerListener(query, callback);
+      },
       removeListener: () => undefined
     })
   });
@@ -155,7 +183,19 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
   dom.window.eval(renderMarkdownScript);
   dom.window.eval(mainScript);
 
-  return { dom, postedMessages, openedUrls, openedDocuments, setProjectRootCalls, fetchCalls, persistedStates };
+  const emitMediaChange = (query: string) => {
+    (listeners.get(query) || []).forEach((callback) => callback({ matches: getMatches(query) }));
+  };
+  const setStacked = (nextValue: boolean) => {
+    mediaState.stacked = nextValue;
+    emitMediaChange("(max-width: 900px)");
+  };
+  const setNarrow = (nextValue: boolean) => {
+    mediaState.narrow = nextValue;
+    emitMediaChange("(max-width: 500px)");
+  };
+
+  return { dom, postedMessages, openedUrls, openedDocuments, setProjectRootCalls, fetchCalls, persistedStates, setStacked, setNarrow };
 }
 
 function pushData(
@@ -424,6 +464,28 @@ describe("webview harness controls and accessibility", () => {
     expect(
       persistedStates.some((state) => state.viewMode === "list")
     ).toBe(true);
+  });
+
+  it("forces list mode below 500px and restores the saved mode above that threshold", () => {
+    const { dom, setNarrow } = bootstrapWebview({ harness: true, narrow: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]') as HTMLButtonElement | null;
+
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(modeButton?.dataset.currentMode).toBe("list");
+    expect(modeButton?.disabled).toBe(true);
+
+    setNarrow(false);
+
+    expect(board?.classList.contains("board--list")).toBe(false);
+    expect(modeButton?.dataset.currentMode).toBe("board");
+    expect(modeButton?.disabled).toBe(false);
   });
 
   it("hides SPEC by default and applies the toggle in board and list modes", () => {

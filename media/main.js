@@ -61,6 +61,7 @@
   const primaryStageOrder = ["request", "backlog", "task"];
   const companionStageOrder = ["product", "architecture"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
+  const compactListQuery = window.matchMedia("(max-width: 500px)");
   const projectGithubUrl = "https://github.com/AlexAgo83/cdx-logics-vscode";
   const uiState = {
     layoutMode: "horizontal",
@@ -175,27 +176,46 @@
     return item.stage === "request" || item.stage === "backlog";
   }
 
+  function isCompactListForced() {
+    return Boolean(compactListQuery && compactListQuery.matches);
+  }
+
+  function getEffectiveViewMode() {
+    return isCompactListForced() ? "list" : uiState.viewMode;
+  }
+
   function isListMode() {
-    return uiState.viewMode === "list";
+    return getEffectiveViewMode() === "list";
   }
 
   function updateViewModeToggle() {
     if (!viewModeToggleButton) {
       return;
     }
-    const switchToList = !isListMode();
+    const currentMode = getEffectiveViewMode();
+    if (isCompactListForced()) {
+      viewModeToggleButton.textContent = "List";
+      viewModeToggleButton.dataset.currentMode = currentMode;
+      viewModeToggleButton.setAttribute("aria-pressed", "true");
+      viewModeToggleButton.setAttribute("aria-label", "Current mode: list. List mode is required below 500px");
+      viewModeToggleButton.title = "Current mode: list. List mode is required below 500px";
+      viewModeToggleButton.disabled = true;
+      return;
+    }
+    const switchToList = currentMode !== "list";
     viewModeToggleButton.textContent = switchToList ? "List" : "Board";
-    viewModeToggleButton.dataset.currentMode = uiState.viewMode;
-    viewModeToggleButton.setAttribute("aria-pressed", String(isListMode()));
+    viewModeToggleButton.dataset.currentMode = currentMode;
+    viewModeToggleButton.setAttribute("aria-pressed", String(currentMode === "list"));
     viewModeToggleButton.setAttribute(
       "aria-label",
       switchToList
-        ? `Current mode: ${uiState.viewMode}. Switch to list mode`
-        : `Current mode: ${uiState.viewMode}. Switch to board mode`
+        ? `Current mode: ${currentMode}. Switch to list mode`
+        : `Current mode: ${currentMode}. Switch to board mode`
     );
     viewModeToggleButton.title = switchToList
-      ? `Current mode: ${uiState.viewMode}. Switch to list mode`
-      : `Current mode: ${uiState.viewMode}. Switch to board mode`;
+      ? `Current mode: ${currentMode}. Switch to list mode`
+      : `Current mode: ${currentMode}. Switch to board mode`;
+    viewModeToggleButton.disabled = false;
   }
 
   function setState(nextItems, nextSelectedId) {
@@ -674,6 +694,9 @@
   }
   if (viewModeToggleButton) {
     viewModeToggleButton.addEventListener("click", () => {
+      if (isCompactListForced()) {
+        return;
+      }
       uiState.viewMode = isListMode() ? "board" : "list";
       debugLog("view-mode:toggle", { nextMode: uiState.viewMode });
       persistState();
@@ -1003,11 +1026,17 @@
     if (layoutController && typeof layoutController.updateSplitterA11y === "function") {
       layoutController.updateSplitterA11y();
     }
+    render();
   };
   if (stackedQuery && typeof stackedQuery.addEventListener === "function") {
     stackedQuery.addEventListener("change", handleLayoutMediaChange);
   } else if (stackedQuery && typeof stackedQuery.addListener === "function") {
     stackedQuery.addListener(handleLayoutMediaChange);
+  }
+  if (compactListQuery && typeof compactListQuery.addEventListener === "function") {
+    compactListQuery.addEventListener("change", handleLayoutMediaChange);
+  } else if (compactListQuery && typeof compactListQuery.addListener === "function") {
+    compactListQuery.addListener(handleLayoutMediaChange);
   }
   window.addEventListener("resize", () => {
     if (

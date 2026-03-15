@@ -20,7 +20,7 @@ function readCssBundle(entryPath: string, seen = new Set<string>()) {
   return bundled;
 }
 
-function bootstrapWebview(stacked: boolean) {
+function bootstrapWebview(stacked: boolean, narrow = false) {
   const html = `
     <!doctype html>
     <html>
@@ -58,24 +58,38 @@ function bootstrapWebview(stacked: boolean) {
   const postedMessages: Array<{ type?: string }> = [];
   const state = {};
 
-  let mediaMatches = stacked;
-  const listeners: Array<(event: { matches: boolean }) => void> = [];
-  const mediaQuery = {
-    get matches() {
-      return mediaMatches;
-    },
-    addEventListener: (_type: string, callback: (event: { matches: boolean }) => void) => {
-      listeners.push(callback);
-    },
-    removeEventListener: () => undefined,
-    addListener: (callback: (event: { matches: boolean }) => void) => {
-      listeners.push(callback);
-    },
-    removeListener: () => undefined
+  const mediaState = { stacked, narrow };
+  const listeners = new Map<string, Array<(event: { matches: boolean }) => void>>();
+  const getMatches = (query: string) => {
+    if (query === "(max-width: 900px)") {
+      return mediaState.stacked;
+    }
+    if (query === "(max-width: 500px)") {
+      return mediaState.narrow;
+    }
+    return false;
+  };
+  const registerListener = (query: string, callback: (event: { matches: boolean }) => void) => {
+    const callbacks = listeners.get(query) || [];
+    callbacks.push(callback);
+    listeners.set(query, callbacks);
   };
 
   Object.defineProperty(dom.window, "matchMedia", {
-    value: () => mediaQuery
+    value: (query: string) => ({
+      media: query,
+      get matches() {
+        return getMatches(query);
+      },
+      addEventListener: (_type: string, callback: (event: { matches: boolean }) => void) => {
+        registerListener(query, callback);
+      },
+      removeEventListener: () => undefined,
+      addListener: (callback: (event: { matches: boolean }) => void) => {
+        registerListener(query, callback);
+      },
+      removeListener: () => undefined
+    })
   });
 
   Object.defineProperty(dom.window, "acquireVsCodeApi", {
@@ -105,9 +119,12 @@ function bootstrapWebview(stacked: boolean) {
   dom.window.eval(renderMarkdownScript);
   dom.window.eval(mainScript);
 
+  const emitMediaChange = (query: string) => {
+    (listeners.get(query) || []).forEach((callback) => callback({ matches: getMatches(query) }));
+  };
   const setStacked = (nextValue: boolean) => {
-    mediaMatches = nextValue;
-    listeners.forEach((callback) => callback({ matches: nextValue }));
+    mediaState.stacked = nextValue;
+    emitMediaChange("(max-width: 900px)");
   };
 
   return { dom, postedMessages, setStacked };

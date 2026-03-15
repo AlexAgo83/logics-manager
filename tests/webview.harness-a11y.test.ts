@@ -855,6 +855,27 @@ describe("webview harness controls and accessibility", () => {
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
   });
 
+  it("renders suggested-action badges for actionable items", () => {
+    const orphanProduct = {
+      ...productItem,
+      references: [],
+      usedBy: []
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, orphanProduct]
+    });
+
+    const document = dom.window.document;
+    const requestCard = document.querySelector('.card[data-id="req_000_kickoff"]');
+    const productCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
+
+    expect(requestCard?.textContent).toContain("Promote");
+    expect(requestCard?.textContent).toContain("Add docs");
+    expect(productCard?.textContent).toContain("Link flow");
+  });
+
   it("shows a compact preview on hover and dismisses it cleanly", () => {
     const previewItem = {
       ...baseItem,

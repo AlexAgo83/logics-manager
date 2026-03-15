@@ -1,9 +1,9 @@
 ## item_047_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow guidance and proactive orchestration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -33,11 +33,11 @@ Suggested-action badges would help surface high-confidence next-step cues direct
 - AC6: Tests cover the main suggested-badge rendering rules where practical.
 
 # AC Traceability
-- AC1/AC2 -> first badge heuristics and rendering rules are introduced clearly. Proof: TODO.
-- AC3 -> badge semantics remain distinct from current indicators. Proof: TODO.
-- AC4 -> board/list item renderers support the same badge system coherently. Proof: TODO.
-- AC5 -> current interactions remain intact after badge introduction. Proof: TODO.
-- AC6 -> tests cover primary badge-rendering rules. Proof: TODO.
+- AC1/AC2 -> the plugin now renders a first small set of suggested-action badges for promotable items, workflow items needing companion docs, and supporting docs that should link back to primary flow. Proof: `media/main.js`, `media/renderBoard.js`.
+- AC3 -> suggested badges are rendered in their own badge row and remain distinct from the existing indicator and companion badge systems. Proof: `media/renderBoard.js`, `media/css/board.css`.
+- AC4 -> the shared card renderer shows the same suggested-action badges in board and list modes. Proof: `media/renderBoard.js`.
+- AC5 -> card selection and existing actions remain unchanged after badge introduction. Proof: `media/renderBoard.js`.
+- AC6 -> harness tests cover the core suggested-badge heuristics. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

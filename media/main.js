@@ -576,6 +576,20 @@
     return getHealthSignals(item).length > 0;
   }
 
+  function getSuggestedActions(item) {
+    const actions = [];
+    if (canPromote(item)) {
+      actions.push({ key: "promote", label: "Promote", title: "This workflow item can be promoted." });
+    }
+    if (isPrimaryFlowStage(item.stage) && collectCompanionDocs(item).length === 0 && collectSpecs(item).length === 0) {
+      actions.push({ key: "add-docs", label: "Add docs", title: "This workflow item needs companion docs or specs." });
+    }
+    if (!isPrimaryFlowStage(item.stage) && collectPrimaryFlowItems(item).length === 0) {
+      actions.push({ key: "link-flow", label: "Link flow", title: "This supporting doc should be linked back to a primary-flow item." });
+    }
+    return actions.slice(0, 2);
+  }
+
   function getActivityEntries() {
     return [...items]
       .filter((item) => Date.parse(item.updatedAt || "") > 0)
@@ -943,6 +957,7 @@
         collectCompanionDocs,
         collectSpecs,
         collectPrimaryFlowItems,
+        getSuggestedActions,
         progressState,
         getProgressValue,
         isComplete,

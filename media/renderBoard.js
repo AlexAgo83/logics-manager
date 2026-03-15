@@ -38,6 +38,7 @@
       collectCompanionDocs,
       collectSpecs,
       collectPrimaryFlowItems,
+      getSuggestedActions,
       progressState,
       getProgressValue,
       isComplete,
@@ -343,6 +344,27 @@
       return badges.childElementCount > 0 ? badges : null;
     }
 
+    function createSuggestedBadges(item) {
+      if (typeof getSuggestedActions !== "function") {
+        return null;
+      }
+      const actions = getSuggestedActions(item);
+      if (!actions || actions.length === 0) {
+        return null;
+      }
+
+      const badges = document.createElement("div");
+      badges.className = "card__badges card__badges--suggested";
+      actions.forEach((action) => {
+        const badge = document.createElement("span");
+        badge.className = "card__badge card__badge--suggested";
+        badge.textContent = action.label;
+        badge.title = action.title;
+        badges.appendChild(badge);
+      });
+      return badges;
+    }
+
     function createPrimaryFlowSummary(item) {
       if (isPrimaryFlowStage(item.stage)) {
         return "";
@@ -441,6 +463,11 @@
       const companionBadges = createCompanionBadges(item);
       if (companionBadges) {
         card.appendChild(companionBadges);
+      }
+
+      const suggestedBadges = createSuggestedBadges(item);
+      if (suggestedBadges) {
+        card.appendChild(suggestedBadges);
       }
 
       if (!compact && !isPrimaryFlowStage(item.stage)) {

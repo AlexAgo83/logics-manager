@@ -187,6 +187,10 @@
   gap: 6px;
 }
 
+.card__badges--suggested {
+  margin-top: 2px;
+}
+
 .card__preview {
   margin-top: 4px;
   padding-top: 6px;
@@ -242,6 +246,12 @@
   color: #dcfce7;
   background: rgba(22, 163, 74, 0.22);
   border-color: rgba(34, 197, 94, 0.4);
+}
+
+.card__badge--suggested {
+  color: #d1fae5;
+  background: rgba(13, 148, 136, 0.2);
+  border-color: rgba(20, 184, 166, 0.38);
 }
 
 .card--selected {

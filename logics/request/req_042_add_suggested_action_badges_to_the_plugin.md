@@ -1,6 +1,6 @@
 ## req_042_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

@@ -1,6 +1,6 @@
 ## req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium
@@ -53,6 +53,11 @@ The result is a test suite that passes while a user-visible behavior can still b
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Implementation notes
+- List-mode coverage now asserts that `Hide empty columns` removes empty stage groups, not only board columns.
+- Critical layout CSS checks now target the intended selector blocks instead of relying on broad string-presence assertions.
+- The updated tests stay behavior-oriented and avoid snapshot-style overlocking.
 
 # Backlog
 - `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`

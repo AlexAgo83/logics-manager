@@ -20,6 +20,16 @@ function readCssBundle(entryPath: string, seen = new Set<string>()) {
   return bundled;
 }
 
+function getCssRule(css: string, selector: string) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return css.match(new RegExp(`${escapedSelector}\\s*\\{[^}]+\\}`))?.[0] || "";
+}
+
+function getCssRules(css: string, selector: string) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return css.match(new RegExp(`${escapedSelector}\\s*\\{[^}]+\\}`, "g")) || [];
+}
+
 function bootstrapWebview(stacked: boolean, narrow = false) {
   const html = `
     <!doctype html>
@@ -185,24 +195,29 @@ describe("webview collapsed details layout behavior", () => {
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
     const css = readCssBundle("media/main.css");
-    expect(css.includes("body {")).toBe(true);
-    expect(css.includes("display: flex;")).toBe(true);
-    expect(css.includes("flex-direction: column;")).toBe(true);
-    expect(css.includes("overflow: hidden;")).toBe(true);
-    expect(css.includes(".layout {")).toBe(true);
-    expect(css.includes("flex: 1 1 auto;")).toBe(true);
+    const bodyRule = getCssRule(css, "body");
+    const layoutRules = getCssRules(css, ".layout");
+    const layoutRule = layoutRules.find((rule) => rule.includes("flex: 1 1 auto;")) || "";
+    const stackedRule = getCssRule(css, ".layout--stacked");
+    const horizontalRule = getCssRule(css, ".layout--horizontal");
+    const splitDisabledRule = getCssRule(css, ".layout--stacked.layout--split-disabled .splitter");
+    const horizontalSplitterRule = getCssRule(css, ".layout--horizontal .splitter");
+    const collapsedActionsRule = getCssRule(css, ".details--collapsed .details__actions");
+    const stackedDetailsRule = getCssRule(css, ".layout--stacked .details");
+
+    expect(bodyRule.includes("display: flex;")).toBe(true);
+    expect(bodyRule.includes("flex-direction: column;")).toBe(true);
+    expect(bodyRule.includes("overflow: hidden;")).toBe(true);
+    expect(layoutRule.includes("flex: 1 1 auto;")).toBe(true);
     expect(css.includes("height: calc(100vh - 42px);")).toBe(false);
-    expect(css.includes(".layout--stacked")).toBe(true);
-    expect(css.includes("flex-direction: column;")).toBe(true);
-    expect(css.includes(".layout--horizontal")).toBe(true);
-    expect(css.includes("flex-direction: row;")).toBe(true);
-    expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
-    expect(css.includes(".layout--horizontal .splitter")).toBe(true);
-    expect(css.includes(".details--collapsed .details__actions")).toBe(true);
-    expect(css.includes(".layout--stacked .details")).toBe(true);
-    expect(css.includes("position: relative;")).toBe(true);
-    expect(css.includes("bottom: auto;")).toBe(true);
-    expect(css.includes("z-index: 2;")).toBe(true);
+    expect(stackedRule.includes("flex-direction: column;")).toBe(true);
+    expect(horizontalRule.includes("flex-direction: row;")).toBe(true);
+    expect(splitDisabledRule.includes("display: none")).toBe(true);
+    expect(horizontalSplitterRule.includes("display: none")).toBe(true);
+    expect(collapsedActionsRule.length).toBeGreaterThan(0);
+    expect(stackedDetailsRule.includes("position: relative;")).toBe(true);
+    expect(stackedDetailsRule.includes("bottom: auto;")).toBe(true);
+    expect(stackedDetailsRule.includes("z-index: 2;")).toBe(true);
   });
 
   it("allows long detail titles and ids to wrap without ellipsis overflow", () => {

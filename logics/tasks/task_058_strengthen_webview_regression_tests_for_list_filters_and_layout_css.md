@@ -1,9 +1,9 @@
 ## task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,11 +14,17 @@
 - Related request(s): `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`.
 
 # Plan
-- [ ] 1. Add regression coverage for `Hide empty columns` in list mode.
-- [ ] 2. Strengthen layout/CSS assertions where current checks are too broad.
-- [ ] 3. Prefer behavior- and DOM-level assertions first, with targeted CSS checks only where needed.
-- [ ] 4. Keep the resulting suite maintainable and not overly brittle.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Add regression coverage for `Hide empty columns` in list mode.
+- [x] 2. Strengthen layout/CSS assertions where current checks are too broad.
+- [x] 3. Prefer behavior- and DOM-level assertions first, with targeted CSS checks only where needed.
+- [x] 4. Keep the resulting suite maintainable and not overly brittle.
+- [x] FINAL: Update related Logics docs
+
+# AC Traceability
+- AC1 -> Step 1.
+- AC2 -> Step 2.
+- AC3 -> Steps 3 and 4.
+- AC4 -> Step 2.
 
 # Links
 - Backlog item: `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`
@@ -29,7 +35,7 @@
 - `npm test -- tests/webview.layout-collapse.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status and progress updated.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status and progress updated.

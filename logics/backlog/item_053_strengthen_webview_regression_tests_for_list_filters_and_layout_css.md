@@ -1,9 +1,9 @@
 ## item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -37,6 +37,12 @@ That leaves the suite less trustworthy than it should be for recent UI work.
   - Medium: higher confidence on UI work that has already regressed multiple times.
 - Urgency:
   - Medium: worthwhile before the current UI/layout backlog grows further.
+
+# AC Traceability
+- AC1 -> list-mode regression coverage now verifies `Hide empty columns` directly. Proof: `tests/webview.harness-a11y.test.ts`.
+- AC2 -> critical layout assertions now bind to specific selector blocks rather than generic string presence. Proof: `tests/webview.layout-collapse.test.ts`.
+- AC3 -> the updated assertions stay focused on behavior and targeted layout contracts instead of broad snapshots. Proof: `tests/webview.harness-a11y.test.ts`, `tests/webview.layout-collapse.test.ts`.
+- AC4 -> stacked-layout and splitter CSS contracts remain explicitly covered. Proof: `tests/webview.layout-collapse.test.ts`.
 
 # Notes
 - Derived from `logics/request/req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`.

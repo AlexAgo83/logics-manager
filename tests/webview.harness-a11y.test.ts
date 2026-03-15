@@ -827,6 +827,28 @@ describe("webview harness controls and accessibility", () => {
     ).toBe(true);
   });
 
+  it("keeps only indicators open by default in the details panel", () => {
+    const { dom } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const indicatorsToggle = document.querySelector('[data-section="indicators"]');
+    const companionToggle = document.querySelector('[data-section="companionDocs"]');
+    const specsToggle = document.querySelector('[data-section="specs"]');
+    const referencesToggle = document.querySelector('[data-section="references"]');
+    const usedByToggle = document.querySelector('[data-section="usedBy"]');
+
+    expect(indicatorsToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(companionToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(specsToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(referencesToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(usedByToggle?.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("offers explicit product and architecture companion actions when framing docs are missing", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {

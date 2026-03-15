@@ -1,9 +1,9 @@
 ## item_033_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Detail panel scanability and progressive disclosure
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -39,11 +39,11 @@ Users usually need the top identity block and workflow indicators immediately, b
 - AC10: Webview tests lock the new default open/collapsed hierarchy.
 
 # AC Traceability
-- AC1/AC2 -> detail header rendering and default section-state initialization in the details renderer. Proof: TODO.
-- AC3/AC4/AC5/AC6 -> default collapsed-state rules for `Companion docs`, `Specs`, `References`, and `Used by`. Proof: TODO.
-- AC7/AC8 -> existing section toggle interactions continue to work after the new defaults are applied. Proof: TODO.
-- AC9 -> inline actions remain rendered and actionable once a section is expanded. Proof: TODO.
-- AC10 -> webview harness coverage for section-open defaults and toggling. Proof: TODO.
+- AC1/AC2 -> detail header rendering and default section-state initialization in the details renderer. Proof: `media/main.js`, `media/renderDetails.js`.
+- AC3/AC4/AC5/AC6 -> default collapsed-state rules for `Companion docs`, `Specs`, `References`, and `Used by`. Proof: `media/main.js`.
+- AC7/AC8 -> existing section toggle interactions continue to work after the new defaults are applied. Proof: `media/renderDetails.js`.
+- AC9 -> inline actions remain rendered and actionable once a section is expanded. Proof: `media/renderDetails.js`.
+- AC10 -> webview harness coverage for section-open defaults and toggling. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

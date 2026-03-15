@@ -50,7 +50,8 @@
   let showCompanionDocs = true;
   let hideEmptyColumns = true;
   let collapsedStages = new Set();
-  let collapsedDetailSections = new Set();
+  const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
+  let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
   let filterPanelOpen = false;

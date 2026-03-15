@@ -1,6 +1,6 @@
 ## req_029_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Low

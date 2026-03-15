@@ -1,9 +1,9 @@
 ## task_028_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Detail panel scanability and progressive disclosure
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,12 +23,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Clarify where default collapsed-section state is initialized today.
-- [ ] 2. Set `Indicators` open by default and `Companion docs`, `Specs`, `References`, `Used by` closed by default.
-- [ ] 3. Preserve existing manual expand/collapse behavior and section actions.
-- [ ] 4. Verify the intended defaults when switching selected items.
-- [ ] 5. Add/adjust harness tests for the default section-open hierarchy.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Clarify where default collapsed-section state is initialized today.
+- [x] 2. Set `Indicators` open by default and `Companion docs`, `Specs`, `References`, `Used by` closed by default.
+- [x] 3. Preserve existing manual expand/collapse behavior and section actions.
+- [x] 4. Verify the intended defaults when switching selected items.
+- [x] 5. Add/adjust harness tests for the default section-open hierarchy.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Step 2.

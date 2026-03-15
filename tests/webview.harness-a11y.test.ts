@@ -524,7 +524,7 @@ describe("webview harness controls and accessibility", () => {
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 
-  it("hides only processed requests when the processed filter is enabled", () => {
+  it("hides processed requests by default and can reveal them when disabled", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -569,17 +569,18 @@ describe("webview harness controls and accessibility", () => {
     const document = dom.window.document;
     const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
 
-    expect(document.querySelector('[data-id="req_001_processed"]')).not.toBeNull();
+    expect(processedToggle?.checked).toBe(true);
+    expect(document.querySelector('[data-id="req_001_processed"]')).toBeNull();
     expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
 
     if (processedToggle) {
-      processedToggle.checked = true;
+      processedToggle.checked = false;
       processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    expect(document.querySelector('[data-id="req_001_processed"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_001_processed"]')).not.toBeNull();
     expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
-    expect(persistedStates.some((state) => state.hideProcessedRequests === true)).toBe(true);
+    expect(persistedStates.some((state) => state.hideProcessedRequests === false)).toBe(true);
   });
 
   it("hides processed requests when the linked backlog reference is stored as an id", () => {
@@ -610,12 +611,7 @@ describe("webview harness controls and accessibility", () => {
 
     const document = dom.window.document;
     const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
-    expect(document.querySelector('[data-id="req_003_processed_by_id"]')).not.toBeNull();
-
-    if (processedToggle) {
-      processedToggle.checked = true;
-      processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-    }
+    expect(processedToggle?.checked).toBe(true);
 
     expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
   });
@@ -868,7 +864,7 @@ describe("webview harness controls and accessibility", () => {
     ).toBe(true);
   });
 
-  it("keeps companion docs hidden by default and reveals them with the toggle", () => {
+  it("shows companion docs by default and can hide them with the toggle", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -886,6 +882,15 @@ describe("webview harness controls and accessibility", () => {
     const document = dom.window.document;
     const showCompanionDocsToggle = document.getElementById("show-companion-docs") as HTMLInputElement | null;
     const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
+
+    expect(showCompanionDocsToggle?.checked).toBe(true);
+    expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
+    expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
+
+    if (showCompanionDocsToggle) {
+      showCompanionDocsToggle.checked = false;
+      showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
 
     expect(document.querySelector('.column[data-stage="product"]')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"]')).toBeNull();

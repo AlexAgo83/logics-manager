@@ -44,10 +44,10 @@
 
   let items = [];
   let selectedId = null;
-  let hideCompleted = false;
-  let hideProcessedRequests = false;
+  let hideCompleted = true;
+  let hideProcessedRequests = true;
   let hideSpec = true;
-  let showCompanionDocs = false;
+  let showCompanionDocs = true;
   let hideEmptyColumns = true;
   let collapsedStages = new Set();
   let collapsedDetailSections = new Set();

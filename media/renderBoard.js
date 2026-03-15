@@ -1,22 +1,4 @@
 (() => {
-  function eyeIcon(isHidden) {
-    if (isHidden) {
-      return `
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      `;
-    }
-    return `
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-      </svg>
-    `;
-  }
-
   function plusIcon() {
     return `
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -58,8 +40,6 @@
       openSelectedItem,
       closeColumnMenu,
       toggleColumnMenu,
-      persistState,
-      getCollapsedStages,
       getHideCompleted,
       getHideProcessedRequests,
       getHideSpec,
@@ -263,9 +243,8 @@
           return;
         }
         const column = document.createElement("div");
-        const isCollapsed = getCollapsedStages().has(stage);
         const canCreateFromColumn = isPrimaryFlowStage(stage);
-        column.className = isCollapsed ? "column column--collapsed" : "column";
+        column.className = "column";
         column.dataset.stage = stage;
 
         const header = document.createElement("div");
@@ -295,25 +274,6 @@
           actions.appendChild(addButton);
         }
 
-        const toggle = document.createElement("button");
-        toggle.type = "button";
-        toggle.className = "column__toggle";
-        toggle.innerHTML = eyeIcon(isCollapsed);
-        toggle.setAttribute("aria-label", isCollapsed ? `Show ${getStageHeading(stage)}` : `Hide ${getStageHeading(stage)}`);
-        toggle.title = isCollapsed ? `Show ${getStageHeading(stage)}` : `Hide ${getStageHeading(stage)}`;
-        toggle.setAttribute("aria-pressed", String(isCollapsed));
-        toggle.addEventListener("click", (event) => {
-          event.stopPropagation();
-          const collapsedStages = getCollapsedStages();
-          if (collapsedStages.has(stage)) {
-            collapsedStages.delete(stage);
-          } else {
-            collapsedStages.add(stage);
-          }
-          persistState();
-          render();
-        });
-        actions.appendChild(toggle);
         header.appendChild(actions);
         column.appendChild(header);
 

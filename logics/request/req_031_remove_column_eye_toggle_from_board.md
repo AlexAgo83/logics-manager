@@ -1,6 +1,6 @@
 ## req_031_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Low

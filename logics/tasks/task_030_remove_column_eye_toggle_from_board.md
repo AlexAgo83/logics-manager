@@ -1,9 +1,9 @@
 ## task_030_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,13 +23,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify where the eye toggle is rendered and where its interaction path is handled.
-- [ ] 2. Remove the eye toggle from board column headers.
-- [ ] 3. Remove or neutralize the corresponding per-column hide/show behavior.
-- [ ] 4. Ensure header alignment and remaining actions stay stable after removal.
-- [ ] 5. Handle any persisted collapsed-column state safely.
-- [ ] 6. Add/adjust tests for the new board-header behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify where the eye toggle is rendered and where its interaction path is handled.
+- [x] 2. Remove the eye toggle from board column headers.
+- [x] 3. Remove or neutralize the corresponding per-column hide/show behavior.
+- [x] 4. Ensure header alignment and remaining actions stay stable after removal.
+- [x] 5. Handle any persisted collapsed-column state safely.
+- [x] 6. Add/adjust tests for the new board-header behavior.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 2 and 3.

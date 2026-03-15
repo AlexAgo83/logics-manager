@@ -58,7 +58,6 @@
   let hideSpec = defaultFilterState.hideSpec;
   let showCompanionDocs = defaultFilterState.showCompanionDocs;
   let hideEmptyColumns = defaultFilterState.hideEmptyColumns;
-  let collapsedStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
   let activeColumnMenu = null;
@@ -637,8 +636,6 @@
         openSelectedItem,
         closeColumnMenu,
         toggleColumnMenu,
-        persistState,
-        getCollapsedStages: () => collapsedStages,
         getHideCompleted: () => hideCompleted,
         getHideProcessedRequests: () => hideProcessedRequests,
         getHideSpec: () => hideSpec,
@@ -794,7 +791,6 @@
       hideSpec,
       showCompanionDocs,
       hideEmptyColumns,
-      collapsedStages: Array.from(collapsedStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
       viewMode: uiState.viewMode,
@@ -942,9 +938,6 @@
   }
   if (previousState && typeof previousState.hideEmptyColumns === "boolean") {
     hideEmptyColumns = previousState.hideEmptyColumns;
-  }
-  if (previousState && Array.isArray(previousState.collapsedStages)) {
-    collapsedStages = new Set(previousState.collapsedStages);
   }
   if (previousState && typeof previousState.detailsCollapsed === "boolean") {
     uiState.detailsCollapsed = previousState.detailsCollapsed;

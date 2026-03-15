@@ -1,9 +1,9 @@
 ## item_036_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -35,11 +35,11 @@ This control increases header density across every column and competes with high
 - AC7: Webview tests are updated so the removed control and old interaction path do not regress back in.
 
 # AC Traceability
-- AC1/AC2 -> board header rendering and old toggle interaction path are removed together. Proof: TODO.
-- AC3/AC4 -> header action layout remains valid after the control disappears. Proof: TODO.
-- AC5 -> board rendering remains stable in current layout modes. Proof: TODO.
-- AC6 -> collapsed-stage or equivalent persisted state is handled safely after control removal. Proof: TODO.
-- AC7 -> harness/layout tests updated to reflect the new header behavior. Proof: TODO.
+- AC1/AC2 -> board header rendering and old toggle interaction path are removed together. Proof: `media/renderBoard.js`.
+- AC3/AC4 -> header action layout remains valid after the control disappears. Proof: `media/renderBoard.js`, `media/css/board.css`.
+- AC5 -> board rendering remains stable in current layout modes. Proof: `media/renderBoard.js`, `tests/webview.layout-collapse.test.ts`.
+- AC6 -> legacy collapsed-stage persisted state is safely ignored after control removal. Proof: `media/main.js`.
+- AC7 -> harness/layout tests updated to reflect the new header behavior. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

@@ -1168,6 +1168,18 @@ describe("webview harness controls and accessibility", () => {
     expect(detailsToggle?.getAttribute("title")).toBe("Expand details");
   });
 
+  it("does not render the legacy eye toggle in board column headers", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    expect(dom.window.document.querySelector(".column__toggle")).toBeNull();
+    expect(dom.window.document.querySelectorAll(".column__add").length).toBe(1);
+  });
+
   it("renders markdown preview with Mermaid bootstrap in harness read mode", async () => {
     const mermaidItem = {
       ...baseItem,

@@ -1,6 +1,6 @@
 ## req_039_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Medium

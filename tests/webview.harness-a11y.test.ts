@@ -7,6 +7,7 @@ type BootstrapOptions = {
   stacked?: boolean;
   narrow?: boolean;
   harness?: boolean;
+  initialState?: Record<string, unknown>;
   showDirectoryPicker?: () => Promise<{ name?: string }>;
   fetchImpl?: (url: string) => Promise<{ ok: boolean; status: number; text: () => Promise<string> }>;
   confirmImpl?: (message: string) => boolean;
@@ -70,7 +71,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
 
   const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://localhost/" });
   const postedMessages: Array<{ type?: string }> = [];
-  const state = {};
+  const state = { ...(options.initialState || {}) };
   const persistedStates: Array<Record<string, unknown>> = [];
   const openedUrls: string[] = [];
   const openedDocuments: string[] = [];
@@ -182,6 +183,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
       postMessage: (message: { type?: string }) => postedMessages.push(message),
       getState: () => state,
       setState: (nextState: Record<string, unknown>) => {
+        Object.assign(state, nextState);
         persistedStates.push(nextState);
       }
     })
@@ -804,6 +806,64 @@ describe("webview harness controls and accessibility", () => {
     card?.dispatchEvent(new dom.window.MouseEvent("mouseleave", { bubbles: true }));
     expect(getPreview()?.hidden).toBe(true);
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
+  });
+
+  it("restores persisted UI state for the current workspace when it is still valid", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        workspaceRoot: "/workspace/mock",
+        selectedId: "prod_000_plugin_ux",
+        searchQuery: "plugin",
+        viewMode: "list",
+        boardScrollTop: 42,
+        detailsScrollTop: 18
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const detailsBody = document.getElementById("details-body");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(searchInput?.value).toBe("plugin");
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("prod_000_plugin_ux");
+    expect(board?.scrollTop).toBe(42);
+    expect(detailsBody?.scrollTop).toBe(18);
+  });
+
+  it("drops stale restored UI fragments when the workspace root changes", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        workspaceRoot: "/workspace/other",
+        selectedId: "prod_000_plugin_ux",
+        searchQuery: "plugin",
+        viewMode: "list",
+        detailsCollapsed: true
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const details = document.getElementById("details");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(searchInput?.value).toBe("");
+    expect(board?.classList.contains("board--list")).toBe(false);
+    expect(document.querySelector(".card--selected")).toBeNull();
+    expect(details?.classList.contains("details--collapsed")).toBe(false);
   });
 
   it("hides SPEC by default and applies the toggle in board and list modes", () => {

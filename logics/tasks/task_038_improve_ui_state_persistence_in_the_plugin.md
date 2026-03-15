@@ -1,9 +1,9 @@
 ## task_038_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI continuity and workflow stability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,12 +14,12 @@
 - Related request(s): `req_039_improve_ui_state_persistence_in_the_plugin`.
 
 # Plan
-- [ ] 1. Identify the highest-value UI states worth persisting more reliably, scoped per workspace.
-- [ ] 2. Improve persistence and restoration rules for those states.
-- [ ] 3. Guard restoration against stale or misleading state when data changes, dropping invalid fragments quietly.
-- [ ] 4. Validate compatibility with current filters, responsive behavior, and temporary responsive overrides of stored preferences.
-- [ ] 5. Add/adjust tests for the most important restored-state paths.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify the highest-value UI states worth persisting more reliably, scoped per workspace.
+- [x] 2. Improve persistence and restoration rules for those states.
+- [x] 3. Guard restoration against stale or misleading state when data changes, dropping invalid fragments quietly.
+- [x] 4. Validate compatibility with current filters, responsive behavior, and temporary responsive overrides of stored preferences.
+- [x] 5. Add/adjust tests for the most important restored-state paths.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 1 and 2.
@@ -37,7 +37,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

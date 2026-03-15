@@ -1,9 +1,9 @@
 ## item_044_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI continuity and workflow stability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,12 +36,12 @@ Improving persistence would make the plugin feel steadier and more helpful durin
 - AC7: Tests cover the most important restored-state paths where practical.
 
 # AC Traceability
-- AC1/AC2 -> persistence scope is extended and restoration is validated. Proof: TODO.
-- AC3 -> restored state composes cleanly with existing filters/layout behavior. Proof: TODO.
-- AC4 -> selection recovery is improved without misleading stale selection. Proof: TODO.
-- AC5 -> scroll/expansion persistence is applied where valuable. Proof: TODO.
-- AC6 -> restoration rules remain guarded when data changed. Proof: TODO.
-- AC7 -> tests cover important continuity paths. Proof: TODO.
+- AC1/AC2 -> persisted UI state now includes workspace root, selected item, search, grouping, sorting, view mode, collapses, and scroll fragments, all restored through the webview state model. Proof: `media/main.js`.
+- AC3 -> restored state continues to compose with filters and responsive overrides, with stored preferences preserved underneath temporary forced layouts. Proof: `media/main.js`.
+- AC4 -> selected item restoration now works when the item still exists and is still visible. Proof: `media/main.js`, `tests/webview.harness-a11y.test.ts`.
+- AC5 -> board and details scroll positions are captured and restored where the target surfaces remain stable. Proof: `media/main.js`, `tests/webview.harness-a11y.test.ts`.
+- AC6 -> stale fragments are dropped quietly when the restored workspace root does not match the current dataset. Proof: `media/main.js`, `tests/webview.harness-a11y.test.ts`.
+- AC7 -> regression tests cover valid restoration and root-mismatch invalidation paths. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

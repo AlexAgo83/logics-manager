@@ -73,6 +73,15 @@
   let toolsPanelOpen = false;
   let canResetProjectRoot = false;
   let canBootstrapLogics = false;
+  let activeWorkspaceRoot = null;
+  let persistedWorkspaceRoot = null;
+  const previousState = vscode.getState() || null;
+  const scrollState = {
+    boardLeft: 0,
+    boardTop: 0,
+    detailsTop: 0
+  };
+  let persistStateTimer = null;
 
   const primaryStageOrder = ["request", "backlog", "task"];
   const companionStageOrder = ["product", "architecture"];
@@ -111,6 +120,56 @@
       return;
     }
     console.debug("[cdx-logics-webview]", eventName, payload);
+  }
+
+  function captureScrollState() {
+    if (board) {
+      scrollState.boardLeft = board.scrollLeft;
+      scrollState.boardTop = board.scrollTop;
+    }
+    if (detailsBody) {
+      scrollState.detailsTop = detailsBody.scrollTop;
+    }
+  }
+
+  function restoreScrollState() {
+    if (board) {
+      board.scrollLeft = scrollState.boardLeft;
+      board.scrollTop = scrollState.boardTop;
+    }
+    if (detailsBody) {
+      detailsBody.scrollTop = scrollState.detailsTop;
+    }
+  }
+
+  function schedulePersistState() {
+    if (persistStateTimer) {
+      clearTimeout(persistStateTimer);
+    }
+    persistStateTimer = setTimeout(() => {
+      persistStateTimer = null;
+      persistState();
+    }, 80);
+  }
+
+  function resetPersistedUiState() {
+    hideCompleted = defaultFilterState.hideCompleted;
+    hideProcessedRequests = defaultFilterState.hideProcessedRequests;
+    hideSpec = defaultFilterState.hideSpec;
+    showCompanionDocs = defaultFilterState.showCompanionDocs;
+    hideEmptyColumns = defaultFilterState.hideEmptyColumns;
+    searchQuery = "";
+    groupMode = "stage";
+    sortMode = "default";
+    collapsedListStages = new Set();
+    collapsedDetailSections = new Set(defaultCollapsedDetailSections);
+    selectedId = null;
+    scrollState.boardLeft = 0;
+    scrollState.boardTop = 0;
+    scrollState.detailsTop = 0;
+    uiState.detailsCollapsed = false;
+    uiState.viewMode = "board";
+    uiState.splitRatio = 0.6;
   }
 
   function getStageLabel(stage) {
@@ -290,6 +349,7 @@
     updateViewModeToggle();
     renderBoard();
     renderDetails();
+    restoreScrollState();
     updateButtons();
     updateFilterState();
     if (hideCompleteToggle) {
@@ -912,7 +972,10 @@
     });
   }
   function persistState() {
+    captureScrollState();
     vscode.setState({
+      workspaceRoot: activeWorkspaceRoot,
+      selectedId,
       hideCompleted,
       hideProcessedRequests,
       hideSpec,
@@ -925,7 +988,10 @@
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
       viewMode: uiState.viewMode,
-      splitRatio: uiState.splitRatio
+      splitRatio: uiState.splitRatio,
+      boardScrollLeft: scrollState.boardLeft,
+      boardScrollTop: scrollState.boardTop,
+      detailsScrollTop: scrollState.detailsTop
     });
   }
 
@@ -998,6 +1064,18 @@
       render();
     });
   }
+  if (board) {
+    board.addEventListener("scroll", () => {
+      captureScrollState();
+      schedulePersistState();
+    });
+  }
+  if (detailsBody) {
+    detailsBody.addEventListener("scroll", () => {
+      captureScrollState();
+      schedulePersistState();
+    });
+  }
   if (detailsToggle) {
     detailsToggle.addEventListener("click", () => {
       uiState.detailsCollapsed = !uiState.detailsCollapsed;
@@ -1042,8 +1120,12 @@
         selectedId: payload ? payload.selectedId : undefined
       });
       if (payload && typeof payload.root === "string") {
+        activeWorkspaceRoot = payload.root;
         if (harnessApi && typeof harnessApi.setCurrentRoot === "function") {
           harnessApi.setCurrentRoot(payload.root);
+        }
+        if (persistedWorkspaceRoot && persistedWorkspaceRoot !== payload.root) {
+          resetPersistedUiState();
         }
       }
       if (payload && typeof payload.canResetProjectRoot === "boolean") {
@@ -1073,7 +1155,6 @@
     }
   });
 
-  const previousState = vscode.getState();
   if (previousState && typeof previousState.hideCompleted === "boolean") {
     hideCompleted = previousState.hideCompleted;
   }
@@ -1100,6 +1181,12 @@
   if (previousState && typeof previousState.sortMode === "string") {
     sortMode = previousState.sortMode;
   }
+  if (previousState && typeof previousState.selectedId === "string") {
+    selectedId = previousState.selectedId;
+  }
+  if (previousState && typeof previousState.workspaceRoot === "string") {
+    persistedWorkspaceRoot = previousState.workspaceRoot;
+  }
   if (previousState && Array.isArray(previousState.collapsedListStages)) {
     collapsedListStages = new Set(previousState.collapsedListStages);
   }
@@ -1114,6 +1201,15 @@
   }
   if (previousState && typeof previousState.splitRatio === "number") {
     uiState.splitRatio = previousState.splitRatio;
+  }
+  if (previousState && typeof previousState.boardScrollLeft === "number") {
+    scrollState.boardLeft = previousState.boardScrollLeft;
+  }
+  if (previousState && typeof previousState.boardScrollTop === "number") {
+    scrollState.boardTop = previousState.boardScrollTop;
+  }
+  if (previousState && typeof previousState.detailsScrollTop === "number") {
+    scrollState.detailsTop = previousState.detailsScrollTop;
   }
 
   document.addEventListener("click", (event) => {

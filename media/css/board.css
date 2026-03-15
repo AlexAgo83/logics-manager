@@ -361,6 +361,10 @@
   gap: 4px;
 }
 
+.list-view__body[hidden] {
+  display: none;
+}
+
 .list-view__empty {
   padding: 0 12px 8px;
   font-size: 12px;

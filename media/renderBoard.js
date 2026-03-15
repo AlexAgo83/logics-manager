@@ -77,6 +77,15 @@
       );
     }
 
+    function findListSectionByKey(groupKey) {
+      if (!board || !groupKey) {
+        return null;
+      }
+      return (
+        Array.from(board.querySelectorAll(".list-view__section")).find((section) => section.dataset.group === groupKey) || null
+      );
+    }
+
     function focusCardById(id) {
       const card = findCardById(id);
       if (card && typeof card.focus === "function") {
@@ -121,7 +130,19 @@
         collapsedStages.delete(groupKey);
       }
       persistState();
-      render();
+      const section = findListSectionByKey(groupKey);
+      const header = findListHeaderByKey(groupKey);
+      const chevron = header ? header.querySelector(".list-view__header-icon") : null;
+      const body = section ? section.querySelector(".list-view__body") : null;
+      if (header) {
+        header.setAttribute("aria-expanded", String(!collapsed));
+      }
+      if (chevron) {
+        chevron.textContent = chevronIcon(collapsed);
+      }
+      if (body) {
+        body.hidden = collapsed;
+      }
     }
 
     function moveBoardSelection(item, direction) {

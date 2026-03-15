@@ -4,6 +4,8 @@
 **/node_modules/**
 **/.vscode/**
 **/out/**
+**/.pytest_cache/**
+**/__pycache__/**
 src/**
 tests/**
 debug/**

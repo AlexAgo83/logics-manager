@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
-![Version](https://img.shields.io/badge/version-v1.10.0-4C8BF5)
+![Version](https://img.shields.io/badge/version-v1.10.1-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -20,6 +20,7 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 - Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
 - Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
+- `Hide empty columns` now behaves consistently in board and list mode.
 - Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
 - Lightweight onboarding guidance and more actionable empty states.
 - Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
@@ -143,6 +144,7 @@ Contract:
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
+- `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
 

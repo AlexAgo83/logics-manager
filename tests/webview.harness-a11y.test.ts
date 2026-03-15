@@ -1194,6 +1194,33 @@ describe("webview harness controls and accessibility", () => {
     expect(persistedStates.some((state) => state.hideEmptyColumns === false)).toBe(true);
   });
 
+  it("hides empty stage groups in list mode by default and can be disabled", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const hideEmptyColumnsToggle = document.getElementById("hide-empty-columns") as HTMLInputElement | null;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(document.querySelector('.list-view__section[data-group="request"]')).not.toBeNull();
+    expect(document.querySelector('.list-view__section[data-group="backlog"]')).toBeNull();
+    expect(document.querySelector('.list-view__section[data-group="task"]')).toBeNull();
+
+    if (hideEmptyColumnsToggle) {
+      hideEmptyColumnsToggle.checked = false;
+      hideEmptyColumnsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(document.querySelector('.list-view__section[data-group="request"]')).not.toBeNull();
+    expect(document.querySelector('.list-view__section[data-group="backlog"]')).not.toBeNull();
+    expect(document.querySelector('.list-view__section[data-group="task"]')).not.toBeNull();
+  });
+
   it("applies detail header hierarchy and action emphasis for the selected item", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {

@@ -1,9 +1,9 @@
 ## item_051_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -37,6 +37,11 @@ That inconsistency makes the option harder to trust and adds unnecessary visual 
   - Medium: this removes a visible inconsistency in a default-on filter.
 - Urgency:
   - Medium: worth fixing before more list-mode UX accumulates around the current mismatch.
+
+# AC Traceability
+- AC1/AC2/AC3 -> stage-group list mode now removes empty groups when `Hide empty columns` is enabled and restores them when disabled. Proof: `media/main.js`.
+- AC4 -> the stage list still derives from the existing visibility rules before empty-group filtering is applied. Proof: `media/main.js`.
+- AC5 -> status grouping remains unchanged because the new filtering path is only applied after stage grouping. Proof: `media/main.js`.
 
 # Notes
 - Derived from `logics/request/req_046_apply_hide_empty_columns_consistently_in_list_mode.md`.

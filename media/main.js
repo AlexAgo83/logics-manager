@@ -781,13 +781,15 @@
     }
 
     const grouped = groupByStage(visibleItems);
-    return getVisibleStages().map((stage) => ({
-      key: stage,
-      stage,
-      heading: getStageHeading(stage),
-      items: grouped[stage] || [],
-      emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
-    }));
+    return getVisibleStages()
+      .map((stage) => ({
+        key: stage,
+        stage,
+        heading: getStageHeading(stage),
+        items: grouped[stage] || [],
+        emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
+      }))
+      .filter((group) => !hideEmptyColumns || group.items.length > 0);
   }
 
   function isPrimaryFlowStage(stage) {

@@ -1,9 +1,9 @@
 ## task_056_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,11 +14,15 @@
 - Related request(s): `req_046_apply_hide_empty_columns_consistently_in_list_mode`.
 
 # Plan
-- [ ] 1. Apply `Hide empty columns` to stage-grouped list mode.
-- [ ] 2. Keep empty stage groups fully removed when the filter is enabled.
-- [ ] 3. Preserve current behavior when the filter is disabled and leave status grouping unchanged.
-- [ ] 4. Add regression coverage for the list-mode behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Apply `Hide empty columns` to stage-grouped list mode.
+- [x] 2. Keep empty stage groups fully removed when the filter is enabled.
+- [x] 3. Preserve current behavior when the filter is disabled and leave status grouping unchanged.
+- [x] 4. Add regression coverage for the list-mode behavior.
+- [x] FINAL: Update related Logics docs
+
+# AC Traceability
+- AC1/AC2/AC3 -> Steps 1, 2, and 3.
+- AC4 -> Step 4.
 
 # Links
 - Backlog item: `item_051_apply_hide_empty_columns_consistently_in_list_mode`
@@ -29,7 +33,7 @@
 - `npm test -- tests/webview.harness-a11y.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status and progress updated.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status and progress updated.

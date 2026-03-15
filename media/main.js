@@ -20,6 +20,8 @@
   const toolsToggle = document.getElementById("tools-toggle");
   const toolsPanel = document.getElementById("tools-panel");
   const searchInput = document.getElementById("search-input");
+  const groupBySelect = document.getElementById("group-by");
+  const sortBySelect = document.getElementById("sort-by");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
@@ -60,6 +62,8 @@
   let showCompanionDocs = defaultFilterState.showCompanionDocs;
   let hideEmptyColumns = defaultFilterState.hideEmptyColumns;
   let searchQuery = "";
+  let groupMode = "stage";
+  let sortMode = "default";
   let collapsedListStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
@@ -306,6 +310,15 @@
     if (searchInput) {
       searchInput.value = searchQuery;
     }
+    if (groupBySelect) {
+      groupBySelect.value = groupMode;
+      groupBySelect.disabled = !isListMode();
+      groupBySelect.title = isListMode() ? "Group visible list items" : "Grouping modes apply in list mode";
+    }
+    if (sortBySelect) {
+      sortBySelect.value = sortMode;
+      sortBySelect.title = "Sort visible items";
+    }
   }
 
   function renderBoard() {
@@ -395,16 +408,60 @@
     }
   }
 
+  function normalizeSearchValue(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function getStatusValue(item) {
+    return normalizeSearchValue(item && item.indicators ? item.indicators.Status : "") || "no status";
+  }
+
+  function getProgressSortValue(item) {
+    const value = getProgressValue(item);
+    return typeof value === "number" ? value : -1;
+  }
+
+  function compareItems(left, right) {
+    if (sortMode === "updated-desc") {
+      const leftTime = Date.parse(left.updatedAt || "") || 0;
+      const rightTime = Date.parse(right.updatedAt || "") || 0;
+      if (rightTime !== leftTime) {
+        return rightTime - leftTime;
+      }
+    } else if (sortMode === "progress-desc") {
+      const progressDelta = getProgressSortValue(right) - getProgressSortValue(left);
+      if (progressDelta !== 0) {
+        return progressDelta;
+      }
+    } else if (sortMode === "status-asc") {
+      const statusDelta = getStatusValue(left).localeCompare(getStatusValue(right));
+      if (statusDelta !== 0) {
+        return statusDelta;
+      }
+    } else {
+      return 0;
+    }
+
+    return normalizeSearchValue(left.title).localeCompare(normalizeSearchValue(right.title));
+  }
+
+  function sortItems(allItems) {
+    if (sortMode === "default") {
+      return [...allItems];
+    }
+    return [...allItems].sort(compareItems);
+  }
+
   function groupByStage(allItems) {
-    return allItems.reduce((acc, item) => {
+    const grouped = allItems.reduce((acc, item) => {
       acc[item.stage] = acc[item.stage] || [];
       acc[item.stage].push(item);
       return acc;
     }, {});
-  }
-
-  function normalizeSearchValue(value) {
-    return String(value || "").trim().toLowerCase();
+    Object.keys(grouped).forEach((stage) => {
+      grouped[stage] = sortItems(grouped[stage]);
+    });
+    return grouped;
   }
 
   function collectSearchText(value) {
@@ -452,6 +509,31 @@
       return false;
     }
     return matchesSearch(item);
+  }
+
+  function getListGroups() {
+    const visibleItems = items.filter((item) => isVisible(item));
+    if (groupMode === "status") {
+      const grouped = visibleItems.reduce((acc, item) => {
+        const heading = item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status";
+        const key = `status:${normalizeSearchValue(heading) || "no-status"}`;
+        acc[key] = acc[key] || { key, heading, items: [] };
+        acc[key].items.push(item);
+        return acc;
+      }, {});
+      return Object.values(grouped)
+        .map((group) => ({ ...group, items: sortItems(group.items) }))
+        .sort((left, right) => normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading)));
+    }
+
+    const grouped = groupByStage(visibleItems);
+    return getVisibleStages().map((stage) => ({
+      key: stage,
+      stage,
+      heading: getStageHeading(stage),
+      items: grouped[stage] || [],
+      emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
+    }));
   }
 
   function isPrimaryFlowStage(stage) {
@@ -662,6 +744,7 @@
         isListMode,
         getVisibleStages,
         groupByStage,
+        getListGroups,
         isVisible,
         isPrimaryFlowStage,
         isRequestProcessed,
@@ -836,6 +919,8 @@
       showCompanionDocs,
       hideEmptyColumns,
       searchQuery,
+      groupMode,
+      sortMode,
       collapsedListStages: Array.from(collapsedListStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -895,6 +980,20 @@
   if (searchInput) {
     searchInput.addEventListener("input", (event) => {
       searchQuery = event.target ? String(event.target.value || "") : "";
+      persistState();
+      render();
+    });
+  }
+  if (groupBySelect) {
+    groupBySelect.addEventListener("change", (event) => {
+      groupMode = event.target ? String(event.target.value || "stage") : "stage";
+      persistState();
+      render();
+    });
+  }
+  if (sortBySelect) {
+    sortBySelect.addEventListener("change", (event) => {
+      sortMode = event.target ? String(event.target.value || "default") : "default";
       persistState();
       render();
     });
@@ -994,6 +1093,12 @@
   }
   if (previousState && typeof previousState.searchQuery === "string") {
     searchQuery = previousState.searchQuery;
+  }
+  if (previousState && typeof previousState.groupMode === "string") {
+    groupMode = previousState.groupMode;
+  }
+  if (previousState && typeof previousState.sortMode === "string") {
+    sortMode = previousState.sortMode;
   }
   if (previousState && Array.isArray(previousState.collapsedListStages)) {
     collapsedListStages = new Set(previousState.collapsedListStages);

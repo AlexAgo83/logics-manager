@@ -29,6 +29,7 @@
       isListMode,
       getVisibleStages,
       groupByStage,
+      getListGroups,
       isVisible,
       isPrimaryFlowStage,
       isRequestProcessed,
@@ -61,13 +62,13 @@
       return Array.from(board.querySelectorAll(".card")).find((card) => card.dataset.id === id) || null;
     }
 
-    function findListHeaderByStage(stage) {
-      if (!board || !stage) {
+    function findListHeaderByKey(groupKey) {
+      if (!board || !groupKey) {
         return null;
       }
       return (
         Array.from(board.querySelectorAll(".list-view__section .list-view__header")).find(
-          (header) => header.closest(".list-view__section")?.dataset.stage === stage
+          (header) => header.closest(".list-view__section")?.dataset.group === groupKey
         ) || null
       );
     }
@@ -79,8 +80,8 @@
       }
     }
 
-    function focusListHeader(stage) {
-      const header = findListHeaderByStage(stage);
+    function focusListHeader(groupKey) {
+      const header = findListHeaderByKey(groupKey);
       if (header && typeof header.focus === "function") {
         header.focus();
       }
@@ -108,12 +109,12 @@
       focusCardById(id);
     }
 
-    function toggleListStageCollapsed(stage, collapsed) {
+    function toggleListStageCollapsed(groupKey, collapsed) {
       const collapsedStages = getCollapsedListStages();
       if (collapsed) {
-        collapsedStages.add(stage);
+        collapsedStages.add(groupKey);
       } else {
-        collapsedStages.delete(stage);
+        collapsedStages.delete(groupKey);
       }
       persistState();
       render();
@@ -161,8 +162,9 @@
     }
 
     function moveListSelection(item, direction) {
-      const grouped = getVisibleGroupedItems();
-      const stageItems = grouped[item.stage] || [];
+      const groups = typeof getListGroups === "function" ? getListGroups() : [];
+      const currentGroup = groups.find((group) => (group.items || []).some((entry) => entry.id === item.id));
+      const stageItems = currentGroup ? currentGroup.items || [] : [];
       const itemIndex = stageItems.findIndex((entry) => entry.id === item.id);
       if (itemIndex === -1) {
         return;
@@ -178,9 +180,9 @@
         return;
       }
 
-      if (direction === "left" && !getCollapsedListStages().has(item.stage)) {
-        toggleListStageCollapsed(item.stage, true);
-        focusListHeader(item.stage);
+      if (direction === "left" && currentGroup && !getCollapsedListStages().has(currentGroup.key)) {
+        toggleListStageCollapsed(currentGroup.key, true);
+        focusListHeader(currentGroup.key);
       }
     }
 
@@ -486,22 +488,25 @@
       });
     }
 
-    function renderListView(grouped) {
+    function renderListView(groups) {
       const listView = document.createElement("div");
       listView.className = "list-view";
-      getVisibleStages().forEach((stage) => {
+      groups.forEach((group) => {
         const section = document.createElement("section");
         section.className = "list-view__section";
-        section.dataset.stage = stage;
+        section.dataset.group = group.key;
+        if (group.stage) {
+          section.dataset.stage = group.stage;
+        }
 
-        const stageItems = grouped[stage] || [];
-        const isCollapsed = getCollapsedListStages().has(stage);
+        const stageItems = group.items || [];
+        const isCollapsed = getCollapsedListStages().has(group.key);
 
         const header = document.createElement("button");
         header.type = "button";
         header.className = "list-view__header";
         header.setAttribute("aria-expanded", String(!isCollapsed));
-        header.setAttribute("aria-controls", `list-section-${stage}`);
+        header.setAttribute("aria-controls", `list-section-${group.key}`);
 
         const chevron = document.createElement("span");
         chevron.className = "list-view__header-icon";
@@ -510,26 +515,26 @@
         header.appendChild(chevron);
 
         const label = document.createElement("span");
-        label.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
+        label.textContent = `${group.heading} (${stageItems.length})`;
         header.appendChild(label);
         header.addEventListener("click", () => {
-          toggleListStageCollapsed(stage, !getCollapsedListStages().has(stage));
-          focusListHeader(stage);
+          toggleListStageCollapsed(group.key, !getCollapsedListStages().has(group.key));
+          focusListHeader(group.key);
         });
         header.addEventListener("keydown", (event) => {
-          if (event.key === "ArrowLeft" && !getCollapsedListStages().has(stage)) {
+          if (event.key === "ArrowLeft" && !getCollapsedListStages().has(group.key)) {
             event.preventDefault();
-            toggleListStageCollapsed(stage, true);
-            focusListHeader(stage);
+            toggleListStageCollapsed(group.key, true);
+            focusListHeader(group.key);
             return;
           }
-          if (event.key === "ArrowRight" && getCollapsedListStages().has(stage)) {
+          if (event.key === "ArrowRight" && getCollapsedListStages().has(group.key)) {
             event.preventDefault();
-            toggleListStageCollapsed(stage, false);
-            focusListHeader(stage);
+            toggleListStageCollapsed(group.key, false);
+            focusListHeader(group.key);
             return;
           }
-          if (event.key === "ArrowDown" && !getCollapsedListStages().has(stage) && stageItems.length > 0) {
+          if (event.key === "ArrowDown" && !getCollapsedListStages().has(group.key) && stageItems.length > 0) {
             event.preventDefault();
             selectItemAndFocus(stageItems[0].id);
           }
@@ -538,12 +543,12 @@
 
         const body = document.createElement("div");
         body.className = "list-view__body";
-        body.id = `list-section-${stage}`;
+        body.id = `list-section-${group.key}`;
         body.hidden = isCollapsed;
         if (!stageItems.length) {
           const empty = document.createElement("div");
           empty.className = "list-view__empty";
-          empty.textContent = isPrimaryFlowStage(stage) ? "No items" : "No linked docs";
+          empty.textContent = group.emptyLabel || "No items";
           body.appendChild(empty);
         } else {
           stageItems.forEach((item) => body.appendChild(createItemCard(item, true)));
@@ -571,7 +576,7 @@
       }
       const grouped = groupByStage(visibleItems);
       if (isListMode()) {
-        renderListView(grouped);
+        renderListView(typeof getListGroups === "function" ? getListGroups() : []);
       } else {
         renderBoardColumns(grouped);
       }

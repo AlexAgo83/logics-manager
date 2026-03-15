@@ -23,6 +23,16 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <button id="tools-toggle" class="toolbar__filter"></button>
           <div id="tools-panel"></div>
           <input id="search-input" type="search" />
+          <select id="group-by">
+            <option value="stage">Stage</option>
+            <option value="status">Status</option>
+          </select>
+          <select id="sort-by">
+            <option value="default">Default</option>
+            <option value="updated-desc">Updated</option>
+            <option value="progress-desc">Progress</option>
+            <option value="status-asc">Status</option>
+          </select>
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
           <button data-action="select-agent"></button>
@@ -697,6 +707,71 @@ describe("webview harness controls and accessibility", () => {
 
     expect(board?.classList.contains("board--list")).toBe(true);
     expect(board?.textContent).toContain("Reference Contract Spec");
+  });
+
+  it("supports status grouping in list mode", () => {
+    const requestProposed = {
+      ...baseItem,
+      id: "req_001_status_proposed",
+      title: "Status Proposed",
+      indicators: {
+        Status: "Proposed"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, requestProposed]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    const groupBySelect = document.getElementById("group-by") as HTMLSelectElement | null;
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    if (groupBySelect) {
+      groupBySelect.value = "status";
+      groupBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const sectionLabels = Array.from(document.querySelectorAll(".list-view__header")).map((header) =>
+      header.textContent?.replace(/[▾▸]/g, "").replace(/\s+/g, " ").trim()
+    );
+
+    expect(sectionLabels).toContain("Draft (1)");
+    expect(sectionLabels).toContain("Proposed (1)");
+  });
+
+  it("sorts board cards by most recently updated when requested", () => {
+    const olderRequest = {
+      ...baseItem,
+      id: "req_001_older",
+      title: "Older request",
+      updatedAt: "2024-01-01T00:00:00.000Z"
+    };
+    const newerRequest = {
+      ...baseItem,
+      id: "req_002_newer",
+      title: "Newer request",
+      updatedAt: "2024-02-01T00:00:00.000Z"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [olderRequest, newerRequest]
+    });
+
+    const document = dom.window.document;
+    const sortBySelect = document.getElementById("sort-by") as HTMLSelectElement | null;
+    if (sortBySelect) {
+      sortBySelect.value = "updated-desc";
+      sortBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const cardTitles = Array.from(document.querySelectorAll('.column[data-stage="request"] .card__title')).map((node) =>
+      node.textContent?.trim()
+    );
+    expect(cardTitles).toEqual(["Newer request", "Older request"]);
   });
 
   it("hides SPEC by default and applies the toggle in board and list modes", () => {

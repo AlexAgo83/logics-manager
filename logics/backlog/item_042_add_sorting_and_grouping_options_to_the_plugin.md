@@ -1,9 +1,9 @@
 ## item_042_add_sorting_and_grouping_options_to_the_plugin - Add sorting and grouping options to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Information ordering and workspace navigation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -35,11 +35,11 @@ Without richer sort/group options, users are forced into one interpretation of t
 - AC7: Tests cover the main ordering/grouping paths where practical.
 
 # AC Traceability
-- AC1/AC2 -> UI controls and rendering paths support practical ordering/grouping modes. Proof: TODO.
-- AC3 -> selected grouping modes preserve readable workflow semantics. Proof: TODO.
-- AC4/AC6 -> ordering/grouping integrates cleanly with current filter/default state. Proof: TODO.
-- AC5 -> current active sort/group choice is visible in UI state. Proof: TODO.
-- AC7 -> regression tests cover core sort/group paths. Proof: TODO.
+- AC1/AC2 -> the toolbar now exposes explicit group and sort controls, with sorting applied in board and list render paths and alternative grouping available in list mode. Proof: `src/extension.ts`, `media/main.js`, `media/renderBoard.js`.
+- AC3 -> workflow-stage grouping remains the default backbone, while the first alternative grouping uses `Status` only in list mode. Proof: `media/main.js`.
+- AC4/AC6 -> sort/group state composes with the existing filter pipeline and can be reset back to the default stage/default presentation. Proof: `media/main.js`.
+- AC5 -> the current active grouping and sort mode remain visible through the toolbar controls, with grouping explicitly disabled outside list mode. Proof: `media/main.js`, `media/css/toolbar.css`.
+- AC7 -> regression tests cover status grouping in list mode and updated-date sorting in board mode. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

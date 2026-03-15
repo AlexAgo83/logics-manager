@@ -1,6 +1,6 @@
 ## req_037_add_sorting_and_grouping_options_to_the_plugin - Add sorting and grouping options to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

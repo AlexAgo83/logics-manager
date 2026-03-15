@@ -1425,6 +1425,24 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           aria-label="Search items"
         />
       </div>
+      <div class="toolbar__ordering">
+        <label class="toolbar__select">
+          <span>Group</span>
+          <select id="group-by" aria-label="Group items">
+            <option value="stage">Stage</option>
+            <option value="status">Status</option>
+          </select>
+        </label>
+        <label class="toolbar__select">
+          <span>Sort</span>
+          <select id="sort-by" aria-label="Sort items">
+            <option value="default">Default</option>
+            <option value="updated-desc">Updated</option>
+            <option value="progress-desc">Progress</option>
+            <option value="status-asc">Status</option>
+          </select>
+        </label>
+      </div>
       <div class="toolbar__buttons">
         <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
         <button class="btn" data-action="refresh" title="Refresh">Refresh</button>

@@ -30,6 +30,16 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         <button id="tools-toggle"></button>
         <div id="tools-panel"></div>
         <input id="search-input" type="search" />
+        <select id="group-by">
+          <option value="stage">Stage</option>
+          <option value="status">Status</option>
+        </select>
+        <select id="sort-by">
+          <option value="default">Default</option>
+          <option value="updated-desc">Updated</option>
+          <option value="progress-desc">Progress</option>
+          <option value="status-asc">Status</option>
+        </select>
         <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
         <button data-action="new-request-guided"></button>

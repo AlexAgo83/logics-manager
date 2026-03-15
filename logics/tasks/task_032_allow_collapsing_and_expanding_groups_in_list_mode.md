@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: List-mode navigation and density control
@@ -32,12 +32,12 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2/AC3 -> Steps 2 and 3.
-- AC4 -> Step 6 scenarios across visible optional groups.
-- AC5 -> Step 2 and step 3 layout behavior.
-- AC6 -> Step 4.
-- AC7 -> Step 5.
-- AC8 -> Step 6.
+- AC1/AC2/AC3 -> Steps 2 and 3. Proof: TODO.
+- AC4 -> Step 6 scenarios across visible optional groups. Proof: TODO.
+- AC5 -> Step 2 and step 3 layout behavior. Proof: TODO.
+- AC6 -> Step 4. Proof: TODO.
+- AC7 -> Step 5. Proof: TODO.
+- AC8 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_038_allow_collapsing_and_expanding_groups_in_list_mode`

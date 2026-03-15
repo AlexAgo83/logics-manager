@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Information ordering and workspace navigation
@@ -23,11 +23,11 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1, 2, and 3.
-- AC3 -> Step 3.
-- AC4/AC6 -> Steps 4 and 5.
-- AC5 -> Step 4.
-- AC7 -> Step 6.
+- AC1/AC2 -> Steps 1, 2, and 3. Proof: TODO.
+- AC3 -> Step 3. Proof: TODO.
+- AC4/AC6 -> Steps 4 and 5. Proof: TODO.
+- AC5 -> Step 4. Proof: TODO.
+- AC7 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_042_add_sorting_and_grouping_options_to_the_plugin`

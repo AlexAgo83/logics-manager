@@ -2,7 +2,7 @@
 > From version: 1.10.1
 > Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
@@ -56,3 +56,17 @@ The plugin needs a clearer vertical budget and clearer scroll ownership so `Deta
 
 # Tasks
 - `logics/tasks/task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+
+# AC Traceability
+- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC11 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC12 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.

@@ -5,7 +5,7 @@
 > Related request: `req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `req_053_preserve_readable_board_columns_by_preventing_column_compression`
 > Related backlog: `item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `item_062_preserve_readable_board_columns_by_preventing_column_compression`
 > Related task: `task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `task_067_preserve_readable_board_columns_by_preventing_column_compression`
-> Reminder: Update status, linked refs, decision rationale, consequences, migration plan, and follow-up work when you edit this doc.
+> Reminder: Update status, linked refs, overview mermaid, decision rationale, consequences, migration plan, and follow-up work when you edit this doc.
 
 # Overview
 The plugin layout must stop behaving like an unbounded document whose panels compete incidentally for space.
@@ -15,6 +15,16 @@ This ADR fixes the contract for:
 - vertical panel anchoring,
 - horizontal width budgeting,
 - and responsive behavior above and below `900px`.
+
+```mermaid
+flowchart TD
+    Chrome[Top chrome and auxiliary panels] --> Main[Main browsing region]
+    Main --> Details[Details region]
+    Main --> Scroll[Owned scroll containers]
+    Details --> Footer[Anchored details footer]
+    Main --> Width[Readable board widths with overflow]
+    Width --> Responsive[Different rules above and below 900px]
+```
 
 # Context
 Several visible regressions came from the same architectural weakness:

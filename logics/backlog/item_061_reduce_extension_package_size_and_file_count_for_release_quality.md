@@ -2,7 +2,7 @@
 > From version: 1.10.0
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Extension packaging hygiene and runtime performance
@@ -43,3 +43,10 @@ That makes the release artifact noisier and heavier than it should be, even if t
 
 # Tasks
 - `logics/tasks/task_066_reduce_extension_package_size_and_file_count_for_release_quality.md`
+
+# AC Traceability
+- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.

@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
@@ -31,11 +31,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Step 2.
-- AC3 -> Step 5.
-- AC4/AC7 -> Step 4.
-- AC5/AC6 -> Step 3.
-- AC8 -> Step 5.
+- AC1/AC2 -> Step 2. Proof: TODO.
+- AC3 -> Step 5. Proof: TODO.
+- AC4/AC7 -> Step 4. Proof: TODO.
+- AC5/AC6 -> Step 3. Proof: TODO.
+- AC8 -> Step 5. Proof: TODO.
 
 # Links
 - Backlog item: `item_035_add_confirmation_for_done_and_obsolete_actions`
@@ -46,7 +46,7 @@ flowchart LR
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Detail panel scanability and progressive disclosure
@@ -31,11 +31,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Step 2.
-- AC3/AC4/AC5/AC6 -> Step 2.
-- AC7/AC8 -> Steps 3 and 4.
-- AC9 -> Step 3.
-- AC10 -> Step 5.
+- AC1/AC2 -> Step 2. Proof: TODO.
+- AC3/AC4/AC5/AC6 -> Step 2. Proof: TODO.
+- AC7/AC8 -> Steps 3 and 4. Proof: TODO.
+- AC9 -> Step 3. Proof: TODO.
+- AC10 -> Step 5. Proof: TODO.
 
 # Links
 - Backlog item: `item_033_default_collapsed_secondary_sections_in_detail_panel`
@@ -47,7 +47,7 @@ flowchart LR
 - `npm test -- tests/webview.layout-collapse.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

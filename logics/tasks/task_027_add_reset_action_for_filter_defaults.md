@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
@@ -31,11 +31,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 2.
-- AC2 -> Steps 1 and 3.
-- AC3/AC4 -> Step 4.
-- AC5 -> Step 3.
-- AC6 -> Step 5.
+- AC1 -> Step 2. Proof: TODO.
+- AC2 -> Steps 1 and 3. Proof: TODO.
+- AC3/AC4 -> Step 4. Proof: TODO.
+- AC5 -> Step 3. Proof: TODO.
+- AC6 -> Step 5. Proof: TODO.
 
 # Links
 - Backlog item: `item_034_add_reset_action_for_filter_defaults`
@@ -47,7 +47,7 @@ flowchart LR
 - `npm test -- tests/webview.layout-collapse.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

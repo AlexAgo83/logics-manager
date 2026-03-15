@@ -2,7 +2,7 @@
 > From version: 1.10.0
 > Status: Done
 > Understanding: 99%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Extension host modularity and ownership boundaries
@@ -35,3 +35,11 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status and progress updated.
+
+# AC Traceability
+- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.

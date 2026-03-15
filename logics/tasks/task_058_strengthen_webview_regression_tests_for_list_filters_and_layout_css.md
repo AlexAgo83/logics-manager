@@ -2,7 +2,7 @@
 > From version: 1.10.1
 > Status: Done
 > Understanding: 99%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
@@ -22,10 +22,10 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 1.
-- AC2 -> Step 2.
-- AC3 -> Steps 3 and 4.
-- AC4 -> Step 2.
+- AC1 -> Step 1. Proof: TODO.
+- AC2 -> Step 2. Proof: TODO.
+- AC3 -> Steps 3 and 4. Proof: TODO.
+- AC4 -> Step 2. Proof: TODO.
 
 # Links
 - Backlog item: `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`

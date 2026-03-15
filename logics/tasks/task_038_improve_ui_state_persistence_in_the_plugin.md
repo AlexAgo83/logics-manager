@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI continuity and workflow stability
@@ -22,11 +22,12 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2.
-- AC3 -> Step 4.
-- AC4/AC5 -> Steps 2 and 4.
-- AC6 -> Step 3.
-- AC7 -> Step 5.
+- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
+- AC3 -> Step 4. Proof: TODO.
+- AC4/AC5 -> Steps 2 and 4. Proof: TODO.
+- AC6 -> Step 3. Proof: TODO.
+- AC7 -> Step 5. Proof: TODO.
+- AC1A -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Links
 - Backlog item: `item_044_improve_ui_state_persistence_in_the_plugin`

@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Operational focus and workflow triage
@@ -22,10 +22,10 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2.
-- AC3 -> Step 2 and step 5 validation.
-- AC4/AC5 -> Step 4.
-- AC6 -> Step 5.
+- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
+- AC3 -> Step 2 and step 5 validation. Proof: TODO.
+- AC4/AC5 -> Step 4. Proof: TODO.
+- AC6 -> Step 5. Proof: TODO.
 
 # Links
 - Backlog item: `item_045_add_attention_required_view_to_the_plugin`

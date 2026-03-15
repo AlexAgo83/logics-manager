@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
@@ -32,11 +32,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 2 and 3.
-- AC3/AC4 -> Step 4.
-- AC5 -> Step 4.
-- AC6 -> Step 5.
-- AC7 -> Step 6.
+- AC1/AC2 -> Steps 2 and 3. Proof: TODO.
+- AC3/AC4 -> Step 4. Proof: TODO.
+- AC5 -> Step 4. Proof: TODO.
+- AC6 -> Step 5. Proof: TODO.
+- AC7 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_036_remove_column_eye_toggle_from_board`
@@ -48,7 +48,7 @@ flowchart LR
 - `npm test -- tests/webview.layout-collapse.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

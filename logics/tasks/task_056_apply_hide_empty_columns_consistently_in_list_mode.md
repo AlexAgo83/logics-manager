@@ -2,7 +2,7 @@
 > From version: 1.10.0
 > Status: Done
 > Understanding: 98%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
@@ -21,8 +21,9 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2/AC3 -> Steps 1, 2, and 3.
-- AC4 -> Step 4.
+- AC1/AC2/AC3 -> Steps 1, 2, and 3. Proof: TODO.
+- AC4 -> Step 4. Proof: TODO.
+- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Links
 - Backlog item: `item_051_apply_hide_empty_columns_consistently_in_list_mode`

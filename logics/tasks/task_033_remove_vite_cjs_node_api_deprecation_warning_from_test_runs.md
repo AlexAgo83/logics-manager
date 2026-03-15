@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Tooling hygiene and test-run clarity
@@ -31,11 +31,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2.
-- AC3 -> Step 3.
-- AC4 -> Step 4.
-- AC5 -> Step 2.
-- AC6 -> Steps 3, 4, and 5.
+- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
+- AC3 -> Step 3. Proof: TODO.
+- AC4 -> Step 4. Proof: TODO.
+- AC5 -> Step 2. Proof: TODO.
+- AC6 -> Steps 3, 4, and 5. Proof: TODO.
 
 # Links
 - Backlog item: `item_039_remove_vite_cjs_node_api_deprecation_warning_from_test_runs`

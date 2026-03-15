@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
@@ -23,11 +23,11 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1, 2, and 3.
-- AC3 -> Step 2 and step 6 regression checks.
-- AC4 -> Step 5.
-- AC5 -> Step 4.
-- AC6 -> Step 6.
+- AC1/AC2 -> Steps 1, 2, and 3. Proof: TODO.
+- AC3 -> Step 2 and step 6 regression checks. Proof: TODO.
+- AC4 -> Step 5. Proof: TODO.
+- AC5 -> Step 4. Proof: TODO.
+- AC6 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_043_add_compact_preview_for_items_in_the_plugin`

@@ -2,7 +2,7 @@
 > From version: 1.10.0
 > Status: Done
 > Understanding: 96%
-> Confidence: 94%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: Extension runtime lifecycle hygiene
@@ -21,8 +21,8 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2/AC3 -> Steps 1 and 4.
-- AC4 -> Steps 2 and 3.
+- AC1/AC2/AC3 -> Steps 1 and 4. Proof: TODO.
+- AC4 -> Steps 2 and 3. Proof: TODO.
 
 # Links
 - Backlog item: `item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions`

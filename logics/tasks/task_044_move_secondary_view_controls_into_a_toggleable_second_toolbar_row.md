@@ -2,7 +2,7 @@
 > From version: 1.10.1
 > Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
@@ -25,12 +25,12 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 3.
-- AC3 -> Step 2.
-- AC4 -> Step 4.
-- AC5 -> Step 5.
-- AC6 -> Step 6.
-- AC7 -> Step 7.
+- AC1/AC2 -> Steps 1 and 3. Proof: TODO.
+- AC3 -> Step 2. Proof: TODO.
+- AC4 -> Step 4. Proof: TODO.
+- AC5 -> Step 5. Proof: TODO.
+- AC6 -> Step 6. Proof: TODO.
+- AC7 -> Step 7. Proof: TODO.
 
 # Links
 - Backlog item: `item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`

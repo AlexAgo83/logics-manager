@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 99%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Navigation speed and findability
@@ -23,11 +23,11 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 2 and 3.
-- AC3/AC4 -> Step 4.
-- AC5/AC6 -> Steps 3 and 5.
-- AC7 -> Step 4 and step 6 realistic coverage.
-- AC8 -> Step 6.
+- AC1/AC2 -> Steps 2 and 3. Proof: TODO.
+- AC3/AC4 -> Step 4. Proof: TODO.
+- AC5/AC6 -> Steps 3 and 5. Proof: TODO.
+- AC7 -> Step 4 and step 6 realistic coverage. Proof: TODO.
+- AC8 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_041_add_instant_local_search_to_the_plugin`

@@ -2,7 +2,7 @@
 > From version: 1.9.3
 > Status: Done
 > Understanding: 98%
-> Confidence: 97%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow health visibility and issue detection
@@ -23,11 +23,11 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2.
-- AC3 -> Step 2 and step 3 validation.
-- AC4 -> Steps 3 and 5.
-- AC5 -> Step 4.
-- AC6 -> Step 6.
+- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
+- AC3 -> Step 2 and step 3 validation. Proof: TODO.
+- AC4 -> Steps 3 and 5. Proof: TODO.
+- AC5 -> Step 4. Proof: TODO.
+- AC6 -> Step 6. Proof: TODO.
 
 # Links
 - Backlog item: `item_049_add_stronger_item_health_signals_to_the_plugin`

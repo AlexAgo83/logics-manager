@@ -1,6 +1,6 @@
 ## req_043_improve_plugin_onboarding_and_empty_states - Improve plugin onboarding and empty states
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

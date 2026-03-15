@@ -63,6 +63,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
             <div id="details-body"></div>
           </aside>
         </div>
+        <div id="help-banner"><div id="help-banner-copy"></div><button id="help-banner-dismiss" type="button"></button></div>
         <div id="activity-panel"></div>
       </body>
     </html>

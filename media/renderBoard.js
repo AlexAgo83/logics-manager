@@ -24,6 +24,7 @@
       board,
       hostApi,
       getItems,
+      getTotalItemCount,
       getSelectedId,
       setSelectedId,
       isListMode,
@@ -285,6 +286,9 @@
     }
 
     function getEmptyBoardMessage() {
+      if (typeof getTotalItemCount === "function" && getTotalItemCount() === 0) {
+        return "No Logics items found. Use Tools > New Request or Bootstrap Logics to populate the board.";
+      }
       if (typeof getAttentionOnly === "function" && getAttentionOnly()) {
         return "No items currently match the attention view. This view only shows blocked, orphaned, unprocessed, or inconsistent items.";
       }
@@ -311,7 +315,7 @@
         }
         return `No items match the current filters. Adjust ${filters.join(" and ")} to change the view.`;
       }
-      return "No Logics items found. Add files under logics/ to populate the board.";
+      return "No Logics items found. Use Tools > New Request or Bootstrap Logics to populate the board.";
     }
 
     function createCompanionBadges(item) {

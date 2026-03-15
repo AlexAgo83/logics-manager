@@ -1,9 +1,9 @@
 ## task_042_improve_plugin_onboarding_and_empty_states - Improve plugin onboarding and empty states
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Discoverability and first-use clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,12 +14,12 @@
 - Related request(s): `req_043_improve_plugin_onboarding_and_empty_states`.
 
 # Plan
-- [ ] 1. Identify the highest-friction empty states and first-use confusion points.
-- [ ] 2. Improve empty-state copy and actionability, prioritizing contextual workspace guidance.
-- [ ] 3. Add lightweight contextual onboarding/help affordances where they provide real value.
-- [ ] 4. Keep the resulting guidance non-intrusive and dismissible where appropriate for experienced users.
-- [ ] 5. Add/adjust regression tests for the main onboarding or empty-state surfaces.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify the highest-friction empty states and first-use confusion points.
+- [x] 2. Improve empty-state copy and actionability, prioritizing contextual workspace guidance.
+- [x] 3. Add lightweight contextual onboarding/help affordances where they provide real value.
+- [x] 4. Keep the resulting guidance non-intrusive and dismissible where appropriate for experienced users.
+- [x] 5. Add/adjust regression tests for the main onboarding or empty-state surfaces.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 2 and 3.
@@ -36,7 +36,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

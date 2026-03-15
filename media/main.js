@@ -25,6 +25,9 @@
   const activityToggle = document.getElementById("activity-toggle");
   const attentionToggle = document.getElementById("attention-toggle");
   const activityPanel = document.getElementById("activity-panel");
+  const helpBanner = document.getElementById("help-banner");
+  const helpBannerCopy = document.getElementById("help-banner-copy");
+  const helpBannerDismiss = document.getElementById("help-banner-dismiss");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
@@ -69,6 +72,7 @@
   let sortMode = "default";
   let activityPanelOpen = false;
   let attentionOnly = false;
+  let helpDismissed = false;
   let collapsedListStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
@@ -168,6 +172,7 @@
     sortMode = "default";
     activityPanelOpen = false;
     attentionOnly = false;
+    helpDismissed = false;
     collapsedListStages = new Set();
     collapsedDetailSections = new Set(defaultCollapsedDetailSections);
     selectedId = null;
@@ -357,6 +362,7 @@
     renderBoard();
     renderDetails();
     renderActivityPanel();
+    renderHelpBanner();
     restoreScrollState();
     updateButtons();
     updateFilterState();
@@ -466,6 +472,15 @@
     }
 
     activityPanel.appendChild(list);
+  }
+
+  function renderHelpBanner() {
+    if (!helpBanner || !helpBannerCopy) {
+      return;
+    }
+    const message = helpDismissed ? "" : getHelpBannerMessage();
+    helpBanner.hidden = !message;
+    helpBannerCopy.textContent = message;
   }
 
   function updateButtons() {
@@ -615,6 +630,16 @@
           label
         };
       });
+  }
+
+  function getHelpBannerMessage() {
+    if (items.length === 0) {
+      return "No Logics items are loaded yet. Use Tools > New Request or Bootstrap Logics to seed the workspace.";
+    }
+    if (!selectedId) {
+      return "Select a card for details. Use Search to find items faster, Attention to triage, and List mode when the board gets crowded.";
+    }
+    return "";
   }
 
   function getProgressSortValue(item) {
@@ -941,6 +966,7 @@
         board,
         hostApi,
         getItems: () => items,
+        getTotalItemCount: () => items.length,
         getSelectedId: () => selectedId,
         setSelectedId(value) {
           selectedId = value;
@@ -1132,6 +1158,7 @@
       sortMode,
       activityPanelOpen,
       attentionOnly,
+      helpDismissed,
       collapsedListStages: Array.from(collapsedListStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -1222,6 +1249,13 @@
   if (activityToggle) {
     activityToggle.addEventListener("click", () => {
       activityPanelOpen = !activityPanelOpen;
+      persistState();
+      render();
+    });
+  }
+  if (helpBannerDismiss) {
+    helpBannerDismiss.addEventListener("click", () => {
+      helpDismissed = true;
       persistState();
       render();
     });
@@ -1348,6 +1382,9 @@
   }
   if (previousState && typeof previousState.attentionOnly === "boolean") {
     attentionOnly = previousState.attentionOnly;
+  }
+  if (previousState && typeof previousState.helpDismissed === "boolean") {
+    helpDismissed = previousState.helpDismissed;
   }
   if (previousState && typeof previousState.selectedId === "string") {
     selectedId = previousState.selectedId;

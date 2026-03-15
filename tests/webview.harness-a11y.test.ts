@@ -67,6 +67,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
             <div id="details-body"></div>
           </aside>
         </div>
+        <div id="help-banner"><div id="help-banner-copy"></div><button id="help-banner-dismiss" type="button"></button></div>
         <div id="activity-panel"></div>
       </body>
     </html>
@@ -874,6 +875,43 @@ describe("webview harness controls and accessibility", () => {
     expect(requestCard?.textContent).toContain("Promote");
     expect(requestCard?.textContent).toContain("Add docs");
     expect(productCard?.textContent).toContain("Link flow");
+  });
+
+  it("shows actionable empty-state guidance when no items are available", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: []
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const helpBanner = document.getElementById("help-banner");
+
+    expect(board?.textContent).toContain("New Request");
+    expect(board?.textContent).toContain("Bootstrap Logics");
+    expect(helpBanner?.hidden).toBe(false);
+  });
+
+  it("shows and dismisses contextual onboarding help without breaking the details empty state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const helpBanner = document.getElementById("help-banner");
+    const helpBannerDismiss = document.getElementById("help-banner-dismiss");
+    const detailsBody = document.getElementById("details-body");
+
+    expect(helpBanner?.textContent).toContain("Use Search");
+    expect(detailsBody?.textContent).toContain("Use Search or Attention");
+
+    helpBannerDismiss?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(helpBanner?.hidden).toBe(true);
+    expect(persistedStates.some((state) => state.helpDismissed === true)).toBe(true);
   });
 
   it("shows a compact preview on hover and dismisses it cleanly", () => {

@@ -1451,6 +1451,10 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       </div>
     </div>
   </div>
+  <div class="help-banner" id="help-banner" hidden>
+    <div class="help-banner__copy" id="help-banner-copy"></div>
+    <button class="help-banner__dismiss" id="help-banner-dismiss" type="button" title="Dismiss help">Dismiss</button>
+  </div>
   <div class="activity-panel" id="activity-panel" hidden></div>
   <div class="layout" id="layout">
     <div class="board" id="board"></div>

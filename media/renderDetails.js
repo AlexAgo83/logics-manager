@@ -220,7 +220,7 @@
         if (detailsTitle) detailsTitle.textContent = "Details";
         const empty = document.createElement("div");
         empty.className = "details__empty";
-        empty.textContent = "Select a card to see details.";
+        empty.textContent = "Select a card to inspect indicators, references, and actions. Use Search or Attention to narrow the workspace first.";
         detailsBody.appendChild(empty);
         return;
       }

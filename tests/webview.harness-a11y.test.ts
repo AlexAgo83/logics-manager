@@ -545,6 +545,100 @@ describe("webview harness controls and accessibility", () => {
     expect(expandedBody?.hidden).toBe(false);
   });
 
+  it("supports directional keyboard navigation across board columns and rows", () => {
+    const requestFollowup = {
+      ...baseItem,
+      id: "req_001_followup",
+      title: "Followup"
+    };
+    const backlogItem = {
+      ...baseItem,
+      id: "item_001_plan_followup",
+      title: "Plan Followup",
+      stage: "backlog"
+    };
+    const taskItem = {
+      ...baseItem,
+      id: "task_001_ship_followup",
+      title: "Ship Followup",
+      stage: "task"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem, requestFollowup, backlogItem, taskItem]
+    });
+
+    const document = dom.window.document;
+    const getSelectedCard = () => document.querySelector(".card--selected") as HTMLDivElement | null;
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("req_001_followup");
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("item_001_plan_followup");
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("task_001_ship_followup");
+  });
+
+  it("supports keyboard open and read actions from cards", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+
+    getCard()?.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: true,
+        bubbles: true
+      })
+    );
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "req_000_kickoff")).toBe(true);
+
+    getCard()?.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true
+      })
+    );
+    expect(postedMessages.some((message) => message.type === "open" && message.id === "req_000_kickoff")).toBe(true);
+  });
+
+  it("supports collapsing and expanding list groups from the keyboard", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+    const getHeader = () =>
+      document.querySelector('.list-view__section[data-stage="request"] .list-view__header') as HTMLButtonElement | null;
+    const getBody = () => document.getElementById("list-section-request");
+
+    getCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("false");
+    expect(getBody()?.hidden).toBe(true);
+    expect(document.activeElement).toBe(getHeader());
+
+    getHeader()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("true");
+    expect(getBody()?.hidden).toBe(false);
+  });
+
   it("hides SPEC by default and applies the toggle in board and list modes", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {

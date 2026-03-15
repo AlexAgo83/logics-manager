@@ -1,6 +1,6 @@
 ## req_035_add_full_keyboard_navigation_to_the_plugin - Add full keyboard navigation to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Medium

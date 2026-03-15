@@ -1,9 +1,9 @@
 ## item_040_add_full_keyboard_navigation_to_the_plugin - Add full keyboard navigation to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility and operator productivity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,12 +36,12 @@ The missing piece is not just basic tab reachability. The plugin needs a coheren
 - AC8: Automated tests cover core keyboard navigation and action-trigger paths where practical.
 
 # AC Traceability
-- AC1/AC2 -> item selection and activation gain coherent keyboard flows. Proof: TODO.
-- AC3/AC4 -> toolbar/detail interactive controls remain keyboard-operable. Proof: TODO.
-- AC5 -> visible focus treatment remains strong during navigation. Proof: TODO.
-- AC6 -> behavior is validated across board/list/responsive layouts. Proof: TODO.
-- AC7 -> existing mouse paths remain intact after keyboard additions. Proof: TODO.
-- AC8 -> harness coverage locks key keyboard behaviors. Proof: TODO.
+- AC1/AC2 -> board and list cards now support directional arrow navigation plus `Enter`, `Shift+Enter`, and `Cmd/Ctrl+Enter` action mappings. Proof: `media/renderBoard.js`.
+- AC3/AC4 -> toolbar and detail actions continue to use native buttons, while keyboard selection now reaches them without breaking the selection model. Proof: `media/main.js`, existing action button wiring.
+- AC5 -> cards and list-group headers now expose explicit `:focus-visible` treatment during keyboard navigation. Proof: `media/css/board.css`.
+- AC6 -> board/list keyboard behavior is handled through mode-aware navigation in the renderer, including collapsed list groups. Proof: `media/renderBoard.js`.
+- AC7 -> mouse click and double-click behavior on cards remains unchanged. Proof: `media/renderBoard.js`.
+- AC8 -> harness coverage verifies directional movement, keyboard activation, and list-group collapse/expand flows. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

@@ -219,6 +219,12 @@
   box-shadow: 0 0 0 1px var(--vscode-button-background, #0e639c);
 }
 
+.card:focus-visible,
+.list-view__header:focus-visible {
+  outline: 2px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  outline-offset: 2px;
+}
+
 .card--done {
   opacity: 0.55;
 }

@@ -53,6 +53,198 @@
       getHideEmptyColumns
     } = options;
 
+    function findCardById(id) {
+      if (!board || !id) {
+        return null;
+      }
+      return Array.from(board.querySelectorAll(".card")).find((card) => card.dataset.id === id) || null;
+    }
+
+    function findListHeaderByStage(stage) {
+      if (!board || !stage) {
+        return null;
+      }
+      return (
+        Array.from(board.querySelectorAll(".list-view__section .list-view__header")).find(
+          (header) => header.closest(".list-view__section")?.dataset.stage === stage
+        ) || null
+      );
+    }
+
+    function focusCardById(id) {
+      const card = findCardById(id);
+      if (card && typeof card.focus === "function") {
+        card.focus();
+      }
+    }
+
+    function focusListHeader(stage) {
+      const header = findListHeaderByStage(stage);
+      if (header && typeof header.focus === "function") {
+        header.focus();
+      }
+    }
+
+    function getVisibleGroupedItems() {
+      return groupByStage(getItems().filter((item) => isVisible(item)));
+    }
+
+    function getVisibleBoardStages(grouped) {
+      return getVisibleStages().filter((stage) => {
+        if (!getHideEmptyColumns()) {
+          return true;
+        }
+        return (grouped[stage] || []).length > 0;
+      });
+    }
+
+    function selectItemAndFocus(id) {
+      if (!id) {
+        return;
+      }
+      setSelectedId(id);
+      render();
+      focusCardById(id);
+    }
+
+    function toggleListStageCollapsed(stage, collapsed) {
+      const collapsedStages = getCollapsedListStages();
+      if (collapsed) {
+        collapsedStages.add(stage);
+      } else {
+        collapsedStages.delete(stage);
+      }
+      persistState();
+      render();
+    }
+
+    function moveBoardSelection(item, direction) {
+      const grouped = getVisibleGroupedItems();
+      const visibleStages = getVisibleBoardStages(grouped);
+      const stageIndex = visibleStages.indexOf(item.stage);
+      if (stageIndex === -1) {
+        return;
+      }
+
+      const stageItems = grouped[item.stage] || [];
+      const itemIndex = stageItems.findIndex((entry) => entry.id === item.id);
+      if (itemIndex === -1) {
+        return;
+      }
+
+      if (direction === "up" && itemIndex > 0) {
+        selectItemAndFocus(stageItems[itemIndex - 1].id);
+        return;
+      }
+
+      if (direction === "down" && itemIndex < stageItems.length - 1) {
+        selectItemAndFocus(stageItems[itemIndex + 1].id);
+        return;
+      }
+
+      if (direction !== "left" && direction !== "right") {
+        return;
+      }
+
+      const step = direction === "left" ? -1 : 1;
+      for (let nextStageIndex = stageIndex + step; nextStageIndex >= 0 && nextStageIndex < visibleStages.length; nextStageIndex += step) {
+        const nextStage = visibleStages[nextStageIndex];
+        const nextItems = grouped[nextStage] || [];
+        if (!nextItems.length) {
+          continue;
+        }
+        const targetIndex = Math.min(itemIndex, nextItems.length - 1);
+        selectItemAndFocus(nextItems[targetIndex].id);
+        return;
+      }
+    }
+
+    function moveListSelection(item, direction) {
+      const grouped = getVisibleGroupedItems();
+      const stageItems = grouped[item.stage] || [];
+      const itemIndex = stageItems.findIndex((entry) => entry.id === item.id);
+      if (itemIndex === -1) {
+        return;
+      }
+
+      if (direction === "up" && itemIndex > 0) {
+        selectItemAndFocus(stageItems[itemIndex - 1].id);
+        return;
+      }
+
+      if (direction === "down" && itemIndex < stageItems.length - 1) {
+        selectItemAndFocus(stageItems[itemIndex + 1].id);
+        return;
+      }
+
+      if (direction === "left" && !getCollapsedListStages().has(item.stage)) {
+        toggleListStageCollapsed(item.stage, true);
+        focusListHeader(item.stage);
+      }
+    }
+
+    function handleCardKeydown(event, item) {
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (isListMode()) {
+          moveListSelection(item, "up");
+        } else {
+          moveBoardSelection(item, "up");
+        }
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (isListMode()) {
+          moveListSelection(item, "down");
+        } else {
+          moveBoardSelection(item, "down");
+        }
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        if (isListMode()) {
+          moveListSelection(item, "left");
+        } else {
+          moveBoardSelection(item, "left");
+        }
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (!isListMode()) {
+          moveBoardSelection(item, "right");
+        }
+        return;
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        setSelectedId(item.id);
+        render();
+        focusCardById(item.id);
+        if (event.shiftKey) {
+          openSelectedItem("read");
+          return;
+        }
+        if (event.metaKey || event.ctrlKey) {
+          openSelectedItem("open");
+        }
+        return;
+      }
+
+      if (event.key === " ") {
+        event.preventDefault();
+        setSelectedId(item.id);
+        render();
+        focusCardById(item.id);
+      }
+    }
+
     function captureBoardScroll() {
       if (!board) {
         return null;
@@ -227,17 +419,7 @@
         openSelectedItem("open");
       });
       card.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          setSelectedId(item.id);
-          render();
-        }
-        if (event.key === "Enter" && event.shiftKey) {
-          event.preventDefault();
-          setSelectedId(item.id);
-          render();
-          openSelectedItem("open");
-        }
+        handleCardKeydown(event, item);
       });
       return card;
     }
@@ -326,14 +508,26 @@
         label.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
         header.appendChild(label);
         header.addEventListener("click", () => {
-          const collapsedStages = getCollapsedListStages();
-          if (collapsedStages.has(stage)) {
-            collapsedStages.delete(stage);
-          } else {
-            collapsedStages.add(stage);
+          toggleListStageCollapsed(stage, !getCollapsedListStages().has(stage));
+          focusListHeader(stage);
+        });
+        header.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowLeft" && !getCollapsedListStages().has(stage)) {
+            event.preventDefault();
+            toggleListStageCollapsed(stage, true);
+            focusListHeader(stage);
+            return;
           }
-          persistState();
-          render();
+          if (event.key === "ArrowRight" && getCollapsedListStages().has(stage)) {
+            event.preventDefault();
+            toggleListStageCollapsed(stage, false);
+            focusListHeader(stage);
+            return;
+          }
+          if (event.key === "ArrowDown" && !getCollapsedListStages().has(stage) && stageItems.length > 0) {
+            event.preventDefault();
+            selectItemAndFocus(stageItems[0].id);
+          }
         });
         section.appendChild(header);
 

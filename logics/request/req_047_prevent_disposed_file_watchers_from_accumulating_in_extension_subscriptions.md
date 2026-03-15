@@ -1,6 +1,6 @@
 ## req_047_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Low
@@ -52,6 +52,11 @@ In a long-lived VS Code session, especially one with workspace or root changes, 
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Implementation notes
+- Watcher disposal is now owned by a single activation-lifetime disposable instead of repushing each recreated watcher into `context.subscriptions`.
+- Rebuilding the watcher still disposes the previous live instance before installing the replacement.
+- Refresh behavior on file create/change/delete is unchanged.
 
 # Backlog
 - `logics/backlog/item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions.md`

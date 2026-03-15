@@ -1707,6 +1707,14 @@ export function activate(context: vscode.ExtensionContext): void {
   let watcher: vscode.FileSystemWatcher | undefined;
   const agentsOutput = vscode.window.createOutputChannel("Logics Agents");
   context.subscriptions.push(agentsOutput);
+  context.subscriptions.push(
+    new vscode.Disposable(() => {
+      if (watcher) {
+        watcher.dispose();
+        watcher = undefined;
+      }
+    })
+  );
 
   const scheduleRefresh = () => {
     if (refreshTimer) {
@@ -1731,7 +1739,6 @@ export function activate(context: vscode.ExtensionContext): void {
     watcher.onDidChange(scheduleRefresh);
     watcher.onDidCreate(scheduleRefresh);
     watcher.onDidDelete(scheduleRefresh);
-    context.subscriptions.push(watcher);
   };
 
   provider = new LogicsViewProvider(context, setupWatcher, agentsOutput);

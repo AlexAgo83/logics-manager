@@ -1,9 +1,9 @@
 ## item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Extension runtime lifecycle hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -34,6 +34,10 @@ That does not immediately break functionality, but it weakens lifecycle hygiene 
   - Low-Medium: mostly runtime hygiene, but worth addressing before it compounds.
 - Urgency:
   - Medium-Low: not user-facing, but cheap enough to keep the lifecycle clean.
+
+# AC Traceability
+- AC1/AC2/AC3 -> watcher lifecycle ownership now retains only the live watcher and disposes it through one activation-lifetime disposable. Proof: `src/extension.ts`.
+- AC4 -> create/change/delete events still bind to the same refresh scheduler on the replacement watcher. Proof: `src/extension.ts`.
 
 # Notes
 - Derived from `logics/request/req_047_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions.md`.

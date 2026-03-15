@@ -1,6 +1,6 @@
 ## req_041_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

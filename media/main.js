@@ -22,7 +22,9 @@
   const searchInput = document.getElementById("search-input");
   const groupBySelect = document.getElementById("group-by");
   const sortBySelect = document.getElementById("sort-by");
+  const activityToggle = document.getElementById("activity-toggle");
   const attentionToggle = document.getElementById("attention-toggle");
+  const activityPanel = document.getElementById("activity-panel");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
@@ -65,6 +67,7 @@
   let searchQuery = "";
   let groupMode = "stage";
   let sortMode = "default";
+  let activityPanelOpen = false;
   let attentionOnly = false;
   let collapsedListStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
@@ -163,6 +166,8 @@
     searchQuery = "";
     groupMode = "stage";
     sortMode = "default";
+    activityPanelOpen = false;
+    attentionOnly = false;
     collapsedListStages = new Set();
     collapsedDetailSections = new Set(defaultCollapsedDetailSections);
     selectedId = null;
@@ -351,6 +356,7 @@
     updateViewModeToggle();
     renderBoard();
     renderDetails();
+    renderActivityPanel();
     restoreScrollState();
     updateButtons();
     updateFilterState();
@@ -388,6 +394,11 @@
         ? "Showing blocked, orphaned, unprocessed, or inconsistent items"
         : "Show blocked, orphaned, unprocessed, or inconsistent items";
     }
+    if (activityToggle) {
+      activityToggle.classList.toggle("btn--active", activityPanelOpen);
+      activityToggle.setAttribute("aria-pressed", String(activityPanelOpen));
+      activityToggle.title = activityPanelOpen ? "Hide recent activity" : "Show recent activity";
+    }
   }
 
   function renderBoard() {
@@ -400,6 +411,61 @@
     if (detailsRenderer && typeof detailsRenderer.renderDetails === "function") {
       detailsRenderer.renderDetails();
     }
+  }
+
+  function renderActivityPanel() {
+    if (!activityPanel) {
+      return;
+    }
+    activityPanel.hidden = !activityPanelOpen;
+    if (!activityPanelOpen) {
+      activityPanel.innerHTML = "";
+      return;
+    }
+
+    const entries = getActivityEntries();
+    activityPanel.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "activity-panel__header";
+    header.textContent = "Recent activity";
+    activityPanel.appendChild(header);
+
+    const list = document.createElement("div");
+    list.className = "activity-panel__list";
+
+    if (!entries.length) {
+      const empty = document.createElement("div");
+      empty.className = "state-message";
+      empty.textContent = "No recent activity is available yet.";
+      list.appendChild(empty);
+    } else {
+      entries.forEach((entry) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "activity-panel__entry";
+        button.dataset.id = entry.id;
+
+        const title = document.createElement("div");
+        title.className = "activity-panel__title";
+        title.textContent = entry.title;
+        button.appendChild(title);
+
+        const meta = document.createElement("div");
+        meta.className = "activity-panel__meta";
+        meta.textContent = `${entry.label} • ${getStageLabel(entry.stage)} • ${entry.id}`;
+        button.appendChild(meta);
+
+        button.addEventListener("click", () => {
+          selectedId = entry.id;
+          render();
+        });
+
+        list.appendChild(button);
+      });
+    }
+
+    activityPanel.appendChild(list);
   }
 
   function updateButtons() {
@@ -508,6 +574,33 @@
       return true;
     }
     return getHealthSignals(item).length > 0;
+  }
+
+  function getActivityEntries() {
+    return [...items]
+      .filter((item) => Date.parse(item.updatedAt || "") > 0)
+      .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
+      .slice(0, 12)
+      .map((item) => {
+        const statusValue = getStatusValue(item);
+        let label = "Updated";
+        if (statusValue.includes("obsolete")) {
+          label = "Marked obsolete";
+        } else if (statusValue.includes("done") || statusValue.includes("complete")) {
+          label = "Marked done";
+        } else if (item.isPromoted) {
+          label = "Promoted";
+        } else if (isPrimaryFlowStage(item.stage) && (collectCompanionDocs(item).length > 0 || collectSpecs(item).length > 0)) {
+          label = "Linked companion docs";
+        }
+        return {
+          id: item.id,
+          title: item.title,
+          stage: item.stage,
+          updatedAt: item.updatedAt,
+          label
+        };
+      });
   }
 
   function getProgressSortValue(item) {
@@ -1022,6 +1115,7 @@
       searchQuery,
       groupMode,
       sortMode,
+      activityPanelOpen,
       attentionOnly,
       collapsedListStages: Array.from(collapsedListStages),
       detailsCollapsed: uiState.detailsCollapsed,
@@ -1106,6 +1200,13 @@
   if (attentionToggle) {
     attentionToggle.addEventListener("click", () => {
       attentionOnly = !attentionOnly;
+      persistState();
+      render();
+    });
+  }
+  if (activityToggle) {
+    activityToggle.addEventListener("click", () => {
+      activityPanelOpen = !activityPanelOpen;
       persistState();
       render();
     });
@@ -1226,6 +1327,9 @@
   }
   if (previousState && typeof previousState.sortMode === "string") {
     sortMode = previousState.sortMode;
+  }
+  if (previousState && typeof previousState.activityPanelOpen === "boolean") {
+    activityPanelOpen = previousState.activityPanelOpen;
   }
   if (previousState && typeof previousState.attentionOnly === "boolean") {
     attentionOnly = previousState.attentionOnly;

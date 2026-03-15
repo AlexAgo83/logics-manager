@@ -1444,12 +1444,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
         </label>
       </div>
       <div class="toolbar__buttons">
+        <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
         <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
         <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
         <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
       </div>
     </div>
   </div>
+  <div class="activity-panel" id="activity-panel" hidden></div>
   <div class="layout" id="layout">
     <div class="board" id="board"></div>
     <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>

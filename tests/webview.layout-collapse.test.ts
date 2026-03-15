@@ -40,6 +40,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
           <option value="progress-desc">Progress</option>
           <option value="status-asc">Status</option>
         </select>
+        <button id="activity-toggle" type="button"></button>
         <button id="attention-toggle" type="button"></button>
         <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
@@ -62,6 +63,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
             <div id="details-body"></div>
           </aside>
         </div>
+        <div id="activity-panel"></div>
       </body>
     </html>
   `;

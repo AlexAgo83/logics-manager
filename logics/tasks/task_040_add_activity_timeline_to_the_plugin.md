@@ -1,9 +1,9 @@
 ## task_040_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Change visibility and workflow awareness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,13 +14,13 @@
 - Related request(s): `req_041_add_activity_timeline_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first meaningful derived recent-activity event types rather than a full persistent audit journal.
-- [ ] 2. Add a timeline or recent-activity UI surface in the plugin, starting with a compact recent window.
-- [ ] 3. Ensure entries clearly communicate what changed and on which item.
-- [ ] 4. Add navigation from timeline entries to the relevant item or document.
-- [ ] 5. Verify the activity surface does not regress current workflows.
-- [ ] 6. Add/adjust regression tests for the core activity behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Define the first meaningful derived recent-activity event types rather than a full persistent audit journal.
+- [x] 2. Add a timeline or recent-activity UI surface in the plugin, starting with a compact recent window.
+- [x] 3. Ensure entries clearly communicate what changed and on which item.
+- [x] 4. Add navigation from timeline entries to the relevant item or document.
+- [x] 5. Verify the activity surface does not regress current workflows.
+- [x] 6. Add/adjust regression tests for the core activity behavior.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 1 and 2.
@@ -38,7 +38,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

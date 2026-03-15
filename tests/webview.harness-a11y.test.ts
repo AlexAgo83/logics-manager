@@ -34,6 +34,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
             <option value="progress-desc">Progress</option>
             <option value="status-asc">Status</option>
           </select>
+          <button id="activity-toggle" type="button"></button>
           <button id="attention-toggle" type="button"></button>
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
@@ -66,6 +67,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
             <div id="details-body"></div>
           </aside>
         </div>
+        <div id="activity-panel"></div>
       </body>
     </html>
   `;
@@ -812,6 +814,45 @@ describe("webview harness controls and accessibility", () => {
     expect(board?.textContent).toContain("Blocked task");
     expect(board?.textContent).not.toContain("Healthy task");
     expect(attentionToggle?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("shows a recent activity panel and lets users jump back to an item", () => {
+    const olderItem = {
+      ...baseItem,
+      id: "req_001_older_activity",
+      title: "Older activity",
+      updatedAt: "2024-01-01T00:00:00.000Z"
+    };
+    const newerItem = {
+      ...baseItem,
+      id: "task_001_recent_activity",
+      title: "Recent activity",
+      stage: "task",
+      updatedAt: "2024-03-01T00:00:00.000Z",
+      indicators: {
+        Status: "Done"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [olderItem, newerItem]
+    });
+
+    const document = dom.window.document;
+    const activityToggle = document.getElementById("activity-toggle");
+    const activityPanel = document.getElementById("activity-panel");
+
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
+    expect(activityPanel?.hidden).toBe(false);
+    expect(entries[0]?.textContent).toContain("Recent activity");
+    expect(entries[0]?.textContent).toContain("Marked done");
+    expect(entries[1]?.textContent).toContain("Older activity");
+
+    entries[0]?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
   });
 
   it("shows a compact preview on hover and dismisses it cleanly", () => {

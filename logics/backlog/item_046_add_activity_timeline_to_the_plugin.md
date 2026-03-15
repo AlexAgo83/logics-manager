@@ -1,9 +1,9 @@
 ## item_046_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Change visibility and workflow awareness
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -33,11 +33,11 @@ An activity timeline would improve situational awareness by surfacing meaningful
 - AC6: Tests cover at least the basic event rendering or recent-activity logic where practical.
 
 # AC Traceability
-- AC1/AC2 -> activity surface and initial event model are introduced. Proof: TODO.
-- AC3 -> entry copy remains understandable and actionable. Proof: TODO.
-- AC4 -> navigation from timeline entries back to items is preserved. Proof: TODO.
-- AC5 -> integration stays compatible with current plugin workflows. Proof: TODO.
-- AC6 -> tests validate core activity rendering or event selection logic. Proof: TODO.
+- AC1/AC2 -> the plugin now exposes a compact recent-activity panel backed by an initial derived event model for updates, promotions, lifecycle changes, and companion-link activity. Proof: `src/extension.ts`, `media/main.js`.
+- AC3 -> each activity entry displays readable item and event copy tied to the underlying workflow item. Proof: `media/main.js`.
+- AC4 -> clicking an activity entry navigates back to the relevant item by selecting it in the current surface. Proof: `media/main.js`, `tests/webview.harness-a11y.test.ts`.
+- AC5 -> the activity panel is additive and does not replace current board/list/details workflows. Proof: `media/css/toolbar.css`, `media/main.js`.
+- AC6 -> harness tests validate recent-activity ordering and selection behavior. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

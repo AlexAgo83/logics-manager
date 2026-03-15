@@ -269,6 +269,9 @@
   padding: 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-editorWidget-background, #202020);
+  flex: 0 0 auto;
+  max-height: min(32vh, 280px);
+  overflow: hidden;
 }
 
 .activity-panel[hidden] {
@@ -286,6 +289,8 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-height: 0;
+  overflow: auto;
 }
 
 .activity-panel__entry {

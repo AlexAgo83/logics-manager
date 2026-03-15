@@ -1,9 +1,9 @@
 ## task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,11 +14,11 @@
 - Related request(s): `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`.
 
 # Plan
-- [ ] 1. Separate the scrollable detail body from a fixed bottom action footer.
-- [ ] 2. Keep the detail footer reachable in stacked and horizontal layouts.
-- [ ] 3. Bound the `Activity` panel and upper region so they do not starve `Details` of usable height.
-- [ ] 4. Add regression coverage for vertical budget and scroll-ownership behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Separate the scrollable detail body from a fixed bottom action footer.
+- [x] 2. Keep the detail footer reachable in stacked and horizontal layouts.
+- [x] 3. Bound the `Activity` panel and upper region so they do not starve `Details` of usable height.
+- [x] 4. Add regression coverage for vertical budget and scroll-ownership behavior.
+- [x] FINAL: Update related Logics docs
 
 # Links
 - Backlog item: `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`
@@ -30,7 +30,7 @@
 - `npm test -- tests/webview.harness-a11y.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status and progress updated.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status and progress updated.

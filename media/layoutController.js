@@ -12,8 +12,8 @@
       isDetailsCollapsed
     } = options;
 
-    const minBoardHeight = 160;
-    const minDetailsHeight = 180;
+    const minBoardHeight = 120;
+    const minDetailsHeight = 220;
     let isDraggingSplit = false;
 
     function detectLayoutMode() {

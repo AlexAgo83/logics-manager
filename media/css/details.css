@@ -6,9 +6,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  position: sticky;
-  bottom: 0;
+  position: relative;
+  bottom: auto;
   align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .details__header {
@@ -74,7 +76,8 @@
 }
 
 .details__body {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -87,6 +90,10 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   align-items: stretch;
+  flex: 0 0 auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  background: var(--vscode-sideBar-background, #252526);
 }
 
 .details--collapsed .details__actions {

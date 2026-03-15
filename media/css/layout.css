@@ -1,6 +1,7 @@
 .layout {
   display: flex;
   min-height: 0;
+  overflow: hidden;
 }
 
 .layout--horizontal {
@@ -76,16 +77,27 @@
 }
 
 .layout--stacked .board {
-  min-height: 160px;
+  min-height: 120px;
   position: relative;
   z-index: 0;
 }
 
+.layout--horizontal .board {
+  min-width: 0;
+  min-height: 0;
+}
+
+.layout--horizontal .details {
+  flex: 0 0 300px;
+  min-height: 0;
+}
+
 .layout--stacked .details {
-  min-height: 180px;
+  min-height: 220px;
   border-top: none;
   position: relative;
   bottom: auto;
+  overflow: hidden;
   z-index: 2;
 }
 

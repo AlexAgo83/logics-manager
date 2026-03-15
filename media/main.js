@@ -19,6 +19,7 @@
   const filterPanel = document.getElementById("filter-panel");
   const toolsToggle = document.getElementById("tools-toggle");
   const toolsPanel = document.getElementById("tools-panel");
+  const searchInput = document.getElementById("search-input");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
@@ -58,6 +59,7 @@
   let hideSpec = defaultFilterState.hideSpec;
   let showCompanionDocs = defaultFilterState.showCompanionDocs;
   let hideEmptyColumns = defaultFilterState.hideEmptyColumns;
+  let searchQuery = "";
   let collapsedListStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
@@ -301,6 +303,9 @@
     if (hideEmptyColumnsToggle) {
       hideEmptyColumnsToggle.checked = hideEmptyColumns;
     }
+    if (searchInput) {
+      searchInput.value = searchQuery;
+    }
   }
 
   function renderBoard() {
@@ -398,6 +403,41 @@
     }, {});
   }
 
+  function normalizeSearchValue(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function collectSearchText(value) {
+    if (Array.isArray(value)) {
+      return value.map((entry) => collectSearchText(entry)).join(" ");
+    }
+    if (value && typeof value === "object") {
+      return Object.values(value)
+        .map((entry) => collectSearchText(entry))
+        .join(" ");
+    }
+    return String(value || "");
+  }
+
+  function matchesSearch(item) {
+    const normalizedQuery = normalizeSearchValue(searchQuery);
+    if (!normalizedQuery) {
+      return true;
+    }
+    const haystack = normalizeSearchValue(
+      [
+        item.title,
+        item.id,
+        item.stage,
+        getStageLabel(item.stage),
+        collectSearchText(item.references),
+        collectSearchText(item.usedBy),
+        collectSearchText(item.indicators)
+      ].join(" ")
+    );
+    return haystack.includes(normalizedQuery);
+  }
+
   function isVisible(item) {
     if (hideCompleted && isComplete(item)) {
       return false;
@@ -411,7 +451,7 @@
     if (!showCompanionDocs && isCompanionStage(item.stage)) {
       return false;
     }
-    return true;
+    return matchesSearch(item);
   }
 
   function isPrimaryFlowStage(stage) {
@@ -643,7 +683,8 @@
         getHideProcessedRequests: () => hideProcessedRequests,
         getHideSpec: () => hideSpec,
         getShowCompanionDocs: () => showCompanionDocs,
-        getHideEmptyColumns: () => hideEmptyColumns
+        getHideEmptyColumns: () => hideEmptyColumns,
+        getSearchQuery: () => searchQuery
       })
     : null;
 
@@ -794,6 +835,7 @@
       hideSpec,
       showCompanionDocs,
       hideEmptyColumns,
+      searchQuery,
       collapsedListStages: Array.from(collapsedListStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -847,6 +889,13 @@
       restoreDefaultFilters();
       persistState();
       updateFilterState();
+      render();
+    });
+  }
+  if (searchInput) {
+    searchInput.addEventListener("input", (event) => {
+      searchQuery = event.target ? String(event.target.value || "") : "";
+      persistState();
       render();
     });
   }
@@ -942,6 +991,9 @@
   }
   if (previousState && typeof previousState.hideEmptyColumns === "boolean") {
     hideEmptyColumns = previousState.hideEmptyColumns;
+  }
+  if (previousState && typeof previousState.searchQuery === "string") {
+    searchQuery = previousState.searchQuery;
   }
   if (previousState && Array.isArray(previousState.collapsedListStages)) {
     collapsedListStages = new Set(previousState.collapsedListStages);

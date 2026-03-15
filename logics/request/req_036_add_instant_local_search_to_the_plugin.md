@@ -1,6 +1,6 @@
 ## req_036_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Medium

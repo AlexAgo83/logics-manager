@@ -1416,6 +1416,15 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           </div>
         </div>
       </div>
+      <div class="toolbar__search">
+        <input
+          class="toolbar__search-input"
+          id="search-input"
+          type="search"
+          placeholder="Search items"
+          aria-label="Search items"
+        />
+      </div>
       <div class="toolbar__buttons">
         <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
         <button class="btn" data-action="refresh" title="Refresh">Refresh</button>

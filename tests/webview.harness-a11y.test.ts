@@ -22,6 +22,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
           <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
           <button id="tools-toggle" class="toolbar__filter"></button>
           <div id="tools-panel"></div>
+          <input id="search-input" type="search" />
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
           <button data-action="select-agent"></button>
@@ -637,6 +638,65 @@ describe("webview harness controls and accessibility", () => {
     getHeader()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
     expect(getHeader()?.getAttribute("aria-expanded")).toBe("true");
     expect(getBody()?.hidden).toBe(false);
+  });
+
+  it("filters visible items instantly from the global search input", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    if (searchInput) {
+      searchInput.value = "draft";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).not.toContain("Plugin UX");
+
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).toContain("Plugin companion UX");
+  });
+
+  it("applies search after filters and works in list mode", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, specItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    if (searchInput) {
+      searchInput.value = "spec";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain('No items match search "spec".');
+
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = false;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(board?.textContent).toContain("Reference Contract Spec");
   });
 
   it("hides SPEC by default and applies the toggle in board and list modes", () => {

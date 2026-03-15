@@ -29,6 +29,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
         <button id="tools-toggle"></button>
         <div id="tools-panel"></div>
+        <input id="search-input" type="search" />
         <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
         <button data-action="new-request-guided"></button>

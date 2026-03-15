@@ -50,7 +50,8 @@
       getHideProcessedRequests,
       getHideSpec,
       getShowCompanionDocs,
-      getHideEmptyColumns
+      getHideEmptyColumns,
+      getSearchQuery
     } = options;
 
     function findCardById(id) {
@@ -280,6 +281,10 @@
     }
 
     function getEmptyBoardMessage() {
+      const query = String(typeof getSearchQuery === "function" ? getSearchQuery() : "").trim();
+      if (query) {
+        return `No items match search "${query}". Clear or refine the search to widen the view.`;
+      }
       if (getHideCompleted() || getHideProcessedRequests() || getHideSpec() || getShowCompanionDocs() || getHideEmptyColumns()) {
         const filters = [];
         if (getHideCompleted()) {

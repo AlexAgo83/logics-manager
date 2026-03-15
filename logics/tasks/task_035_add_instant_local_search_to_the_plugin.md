@@ -1,9 +1,9 @@
 ## task_035_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Navigation speed and findability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -14,13 +14,13 @@
 - Related request(s): `req_036_add_instant_local_search_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first searchable fields and place one global search control in the UI.
-- [ ] 2. Add the local search input to the plugin UI.
-- [ ] 3. Integrate simple case-insensitive containment search with existing filter and rendering logic.
-- [ ] 4. Ensure search works coherently in board mode and list mode.
-- [ ] 5. Verify filters apply first, search narrows the visible subset, and clearing search restores the expected filtered view.
-- [ ] 6. Add/adjust regression tests for the main search flows.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Define the first searchable fields and place one global search control in the UI.
+- [x] 2. Add the local search input to the plugin UI.
+- [x] 3. Integrate simple case-insensitive containment search with existing filter and rendering logic.
+- [x] 4. Ensure search works coherently in board mode and list mode.
+- [x] 5. Verify filters apply first, search narrows the visible subset, and clearing search restores the expected filtered view.
+- [x] 6. Add/adjust regression tests for the main search flows.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 2 and 3.
@@ -38,7 +38,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

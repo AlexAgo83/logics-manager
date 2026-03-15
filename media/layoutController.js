@@ -34,8 +34,26 @@
       }
       board.style.flex = "";
       board.style.height = "";
+      board.style.paddingBottom = "";
       details.style.flex = "";
       details.style.height = "";
+      details.style.maxHeight = "";
+      if (splitter) {
+        splitter.style.bottom = "";
+      }
+    }
+
+    function syncStackedAnchoredLayout() {
+      if (!layout || !board || !details || !isStackedLayout()) {
+        return;
+      }
+      const splitterHeight = splitter ? splitter.getBoundingClientRect().height : 0;
+      const detailsHeight = Math.ceil(details.getBoundingClientRect().height || details.offsetHeight || 0);
+      const reservedBottom = detailsHeight + (isSplitInteractionDisabled() ? 0 : splitterHeight);
+      board.style.paddingBottom = `${reservedBottom}px`;
+      if (splitter) {
+        splitter.style.bottom = isSplitInteractionDisabled() ? "" : `${detailsHeight}px`;
+      }
     }
 
     function updateSplitterA11y() {
@@ -63,8 +81,11 @@
       if (isSplitInteractionDisabled()) {
         board.style.flex = "1 1 auto";
         board.style.height = "";
+        board.style.paddingBottom = "";
         details.style.flex = "0 0 auto";
-        details.style.height = "auto";
+        details.style.height = "";
+        details.style.maxHeight = "";
+        syncStackedAnchoredLayout();
         updateSplitterA11y();
         if (shouldPersist) {
           persistState();
@@ -81,13 +102,22 @@
       const minRatio = minBoard / available;
       const maxRatio = (available - minDetails) / available;
       const clampedRatio = Math.min(Math.max(nextRatio, minRatio), maxRatio);
-      const boardHeight = Math.round(available * clampedRatio);
-      board.style.flex = `0 0 ${boardHeight}px`;
-      board.style.height = `${boardHeight}px`;
-      details.style.flex = "1 1 auto";
-      details.style.height = "";
+      const targetBoardHeight = Math.round(available * clampedRatio);
+      const boardContentHeight = Math.max(board.scrollHeight || 0, 0);
+      const compactBoardFloor = boardContentHeight > 0 ? Math.min(minBoardHeight, boardContentHeight) : minBoardHeight;
+      const boardHeight =
+        boardContentHeight > 0
+          ? Math.max(compactBoardFloor, Math.min(targetBoardHeight, boardContentHeight))
+          : targetBoardHeight;
+      const detailsHeight = Math.max(minDetails, available - boardHeight);
+      board.style.flex = "1 1 auto";
+      board.style.height = "";
+      details.style.flex = "0 0 auto";
+      details.style.height = `${detailsHeight}px`;
+      details.style.maxHeight = `${available}px`;
       uiState.splitRatio = clampedRatio;
       debugLog("split-ratio:update", { splitRatio: uiState.splitRatio });
+      syncStackedAnchoredLayout();
       updateSplitterA11y();
       if (shouldPersist) {
         persistState();
@@ -188,6 +218,7 @@
         applySplitRatio(nextRatio, true);
       },
       applySplitRatio,
+      syncStackedAnchoredLayout,
       updateLayoutMode,
       startSplitDrag,
       updateSplitDrag,

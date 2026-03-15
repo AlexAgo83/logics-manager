@@ -3,8 +3,8 @@
   border-left: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-sideBar-background, #252526);
   padding: 12px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 12px;
   position: relative;
   bottom: auto;
@@ -85,19 +85,24 @@
   display: none;
 }
 
+.details--collapsed {
+  grid-template-rows: auto;
+  gap: 0;
+}
+
 .details__actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   align-items: stretch;
-  flex: 0 0 auto;
+  align-self: end;
   padding-top: 8px;
   border-top: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-sideBar-background, #252526);
 }
 
 .details--collapsed .details__actions {
-  margin-top: auto;
+  display: none;
 }
 
 .details__actions .btn {

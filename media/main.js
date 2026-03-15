@@ -548,10 +548,19 @@
     renderDetails();
     renderActivityPanel();
     renderHelpBanner();
-    restoreScrollState();
     updateButtons();
     updateFilterState();
     syncChromeInputs();
+    if (layoutController && typeof layoutController.updateLayoutMode === "function") {
+      layoutController.updateLayoutMode();
+    }
+    if (layoutController && typeof layoutController.syncStackedAnchoredLayout === "function") {
+      layoutController.syncStackedAnchoredLayout();
+    }
+    if (layoutController && typeof layoutController.updateSplitterA11y === "function") {
+      layoutController.updateSplitterA11y();
+    }
+    restoreScrollState();
   }
 
   function renderBoard() {

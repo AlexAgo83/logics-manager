@@ -68,3 +68,6 @@ The goal is:
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Backlog
+- `logics/backlog/item_035_add_confirmation_for_done_and_obsolete_actions.md`

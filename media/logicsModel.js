@@ -232,7 +232,51 @@
 
   function isProcessedWorkflowStatus(value) {
     const normalized = normalizeStatus(value);
-    return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
+    return (
+      normalized === "ready" ||
+      normalized === "in progress" ||
+      normalized === "blocked" ||
+      normalized === "done" ||
+      normalized === "archived"
+    );
+  }
+
+  function parseProgress(value) {
+    if (!value) {
+      return null;
+    }
+    const match = String(value).match(/(\d{1,3})/);
+    if (!match) {
+      return null;
+    }
+    const parsed = Number.parseInt(match[1], 10);
+    if (Number.isNaN(parsed)) {
+      return null;
+    }
+    return Math.max(0, Math.min(100, parsed));
+  }
+
+  function isProcessedWorkflowItem(item) {
+    if (!item || (item.stage !== "backlog" && item.stage !== "task")) {
+      return false;
+    }
+    if (isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "")) {
+      return true;
+    }
+    return parseProgress(item && item.indicators ? item.indicators.Progress : "") === 100;
+  }
+
+  function workflowCandidateKeys(candidate) {
+    const keys = new Set();
+    if (candidate && candidate.relPath) {
+      const normalizedPath = normalizeManagedDocValue(candidate.relPath);
+      keys.add(normalizedPath);
+      keys.add(normalizedPath.split("/").pop()?.replace(/\.md$/i, "") || normalizedPath);
+    }
+    if (candidate && candidate.id) {
+      keys.add(candidate.id);
+    }
+    return Array.from(keys).filter(Boolean);
   }
 
   function collectLinkedWorkflowItems(item, allItems) {
@@ -243,31 +287,38 @@
     if (Array.isArray(item.references)) {
       item.references.forEach((ref) => {
         if (ref && typeof ref.path === "string") {
-          linkedValues.add(ref.path.replace(/\\/g, "/"));
+          linkedValues.add(normalizeManagedDocValue(ref.path));
         }
       });
     }
     if (Array.isArray(item.usedBy)) {
       item.usedBy.forEach((usage) => {
-        if (usage && typeof usage.relPath === "string") {
-          linkedValues.add(usage.relPath.replace(/\\/g, "/"));
+        const rawValue =
+          usage && typeof usage.relPath === "string"
+            ? usage.relPath
+            : usage && typeof usage.id === "string"
+              ? usage.id
+              : "";
+        if (rawValue) {
+          linkedValues.add(normalizeManagedDocValue(rawValue));
         }
       });
     }
-    return Array.from(linkedValues)
-      .map((rawValue) => findManagedItemByReference(rawValue, allItems))
-      .filter((candidate, index, collection) => {
-        if (!candidate || (candidate.stage !== "backlog" && candidate.stage !== "task")) {
-          return false;
+    const linkedItems = new Map();
+    (allItems || []).forEach((candidate) => {
+      workflowCandidateKeys(candidate).forEach((key) => {
+        if (!linkedItems.has(key)) {
+          linkedItems.set(key, candidate);
         }
-        return collection.indexOf(candidate) === index;
       });
+    });
+    return Array.from(linkedValues)
+      .map((rawValue) => linkedItems.get(rawValue) || findManagedItemByReference(rawValue, allItems))
+      .filter((candidate, index, collection) => candidate && collection.indexOf(candidate) === index);
   }
 
   function isRequestProcessed(item, allItems) {
-    return collectLinkedWorkflowItems(item, allItems).some((linkedItem) =>
-      isProcessedWorkflowStatus(linkedItem && linkedItem.indicators ? linkedItem.indicators.Status : "")
-    );
+    return collectLinkedWorkflowItems(item, allItems).some((linkedItem) => isProcessedWorkflowItem(linkedItem));
   }
 
   window.CdxLogicsModel = {

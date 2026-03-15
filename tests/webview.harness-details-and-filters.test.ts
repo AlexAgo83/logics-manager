@@ -137,6 +137,74 @@ describe("webview harness filters, details, and docs", () => {
     expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
   });
 
+  it("hides processed requests when processing is inferred from usedBy links, Progress 100, or Archived status", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "req_004_processed_by_used_by",
+          title: "Processed request by usedBy",
+          relPath: "logics/request/req_004_processed_by_used_by.md",
+          path: "/workspace/mock/logics/request/req_004_processed_by_used_by.md",
+          usedBy: [{ id: "item_004_processed_by_used_by", relPath: "item_004_processed_by_used_by" }]
+        },
+        {
+          ...baseItem,
+          id: "req_005_processed_by_progress",
+          title: "Processed request by progress",
+          relPath: "logics/request/req_005_processed_by_progress.md",
+          path: "/workspace/mock/logics/request/req_005_processed_by_progress.md",
+          references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_005_processed_by_progress.md" }]
+        },
+        {
+          ...baseItem,
+          id: "req_006_processed_by_archived",
+          title: "Processed request by archived backlog",
+          relPath: "logics/request/req_006_processed_by_archived.md",
+          path: "/workspace/mock/logics/request/req_006_processed_by_archived.md",
+          references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_006_processed_by_archived.md" }]
+        },
+        {
+          ...baseItem,
+          id: "item_004_processed_by_used_by",
+          title: "Processed backlog by usedBy",
+          stage: "backlog",
+          relPath: "logics/backlog/item_004_processed_by_used_by.md",
+          path: "/workspace/mock/logics/backlog/item_004_processed_by_used_by.md",
+          indicators: { Status: "Done" }
+        },
+        {
+          ...baseItem,
+          id: "item_005_processed_by_progress",
+          title: "Processed backlog by progress",
+          stage: "backlog",
+          relPath: "logics/backlog/item_005_processed_by_progress.md",
+          path: "/workspace/mock/logics/backlog/item_005_processed_by_progress.md",
+          indicators: { Progress: "100%" }
+        },
+        {
+          ...baseItem,
+          id: "item_006_processed_by_archived",
+          title: "Processed backlog by archived status",
+          stage: "backlog",
+          relPath: "logics/backlog/item_006_processed_by_archived.md",
+          path: "/workspace/mock/logics/backlog/item_006_processed_by_archived.md",
+          indicators: { Status: "Archived" }
+        }
+      ]
+    });
+
+    const document = dom.window.document;
+    const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
+    expect(processedToggle?.checked).toBe(true);
+
+    expect(document.querySelector('[data-id="req_004_processed_by_used_by"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_005_processed_by_progress"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_006_processed_by_archived"]')).toBeNull();
+  });
+
   it("hides empty columns in board view by default and can be disabled", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {

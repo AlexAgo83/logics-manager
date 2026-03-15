@@ -211,4 +211,6 @@ For new UI controls in this project:
   - `Derived from \`logics/<stage>/<file>.md\`` or `Promoted from \`...\``
   - `# Backlog` section in requests
   - `# References` and `# Used by` sections with backticked relative paths
+- For companion docs (`prod_*`, `adr_*`), `Related request/backlog/task/architecture` indicators are also indexed as managed-doc links.
+- Companion docs should still mirror those links under `# References` with canonical relative paths so the kit and plugin stay aligned.
 - Legacy nested list blocks (`- References:` / `- Used by:`) are also parsed for backward compatibility.

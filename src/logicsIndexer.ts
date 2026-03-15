@@ -77,7 +77,7 @@ export function indexLogics(root: string): LogicsItem[] {
       const manualUsedBy = [
         ...extractSectionLinks(content, "Used by"),
         ...extractListLinks(content, "Used by")
-      ].map(normalizeRef);
+      ].map(normalizeIndexedRef);
       manualUsedByMap.set(relPath, manualUsedBy);
       const fromRefs = references
         .filter((ref) => ref.kind === "from")
@@ -112,10 +112,10 @@ export function indexLogics(root: string): LogicsItem[] {
 
   for (const item of items) {
     for (const ref of item.references) {
-      if (ref.kind !== "from") {
+      const normalized = normalizeRef(ref.path);
+      if (!isManagedDocReference(normalized)) {
         continue;
       }
-      const normalized = normalizeRef(ref.path);
       const existing = usageMap.get(normalized) ?? [];
       existing.push({
         id: item.id,
@@ -178,21 +178,22 @@ function extractReferences(content: string): LogicsReference[] {
     let match: RegExpExecArray | null;
     while ((match = pattern.regex.exec(content)) !== null) {
       if (match[1]) {
-        refs.push({ kind: "from", label: pattern.label, path: match[1] });
+        refs.push({ kind: "from", label: pattern.label, path: normalizeIndexedRef(match[1]) });
       }
     }
   }
 
   for (const backlogRef of extractBacklogLinks(content)) {
-    refs.push({ kind: "backlog", label: "Backlog", path: backlogRef });
+    refs.push({ kind: "backlog", label: "Backlog", path: normalizeIndexedRef(backlogRef) });
   }
 
   const manualReferences = [
     ...extractSectionLinks(content, "References"),
-    ...extractListLinks(content, "References")
+    ...extractListLinks(content, "References"),
+    ...extractIndicatorLinks(content, ["Related request", "Related backlog", "Related task", "Related architecture"])
   ];
   for (const manualRef of manualReferences) {
-    refs.push({ kind: "manual", label: "Reference", path: manualRef });
+    refs.push({ kind: "manual", label: "Reference", path: normalizeIndexedRef(manualRef) });
   }
 
   return refs;
@@ -285,8 +286,62 @@ function collectBacktickedLinks(line: string, links: string[]): void {
   }
 }
 
+function extractIndicatorLinks(content: string, indicatorKeys: string[]): string[] {
+  const indicators = new Set(indicatorKeys.map((key) => key.trim().toLowerCase()));
+  const links: string[] = [];
+
+  for (const line of content.split(/\r?\n/)) {
+    if (!line.startsWith(">")) {
+      continue;
+    }
+    const trimmed = line.replace(/^>\s*/, "").trim();
+    const separatorIndex = trimmed.indexOf(":");
+    if (separatorIndex === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, separatorIndex).trim().toLowerCase();
+    if (!indicators.has(key)) {
+      continue;
+    }
+
+    collectBacktickedLinks(trimmed.slice(separatorIndex + 1), links);
+  }
+
+  return Array.from(new Set(links));
+}
+
+function normalizeIndexedRef(value: string): string {
+  const normalized = normalizeRef(value).replace(/^\.\//, "").trim();
+  if (!normalized) {
+    return normalized;
+  }
+  if (normalized.includes("/") || normalized.endsWith(".md")) {
+    return normalized;
+  }
+
+  for (const family of MANAGED_DOC_FAMILIES) {
+    if (family.prefixes.some((prefix) => normalized.startsWith(prefix))) {
+      return `${family.dir}/${normalized}.md`;
+    }
+  }
+
+  return normalized;
+}
+
 function normalizeRef(value: string): string {
   return value.replace(/\\/g, "/");
+}
+
+function isManagedDocReference(value: string): boolean {
+  const normalized = normalizeIndexedRef(value).toLowerCase();
+  return MANAGED_DOC_FAMILIES.some((family) => {
+    const normalizedDir = family.dir.toLowerCase();
+    return (
+      normalized.startsWith(`${normalizedDir}/`) ||
+      family.prefixes.some((prefix) => path.basename(normalized, ".md").startsWith(prefix))
+    );
+  });
 }
 
 function toUsage(relPath: string, items: LogicsItem[], root: string): LogicsUsage {

@@ -178,6 +178,68 @@ describe("logicsIndexer", () => {
     expect(items.find((item) => item.id === "adr_000_plugin_model")?.stage).toBe("architecture");
   });
 
+  it("treats related indicators on companion docs as managed references", () => {
+    const root = mkRepo();
+    write(root, "logics/request/req_010_layout.md", "## req_010_layout - Layout Request");
+    write(
+      root,
+      "logics/architecture/adr_010_layout_rules.md",
+      [
+        "## adr_010_layout_rules - Layout Rules",
+        "> Date: 2026-03-15",
+        "> Status: Accepted",
+        "> Drivers: Keep layout stable.",
+        "> Related request: `req_010_layout`",
+        "> Related backlog: `(none yet)`",
+        "> Related task: `(none yet)`",
+        "> Reminder: Keep refs current."
+      ].join("\n")
+    );
+
+    const items = indexLogics(root);
+    const request = items.find((item) => item.id === "req_010_layout");
+    const adr = items.find((item) => item.id === "adr_010_layout_rules");
+    expect(adr?.references).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "manual", path: "logics/request/req_010_layout.md" })
+      ])
+    );
+    expect(request?.usedBy).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "adr_010_layout_rules", stage: "architecture" })
+      ])
+    );
+  });
+
+  it("normalizes bare managed doc ids inside references and used-by sections", () => {
+    const root = mkRepo();
+    write(root, "logics/request/req_011_traceability.md", "## req_011_traceability - Traceability");
+    write(
+      root,
+      "logics/product/prod_011_traceability.md",
+      [
+        "## prod_011_traceability - Traceability Brief",
+        "# References",
+        "- `req_011_traceability`",
+        "# Used by",
+        "- `task_011_traceability`"
+      ].join("\n")
+    );
+
+    const items = indexLogics(root);
+    const product = items.find((item) => item.id === "prod_011_traceability");
+    expect(product?.references).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "logics/request/req_011_traceability.md" })
+      ])
+    );
+    expect(product?.usedBy).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ relPath: "logics/tasks/task_011_traceability.md", stage: "task" })
+      ])
+    );
+  });
+
   it("infers companion doc stages from managed directories and prefixes", () => {
     expect(inferStage("logics/product/prod_002_flow.md", "prod_002_flow")).toBe("product");
     expect(inferStage("logics/architecture/adr_002_flow.md", "adr_002_flow")).toBe("architecture");

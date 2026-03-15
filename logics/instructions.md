@@ -60,6 +60,9 @@ Use the following markdown patterns for deterministic indexing in the VS Code ex
   - Keep links under `# References` as backticked relative paths.
 - Reverse links:
   - Keep links under `# Used by` as backticked relative paths.
+- Product briefs and ADRs:
+  - Do not rely only on `Related request/backlog/task/architecture` indicators.
+  - Mirror those managed-doc links under `# References` as canonical backticked relative paths.
 
 Avoid storing critical links only in free-form prose when they need to appear in plugin references/promotion guards.
 Legacy nested list labels (`- References:` / `- Used by:`) are parsed for backward compatibility, but canonical headings remain preferred.

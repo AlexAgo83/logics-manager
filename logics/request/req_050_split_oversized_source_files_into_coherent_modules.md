@@ -1,6 +1,6 @@
 ## req_050_split_oversized_source_files_into_coherent_modules - Split oversized source files into coherent modules
 > From version: 1.10.0
-> Status: Ready
+> Status: In progress
 > Understanding: 99%
 > Confidence: 97%
 > Complexity: High

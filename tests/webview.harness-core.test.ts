@@ -1,0 +1,711 @@
+import { describe, expect, it } from "vitest";
+import {
+  architectureItem,
+  baseItem,
+  bootstrapWebview,
+  createDirectoryHandle,
+  productItem,
+  pushData,
+  specItem
+} from "./webviewHarnessTestUtils";
+
+describe("webview harness core behaviors", () => {
+  it("opens selected item in harness mode without posting open message", async () => {
+    const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(openedUrls.length).toBeGreaterThan(0);
+    expect(postedMessages.some((message) => message.type === "open")).toBe(false);
+  });
+
+  it("uses the browser directory picker fallback for change project root in harness mode", async () => {
+    let pickerCalls = 0;
+    const { dom, postedMessages, setProjectRootCalls } = bootstrapWebview({
+      harness: true,
+      showDirectoryPicker: async () => {
+        pickerCalls += 1;
+        return { name: "repo-root" };
+      }
+    });
+
+    const button = dom.window.document.querySelector('[data-action="change-project-root"]');
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(pickerCalls).toBe(1);
+    expect(setProjectRootCalls).toContain("repo-root");
+    expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(false);
+  });
+
+  it("uses selected directory handle content for edit preview in harness mode", async () => {
+    const rootHandle = createDirectoryHandle("repo-root", {
+      dirs: {
+        logics: {
+          dirs: {
+            request: {
+              files: {
+                "req_000_kickoff.md": "# Kickoff"
+              }
+            }
+          }
+        }
+      }
+    });
+    const { dom, openedUrls, fetchCalls } = bootstrapWebview({
+      harness: true,
+      showDirectoryPicker: async () => rootHandle
+    });
+
+    const changeRootButton = dom.window.document.querySelector('[data-action="change-project-root"]');
+    changeRootButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(openedUrls).toContain("");
+    expect(fetchCalls.length).toBe(0);
+  });
+
+  it("keeps VS Code message routing in non-harness mode for open, change root, and select agent", () => {
+    const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: false });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const openButton = dom.window.document.querySelector('[data-action="open"]');
+    const changeRootButton = dom.window.document.querySelector('[data-action="change-project-root"]');
+    const selectAgentButton = dom.window.document.querySelector('[data-action="select-agent"]');
+    openButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    changeRootButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    selectAgentButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "change-project-root")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "select-agent")).toBe(true);
+    expect(openedUrls.length).toBe(0);
+  });
+
+  it("posts guided new-request action in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const guidedButton = dom.window.document.querySelector('[data-action="new-request-guided"]');
+    guidedButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
+  });
+
+  it("posts create companion doc action from tools in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const createCompanionDocButton = dom.window.document.querySelector('[data-action="create-companion-doc"]');
+    createCompanionDocButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some((message) => message.type === "create-companion-doc" && message.id === "req_000_kickoff")
+    ).toBe(true);
+  });
+
+  it("disables use-workspace-root when payload indicates no override", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      canResetProjectRoot: false,
+      items: [baseItem]
+    });
+
+    const resetButton = dom.window.document.querySelector(
+      '[data-action="reset-project-root"]'
+    ) as HTMLButtonElement | null;
+    expect(resetButton?.disabled).toBe(true);
+
+    pushData(dom, {
+      root: "/workspace/mock/other",
+      canResetProjectRoot: true,
+      items: [baseItem]
+    });
+    expect(resetButton?.disabled).toBe(false);
+  });
+
+  it("switches to list mode and persists view mode state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const modeButton = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const board = dom.window.document.getElementById("board");
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(modeButton?.getAttribute("data-current-mode")).toBe("list");
+    expect(modeButton?.getAttribute("aria-pressed")).toBe("true");
+    expect(dom.window.document.querySelectorAll(".list-view__section").length).toBeGreaterThan(0);
+    expect(persistedStates.some((state) => state.viewMode === "list")).toBe(true);
+  });
+
+  it("forces list mode below 500px and restores the saved mode above that threshold", () => {
+    const { dom, setNarrow } = bootstrapWebview({ harness: true, narrow: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]') as HTMLButtonElement | null;
+
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(modeButton?.dataset.currentMode).toBe("list");
+    expect(modeButton?.disabled).toBe(true);
+
+    setNarrow(false);
+
+    expect(board?.classList.contains("board--list")).toBe(false);
+    expect(modeButton?.dataset.currentMode).toBe("board");
+    expect(modeButton?.disabled).toBe(false);
+  });
+
+  it("allows collapsing and expanding list groups and persists their state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const getHeader = () =>
+      document.querySelector('.list-view__section[data-stage="request"] .list-view__header') as HTMLButtonElement | null;
+    const getBody = () => document.getElementById("list-section-request");
+
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("true");
+    expect(getBody()?.hidden).toBe(false);
+
+    getHeader()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const collapsedHeader = getHeader();
+    const collapsedBody = getBody();
+    expect(collapsedHeader?.getAttribute("aria-expanded")).toBe("false");
+    expect(collapsedBody?.hidden).toBe(true);
+    expect(
+      persistedStates.some((state) => Array.isArray(state.collapsedListStages) && state.collapsedListStages.includes("request"))
+    ).toBe(true);
+
+    collapsedHeader?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const expandedHeader = getHeader();
+    const expandedBody = getBody();
+    expect(expandedHeader?.getAttribute("aria-expanded")).toBe("true");
+    expect(expandedBody?.hidden).toBe(false);
+  });
+
+  it("supports directional keyboard navigation across board columns and rows", () => {
+    const requestFollowup = {
+      ...baseItem,
+      id: "req_001_followup",
+      title: "Followup"
+    };
+    const backlogItem = {
+      ...baseItem,
+      id: "item_001_plan_followup",
+      title: "Plan Followup",
+      stage: "backlog"
+    };
+    const taskItem = {
+      ...baseItem,
+      id: "task_001_ship_followup",
+      title: "Ship Followup",
+      stage: "task"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem, requestFollowup, backlogItem, taskItem]
+    });
+
+    const document = dom.window.document;
+    const getSelectedCard = () => document.querySelector(".card--selected") as HTMLDivElement | null;
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("req_001_followup");
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("item_001_plan_followup");
+
+    getSelectedCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getSelectedCard()?.dataset.id).toBe("task_001_ship_followup");
+  });
+
+  it("supports keyboard open and read actions from cards", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+
+    getCard()?.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: true,
+        bubbles: true
+      })
+    );
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "req_000_kickoff")).toBe(true);
+
+    getCard()?.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true
+      })
+    );
+    expect(postedMessages.some((message) => message.type === "open" && message.id === "req_000_kickoff")).toBe(true);
+  });
+
+  it("supports collapsing and expanding list groups from the keyboard", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+    const getHeader = () =>
+      document.querySelector('.list-view__section[data-stage="request"] .list-view__header') as HTMLButtonElement | null;
+    const getBody = () => document.getElementById("list-section-request");
+
+    getCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("false");
+    expect(getBody()?.hidden).toBe(true);
+    expect(document.activeElement).toBe(getHeader());
+
+    getHeader()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("true");
+    expect(getBody()?.hidden).toBe(false);
+  });
+
+  it("filters visible items instantly from the global search input", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    if (searchInput) {
+      searchInput.value = "draft";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).not.toContain("Plugin UX");
+
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).toContain("Plugin companion UX");
+  });
+
+  it("applies search after filters and works in list mode", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, specItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    if (searchInput) {
+      searchInput.value = "spec";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(board?.textContent).toContain('No items match search "spec".');
+
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = false;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(board?.textContent).toContain("Reference Contract Spec");
+  });
+
+  it("supports status grouping in list mode", () => {
+    const requestProposed = {
+      ...baseItem,
+      id: "req_001_status_proposed",
+      title: "Status Proposed",
+      indicators: {
+        Status: "Proposed"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, requestProposed]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    const groupBySelect = document.getElementById("group-by") as HTMLSelectElement | null;
+
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    if (groupBySelect) {
+      groupBySelect.value = "status";
+      groupBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const sectionLabels = Array.from(document.querySelectorAll(".list-view__header")).map((header) =>
+      header.textContent?.replace(/[▾▸]/g, "").replace(/\s+/g, " ").trim()
+    );
+
+    expect(sectionLabels).toContain("Draft (1)");
+    expect(sectionLabels).toContain("Proposed (1)");
+  });
+
+  it("sorts board cards by most recently updated when requested", () => {
+    const olderRequest = {
+      ...baseItem,
+      id: "req_001_older",
+      title: "Older request",
+      updatedAt: "2024-01-01T00:00:00.000Z"
+    };
+    const newerRequest = {
+      ...baseItem,
+      id: "req_002_newer",
+      title: "Newer request",
+      updatedAt: "2024-02-01T00:00:00.000Z"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [olderRequest, newerRequest]
+    });
+
+    const document = dom.window.document;
+    const sortBySelect = document.getElementById("sort-by") as HTMLSelectElement | null;
+    if (sortBySelect) {
+      sortBySelect.value = "updated-desc";
+      sortBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const cardTitles = Array.from(document.querySelectorAll('.column[data-stage="request"] .card__title')).map((node) =>
+      node.textContent?.trim()
+    );
+    expect(cardTitles).toEqual(["Newer request", "Older request"]);
+  });
+
+  it("filters the view down to explicit attention-required items", () => {
+    const blockedTask = {
+      ...baseItem,
+      id: "task_001_blocked",
+      title: "Blocked task",
+      stage: "task",
+      indicators: {
+        Status: "Blocked"
+      }
+    };
+    const healthyTask = {
+      ...baseItem,
+      id: "task_002_healthy",
+      title: "Healthy task",
+      stage: "task",
+      indicators: {
+        Status: "In progress"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, blockedTask, healthyTask]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const attentionToggle = document.getElementById("attention-toggle");
+
+    attentionToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).toContain("Blocked task");
+    expect(board?.textContent).not.toContain("Healthy task");
+    expect(attentionToggle?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("shows a recent activity panel and lets users jump back to an item", () => {
+    const olderItem = {
+      ...baseItem,
+      id: "req_001_older_activity",
+      title: "Older activity",
+      updatedAt: "2024-01-01T00:00:00.000Z"
+    };
+    const newerItem = {
+      ...baseItem,
+      id: "task_001_recent_activity",
+      title: "Recent activity",
+      stage: "task",
+      updatedAt: "2024-03-01T00:00:00.000Z",
+      indicators: {
+        Status: "Done"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [olderItem, newerItem]
+    });
+
+    const document = dom.window.document;
+    const activityToggle = document.getElementById("activity-toggle");
+    const activityPanel = document.getElementById("activity-panel");
+
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
+    expect(activityPanel?.hidden).toBe(false);
+    expect(entries[0]?.textContent).toContain("Recent activity");
+    expect(entries[0]?.textContent).toContain("Marked done");
+    expect(entries[1]?.textContent).toContain("Older activity");
+
+    entries[0]?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
+  });
+
+  it("renders suggested-action badges for actionable items", () => {
+    const orphanProduct = {
+      ...productItem,
+      references: [],
+      usedBy: []
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, orphanProduct]
+    });
+
+    const document = dom.window.document;
+    const requestCard = document.querySelector('.card[data-id="req_000_kickoff"]');
+    const productCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
+
+    expect(requestCard?.textContent).toContain("Promote");
+    expect(requestCard?.textContent).toContain("Add docs");
+    expect(productCard?.textContent).toContain("Link flow");
+  });
+
+  it("shows actionable empty-state guidance when no items are available", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: []
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const helpBanner = document.getElementById("help-banner");
+
+    expect(board?.textContent).toContain("New Request");
+    expect(board?.textContent).toContain("Bootstrap Logics");
+    expect(helpBanner?.hidden).toBe(false);
+  });
+
+  it("shows and dismisses contextual onboarding help without breaking the details empty state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const helpBanner = document.getElementById("help-banner");
+    const helpBannerDismiss = document.getElementById("help-banner-dismiss");
+    const detailsBody = document.getElementById("details-body");
+
+    expect(helpBanner?.textContent).toContain("Use Search");
+    expect(detailsBody?.textContent).toContain("Use Search or Attention");
+
+    helpBannerDismiss?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(helpBanner?.hidden).toBe(true);
+    expect(persistedStates.some((state) => state.helpDismissed === true)).toBe(true);
+  });
+
+  it("renders stronger health signals for blocked and orphaned items", () => {
+    const blockedTask = {
+      ...baseItem,
+      id: "task_003_blocked_health",
+      title: "Blocked health task",
+      stage: "task",
+      indicators: {
+        Status: "Blocked"
+      }
+    };
+    const orphanProduct = {
+      ...productItem,
+      references: [],
+      usedBy: []
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [blockedTask, orphanProduct]
+    });
+
+    const document = dom.window.document;
+    const blockedCard = document.querySelector('.card[data-id="task_003_blocked_health"]');
+    const orphanCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
+
+    expect(blockedCard?.classList.contains("card--health-alert")).toBe(true);
+    expect(blockedCard?.textContent).toContain("Blocked");
+    expect(orphanCard?.classList.contains("card--health-alert")).toBe(true);
+    expect(orphanCard?.textContent).toContain("Orphaned");
+    expect(orphanCard?.textContent).toContain("Link flow");
+  });
+
+  it("shows a compact preview on hover and dismisses it cleanly", () => {
+    const previewItem = {
+      ...baseItem,
+      updatedAt: "2024-02-03T00:00:00.000Z",
+      references: [{ kind: "manual", label: "Reference", path: "logics/product/prod_000_plugin_ux.md" }],
+      usedBy: [
+        {
+          id: "item_001_plan_followup",
+          title: "Plan Followup",
+          stage: "backlog",
+          relPath: "logics/backlog/item_001_plan_followup.md"
+        }
+      ]
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [previewItem]
+    });
+
+    const document = dom.window.document;
+    const card = document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+    const getPreview = () => card?.querySelector(".card__preview") as HTMLDivElement | null;
+
+    expect(getPreview()?.hidden).toBe(true);
+
+    card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+    expect(getPreview()?.hidden).toBe(false);
+    expect(getPreview()?.textContent).toContain("Status");
+    expect(getPreview()?.textContent).toContain("Draft");
+    expect(getPreview()?.textContent).toContain("References");
+    expect(getPreview()?.textContent).toContain("Used by");
+
+    card?.dispatchEvent(new dom.window.MouseEvent("mouseleave", { bubbles: true }));
+    expect(getPreview()?.hidden).toBe(true);
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
+  });
+
+  it("restores persisted UI state for the current workspace when it is still valid", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        workspaceRoot: "/workspace/mock",
+        selectedId: "prod_000_plugin_ux",
+        searchQuery: "plugin",
+        viewMode: "list",
+        boardScrollTop: 42,
+        detailsScrollTop: 18
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const detailsBody = document.getElementById("details-body");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(searchInput?.value).toBe("plugin");
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("prod_000_plugin_ux");
+    expect(board?.scrollTop).toBe(42);
+    expect(detailsBody?.scrollTop).toBe(18);
+  });
+
+  it("drops stale restored UI fragments when the workspace root changes", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        workspaceRoot: "/workspace/other",
+        selectedId: "prod_000_plugin_ux",
+        searchQuery: "plugin",
+        viewMode: "list",
+        detailsCollapsed: true
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const details = document.getElementById("details");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(searchInput?.value).toBe("");
+    expect(board?.classList.contains("board--list")).toBe(false);
+    expect(document.querySelector(".card--selected")).toBeNull();
+    expect(details?.classList.contains("details--collapsed")).toBe(false);
+  });
+});

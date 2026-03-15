@@ -23,7 +23,7 @@ This is not a missing filter option. It is a missing recovery action. Without a 
   - Add regression coverage for reset behavior.
 - Out:
   - Changing the default filter set itself.
-  - Resetting non-filter UI state such as details collapse, split ratio, or display mode.
+  - Resetting non-filter UI state such as details collapse, split ratio, display mode, or search state.
   - Redesigning the whole filter panel.
 
 # Acceptance criteria
@@ -54,6 +54,7 @@ This is not a missing filter option. It is a missing recovery action. Without a 
 
 # Notes
 - Derived from `logics/request/req_028_add_reset_action_for_filter_defaults.md`.
+- `Reset` is a filter-only recovery action and should not become a broader UI reset.
 
 # Tasks
 - `logics/tasks/task_027_add_reset_action_for_filter_defaults.md`

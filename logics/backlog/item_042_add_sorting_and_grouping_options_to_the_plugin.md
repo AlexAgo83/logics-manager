@@ -49,6 +49,10 @@ Without richer sort/group options, users are forced into one interpretation of t
 
 # Notes
 - Derived from `logics/request/req_037_add_sorting_and_grouping_options_to_the_plugin.md`.
+- Recommended baseline:
+  - sorting applies within the active grouping boundaries by default;
+  - only one grouping mode is active at a time;
+  - the first useful sort fields are `updatedAt`, progress/completion, and key workflow status indicators.
 
 # Tasks
 - `logics/tasks/task_036_add_sorting_and_grouping_options_to_the_plugin.md`

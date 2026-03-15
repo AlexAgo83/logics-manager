@@ -52,6 +52,7 @@ Without per-group collapse/expand, list mode can trade horizontal clarity for ex
 
 # Notes
 - Derived from `logics/request/req_033_allow_collapsing_and_expanding_groups_in_list_mode.md`.
+- List groups should remain expanded by default; collapse is a density-control affordance, not the default presentation.
 
 # Tasks
 - `logics/tasks/task_032_allow_collapsing_and_expanding_groups_in_list_mode.md`

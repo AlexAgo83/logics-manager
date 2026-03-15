@@ -25,7 +25,7 @@ flowchart LR
 # Plan
 - [ ] 1. Identify or centralize the canonical default filter values used by the webview.
 - [ ] 2. Add a `Reset` control in the last position of the filter panel.
-- [ ] 3. Implement a reset handler that restores only filter state.
+- [ ] 3. Implement a reset handler that restores only filter state and leaves search/view/collapse state untouched.
 - [ ] 4. Persist the restored defaults and trigger immediate rerender.
 - [ ] 5. Add/adjust harness tests for reset state and rendered default view recovery.
 - [ ] FINAL: Update related Logics docs

@@ -14,11 +14,11 @@
 - Related request(s): `req_036_add_instant_local_search_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first searchable fields and where the search control should live.
+- [ ] 1. Define the first searchable fields and place one global search control in the UI.
 - [ ] 2. Add the local search input to the plugin UI.
-- [ ] 3. Integrate search with existing filter and rendering logic.
+- [ ] 3. Integrate simple case-insensitive containment search with existing filter and rendering logic.
 - [ ] 4. Ensure search works coherently in board mode and list mode.
-- [ ] 5. Verify clearing search restores the expected filtered view.
+- [ ] 5. Verify filters apply first, search narrows the visible subset, and clearing search restores the expected filtered view.
 - [ ] 6. Add/adjust regression tests for the main search flows.
 - [ ] FINAL: Update related Logics docs
 

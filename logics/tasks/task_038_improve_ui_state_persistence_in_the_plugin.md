@@ -14,10 +14,10 @@
 - Related request(s): `req_039_improve_ui_state_persistence_in_the_plugin`.
 
 # Plan
-- [ ] 1. Identify the highest-value UI states worth persisting more reliably.
+- [ ] 1. Identify the highest-value UI states worth persisting more reliably, scoped per workspace.
 - [ ] 2. Improve persistence and restoration rules for those states.
-- [ ] 3. Guard restoration against stale or misleading state when data changes.
-- [ ] 4. Validate compatibility with current filters, responsive behavior, and selection logic.
+- [ ] 3. Guard restoration against stale or misleading state when data changes, dropping invalid fragments quietly.
+- [ ] 4. Validate compatibility with current filters, responsive behavior, and temporary responsive overrides of stored preferences.
 - [ ] 5. Add/adjust tests for the most important restored-state paths.
 - [ ] FINAL: Update related Logics docs
 

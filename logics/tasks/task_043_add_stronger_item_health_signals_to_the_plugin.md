@@ -14,11 +14,11 @@
 - Related request(s): `req_044_add_stronger_item_health_signals_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first high-confidence item health signals worth surfacing.
+- [ ] 1. Define the first high-confidence item health signals worth surfacing, favoring explicit or strongly grounded conditions.
 - [ ] 2. Add stronger visual treatment for those signals in the main browsing surfaces.
 - [ ] 3. Keep the treatment understandable and visually controlled.
 - [ ] 4. Verify coherence in board mode and list mode.
-- [ ] 5. Ensure the new signals do not overcrowd or regress existing interactions.
+- [ ] 5. Ensure the new signals do not overcrowd or regress existing interactions, and that health retains precedence over suggested-action guidance.
 - [ ] 6. Add/adjust regression tests for health-signal rendering.
 - [ ] FINAL: Update related Logics docs
 

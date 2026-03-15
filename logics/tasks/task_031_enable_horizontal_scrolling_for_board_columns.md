@@ -24,8 +24,8 @@ flowchart LR
 
 # Plan
 - [ ] 1. Identify the correct board container level for horizontal overflow handling.
-- [ ] 2. Enable horizontal scrolling when total column width exceeds viewport width.
-- [ ] 3. Preserve readable column widths under overflow.
+- [ ] 2. Enable native horizontal scrolling when total column width exceeds viewport width.
+- [ ] 3. Preserve stable minimum readable column widths under overflow.
 - [ ] 4. Verify toolbar and details panel stay outside the horizontal scroll path.
 - [ ] 5. Verify responsive behaviors such as stacked layout and forced list mode still work.
 - [ ] 6. Add/adjust regression tests for board overflow behavior.

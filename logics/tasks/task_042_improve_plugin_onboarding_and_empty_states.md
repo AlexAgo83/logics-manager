@@ -15,9 +15,9 @@
 
 # Plan
 - [ ] 1. Identify the highest-friction empty states and first-use confusion points.
-- [ ] 2. Improve empty-state copy and actionability.
+- [ ] 2. Improve empty-state copy and actionability, prioritizing contextual workspace guidance.
 - [ ] 3. Add lightweight contextual onboarding/help affordances where they provide real value.
-- [ ] 4. Keep the resulting guidance non-intrusive for experienced users.
+- [ ] 4. Keep the resulting guidance non-intrusive and dismissible where appropriate for experienced users.
 - [ ] 5. Add/adjust regression tests for the main onboarding or empty-state surfaces.
 - [ ] FINAL: Update related Logics docs
 

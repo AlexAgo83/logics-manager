@@ -29,7 +29,7 @@ Users need a direct search path over the already indexed item metadata so they c
 - AC1: The plugin exposes a search input for local item filtering.
 - AC2: Typing updates visible results immediately without manual refresh.
 - AC3: Search works in both board mode and list mode.
-- AC4: Search matches at least item title and id.
+- AC4: Search matches at least item title, id, stage, lightweight relationship metadata, and a small first set of key indicators such as `Status`.
 - AC5: Search combines predictably with existing filters.
 - AC6: Clearing search restores the previous filtered view.
 - AC7: Search remains responsive with realistic workspace data volume.
@@ -50,6 +50,7 @@ Users need a direct search path over the already indexed item metadata so they c
 
 # Notes
 - Derived from `logics/request/req_036_add_instant_local_search_to_the_plugin.md`.
+- The recommended first implementation is a single global search field using simple case-insensitive containment over the already visible filtered dataset.
 
 # Tasks
 - `logics/tasks/task_035_add_instant_local_search_to_the_plugin.md`

@@ -47,6 +47,7 @@ An activity timeline would improve situational awareness by surfacing meaningful
 
 # Notes
 - Derived from `logics/request/req_041_add_activity_timeline_to_the_plugin.md`.
+- The preferred initial timeline is a recent derived event window, roughly ten to twenty entries ordered by recency, not a full persistent event journal.
 
 # Tasks
 - `logics/tasks/task_040_add_activity_timeline_to_the_plugin.md`

@@ -24,7 +24,7 @@ flowchart LR
 
 # Plan
 - [ ] 1. Identify how list groups are currently rendered and where header controls should live.
-- [ ] 2. Add collapse/expand controls to list-mode group headers.
+- [ ] 2. Add collapse/expand controls to list-mode group headers while keeping groups expanded by default.
 - [ ] 3. Hide/show group body content while keeping headers visible.
 - [ ] 4. Ensure item selection and navigation still work after toggle cycles.
 - [ ] 5. Decide and implement safe persistence behavior for list-group collapse state.

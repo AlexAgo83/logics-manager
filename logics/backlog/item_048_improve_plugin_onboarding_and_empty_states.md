@@ -46,6 +46,7 @@ That creates avoidable confusion around core concepts such as filters, board/lis
 
 # Notes
 - Derived from `logics/request/req_043_improve_plugin_onboarding_and_empty_states.md`.
+- The first emphasis should be contextual workspace and empty-state guidance, and lightweight help affordances should be dismissible where appropriate.
 
 # Tasks
 - `logics/tasks/task_042_improve_plugin_onboarding_and_empty_states.md`

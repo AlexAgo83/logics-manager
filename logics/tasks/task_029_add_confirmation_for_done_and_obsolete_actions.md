@@ -25,7 +25,7 @@ flowchart LR
 # Plan
 - [ ] 1. Identify the current host-side entry points for `Done` and `Obsolete`.
 - [ ] 2. Add confirmation before the lifecycle write path for both actions.
-- [ ] 3. Use action-specific copy, with more caution for `Obsolete`.
+- [ ] 3. Use action-specific copy: lightweight for `Done`, more cautious for `Obsolete`.
 - [ ] 4. Preserve the current success message and refresh behavior after confirmed updates.
 - [ ] 5. Add/adjust tests for confirmed and cancelled paths.
 - [ ] FINAL: Update related Logics docs

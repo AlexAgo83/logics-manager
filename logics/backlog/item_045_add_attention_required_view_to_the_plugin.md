@@ -46,6 +46,7 @@ An explicit attention-required lens would make the plugin more proactive by surf
 
 # Notes
 - Derived from `logics/request/req_040_add_attention_required_view_to_the_plugin.md`.
+- The first version should rely on roughly four to five strict, low-noise, explainable heuristics rather than a broad scoring model.
 
 # Tasks
 - `logics/tasks/task_039_add_attention_required_view_to_the_plugin.md`

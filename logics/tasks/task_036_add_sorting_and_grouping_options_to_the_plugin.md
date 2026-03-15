@@ -14,9 +14,9 @@
 - Related request(s): `req_037_add_sorting_and_grouping_options_to_the_plugin`.
 
 # Plan
-- [ ] 1. Choose the first practical sort and grouping options worth exposing.
+- [ ] 1. Choose the first practical sort and grouping options worth exposing, prioritizing `updatedAt`, progress/completion, and key workflow status indicators.
 - [ ] 2. Add UI controls for the selected ordering/grouping modes.
-- [ ] 3. Apply ordering/grouping coherently in the relevant rendering paths.
+- [ ] 3. Apply ordering/grouping coherently in the relevant rendering paths, with sorting staying inside the active grouping boundaries by default.
 - [ ] 4. Keep the active mode visible and understandable in the UI.
 - [ ] 5. Ensure composition with existing filters and default presentation.
 - [ ] 6. Add/adjust regression tests for the main ordering/grouping paths.

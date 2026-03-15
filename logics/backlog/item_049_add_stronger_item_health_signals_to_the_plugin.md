@@ -47,6 +47,7 @@ The plugin needs stronger health signaling so problematic items stand out earlie
 
 # Notes
 - Derived from `logics/request/req_044_add_stronger_item_health_signals_to_the_plugin.md`.
+- The first version should prefer explicit or strongly grounded signals such as blocked status, orphaned links, or clear inconsistency, and health cues should take precedence over suggested-action guidance.
 
 # Tasks
 - `logics/tasks/task_043_add_stronger_item_health_signals_to_the_plugin.md`

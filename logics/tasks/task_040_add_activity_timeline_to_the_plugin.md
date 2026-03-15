@@ -14,8 +14,8 @@
 - Related request(s): `req_041_add_activity_timeline_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first meaningful recent-activity event types.
-- [ ] 2. Add a timeline or recent-activity UI surface in the plugin.
+- [ ] 1. Define the first meaningful derived recent-activity event types rather than a full persistent audit journal.
+- [ ] 2. Add a timeline or recent-activity UI surface in the plugin, starting with a compact recent window.
 - [ ] 3. Ensure entries clearly communicate what changed and on which item.
 - [ ] 4. Add navigation from timeline entries to the relevant item or document.
 - [ ] 5. Verify the activity surface does not regress current workflows.

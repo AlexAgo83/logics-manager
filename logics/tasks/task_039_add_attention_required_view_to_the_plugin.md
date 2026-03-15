@@ -14,7 +14,7 @@
 - Related request(s): `req_040_add_attention_required_view_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the initial set of explainable “attention required” signals.
+- [ ] 1. Define the initial set of explainable “attention required” signals, keeping the first heuristic set small, strict, and low-noise.
 - [ ] 2. Add a dedicated surface, mode, or filter path for those items.
 - [ ] 3. Make the classification understandable enough for users to trust.
 - [ ] 4. Verify composition with current board/list/filter workflows.

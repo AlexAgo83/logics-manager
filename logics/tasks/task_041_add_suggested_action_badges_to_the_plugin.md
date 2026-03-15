@@ -14,11 +14,11 @@
 - Related request(s): `req_042_add_suggested_action_badges_to_the_plugin`.
 
 # Plan
-- [ ] 1. Define the first high-confidence suggested-action badge heuristics.
+- [ ] 1. Define the first high-confidence suggested-action badge heuristics as opportunistic guidance rather than hard workflow gates.
 - [ ] 2. Add badge rendering to the main browsing surfaces.
-- [ ] 3. Keep badge semantics distinct from current indicators.
+- [ ] 3. Keep badge semantics distinct from current indicators and from health diagnostics.
 - [ ] 4. Verify coherence in board mode and list mode.
-- [ ] 5. Ensure existing interactions remain intact after badge introduction.
+- [ ] 5. Ensure existing interactions remain intact after badge introduction and card-level badge density stays controlled.
 - [ ] 6. Add/adjust regression tests for suggested-badge rendering.
 - [ ] FINAL: Update related Logics docs
 

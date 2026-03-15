@@ -17,6 +17,7 @@ Improving persistence would make the plugin feel steadier and more helpful durin
 - In:
   - Improve persistence for high-value UI state.
   - Restore that state coherently after refresh or reload.
+  - Keep the persisted state scoped to the current workspace.
   - Keep restoration predictable and safe when data changes.
   - Add regression coverage for important restored-state paths.
 - Out:
@@ -26,6 +27,7 @@ Improving persistence would make the plugin feel steadier and more helpful durin
 
 # Acceptance criteria
 - AC1: The plugin preserves a broader set of high-value UI state across normal refreshes and reloads.
+- AC1a: Persisted UI state remains scoped to the current workspace rather than acting like a global cross-project preference bucket.
 - AC2: Persisted state restores cleanly without creating inconsistent UI.
 - AC3: State restoration remains compatible with current filters and responsive behavior.
 - AC4: Selection persistence is improved where technically safe.
@@ -49,6 +51,8 @@ Improving persistence would make the plugin feel steadier and more helpful durin
 
 # Notes
 - Derived from `logics/request/req_039_improve_ui_state_persistence_in_the_plugin.md`.
+- The first restored-state target set is view mode, filters, search, collapsed groups or sections, selected item when still valid, and scroll state where safe.
+- Invalid restored fragments should be dropped quietly, and responsive overrides may temporarily supersede a stored preference without erasing it.
 
 # Tasks
 - `logics/tasks/task_038_improve_ui_state_persistence_in_the_plugin.md`

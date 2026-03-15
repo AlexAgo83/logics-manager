@@ -15,8 +15,8 @@
 
 # Plan
 - [ ] 1. Identify the current selection and focus model across board, list, toolbar, and details.
-- [ ] 2. Add keyboard movement across visible items in board and list modes.
-- [ ] 3. Add keyboard activation/open behavior for the selected item.
+- [ ] 2. Add keyboard movement across visible items in board and list modes using the explicit board/list directional model.
+- [ ] 3. Add keyboard activation behavior for the selected item with `Enter`, `Shift+Enter`, and `Cmd/Ctrl+Enter` kept coherent.
 - [ ] 4. Ensure toolbar and detail actions remain keyboard-operable with visible focus.
 - [ ] 5. Validate behavior across responsive modes and existing mouse interactions.
 - [ ] 6. Add/adjust regression tests for the main keyboard flows.

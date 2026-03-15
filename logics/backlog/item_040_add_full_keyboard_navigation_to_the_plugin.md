@@ -27,7 +27,7 @@ The missing piece is not just basic tab reachability. The plugin needs a coheren
 
 # Acceptance criteria
 - AC1: Users can move between visible items in board and list modes using keyboard navigation.
-- AC2: Users can open the selected item from the keyboard.
+- AC2: Users can open the selected item from the keyboard, with action mappings kept coherent and explicit.
 - AC3: Users can reach and operate main toolbar controls from the keyboard without breaking focus flow.
 - AC4: Users can reach and operate detail-panel actions from the keyboard.
 - AC5: Focus state remains visible and understandable throughout navigation.
@@ -51,6 +51,13 @@ The missing piece is not just basic tab reachability. The plugin needs a coheren
 
 # Notes
 - Derived from `logics/request/req_035_add_full_keyboard_navigation_to_the_plugin.md`.
+- Recommended movement model:
+  - board mode: `Up` and `Down` within a column, `Left` and `Right` across columns;
+  - list mode: `Up` and `Down` within a group, `Left` collapses, `Right` expands.
+- Recommended action model:
+  - `Enter` keeps the normal selection/details flow;
+  - `Shift+Enter` opens `Read`;
+  - `Cmd/Ctrl+Enter` opens the source document.
 
 # Tasks
 - `logics/tasks/task_034_add_full_keyboard_navigation_to_the_plugin.md`

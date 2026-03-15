@@ -50,6 +50,7 @@ The board should behave like a horizontally scrollable column rail: columns keep
 
 # Notes
 - Derived from `logics/request/req_032_enable_horizontal_scrolling_for_board_columns.md`.
+- The preferred first implementation is native horizontal overflow on the board rail with stable minimum readable column widths.
 
 # Tasks
 - `logics/tasks/task_031_enable_horizontal_scrolling_for_board_columns.md`

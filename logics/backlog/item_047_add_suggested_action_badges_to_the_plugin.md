@@ -47,6 +47,7 @@ Suggested-action badges would help surface high-confidence next-step cues direct
 
 # Notes
 - Derived from `logics/request/req_042_add_suggested_action_badges_to_the_plugin.md`.
+- Suggested-action badges should remain opportunistic guidance signals, distinct from health diagnostics, with tightly controlled card-level density.
 
 # Tasks
 - `logics/tasks/task_041_add_suggested_action_badges_to_the_plugin.md`

@@ -50,6 +50,7 @@ That makes accidental clicks too risky for a narrow operational UI. A post-actio
 
 # Notes
 - Derived from `logics/request/req_030_add_confirmation_for_done_and_obsolete_actions.md`.
+- The preferred UX is a lightweight confirmation for `Done` and a more cautious confirmation for `Obsolete`.
 
 # Tasks
 - `logics/tasks/task_029_add_confirmation_for_done_and_obsolete_actions.md`

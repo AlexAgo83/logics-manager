@@ -60,6 +60,7 @@ Better persistence would make the surface feel more intentional and reduce repet
 - The recommended first set of restored state is: view mode, filters, search, collapsed groups or sections, selected item if it still exists, and scroll position where the target surface is still stable enough to restore safely.
 - When restored state conflicts with the current dataset, the preferred behavior is to drop the invalid fragment of state quietly rather than force stale context back into the UI.
 - The first persistence goal is continuity across refresh, rerender, and workspace reopening, not an aggressively sticky long-term memory of every transient view detail.
+- Responsive overrides may temporarily force a different presentation, but the underlying user preference should still be preserved and restored when the forced condition no longer applies.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

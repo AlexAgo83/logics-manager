@@ -57,6 +57,7 @@ It is about giving users a practical triage view that reduces manual scanning an
 - The result can be a dedicated mode, view, or focused filter path as long as the workflow value is clear.
 - The recommended first implementation is a simple dedicated view or focused filter path driven by roughly four to five high-confidence heuristics, not a broad scoring system.
 - The preferred initial heuristics should be strict and low-noise rather than broad and debatable.
+- Signals that depend on weak inference should be deferred; explicit workflow signals should carry the first version.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

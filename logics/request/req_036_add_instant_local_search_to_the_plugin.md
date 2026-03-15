@@ -65,6 +65,7 @@ It is about fast local UI-level search over the already indexed Logics data so t
 - The first useful scope should already cover title, id, stage, and lightweight relationship metadata so the search is operationally useful from day one.
 - The recommended matching model is simple case-insensitive containment first, not fuzzy ranking or typo-tolerant heuristics.
 - The recommended first UX is one global search field rather than scoped search modes or query-language complexity.
+- Existing structural filters should apply first, with search narrowing the already-visible dataset rather than reintroducing filtered-out items.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

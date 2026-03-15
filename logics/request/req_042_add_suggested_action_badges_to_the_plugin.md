@@ -59,6 +59,7 @@ It is about visible, explainable badges that help users decide where to act next
 - The feature should support faster triage, not compete with the detail panel.
 - Suggested-action badges should stay visually and semantically distinct from health signals: they recommend a likely next move, they do not diagnose item quality.
 - Card-level badge density should stay tightly limited, with no more than a small handful of simultaneous signals competing for attention.
+- “Promotable” and similarly useful hints should start as opportunistic guidance signals, not as hard workflow gates.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

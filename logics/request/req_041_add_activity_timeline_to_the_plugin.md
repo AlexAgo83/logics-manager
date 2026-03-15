@@ -61,6 +61,7 @@ It is about a practical timeline of meaningful recent Logics events surfaced ins
 - The feature should help users regain context quickly when returning to the project.
 - The preferred event model is derived workflow events such as creation, promotion, lifecycle change, rename, or companion-doc linkage changes, not a thin wrapper around raw filesystem churn.
 - The recommended first presentation is a small recent window, roughly ten to twenty entries, ordered by recency before any notion of event importance is introduced.
+- The first version should be derived from meaningful current and recent workspace state rather than introducing a fully persistent event journal.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

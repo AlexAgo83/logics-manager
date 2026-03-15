@@ -1,9 +1,9 @@
 ## task_033_remove_vite_cjs_node_api_deprecation_warning_from_test_runs - Remove the Vite CJS Node API deprecation warning from test runs
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Tooling hygiene and test-run clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,12 +23,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify the exact config or module-format reason Vitest is using the deprecated Vite CJS Node API path.
-- [ ] 2. Update the relevant config or package/module setup to use the supported path.
-- [ ] 3. Verify that local tests still run correctly after the change.
-- [ ] 4. Verify that smoke-test or adjacent validation workflows still behave correctly.
-- [ ] 5. Confirm the warning is actually gone from test output.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify the exact config or module-format reason Vitest is using the deprecated Vite CJS Node API path.
+- [x] 2. Update the relevant config or package/module setup to use the supported path.
+- [x] 3. Verify that local tests still run correctly after the change.
+- [x] 4. Verify that smoke-test or adjacent validation workflows still behave correctly.
+- [x] 5. Confirm the warning is actually gone from test output.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 1 and 2.
@@ -46,7 +46,7 @@ flowchart LR
 - `npm run test:smoke`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

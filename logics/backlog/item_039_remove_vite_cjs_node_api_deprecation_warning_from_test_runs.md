@@ -1,9 +1,9 @@
 ## item_039_remove_vite_cjs_node_api_deprecation_warning_from_test_runs - Remove the Vite CJS Node API deprecation warning from test runs
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Tooling hygiene and test-run clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -33,11 +33,11 @@ This should be treated as tooling debt rather than harmless clutter. If left in 
 - AC6: Validation commands still pass after the warning is removed.
 
 # AC Traceability
-- AC1/AC2 -> test/tooling config is moved off the deprecated CJS Node API path. Proof: TODO.
-- AC3 -> local automated test commands still run successfully after the change. Proof: TODO.
-- AC4 -> smoke/package-adjacent workflows are validated after the tooling change. Proof: TODO.
-- AC5 -> config/module-format changes are captured cleanly in project files. Proof: TODO.
-- AC6 -> validation commands pass with clean output. Proof: TODO.
+- AC1/AC2 -> Vitest now loads its config from an explicit ESM `.mts` file instead of the deprecated CJS Node API path. Proof: `vitest.config.mts`.
+- AC3 -> the full local test suite still runs successfully after the config change. Proof: `npm test`.
+- AC4 -> the extension smoke checks still pass after the tooling change. Proof: `npm run test:smoke`.
+- AC5 -> the module-format change is explicit and maintainable in the project root config files. Proof: `vitest.config.mts`.
+- AC6 -> validation commands pass and the previous Vite CJS deprecation warning no longer appears in the test output. Proof: `npm test`, `npm run test:smoke`.
 
 # Priority
 - Impact:

@@ -1,9 +1,9 @@
 ## item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row - Move secondary view controls into a toggleable second toolbar row
 > From version: 1.10.0
-> Status: Proposed
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -43,6 +43,14 @@ The plugin needs a cleaner toolbar structure:
   - Medium-High: this directly improves control discoverability and perceived UI cleanliness.
 - Urgency:
   - Medium: worthwhile before the toolbar accumulates even more view controls.
+
+# AC Traceability
+- AC1/AC2 -> the toolbar now renders a dedicated primary row plus a secondary inline controls row below it. Proof: `src/extension.ts`, `media/css/toolbar.css`.
+- AC3 -> the former filter button now toggles the second row open/closed directly in the toolbar. Proof: `media/main.js`, `src/extension.ts`.
+- AC4 -> the open/closed state of the secondary row is now stored in persisted webview state per workspace. Proof: `media/main.js`.
+- AC5 -> the primary-row toggle now shows an active-state hint when non-default search, grouping, sorting, or filter settings are active while the row is hidden. Proof: `media/main.js`, `media/css/toolbar.css`.
+- AC6 -> the secondary row wraps cleanly at narrower widths instead of relying on an absolute-positioned panel. Proof: `media/css/toolbar.css`.
+- AC7 -> regression coverage now checks toolbar disclosure, persistence, and hidden active-state signaling. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Notes
 - Derived from `logics/request/req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`.

@@ -1,8 +1,8 @@
 ## req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row - Move secondary view controls into a toggleable second toolbar row
 > From version: 1.10.0
-> Status: Proposed
-> Understanding: 97%
-> Confidence: 95%
+> Status: Done
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -63,6 +63,13 @@ This second row would host the denser view controls without permanently occupyin
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+# Implementation notes
+- The primary toolbar row now keeps only the first-order controls: view-controls toggle, tools, activity, attention, view mode, and refresh.
+- Search, grouping, sorting, filter toggles, and reset now live in a second row rendered directly under the primary row.
+- The second row is shown or hidden by the former filter button, which now behaves as a persistent view-controls disclosure toggle.
+- The disclosure state is persisted per workspace via webview state.
+- When the second row is hidden and search/group/sort/filter settings differ from defaults, the toggle shows a clear active-state hint.
 
 # Backlog
 - `logics/backlog/item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`

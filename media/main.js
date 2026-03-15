@@ -78,7 +78,7 @@
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
-  let filterPanelOpen = false;
+  let secondaryToolbarOpen = false;
   let toolsPanelOpen = false;
   let canResetProjectRoot = false;
   let canBootstrapLogics = false;
@@ -176,6 +176,7 @@
     collapsedListStages = new Set();
     collapsedDetailSections = new Set(defaultCollapsedDetailSections);
     selectedId = null;
+    secondaryToolbarOpen = false;
     scrollState.boardLeft = 0;
     scrollState.boardTop = 0;
     scrollState.detailsTop = 0;
@@ -518,14 +519,39 @@
     }
   }
 
+  function hasNonDefaultSecondaryControls() {
+    return (
+      hideCompleted !== defaultFilterState.hideCompleted ||
+      hideProcessedRequests !== defaultFilterState.hideProcessedRequests ||
+      hideSpec !== defaultFilterState.hideSpec ||
+      showCompanionDocs !== defaultFilterState.showCompanionDocs ||
+      hideEmptyColumns !== defaultFilterState.hideEmptyColumns ||
+      normalizeSearchValue(searchQuery) !== "" ||
+      groupMode !== "stage" ||
+      sortMode !== "default"
+    );
+  }
+
   function updateFilterState() {
+    if (filterPanel) {
+      filterPanel.hidden = !secondaryToolbarOpen;
+      filterPanel.setAttribute("aria-hidden", String(!secondaryToolbarOpen));
+    }
     if (!filterToggle) {
       return;
     }
-    filterToggle.classList.toggle(
-      "toolbar__filter--active",
-      hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs || hideEmptyColumns
-    );
+    const hasNonDefaultControls = hasNonDefaultSecondaryControls();
+    filterToggle.classList.toggle("toolbar__filter--open", secondaryToolbarOpen);
+    filterToggle.classList.toggle("toolbar__filter--active", !secondaryToolbarOpen && hasNonDefaultControls);
+    filterToggle.setAttribute("aria-expanded", String(secondaryToolbarOpen));
+    filterToggle.setAttribute("data-has-active-controls", String(hasNonDefaultControls));
+    const label = secondaryToolbarOpen
+      ? "Hide view controls"
+      : hasNonDefaultControls
+        ? "Show view controls (non-default controls active)"
+        : "Show view controls";
+    filterToggle.setAttribute("aria-label", label);
+    filterToggle.title = label;
   }
 
   function restoreDefaultFilters() {
@@ -537,14 +563,13 @@
   }
 
   function setFilterPanelOpen(isOpen) {
-    filterPanelOpen = isOpen;
+    secondaryToolbarOpen = isOpen;
     if (filterPanel) {
-      filterPanel.classList.toggle("filter-panel--open", isOpen);
+      filterPanel.hidden = !isOpen;
       filterPanel.setAttribute("aria-hidden", String(!isOpen));
     }
-    if (filterToggle) {
-      filterToggle.setAttribute("aria-expanded", String(isOpen));
-    }
+    updateFilterState();
+    persistState();
   }
 
   function setToolsPanelOpen(isOpen) {
@@ -1132,15 +1157,12 @@
       if (toolsPanelOpen) {
         setToolsPanelOpen(false);
       }
-      setFilterPanelOpen(!filterPanelOpen);
+      setFilterPanelOpen(!secondaryToolbarOpen);
     });
   }
   if (toolsToggle) {
     toolsToggle.addEventListener("click", (event) => {
       event.stopPropagation();
-      if (filterPanelOpen) {
-        setFilterPanelOpen(false);
-      }
       setToolsPanelOpen(!toolsPanelOpen);
     });
   }
@@ -1157,6 +1179,7 @@
       searchQuery,
       groupMode,
       sortMode,
+      secondaryToolbarOpen,
       activityPanelOpen,
       attentionOnly,
       helpDismissed,
@@ -1387,6 +1410,9 @@
   if (previousState && typeof previousState.helpDismissed === "boolean") {
     helpDismissed = previousState.helpDismissed;
   }
+  if (previousState && typeof previousState.secondaryToolbarOpen === "boolean") {
+    secondaryToolbarOpen = previousState.secondaryToolbarOpen;
+  }
   if (previousState && typeof previousState.selectedId === "string") {
     selectedId = previousState.selectedId;
   }
@@ -1419,12 +1445,6 @@
   }
 
   document.addEventListener("click", (event) => {
-    if (filterPanelOpen && filterPanel && filterToggle) {
-      const target = event.target;
-      if (!filterPanel.contains(target) && !filterToggle.contains(target)) {
-        setFilterPanelOpen(false);
-      }
-    }
     if (toolsPanelOpen && toolsPanel && toolsToggle) {
       const target = event.target;
       if (!toolsPanel.contains(target) && !toolsToggle.contains(target)) {
@@ -1445,7 +1465,7 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && filterPanelOpen) {
+    if (event.key === "Escape" && secondaryToolbarOpen) {
       setFilterPanelOpen(false);
     }
     if (event.key === "Escape" && toolsPanelOpen) {
@@ -1536,7 +1556,7 @@
     }
   });
 
-  setControlDescription(filterToggle, "Filter options");
+  setControlDescription(filterToggle, "Show view controls");
   setControlDescription(toolsToggle, "Tools");
   setControlDescription(viewModeToggleButton, "Switch display mode");
   setControlDescription(refreshButton, "Refresh");
@@ -1558,7 +1578,7 @@
   }
   if (filterPanel) {
     filterPanel.setAttribute("role", "group");
-    filterPanel.setAttribute("aria-label", "Filter options");
+    filterPanel.setAttribute("aria-label", "View controls");
   }
   if (filterToggle && filterPanel && filterPanel.id) {
     filterToggle.setAttribute("aria-controls", filterPanel.id);

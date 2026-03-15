@@ -19,33 +19,37 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
     <html>
       <body>
         <div class="toolbar">
-          <button id="filter-toggle" class="toolbar__filter"></button>
-          <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
-          <button id="tools-toggle" class="toolbar__filter"></button>
-          <div id="tools-panel"></div>
-          <input id="search-input" type="search" />
-          <select id="group-by">
-            <option value="stage">Stage</option>
-            <option value="status">Status</option>
-          </select>
-          <select id="sort-by">
-            <option value="default">Default</option>
-            <option value="updated-desc">Updated</option>
-            <option value="progress-desc">Progress</option>
-            <option value="status-asc">Status</option>
-          </select>
-          <button id="activity-toggle" type="button"></button>
-          <button id="attention-toggle" type="button"></button>
-          <button data-action="toggle-view-mode"></button>
-          <button data-action="refresh"></button>
-          <button data-action="select-agent"></button>
-          <button data-action="new-request-guided"></button>
-          <button data-action="create-companion-doc" title="Create a companion doc"></button>
-          <button data-action="bootstrap-logics"></button>
-          <button data-action="change-project-root"></button>
-          <button data-action="reset-project-root"></button>
-          <button data-action="fix-docs"></button>
-          <button data-action="about"></button>
+          <div class="toolbar__row toolbar__row--primary">
+            <button id="filter-toggle" class="toolbar__filter"></button>
+            <button id="tools-toggle" class="toolbar__filter"></button>
+            <div id="tools-panel"></div>
+            <button id="activity-toggle" type="button"></button>
+            <button id="attention-toggle" type="button"></button>
+            <button data-action="toggle-view-mode"></button>
+            <button data-action="refresh"></button>
+            <button data-action="select-agent"></button>
+            <button data-action="new-request-guided"></button>
+            <button data-action="create-companion-doc" title="Create a companion doc"></button>
+            <button data-action="bootstrap-logics"></button>
+            <button data-action="change-project-root"></button>
+            <button data-action="reset-project-root"></button>
+            <button data-action="fix-docs"></button>
+            <button data-action="about"></button>
+          </div>
+          <div id="filter-panel" class="toolbar__row toolbar__row--secondary" hidden>
+            <input id="search-input" type="search" />
+            <select id="group-by">
+              <option value="stage">Stage</option>
+              <option value="status">Status</option>
+            </select>
+            <select id="sort-by">
+              <option value="default">Default</option>
+              <option value="updated-desc">Updated</option>
+              <option value="progress-desc">Progress</option>
+              <option value="status-asc">Status</option>
+            </select>
+            <button id="filter-reset" type="button"></button>
+          </div>
         </div>
         <button class="btn btn--primary" data-action="open"></button>
         <button class="btn btn--primary" data-action="read"></button>
@@ -1672,7 +1676,7 @@ describe("webview harness controls and accessibility", () => {
     const card = document.querySelector(".card") as HTMLDivElement | null;
     const detailsToggle = document.getElementById("details-toggle");
 
-    expect(filterToggle?.getAttribute("title")).toBe("Filter options");
+    expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
@@ -1691,6 +1695,46 @@ describe("webview harness controls and accessibility", () => {
 
     detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(detailsToggle?.getAttribute("title")).toBe("Expand details");
+  });
+
+  it("toggles and persists the secondary toolbar row and highlights hidden active controls", () => {
+    const { dom, persistedStates } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        secondaryToolbarOpen: false
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const filterToggle = document.getElementById("filter-toggle") as HTMLButtonElement | null;
+    const filterPanel = document.getElementById("filter-panel") as HTMLDivElement | null;
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(filterPanel?.hidden).toBe(true);
+    expect(filterToggle?.getAttribute("aria-expanded")).toBe("false");
+
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(filterPanel?.hidden).toBe(false);
+    expect(filterToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(persistedStates.some((state) => state.secondaryToolbarOpen === true)).toBe(true);
+
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(filterPanel?.hidden).toBe(true);
+
+    if (searchInput) {
+      searchInput.value = "kickoff";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    expect(filterToggle?.classList.contains("toolbar__filter--active")).toBe(true);
+    expect(filterToggle?.getAttribute("title")).toContain("non-default controls active");
   });
 
   it("does not render the legacy eye toggle in board column headers", () => {

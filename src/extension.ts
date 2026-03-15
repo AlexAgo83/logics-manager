@@ -1346,9 +1346,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="toolbar">
-    <div class="toolbar__actions">
+    <div class="toolbar__row toolbar__row--primary">
       <div class="toolbar__filters">
-        <button class="toolbar__filter" id="filter-toggle" aria-label="Filter options" aria-expanded="false" aria-controls="filter-panel" title="Filter options">
+        <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path
               d="M4 6h16l-6 7v5l-4 2v-7z"
@@ -1360,29 +1360,6 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             />
           </svg>
         </button>
-        <div class="filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="Filter options">
-          <label class="toggle">
-            <input type="checkbox" id="hide-processed-requests" />
-            <span>Hide processed requests</span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" id="hide-complete" />
-            <span>Hide completed</span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" id="hide-spec" />
-            <span>Hide SPEC</span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" id="show-companion-docs" />
-            <span>Show companion docs</span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" id="hide-empty-columns" />
-            <span>Hide empty columns</span>
-          </label>
-          <button class="filter-panel__reset" type="button" id="filter-reset">Reset</button>
-        </div>
         <div class="toolbar__tools">
           <button
             class="toolbar__filter"
@@ -1416,6 +1393,14 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           </div>
         </div>
       </div>
+      <div class="toolbar__buttons">
+        <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
+        <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
+        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
+        <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
+      </div>
+    </div>
+    <div class="toolbar__row toolbar__row--secondary" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
       <div class="toolbar__search">
         <input
           class="toolbar__search-input"
@@ -1443,12 +1428,29 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
           </select>
         </label>
       </div>
-      <div class="toolbar__buttons">
-        <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
-        <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
-        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
-        <button class="btn" data-action="refresh" title="Refresh">Refresh</button>
+      <div class="toolbar__toggles">
+        <label class="toggle">
+          <input type="checkbox" id="hide-processed-requests" />
+          <span>Hide processed requests</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-complete" />
+          <span>Hide completed</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-spec" />
+          <span>Hide SPEC</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="show-companion-docs" />
+          <span>Show companion docs</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-empty-columns" />
+          <span>Hide empty columns</span>
+        </label>
       </div>
+      <button class="filter-panel__reset toolbar__reset" type="button" id="filter-reset">Reset</button>
     </div>
   </div>
   <div class="help-banner" id="help-banner" hidden>

@@ -1,7 +1,8 @@
 .toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
   padding: 8px 8px;
   background: var(--vscode-titleBar-activeBackground, #2d2d2d);
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
@@ -10,25 +11,34 @@
   z-index: 10;
 }
 
-.toolbar__title {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--vscode-titleBar-activeForeground, #e5e5e5);
-}
-
-.toolbar__actions {
+.toolbar__row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
+  min-width: 0;
+}
+
+.toolbar__row--primary {
+  justify-content: space-between;
+}
+
+.toolbar__row--secondary {
+  padding-top: 8px;
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  flex-wrap: wrap;
+}
+
+.toolbar__row--secondary[hidden] {
+  display: none;
 }
 
 .toolbar__filters {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   position: relative;
+  flex: 0 0 auto;
 }
 
 .toolbar__buttons {
@@ -36,18 +46,21 @@
   align-items: center;
   gap: 8px;
   margin-left: auto;
+  flex-wrap: wrap;
 }
 
 .toolbar__search {
-  flex: 1 1 180px;
-  min-width: 120px;
-  max-width: 280px;
+  flex: 1 1 220px;
+  min-width: 160px;
+  max-width: 320px;
 }
 
 .toolbar__ordering {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  flex: 0 1 auto;
 }
 
 .toolbar__select {
@@ -105,6 +118,7 @@
   justify-content: center;
   padding: 0;
   cursor: pointer;
+  position: relative;
 }
 
 .toolbar__filter svg {
@@ -118,26 +132,22 @@
   color: var(--vscode-button-background, #0e639c);
 }
 
-.filter-panel {
-  position: absolute;
-  top: 34px;
-  left: 0;
-  right: auto;
-  min-width: 220px;
-  max-width: calc(100vw - 16px);
-  background: var(--vscode-editorWidget-background, #202020);
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 8px;
-  padding: 10px;
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 20;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+.toolbar__filter--open {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  border-color: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-background, #0e639c);
 }
 
-.filter-panel--open {
-  display: flex;
+.toolbar__filter--active::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--vscode-button-background, #0e639c);
+  box-shadow: 0 0 0 2px var(--vscode-titleBar-activeBackground, #2d2d2d);
 }
 
 .filter-panel__reset {
@@ -149,6 +159,18 @@
   padding: 6px 8px;
   cursor: pointer;
   text-align: left;
+}
+
+.toolbar__toggles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1 1 360px;
+}
+
+.toolbar__reset {
+  margin-left: auto;
 }
 
 .filter-panel__reset:hover {
@@ -339,4 +361,23 @@
 .btn[data-current-mode="board"] {
   background: var(--vscode-button-background, #0e639c);
   color: var(--vscode-button-foreground, #ffffff);
+}
+
+@media (max-width: 720px) {
+  .toolbar__row--primary {
+    flex-wrap: wrap;
+  }
+
+  .toolbar__buttons {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .toolbar__search {
+    max-width: none;
+  }
+
+  .toolbar__reset {
+    margin-left: 0;
+  }
 }

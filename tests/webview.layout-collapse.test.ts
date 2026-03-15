@@ -26,20 +26,22 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
     <html>
       <body>
         <button id="filter-toggle"></button>
-        <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
         <button id="tools-toggle"></button>
         <div id="tools-panel"></div>
-        <input id="search-input" type="search" />
-        <select id="group-by">
-          <option value="stage">Stage</option>
-          <option value="status">Status</option>
-        </select>
-        <select id="sort-by">
-          <option value="default">Default</option>
-          <option value="updated-desc">Updated</option>
-          <option value="progress-desc">Progress</option>
-          <option value="status-asc">Status</option>
-        </select>
+        <div id="filter-panel" hidden>
+          <button id="filter-reset" type="button"></button>
+          <input id="search-input" type="search" />
+          <select id="group-by">
+            <option value="stage">Stage</option>
+            <option value="status">Status</option>
+          </select>
+          <select id="sort-by">
+            <option value="default">Default</option>
+            <option value="updated-desc">Updated</option>
+            <option value="progress-desc">Progress</option>
+            <option value="status-asc">Status</option>
+          </select>
+        </div>
         <button id="activity-toggle" type="button"></button>
         <button id="attention-toggle" type="button"></button>
         <button data-action="refresh"></button>

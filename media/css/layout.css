@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  height: calc(100vh - 42px);
+  min-height: 0;
 }
 
 .layout--horizontal {
@@ -13,18 +13,54 @@
 
 .splitter {
   display: none;
-  height: 10px;
+  position: relative;
+  flex: 0 0 14px;
+  height: 14px;
   width: 100%;
-  background: var(--vscode-panel-border, #333333);
-  border-top: 1px solid var(--vscode-panel-border, #333333);
-  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+  background: transparent;
   cursor: row-resize;
   touch-action: none;
+  z-index: 3;
 }
 
-.splitter:hover,
-.splitter--dragging {
+.splitter::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+}
+
+.splitter::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  background: var(--vscode-descriptionForeground, #9da5b4);
+  border-radius: 999px;
+  box-shadow:
+    0 -4px 0 var(--vscode-descriptionForeground, #9da5b4),
+    0 4px 0 var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.splitter:hover::before,
+.splitter--dragging::before {
   background: var(--vscode-button-background, #0e639c);
+}
+
+.splitter:hover::after,
+.splitter--dragging::after {
+  background: var(--vscode-button-background, #0e639c);
+  box-shadow:
+    0 -4px 0 var(--vscode-button-background, #0e639c),
+    0 4px 0 var(--vscode-button-background, #0e639c);
 }
 
 .layout--stacked .splitter {
@@ -48,6 +84,8 @@
 .layout--stacked .details {
   min-height: 180px;
   border-top: none;
+  position: relative;
+  bottom: auto;
   z-index: 2;
 }
 

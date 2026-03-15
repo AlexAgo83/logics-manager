@@ -185,6 +185,13 @@ describe("webview collapsed details layout behavior", () => {
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
     const css = readCssBundle("media/main.css");
+    expect(css.includes("body {")).toBe(true);
+    expect(css.includes("display: flex;")).toBe(true);
+    expect(css.includes("flex-direction: column;")).toBe(true);
+    expect(css.includes("overflow: hidden;")).toBe(true);
+    expect(css.includes(".layout {")).toBe(true);
+    expect(css.includes("flex: 1 1 auto;")).toBe(true);
+    expect(css.includes("height: calc(100vh - 42px);")).toBe(false);
     expect(css.includes(".layout--stacked")).toBe(true);
     expect(css.includes("flex-direction: column;")).toBe(true);
     expect(css.includes(".layout--horizontal")).toBe(true);
@@ -193,6 +200,8 @@ describe("webview collapsed details layout behavior", () => {
     expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);
     expect(css.includes(".layout--stacked .details")).toBe(true);
+    expect(css.includes("position: relative;")).toBe(true);
+    expect(css.includes("bottom: auto;")).toBe(true);
     expect(css.includes("z-index: 2;")).toBe(true);
   });
 

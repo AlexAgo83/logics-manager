@@ -12,16 +12,20 @@
 }
 
 html {
+  height: 100%;
   width: 100%;
   min-width: 100%;
 }
 
 body {
+  min-height: 100vh;
   margin: 0;
   padding: 0 !important;
   width: 100%;
   min-width: 100%;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
   background: var(--vscode-editor-background, #1e1e1e);
   color: var(--vscode-foreground, #d4d4d4);
@@ -32,6 +36,11 @@ body {
 .layout {
   width: 100%;
   min-width: 100%;
+}
+
+.layout {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .status-banner {

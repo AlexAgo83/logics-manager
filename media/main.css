@@ -11,11 +11,27 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100%;
+  min-width: 100%;
+}
+
 body {
   margin: 0;
+  padding: 0 !important;
+  width: 100%;
+  min-width: 100%;
+  display: block;
   font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
   background: var(--vscode-editor-background, #1e1e1e);
   color: var(--vscode-foreground, #d4d4d4);
+}
+
+.status-banner,
+.toolbar,
+.layout {
+  width: 100%;
+  min-width: 100%;
 }
 
 .status-banner {

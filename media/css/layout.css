@@ -3,9 +3,17 @@
   height: calc(100vh - 42px);
 }
 
+.layout--horizontal {
+  flex-direction: row;
+}
+
+.layout--stacked {
+  flex-direction: column;
+}
+
 .splitter {
   display: none;
-  height: 6px;
+  height: 10px;
   width: 100%;
   background: var(--vscode-panel-border, #333333);
   border-top: 1px solid var(--vscode-panel-border, #333333);

@@ -183,6 +183,10 @@ describe("webview collapsed details layout behavior", () => {
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
     const css = readCssBundle("media/main.css");
+    expect(css.includes(".layout--stacked")).toBe(true);
+    expect(css.includes("flex-direction: column;")).toBe(true);
+    expect(css.includes(".layout--horizontal")).toBe(true);
+    expect(css.includes("flex-direction: row;")).toBe(true);
     expect(css.includes(".layout--stacked.layout--split-disabled .splitter")).toBe(true);
     expect(css.includes(".layout--horizontal .splitter")).toBe(true);
     expect(css.includes(".details--collapsed .details__actions")).toBe(true);

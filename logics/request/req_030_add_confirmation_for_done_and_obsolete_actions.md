@@ -62,6 +62,7 @@ The goal is:
 - `Done` and `Obsolete` can use the same technical confirmation mechanism, but their copy should reflect their different semantics.
 - The preferred confirmation should be explicit enough to prevent accidental clicks, while still remaining lightweight.
 - The target item id or title should appear in the confirmation message so the user knows exactly what will be changed.
+- The recommended UX is a simple confirmation for `Done`, and a more cautious, more explicit confirmation for `Obsolete`.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

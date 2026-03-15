@@ -62,6 +62,13 @@ It is about making the plugin operational from the keyboard in a way that feels 
 - Navigation should feel consistent with the plugin’s existing selection model.
 - Board mode and list mode may need different movement semantics, but they should still feel coherent.
 - The preferred outcome is “keyboard-first usable”, not merely “tabbable”.
+- The recommended movement model is:
+  - board mode: `Up` and `Down` move within a column, `Left` and `Right` move across columns;
+  - list mode: `Up` and `Down` move within the current group, `Left` collapses a collapsible group and `Right` expands it.
+- The recommended action model is:
+  - `Enter` keeps the normal selection/details flow;
+  - `Shift+Enter` opens `Read`;
+  - `Cmd/Ctrl+Enter` opens the source document.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

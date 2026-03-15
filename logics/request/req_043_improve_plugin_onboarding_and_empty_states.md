@@ -58,6 +58,8 @@ It is about making the plugin self-explanatory enough to reduce confusion and de
 - Empty states should help users recover or proceed, not merely report absence.
 - The plugin should become easier to understand without making the UI noisier for experienced users.
 - Guidance should be contextual and tied to the actual current state.
+- The preferred first focus is contextual workspace and empty-state guidance rather than a broad first-run tutorial flow.
+- Lightweight onboarding or help affordances should be dismissible when appropriate so they do not become persistent noise for regular users.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

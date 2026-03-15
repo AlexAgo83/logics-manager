@@ -57,6 +57,8 @@ It is about visible, explainable badges that help users decide where to act next
 - The first version should favor a small set of high-confidence badges.
 - Suggested badges should be explainable from existing workflow rules.
 - The feature should support faster triage, not compete with the detail panel.
+- Suggested-action badges should stay visually and semantically distinct from health signals: they recommend a likely next move, they do not diagnose item quality.
+- Card-level badge density should stay tightly limited, with no more than a small handful of simultaneous signals competing for attention.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

@@ -55,6 +55,8 @@ It is about giving users a practical triage view that reduces manual scanning an
 - The first version should prefer a smaller set of explainable signals over a broad opaque score.
 - The feature should help answer “what needs me now?” quickly.
 - The result can be a dedicated mode, view, or focused filter path as long as the workflow value is clear.
+- The recommended first implementation is a simple dedicated view or focused filter path driven by roughly four to five high-confidence heuristics, not a broad scoring system.
+- The preferred initial heuristics should be strict and low-noise rather than broad and debatable.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

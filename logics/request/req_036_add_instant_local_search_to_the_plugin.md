@@ -24,7 +24,8 @@ Users need a direct way to find items by typing fragments of:
 - title;
 - id;
 - stage;
-- and related metadata where useful.
+- references or `used by` links;
+- and a small set of key indicators where useful.
 
 This request is not about remote search or full-text indexing across every file body.
 It is about fast local UI-level search over the already indexed Logics data so the plugin behaves like a practical orchestration surface.
@@ -33,7 +34,7 @@ It is about fast local UI-level search over the already indexed Logics data so t
 - AC1: The plugin exposes a search input for local item filtering.
 - AC2: Typing into the search input updates visible results immediately without a manual refresh.
 - AC3: Search works in both board mode and list mode.
-- AC4: Search matches at least item title and id.
+- AC4: Search matches at least item title, id, stage, references or `used by` metadata, and a small first set of key indicators such as `Status`.
 - AC5: Search combines predictably with existing filters instead of bypassing them.
 - AC6: Clearing the search restores the previously visible filtered view.
 - AC7: Search remains responsive with realistic workspace data volume.
@@ -61,7 +62,9 @@ It is about fast local UI-level search over the already indexed Logics data so t
 - The target is instant local search over the plugin’s known item data.
 - The preferred experience is incremental filtering as the user types.
 - Search should narrow the current view, not replace the current filtering model.
-- The first useful scope is title/id matching, with room to extend later if needed.
+- The first useful scope should already cover title, id, stage, and lightweight relationship metadata so the search is operationally useful from day one.
+- The recommended matching model is simple case-insensitive containment first, not fuzzy ranking or typo-tolerant heuristics.
+- The recommended first UX is one global search field rather than scoped search modes or query-language complexity.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

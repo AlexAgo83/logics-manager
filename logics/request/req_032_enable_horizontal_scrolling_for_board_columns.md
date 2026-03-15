@@ -60,6 +60,7 @@ It is about restoring a natural overflow behavior for a Kanban-style surface:
 - The preferred outcome is a board area that behaves like a real horizontally scrollable column rail.
 - The board should keep readable column widths instead of collapsing columns purely to fit the viewport.
 - This request concerns board mode specifically; list mode remains a separate fallback/navigation mode.
+- The preferred first implementation is native horizontal overflow on the board rail with stable minimum readable column widths, not a heavier assisted scrolling model.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

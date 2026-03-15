@@ -59,6 +59,8 @@ It is about a practical timeline of meaningful recent Logics events surfaced ins
 - The timeline should emphasize meaningful workflow events, not every tiny file mutation.
 - The activity surface should be actionable, not just informational.
 - The feature should help users regain context quickly when returning to the project.
+- The preferred event model is derived workflow events such as creation, promotion, lifecycle change, rename, or companion-doc linkage changes, not a thin wrapper around raw filesystem churn.
+- The recommended first presentation is a small recent window, roughly ten to twenty entries, ordered by recency before any notion of event importance is introduced.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

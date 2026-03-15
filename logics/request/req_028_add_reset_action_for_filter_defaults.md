@@ -64,6 +64,7 @@ It is a recovery action:
 - The expected placement is at the end of the filter panel, after the toggle list.
 - The purpose is "restore defaults", not "clear all filters".
 - The defaults to restore are the current product defaults listed in this request, not "all unchecked".
+- `Reset` should only affect filter toggles and must not reset board/list mode, collapse state, search state, or other unrelated UI preferences.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

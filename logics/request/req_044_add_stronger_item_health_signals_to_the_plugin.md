@@ -57,6 +57,8 @@ It is about promoting already-meaningful workflow health signals into stronger, 
 - The first version should prefer a small set of high-confidence, high-value signals.
 - Health signals should help users scan faster without requiring the detail panel for every diagnosis.
 - This request is about stronger surfacing, not exhaustive workflow analysis.
+- Health signals should stay visually and semantically distinct from suggested-action badges: health explains what looks wrong or fragile, while suggested action explains what the user should likely do next.
+- Health signals should take visual precedence over suggested-action guidance when both are present, because diagnosis is more important than recommendation.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

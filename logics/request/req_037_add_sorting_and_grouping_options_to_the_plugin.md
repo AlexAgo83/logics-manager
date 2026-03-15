@@ -55,6 +55,12 @@ Adding sort/group controls would turn the plugin from a fixed visual board into 
 - List mode is the most likely place to benefit first from richer sorting/grouping.
 - The default workflow-stage view should remain available and understandable.
 - The chosen options should be explicit and useful rather than speculative.
+- The recommended baseline is:
+  - sorting applies within the active grouping boundaries by default, rather than flattening the whole dataset into one mixed order;
+  - only one grouping mode should be active at a time;
+  - list mode should receive the richer grouping behavior first, while board mode can stay more constrained.
+- The recommended first sort fields are `updatedAt`, progress/completion, and key workflow status indicators before adding weaker or sparsely populated fields.
+- The workflow-stage structure should remain the default backbone even when richer sorting becomes available.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

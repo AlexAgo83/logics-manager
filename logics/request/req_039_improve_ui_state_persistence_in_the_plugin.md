@@ -26,6 +26,7 @@ Better persistence would make the surface feel more intentional and reduce repet
 
 # Acceptance criteria
 - AC1: The plugin preserves a broader set of high-value UI state across normal refreshes and reloads.
+- AC1a: Persisted UI state remains scoped to the current workspace rather than acting like a global cross-project preference bucket.
 - AC2: Persisted state restores cleanly without creating inconsistent UI.
 - AC3: State restoration remains compatible with current filters and responsive behavior.
 - AC4: Selection persistence is improved where technically safe.
@@ -56,6 +57,9 @@ Better persistence would make the surface feel more intentional and reduce repet
 - Restoration should favor states that save real effort for the user.
 - Persisted state must remain safe in the face of data changes, not blindly restored at all costs.
 - The preferred outcome is “stable and helpful”, not “maximally sticky”.
+- The recommended first set of restored state is: view mode, filters, search, collapsed groups or sections, selected item if it still exists, and scroll position where the target surface is still stable enough to restore safely.
+- When restored state conflicts with the current dataset, the preferred behavior is to drop the invalid fragment of state quietly rather than force stale context back into the UI.
+- The first persistence goal is continuity across refresh, rerender, and workspace reopening, not an aggressively sticky long-term memory of every transient view detail.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

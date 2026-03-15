@@ -65,6 +65,7 @@ It is about making grouped list mode operational:
 - The grouped structure should remain visible even when a section is collapsed.
 - The goal is to reduce vertical density while preserving grouped navigation semantics.
 - Persistence is desirable if it stays understandable and does not conflict with other collapse behaviors.
+- The recommended default is that list groups start expanded, with collapse used as a density-control affordance rather than the default state.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

@@ -189,11 +189,17 @@ describe("webview collapsed details layout behavior", () => {
 
   it("keeps board columns and cards from widening on long supporting-doc text", () => {
     const css = readCssBundle("media/main.css");
+    const boardRules = css.match(/\.board\s*\{[^}]+\}/g) || [];
+    const boardRule = boardRules.find((rule) => rule.includes("overflow-x: auto;")) || "";
+    const boardListRule = css.match(/\.board--list\s*\{[^}]+\}/)?.[0] || "";
     const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
     const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
     const titleRule = css.match(/\.card__title\s*\{[^}]+\}/)?.[0] || "";
     const metaRule = css.match(/\.card__meta\s*\{[^}]+\}/)?.[0] || "";
 
+    expect(boardRule.includes("overflow-x: auto;")).toBe(true);
+    expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
+    expect(boardListRule.includes("overflow-y: auto;")).toBe(true);
     expect(columnRule.includes("min-inline-size: 0;")).toBe(true);
     expect(cardRule.includes("min-width: 0;")).toBe(true);
     expect(cardRule.includes("overflow: hidden;")).toBe(true);

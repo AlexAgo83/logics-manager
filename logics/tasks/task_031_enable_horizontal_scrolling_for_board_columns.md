@@ -1,9 +1,9 @@
 ## task_031_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,13 +23,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify the correct board container level for horizontal overflow handling.
-- [ ] 2. Enable native horizontal scrolling when total column width exceeds viewport width.
-- [ ] 3. Preserve stable minimum readable column widths under overflow.
-- [ ] 4. Verify toolbar and details panel stay outside the horizontal scroll path.
-- [ ] 5. Verify responsive behaviors such as stacked layout and forced list mode still work.
-- [ ] 6. Add/adjust regression tests for board overflow behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify the correct board container level for horizontal overflow handling.
+- [x] 2. Enable native horizontal scrolling when total column width exceeds viewport width.
+- [x] 3. Preserve stable minimum readable column widths under overflow.
+- [x] 4. Verify toolbar and details panel stay outside the horizontal scroll path.
+- [x] 5. Verify responsive behaviors such as stacked layout and forced list mode still work.
+- [x] 6. Add/adjust regression tests for board overflow behavior.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Steps 1 and 2.

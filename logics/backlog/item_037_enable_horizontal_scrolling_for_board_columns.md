@@ -1,9 +1,9 @@
 ## item_037_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -35,12 +35,12 @@ The board should behave like a horizontally scrollable column rail: columns keep
 - AC7: Webview tests are updated where practical to lock the intended overflow behavior.
 
 # AC Traceability
-- AC1/AC2 -> board container overflow handling is applied at the correct level. Proof: TODO.
-- AC3 -> column sizing rules preserve readable width under overflow. Proof: TODO.
-- AC4 -> overflow behavior is validated with mixed primary and companion columns. Proof: TODO.
-- AC5 -> toolbar/details remain outside the horizontal scroll path. Proof: TODO.
-- AC6 -> responsive layout and forced-list breakpoints keep current behavior. Proof: TODO.
-- AC7 -> tests cover overflow-related rendering expectations. Proof: TODO.
+- AC1/AC2 -> board container overflow handling is applied at the correct level. Proof: `media/css/board.css`.
+- AC3 -> column sizing rules preserve readable width under overflow. Proof: `media/css/board.css`.
+- AC4 -> overflow behavior is validated with mixed primary and companion columns. Proof: `media/css/board.css`, existing mixed-stage rendering in `media/renderBoard.js`.
+- AC5 -> toolbar/details remain outside the horizontal scroll path. Proof: `media/css/board.css`, `media/css/layout.css`.
+- AC6 -> responsive layout and forced-list breakpoints keep current behavior. Proof: `media/css/board.css`, `media/main.js`, `tests/webview.layout-collapse.test.ts`.
+- AC7 -> tests cover overflow-related rendering expectations. Proof: `tests/webview.layout-collapse.test.ts`.
 
 # Priority
 - Impact:

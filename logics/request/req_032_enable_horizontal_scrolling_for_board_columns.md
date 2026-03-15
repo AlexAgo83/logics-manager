@@ -1,6 +1,6 @@
 ## req_032_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Low

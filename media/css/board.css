@@ -1,14 +1,18 @@
 .board {
   flex: 1;
   display: flex;
+  align-items: stretch;
   gap: 12px;
   padding: 12px 0;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .board--list {
   display: block;
   padding: 8px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .column {

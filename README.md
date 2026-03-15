@@ -40,17 +40,17 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 <table>
   <tr>
     <td align="center">
-      <img width="100%" alt="Board panel" src="https://i.postimg.cc/4K65cLzv/board-panel.png" />
+      <img width="100%" alt="Board panel" src="https://i.postimg.cc/g05Bf1j7/board_panel.png" />
       <br />
       <sub><strong>Board panel</strong></sub>
     </td>
     <td align="center">
-      <img width="100%" alt="Filter panel" src="https://i.postimg.cc/p9fZjGDD/filter-panel.png" />
+      <img width="100%" alt="Filter panel" src="https://i.postimg.cc/CKt6W956/filter-panel.png" />
       <br />
       <sub><strong>Filter panel</strong></sub>
     </td>
     <td align="center">
-      <img width="100%" alt="List panel" src="https://i.postimg.cc/TyV9b7rn/list-panel.png" />
+      <img width="100%" alt="List panel" src="https://i.postimg.cc/YSVyJT0D/list_panel.png" />
       <br />
       <sub><strong>List panel</strong></sub>
     </td>

@@ -59,3 +59,6 @@ flowchart LR
   - maintenance helpers extracted into `src/logicsDocMaintenance.ts`;
   - companion-doc rename coverage enabled;
   - managed-reference rewriting aligned with the expanded doc model.
+
+# Tasks
+- `logics/tasks/task_046_extend_plugin_rename_and_reference_maintenance_to_companion_docs.md`

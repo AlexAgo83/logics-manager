@@ -61,3 +61,6 @@ flowchart LR
   - managed-doc family registry introduced;
   - stage ordering and directory helpers centralized;
   - targeted regression coverage added.
+
+# Tasks
+- `logics/tasks/task_045_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md`

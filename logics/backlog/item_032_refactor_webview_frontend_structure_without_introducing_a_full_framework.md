@@ -93,3 +93,6 @@ flowchart TD
   - CSS concern files and packaged asset checks are in place;
   - the refactor is complete for this iteration with the accepted direction captured in `adr_002`.
 - A companion architecture decision is still expected because the refactor changes frontend structure and runtime boundaries inside the webview.
+
+# Tasks
+- `logics/tasks/task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`

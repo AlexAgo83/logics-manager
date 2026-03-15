@@ -88,3 +88,6 @@ flowchart LR
   - visibility controls for supporting docs delivered;
   - companion-doc creation flows and regression coverage delivered;
   - orchestration and close-out handled in `task_021`.
+
+# Tasks
+- `logics/tasks/task_021_align_vs_code_plugin_with_companion_docs_workflow.md`

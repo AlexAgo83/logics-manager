@@ -101,3 +101,6 @@ flowchart LR
   - close-out is complete for this iteration, with the shared-kit architectural direction captured in `adr_001`.
 - The work must remain generic for all repositories consuming `logics/skills`.
 - The work should also measurably reduce repetitive cleanup for the agent using Logics as an execution framework.
+
+# Tasks
+- `logics/tasks/task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`

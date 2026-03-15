@@ -102,3 +102,6 @@ flowchart LR
 - The work should stay separate from:
   - shared `logics/skills` hardening
   - webview structure refactor
+
+# Tasks
+- `logics/tasks/task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`

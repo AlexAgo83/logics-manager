@@ -61,3 +61,6 @@ flowchart LR
   - supporting-doc stage labels refined;
   - supporting-doc columns kept non-authoring;
   - cards show contextual badges and primary-flow linkage when relevant.
+
+# Tasks
+- `logics/tasks/task_048_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md`

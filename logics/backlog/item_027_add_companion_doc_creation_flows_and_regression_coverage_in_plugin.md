@@ -59,3 +59,6 @@ flowchart LR
   - generic `Create companion doc` action from details, tools, and command palette;
   - routing to kit-side product brief and ADR generators;
   - regression coverage increased to keep the workflow stable.
+
+# Tasks
+- `logics/tasks/task_049_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md`

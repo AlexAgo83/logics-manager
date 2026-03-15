@@ -60,3 +60,6 @@ flowchart LR
   - `Primary flow` section for supporting docs;
   - contextual `Specs` section for primary items;
   - direct `Open` and `Read` actions for managed links.
+
+# Tasks
+- `logics/tasks/task_047_add_companion_docs_section_and_navigation_in_plugin_details_panel.md`

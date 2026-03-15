@@ -1,6 +1,6 @@
 ## item_051_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 98%
 > Confidence: 98%
 > Progress: 0%

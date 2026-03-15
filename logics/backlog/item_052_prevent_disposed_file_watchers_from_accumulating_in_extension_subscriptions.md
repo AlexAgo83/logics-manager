@@ -1,6 +1,6 @@
 ## item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 0%

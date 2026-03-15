@@ -1,6 +1,6 @@
 ## task_064_split_react_render_bootstrap_script_into_bootstrap_phase_modules - Split react render bootstrap script into bootstrap phase modules
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 0%

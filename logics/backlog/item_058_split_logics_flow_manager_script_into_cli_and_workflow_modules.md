@@ -1,6 +1,6 @@
 ## item_058_split_logics_flow_manager_script_into_cli_and_workflow_modules - Split logics flow manager script into CLI and workflow modules
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 0%

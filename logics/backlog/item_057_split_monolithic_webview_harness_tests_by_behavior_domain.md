@@ -1,6 +1,6 @@
 ## item_057_split_monolithic_webview_harness_tests_by_behavior_domain - Split monolithic webview harness tests by behavior domain
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 0%

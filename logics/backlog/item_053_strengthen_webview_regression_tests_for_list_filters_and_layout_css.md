@@ -1,6 +1,6 @@
 ## item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 0%

@@ -1,6 +1,6 @@
 ## item_055_split_extension_host_entrypoint_into_focused_modules - Split extension host entrypoint into focused modules
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 0%

@@ -1,6 +1,6 @@
 ## item_060_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 0%

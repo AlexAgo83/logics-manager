@@ -1,6 +1,6 @@
 ## item_056_split_webview_entrypoint_into_state_selector_and_orchestration_modules - Split webview entrypoint into state, selector, and orchestration modules
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 0%

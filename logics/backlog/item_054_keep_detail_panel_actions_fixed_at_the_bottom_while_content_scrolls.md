@@ -1,6 +1,6 @@
 ## item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
 > From version: 1.10.0
-> Status: Proposed
+> Status: Ready
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 0%

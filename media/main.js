@@ -983,6 +983,7 @@
         collectCompanionDocs,
         collectSpecs,
         collectPrimaryFlowItems,
+        getHealthSignals,
         getSuggestedActions,
         progressState,
         getProgressValue,

@@ -1,9 +1,9 @@
 ## item_049_add_stronger_item_health_signals_to_the_plugin - Add stronger item health signals to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow health visibility and issue detection
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -33,11 +33,11 @@ The plugin needs stronger health signaling so problematic items stand out earlie
 - AC6: Tests cover the main health-signal rendering rules where practical.
 
 # AC Traceability
-- AC1/AC2 -> first health heuristics and their UI cues are defined clearly. Proof: TODO.
-- AC3 -> health signals become faster to scan in main surfaces. Proof: TODO.
-- AC4 -> visual treatment stays controlled and non-destructive. Proof: TODO.
-- AC5 -> board/list renderers support the same health-signal language coherently. Proof: TODO.
-- AC6 -> tests cover primary health-signal rendering paths. Proof: TODO.
+- AC1/AC2 -> the plugin now surfaces a first explicit set of health signals for blocked, orphaned, and done-mismatch items using clear badge labels and card treatment. Proof: `media/main.js`, `media/renderBoard.js`.
+- AC3 -> health issues are now visible directly in the main browsing surfaces through stronger badge styling and alert-state cards. Proof: `media/renderBoard.js`, `media/css/board.css`.
+- AC4 -> the treatment stays bounded to a small set of high-confidence signals and remains visually controlled. Proof: `media/renderBoard.js`, `media/css/board.css`.
+- AC5 -> the shared card renderer applies the same health-signal system in board and list modes. Proof: `media/renderBoard.js`.
+- AC6 -> harness tests cover the core blocked and orphaned signal rules. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

@@ -1,6 +1,6 @@
 ## req_044_add_stronger_item_health_signals_to_the_plugin - Add stronger item health signals to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Medium

@@ -914,6 +914,38 @@ describe("webview harness controls and accessibility", () => {
     expect(persistedStates.some((state) => state.helpDismissed === true)).toBe(true);
   });
 
+  it("renders stronger health signals for blocked and orphaned items", () => {
+    const blockedTask = {
+      ...baseItem,
+      id: "task_003_blocked_health",
+      title: "Blocked health task",
+      stage: "task",
+      indicators: {
+        Status: "Blocked"
+      }
+    };
+    const orphanProduct = {
+      ...productItem,
+      references: [],
+      usedBy: []
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [blockedTask, orphanProduct]
+    });
+
+    const document = dom.window.document;
+    const blockedCard = document.querySelector('.card[data-id="task_003_blocked_health"]');
+    const orphanCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
+
+    expect(blockedCard?.classList.contains("card--health-alert")).toBe(true);
+    expect(blockedCard?.textContent).toContain("Blocked");
+    expect(orphanCard?.classList.contains("card--health-alert")).toBe(true);
+    expect(orphanCard?.textContent).toContain("Orphaned");
+    expect(orphanCard?.textContent).toContain("Link flow");
+  });
+
   it("shows a compact preview on hover and dismisses it cleanly", () => {
     const previewItem = {
       ...baseItem,

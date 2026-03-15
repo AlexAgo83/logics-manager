@@ -39,6 +39,7 @@
       collectCompanionDocs,
       collectSpecs,
       collectPrimaryFlowItems,
+      getHealthSignals,
       getSuggestedActions,
       progressState,
       getProgressValue,
@@ -369,6 +370,34 @@
       return badges;
     }
 
+    function createHealthBadges(item) {
+      if (typeof getHealthSignals !== "function") {
+        return null;
+      }
+      const signals = getHealthSignals(item);
+      if (!signals || signals.length === 0) {
+        return null;
+      }
+
+      const labels = {
+        blocked: { label: "Blocked", title: "This item is explicitly marked as blocked." },
+        orphaned: { label: "Orphaned", title: "This supporting doc is not linked back to a primary-flow item." },
+        "done-mismatch": { label: "Done mismatch", title: "Progress and status disagree about this item being done." }
+      };
+
+      const badges = document.createElement("div");
+      badges.className = "card__badges card__badges--health";
+      signals.slice(0, 2).forEach((signal) => {
+        const meta = labels[signal] || { label: signal, title: signal };
+        const badge = document.createElement("span");
+        badge.className = `card__badge card__badge--health card__badge--health-${signal}`;
+        badge.textContent = meta.label;
+        badge.title = meta.title;
+        badges.appendChild(badge);
+      });
+      return badges;
+    }
+
     function createPrimaryFlowSummary(item) {
       if (isPrimaryFlowStage(item.stage)) {
         return "";
@@ -452,6 +481,10 @@
       card.tabIndex = 0;
       card.setAttribute("aria-label", `${getStageLabel(item.stage)} item ${item.id}: ${item.title}`);
       card.title = item.title;
+      const healthSignals = typeof getHealthSignals === "function" ? getHealthSignals(item) : [];
+      if (healthSignals.length > 0) {
+        card.classList.add("card--health-alert");
+      }
       const preview = createCardPreview(item);
 
       function setPreviewOpen(isOpen) {
@@ -467,6 +500,11 @@
       const companionBadges = createCompanionBadges(item);
       if (companionBadges) {
         card.appendChild(companionBadges);
+      }
+
+      const healthBadges = createHealthBadges(item);
+      if (healthBadges) {
+        card.appendChild(healthBadges);
       }
 
       const suggestedBadges = createSuggestedBadges(item);

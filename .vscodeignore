@@ -4,11 +4,6 @@
 **/node_modules/**
 **/.vscode/**
 **/out/**
-!out/extension.js
-!out/**/*.js
-!out/**/*.js.map
-!node_modules/yaml/**
-!node_modules/mermaid/dist/mermaid.min.js
 src/**
 tests/**
 debug/**
@@ -17,4 +12,9 @@ debug/**
 .gitmodules
 tsconfig.json
 vitest.config.ts
+vitest.config.mts
 logics/**
+scripts/**
+changelogs/**
+!dist/**
+!media/**

@@ -15,7 +15,7 @@
   "categories": [
     "Other"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "panel": [
@@ -67,7 +67,8 @@
     ]
   },
   "scripts": {
-    "compile": "tsc -p ./",
+    "bundle:extension": "node scripts/build/package-extension.mjs",
+    "compile": "tsc -p ./ && npm run bundle:extension",
     "watch": "tsc -watch -p ./",
     "test": "vitest run",
     "test:smoke": "node tests/run_extension_smoke_checks.mjs",
@@ -89,13 +90,12 @@
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.86.0",
+    "esbuild": "^0.25.10",
     "jsdom": "^25.0.1",
+    "mermaid": "^11.12.3",
     "typescript": "^5.3.3",
     "vitest": "^2.1.8",
+    "yaml": "^2.8.1",
     "yauzl": "^3.2.0"
-  },
-  "dependencies": {
-    "mermaid": "^11.12.3",
-    "yaml": "^2.8.1"
   }
 }

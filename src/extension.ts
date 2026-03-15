@@ -938,7 +938,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
       return this.readPreviewPanel;
     }
 
-    const mermaidRoot = vscode.Uri.file(path.join(this.context.extensionPath, "node_modules", "mermaid", "dist"));
+    const mermaidRoot = vscode.Uri.file(path.join(this.context.extensionPath, "dist", "vendor"));
     const panel = vscode.window.createWebviewPanel(
       "logics.readPreview",
       "Read: Logics item",
@@ -1516,7 +1516,7 @@ function buildReadPreviewHtml(params: {
 }): string {
   const nonce = getNonce();
   const { title, itemId, relPath, markdown, webview, extensionPath } = params;
-  const mermaidScriptPath = path.join(extensionPath, "node_modules", "mermaid", "dist", "mermaid.min.js");
+  const mermaidScriptPath = path.join(extensionPath, "dist", "vendor", "mermaid.min.js");
   const mermaidScriptUri = fs.existsSync(mermaidScriptPath)
     ? webview.asWebviewUri(vscode.Uri.file(mermaidScriptPath)).toString()
     : "";

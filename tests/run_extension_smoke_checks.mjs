@@ -7,17 +7,17 @@ import yauzl from "yauzl";
 
 const openZip = promisify(yauzl.open);
 const root = process.cwd();
-const outPath = path.join(root, "out", "extension.js");
+const outPath = path.join(root, "dist", "extension.js");
 
 if (!fs.existsSync(outPath)) {
-  throw new Error("Missing compiled extension bundle at out/extension.js. Run npm run compile first.");
+  throw new Error("Missing compiled extension bundle at dist/extension.js. Run npm run compile first.");
 }
 
 const compiledBundle = fs.readFileSync(outPath, "utf8");
-if (!/function activate\(/.test(compiledBundle) || !/exports\.activate\s*=/.test(compiledBundle)) {
+if (!/activate:\s*\(\)\s*=>\s*activate/.test(compiledBundle) || !/module\.exports\s*=/.test(compiledBundle)) {
   throw new Error("Compiled extension bundle does not expose an activate() export.");
 }
-if (!/function deactivate\(/.test(compiledBundle) || !/exports\.deactivate\s*=/.test(compiledBundle)) {
+if (!/deactivate:\s*\(\)\s*=>\s*deactivate/.test(compiledBundle) || !/module\.exports\s*=/.test(compiledBundle)) {
   throw new Error("Compiled extension bundle does not expose a deactivate() export.");
 }
 
@@ -30,7 +30,8 @@ execFileSync(npxCommand, ["@vscode/vsce", "package", "--out", vsixPath], {
 
 const entries = await listZipEntries(vsixPath);
 assertHas(entries, "extension/package.json");
-assertHas(entries, "extension/out/extension.js");
+assertHas(entries, "extension/dist/extension.js");
+assertHas(entries, "extension/dist/vendor/mermaid.min.js");
 assertHas(entries, "extension/media/main.js");
 assertHas(entries, "extension/media/main.css");
 assertHas(entries, "extension/media/uiStatus.js");
@@ -43,18 +44,17 @@ assertHas(entries, "extension/media/css/layout.css");
 assertHas(entries, "extension/media/css/toolbar.css");
 assertHas(entries, "extension/media/css/board.css");
 assertHas(entries, "extension/media/css/details.css");
-assertHas(entries, "extension/node_modules/yaml/package.json");
-assertHas(entries, "extension/node_modules/yaml/dist/index.js");
-assertHas(entries, "extension/node_modules/mermaid/dist/mermaid.min.js");
-assertMissing(entries, "extension/node_modules/mermaid/dist/mermaid.js");
+assertMissingPrefix(entries, "extension/node_modules/");
 assertMissingPrefix(entries, "extension/tests/");
 assertMissingPrefix(entries, "extension/debug/");
 assertMissingPrefix(entries, "extension/src/");
 assertMissingPrefix(entries, "extension/.github/");
+assertMissingPrefix(entries, "extension/changelogs/");
 assertMissing(entries, "extension/.gitignore");
 assertMissing(entries, "extension/.gitmodules");
 assertMissing(entries, "extension/tsconfig.json");
 assertMissing(entries, "extension/vitest.config.ts");
+assertMissing(entries, "extension/vitest.config.mts");
 
 console.log("Extension smoke checks: OK");
 

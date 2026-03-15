@@ -40,6 +40,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
           <option value="progress-desc">Progress</option>
           <option value="status-asc">Status</option>
         </select>
+        <button id="attention-toggle" type="button"></button>
         <button data-action="refresh"></button>
         <button data-action="select-agent"></button>
         <button data-action="new-request-guided"></button>

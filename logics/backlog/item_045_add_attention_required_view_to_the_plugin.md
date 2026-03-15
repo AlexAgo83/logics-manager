@@ -1,9 +1,9 @@
 ## item_045_add_attention_required_view_to_the_plugin - Add an attention-required view to the plugin
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operational focus and workflow triage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -33,10 +33,10 @@ An explicit attention-required lens would make the plugin more proactive by surf
 - AC6: Tests cover the core attention-classification behavior where practical.
 
 # AC Traceability
-- AC1/AC2 -> initial attention signals and dedicated surfacing path are defined clearly. Proof: TODO.
-- AC3 -> the resulting surface prioritizes actionable items effectively. Proof: TODO.
-- AC4/AC5 -> integration with current plugin navigation remains coherent. Proof: TODO.
-- AC6 -> tests validate core attention heuristics or rendering. Proof: TODO.
+- AC1/AC2 -> the plugin now exposes a dedicated `Attention` filter path backed by explicit heuristics for blocked, orphaned, unprocessed, or inconsistent items. Proof: `src/extension.ts`, `media/main.js`.
+- AC3 -> the attention-only filter reduces the visible set to likely actionable items without introducing a separate workflow surface. Proof: `media/main.js`, `tests/webview.harness-a11y.test.ts`.
+- AC4/AC5 -> the filter composes with current board/list rendering and existing navigation flows without changing card interaction patterns. Proof: `media/main.js`, `media/renderBoard.js`.
+- AC6 -> harness coverage verifies the core attention filter behavior. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

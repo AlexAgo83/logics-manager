@@ -52,7 +52,8 @@
       getHideSpec,
       getShowCompanionDocs,
       getHideEmptyColumns,
-      getSearchQuery
+      getSearchQuery,
+      getAttentionOnly
     } = options;
 
     function findCardById(id) {
@@ -283,6 +284,9 @@
     }
 
     function getEmptyBoardMessage() {
+      if (typeof getAttentionOnly === "function" && getAttentionOnly()) {
+        return "No items currently match the attention view. This view only shows blocked, orphaned, unprocessed, or inconsistent items.";
+      }
       const query = String(typeof getSearchQuery === "function" ? getSearchQuery() : "").trim();
       if (query) {
         return `No items match search "${query}". Clear or refine the search to widen the view.`;

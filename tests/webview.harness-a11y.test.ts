@@ -34,6 +34,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
             <option value="progress-desc">Progress</option>
             <option value="status-asc">Status</option>
           </select>
+          <button id="attention-toggle" type="button"></button>
           <button data-action="toggle-view-mode"></button>
           <button data-action="refresh"></button>
           <button data-action="select-agent"></button>
@@ -774,6 +775,43 @@ describe("webview harness controls and accessibility", () => {
       node.textContent?.trim()
     );
     expect(cardTitles).toEqual(["Newer request", "Older request"]);
+  });
+
+  it("filters the view down to explicit attention-required items", () => {
+    const blockedTask = {
+      ...baseItem,
+      id: "task_001_blocked",
+      title: "Blocked task",
+      stage: "task",
+      indicators: {
+        Status: "Blocked"
+      }
+    };
+    const healthyTask = {
+      ...baseItem,
+      id: "task_002_healthy",
+      title: "Healthy task",
+      stage: "task",
+      indicators: {
+        Status: "In progress"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, blockedTask, healthyTask]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const attentionToggle = document.getElementById("attention-toggle");
+
+    attentionToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(board?.textContent).toContain("Kickoff");
+    expect(board?.textContent).toContain("Blocked task");
+    expect(board?.textContent).not.toContain("Healthy task");
+    expect(attentionToggle?.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("shows a compact preview on hover and dismisses it cleanly", () => {

@@ -234,6 +234,12 @@
   border-color: var(--vscode-button-border, transparent);
 }
 
+.btn--active:not(:disabled) {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  border-color: var(--vscode-button-border, transparent);
+}
+
 .btn--caution {
   background: rgba(220, 38, 38, 0.1);
   color: var(--vscode-errorForeground, #f87171);

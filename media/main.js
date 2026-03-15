@@ -22,6 +22,7 @@
   const searchInput = document.getElementById("search-input");
   const groupBySelect = document.getElementById("group-by");
   const sortBySelect = document.getElementById("sort-by");
+  const attentionToggle = document.getElementById("attention-toggle");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
@@ -64,6 +65,7 @@
   let searchQuery = "";
   let groupMode = "stage";
   let sortMode = "default";
+  let attentionOnly = false;
   let collapsedListStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
@@ -379,6 +381,13 @@
       sortBySelect.value = sortMode;
       sortBySelect.title = "Sort visible items";
     }
+    if (attentionToggle) {
+      attentionToggle.classList.toggle("btn--active", attentionOnly);
+      attentionToggle.setAttribute("aria-pressed", String(attentionOnly));
+      attentionToggle.title = attentionOnly
+        ? "Showing blocked, orphaned, unprocessed, or inconsistent items"
+        : "Show blocked, orphaned, unprocessed, or inconsistent items";
+    }
   }
 
   function renderBoard() {
@@ -476,6 +485,31 @@
     return normalizeSearchValue(item && item.indicators ? item.indicators.Status : "") || "no status";
   }
 
+  function getHealthSignals(item) {
+    const signals = [];
+    const statusValue = getStatusValue(item);
+    const progressValue = getProgressValue(item);
+
+    if (statusValue.includes("blocked")) {
+      signals.push("blocked");
+    }
+    if (!isPrimaryFlowStage(item.stage) && collectPrimaryFlowItems(item).length === 0) {
+      signals.push("orphaned");
+    }
+    if (typeof progressValue === "number" && progressValue >= 100 && !statusValue.includes("done") && !statusValue.includes("complete")) {
+      signals.push("done-mismatch");
+    }
+
+    return signals;
+  }
+
+  function needsAttention(item) {
+    if (item.stage === "request" && !isRequestProcessed(item)) {
+      return true;
+    }
+    return getHealthSignals(item).length > 0;
+  }
+
   function getProgressSortValue(item) {
     const value = getProgressValue(item);
     return typeof value === "number" ? value : -1;
@@ -556,6 +590,9 @@
   }
 
   function isVisible(item) {
+    if (attentionOnly && !needsAttention(item)) {
+      return false;
+    }
     if (hideCompleted && isComplete(item)) {
       return false;
     }
@@ -827,7 +864,8 @@
         getHideSpec: () => hideSpec,
         getShowCompanionDocs: () => showCompanionDocs,
         getHideEmptyColumns: () => hideEmptyColumns,
-        getSearchQuery: () => searchQuery
+        getSearchQuery: () => searchQuery,
+        getAttentionOnly: () => attentionOnly
       })
     : null;
 
@@ -984,6 +1022,7 @@
       searchQuery,
       groupMode,
       sortMode,
+      attentionOnly,
       collapsedListStages: Array.from(collapsedListStages),
       detailsCollapsed: uiState.detailsCollapsed,
       collapsedDetailSections: Array.from(collapsedDetailSections),
@@ -1060,6 +1099,13 @@
   if (sortBySelect) {
     sortBySelect.addEventListener("change", (event) => {
       sortMode = event.target ? String(event.target.value || "default") : "default";
+      persistState();
+      render();
+    });
+  }
+  if (attentionToggle) {
+    attentionToggle.addEventListener("click", () => {
+      attentionOnly = !attentionOnly;
       persistState();
       render();
     });
@@ -1180,6 +1226,9 @@
   }
   if (previousState && typeof previousState.sortMode === "string") {
     sortMode = previousState.sortMode;
+  }
+  if (previousState && typeof previousState.attentionOnly === "boolean") {
+    attentionOnly = previousState.attentionOnly;
   }
   if (previousState && typeof previousState.selectedId === "string") {
     selectedId = previousState.selectedId;

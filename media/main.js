@@ -85,12 +85,6 @@
   let activeWorkspaceRoot = null;
   let persistedWorkspaceRoot = null;
   const previousState = vscode.getState() || null;
-  const scrollState = {
-    boardLeft: 0,
-    boardTop: 0,
-    detailsTop: 0
-  };
-  let persistStateTimer = null;
 
   const primaryStageOrder = ["request", "backlog", "task"];
   const companionStageOrder = ["product", "architecture"];
@@ -120,6 +114,9 @@
   const harnessApiFactory = window.createCdxLogicsHarnessApi;
   const layoutControllerFactory = window.createCdxLogicsLayoutController;
   const hostApiFactory = window.createCdxLogicsHostApi;
+  const selectorFactory = window.createCdxLogicsWebviewSelectors;
+  const persistenceFactory = window.createCdxLogicsWebviewPersistence;
+  const chromeFactory = window.createCdxLogicsWebviewChrome;
   const boardRendererFactory = window.createCdxLogicsBoardRenderer;
   const detailsRendererFactory = window.createCdxLogicsDetailsRenderer;
   const markdownApiFactory = window.createCdxLogicsMarkdownApi;
@@ -131,42 +128,39 @@
     console.debug("[cdx-logics-webview]", eventName, payload);
   }
 
-  function captureScrollState() {
-    if (board) {
-      scrollState.boardLeft = board.scrollLeft;
-      scrollState.boardTop = board.scrollTop;
-    }
-    if (detailsBody) {
-      scrollState.detailsTop = detailsBody.scrollTop;
-    }
+  function getSnapshot(scrollValues = { boardLeft: 0, boardTop: 0, detailsTop: 0 }) {
+    return {
+      workspaceRoot: activeWorkspaceRoot,
+      selectedId,
+      hideCompleted,
+      hideProcessedRequests,
+      hideSpec,
+      showCompanionDocs,
+      hideEmptyColumns,
+      searchQuery,
+      groupMode,
+      sortMode,
+      secondaryToolbarOpen,
+      activityPanelOpen,
+      attentionOnly,
+      helpDismissed,
+      collapsedListStages: Array.from(collapsedListStages),
+      detailsCollapsed: uiState.detailsCollapsed,
+      collapsedDetailSections: Array.from(collapsedDetailSections),
+      viewMode: uiState.viewMode,
+      splitRatio: uiState.splitRatio,
+      boardScrollLeft: scrollValues.boardLeft,
+      boardScrollTop: scrollValues.boardTop,
+      detailsScrollTop: scrollValues.detailsTop
+    };
   }
 
-  function restoreScrollState() {
-    if (board) {
-      board.scrollLeft = scrollState.boardLeft;
-      board.scrollTop = scrollState.boardTop;
-    }
-    if (detailsBody) {
-      detailsBody.scrollTop = scrollState.detailsTop;
-    }
-  }
-
-  function schedulePersistState() {
-    if (persistStateTimer) {
-      clearTimeout(persistStateTimer);
-    }
-    persistStateTimer = setTimeout(() => {
-      persistStateTimer = null;
-      persistState();
-    }, 80);
-  }
-
-  function resetPersistedUiState() {
-    hideCompleted = defaultFilterState.hideCompleted;
-    hideProcessedRequests = defaultFilterState.hideProcessedRequests;
-    hideSpec = defaultFilterState.hideSpec;
-    showCompanionDocs = defaultFilterState.showCompanionDocs;
-    hideEmptyColumns = defaultFilterState.hideEmptyColumns;
+  function applyResetState({ defaultFilterState: nextDefaultFilterState, uiDefaults }) {
+    hideCompleted = nextDefaultFilterState.hideCompleted;
+    hideProcessedRequests = nextDefaultFilterState.hideProcessedRequests;
+    hideSpec = nextDefaultFilterState.hideSpec;
+    showCompanionDocs = nextDefaultFilterState.showCompanionDocs;
+    hideEmptyColumns = nextDefaultFilterState.hideEmptyColumns;
     searchQuery = "";
     groupMode = "stage";
     sortMode = "default";
@@ -177,21 +171,179 @@
     collapsedDetailSections = new Set(defaultCollapsedDetailSections);
     selectedId = null;
     secondaryToolbarOpen = false;
-    scrollState.boardLeft = 0;
-    scrollState.boardTop = 0;
-    scrollState.detailsTop = 0;
-    uiState.detailsCollapsed = false;
-    uiState.viewMode = "board";
-    uiState.splitRatio = 0.6;
+    toolsPanelOpen = false;
+    uiState.detailsCollapsed = uiDefaults.detailsCollapsed;
+    uiState.viewMode = uiDefaults.viewMode;
+    uiState.splitRatio = uiDefaults.splitRatio;
+    activeColumnMenu = null;
+    activeColumnMenuButton = null;
   }
 
-  function getStageLabel(stage) {
-    return typeof modelApi.getStageLabel === "function" ? modelApi.getStageLabel(stage) : String(stage || "item");
+  function applyPersistedState(nextState, nextScrollState) {
+    if (nextState && typeof nextState.hideCompleted === "boolean") {
+      hideCompleted = nextState.hideCompleted;
+    }
+    if (nextState && typeof nextState.hideProcessedRequests === "boolean") {
+      hideProcessedRequests = nextState.hideProcessedRequests;
+    } else if (nextState && typeof nextState.hideUsedRequests === "boolean") {
+      hideProcessedRequests = nextState.hideUsedRequests;
+    }
+    if (nextState && typeof nextState.hideSpec === "boolean") {
+      hideSpec = nextState.hideSpec;
+    }
+    if (nextState && typeof nextState.showCompanionDocs === "boolean") {
+      showCompanionDocs = nextState.showCompanionDocs;
+    }
+    if (nextState && typeof nextState.hideEmptyColumns === "boolean") {
+      hideEmptyColumns = nextState.hideEmptyColumns;
+    }
+    if (nextState && typeof nextState.searchQuery === "string") {
+      searchQuery = nextState.searchQuery;
+    }
+    if (nextState && typeof nextState.groupMode === "string") {
+      groupMode = nextState.groupMode;
+    }
+    if (nextState && typeof nextState.sortMode === "string") {
+      sortMode = nextState.sortMode;
+    }
+    if (nextState && typeof nextState.activityPanelOpen === "boolean") {
+      activityPanelOpen = nextState.activityPanelOpen;
+    }
+    if (nextState && typeof nextState.attentionOnly === "boolean") {
+      attentionOnly = nextState.attentionOnly;
+    }
+    if (nextState && typeof nextState.helpDismissed === "boolean") {
+      helpDismissed = nextState.helpDismissed;
+    }
+    if (nextState && typeof nextState.secondaryToolbarOpen === "boolean") {
+      secondaryToolbarOpen = nextState.secondaryToolbarOpen;
+    }
+    if (nextState && typeof nextState.selectedId === "string") {
+      selectedId = nextState.selectedId;
+    }
+    if (nextState && typeof nextState.workspaceRoot === "string") {
+      persistedWorkspaceRoot = nextState.workspaceRoot;
+    }
+    if (nextState && Array.isArray(nextState.collapsedListStages)) {
+      collapsedListStages = new Set(nextState.collapsedListStages);
+    }
+    if (nextState && typeof nextState.detailsCollapsed === "boolean") {
+      uiState.detailsCollapsed = nextState.detailsCollapsed;
+    }
+    if (nextState && Array.isArray(nextState.collapsedDetailSections)) {
+      collapsedDetailSections = new Set(nextState.collapsedDetailSections);
+    }
+    if (nextState && (nextState.viewMode === "board" || nextState.viewMode === "list")) {
+      uiState.viewMode = nextState.viewMode;
+    }
+    if (nextState && typeof nextState.splitRatio === "number") {
+      uiState.splitRatio = nextState.splitRatio;
+    }
+    if (nextState && typeof nextState.boardScrollLeft === "number") {
+      nextScrollState.boardLeft = nextState.boardScrollLeft;
+    }
+    if (nextState && typeof nextState.boardScrollTop === "number") {
+      nextScrollState.boardTop = nextState.boardScrollTop;
+    }
+    if (nextState && typeof nextState.detailsScrollTop === "number") {
+      nextScrollState.detailsTop = nextState.detailsScrollTop;
+    }
   }
 
-  function getStageHeading(stage) {
-    return typeof modelApi.getStageHeading === "function" ? modelApi.getStageHeading(stage) : String(stage || "").trim();
-  }
+  const selectors =
+    typeof selectorFactory === "function"
+      ? selectorFactory({
+          modelApi,
+          primaryStageOrder,
+          companionStageOrder,
+          compactListQuery,
+          getItems: () => items,
+          getSelectedId: () => selectedId,
+          getHideCompleted: () => hideCompleted,
+          getHideProcessedRequests: () => hideProcessedRequests,
+          getHideSpec: () => hideSpec,
+          getShowCompanionDocs: () => showCompanionDocs,
+          getHideEmptyColumns: () => hideEmptyColumns,
+          getSearchQuery: () => searchQuery,
+          getGroupMode: () => groupMode,
+          getSortMode: () => sortMode,
+          getAttentionOnly: () => attentionOnly,
+          getUiState: () => uiState
+        })
+      : null;
+
+  const {
+    canPromote,
+    isCompactListForced,
+    getEffectiveViewMode,
+    isListMode,
+    getStageLabel,
+    getStageHeading,
+    normalizeSearchValue,
+    getStatusValue,
+    getHealthSignals,
+    needsAttention,
+    getSuggestedActions,
+    getActivityEntries,
+    getHelpBannerMessage,
+    groupByStage,
+    getListGroups,
+    isVisible,
+    isPrimaryFlowStage,
+    isCompanionStage,
+    collectCompanionDocs,
+    collectSpecs,
+    collectPrimaryFlowItems,
+    findManagedItemByReference,
+    normalizeManagedDocValue,
+    getVisibleStages,
+    isComplete,
+    formatDate,
+    isProcessedWorkflowStatus,
+    collectLinkedWorkflowItems,
+    isRequestProcessed,
+    progressState,
+    getProgressValue
+  } = selectors || {};
+
+  const persistence =
+    typeof persistenceFactory === "function"
+      ? persistenceFactory({
+          vscode,
+          board,
+          detailsBody,
+          defaultFilterState,
+          getUiState: () => uiState,
+          getSnapshot,
+          applyResetState,
+          applyPersistedState
+        })
+      : null;
+
+  const captureScrollState =
+    persistence && typeof persistence.captureScrollState === "function"
+      ? () => persistence.captureScrollState()
+      : () => undefined;
+  const restoreScrollState =
+    persistence && typeof persistence.restoreScrollState === "function"
+      ? () => persistence.restoreScrollState()
+      : () => undefined;
+  const schedulePersistState =
+    persistence && typeof persistence.schedulePersistState === "function"
+      ? () => persistence.schedulePersistState()
+      : () => undefined;
+  const resetPersistedUiState =
+    persistence && typeof persistence.resetPersistedUiState === "function"
+      ? () => persistence.resetPersistedUiState()
+      : () => undefined;
+  const persistState =
+    persistence && typeof persistence.persistState === "function"
+      ? () => persistence.persistState()
+      : () => undefined;
+  const hydratePersistedState =
+    persistence && typeof persistence.hydrate === "function"
+      ? (state) => persistence.hydrate(state)
+      : () => undefined;
 
   function buildColumnMenu() {
     const menu = document.createElement("div");
@@ -251,60 +403,92 @@
     }
   }
 
-  function canPromote(item) {
-    if (!item) {
-      return false;
-    }
-    if (item.isPromoted) {
-      return false;
-    }
-    if (isRequestProcessed(item)) {
-      return false;
-    }
-    return item.stage === "request" || item.stage === "backlog";
+  function getSelectedItem() {
+    return items.find((item) => item.id === selectedId) || null;
   }
 
-  function isCompactListForced() {
-    return Boolean(compactListQuery && compactListQuery.matches);
-  }
+  const chrome =
+    typeof chromeFactory === "function"
+      ? chromeFactory({
+          activityPanel,
+          activityToggle,
+          attentionToggle,
+          bootstrapLogicsButton,
+          filterPanel,
+          filterToggle,
+          groupBySelect,
+          helpBanner,
+          helpBannerCopy,
+          hideCompleteToggle,
+          hideEmptyColumnsToggle,
+          hideProcessedRequestsToggle,
+          hideSpecToggle,
+          markDoneButton,
+          markObsoleteButton,
+          openButton,
+          promoteButton,
+          readButton,
+          resetProjectRootButton,
+          searchInput,
+          showCompanionDocsToggle,
+          sortBySelect,
+          toolsPanel,
+          toolsToggle,
+          viewModeToggleButton,
+          defaultFilterState,
+          canPromote,
+          getActivityEntries,
+          getAttentionOnly: () => attentionOnly,
+          getActivityPanelOpen: () => activityPanelOpen,
+          getCanBootstrapLogics: () => canBootstrapLogics,
+          getCanResetProjectRoot: () => canResetProjectRoot,
+          getEffectiveViewMode,
+          getGroupMode: () => groupMode,
+          getHelpBannerMessage,
+          getHelpDismissed: () => helpDismissed,
+          getHideCompleted: () => hideCompleted,
+          getHideEmptyColumns: () => hideEmptyColumns,
+          getHideProcessedRequests: () => hideProcessedRequests,
+          getHideSpec: () => hideSpec,
+          getIsListMode: () => isListMode(),
+          getSearchQuery: () => searchQuery,
+          getSecondaryToolbarOpen: () => secondaryToolbarOpen,
+          getShowCompanionDocs: () => showCompanionDocs,
+          getSortMode: () => sortMode,
+          getStageLabel,
+          getToolsPanelOpen: () => toolsPanelOpen,
+          getSelectedItem,
+          isCompactListForced,
+          normalizeSearchValue,
+          selectItemAndRender(nextId) {
+            selectedId = nextId;
+            render();
+          }
+        })
+      : null;
 
-  function getEffectiveViewMode() {
-    return isCompactListForced() ? "list" : uiState.viewMode;
-  }
-
-  function isListMode() {
-    return getEffectiveViewMode() === "list";
-  }
-
-  function updateViewModeToggle() {
-    if (!viewModeToggleButton) {
-      return;
-    }
-    const currentMode = getEffectiveViewMode();
-    if (isCompactListForced()) {
-      viewModeToggleButton.textContent = "List";
-      viewModeToggleButton.dataset.currentMode = currentMode;
-      viewModeToggleButton.setAttribute("aria-pressed", "true");
-      viewModeToggleButton.setAttribute("aria-label", "Current mode: list. List mode is required below 500px");
-      viewModeToggleButton.title = "Current mode: list. List mode is required below 500px";
-      viewModeToggleButton.disabled = true;
-      return;
-    }
-    const switchToList = currentMode !== "list";
-    viewModeToggleButton.textContent = switchToList ? "List" : "Board";
-    viewModeToggleButton.dataset.currentMode = currentMode;
-    viewModeToggleButton.setAttribute("aria-pressed", String(currentMode === "list"));
-    viewModeToggleButton.setAttribute(
-      "aria-label",
-      switchToList
-        ? `Current mode: ${currentMode}. Switch to list mode`
-        : `Current mode: ${currentMode}. Switch to board mode`
-    );
-    viewModeToggleButton.title = switchToList
-      ? `Current mode: ${currentMode}. Switch to list mode`
-      : `Current mode: ${currentMode}. Switch to board mode`;
-    viewModeToggleButton.disabled = false;
-  }
+  const updateViewModeToggle =
+    chrome && typeof chrome.updateViewModeToggle === "function" ? () => chrome.updateViewModeToggle() : () => undefined;
+  const renderActivityPanel =
+    chrome && typeof chrome.renderActivityPanel === "function" ? () => chrome.renderActivityPanel() : () => undefined;
+  const renderHelpBanner =
+    chrome && typeof chrome.renderHelpBanner === "function" ? () => chrome.renderHelpBanner() : () => undefined;
+  const updateButtons =
+    chrome && typeof chrome.updateButtons === "function" ? () => chrome.updateButtons() : () => undefined;
+  const hasNonDefaultSecondaryControls =
+    chrome && typeof chrome.hasNonDefaultSecondaryControls === "function"
+      ? () => chrome.hasNonDefaultSecondaryControls()
+      : () => false;
+  const updateFilterState =
+    chrome && typeof chrome.updateFilterState === "function" ? () => chrome.updateFilterState() : () => undefined;
+  const syncChromeInputs =
+    chrome && typeof chrome.syncInputs === "function" ? () => chrome.syncInputs() : () => undefined;
+  const applyToolsPanelOpen =
+    chrome && typeof chrome.setToolsPanelOpen === "function" ? (isOpen) => chrome.setToolsPanelOpen(isOpen) : () => undefined;
+  const setControlDescription =
+    chrome && typeof chrome.setControlDescription === "function"
+      ? (element, label) => chrome.setControlDescription(element, label)
+      : () => undefined;
 
   function setState(nextItems, nextSelectedId) {
     items = Array.isArray(nextItems) ? nextItems : [];
@@ -367,45 +551,7 @@
     restoreScrollState();
     updateButtons();
     updateFilterState();
-    if (hideCompleteToggle) {
-      hideCompleteToggle.checked = hideCompleted;
-    }
-    if (hideProcessedRequestsToggle) {
-      hideProcessedRequestsToggle.checked = hideProcessedRequests;
-    }
-    if (hideSpecToggle) {
-      hideSpecToggle.checked = hideSpec;
-    }
-    if (showCompanionDocsToggle) {
-      showCompanionDocsToggle.checked = showCompanionDocs;
-    }
-    if (hideEmptyColumnsToggle) {
-      hideEmptyColumnsToggle.checked = hideEmptyColumns;
-    }
-    if (searchInput) {
-      searchInput.value = searchQuery;
-    }
-    if (groupBySelect) {
-      groupBySelect.value = groupMode;
-      groupBySelect.disabled = !isListMode();
-      groupBySelect.title = isListMode() ? "Group visible list items" : "Grouping modes apply in list mode";
-    }
-    if (sortBySelect) {
-      sortBySelect.value = sortMode;
-      sortBySelect.title = "Sort visible items";
-    }
-    if (attentionToggle) {
-      attentionToggle.classList.toggle("btn--active", attentionOnly);
-      attentionToggle.setAttribute("aria-pressed", String(attentionOnly));
-      attentionToggle.title = attentionOnly
-        ? "Showing blocked, orphaned, unprocessed, or inconsistent items"
-        : "Show blocked, orphaned, unprocessed, or inconsistent items";
-    }
-    if (activityToggle) {
-      activityToggle.classList.toggle("btn--active", activityPanelOpen);
-      activityToggle.setAttribute("aria-pressed", String(activityPanelOpen));
-      activityToggle.title = activityPanelOpen ? "Hide recent activity" : "Show recent activity";
-    }
+    syncChromeInputs();
   }
 
   function renderBoard() {
@@ -418,140 +564,6 @@
     if (detailsRenderer && typeof detailsRenderer.renderDetails === "function") {
       detailsRenderer.renderDetails();
     }
-  }
-
-  function renderActivityPanel() {
-    if (!activityPanel) {
-      return;
-    }
-    activityPanel.hidden = !activityPanelOpen;
-    if (!activityPanelOpen) {
-      activityPanel.innerHTML = "";
-      return;
-    }
-
-    const entries = getActivityEntries();
-    activityPanel.innerHTML = "";
-
-    const header = document.createElement("div");
-    header.className = "activity-panel__header";
-    header.textContent = "Recent activity";
-    activityPanel.appendChild(header);
-
-    const list = document.createElement("div");
-    list.className = "activity-panel__list";
-
-    if (!entries.length) {
-      const empty = document.createElement("div");
-      empty.className = "state-message";
-      empty.textContent = "No recent activity is available yet.";
-      list.appendChild(empty);
-    } else {
-      entries.forEach((entry) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "activity-panel__entry";
-        button.dataset.id = entry.id;
-
-        const title = document.createElement("div");
-        title.className = "activity-panel__title";
-        title.textContent = entry.title;
-        button.appendChild(title);
-
-        const meta = document.createElement("div");
-        meta.className = "activity-panel__meta";
-        meta.textContent = `${entry.label} • ${getStageLabel(entry.stage)} • ${entry.id}`;
-        button.appendChild(meta);
-
-        button.addEventListener("click", () => {
-          selectedId = entry.id;
-          render();
-        });
-
-        list.appendChild(button);
-      });
-    }
-
-    activityPanel.appendChild(list);
-  }
-
-  function renderHelpBanner() {
-    if (!helpBanner || !helpBannerCopy) {
-      return;
-    }
-    const message = helpDismissed ? "" : getHelpBannerMessage();
-    helpBanner.hidden = !message;
-    helpBannerCopy.textContent = message;
-  }
-
-  function updateButtons() {
-    const item = items.find((entry) => entry.id === selectedId);
-    openButton.disabled = !item;
-    promoteButton.disabled = !canPromote(item);
-    if (markDoneButton) {
-      markDoneButton.disabled = !item;
-      markDoneButton.title = item ? "Mark selected item as done" : "Select an item first";
-    }
-    if (markObsoleteButton) {
-      markObsoleteButton.disabled = !item;
-      markObsoleteButton.title = item ? "Mark selected item as obsolete" : "Select an item first";
-    }
-    openButton.title = item ? "Edit selected item" : "Select an item to edit";
-    promoteButton.title = canPromote(item)
-      ? "Promote selected item"
-      : "Select a request/backlog item that can be promoted";
-    promoteButton.classList.toggle("btn--contextual-active", canPromote(item));
-    if (readButton) {
-      readButton.disabled = !item;
-      readButton.title = item ? "Read selected item" : "Select an item to read";
-    }
-    if (resetProjectRootButton) {
-      resetProjectRootButton.disabled = !canResetProjectRoot;
-      resetProjectRootButton.title = canResetProjectRoot
-        ? "Use workspace root"
-        : "Already using workspace root";
-    }
-    if (bootstrapLogicsButton) {
-      bootstrapLogicsButton.disabled = !canBootstrapLogics;
-      bootstrapLogicsButton.title = canBootstrapLogics
-        ? "Bootstrap Logics in this project"
-        : "Bootstrap already completed";
-    }
-  }
-
-  function hasNonDefaultSecondaryControls() {
-    return (
-      hideCompleted !== defaultFilterState.hideCompleted ||
-      hideProcessedRequests !== defaultFilterState.hideProcessedRequests ||
-      hideSpec !== defaultFilterState.hideSpec ||
-      showCompanionDocs !== defaultFilterState.showCompanionDocs ||
-      hideEmptyColumns !== defaultFilterState.hideEmptyColumns ||
-      normalizeSearchValue(searchQuery) !== "" ||
-      groupMode !== "stage" ||
-      sortMode !== "default"
-    );
-  }
-
-  function updateFilterState() {
-    if (filterPanel) {
-      filterPanel.hidden = !secondaryToolbarOpen;
-      filterPanel.setAttribute("aria-hidden", String(!secondaryToolbarOpen));
-    }
-    if (!filterToggle) {
-      return;
-    }
-    const hasNonDefaultControls = hasNonDefaultSecondaryControls();
-    filterToggle.classList.toggle("toolbar__filter--open", secondaryToolbarOpen);
-    filterToggle.classList.toggle("toolbar__filter--active", !secondaryToolbarOpen && hasNonDefaultControls);
-    filterToggle.setAttribute("aria-expanded", String(secondaryToolbarOpen));
-    filterToggle.setAttribute("data-has-active-controls", String(hasNonDefaultControls));
-    const label = secondaryToolbarOpen
-      ? "Hide view controls"
-      : hasNonDefaultControls
-        ? "Show view controls (non-default controls active)"
-        : "Show view controls";
-    filterToggle.setAttribute("aria-label", label);
-    filterToggle.title = label;
   }
 
   function restoreDefaultFilters() {
@@ -574,359 +586,7 @@
 
   function setToolsPanelOpen(isOpen) {
     toolsPanelOpen = isOpen;
-    if (toolsPanel) {
-      toolsPanel.classList.toggle("tools-panel--open", isOpen);
-      toolsPanel.setAttribute("aria-hidden", String(!isOpen));
-    }
-    if (toolsToggle) {
-      toolsToggle.setAttribute("aria-expanded", String(isOpen));
-    }
-  }
-
-  function normalizeSearchValue(value) {
-    return String(value || "").trim().toLowerCase();
-  }
-
-  function getStatusValue(item) {
-    return normalizeSearchValue(item && item.indicators ? item.indicators.Status : "") || "no status";
-  }
-
-  function getHealthSignals(item) {
-    const signals = [];
-    const statusValue = getStatusValue(item);
-    const progressValue = getProgressValue(item);
-
-    if (statusValue.includes("blocked")) {
-      signals.push("blocked");
-    }
-    if (!isPrimaryFlowStage(item.stage) && collectPrimaryFlowItems(item).length === 0) {
-      signals.push("orphaned");
-    }
-    if (typeof progressValue === "number" && progressValue >= 100 && !statusValue.includes("done") && !statusValue.includes("complete")) {
-      signals.push("done-mismatch");
-    }
-
-    return signals;
-  }
-
-  function needsAttention(item) {
-    if (item.stage === "request" && !isRequestProcessed(item)) {
-      return true;
-    }
-    return getHealthSignals(item).length > 0;
-  }
-
-  function getSuggestedActions(item) {
-    const actions = [];
-    if (canPromote(item)) {
-      actions.push({ key: "promote", label: "Promote", title: "This workflow item can be promoted." });
-    }
-    if (isPrimaryFlowStage(item.stage) && collectCompanionDocs(item).length === 0 && collectSpecs(item).length === 0) {
-      actions.push({ key: "add-docs", label: "Add docs", title: "This workflow item needs companion docs or specs." });
-    }
-    if (!isPrimaryFlowStage(item.stage) && collectPrimaryFlowItems(item).length === 0) {
-      actions.push({ key: "link-flow", label: "Link flow", title: "This supporting doc should be linked back to a primary-flow item." });
-    }
-    return actions.slice(0, 2);
-  }
-
-  function getActivityEntries() {
-    return [...items]
-      .filter((item) => Date.parse(item.updatedAt || "") > 0)
-      .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
-      .slice(0, 12)
-      .map((item) => {
-        const statusValue = getStatusValue(item);
-        let label = "Updated";
-        if (statusValue.includes("obsolete")) {
-          label = "Marked obsolete";
-        } else if (statusValue.includes("done") || statusValue.includes("complete")) {
-          label = "Marked done";
-        } else if (item.isPromoted) {
-          label = "Promoted";
-        } else if (isPrimaryFlowStage(item.stage) && (collectCompanionDocs(item).length > 0 || collectSpecs(item).length > 0)) {
-          label = "Linked companion docs";
-        }
-        return {
-          id: item.id,
-          title: item.title,
-          stage: item.stage,
-          updatedAt: item.updatedAt,
-          label
-        };
-      });
-  }
-
-  function getHelpBannerMessage() {
-    if (items.length === 0) {
-      return "No Logics items are loaded yet. Use Tools > New Request or Bootstrap Logics to seed the workspace.";
-    }
-    if (!selectedId) {
-      return "Select a card for details. Use Search to find items faster, Attention to triage, and List mode when the board gets crowded.";
-    }
-    return "";
-  }
-
-  function getProgressSortValue(item) {
-    const value = getProgressValue(item);
-    return typeof value === "number" ? value : -1;
-  }
-
-  function compareItems(left, right) {
-    if (sortMode === "updated-desc") {
-      const leftTime = Date.parse(left.updatedAt || "") || 0;
-      const rightTime = Date.parse(right.updatedAt || "") || 0;
-      if (rightTime !== leftTime) {
-        return rightTime - leftTime;
-      }
-    } else if (sortMode === "progress-desc") {
-      const progressDelta = getProgressSortValue(right) - getProgressSortValue(left);
-      if (progressDelta !== 0) {
-        return progressDelta;
-      }
-    } else if (sortMode === "status-asc") {
-      const statusDelta = getStatusValue(left).localeCompare(getStatusValue(right));
-      if (statusDelta !== 0) {
-        return statusDelta;
-      }
-    } else {
-      return 0;
-    }
-
-    return normalizeSearchValue(left.title).localeCompare(normalizeSearchValue(right.title));
-  }
-
-  function sortItems(allItems) {
-    if (sortMode === "default") {
-      return [...allItems];
-    }
-    return [...allItems].sort(compareItems);
-  }
-
-  function groupByStage(allItems) {
-    const grouped = allItems.reduce((acc, item) => {
-      acc[item.stage] = acc[item.stage] || [];
-      acc[item.stage].push(item);
-      return acc;
-    }, {});
-    Object.keys(grouped).forEach((stage) => {
-      grouped[stage] = sortItems(grouped[stage]);
-    });
-    return grouped;
-  }
-
-  function collectSearchText(value) {
-    if (Array.isArray(value)) {
-      return value.map((entry) => collectSearchText(entry)).join(" ");
-    }
-    if (value && typeof value === "object") {
-      return Object.values(value)
-        .map((entry) => collectSearchText(entry))
-        .join(" ");
-    }
-    return String(value || "");
-  }
-
-  function matchesSearch(item) {
-    const normalizedQuery = normalizeSearchValue(searchQuery);
-    if (!normalizedQuery) {
-      return true;
-    }
-    const haystack = normalizeSearchValue(
-      [
-        item.title,
-        item.id,
-        item.stage,
-        getStageLabel(item.stage),
-        collectSearchText(item.references),
-        collectSearchText(item.usedBy),
-        collectSearchText(item.indicators)
-      ].join(" ")
-    );
-    return haystack.includes(normalizedQuery);
-  }
-
-  function isVisible(item) {
-    if (attentionOnly && !needsAttention(item)) {
-      return false;
-    }
-    if (hideCompleted && isComplete(item)) {
-      return false;
-    }
-    if (hideProcessedRequests && item.stage === "request" && isRequestProcessed(item)) {
-      return false;
-    }
-    if (hideSpec && item.stage === "spec") {
-      return false;
-    }
-    if (!showCompanionDocs && isCompanionStage(item.stage)) {
-      return false;
-    }
-    return matchesSearch(item);
-  }
-
-  function getListGroups() {
-    const visibleItems = items.filter((item) => isVisible(item));
-    if (groupMode === "status") {
-      const grouped = visibleItems.reduce((acc, item) => {
-        const heading = item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status";
-        const key = `status:${normalizeSearchValue(heading) || "no-status"}`;
-        acc[key] = acc[key] || { key, heading, items: [] };
-        acc[key].items.push(item);
-        return acc;
-      }, {});
-      return Object.values(grouped)
-        .map((group) => ({ ...group, items: sortItems(group.items) }))
-        .sort((left, right) => normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading)));
-    }
-
-    const grouped = groupByStage(visibleItems);
-    return getVisibleStages()
-      .map((stage) => ({
-        key: stage,
-        stage,
-        heading: getStageHeading(stage),
-        items: grouped[stage] || [],
-        emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
-      }))
-      .filter((group) => !hideEmptyColumns || group.items.length > 0);
-  }
-
-  function isPrimaryFlowStage(stage) {
-    return typeof modelApi.isPrimaryFlowStage === "function" ? modelApi.isPrimaryFlowStage(stage) : false;
-  }
-
-  function isCompanionStage(stage) {
-    return typeof modelApi.isCompanionStage === "function" ? modelApi.isCompanionStage(stage) : false;
-  }
-
-  function collectCompanionDocs(item) {
-    return typeof modelApi.collectCompanionDocs === "function" ? modelApi.collectCompanionDocs(item, items) : [];
-  }
-
-  function collectSpecs(item) {
-    return typeof modelApi.collectSpecs === "function" ? modelApi.collectSpecs(item, items) : [];
-  }
-
-  function collectPrimaryFlowItems(item) {
-    return typeof modelApi.collectPrimaryFlowItems === "function" ? modelApi.collectPrimaryFlowItems(item, items) : [];
-  }
-
-  function findManagedItemByReference(rawValue, fallbackUsage) {
-    return typeof modelApi.findManagedItemByReference === "function"
-      ? modelApi.findManagedItemByReference(rawValue, items, fallbackUsage)
-      : null;
-  }
-
-  function normalizeManagedDocValue(value) {
-    return typeof modelApi.normalizeManagedDocValue === "function" ? modelApi.normalizeManagedDocValue(value) : String(value || "");
-  }
-
-  function getVisibleStages() {
-    const visibleStages = [...primaryStageOrder];
-    if (showCompanionDocs) {
-      visibleStages.push(...companionStageOrder);
-    }
-    if (!hideSpec) {
-      visibleStages.push("spec");
-    }
-    return visibleStages;
-  }
-
-  function isComplete(item) {
-    const value = getProgressValue(item);
-    return value !== null && value >= 100;
-  }
-
-  function formatDate(value) {
-    if (!value) {
-      return "-";
-    }
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-    return date.toLocaleString();
-  }
-
-  function normalizeStatus(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase();
-  }
-
-  function isProcessedWorkflowStatus(value) {
-    const normalized = normalizeStatus(value);
-    return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
-  }
-
-  function collectLinkedWorkflowItems(item) {
-    if (!item || item.stage !== "request") {
-      return [];
-    }
-    const linkedPaths = new Set();
-    if (Array.isArray(item.references)) {
-      item.references.forEach((ref) => {
-        if (ref && typeof ref.path === "string") {
-          linkedPaths.add(ref.path.replace(/\\/g, "/"));
-        }
-      });
-    }
-    if (Array.isArray(item.usedBy)) {
-      item.usedBy.forEach((usage) => {
-        if (usage && typeof usage.relPath === "string") {
-          linkedPaths.add(usage.relPath.replace(/\\/g, "/"));
-        }
-      });
-    }
-    return items.filter(
-      (candidate) =>
-        linkedPaths.has(String(candidate.relPath || "").replace(/\\/g, "/")) &&
-        (candidate.stage === "backlog" || candidate.stage === "task")
-    );
-  }
-
-  function isRequestProcessed(item) {
-    return typeof modelApi.isRequestProcessed === "function" ? modelApi.isRequestProcessed(item, items) : false;
-  }
-
-  function progressState(item) {
-    const value = getProgressValue(item);
-    if (value === null) {
-      return "";
-    }
-    if (value <= 0) {
-      return "card--progress-zero";
-    }
-    if (value >= 100) {
-      return "card--progress-done";
-    }
-    return "card--progress-active";
-  }
-
-  function getProgressValue(item) {
-    const indicators = item && item.indicators ? item.indicators : {};
-    const progressKey = Object.keys(indicators).find((key) => key.toLowerCase().includes("progress"));
-    if (!progressKey) {
-      return null;
-    }
-    const progressRaw = indicators[progressKey];
-    const match = String(progressRaw).match(/(\d+(?:\.\d+)?)/);
-    if (!match) {
-      return null;
-    }
-    const value = Number(match[1]);
-    return Number.isFinite(value) ? value : null;
-  }
-
-  function setControlDescription(element, label) {
-    if (!element || !label) {
-      return;
-    }
-    if (!element.getAttribute("aria-label")) {
-      element.setAttribute("aria-label", label);
-    }
-    element.title = label;
+    applyToolsPanelOpen(isOpen);
   }
 
   const markdownApi = typeof markdownApiFactory === "function" ? markdownApiFactory() : null;
@@ -1168,34 +828,6 @@
       setToolsPanelOpen(!toolsPanelOpen);
     });
   }
-  function persistState() {
-    captureScrollState();
-    vscode.setState({
-      workspaceRoot: activeWorkspaceRoot,
-      selectedId,
-      hideCompleted,
-      hideProcessedRequests,
-      hideSpec,
-      showCompanionDocs,
-      hideEmptyColumns,
-      searchQuery,
-      groupMode,
-      sortMode,
-      secondaryToolbarOpen,
-      activityPanelOpen,
-      attentionOnly,
-      helpDismissed,
-      collapsedListStages: Array.from(collapsedListStages),
-      detailsCollapsed: uiState.detailsCollapsed,
-      collapsedDetailSections: Array.from(collapsedDetailSections),
-      viewMode: uiState.viewMode,
-      splitRatio: uiState.splitRatio,
-      boardScrollLeft: scrollState.boardLeft,
-      boardScrollTop: scrollState.boardTop,
-      detailsScrollTop: scrollState.detailsTop
-    });
-  }
-
   if (hideCompleteToggle) {
     hideCompleteToggle.addEventListener("change", (event) => {
       hideCompleted = Boolean(event.target && event.target.checked);
@@ -1377,74 +1009,7 @@
     }
   });
 
-  if (previousState && typeof previousState.hideCompleted === "boolean") {
-    hideCompleted = previousState.hideCompleted;
-  }
-  if (previousState && typeof previousState.hideProcessedRequests === "boolean") {
-    hideProcessedRequests = previousState.hideProcessedRequests;
-  } else if (previousState && typeof previousState.hideUsedRequests === "boolean") {
-    hideProcessedRequests = previousState.hideUsedRequests;
-  }
-  if (previousState && typeof previousState.hideSpec === "boolean") {
-    hideSpec = previousState.hideSpec;
-  }
-  if (previousState && typeof previousState.showCompanionDocs === "boolean") {
-    showCompanionDocs = previousState.showCompanionDocs;
-  }
-  if (previousState && typeof previousState.hideEmptyColumns === "boolean") {
-    hideEmptyColumns = previousState.hideEmptyColumns;
-  }
-  if (previousState && typeof previousState.searchQuery === "string") {
-    searchQuery = previousState.searchQuery;
-  }
-  if (previousState && typeof previousState.groupMode === "string") {
-    groupMode = previousState.groupMode;
-  }
-  if (previousState && typeof previousState.sortMode === "string") {
-    sortMode = previousState.sortMode;
-  }
-  if (previousState && typeof previousState.activityPanelOpen === "boolean") {
-    activityPanelOpen = previousState.activityPanelOpen;
-  }
-  if (previousState && typeof previousState.attentionOnly === "boolean") {
-    attentionOnly = previousState.attentionOnly;
-  }
-  if (previousState && typeof previousState.helpDismissed === "boolean") {
-    helpDismissed = previousState.helpDismissed;
-  }
-  if (previousState && typeof previousState.secondaryToolbarOpen === "boolean") {
-    secondaryToolbarOpen = previousState.secondaryToolbarOpen;
-  }
-  if (previousState && typeof previousState.selectedId === "string") {
-    selectedId = previousState.selectedId;
-  }
-  if (previousState && typeof previousState.workspaceRoot === "string") {
-    persistedWorkspaceRoot = previousState.workspaceRoot;
-  }
-  if (previousState && Array.isArray(previousState.collapsedListStages)) {
-    collapsedListStages = new Set(previousState.collapsedListStages);
-  }
-  if (previousState && typeof previousState.detailsCollapsed === "boolean") {
-    uiState.detailsCollapsed = previousState.detailsCollapsed;
-  }
-  if (previousState && Array.isArray(previousState.collapsedDetailSections)) {
-    collapsedDetailSections = new Set(previousState.collapsedDetailSections);
-  }
-  if (previousState && (previousState.viewMode === "board" || previousState.viewMode === "list")) {
-    uiState.viewMode = previousState.viewMode;
-  }
-  if (previousState && typeof previousState.splitRatio === "number") {
-    uiState.splitRatio = previousState.splitRatio;
-  }
-  if (previousState && typeof previousState.boardScrollLeft === "number") {
-    scrollState.boardLeft = previousState.boardScrollLeft;
-  }
-  if (previousState && typeof previousState.boardScrollTop === "number") {
-    scrollState.boardTop = previousState.boardScrollTop;
-  }
-  if (previousState && typeof previousState.detailsScrollTop === "number") {
-    scrollState.detailsTop = previousState.detailsScrollTop;
-  }
+  hydratePersistedState(previousState);
 
   document.addEventListener("click", (event) => {
     if (toolsPanelOpen && toolsPanel && toolsToggle) {

@@ -202,6 +202,9 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   const harnessApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/harnessApi.js"), "utf8");
   const layoutControllerScript = fs.readFileSync(path.resolve(process.cwd(), "media/layoutController.js"), "utf8");
   const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
+  const webviewSelectorsScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewSelectors.js"), "utf8");
+  const webviewPersistenceScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewPersistence.js"), "utf8");
+  const webviewChromeScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewChrome.js"), "utf8");
   const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
   const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
   const renderMarkdownScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderMarkdown.js"), "utf8");
@@ -211,6 +214,9 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   dom.window.eval(harnessApiScript);
   dom.window.eval(layoutControllerScript);
   dom.window.eval(hostApiScript);
+  dom.window.eval(webviewSelectorsScript);
+  dom.window.eval(webviewPersistenceScript);
+  dom.window.eval(webviewChromeScript);
   dom.window.eval(renderBoardScript);
   dom.window.eval(renderDetailsScript);
   dom.window.eval(renderMarkdownScript);

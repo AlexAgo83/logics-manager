@@ -1328,6 +1328,15 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
     const harnessApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "harnessApi.js"));
     const layoutControllerScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "layoutController.js"));
     const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "hostApi.js"));
+    const webviewSelectorsScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewSelectors.js")
+    );
+    const webviewPersistenceScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewPersistence.js")
+    );
+    const webviewChromeScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewChrome.js")
+    );
     const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderBoard.js"));
     const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderDetails.js"));
     const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderMarkdown.js"));
@@ -1497,6 +1506,9 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
   <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>
   <script nonce="${nonce}" src="${layoutControllerScriptUri}"></script>
   <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
+  <script nonce="${nonce}" src="${webviewSelectorsScriptUri}"></script>
+  <script nonce="${nonce}" src="${webviewPersistenceScriptUri}"></script>
+  <script nonce="${nonce}" src="${webviewChromeScriptUri}"></script>
   <script nonce="${nonce}" src="${renderBoardScriptUri}"></script>
   <script nonce="${nonce}" src="${renderDetailsScriptUri}"></script>
   <script nonce="${nonce}" src="${renderMarkdownScriptUri}"></script>

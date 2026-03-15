@@ -1,9 +1,9 @@
 ## task_061_split_webview_entrypoint_into_state_selector_and_orchestration_modules - Split webview entrypoint into state, selector, and orchestration modules
 > From version: 1.10.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Webview modularity and UI-state architecture
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -15,11 +15,11 @@
 - Architectural direction in `adr_004_scale_the_plugin_around_a_derived_model_and_explicit_ui_state`.
 
 # Plan
-- [ ] 1. Keep `main.js` as the webview bootstrap/composition shell.
-- [ ] 2. Extract modules for UI state, persistence, selectors, and high-level orchestration.
-- [ ] 3. Preserve shared behavioral rules across board, list, details, and auxiliary panels.
-- [ ] 4. Keep the split aligned with `adr_004` and avoid circular or overly fragmented dependencies.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Keep `main.js` as the webview bootstrap/composition shell.
+- [x] 2. Extract modules for UI state, persistence, selectors, and high-level orchestration.
+- [x] 3. Preserve shared behavioral rules across board, list, details, and auxiliary panels.
+- [x] 4. Keep the split aligned with `adr_004` and avoid circular or overly fragmented dependencies.
+- [x] FINAL: Update related Logics docs
 
 # Links
 - Backlog item: `item_056_split_webview_entrypoint_into_state_selector_and_orchestration_modules`
@@ -31,7 +31,7 @@
 - `npm test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status and progress updated.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status and progress updated.

@@ -39,16 +39,25 @@
   const hideSpecToggle = document.getElementById("hide-spec");
   const showCompanionDocsToggle = document.getElementById("show-companion-docs");
   const hideEmptyColumnsToggle = document.getElementById("hide-empty-columns");
+  const filterResetButton = document.getElementById("filter-reset");
   const harnessBridge = window.__CDX_LOGICS_HARNESS__;
   const isHarnessMode = Boolean(harnessBridge && harnessBridge.isHarness);
 
+  const defaultFilterState = {
+    hideCompleted: true,
+    hideProcessedRequests: true,
+    hideSpec: true,
+    showCompanionDocs: true,
+    hideEmptyColumns: true
+  };
+
   let items = [];
   let selectedId = null;
-  let hideCompleted = true;
-  let hideProcessedRequests = true;
-  let hideSpec = true;
-  let showCompanionDocs = true;
-  let hideEmptyColumns = true;
+  let hideCompleted = defaultFilterState.hideCompleted;
+  let hideProcessedRequests = defaultFilterState.hideProcessedRequests;
+  let hideSpec = defaultFilterState.hideSpec;
+  let showCompanionDocs = defaultFilterState.showCompanionDocs;
+  let hideEmptyColumns = defaultFilterState.hideEmptyColumns;
   let collapsedStages = new Set();
   const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
@@ -349,6 +358,14 @@
       "toolbar__filter--active",
       hideCompleted || hideProcessedRequests || hideSpec || showCompanionDocs || hideEmptyColumns
     );
+  }
+
+  function restoreDefaultFilters() {
+    hideCompleted = defaultFilterState.hideCompleted;
+    hideProcessedRequests = defaultFilterState.hideProcessedRequests;
+    hideSpec = defaultFilterState.hideSpec;
+    showCompanionDocs = defaultFilterState.showCompanionDocs;
+    hideEmptyColumns = defaultFilterState.hideEmptyColumns;
   }
 
   function setFilterPanelOpen(isOpen) {
@@ -820,6 +837,14 @@
   if (hideEmptyColumnsToggle) {
     hideEmptyColumnsToggle.addEventListener("change", (event) => {
       hideEmptyColumns = Boolean(event.target && event.target.checked);
+      persistState();
+      updateFilterState();
+      render();
+    });
+  }
+  if (filterResetButton) {
+    filterResetButton.addEventListener("click", () => {
+      restoreDefaultFilters();
       persistState();
       updateFilterState();
       render();

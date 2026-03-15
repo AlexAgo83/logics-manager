@@ -1381,6 +1381,7 @@ class LogicsViewProvider implements vscode.WebviewViewProvider {
             <input type="checkbox" id="hide-empty-columns" />
             <span>Hide empty columns</span>
           </label>
+          <button class="filter-panel__reset" type="button" id="filter-reset">Reset</button>
         </div>
         <div class="toolbar__tools">
           <button

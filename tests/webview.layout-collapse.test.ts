@@ -26,7 +26,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
     <html>
       <body>
         <button id="filter-toggle"></button>
-        <div id="filter-panel"></div>
+        <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
         <button id="tools-toggle"></button>
         <div id="tools-panel"></div>
         <button data-action="refresh"></button>

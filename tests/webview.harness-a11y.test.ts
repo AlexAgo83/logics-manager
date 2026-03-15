@@ -18,7 +18,7 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
       <body>
         <div class="toolbar">
           <button id="filter-toggle" class="toolbar__filter"></button>
-          <div id="filter-panel"></div>
+          <div id="filter-panel"><button id="filter-reset" type="button"></button></div>
           <button id="tools-toggle" class="toolbar__filter"></button>
           <div id="tools-panel"></div>
           <button data-action="toggle-view-mode"></button>
@@ -847,6 +847,46 @@ describe("webview harness controls and accessibility", () => {
     expect(specsToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(referencesToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(usedByToggle?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("resets filter toggles back to their default state without changing unrelated UI state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
+    const completeToggle = document.getElementById("hide-complete") as HTMLInputElement | null;
+    const companionToggle = document.getElementById("show-companion-docs") as HTMLInputElement | null;
+    const resetButton = document.getElementById("filter-reset") as HTMLButtonElement | null;
+    const detailsToggle = document.getElementById("details-toggle");
+
+    detailsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.getElementById("details")?.classList.contains("details--collapsed")).toBe(true);
+
+    if (processedToggle) {
+      processedToggle.checked = false;
+      processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    if (completeToggle) {
+      completeToggle.checked = false;
+      completeToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    if (companionToggle) {
+      companionToggle.checked = false;
+      companionToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    resetButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(processedToggle?.checked).toBe(true);
+    expect(completeToggle?.checked).toBe(true);
+    expect(companionToggle?.checked).toBe(true);
+    expect(document.getElementById("details")?.classList.contains("details--collapsed")).toBe(true);
+    expect(persistedStates.some((state) => state.hideProcessedRequests === true && state.hideCompleted === true)).toBe(true);
   });
 
   it("offers explicit product and architecture companion actions when framing docs are missing", () => {

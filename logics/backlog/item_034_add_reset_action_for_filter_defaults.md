@@ -1,9 +1,9 @@
 ## item_034_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -40,11 +40,11 @@ This is not a missing filter option. It is a missing recovery action. Without a 
 - AC6: Webview tests verify that reset restores both the filter values and the rendered default view.
 
 # AC Traceability
-- AC1 -> filter panel markup and control placement in the webview shell. Proof: TODO.
-- AC2 -> centralized default-filter values or equivalent reset source of truth. Proof: TODO.
-- AC3/AC4 -> reset handler updates state, persists state, and triggers rerender immediately. Proof: TODO.
-- AC5 -> reset path stays scoped to filter state only. Proof: TODO.
-- AC6 -> harness tests cover restored checkbox state and restored visible sections/cards/columns. Proof: TODO.
+- AC1 -> filter panel markup and control placement in the webview shell. Proof: `src/extension.ts`, `media/css/toolbar.css`.
+- AC2 -> centralized default-filter values or equivalent reset source of truth. Proof: `media/main.js`.
+- AC3/AC4 -> reset handler updates state, persists state, and triggers rerender immediately. Proof: `media/main.js`.
+- AC5 -> reset path stays scoped to filter state only. Proof: `media/main.js`.
+- AC6 -> harness tests cover restored checkbox state and restored visible sections/cards/columns. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

@@ -1,6 +1,6 @@
 ## req_028_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
 > Complexity: Low

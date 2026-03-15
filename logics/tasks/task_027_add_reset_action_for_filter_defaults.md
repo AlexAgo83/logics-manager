@@ -1,9 +1,9 @@
 ## task_027_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 98%
 > Confidence: 97%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,12 +23,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify or centralize the canonical default filter values used by the webview.
-- [ ] 2. Add a `Reset` control in the last position of the filter panel.
-- [ ] 3. Implement a reset handler that restores only filter state and leaves search/view/collapse state untouched.
-- [ ] 4. Persist the restored defaults and trigger immediate rerender.
-- [ ] 5. Add/adjust harness tests for reset state and rendered default view recovery.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify or centralize the canonical default filter values used by the webview.
+- [x] 2. Add a `Reset` control in the last position of the filter panel.
+- [x] 3. Implement a reset handler that restores only filter state and leaves search/view/collapse state untouched.
+- [x] 4. Persist the restored defaults and trigger immediate rerender.
+- [x] 5. Add/adjust harness tests for reset state and rendered default view recovery.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Step 2.

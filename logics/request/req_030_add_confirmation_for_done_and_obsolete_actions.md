@@ -1,6 +1,6 @@
 ## req_030_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Low

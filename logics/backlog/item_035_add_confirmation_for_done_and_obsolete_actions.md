@@ -1,9 +1,9 @@
 ## item_035_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
 > From version: 1.9.2
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,11 +36,11 @@ That makes accidental clicks too risky for a narrow operational UI. A post-actio
 - AC8: Tests cover both confirmed and cancelled paths where practical.
 
 # AC Traceability
-- AC1/AC2 -> host-side lifecycle action entry points add confirmation before calling the write path. Proof: TODO.
-- AC3 -> cancelled confirmation exits without calling indicator update logic. Proof: TODO.
-- AC4/AC7 -> existing lifecycle update and refresh path remains reused after confirmation. Proof: TODO.
-- AC5/AC6 -> confirmation copy includes item identity and action-specific wording. Proof: TODO.
-- AC8 -> tests validate both confirm and cancel outcomes. Proof: TODO.
+- AC1/AC2 -> lifecycle action entry points confirm before posting host mutations. Proof: `media/hostApi.js`, `media/main.js`.
+- AC3 -> cancelled confirmation exits without posting lifecycle actions. Proof: `media/hostApi.js`, `tests/webview.harness-a11y.test.ts`.
+- AC4/AC7 -> existing lifecycle update and refresh path remains reused after confirmation. Proof: `src/extension.ts`.
+- AC5/AC6 -> confirmation copy includes item identity and action-specific wording. Proof: `media/hostApi.js`.
+- AC8 -> tests validate both confirm and cancel outcomes. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

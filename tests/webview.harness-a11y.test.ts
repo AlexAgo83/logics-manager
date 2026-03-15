@@ -9,6 +9,7 @@ type BootstrapOptions = {
   harness?: boolean;
   showDirectoryPicker?: () => Promise<{ name?: string }>;
   fetchImpl?: (url: string) => Promise<{ ok: boolean; status: number; text: () => Promise<string> }>;
+  confirmImpl?: (message: string) => boolean;
 };
 
 function bootstrapWebview(options: BootstrapOptions = {}) {
@@ -137,6 +138,17 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
     }
   });
 
+  const confirmMessages: string[] = [];
+  Object.defineProperty(dom.window, "confirm", {
+    value: (message: string) => {
+      confirmMessages.push(String(message));
+      if (options.confirmImpl) {
+        return options.confirmImpl(String(message));
+      }
+      return true;
+    }
+  });
+
   if (options.showDirectoryPicker) {
     Object.defineProperty(dom.window, "showDirectoryPicker", {
       value: options.showDirectoryPicker
@@ -195,7 +207,18 @@ function bootstrapWebview(options: BootstrapOptions = {}) {
     emitMediaChange("(max-width: 500px)");
   };
 
-  return { dom, postedMessages, openedUrls, openedDocuments, setProjectRootCalls, fetchCalls, persistedStates, setStacked, setNarrow };
+  return {
+    dom,
+    postedMessages,
+    openedUrls,
+    openedDocuments,
+    setProjectRootCalls,
+    fetchCalls,
+    persistedStates,
+    confirmMessages,
+    setStacked,
+    setNarrow
+  };
 }
 
 function pushData(
@@ -1068,7 +1091,7 @@ describe("webview harness controls and accessibility", () => {
   });
 
   it("posts lifecycle actions in non-harness mode", () => {
-    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    const { dom, postedMessages, confirmMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {
       root: "/workspace/mock",
       selectedId: "req_000_kickoff",
@@ -1082,6 +1105,29 @@ describe("webview harness controls and accessibility", () => {
 
     expect(postedMessages.some((message) => message.type === "mark-done")).toBe(true);
     expect(postedMessages.some((message) => message.type === "mark-obsolete")).toBe(true);
+    expect(confirmMessages[0]).toContain("Mark req_000_kickoff");
+    expect(confirmMessages[1]).toContain("Mark req_000_kickoff");
+    expect(confirmMessages[1]).toContain("obsolete");
+  });
+
+  it("does not post lifecycle actions when confirmation is cancelled", () => {
+    const { dom, postedMessages } = bootstrapWebview({
+      harness: false,
+      confirmImpl: () => false
+    });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
+    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
+    doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    obsoleteButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "mark-done")).toBe(false);
+    expect(postedMessages.some((message) => message.type === "mark-obsolete")).toBe(false);
   });
 
   it("adds discoverable labels/tooltips and keyboard-accessible card interactions", () => {

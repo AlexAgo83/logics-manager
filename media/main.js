@@ -872,14 +872,16 @@
   });
   if (markDoneButton) {
     markDoneButton.addEventListener("click", () => {
-      if (!selectedId) return;
-      hostApi.markDone(selectedId);
+      const item = items.find((entry) => entry.id === selectedId);
+      if (!item) return;
+      hostApi.markDone(item);
     });
   }
   if (markObsoleteButton) {
     markObsoleteButton.addEventListener("click", () => {
-      if (!selectedId) return;
-      hostApi.markObsolete(selectedId);
+      const item = items.find((entry) => entry.id === selectedId);
+      if (!item) return;
+      hostApi.markObsolete(item);
     });
   }
 

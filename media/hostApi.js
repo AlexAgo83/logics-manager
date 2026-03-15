@@ -25,6 +25,19 @@
       post({ type, ...payload });
     }
 
+    function confirmLifecycleAction(item, action) {
+      if (!item) {
+        return false;
+      }
+      const itemLabel = item.title ? `${item.id} (${item.title})` : item.id;
+      if (action === "obsolete") {
+        return window.confirm(
+          `Mark ${itemLabel} as obsolete?\n\nThis is a more cautionary lifecycle change and should only be used when the item should no longer be pursued.`
+        );
+      }
+      return window.confirm(`Mark ${itemLabel} as done?`);
+    }
+
     return {
       post,
       ready() {
@@ -63,11 +76,17 @@
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");
       },
-      markDone(id) {
-        invokeHostOnly("mark-done", { id }, "Mark as done");
+      markDone(item) {
+        if (!confirmLifecycleAction(item, "done")) {
+          return;
+        }
+        invokeHostOnly("mark-done", { id: item.id }, "Mark as done");
       },
-      markObsolete(id) {
-        invokeHostOnly("mark-obsolete", { id }, "Mark as obsolete");
+      markObsolete(item) {
+        if (!confirmLifecycleAction(item, "obsolete")) {
+          return;
+        }
+        invokeHostOnly("mark-obsolete", { id: item.id }, "Mark as obsolete");
       },
       async changeProjectRoot() {
         if (isHarnessMode) {

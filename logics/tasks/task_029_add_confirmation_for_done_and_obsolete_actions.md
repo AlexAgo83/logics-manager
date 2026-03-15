@@ -1,9 +1,9 @@
 ## task_029_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,12 +23,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify the current host-side entry points for `Done` and `Obsolete`.
-- [ ] 2. Add confirmation before the lifecycle write path for both actions.
-- [ ] 3. Use action-specific copy: lightweight for `Done`, more cautious for `Obsolete`.
-- [ ] 4. Preserve the current success message and refresh behavior after confirmed updates.
-- [ ] 5. Add/adjust tests for confirmed and cancelled paths.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify the current host-side entry points for `Done` and `Obsolete`.
+- [x] 2. Add confirmation before the lifecycle write path for both actions.
+- [x] 3. Use action-specific copy: lightweight for `Done`, more cautious for `Obsolete`.
+- [x] 4. Preserve the current success message and refresh behavior after confirmed updates.
+- [x] 5. Add/adjust tests for confirmed and cancelled paths.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2 -> Step 2.

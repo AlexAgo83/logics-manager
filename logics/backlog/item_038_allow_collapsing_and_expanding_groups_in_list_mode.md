@@ -1,9 +1,9 @@
 ## item_038_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -37,12 +37,12 @@ Without per-group collapse/expand, list mode can trade horizontal clarity for ex
 - AC8: Webview tests cover the new group collapse/expand behavior in list mode.
 
 # AC Traceability
-- AC1/AC2/AC3 -> list-view group headers and bodies gain collapse state and toggling behavior. Proof: TODO.
-- AC4 -> behavior is validated across primary-flow and optional visible groups. Proof: TODO.
-- AC5 -> list header layout stays stable in expanded and collapsed states. Proof: TODO.
-- AC6 -> item interaction behavior remains intact after toggle cycles. Proof: TODO.
-- AC7 -> any persisted list-group state is isolated and restored safely. Proof: TODO.
-- AC8 -> harness coverage locks the new collapse/expand behavior. Proof: TODO.
+- AC1/AC2/AC3 -> list-view group headers are now interactive buttons that collapse and expand their section bodies in place. Proof: `media/renderBoard.js`.
+- AC4 -> the collapse state is stage-based, so it applies equally to primary-flow groups and optional visible groups such as companion docs or `SPEC`. Proof: `media/renderBoard.js`.
+- AC5 -> the list header remains rendered as a stable full-width control with a lightweight chevron affordance in either state. Proof: `media/css/board.css`.
+- AC6 -> toggling only hides section bodies and does not change item-card rendering or selection wiring. Proof: `media/renderBoard.js`.
+- AC7 -> collapsed list stages persist through webview state using an isolated `collapsedListStages` bucket. Proof: `media/main.js`.
+- AC8 -> harness coverage verifies collapse/expand state and persistence for list groups. Proof: `tests/webview.harness-a11y.test.ts`.
 
 # Priority
 - Impact:

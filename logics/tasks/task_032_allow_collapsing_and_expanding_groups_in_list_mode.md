@@ -1,9 +1,9 @@
 ## task_032_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
 > From version: 1.9.3
-> Status: Proposed
+> Status: Done
 > Understanding: 99%
 > Confidence: 98%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,13 +23,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Identify how list groups are currently rendered and where header controls should live.
-- [ ] 2. Add collapse/expand controls to list-mode group headers while keeping groups expanded by default.
-- [ ] 3. Hide/show group body content while keeping headers visible.
-- [ ] 4. Ensure item selection and navigation still work after toggle cycles.
-- [ ] 5. Decide and implement safe persistence behavior for list-group collapse state.
-- [ ] 6. Add/adjust tests for list-group collapse/expand behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Identify how list groups are currently rendered and where header controls should live.
+- [x] 2. Add collapse/expand controls to list-mode group headers while keeping groups expanded by default.
+- [x] 3. Hide/show group body content while keeping headers visible.
+- [x] 4. Ensure item selection and navigation still work after toggle cycles.
+- [x] 5. Decide and implement safe persistence behavior for list-group collapse state.
+- [x] 6. Add/adjust tests for list-group collapse/expand behavior.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1/AC2/AC3 -> Steps 2 and 3.
@@ -49,7 +49,7 @@ flowchart LR
 - `npm test -- tests/webview.layout-collapse.test.ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.

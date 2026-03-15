@@ -261,11 +261,25 @@
 }
 
 .list-view__header {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--vscode-descriptionForeground, #9da5b4);
   padding: 0 12px 6px;
+  cursor: pointer;
+}
+
+.list-view__header-icon {
+  display: inline-flex;
+  width: 10px;
+  justify-content: center;
 }
 
 .list-view__body {

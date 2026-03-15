@@ -511,6 +511,40 @@ describe("webview harness controls and accessibility", () => {
     expect(modeButton?.disabled).toBe(false);
   });
 
+  it("allows collapsing and expanding list groups and persists their state", () => {
+    const { dom, persistedStates } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const getHeader = () =>
+      document.querySelector('.list-view__section[data-stage="request"] .list-view__header') as HTMLButtonElement | null;
+    const getBody = () => document.getElementById("list-section-request");
+
+    expect(getHeader()?.getAttribute("aria-expanded")).toBe("true");
+    expect(getBody()?.hidden).toBe(false);
+
+    getHeader()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const collapsedHeader = getHeader();
+    const collapsedBody = getBody();
+    expect(collapsedHeader?.getAttribute("aria-expanded")).toBe("false");
+    expect(collapsedBody?.hidden).toBe(true);
+    expect(persistedStates.some((state) => Array.isArray(state.collapsedListStages) && state.collapsedListStages.includes("request"))).toBe(true);
+
+    collapsedHeader?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const expandedHeader = getHeader();
+    const expandedBody = getBody();
+    expect(expandedHeader?.getAttribute("aria-expanded")).toBe("true");
+    expect(expandedBody?.hidden).toBe(false);
+  });
+
   it("hides SPEC by default and applies the toggle in board and list modes", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {

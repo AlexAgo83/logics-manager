@@ -7,6 +7,10 @@
     `;
   }
 
+  function chevronIcon(isCollapsed) {
+    return isCollapsed ? "▸" : "▾";
+  }
+
   function createCompanionBadge(label, count, tone) {
     const badge = document.createElement("span");
     badge.className = `card__badge card__badge--${tone}`;
@@ -40,6 +44,8 @@
       openSelectedItem,
       closeColumnMenu,
       toggleColumnMenu,
+      persistState,
+      getCollapsedListStages,
       getHideCompleted,
       getHideProcessedRequests,
       getHideSpec,
@@ -301,14 +307,40 @@
         section.className = "list-view__section";
         section.dataset.stage = stage;
 
-        const header = document.createElement("div");
-        header.className = "list-view__header";
         const stageItems = grouped[stage] || [];
-        header.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
+        const isCollapsed = getCollapsedListStages().has(stage);
+
+        const header = document.createElement("button");
+        header.type = "button";
+        header.className = "list-view__header";
+        header.setAttribute("aria-expanded", String(!isCollapsed));
+        header.setAttribute("aria-controls", `list-section-${stage}`);
+
+        const chevron = document.createElement("span");
+        chevron.className = "list-view__header-icon";
+        chevron.setAttribute("aria-hidden", "true");
+        chevron.textContent = chevronIcon(isCollapsed);
+        header.appendChild(chevron);
+
+        const label = document.createElement("span");
+        label.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
+        header.appendChild(label);
+        header.addEventListener("click", () => {
+          const collapsedStages = getCollapsedListStages();
+          if (collapsedStages.has(stage)) {
+            collapsedStages.delete(stage);
+          } else {
+            collapsedStages.add(stage);
+          }
+          persistState();
+          render();
+        });
         section.appendChild(header);
 
         const body = document.createElement("div");
         body.className = "list-view__body";
+        body.id = `list-section-${stage}`;
+        body.hidden = isCollapsed;
         if (!stageItems.length) {
           const empty = document.createElement("div");
           empty.className = "list-view__empty";

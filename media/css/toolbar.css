@@ -21,6 +21,7 @@
 
 .toolbar__row--primary {
   justify-content: space-between;
+  flex-wrap: nowrap;
 }
 
 .toolbar__row--secondary {
@@ -44,9 +45,12 @@
 .toolbar__buttons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .toolbar__search {
@@ -370,12 +374,13 @@
   color: var(--vscode-button-foreground, #ffffff);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 275px) {
   .toolbar__row--primary {
     flex-wrap: wrap;
   }
 
   .toolbar__buttons {
+    flex-wrap: wrap;
     margin-left: 0;
     width: 100%;
   }

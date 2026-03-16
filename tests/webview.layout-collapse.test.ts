@@ -395,6 +395,20 @@ describe("webview collapsed details layout behavior", () => {
     expect(metaRule.includes("overflow-wrap: anywhere;")).toBe(true);
   });
 
+  it("keeps the primary header actions on one line until the narrow breakpoint", () => {
+    const css = readCssBundle("media/main.css");
+    const primaryRowRule = getCssRule(css, ".toolbar__row--primary");
+    const buttonsRules = getCssRules(css, ".toolbar__buttons");
+    const buttonsRule = buttonsRules.find((rule) => rule.includes("white-space: nowrap;")) || "";
+    const narrowMediaBlock = css.match(/@media \(max-width: 560px\)\s*\{[\s\S]*?\n\}/)?.[0] || "";
+
+    expect(primaryRowRule.includes("flex-wrap: nowrap;")).toBe(true);
+    expect(buttonsRule.includes("flex-wrap: nowrap;")).toBe(true);
+    expect(buttonsRule.includes("white-space: nowrap;")).toBe(true);
+    expect(narrowMediaBlock.includes(".toolbar__buttons")).toBe(true);
+    expect(narrowMediaBlock.includes("flex-wrap: wrap;")).toBe(true);
+  });
+
   it("keeps detail indicators in a stable two-column grid for long labels and values", () => {
     const css = readCssBundle("media/main.css");
     const indicatorRule = css.match(/\.details__reference,\s*\.details__indicator\s*\{[^}]+\}/)?.[0] || "";

@@ -121,15 +121,25 @@
       return actions;
     }
 
+    function createValueContainer(value) {
+      const container = document.createElement("div");
+      container.className = "details__indicator-value";
+      if (value !== undefined && value !== null && value !== "") {
+        const text = document.createElement("div");
+        text.className = "details__indicator-text";
+        text.textContent = value;
+        container.appendChild(text);
+      }
+      return container;
+    }
+
     function createIndicatorRow(label, value) {
       const row = document.createElement("div");
       row.className = "details__indicator";
       const left = document.createElement("div");
       left.className = "details__indicator-label";
       left.textContent = label;
-      const right = document.createElement("span");
-      right.className = "details__indicator-value";
-      right.textContent = value ?? "";
+      const right = createValueContainer(value ?? "");
       row.appendChild(left);
       row.appendChild(right);
       return row;
@@ -139,10 +149,11 @@
       if (!targetItem) {
         return;
       }
-      container.appendChild(document.createTextNode(" "));
-      container.appendChild(createInlineCta("Open", () => hostApi.openItem(targetItem, "open")));
-      container.appendChild(document.createTextNode(" "));
-      container.appendChild(createInlineCta("Read", () => hostApi.openItem(targetItem, "read")));
+      const actions = document.createElement("div");
+      actions.className = "details__indicator-actions";
+      actions.appendChild(createInlineCta("Open", () => hostApi.openItem(targetItem, "open")));
+      actions.appendChild(createInlineCta("Read", () => hostApi.openItem(targetItem, "read")));
+      container.appendChild(actions);
     }
 
     function createLinkedIndicatorRow(label, value, targetItem) {
@@ -154,9 +165,7 @@
       const left = document.createElement("div");
       left.className = "details__indicator-label";
       left.textContent = label;
-      const right = document.createElement("span");
-      right.className = "details__indicator-value";
-      right.appendChild(document.createTextNode(value ?? ""));
+      const right = createValueContainer(value ?? "");
       appendManagedDocActions(right, targetItem);
       row.appendChild(left);
       row.appendChild(right);
@@ -170,16 +179,24 @@
       info.className = "details__indicator-label";
       info.textContent = `${getStageLabel(companion.stage)} • ${companion.id}`;
 
-      const actions = document.createElement("span");
-      actions.className = "details__indicator-value";
+      const actions = createValueContainer("");
       if (companion.title && companion.title !== companion.relPath && companion.title !== companion.id) {
-        actions.textContent = companion.title;
+        const text = document.createElement("div");
+        text.className = "details__indicator-text";
+        text.textContent = companion.title;
+        actions.appendChild(text);
       } else if (companion.relPath) {
-        actions.textContent = companion.relPath;
+        const text = document.createElement("div");
+        text.className = "details__indicator-text";
+        text.textContent = companion.relPath;
+        actions.appendChild(text);
       }
       if (companion.item) {
-        actions.textContent = "";
-        actions.appendChild(document.createTextNode(companion.title || companion.relPath || companion.id));
+        actions.replaceChildren();
+        const text = document.createElement("div");
+        text.className = "details__indicator-text";
+        text.textContent = companion.title || companion.relPath || companion.id;
+        actions.appendChild(text);
         appendManagedDocActions(actions, companion.item);
       }
 

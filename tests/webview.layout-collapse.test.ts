@@ -315,7 +315,8 @@ describe("webview collapsed details layout behavior", () => {
     expect(detailsRule.includes("overflow: hidden;")).toBe(true);
     expect(detailsRule.includes("display: grid;")).toBe(true);
     expect(detailsRule.includes("grid-template-rows: auto minmax(0, 1fr) auto;")).toBe(true);
-    expect(detailsBodyRule.includes("overflow: auto;")).toBe(true);
+    expect(detailsBodyRule.includes("overflow-y: auto;")).toBe(true);
+    expect(detailsBodyRule.includes("overflow-x: hidden;")).toBe(true);
     expect(detailsBodyRule.includes("min-height: 0;")).toBe(true);
     expect(detailsActionsRule.includes("align-self: end;")).toBe(true);
     expect(detailsActionsRule.includes("border-top: 1px solid")).toBe(true);
@@ -376,6 +377,8 @@ describe("webview collapsed details layout behavior", () => {
     const indicatorLabelRule = css.match(/\.details__indicator-label,\s*\.details__reference > div\s*\{[^}]+\}/)?.[0] || "";
     const indicatorValueRule =
       css.match(/\.details__indicator-value,\s*\.details__reference > span\s*\{[^}]+\}/)?.[0] || "";
+    const detailsBodyRule = css.match(/\.details__body\s*\{[^}]+\}/)?.[0] || "";
+    const indicatorActionsRule = css.match(/\.details__indicator-actions\s*\{[^}]+\}/)?.[0] || "";
 
     expect(indicatorRule.includes("display: grid;")).toBe(true);
     expect(indicatorRule.includes("grid-template-columns: minmax(96px, 116px) minmax(0, 1fr);")).toBe(true);
@@ -383,7 +386,13 @@ describe("webview collapsed details layout behavior", () => {
     expect(indicatorLabelRule.includes("word-break: normal;")).toBe(true);
     expect(indicatorValueRule.includes("text-align: left;")).toBe(true);
     expect(indicatorValueRule.includes("justify-self: stretch;")).toBe(true);
+    expect(indicatorValueRule.includes("display: flex;")).toBe(true);
+    expect(indicatorValueRule.includes("flex-direction: column;")).toBe(true);
     expect(indicatorValueRule.includes("overflow-wrap: anywhere;")).toBe(true);
+    expect(detailsBodyRule.includes("overflow-x: hidden;")).toBe(true);
+    expect(detailsBodyRule.includes("overflow-y: auto;")).toBe(true);
+    expect(indicatorActionsRule.includes("display: flex;")).toBe(true);
+    expect(indicatorActionsRule.includes("flex-wrap: wrap;")).toBe(true);
   });
 
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {

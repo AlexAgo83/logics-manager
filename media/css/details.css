@@ -78,7 +78,8 @@
 .details__body {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .details--collapsed .details__body {
@@ -311,11 +312,29 @@
   color: var(--vscode-foreground, #d4d4d4);
   text-align: left;
   justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.details__indicator-value .details__inline-cta,
-.details__reference > span .details__inline-cta {
-  margin-top: 4px;
+.details__indicator-text {
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.details__indicator-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.details__indicator-actions .details__inline-cta {
+  margin-top: 0;
 }

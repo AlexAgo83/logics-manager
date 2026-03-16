@@ -369,6 +369,50 @@ describe("webview harness filters, details, and docs", () => {
     expect(postedMessages.some((message) => message.type === "read" && message.id === "prod_000_plugin_ux")).toBe(true);
   });
 
+  it("groups managed reference actions under the wrapped value container", () => {
+    const { dom } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [
+        {
+          ...baseItem,
+          usedBy: [
+            {
+              kind: "request",
+              stage: "request",
+              id: "req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass",
+              title: "Reduce remaining oversized files after the first modularization pass",
+              relPath: "logics/request/req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass.md"
+            }
+          ]
+        },
+        {
+          ...baseItem,
+          id: "req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass",
+          stage: "request",
+          title: "Reduce remaining oversized files after the first modularization pass",
+          relPath: "logics/request/req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass.md",
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    const usedBySection = Array.from(detailsBody?.querySelectorAll(".details__section") || []).find((section) =>
+      section.textContent?.includes("Used by")
+    );
+    const valueContainer = usedBySection?.querySelector(".details__indicator-value");
+    const text = valueContainer?.querySelector(".details__indicator-text");
+    const actions = valueContainer?.querySelector(".details__indicator-actions");
+    const labels = Array.from(actions?.querySelectorAll(".details__inline-cta") || []).map((button) => button.textContent?.trim());
+
+    expect(text?.textContent).toContain("Reduce remaining oversized files after the first modularization pass");
+    expect(actions).not.toBeNull();
+    expect(labels).toEqual(expect.arrayContaining(["Open", "Read"]));
+  });
+
   it("shows companion badges on delivery cards when linked docs exist", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {

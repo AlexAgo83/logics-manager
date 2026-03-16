@@ -1,9 +1,9 @@
 ## item_066_explain_attention_reasons_and_suggested_remediation - Explain attention reasons and suggested remediation
-> From version: 1.10.4
+> From version: 1.10.5
 > Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 0% planned
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -85,6 +85,6 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map`
 - Request: `req_056_add_codex_context_pack_attention_explain_and_dependency_map`
 - Primary task(s): `task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map`

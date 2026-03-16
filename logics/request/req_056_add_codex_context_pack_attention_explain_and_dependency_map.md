@@ -1,8 +1,8 @@
 ## req_056_add_codex_context_pack_attention_explain_and_dependency_map - Add codex context pack, attention explain, and dependency map
-> From version: 1.10.4
+> From version: 1.10.5
 > Status: Ready
-> Understanding: 97%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -93,9 +93,21 @@ flowchart TD
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
 
+# AC Traceability
+- AC1 -> `item_065` and `task_070`. Proof: the backlog slice and orchestration task define default context-pack scope, structure, and selected-item launch behavior.
+- AC2 -> `item_066` and `task_070`. Proof: the backlog slice and orchestration task define explicit attention reasons instead of a silent aggregate signal.
+- AC3 -> `item_066` and `task_070`. Proof: the planned reason taxonomy and remediation guidance are captured for blocked, orphaned, inconsistent, and missing-supporting-doc cases.
+- AC4 -> `item_067` and `task_070`. Proof: the backlog slice and orchestration task define a dependency-map feature built from the managed Logics relationship graph.
+- AC5 -> `item_067` and `task_070`. Proof: the selected-item subgraph and node-selection synchronization contract are captured in the dependency-map slice.
+- AC6 -> `item_065`, `item_066`, `item_067`, `task_070`, and `adr_007`. Proof: the backlog slices, orchestration task, and ADR all require one shared relationship-reasoning layer instead of separate feature-local traversal logic.
+- AC7 -> `task_070`. Proof: the orchestration task fixes the implementation order as shared reasoning first, then context pack, then attention explain, then dependency map, and allows phased release across multiple versions.
+
 # Companion docs
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map`
+
+# Task
+- `task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map`
 
 # Backlog
 - `item_065_build_codex_context_pack_for_related_logics_docs`

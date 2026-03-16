@@ -1,9 +1,9 @@
 ## task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map - Orchestration delivery for req 056 context pack attention explain and dependency map
-> From version: 1.10.4
+> From version: 1.10.5
 > Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 0% planned
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -50,6 +50,7 @@ flowchart LR
 - item067-AC1/item067-AC2 -> Step 4. Proof: TODO.
 - item067-AC3/item067-AC4 -> Step 4. Proof: TODO.
 - item065-AC6/item066-AC6/item067-AC6 -> Step 5. Proof: TODO.
+- req056-AC7 -> Steps 1 through 4. Proof: implementation order is explicitly fixed to shared reasoning first, then context pack, then attention explain, then dependency map, with phased release allowed across versions.
 
 # Decision framing
 - Product framing: Not needed
@@ -61,7 +62,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map`
 - Backlog item(s):
   - `item_065_build_codex_context_pack_for_related_logics_docs`
   - `item_066_explain_attention_reasons_and_suggested_remediation`

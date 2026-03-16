@@ -1,8 +1,8 @@
 ## task_069_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
 > From version: 1.10.3
 > Status: Ready
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 97%
+> Confidence: 94%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
@@ -53,7 +53,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_006_keep_claude_code_bridge_files_thin_and_derivative_of_logics`
 - Backlog item: `item_064_add_a_minimal_claude_code_bridge_for_logics_agents`
 - Request(s): `req_055_add_a_minimal_claude_code_bridge_for_logics_agents`
 

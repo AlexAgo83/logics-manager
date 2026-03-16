@@ -68,7 +68,10 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         <input id="hide-processed-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />
         <div id="layout" class="layout">
-          <div id="board"></div>
+          <div id="layout-main" class="layout__main">
+            <div id="board"></div>
+            <div id="activity-panel" hidden></div>
+          </div>
           <div id="splitter" role="separator"></div>
           <aside id="details" class="details">
             <div id="details-title"></div>
@@ -77,7 +80,6 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
           </aside>
         </div>
         <div id="help-banner"><div id="help-banner-copy"></div><button id="help-banner-dismiss" type="button"></button></div>
-        <div id="activity-panel" hidden></div>
       </body>
     </html>
   `;
@@ -87,17 +89,18 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
   const state = {};
   const document = dom.window.document;
   const layout = document.getElementById("layout") as HTMLElement | null;
+  const mainPane = document.getElementById("layout-main") as HTMLElement | null;
   const splitter = document.getElementById("splitter") as HTMLElement | null;
   const activityPanel = document.getElementById("activity-panel") as HTMLElement | null;
   const board = document.getElementById("board") as HTMLElement | null;
   const details = document.getElementById("details") as HTMLElement | null;
   let boardContentHeight = 10000;
 
-  if (layout && splitter && activityPanel && board && details) {
+  if (layout && mainPane && splitter && activityPanel && board && details) {
     Object.defineProperty(layout, "clientHeight", {
       configurable: true,
       get() {
-        return activityPanel.hidden ? 600 : 400;
+        return 600;
       }
     });
     layout.getBoundingClientRect = () =>
@@ -130,6 +133,12 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         return boardContentHeight;
       }
     });
+    Object.defineProperty(activityPanel, "scrollHeight", {
+      configurable: true,
+      get() {
+        return 10000;
+      }
+    });
     details.getBoundingClientRect = () => {
       const collapsed = details.classList.contains("details--collapsed");
       const height = collapsed ? 92 : Number.parseInt(details.style.height || "220", 10);
@@ -145,6 +154,18 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
         toJSON: () => ({})
       } as DOMRect;
     };
+    mainPane.getBoundingClientRect = () =>
+      ({
+        x: 0,
+        y: 0,
+        top: 0,
+        left: 0,
+        bottom: layout.clientHeight,
+        right: 320,
+        width: 320,
+        height: layout.clientHeight,
+        toJSON: () => ({})
+      }) as DOMRect;
   }
 
   const mediaState = { stacked, narrow };
@@ -289,7 +310,7 @@ describe("webview collapsed details layout behavior", () => {
     const collapsedActionsRule = getCssRule(css, ".details--collapsed .details__actions");
     const collapsedDetailsRules = getCssRules(css, ".details--collapsed");
     const collapsedDetailsRule = collapsedDetailsRules.find((rule) => rule.includes("grid-template-rows: auto;")) || "";
-    const horizontalBoardRule = getCssRule(css, ".layout--horizontal .board");
+    const horizontalMainRule = getCssRule(css, ".layout--horizontal .layout__main");
     const horizontalDetailsRule = getCssRule(css, ".layout--horizontal .details");
     const stackedDetailsRule = getCssRule(css, ".layout--stacked .details");
     const boardRules = getCssRules(css, ".board");
@@ -307,7 +328,8 @@ describe("webview collapsed details layout behavior", () => {
     expect(css.includes("height: calc(100vh - 42px);")).toBe(false);
     expect(stackedRule.includes("flex-direction: column;")).toBe(true);
     expect(horizontalRule.includes("flex-direction: row;")).toBe(true);
-    expect(activityPanelRule.includes("max-height: min(32vh, 280px);")).toBe(true);
+    expect(activityPanelRule.includes("flex: 1 1 auto;")).toBe(true);
+    expect(activityPanelRule.includes("min-height: 0;")).toBe(true);
     expect(activityPanelRule.includes("overflow: hidden;")).toBe(true);
     expect(activityPanelListRule.includes("overflow: auto;")).toBe(true);
     expect(detailsRule.includes("position: relative;")).toBe(true);
@@ -325,7 +347,7 @@ describe("webview collapsed details layout behavior", () => {
     expect(stackedSplitterRule.includes("position: absolute;")).toBe(true);
     expect(collapsedActionsRule.includes("display: none;")).toBe(true);
     expect(collapsedDetailsRule.includes("grid-template-rows: auto;")).toBe(true);
-    expect(horizontalBoardRule.includes("min-height: 0;")).toBe(true);
+    expect(horizontalMainRule.includes("min-height: 0;")).toBe(true);
     expect(horizontalDetailsRule.includes("flex: 0 0 300px;")).toBe(true);
     expect(horizontalDetailsRule.includes("min-height: 0;")).toBe(true);
     expect(stackedDetailsRule.includes("position: absolute;")).toBe(true);
@@ -355,6 +377,7 @@ describe("webview collapsed details layout behavior", () => {
     const css = readCssBundle("media/main.css");
     const boardRules = css.match(/\.board\s*\{[^}]+\}/g) || [];
     const boardRule = boardRules.find((rule) => rule.includes("overflow-x: auto;")) || "";
+    const hiddenBoardRule = getCssRule(css, ".board[hidden]");
     const boardListRule = css.match(/\.board--list\s*\{[^}]+\}/)?.[0] || "";
     const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
     const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
@@ -363,6 +386,7 @@ describe("webview collapsed details layout behavior", () => {
 
     expect(boardRule.includes("overflow-x: auto;")).toBe(true);
     expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
+    expect(hiddenBoardRule.includes("display: none !important;")).toBe(true);
     expect(boardListRule.includes("overflow-y: auto;")).toBe(true);
     expect(columnRule.includes("min-inline-size: 0;")).toBe(true);
     expect(cardRule.includes("min-width: 0;")).toBe(true);
@@ -411,7 +435,7 @@ describe("webview collapsed details layout behavior", () => {
     expect((splitter as HTMLElement | null)?.style.display).toBe("none");
   });
 
-  it("reapplies stacked split sizing after activity panel changes the available height", () => {
+  it("keeps stacked split sizing stable when activity replaces the main pane", () => {
     const { dom } = bootstrapWebview(true);
     const document = dom.window.document;
     const details = document.getElementById("details") as HTMLElement | null;
@@ -423,11 +447,11 @@ describe("webview collapsed details layout behavior", () => {
 
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(details?.style.height).toBe("220px");
-    expect(splitter?.style.bottom).toBe("220px");
+    expect(details?.style.height).toBe("234px");
+    expect(splitter?.style.bottom).toBe("234px");
   });
 
-  it("caps stacked board height to its content so details keeps the remaining space", () => {
+  it("sizes stacked details from the active main pane instead of the hidden board", () => {
     const { dom, setBoardContentHeight } = bootstrapWebview(true);
     const document = dom.window.document;
     const details = document.getElementById("details") as HTMLElement | null;
@@ -437,7 +461,7 @@ describe("webview collapsed details layout behavior", () => {
     setBoardContentHeight(140);
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(details?.style.height).toBe("246px");
-    expect(splitter?.style.bottom).toBe("246px");
+    expect(details?.style.height).toBe("234px");
+    expect(splitter?.style.bottom).toBe("234px");
   });
 });

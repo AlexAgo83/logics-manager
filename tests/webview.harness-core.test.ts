@@ -509,17 +509,52 @@ describe("webview harness core behaviors", () => {
     const document = dom.window.document;
     const activityToggle = document.getElementById("activity-toggle");
     const activityPanel = document.getElementById("activity-panel");
+    const board = document.getElementById("board");
 
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
     expect(activityPanel?.hidden).toBe(false);
+    expect(board?.hidden).toBe(true);
     expect(entries[0]?.textContent).toContain("Recent activity");
     expect(entries[0]?.textContent).toContain("Marked done");
     expect(entries[1]?.textContent).toContain("Older activity");
 
     entries[0]?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
+  });
+
+  it("updates details from activity even when the selected item is filtered out of the board", () => {
+    const hiddenBySearch = {
+      ...baseItem,
+      id: "req_002_hidden_from_board",
+      title: "Hidden from board but visible in activity",
+      updatedAt: "2024-04-01T00:00:00.000Z"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, hiddenBySearch]
+    });
+
+    const document = dom.window.document;
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    const activityToggle = document.getElementById("activity-toggle");
+    const detailsTitle = document.getElementById("details-title");
+
+    if (searchInput) {
+      searchInput.value = "kickoff only";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
+      button.textContent?.includes("Hidden from board but visible in activity")
+    );
+    entry?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(detailsTitle?.textContent).toContain("Hidden from board but visible in activity");
   });
 
   it("renders suggested-action badges for actionable items", () => {

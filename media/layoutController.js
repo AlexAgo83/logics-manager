@@ -2,14 +2,17 @@
   window.createCdxLogicsLayoutController = function createCdxLogicsLayoutController(options) {
     const {
       layout,
+      mainPane,
       board,
+      activityPanel,
       details,
       splitter,
       stackedQuery,
       uiState,
       persistState,
       debugLog,
-      isDetailsCollapsed
+      isDetailsCollapsed,
+      getPrimaryPaneScrollHeight
     } = options;
 
     const minBoardHeight = 120;
@@ -29,12 +32,12 @@
     }
 
     function clearSplitSizing() {
-      if (!board || !details) {
+      if (!mainPane || !details) {
         return;
       }
-      board.style.flex = "";
-      board.style.height = "";
-      board.style.paddingBottom = "";
+      mainPane.style.flex = "";
+      mainPane.style.height = "";
+      mainPane.style.paddingBottom = "";
       details.style.flex = "";
       details.style.height = "";
       details.style.maxHeight = "";
@@ -44,13 +47,13 @@
     }
 
     function syncStackedAnchoredLayout() {
-      if (!layout || !board || !details || !isStackedLayout()) {
+      if (!layout || !mainPane || !details || !isStackedLayout()) {
         return;
       }
       const splitterHeight = splitter ? splitter.getBoundingClientRect().height : 0;
       const detailsHeight = Math.ceil(details.getBoundingClientRect().height || details.offsetHeight || 0);
       const reservedBottom = detailsHeight + (isSplitInteractionDisabled() ? 0 : splitterHeight);
-      board.style.paddingBottom = `${reservedBottom}px`;
+      mainPane.style.paddingBottom = `${reservedBottom}px`;
       if (splitter) {
         splitter.style.bottom = isSplitInteractionDisabled() ? "" : `${detailsHeight}px`;
       }
@@ -75,13 +78,13 @@
     }
 
     function applySplitRatio(nextRatio, shouldPersist = false) {
-      if (!layout || !board || !details || !isStackedLayout()) {
+      if (!layout || !mainPane || !details || !isStackedLayout()) {
         return;
       }
       if (isSplitInteractionDisabled()) {
-        board.style.flex = "1 1 auto";
-        board.style.height = "";
-        board.style.paddingBottom = "";
+        mainPane.style.flex = "1 1 auto";
+        mainPane.style.height = "";
+        mainPane.style.paddingBottom = "";
         details.style.flex = "0 0 auto";
         details.style.height = "";
         details.style.maxHeight = "";
@@ -103,15 +106,18 @@
       const maxRatio = (available - minDetails) / available;
       const clampedRatio = Math.min(Math.max(nextRatio, minRatio), maxRatio);
       const targetBoardHeight = Math.round(available * clampedRatio);
-      const boardContentHeight = Math.max(board.scrollHeight || 0, 0);
+      const boardContentHeight = Math.max(
+        typeof getPrimaryPaneScrollHeight === "function" ? getPrimaryPaneScrollHeight() || 0 : board?.scrollHeight || 0,
+        0
+      );
       const compactBoardFloor = boardContentHeight > 0 ? Math.min(minBoardHeight, boardContentHeight) : minBoardHeight;
       const boardHeight =
         boardContentHeight > 0
           ? Math.max(compactBoardFloor, Math.min(targetBoardHeight, boardContentHeight))
           : targetBoardHeight;
       const detailsHeight = Math.max(minDetails, available - boardHeight);
-      board.style.flex = "1 1 auto";
-      board.style.height = "";
+      mainPane.style.flex = "1 1 auto";
+      mainPane.style.height = "";
       details.style.flex = "0 0 auto";
       details.style.height = `${detailsHeight}px`;
       details.style.maxHeight = `${available}px`;

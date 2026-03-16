@@ -9,6 +9,10 @@
   overflow-y: hidden;
 }
 
+.board[hidden] {
+  display: none !important;
+}
+
 .board--list {
   display: block;
   padding: 8px 0;

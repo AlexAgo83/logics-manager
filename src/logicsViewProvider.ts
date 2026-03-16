@@ -1467,9 +1467,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     <div class="help-banner__copy" id="help-banner-copy"></div>
     <button class="help-banner__dismiss" id="help-banner-dismiss" type="button" title="Dismiss help">Dismiss</button>
   </div>
-  <div class="activity-panel" id="activity-panel" hidden></div>
   <div class="layout" id="layout">
-    <div class="board" id="board"></div>
+    <div class="layout__main" id="layout-main">
+      <div class="board" id="board"></div>
+      <div class="activity-panel" id="activity-panel" hidden></div>
+    </div>
     <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
     <aside class="details" id="details">
       <div class="details__header">

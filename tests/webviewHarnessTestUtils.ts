@@ -62,7 +62,10 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
         <input id="show-companion-docs" type="checkbox" />
         <input id="hide-empty-columns" type="checkbox" />
         <div id="layout" class="layout">
-          <div id="board"></div>
+          <div id="layout-main" class="layout__main">
+            <div id="board"></div>
+            <div id="activity-panel" hidden></div>
+          </div>
           <div id="splitter" role="separator"></div>
           <aside id="details" class="details">
             <div id="details-eyebrow"></div>
@@ -72,7 +75,6 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
           </aside>
         </div>
         <div id="help-banner"><div id="help-banner-copy"></div><button id="help-banner-dismiss" type="button"></button></div>
-        <div id="activity-panel"></div>
       </body>
     </html>
   `;

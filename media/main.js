@@ -8,6 +8,7 @@
           setState: () => undefined
         };
   const board = document.getElementById("board");
+  const mainPane = document.getElementById("layout-main");
   const layout = document.getElementById("layout");
   const splitter = document.getElementById("splitter");
   const details = document.getElementById("details");
@@ -523,7 +524,7 @@
       }
     }
     const selectedItem = items.find((item) => item.id === selectedId);
-    if (selectedItem && !isVisible(selectedItem)) {
+    if (selectedItem && !isVisible(selectedItem) && !activityPanelOpen) {
       selectedId = null;
     }
     if (details) {
@@ -542,6 +543,10 @@
     }
     if (board) {
       board.classList.toggle("board--list", isListMode());
+      board.hidden = activityPanelOpen;
+    }
+    if (mainPane) {
+      mainPane.classList.toggle("layout__main--activity", activityPanelOpen);
     }
     updateViewModeToggle();
     renderBoard();
@@ -749,14 +754,22 @@
   const layoutController = typeof layoutControllerFactory === "function"
     ? layoutControllerFactory({
         layout,
+        mainPane,
         board,
+        activityPanel,
         details,
         splitter,
         stackedQuery,
         uiState,
         persistState,
         debugLog,
-        isDetailsCollapsed: () => uiState.detailsCollapsed
+        isDetailsCollapsed: () => uiState.detailsCollapsed,
+        getPrimaryPaneScrollHeight: () => {
+          if (activityPanelOpen && activityPanel) {
+            return activityPanel.scrollHeight || 0;
+          }
+          return board ? board.scrollHeight || 0 : 0;
+        }
       })
     : null;
 

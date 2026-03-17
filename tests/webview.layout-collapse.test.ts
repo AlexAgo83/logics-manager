@@ -221,6 +221,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
   const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
   const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
   const renderMarkdownScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderMarkdown.js"), "utf8");
+  const mainInteractionsScript = fs.readFileSync(path.resolve(process.cwd(), "media/mainInteractions.js"), "utf8");
   const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
   dom.window.eval(modelScript);
   dom.window.eval(uiStatusScript);
@@ -233,6 +234,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
   dom.window.eval(renderBoardScript);
   dom.window.eval(renderDetailsScript);
   dom.window.eval(renderMarkdownScript);
+  dom.window.eval(mainInteractionsScript);
   dom.window.eval(mainScript);
 
   const emitMediaChange = (query: string) => {

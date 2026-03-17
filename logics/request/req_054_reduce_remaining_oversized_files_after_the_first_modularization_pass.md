@@ -1,6 +1,6 @@
 ## req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
 > From version: 1.10.2
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium
@@ -14,8 +14,8 @@
 
 # Context
 The first modularization pass already split the worst monoliths, but a few files still remain above the intended range:
-- `src/logicsViewProvider.ts` — `1520` lines
-- `media/main.js` — `1171` lines
+- `src/logicsViewProvider.ts` — `1522` lines
+- `media/main.js` — `1184` lines
 - `logics/skills/logics-flow-manager/scripts/logics_flow_support.py` — `1022` lines
 
 These files are smaller than the previous monoliths, but they are still large enough to concentrate multiple responsibilities:
@@ -61,6 +61,7 @@ It is a second, more surgical pass that removes the remaining oversized responsi
   - `media/main.js`: orchestration state changes, host-message handling, rerender scheduling, UI action wiring
   - `logics_flow_support.py`: workflow guidance/report text, companion-doc heuristics, shared mutation or normalization helpers
 - A resulting file can remain near `1000` lines if the remaining boundary is genuinely cohesive and documented.
+- Outcome: `src/logicsViewProvider.ts` now sits at `810` lines after extracting document flows and HTML rendering, `logics_flow_support.py` now sits at `826` lines after extracting decision support, and `media/main.js` now sits at `1129` lines after extracting DOM wiring into `media/mainInteractions.js`; that remaining exception is accepted because the file still serves as the single readable webview orchestration entrypoint.
 
 # References
 - Architecture decision(s): `logics/architecture/adr_004_scale_the_plugin_around_a_derived_model_and_explicit_ui_state.md`

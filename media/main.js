@@ -121,6 +121,7 @@
   const boardRendererFactory = window.createCdxLogicsBoardRenderer;
   const detailsRendererFactory = window.createCdxLogicsDetailsRenderer;
   const markdownApiFactory = window.createCdxLogicsMarkdownApi;
+  const mainInteractionsFactory = window.createCdxLogicsMainInteractions;
 
   function debugLog(eventName, payload = {}) {
     if (!debugUi) {
@@ -773,221 +774,7 @@
       })
     : null;
 
-  if (refreshButton) {
-    refreshButton.addEventListener("click", () => hostApi.refresh());
-  }
-  if (viewModeToggleButton) {
-    viewModeToggleButton.addEventListener("click", () => {
-      if (isCompactListForced()) {
-        return;
-      }
-      uiState.viewMode = isListMode() ? "board" : "list";
-      debugLog("view-mode:toggle", { nextMode: uiState.viewMode });
-      persistState();
-      render();
-    });
-  }
-  if (bootstrapLogicsButton) {
-    bootstrapLogicsButton.addEventListener("click", () => {
-      handleBootstrapLogics();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (newRequestToolButton) {
-    newRequestToolButton.addEventListener("click", () => {
-      hostApi.newGuidedRequest();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (createCompanionDocToolButton) {
-    createCompanionDocToolButton.addEventListener("click", () => {
-      hostApi.createCompanionDoc(selectedId || undefined);
-      setToolsPanelOpen(false);
-    });
-  }
-  if (selectAgentButton) {
-    selectAgentButton.addEventListener("click", () => {
-      hostApi.selectAgent();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (changeProjectRootButton) {
-    changeProjectRootButton.addEventListener("click", async () => {
-      await handleChangeProjectRoot();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (resetProjectRootButton) {
-    resetProjectRootButton.addEventListener("click", () => {
-      handleResetProjectRoot();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (fixDocsButton) {
-    fixDocsButton.addEventListener("click", () => {
-      hostApi.fixDocs();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (aboutButton) {
-    aboutButton.addEventListener("click", () => {
-      handleAbout();
-      setToolsPanelOpen(false);
-    });
-  }
-  if (filterToggle) {
-    filterToggle.addEventListener("click", (event) => {
-      event.stopPropagation();
-      if (toolsPanelOpen) {
-        setToolsPanelOpen(false);
-      }
-      setFilterPanelOpen(!secondaryToolbarOpen);
-    });
-  }
-  if (toolsToggle) {
-    toolsToggle.addEventListener("click", (event) => {
-      event.stopPropagation();
-      setToolsPanelOpen(!toolsPanelOpen);
-    });
-  }
-  if (hideCompleteToggle) {
-    hideCompleteToggle.addEventListener("change", (event) => {
-      hideCompleted = Boolean(event.target && event.target.checked);
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (hideProcessedRequestsToggle) {
-    hideProcessedRequestsToggle.addEventListener("change", (event) => {
-      hideProcessedRequests = Boolean(event.target && event.target.checked);
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (hideSpecToggle) {
-    hideSpecToggle.addEventListener("change", (event) => {
-      hideSpec = Boolean(event.target && event.target.checked);
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (showCompanionDocsToggle) {
-    showCompanionDocsToggle.addEventListener("change", (event) => {
-      showCompanionDocs = Boolean(event.target && event.target.checked);
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (hideEmptyColumnsToggle) {
-    hideEmptyColumnsToggle.addEventListener("change", (event) => {
-      hideEmptyColumns = Boolean(event.target && event.target.checked);
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (filterResetButton) {
-    filterResetButton.addEventListener("click", () => {
-      restoreDefaultFilters();
-      persistState();
-      updateFilterState();
-      render();
-    });
-  }
-  if (searchInput) {
-    searchInput.addEventListener("input", (event) => {
-      searchQuery = event.target ? String(event.target.value || "") : "";
-      persistState();
-      render();
-    });
-  }
-  if (groupBySelect) {
-    groupBySelect.addEventListener("change", (event) => {
-      groupMode = event.target ? String(event.target.value || "stage") : "stage";
-      persistState();
-      render();
-    });
-  }
-  if (sortBySelect) {
-    sortBySelect.addEventListener("change", (event) => {
-      sortMode = event.target ? String(event.target.value || "default") : "default";
-      persistState();
-      render();
-    });
-  }
-  if (attentionToggle) {
-    attentionToggle.addEventListener("click", () => {
-      attentionOnly = !attentionOnly;
-      persistState();
-      render();
-    });
-  }
-  if (activityToggle) {
-    activityToggle.addEventListener("click", () => {
-      activityPanelOpen = !activityPanelOpen;
-      persistState();
-      render();
-    });
-  }
-  if (helpBannerDismiss) {
-    helpBannerDismiss.addEventListener("click", () => {
-      helpDismissed = true;
-      persistState();
-      render();
-    });
-  }
-  if (board) {
-    board.addEventListener("scroll", () => {
-      captureScrollState();
-      schedulePersistState();
-    });
-  }
-  if (detailsBody) {
-    detailsBody.addEventListener("scroll", () => {
-      captureScrollState();
-      schedulePersistState();
-    });
-  }
-  if (detailsToggle) {
-    detailsToggle.addEventListener("click", () => {
-      uiState.detailsCollapsed = !uiState.detailsCollapsed;
-      debugLog("details:toggle", { collapsed: uiState.detailsCollapsed });
-      persistState();
-      render();
-    });
-  }
-  openButton.addEventListener("click", () => {
-    openSelectedItem("open");
-  });
-  if (readButton) {
-    readButton.addEventListener("click", () => {
-      openSelectedItem("read");
-    });
-  }
-  promoteButton.addEventListener("click", () => {
-    if (!selectedId) return;
-    hostApi.promote(selectedId);
-  });
-  if (markDoneButton) {
-    markDoneButton.addEventListener("click", () => {
-      const item = items.find((entry) => entry.id === selectedId);
-      if (!item) return;
-      hostApi.markDone(item);
-    });
-  }
-  if (markObsoleteButton) {
-    markObsoleteButton.addEventListener("click", () => {
-      const item = items.find((entry) => entry.id === selectedId);
-      if (!item) return;
-      hostApi.markObsolete(item);
-    });
-  }
-
-  window.addEventListener("message", (event) => {
+  function handleHostMessage(event) {
     const { type, payload } = event.data || {};
     if (type === "data") {
       debugLog("host:data", {
@@ -1029,11 +816,9 @@
       const nextSelected = payload ? payload.selectedId : undefined;
       setState(nextItems, nextSelected);
     }
-  });
+  }
 
-  hydratePersistedState(previousState);
-
-  document.addEventListener("click", (event) => {
+  function handleDocumentClick(event) {
     if (toolsPanelOpen && toolsPanel && toolsToggle) {
       const target = event.target;
       if (!toolsPanel.contains(target) && !toolsToggle.contains(target)) {
@@ -1051,9 +836,9 @@
       return;
     }
     closeColumnMenu();
-  });
+  }
 
-  document.addEventListener("keydown", (event) => {
+  function handleDocumentKeydown(event) {
     if (event.key === "Escape" && secondaryToolbarOpen) {
       setFilterPanelOpen(false);
     }
@@ -1063,78 +848,49 @@
     if (event.key === "Escape" && activeColumnMenu) {
       closeColumnMenu();
     }
-  });
-
-  if (splitter) {
-    splitter.addEventListener("pointerdown", (event) => {
-      if (layoutController && typeof layoutController.startSplitDrag === "function") {
-        layoutController.startSplitDrag(event);
-      }
-    });
-    splitter.addEventListener("pointermove", (event) => {
-      if (layoutController && typeof layoutController.updateSplitDrag === "function") {
-        layoutController.updateSplitDrag(event);
-      }
-    });
-    splitter.addEventListener("pointerup", (event) => {
-      if (layoutController && typeof layoutController.endSplitDrag === "function") {
-        layoutController.endSplitDrag(event);
-      }
-    });
-    splitter.addEventListener("pointercancel", (event) => {
-      if (layoutController && typeof layoutController.endSplitDrag === "function") {
-        layoutController.endSplitDrag(event);
-      }
-    });
-    splitter.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        if (layoutController && typeof layoutController.nudgeSplitFromKeyboard === "function") {
-          layoutController.nudgeSplitFromKeyboard(0.03);
-        }
-        render();
-      } else if (event.key === "ArrowDown") {
-        event.preventDefault();
-        if (layoutController && typeof layoutController.nudgeSplitFromKeyboard === "function") {
-          layoutController.nudgeSplitFromKeyboard(-0.03);
-        }
-        render();
-      } else if (event.key === "Home") {
-        event.preventDefault();
-        if (layoutController && typeof layoutController.persistAndApplySplitRatio === "function") {
-          layoutController.persistAndApplySplitRatio(0.9);
-        }
-        render();
-      } else if (event.key === "End") {
-        event.preventDefault();
-        if (layoutController && typeof layoutController.persistAndApplySplitRatio === "function") {
-          layoutController.persistAndApplySplitRatio(0.1);
-        }
-        render();
-      }
-    });
   }
 
-  const handleLayoutMediaChange = () => {
+  function handleSplitterKeydown(event) {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (layoutController && typeof layoutController.nudgeSplitFromKeyboard === "function") {
+        layoutController.nudgeSplitFromKeyboard(0.03);
+      }
+      render();
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (layoutController && typeof layoutController.nudgeSplitFromKeyboard === "function") {
+        layoutController.nudgeSplitFromKeyboard(-0.03);
+      }
+      render();
+      return;
+    }
+    if (event.key === "Home") {
+      event.preventDefault();
+      if (layoutController && typeof layoutController.persistAndApplySplitRatio === "function") {
+        layoutController.persistAndApplySplitRatio(0.9);
+      }
+      render();
+      return;
+    }
+    if (event.key === "End") {
+      event.preventDefault();
+      if (layoutController && typeof layoutController.persistAndApplySplitRatio === "function") {
+        layoutController.persistAndApplySplitRatio(0.1);
+      }
+      render();
+    }
+  }
+
+  function handleResponsiveLayoutChange() {
     if (layoutController && typeof layoutController.updateLayoutMode === "function") {
       layoutController.updateLayoutMode();
     }
     if (layoutController && typeof layoutController.updateSplitterA11y === "function") {
       layoutController.updateSplitterA11y();
     }
-    render();
-  };
-  if (stackedQuery && typeof stackedQuery.addEventListener === "function") {
-    stackedQuery.addEventListener("change", handleLayoutMediaChange);
-  } else if (stackedQuery && typeof stackedQuery.addListener === "function") {
-    stackedQuery.addListener(handleLayoutMediaChange);
-  }
-  if (compactListQuery && typeof compactListQuery.addEventListener === "function") {
-    compactListQuery.addEventListener("change", handleLayoutMediaChange);
-  } else if (compactListQuery && typeof compactListQuery.addListener === "function") {
-    compactListQuery.addListener(handleLayoutMediaChange);
-  }
-  window.addEventListener("resize", () => {
     if (
       layoutController &&
       typeof layoutController.isStackedLayout === "function" &&
@@ -1143,37 +899,226 @@
     ) {
       layoutController.applySplitRatio(uiState.splitRatio, false);
     }
-  });
+    render();
+  }
 
-  setControlDescription(filterToggle, "Show view controls");
-  setControlDescription(toolsToggle, "Tools");
-  setControlDescription(viewModeToggleButton, "Switch display mode");
-  setControlDescription(refreshButton, "Refresh");
-  setControlDescription(selectAgentButton, "Select active agent");
-  setControlDescription(newRequestToolButton, "Start a guided new request in Codex");
-  setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
-  setControlDescription(changeProjectRootButton, "Change project root");
-  setControlDescription(resetProjectRootButton, "Use workspace root");
-  setControlDescription(fixDocsButton, "Fix Logics");
-  setControlDescription(aboutButton, "About this extension");
-  setControlDescription(detailsToggle, uiState.detailsCollapsed ? "Expand details" : "Collapse details");
-  setControlDescription(markDoneButton, "Mark selected item as done");
-  setControlDescription(markObsoleteButton, "Mark selected item as obsolete");
-  setControlDescription(openButton, "Edit selected item");
-  setControlDescription(readButton, "Read selected item");
-  setControlDescription(promoteButton, "Promote selected item");
-  if (toolsPanel) {
-    toolsPanel.setAttribute("role", "menu");
-  }
-  if (filterPanel) {
-    filterPanel.setAttribute("role", "group");
-    filterPanel.setAttribute("aria-label", "View controls");
-  }
-  if (filterToggle && filterPanel && filterPanel.id) {
-    filterToggle.setAttribute("aria-controls", filterPanel.id);
-  }
-  if (toolsToggle && toolsPanel && toolsPanel.id) {
-    toolsToggle.setAttribute("aria-controls", toolsPanel.id);
+  hydratePersistedState(previousState);
+
+  const interactions = typeof mainInteractionsFactory === "function"
+    ? mainInteractionsFactory({
+        activityToggle,
+        attentionToggle,
+        board,
+        bootstrapLogicsButton,
+        changeProjectRootButton,
+        compactListQuery,
+        createCompanionDocToolButton,
+        detailsBody,
+        detailsToggle,
+        filterPanel,
+        filterResetButton,
+        filterToggle,
+        fixDocsButton,
+        groupBySelect,
+        helpBannerDismiss,
+        hideCompleteToggle,
+        hideEmptyColumnsToggle,
+        hideProcessedRequestsToggle,
+        hideSpecToggle,
+        layoutController,
+        mainPane,
+        markDoneButton,
+        markObsoleteButton,
+        newRequestToolButton,
+        onAbout() {
+          handleAbout();
+          setToolsPanelOpen(false);
+        },
+        onActivityToggle() {
+          activityPanelOpen = !activityPanelOpen;
+          persistState();
+          render();
+        },
+        onBoardScroll() {
+          captureScrollState();
+          schedulePersistState();
+        },
+        onBootstrapLogics() {
+          handleBootstrapLogics();
+          setToolsPanelOpen(false);
+        },
+        onChangeProjectRoot() {
+          void (async () => {
+            await handleChangeProjectRoot();
+            setToolsPanelOpen(false);
+          })();
+        },
+        onCreateCompanionDoc(action) {
+          if (action === "new-request-guided") {
+            hostApi.newGuidedRequest();
+          } else {
+            hostApi.createCompanionDoc(selectedId || undefined);
+          }
+          setToolsPanelOpen(false);
+        },
+        onDetailsScroll() {
+          captureScrollState();
+          schedulePersistState();
+        },
+        onDetailsToggle() {
+          uiState.detailsCollapsed = !uiState.detailsCollapsed;
+          debugLog("details:toggle", { collapsed: uiState.detailsCollapsed });
+          persistState();
+          render();
+        },
+        onDocumentClick: handleDocumentClick,
+        onDocumentKeydown: handleDocumentKeydown,
+        onFilterPanelToggle(event) {
+          event.stopPropagation();
+          if (toolsPanelOpen) {
+            setToolsPanelOpen(false);
+          }
+          setFilterPanelOpen(!secondaryToolbarOpen);
+        },
+        onFilterReset() {
+          restoreDefaultFilters();
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onFixDocs() {
+          hostApi.fixDocs();
+          setToolsPanelOpen(false);
+        },
+        onGroupChange(event) {
+          groupMode = event.target ? String(event.target.value || "stage") : "stage";
+          persistState();
+          render();
+        },
+        onHelpDismiss() {
+          helpDismissed = true;
+          persistState();
+          render();
+        },
+        onHideCompleteChange(event) {
+          hideCompleted = Boolean(event.target && event.target.checked);
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onHideEmptyColumnsChange(event) {
+          hideEmptyColumns = Boolean(event.target && event.target.checked);
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onHideProcessedRequestsChange(event) {
+          hideProcessedRequests = Boolean(event.target && event.target.checked);
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onHideSpecChange(event) {
+          hideSpec = Boolean(event.target && event.target.checked);
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onMarkDone() {
+          const item = items.find((entry) => entry.id === selectedId);
+          if (!item) {
+            return;
+          }
+          hostApi.markDone(item);
+        },
+        onMarkObsolete() {
+          const item = items.find((entry) => entry.id === selectedId);
+          if (!item) {
+            return;
+          }
+          hostApi.markObsolete(item);
+        },
+        onOpenSelectedItem() {
+          openSelectedItem("open");
+        },
+        onPromoteSelectedItem() {
+          if (!selectedId) {
+            return;
+          }
+          hostApi.promote(selectedId);
+        },
+        onReadSelectedItem() {
+          openSelectedItem("read");
+        },
+        onRefresh() {
+          hostApi.refresh();
+        },
+        onResetProjectRoot() {
+          handleResetProjectRoot();
+          setToolsPanelOpen(false);
+        },
+        onSearchInput(event) {
+          searchQuery = event.target ? String(event.target.value || "") : "";
+          persistState();
+          render();
+        },
+        onSelectAgent() {
+          hostApi.selectAgent();
+          setToolsPanelOpen(false);
+        },
+        onShowCompanionDocsChange(event) {
+          showCompanionDocs = Boolean(event.target && event.target.checked);
+          persistState();
+          updateFilterState();
+          render();
+        },
+        onSortChange(event) {
+          sortMode = event.target ? String(event.target.value || "default") : "default";
+          persistState();
+          render();
+        },
+        onSplitterKeydown: handleSplitterKeydown,
+        onToggleAttention() {
+          attentionOnly = !attentionOnly;
+          persistState();
+          render();
+        },
+        onToggleViewMode() {
+          if (isCompactListForced()) {
+            return;
+          }
+          uiState.viewMode = isListMode() ? "board" : "list";
+          debugLog("view-mode:toggle", { nextMode: uiState.viewMode });
+          persistState();
+          render();
+        },
+        onToolsPanelToggle(event) {
+          event.stopPropagation();
+          setToolsPanelOpen(!toolsPanelOpen);
+        },
+        onWindowMessage: handleHostMessage,
+        onWindowResize: handleResponsiveLayoutChange,
+        openButton,
+        promoteButton,
+        readButton,
+        refreshButton,
+        resetProjectRootButton,
+        searchInput,
+        selectAgentButton,
+        setControlDescription,
+        showCompanionDocsToggle,
+        sortBySelect,
+        splitter,
+        stackedQuery,
+        toolsPanel,
+        toolsToggle,
+        viewModeToggleButton,
+        aboutButton
+      })
+    : null;
+
+  if (interactions && typeof interactions.attach === "function") {
+    interactions.attach();
   }
 
   if (layoutController && typeof layoutController.updateLayoutMode === "function") {

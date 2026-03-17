@@ -1,35 +1,25 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { normalizeEntrySuffix, parseRenameTarget, validateRenameSuffix } from "./logicsDocMaintenance";
-import { canPromote, indexLogics, isRequestProcessed, LogicsItem, promotionCommand } from "./logicsIndexer";
+import { canPromote, indexLogics, isRequestProcessed, LogicsItem } from "./logicsIndexer";
 import {
   AgentDefinition,
   AgentRegistrySnapshot,
   createEmptyAgentRegistry,
   loadAgentRegistry
 } from "./agentRegistry";
-import { buildBootstrapCommitMessage, buildGuidedRequestPrompt, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
-import { buildReadPreviewHtml, getNonce } from "./logicsReadPreviewHtml";
+import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
+import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
+import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import {
-  addLinkToSectionOnDisk,
   areSamePath,
-  findCreatedDocPathFromOutput,
-  getCompanionDocScriptPath,
-  getCreateConfig,
-  getFlowManagerScriptPath,
   getWorkspaceRoot,
   hasLogicsSubmodule,
   hasMultipleWorkspaceFolders,
   isExistingDirectory,
-  normalizeRelationPath,
-  openCreatedDocFromOutput,
   runGitWithOutput,
-  runPython,
   runPythonWithOutput,
-  updateIndicatorsOnDisk,
-  updateMainHeadingId,
-  updateManagedReferencesForRename
+  updateIndicatorsOnDisk
 } from "./logicsProviderUtils";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
@@ -47,6 +37,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private activeAgentId: string | null;
   private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
   private readPreviewPanel?: vscode.WebviewPanel;
+  private readonly documentController: LogicsViewDocumentController;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -57,6 +48,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     this.projectRootOverride = storedOverride?.trim() || null;
     const storedAgentId = this.context.workspaceState.get<string>(ACTIVE_AGENT_STATE_KEY);
     this.activeAgentId = storedAgentId?.trim() || null;
+    this.documentController = new LogicsViewDocumentController({
+      context: this.context,
+      agentsOutput: this.agentsOutput,
+      getItems: () => this.items,
+      getAgentRegistry: () => this.agentRegistry,
+      getActionRoot: () => this.getActionRoot(),
+      maybeOfferBootstrap: (root) => this.maybeOfferBootstrap(root),
+      refresh: (selectedId) => this.refresh(selectedId),
+      refreshAgents: (mode, root) => this.refreshAgents(mode, root),
+      findRequestAuthoringAgent: () => this.findRequestAuthoringAgent(),
+      setActiveAgent: (agentId) => this.setActiveAgent(agentId),
+      injectPromptIntoCodexChat: (prompt, options) => this.injectPromptIntoCodexChat(prompt, options),
+      getReadPreviewPanel: () => this.getReadPreviewPanel()
+    });
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
@@ -263,254 +268,33 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async createRequest(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.maybeOfferBootstrap(root);
-      return;
-    }
-
-    const title = await vscode.window.showInputBox({
-      title: "New Logics request",
-      prompt: "Title for the request"
-    });
-    if (!title) {
-      return;
-    }
-
-    const scriptPath = getFlowManagerScriptPath(root);
-    if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
-      return;
-    }
-
-    const result = await runPythonWithOutput(root, scriptPath, ["new", "request", "--title", title]);
-    if (result.error) {
-      void vscode.window.showErrorMessage(`Request creation failed: ${result.stderr || result.error.message}`);
-      return;
-    }
-
-    await openCreatedDocFromOutput(result.stdout);
-    await this.refresh();
+    await this.documentController.createRequest();
   }
 
   async startGuidedRequestFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.maybeOfferBootstrap(root);
-      return;
-    }
-
-    await this.refreshAgents("silent", root);
-    const agent = this.findRequestAuthoringAgent();
-    if (!agent) {
-      const issueHint = this.agentRegistry.issues.length > 0 ? " Check 'Logics Agents' output for validation errors." : "";
-      void vscode.window.showWarningMessage(`No request-authoring agent found in logics/skills.${issueHint}`);
-      if (this.agentRegistry.issues.length > 0) {
-        this.agentsOutput.show(true);
-      }
-      return;
-    }
-
-    await this.setActiveAgent(agent.id);
-    const prompt = buildGuidedRequestPrompt(agent.defaultPrompt);
-    await this.injectPromptIntoCodexChat(prompt, {
-      codexCopiedMessage: "Codex opened. New-request prompt copied to clipboard. Paste it in the Codex composer.",
-      fallbackCopiedMessage: "Could not inject the new-request prompt into Codex chat."
-    });
-    void vscode.window.showInformationMessage(`Active Logics agent: ${agent.displayName} (${agent.id})`);
-    await this.refresh();
+    await this.documentController.startGuidedRequestFromTools();
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.maybeOfferBootstrap(root);
-      return;
-    }
-
-    const config = getCreateConfig(kind);
-    if (!config) {
-      void vscode.window.showErrorMessage("Unsupported item type.");
-      return;
-    }
-
-    const title = await vscode.window.showInputBox({
-      title: `New Logics ${config.label}`,
-      prompt: `Title for the ${config.label}`
-    });
-    if (!title) {
-      return;
-    }
-
-    const scriptPath = getFlowManagerScriptPath(root);
-    if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
-      return;
-    }
-
-    const result = await runPythonWithOutput(root, scriptPath, ["new", kind, "--title", title]);
-    if (result.error) {
-      void vscode.window.showErrorMessage(
-        `Creation failed: ${result.stderr || result.error.message}`
-      );
-      return;
-    }
-
-    await openCreatedDocFromOutput(result.stdout);
-    await this.refresh();
+    await this.documentController.createItem(kind);
   }
 
   async createCompanionDoc(
     sourceId: string,
     preferredKind?: "product" | "architecture"
   ): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.maybeOfferBootstrap(root);
-      return;
-    }
-
-    const sourceItem = this.items.find((entry) => entry.id === sourceId);
-    if (!sourceItem) {
-      void vscode.window.showErrorMessage("Select a Logics item before creating a companion doc.");
-      return;
-    }
-
-    const allKinds: Array<{
-      label: string;
-      description: string;
-      value: "product" | "architecture";
-    }> = [
-      {
-        label: "Product brief",
-        description: "Create a non-technical product framing companion doc",
-        value: "product"
-      },
-      {
-        label: "Architecture decision",
-        description: "Create a structural technical companion doc",
-        value: "architecture"
-      }
-    ];
-    const suggestedKinds = this.getSuggestedCompanionDocKinds(sourceItem, allKinds);
-    const availableKinds = suggestedKinds.length > 0 ? suggestedKinds : allKinds;
-
-    const kindPick =
-      preferredKind && availableKinds.some((kind) => kind.value === preferredKind)
-        ? availableKinds.find((kind) => kind.value === preferredKind)
-        : availableKinds.length === 1
-          ? availableKinds[0]
-        : await vscode.window.showQuickPick(availableKinds, {
-            title: "Create companion doc",
-            placeHolder: `Choose the companion doc type for ${sourceItem.id}`
-          });
-    if (!kindPick) {
-      return;
-    }
-
-    const title = await vscode.window.showInputBox({
-      title: `New ${kindPick.label.toLowerCase()}`,
-      prompt: `Title for the ${kindPick.label.toLowerCase()}`,
-      value: sourceItem.title
-    });
-    if (!title) {
-      return;
-    }
-
-    const scriptPath = getCompanionDocScriptPath(root, kindPick.value);
-    if (!scriptPath) {
-      void vscode.window.showErrorMessage(`Companion doc script not found for ${kindPick.label.toLowerCase()}.`);
-      return;
-    }
-
-    const outDir = kindPick.value === "product" ? "logics/product" : "logics/architecture";
-    const result = await runPythonWithOutput(root, scriptPath, ["--title", title, "--out-dir", outDir]);
-    if (result.error) {
-      void vscode.window.showErrorMessage(
-        `${kindPick.label} creation failed: ${result.stderr || result.error.message}`
-      );
-      return;
-    }
-
-    const createdPath = findCreatedDocPathFromOutput(result.stdout);
-    if (createdPath && fs.existsSync(createdPath)) {
-      const createdRelPath = path.relative(root, createdPath).replace(/\\/g, "/");
-      addLinkToSectionOnDisk(sourceItem.path, "References", createdRelPath);
-      addLinkToSectionOnDisk(createdPath, "References", sourceItem.relPath);
-    }
-
-    await openCreatedDocFromOutput(result.stdout);
-    await this.refresh(sourceItem.id);
+    await this.documentController.createCompanionDoc(sourceId, preferredKind);
   }
 
   async createCompanionDocFromPalette(
     preferredSourceId?: string,
     preferredKind?: "product" | "architecture"
   ): Promise<void> {
-    const sourceItem = await this.resolveCompanionDocSource(preferredSourceId);
-    if (!sourceItem) {
-      return;
-    }
-    await this.createCompanionDoc(sourceItem.id, preferredKind);
+    await this.documentController.createCompanionDocFromPalette(preferredSourceId, preferredKind);
   }
 
   async fixDocs(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-
-    const confirm = await vscode.window.showWarningMessage(
-      "Run Logics fixer? This will update Logics docs on disk.",
-      { modal: true },
-      "Run Fix Logics"
-    );
-    if (confirm !== "Run Fix Logics") {
-      return;
-    }
-
-    const scriptPath = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-doc-fixer",
-      "scripts",
-      "fix_logics_docs.py"
-    );
-
-    if (!fs.existsSync(scriptPath)) {
-      void vscode.window.showErrorMessage("Logics doc fixer script not found in logics/skills.");
-      return;
-    }
-
-    const result = await runPythonWithOutput(root, scriptPath, ["--write"]);
-    if (result.error) {
-      void vscode.window.showErrorMessage(`Doc fixer failed: ${result.stderr || result.error.message}`);
-      return;
-    }
-
-    void vscode.window.showInformationMessage("Logics docs fixer completed.");
-    await this.refresh();
+    await this.documentController.fixDocs();
   }
 
   private async bootstrapFromTools(): Promise<void> {
@@ -979,65 +763,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     return pick?.item;
   }
 
-  private async resolveCompanionDocSource(preferredSourceId?: string): Promise<LogicsItem | undefined> {
-    if (preferredSourceId) {
-      const matched = this.items.find((item) => item.id === preferredSourceId);
-      if (matched) {
-        return matched;
-      }
-    }
-
-    if (!this.items.length) {
-      await this.refresh();
-    }
-
-    const sourceCandidates = this.items.filter((item) =>
-      item.stage === "request" || item.stage === "backlog" || item.stage === "task"
-    );
-    return this.pickItem(sourceCandidates, "Choose the source item for the companion doc");
-  }
-
-  private getSuggestedCompanionDocKinds(
-    sourceItem: LogicsItem,
-    allKinds: Array<{ label: string; description: string; value: "product" | "architecture" }>
-  ): Array<{ label: string; description: string; value: "product" | "architecture" }> {
-    const linkedStages = new Set<"product" | "architecture">();
-
-    for (const reference of sourceItem.references) {
-      const candidate = this.resolveManagedItemForCompanionDoc(reference.path);
-      if (candidate?.stage === "product" || candidate?.stage === "architecture") {
-        linkedStages.add(candidate.stage);
-      }
-    }
-
-    for (const usage of sourceItem.usedBy) {
-      if (usage.stage === "product" || usage.stage === "architecture") {
-        linkedStages.add(usage.stage);
-        continue;
-      }
-      const candidate = this.resolveManagedItemForCompanionDoc(usage.relPath || usage.id);
-      if (candidate?.stage === "product" || candidate?.stage === "architecture") {
-        linkedStages.add(candidate.stage);
-      }
-    }
-
-    return allKinds.filter((kind) => !linkedStages.has(kind.value));
-  }
-
-  private resolveManagedItemForCompanionDoc(reference: string): LogicsItem | undefined {
-    const normalized = String(reference || "")
-      .replace(/\\/g, "/")
-      .replace(/^\.?\//, "")
-      .trim();
-    if (!normalized) {
-      return undefined;
-    }
-    const fileStem = path.basename(normalized, ".md");
-    return this.items.find(
-      (item) => item.relPath === normalized || item.id === normalized || item.id === fileStem
-    );
-  }
-
   private postData(payload: {
     items?: LogicsItem[];
     root?: string;
@@ -1057,466 +782,30 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async openItem(id: string): Promise<void> {
-    const item = this.items.find((entry) => entry.id === id);
-    if (!item) {
-      return;
-    }
-    const document = await vscode.workspace.openTextDocument(item.path);
-    await vscode.window.showTextDocument(document, { preview: false });
+    await this.documentController.openItem(id);
   }
 
   private async readItem(id: string): Promise<void> {
-    const item = this.items.find((entry) => entry.id === id);
-    if (!item) {
-      return;
-    }
-    try {
-      const markdown = fs.readFileSync(item.path, "utf8");
-      const panel = this.getReadPreviewPanel();
-      panel.title = `Read: ${item.id}`;
-      panel.webview.html = buildReadPreviewHtml({
-        title: item.title,
-        itemId: item.id,
-        relPath: item.relPath,
-        markdown,
-        webview: panel.webview,
-        extensionPath: this.context.extensionPath
-      });
-      panel.reveal(vscode.ViewColumn.Beside, false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Could not open rendered Markdown preview (${message}). Opening in Edit.`);
-      await this.openItem(id);
-    }
+    await this.documentController.readItem(id);
   }
 
   private async promoteItem(id: string): Promise<void> {
-    const item = this.items.find((entry) => entry.id === id);
-    if (!item) {
-      return;
-    }
-
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-
-    const promotion = promotionCommand(item.stage);
-    if (!promotion) {
-      void vscode.window.showInformationMessage("Promotion is only available for request or backlog items.");
-      return;
-    }
-    if (isRequestProcessed(item, this.items)) {
-      void vscode.window.showInformationMessage("This request has already been processed and cannot be promoted.");
-      return;
-    }
-    if (item.isPromoted) {
-      void vscode.window.showInformationMessage("This item has already been promoted.");
-      return;
-    }
-
-    const scriptPath = getFlowManagerScriptPath(root);
-    if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
-      return;
-    }
-
-    await runPython(root, scriptPath, ["promote", promotion, item.path]);
-    await this.refresh();
+    await this.documentController.promoteItem(id);
   }
 
   private async addReference(id: string): Promise<void> {
-    await this.addLinksToSection(id, "References", "reference");
+    await this.documentController.addReference(id);
   }
 
   private async addUsedBy(id: string): Promise<void> {
-    await this.addLinksToSection(id, "Used by", "used-by link");
+    await this.documentController.addUsedBy(id);
   }
 
   private async renameItem(id: string): Promise<void> {
-    const item = this.items.find((entry) => entry.id === id);
-    if (!item) {
-      return;
-    }
-
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-
-    const parsed = parseRenameTarget(item.id);
-    if (!parsed) {
-      void vscode.window.showErrorMessage("Only request/backlog/task/product/architecture entries can be renamed.");
-      return;
-    }
-
-    const suffixInput = await vscode.window.showInputBox({
-      title: "Rename Logics entry",
-      prompt: `Only edit the suffix after ${parsed.immutablePrefix}`,
-      placeHolder: "new_entry_name",
-      value: parsed.suffix,
-      validateInput: (value) => validateRenameSuffix(value, parsed, item.path)
-    });
-    if (suffixInput === undefined) {
-      return;
-    }
-
-    const normalizedSuffix = normalizeEntrySuffix(suffixInput);
-    if (!normalizedSuffix) {
-      void vscode.window.showErrorMessage("Invalid name suffix. Use letters or numbers.");
-      return;
-    }
-
-    const newId = `${parsed.immutablePrefix}${normalizedSuffix}`;
-    if (newId === item.id) {
-      void vscode.window.showInformationMessage("No changes detected.");
-      return;
-    }
-
-    const newPath = path.join(path.dirname(item.path), `${newId}.md`);
-    if (fs.existsSync(newPath)) {
-      void vscode.window.showErrorMessage("A file with that name already exists.");
-      return;
-    }
-
-    const oldRelPath = item.relPath;
-    const newRelPath = path.relative(root, newPath).replace(/\\/g, "/");
-
-    try {
-      fs.renameSync(item.path, newPath);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Rename failed: ${message}`);
-      return;
-    }
-
-    try {
-      updateMainHeadingId(newPath, item.id, newId);
-      updateManagedReferencesForRename(root, oldRelPath, newRelPath, item.id, newId);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showWarningMessage(
-        `Entry renamed to ${newId}, but some references may need manual updates: ${message}`
-      );
-      await this.refresh(newId);
-      return;
-    }
-
-    void vscode.window.showInformationMessage(`Renamed entry to ${newId}.`);
-    await this.refresh(newId);
-  }
-
-  private async addLinksToSection(
-    id: string,
-    sectionTitle: "References" | "Used by",
-    relationLabel: string
-  ): Promise<void> {
-    const item = this.items.find((entry) => entry.id === id);
-    if (!item) {
-      return;
-    }
-
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-
-    const pickedLinks = await this.pickRelationLinks(item, sectionTitle, relationLabel, root);
-    if (!pickedLinks.length) {
-      return;
-    }
-
-    let addedCount = 0;
-    for (const link of pickedLinks) {
-      const result = addLinkToSectionOnDisk(item.path, sectionTitle, link);
-      if (result.changed) {
-        addedCount += 1;
-      }
-    }
-
-    if (addedCount === 0) {
-      void vscode.window.showInformationMessage(`All selected ${relationLabel}s already exist.`);
-      return;
-    }
-
-    void vscode.window.showInformationMessage(`Added ${addedCount} ${relationLabel}${addedCount > 1 ? "s" : ""}.`);
-    await this.refresh(item.id);
-  }
-
-  private async pickRelationLinks(
-    sourceItem: LogicsItem,
-    sectionTitle: "References" | "Used by",
-    relationLabel: string,
-    root: string
-  ): Promise<string[]> {
-    const links: string[] = [];
-    const seen = new Set<string>();
-
-    while (true) {
-      const pick = await this.pickSingleRelationLink(sourceItem, sectionTitle);
-      if (!pick) {
-        break;
-      }
-      const normalized = normalizeRelationPath(pick, this.items, root);
-      if (!normalized) {
-        continue;
-      }
-      if (!seen.has(normalized)) {
-        seen.add(normalized);
-        links.push(normalized);
-      }
-
-      const nextAction = await vscode.window.showQuickPick(
-        [
-          { label: "Done", value: "done" },
-          { label: `Add another ${relationLabel}`, value: "again" }
-        ],
-        {
-          title: sectionTitle,
-          placeHolder: "Choose next action"
-        }
-      );
-      if (!nextAction || nextAction.value === "done") {
-        break;
-      }
-    }
-
-    return links;
-  }
-
-  private async pickSingleRelationLink(
-    sourceItem: LogicsItem,
-    sectionTitle: "References" | "Used by"
-  ): Promise<string | undefined> {
-    const choices = this.items
-      .filter((item) => item.id !== sourceItem.id)
-      .map((item) => ({
-        label: `${item.stage} • ${item.id}`,
-        description: item.title,
-        value: item.relPath
-      }));
-
-    choices.unshift({
-      label: "Custom path…",
-      description: "Type a relative path (ex: logics/tasks/task_008_example.md)",
-      value: "__custom__"
-    });
-
-    const pick = await vscode.window.showQuickPick(choices, {
-      title: sectionTitle,
-      placeHolder: "Pick a target item or enter a custom path"
-    });
-    if (!pick) {
-      return undefined;
-    }
-    if (pick.value !== "__custom__") {
-      return pick.value;
-    }
-
-    const custom = await vscode.window.showInputBox({
-      title: sectionTitle,
-      prompt: "Path to link (relative path recommended)",
-      placeHolder: "logics/backlog/item_004_add_references_and_used_by_links.md"
-    });
-    return custom?.trim();
+    await this.documentController.renameItem(id);
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
-    const modelScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "logicsModel.js"));
-    const uiStatusScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "uiStatus.js"));
-    const harnessApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "harnessApi.js"));
-    const layoutControllerScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "layoutController.js"));
-    const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "hostApi.js"));
-    const webviewSelectorsScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewSelectors.js")
-    );
-    const webviewPersistenceScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewPersistence.js")
-    );
-    const webviewChromeScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "webviewChrome.js")
-    );
-    const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderBoard.js"));
-    const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderDetails.js"));
-    const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "renderMarkdown.js"));
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js"));
-    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"));
-    const nonce = getNonce();
-
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="${styleUri}" rel="stylesheet" />
-  <title>Logics Orchestrator</title>
-</head>
-<body>
-  <div class="toolbar">
-    <div class="toolbar__row toolbar__row--primary">
-      <div class="toolbar__filters">
-        <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path
-              d="M4 6h16l-6 7v5l-4 2v-7z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
-          </svg>
-        </button>
-        <div class="toolbar__tools">
-          <button
-            class="toolbar__filter"
-            id="tools-toggle"
-            aria-label="Tools"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            aria-controls="tools-panel"
-            title="Tools"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                d="M4 7h16M6 12h12M8 17h8"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Create Companion Doc</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
-          </div>
-        </div>
-      </div>
-      <div class="toolbar__buttons">
-        <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
-        <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
-        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
-      </div>
-    </div>
-    <div class="toolbar__row toolbar__row--secondary" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
-      <div class="toolbar__search">
-        <input
-          class="toolbar__search-input"
-          id="search-input"
-          type="search"
-          placeholder="Search items"
-          aria-label="Search items"
-        />
-      </div>
-      <div class="toolbar__ordering">
-        <label class="toolbar__select">
-          <span>Group</span>
-          <select id="group-by" aria-label="Group items">
-            <option value="stage">Stage</option>
-            <option value="status">Status</option>
-          </select>
-        </label>
-        <label class="toolbar__select">
-          <span>Sort</span>
-          <select id="sort-by" aria-label="Sort items">
-            <option value="default">Default</option>
-            <option value="updated-desc">Updated</option>
-            <option value="progress-desc">Progress</option>
-            <option value="status-asc">Status</option>
-          </select>
-        </label>
-      </div>
-      <div class="toolbar__toggles">
-        <label class="toggle">
-          <input type="checkbox" id="hide-processed-requests" />
-          <span>Hide processed requests</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="hide-complete" />
-          <span>Hide completed</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="hide-spec" />
-          <span>Hide SPEC</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="show-companion-docs" />
-          <span>Show companion docs</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="hide-empty-columns" />
-          <span>Hide empty columns</span>
-        </label>
-      </div>
-      <button class="filter-panel__reset toolbar__reset" type="button" id="filter-reset">Reset</button>
-    </div>
-  </div>
-  <div class="help-banner" id="help-banner" hidden>
-    <div class="help-banner__copy" id="help-banner-copy"></div>
-    <button class="help-banner__dismiss" id="help-banner-dismiss" type="button" title="Dismiss help">Dismiss</button>
-  </div>
-  <div class="layout" id="layout">
-    <div class="layout__main" id="layout-main">
-      <div class="board" id="board"></div>
-      <div class="activity-panel" id="activity-panel" hidden></div>
-    </div>
-    <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
-    <aside class="details" id="details">
-      <div class="details__header">
-        <div class="details__header-copy">
-          <div class="details__header-eyebrow" id="details-eyebrow">Logics item</div>
-          <div class="details__header-title" id="details-title">Details</div>
-        </div>
-        <button class="details__toggle" id="details-toggle" aria-label="Collapse details" aria-expanded="true" title="Collapse details">
-          <svg class="details__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path
-              d="M6 9l6 6 6-6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
-      <div class="details__body" id="details-body">
-        <div class="details__empty">Select a card to see details.</div>
-      </div>
-      <div class="details__actions">
-        <button class="btn btn--primary" data-action="open" disabled title="Edit selected item">Edit</button>
-        <button class="btn btn--primary" data-action="read" disabled title="Read selected item">Read</button>
-        <button class="btn btn--contextual" data-action="promote" disabled title="Promote selected item">Promote</button>
-        <button class="btn btn--secondary" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
-        <button class="btn btn--caution" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
-      </div>
-    </aside>
-  </div>
-  <script nonce="${nonce}" src="${modelScriptUri}"></script>
-  <script nonce="${nonce}" src="${uiStatusScriptUri}"></script>
-  <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>
-  <script nonce="${nonce}" src="${layoutControllerScriptUri}"></script>
-  <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
-  <script nonce="${nonce}" src="${webviewSelectorsScriptUri}"></script>
-  <script nonce="${nonce}" src="${webviewPersistenceScriptUri}"></script>
-  <script nonce="${nonce}" src="${webviewChromeScriptUri}"></script>
-  <script nonce="${nonce}" src="${renderBoardScriptUri}"></script>
-  <script nonce="${nonce}" src="${renderDetailsScriptUri}"></script>
-  <script nonce="${nonce}" src="${renderMarkdownScriptUri}"></script>
-  <script nonce="${nonce}" src="${scriptUri}"></script>
-</body>
-</html>`;
+    return buildLogicsWebviewHtml(this.context.extensionUri, webview);
   }
 }

@@ -1,9 +1,9 @@
 ## item_069_add_an_internal_ui_steering_agent_manifest_and_usage_contract - Add an internal UI steering agent manifest and usage contract
 > From version: 1.10.4
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent manifest design and frontend invocation UX
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -109,22 +109,23 @@ flowchart LR
   - keep the manifest short and stable;
   - put the nuanced behavioral detail in `SKILL.md` and references;
   - use the manifest prompt to route users into that richer internal guidance.
+- Task `task_071_orchestration_delivery_for_internal_ui_steering_skill_and_agent` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # AC Traceability
-- AC1 -> Stabilize the internal skill folder name and derived invocation id. Proof: TODO.
-- AC2 -> Add a valid `agents/openai.yaml` manifest with the required interface fields. Proof: TODO.
-- AC2b -> Keep folder naming and `SKILL.md` identity aligned across explicit activation and auto-triggering. Proof: TODO.
-- AC3 -> Keep all manifest wording fully internal and attribution-free. Proof: TODO.
-- AC4 -> Choose a Quick Pick display name that is short and clear. Proof: TODO.
-- AC5 -> Write a concise short description centered on grounded frontend generation and refinement. Proof: TODO.
-- AC6 -> Make the default prompt usable for generation, refinement, and review cases. Proof: TODO.
-- AC7 -> Instruct the agent to inspect existing project styles and tokens first. Proof: TODO.
-- AC8 -> Instruct the agent to preserve existing design systems when present. Proof: TODO.
-- AC9 -> Frame the agent as a focused guardrail rather than a UX-strategy replacement. Proof: TODO.
-- AC10 -> Keep the role split with `logics-uiux-designer` explicit. Proof: TODO.
-- AC11 -> Preserve compatibility with the existing agent registry contract. Proof: TODO.
-- AC12 -> Keep any surrounding documentation internal-only. Proof: TODO.
-- AC13 -> Document both explicit activation and auto-trigger behavior around the same capability. Proof: TODO.
+- AC1 -> Stabilize the internal skill folder name and derived invocation id. Proof: the skill package was created under `logics/skills/logics-ui-steering/`, producing the explicit invocation id `$logics-ui-steering`.
+- AC2 -> Add a valid `agents/openai.yaml` manifest with the required interface fields. Proof: `logics/skills/logics-ui-steering/agents/openai.yaml` now defines `display_name`, `short_description`, and `default_prompt`.
+- AC2b -> Keep folder naming and `SKILL.md` identity aligned across explicit activation and auto-triggering. Proof: the folder name, `SKILL.md` frontmatter name, and manifest prompt all use the same `logics-ui-steering` identity.
+- AC3 -> Keep all manifest wording fully internal and attribution-free. Proof: `logics/skills/logics-ui-steering/agents/openai.yaml` uses internal wording only and contains no source attribution.
+- AC4 -> Choose a Quick Pick display name that is short and clear. Proof: the manifest uses `UI Steering` as its `display_name`.
+- AC5 -> Write a concise short description centered on grounded frontend generation and refinement. Proof: the manifest uses `Grounded frontend generation and refinement guardrails` as its `short_description`.
+- AC6 -> Make the default prompt usable for generation, refinement, and review cases. Proof: the manifest `default_prompt` explicitly covers generating or refining frontend UI code and correcting generic AI-looking output.
+- AC7 -> Instruct the agent to inspect existing project styles and tokens first. Proof: the manifest `default_prompt` tells the agent to inspect existing project styles before choosing patterns.
+- AC8 -> Instruct the agent to preserve existing design systems when present. Proof: the manifest `default_prompt` tells the agent to preserve established tokens and components.
+- AC9 -> Frame the agent as a focused guardrail rather than a UX-strategy replacement. Proof: the manifest `default_prompt` describes restrained, grounded frontend generation rather than broad UX planning.
+- AC10 -> Keep the role split with `logics-uiux-designer` explicit. Proof: `logics/skills/logics-ui-steering/SKILL.md` defines this skill as implementation-time UI steering and not a broad UX strategy workflow.
+- AC11 -> Preserve compatibility with the existing agent registry contract. Proof: the manifest follows the existing `interface.display_name`, `interface.short_description`, and `interface.default_prompt` contract loaded by `src/agentRegistry.ts`.
+- AC12 -> Keep any surrounding documentation internal-only. Proof: the new manifest, skill doc, references, and README entry use only internal naming and no external references.
+- AC13 -> Document both explicit activation and auto-trigger behavior around the same capability. Proof: `logics/skills/logics-ui-steering/SKILL.md` has an `Activation` section and `item_069` documents the explicit and automatic activation paths together.
 - req057-AC8B -> Preserve explicit activation through `agents/openai.yaml`, Quick Pick selection, and `$logics-ui-steering`. Proof: this backlog item defines the manifest contract, derived invocation id, and explicit activation path.
 - req057-AC14 -> Align explicit activation with strong `SKILL.md` identity so auto-trigger and manual invocation describe the same capability. Proof: this backlog item requires the manifest wording and `SKILL.md` identity to stay coordinated.
 

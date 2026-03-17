@@ -1,9 +1,9 @@
 ## item_068_create_an_internal_ui_steering_skill_corpus_and_reference_pack - Create an internal UI steering skill corpus and reference pack
 > From version: 1.10.4
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Internal skill design and frontend guardrails
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -140,24 +140,25 @@ flowchart LR
   - `references/primitives.md` for positive defaults by component type;
   - `references/banned_patterns.md` for repeated anti-patterns and failure modes;
   - `references/palettes.md` for fallback light and dark palettes.
+- Task `task_071_orchestration_delivery_for_internal_ui_steering_skill_and_agent` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # AC Traceability
-- AC1 -> Create the new internal skill package and establish `SKILL.md` as the canonical entrypoint. Proof: TODO.
-- AC2 -> Define the frontend-generation trigger conditions in the skill metadata and body. Proof: TODO.
-- AC2b -> Write the frontmatter name/description to maximize reliable auto-triggering for frontend work. Proof: TODO.
-- AC3 -> Encode the guiding philosophy around rejecting generic AI-looking defaults. Proof: TODO.
-- AC4 -> Cover the positive baseline across common UI primitives and layout expectations. Proof: TODO.
-- AC5 -> Encode the banned pattern families strongly enough to change generation behavior. Proof: TODO.
-- AC6 -> Add a concrete repeated-mistakes inventory instead of only abstract principles. Proof: TODO.
-- AC7 -> Add content and copy guardrails for labels, helper text, and filler UI narration. Proof: TODO.
-- AC8 -> Define project-first color selection and token reuse rules. Proof: TODO.
-- AC9 -> Provide curated internal fallback palettes for cases without project tokens. Proof: TODO.
-- AC10 -> Add implementation-time usage guidance and exception handling. Proof: TODO.
-- AC10b -> Document how auto-trigger behavior and explicit invocation should coexist. Proof: TODO.
-- AC11 -> Clarify the division of responsibility with `logics-uiux-designer`. Proof: TODO.
-- AC12 -> Ensure the package stays fully internal with no external naming or attribution. Proof: TODO.
-- AC13 -> Preserve full practical breadth even if the corpus is split across references. Proof: TODO.
-- AC14 -> Update `logics/skills/README.md` to document the new skill and its purpose. Proof: TODO.
+- AC1 -> Create the new internal skill package and establish `SKILL.md` as the canonical entrypoint. Proof: `logics/skills/logics-ui-steering/SKILL.md` was created as the new internal skill entrypoint.
+- AC2 -> Define the frontend-generation trigger conditions in the skill metadata and body. Proof: `logics/skills/logics-ui-steering/SKILL.md` explicitly targets HTML, CSS, React, Vue, Svelte, and generic frontend UI generation/refinement work.
+- AC2b -> Write the frontmatter name/description to maximize reliable auto-triggering for frontend work. Proof: the `name` and `description` in `logics/skills/logics-ui-steering/SKILL.md` align with the folder identity and include explicit frontend trigger wording.
+- AC3 -> Encode the guiding philosophy around rejecting generic AI-looking defaults. Proof: `logics/skills/logics-ui-steering/SKILL.md` frames the skill as a guardrail against generic AI-looking UI defaults and favors grounded, product-native output.
+- AC4 -> Cover the positive baseline across common UI primitives and layout expectations. Proof: `logics/skills/logics-ui-steering/references/primitives.md` covers layout, navigation, buttons, cards, forms, tables, tabs, panels, typography, spacing, and mobile behavior.
+- AC5 -> Encode the banned pattern families strongly enough to change generation behavior. Proof: `logics/skills/logics-ui-steering/references/banned_patterns.md` lists hard bans around radii, shells, glass, gradients, fake dashboards, decorative labels, and transform-heavy motion.
+- AC6 -> Add a concrete repeated-mistakes inventory instead of only abstract principles. Proof: `logics/skills/logics-ui-steering/references/banned_patterns.md` includes repeated component mistakes and visual failure modes such as nav badges, right rails, status-dot theater, and trend-chip filler.
+- AC7 -> Add content and copy guardrails for labels, helper text, and filler UI narration. Proof: `logics/skills/logics-ui-steering/references/banned_patterns.md` bans fake premium copy, decorative labels, explanatory note cards, and generic filler language.
+- AC8 -> Define project-first color selection and token reuse rules. Proof: `logics/skills/logics-ui-steering/references/palettes.md` defines a rule order that reuses project tokens first and falls back only when the project lacks a palette.
+- AC9 -> Provide curated internal fallback palettes for cases without project tokens. Proof: `logics/skills/logics-ui-steering/references/palettes.md` adds curated dark and light palette tables for fallback use.
+- AC10 -> Add implementation-time usage guidance and exception handling. Proof: `logics/skills/logics-ui-steering/SKILL.md` includes quick-start steps for inspecting project styles, preserving existing systems, applying references, and handling stylistic exceptions deliberately.
+- AC10b -> Document how auto-trigger behavior and explicit invocation should coexist. Proof: `logics/skills/logics-ui-steering/SKILL.md` has a dedicated `Activation` section covering both automatic triggering and explicit `$logics-ui-steering` use.
+- AC11 -> Clarify the division of responsibility with `logics-uiux-designer`. Proof: `logics/skills/logics-ui-steering/SKILL.md` states that this skill is not a broad UX strategy workflow and complements `logics-uiux-designer`.
+- AC12 -> Ensure the package stays fully internal with no external naming or attribution. Proof: the new skill files use only repository-native naming and contain no external repository, skill, or attribution references.
+- AC13 -> Preserve full practical breadth even if the corpus is split across references. Proof: the delivery keeps a concise `SKILL.md` plus three focused references for primitives, bans, and palettes, preserving the broad guidance corpus without overloading the trigger doc.
+- AC14 -> Update `logics/skills/README.md` to document the new skill and its purpose. Proof: `logics/skills/README.md` now has a dedicated `UI steering` section with usage guidance and the skill path.
 
 # Decision framing
 - Product framing: Consider

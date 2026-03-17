@@ -1,8 +1,8 @@
 ## req_057_add_an_internal_ui_steering_skill_and_agent_for_grounded_interface_generation - Add an internal UI steering skill and agent for grounded interface generation
 > From version: 1.10.4
-> Status: Ready
-> Understanding: 98
-> Confidence: 95
+> Status: Done
+> Understanding: 100%
+> Confidence: 99%
 > Complexity: Medium
 > Theme: Internal skill design and agent UX steering
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -148,21 +148,21 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # AC Traceability
-- AC1 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define a dedicated internal skill package under `logics/skills/` for UI steering.
-- AC2 -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task define the paired `agents/openai.yaml` contract and delivery path.
-- AC3 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task cover layout, typography, components, motion, accessibility, and copy discipline.
-- AC4 -> `item_068` and `item_069`. Proof: both backlog slices require project-first reuse of existing styles, tokens, and design language before fallback behavior.
-- AC5 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task explicitly position the new capability as complementary to `logics-uiux-designer`.
-- AC6 -> `item_068` and `item_069`. Proof: both backlog slices require fully internal naming and ban external repository, skill, or attribution references.
-- AC7 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task together define the implementation direction for the skill package, manifest, and documentation updates.
-- AC8 -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task preserve compatibility with the current `openai.yaml` registry and extension behavior.
-- AC8B -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task explicitly require explicit activation through agent selection, manifest wiring, and `$logics-ui-steering`.
-- AC9 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task require a broad internal rule corpus with philosophy, normal defaults, banned patterns, repeated mistakes, and usage guidance.
-- AC10 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define the banned pattern families that the implementation must encode strongly.
-- AC11 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define the positive defaults that should guide generated UI toward grounded product behavior.
-- AC12 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task require project-first token reuse and curated fallback palettes.
-- AC13 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task allow references only if the full practical guidance remains present and invocable.
-- AC14 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task explicitly require strong `SKILL.md` metadata and trigger wording so the capability can auto-trigger on matching frontend requests.
+- AC1 -> `item_068` and `task_071`. Proof: `logics/skills/logics-ui-steering/SKILL.md` now exists as the dedicated internal skill package for UI steering.
+- AC2 -> `item_069` and `task_071`. Proof: `logics/skills/logics-ui-steering/agents/openai.yaml` now delivers the paired agent manifest.
+- AC3 -> `item_068` and `task_071`. Proof: the delivered skill corpus spans `SKILL.md`, `references/primitives.md`, `references/banned_patterns.md`, and `references/palettes.md`.
+- AC4 -> `item_068` and `item_069`. Proof: both the skill doc and the agent prompt explicitly require project-first reuse of existing styles, tokens, and design language.
+- AC5 -> `item_068`, `item_069`, and `task_071`. Proof: the delivered skill positions itself as a focused implementation-time guardrail beside `logics-uiux-designer`.
+- AC6 -> `item_068` and `item_069`. Proof: the delivered files use only repository-native naming and contain no external repository, skill, or attribution references.
+- AC7 -> `item_068`, `item_069`, and `task_071`. Proof: the implemented package includes the skill corpus, the agent manifest, the activation contract, and the kit README update.
+- AC8 -> `item_069` and `task_071`. Proof: the agent manifest follows the current `openai.yaml` registry contract already used by the extension.
+- AC8B -> `item_069` and `task_071`. Proof: explicit activation is now supported through `agents/openai.yaml`, the derived `$logics-ui-steering` id, and the documented activation path.
+- AC9 -> `item_068` and `task_071`. Proof: the delivered references encode philosophy, positive defaults, banned patterns, repeated mistakes, color policy, and usage guidance.
+- AC10 -> `item_068` and `task_071`. Proof: `references/banned_patterns.md` implements the required banned-pattern families in concrete repository-native wording.
+- AC11 -> `item_068` and `task_071`. Proof: `references/primitives.md` implements the grounded positive defaults for layout, components, typography, spacing, and mobile behavior.
+- AC12 -> `item_068` and `task_071`. Proof: `references/palettes.md` implements the project-first palette rule and curated dark/light fallback palette sets.
+- AC13 -> `item_068` and `task_071`. Proof: the delivered corpus splits guidance across references while keeping the full practical rule set present and invocable through `SKILL.md`.
+- AC14 -> `item_068`, `item_069`, and `task_071`. Proof: `SKILL.md` frontmatter and body now include explicit frontend trigger wording so the capability can auto-trigger on matching UI requests.
 
 # Companion docs
 - Product brief(s): (none yet)

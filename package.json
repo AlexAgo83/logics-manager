@@ -31,6 +31,7 @@
         {
           "id": "logics.orchestrator",
           "name": "Orchestrator",
+          "icon": "media/logics.svg",
           "type": "webview"
         }
       ]

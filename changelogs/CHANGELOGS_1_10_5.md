@@ -20,6 +20,10 @@
 - Split remaining host-side responsibilities out of `src/logicsViewProvider.ts` into focused modules for document actions and webview HTML generation.
 - Split remaining webview DOM wiring out of `media/main.js` into `media/mainInteractions.js` while preserving a readable orchestration entrypoint.
 
+### Packaging and manifest
+
+- Added the missing view-level `icon` declaration for `logics.orchestrator` in `package.json` so the VS Code extension manifest satisfies the current schema checks in the editor and packaging flow.
+
 ### Validation
 
 - `npm run ci:check`

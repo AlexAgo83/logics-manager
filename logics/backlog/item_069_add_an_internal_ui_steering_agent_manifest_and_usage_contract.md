@@ -125,14 +125,16 @@ flowchart LR
 - AC11 -> Preserve compatibility with the existing agent registry contract. Proof: TODO.
 - AC12 -> Keep any surrounding documentation internal-only. Proof: TODO.
 - AC13 -> Document both explicit activation and auto-trigger behavior around the same capability. Proof: TODO.
+- req057-AC8B -> Preserve explicit activation through `agents/openai.yaml`, Quick Pick selection, and `$logics-ui-steering`. Proof: this backlog item defines the manifest contract, derived invocation id, and explicit activation path.
+- req057-AC14 -> Align explicit activation with strong `SKILL.md` identity so auto-trigger and manual invocation describe the same capability. Proof: this backlog item requires the manifest wording and `SKILL.md` identity to stay coordinated.
 
 # Decision framing
 - Product framing: Consider
 - Product signals: navigation and discoverability
 - Product follow-up: No product brief is required unless the agent surface expands into a larger multi-agent UI workflow.
-- Architecture framing: Required
+- Architecture framing: Consider
 - Architecture signals: contracts and integration
-- Architecture follow-up: Create or link an architecture decision if implementation needs to formalize naming or manifest conventions beyond the current pattern.
+- Architecture follow-up: Review whether an architecture decision is needed only if implementation needs to formalize naming or manifest conventions beyond the current pattern.
 
 # Links
 - Product brief(s): (none yet)

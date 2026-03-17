@@ -147,6 +147,23 @@ flowchart TD
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
 
+# AC Traceability
+- AC1 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define a dedicated internal skill package under `logics/skills/` for UI steering.
+- AC2 -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task define the paired `agents/openai.yaml` contract and delivery path.
+- AC3 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task cover layout, typography, components, motion, accessibility, and copy discipline.
+- AC4 -> `item_068` and `item_069`. Proof: both backlog slices require project-first reuse of existing styles, tokens, and design language before fallback behavior.
+- AC5 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task explicitly position the new capability as complementary to `logics-uiux-designer`.
+- AC6 -> `item_068` and `item_069`. Proof: both backlog slices require fully internal naming and ban external repository, skill, or attribution references.
+- AC7 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task together define the implementation direction for the skill package, manifest, and documentation updates.
+- AC8 -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task preserve compatibility with the current `openai.yaml` registry and extension behavior.
+- AC8B -> `item_069` and `task_071`. Proof: the agent-manifest backlog slice and orchestration task explicitly require explicit activation through agent selection, manifest wiring, and `$logics-ui-steering`.
+- AC9 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task require a broad internal rule corpus with philosophy, normal defaults, banned patterns, repeated mistakes, and usage guidance.
+- AC10 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define the banned pattern families that the implementation must encode strongly.
+- AC11 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task define the positive defaults that should guide generated UI toward grounded product behavior.
+- AC12 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task require project-first token reuse and curated fallback palettes.
+- AC13 -> `item_068` and `task_071`. Proof: the skill corpus backlog slice and orchestration task allow references only if the full practical guidance remains present and invocable.
+- AC14 -> `item_068`, `item_069`, and `task_071`. Proof: the backlog slices and orchestration task explicitly require strong `SKILL.md` metadata and trigger wording so the capability can auto-trigger on matching frontend requests.
+
 # Companion docs
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)

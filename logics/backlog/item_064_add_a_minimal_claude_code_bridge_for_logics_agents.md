@@ -1,9 +1,9 @@
 ## item_064_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
 > From version: 1.10.3
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -74,18 +74,19 @@ flowchart LR
   - keep Claude files as thin adapters;
   - point them back to `logics/instructions.md` and the relevant `SKILL.md`;
   - avoid copying detailed workflow rules into `.claude/*`.
+- Task `task_069_add_a_minimal_claude_code_bridge_for_logics_agents` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # Tasks
 - `logics/tasks/task_069_add_a_minimal_claude_code_bridge_for_logics_agents.md`
 
 # AC Traceability
- - AC1 -> Define a minimal `.claude/` layout without moving the real workflow source out of `logics/`. Proof: TODO.
- - AC2 -> Keep Claude bridge files thin and explicitly anchored to `logics/instructions.md`, `SKILL.md`, and scripts. Proof: TODO.
- - AC3 -> Avoid duplicating detailed prompts and conventions across Claude files, `openai.yaml`, and `SKILL.md`. Proof: TODO.
- - AC4 -> Cover at least the first workflow-oriented Claude entrypoint around request and flow management. Proof: TODO.
- - AC5 -> Document the source-of-truth contract between `logics/` and `.claude/`. Proof: TODO.
- - AC6 -> Preserve current Codex-oriented plugin behavior and manifest contracts. Proof: TODO.
- - AC7 -> Leave the bridge small enough to stay maintainable manually or to be generated later without changing ownership. Proof: TODO.
+ - AC1 -> Define a minimal `.claude/` layout without moving the real workflow source out of `logics/`. Proof: `.claude/agents/logics-flow-manager.md`, `.claude/commands/logics-request.md`, and `.claude/commands/logics-flow.md` provide the first minimal bridge without relocating workflow ownership out of `logics/`.
+ - AC2 -> Keep Claude bridge files thin and explicitly anchored to `logics/instructions.md`, `SKILL.md`, and scripts. Proof: all three `.claude/*` bridge files point Claude Code back to `logics/instructions.md`, `logics/skills/logics-flow-manager/SKILL.md`, and `logics_flow.py`.
+ - AC3 -> Avoid duplicating detailed prompts and conventions across Claude files, `openai.yaml`, and `SKILL.md`. Proof: the `.claude/*` files stay short, reference-driven, and intentionally derivative rather than copying the detailed Logics workflow corpus.
+ - AC4 -> Cover at least the first workflow-oriented Claude entrypoint around request and flow management. Proof: `.claude/commands/logics-request.md` covers request authoring and `.claude/commands/logics-flow.md` covers the broader flow-manager entrypoint.
+ - AC5 -> Document the source-of-truth contract between `logics/` and `.claude/`. Proof: `.claude/agents/logics-flow-manager.md` states that `logics/` remains canonical and `.claude/` is only a thin adapter.
+ - AC6 -> Preserve current Codex-oriented plugin behavior and manifest contracts. Proof: the bridge adds only `.claude/*` files and does not modify `logics/skills/*/agents/openai.yaml`, `src/agentRegistry.ts`, or current plugin contracts.
+ - AC7 -> Leave the bridge small enough to stay maintainable manually or to be generated later without changing ownership. Proof: the implementation adds only one agent file and two small commands, keeping `.claude/` intentionally tiny and derivative.
 
 # Decision framing
 - Product framing: Not needed

@@ -1,8 +1,8 @@
 ## req_056_add_codex_context_pack_attention_explain_and_dependency_map - Add codex context pack, attention explain, and dependency map
-> From version: 1.10.5
-> Status: Ready
-> Understanding: 98%
-> Confidence: 95%
+> From version: 1.10.6
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -94,13 +94,13 @@ flowchart TD
 - [x] Dependencies and known risks are listed.
 
 # AC Traceability
-- AC1 -> `item_065` and `task_070`. Proof: the backlog slice and orchestration task define default context-pack scope, structure, and selected-item launch behavior.
-- AC2 -> `item_066` and `task_070`. Proof: the backlog slice and orchestration task define explicit attention reasons instead of a silent aggregate signal.
-- AC3 -> `item_066` and `task_070`. Proof: the planned reason taxonomy and remediation guidance are captured for blocked, orphaned, inconsistent, and missing-supporting-doc cases.
-- AC4 -> `item_067` and `task_070`. Proof: the backlog slice and orchestration task define a dependency-map feature built from the managed Logics relationship graph.
-- AC5 -> `item_067` and `task_070`. Proof: the selected-item subgraph and node-selection synchronization contract are captured in the dependency-map slice.
-- AC6 -> `item_065`, `item_066`, `item_067`, `task_070`, and `adr_007`. Proof: the backlog slices, orchestration task, and ADR all require one shared relationship-reasoning layer instead of separate feature-local traversal logic.
-- AC7 -> `task_070`. Proof: the orchestration task fixes the implementation order as shared reasoning first, then context pack, then attention explain, then dependency map, and allows phased release across multiple versions.
+- AC1 -> `item_065` and `task_070`. Proof: the shipped `Context pack for Codex` section now assembles selected-item context from the shared relationship graph, emits structured sections, and uses preview-first launch behavior.
+- AC2 -> `item_066` and `task_070`. Proof: attention states are now rendered as explicit reason cards and short card badges instead of a silent aggregate signal.
+- AC3 -> `item_066` and `task_070`. Proof: the shipped taxonomy covers blocked, orphaned, workflow-inconsistent, and missing-supporting-doc cases, with remediation metadata when the plugin can act.
+- AC4 -> `item_067` and `task_070`. Proof: the plugin now renders a selected-item dependency map built from the managed Logics relationship graph across workflow and supporting docs.
+- AC5 -> `item_067` and `task_070`. Proof: clicking a dependency-map node now synchronizes the details panel to the chosen item while preserving existing document actions.
+- AC6 -> `item_065`, `item_066`, `item_067`, `task_070`, and `adr_007`. Proof: `media/logicsModel.js` became the shared relationship-reasoning layer consumed by selectors, attention explanation, context-pack assembly, and dependency-map rendering.
+- AC7 -> `task_070`. Proof: the delivered implementation follows the requested order in one slice: shared reasoning first, then context pack, then attention explain, then dependency map, with shared tests and no duplicate graph traversal logic.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -279,9 +279,15 @@
   border-color: rgba(251, 191, 36, 0.4);
 }
 
-.card__badge--health-done-mismatch {
+.card__badge--health-done-mismatch,
+.card__badge--health-workflow-inconsistent {
   background: rgba(249, 115, 22, 0.2);
   border-color: rgba(251, 146, 60, 0.42);
+}
+
+.card__badge--health-missing-supporting-doc {
+  background: rgba(14, 116, 144, 0.2);
+  border-color: rgba(34, 211, 238, 0.35);
 }
 
 .card--selected {

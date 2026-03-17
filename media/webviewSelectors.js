@@ -67,6 +67,18 @@
       return typeof modelApi.collectPrimaryFlowItems === "function" ? modelApi.collectPrimaryFlowItems(item, getItems()) : [];
     }
 
+    function getAttentionReasons(item) {
+      return typeof modelApi.getAttentionReasons === "function" ? modelApi.getAttentionReasons(item, getItems()) : [];
+    }
+
+    function buildContextPack(item) {
+      return typeof modelApi.buildContextPack === "function" ? modelApi.buildContextPack(item, getItems()) : null;
+    }
+
+    function buildDependencyMap(item) {
+      return typeof modelApi.buildDependencyMap === "function" ? modelApi.buildDependencyMap(item, getItems()) : null;
+    }
+
     function findManagedItemByReference(rawValue, fallbackUsage) {
       return typeof modelApi.findManagedItemByReference === "function"
         ? modelApi.findManagedItemByReference(rawValue, getItems(), fallbackUsage)
@@ -177,33 +189,11 @@
     }
 
     function getHealthSignals(item) {
-      const signals = [];
-      const statusValue = getStatusValue(item);
-      const progressValue = getProgressValue(item);
-
-      if (statusValue.includes("blocked")) {
-        signals.push("blocked");
-      }
-      if (!isPrimaryFlowStage(item.stage) && collectPrimaryFlowItems(item).length === 0) {
-        signals.push("orphaned");
-      }
-      if (
-        typeof progressValue === "number" &&
-        progressValue >= 100 &&
-        !statusValue.includes("done") &&
-        !statusValue.includes("complete")
-      ) {
-        signals.push("done-mismatch");
-      }
-
-      return signals;
+      return getAttentionReasons(item).map((reason) => reason.key);
     }
 
     function needsAttention(item) {
-      if (item.stage === "request" && !isRequestProcessed(item)) {
-        return true;
-      }
-      return getHealthSignals(item).length > 0;
+      return getAttentionReasons(item).length > 0;
     }
 
     function getSuggestedActions(item) {
@@ -406,7 +396,10 @@
       getStageHeading,
       normalizeSearchValue,
       getStatusValue,
+      getAttentionReasons,
       getHealthSignals,
+      buildContextPack,
+      buildDependencyMap,
       needsAttention,
       getSuggestedActions,
       getActivityEntries,

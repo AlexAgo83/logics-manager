@@ -73,6 +73,12 @@
       selectAgent() {
         invokeHostOnly("select-agent", {}, "Select Agent");
       },
+      injectPrompt(prompt) {
+        if (!prompt) {
+          return;
+        }
+        invokeHostOnly("inject-prompt", { prompt }, "Inject into Codex");
+      },
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");
       },

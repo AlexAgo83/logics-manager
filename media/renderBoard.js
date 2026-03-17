@@ -39,6 +39,7 @@
       collectCompanionDocs,
       collectSpecs,
       collectPrimaryFlowItems,
+      getAttentionReasons,
       getHealthSignals,
       getSuggestedActions,
       progressState,
@@ -392,28 +393,21 @@
     }
 
     function createHealthBadges(item) {
-      if (typeof getHealthSignals !== "function") {
+      if (typeof getAttentionReasons !== "function") {
         return null;
       }
-      const signals = getHealthSignals(item);
-      if (!signals || signals.length === 0) {
+      const reasons = getAttentionReasons(item);
+      if (!reasons || reasons.length === 0) {
         return null;
       }
-
-      const labels = {
-        blocked: { label: "Blocked", title: "This item is explicitly marked as blocked." },
-        orphaned: { label: "Orphaned", title: "This supporting doc is not linked back to a primary-flow item." },
-        "done-mismatch": { label: "Done mismatch", title: "Progress and status disagree about this item being done." }
-      };
 
       const badges = document.createElement("div");
       badges.className = "card__badges card__badges--health";
-      signals.slice(0, 2).forEach((signal) => {
-        const meta = labels[signal] || { label: signal, title: signal };
+      reasons.slice(0, 2).forEach((reason) => {
         const badge = document.createElement("span");
-        badge.className = `card__badge card__badge--health card__badge--health-${signal}`;
-        badge.textContent = meta.label;
-        badge.title = meta.title;
+        badge.className = `card__badge card__badge--health card__badge--health-${reason.key}`;
+        badge.textContent = reason.shortLabel || reason.label;
+        badge.title = reason.description || reason.label;
         badges.appendChild(badge);
       });
       return badges;

@@ -1,9 +1,9 @@
 ## item_067_add_dependency_map_for_logics_workflow_relationships - Add dependency map for Logics workflow relationships
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0% planned
+> Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -61,18 +61,19 @@ flowchart LR
   - it is introduced as a `Map` mode or toggle in the selected-item flow, not as a separate global view;
   - it is navigable first, with no heavy filter system in the first pass;
   - graph depth is bounded to one or two levels around the current item.
+- Task `task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # Tasks
 - `logics/tasks/task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map.md`
 
 # AC Traceability
-- AC1 -> A dedicated dependency-map surface is built from the managed Logics graph. Proof: TODO.
-- AC2 -> The graph covers the indexed workflow and companion stages already modeled by the extension. Proof: TODO.
-- AC3 -> The map is rendered as a bounded subgraph centered on the selected item. Proof: TODO.
-- AC4 -> Readability is preserved through one or two levels of graph depth and a non-global first surface. Proof: TODO.
-- AC5 -> Node selection synchronizes with the existing item-detail workflow. Proof: TODO.
-- AC6 -> The map reuses the current index instead of introducing duplicate graph resolution logic. Proof: TODO.
-- AC7 -> Automated coverage exercises graph data shaping or map interaction behavior. Proof: TODO.
+- AC1 -> A dedicated dependency-map surface is built from the managed Logics graph. Proof: `renderDetails.js` now renders a `Dependency map` section for the selected item.
+- AC2 -> The graph covers the indexed workflow and companion stages already modeled by the extension. Proof: the shared graph model includes requests, backlog items, tasks, companion docs, and specs in the bounded map groups.
+- AC3 -> The map is rendered as a bounded subgraph centered on the selected item. Proof: `buildDependencyMap()` builds groups around the current item only and never expands to a whole-workspace view.
+- AC4 -> Readability is preserved through one or two levels of graph depth and a non-global first surface. Proof: the v1 map is limited to direct grouped neighbors (`Upstream`, `Downstream`, `Linked workflow`, `Supporting docs`) and remains inside the selected-item details flow.
+- AC5 -> Node selection synchronizes with the existing item-detail workflow. Proof: map nodes now call the shared `selectItem()` callback and immediately rerender the details panel for the clicked item.
+- AC6 -> The map reuses the current index instead of introducing duplicate graph resolution logic. Proof: `buildDependencyMap()` is computed from the same shared relationship insights used by context packs and attention explanations.
+- AC7 -> Automated coverage exercises graph data shaping or map interaction behavior. Proof: `tests/webview.harness-details-and-filters.test.ts` now clicks a dependency-map node and asserts that the details panel synchronizes to the newly selected task.
 
 # Decision framing
 - Product framing: Consider

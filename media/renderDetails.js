@@ -49,9 +49,14 @@
       collectCompanionDocs,
       collectSpecs,
       collectPrimaryFlowItems,
+      getAttentionReasons,
+      buildContextPack,
+      buildDependencyMap,
       findManagedItemByReference,
-      formatDate
+      formatDate,
+      selectItem
     } = options;
+    let contextPackPreviewId = null;
 
     function createSectionTitle(label, key) {
       const title = document.createElement("button");
@@ -205,6 +210,70 @@
       return row;
     }
 
+    function handleReasonAction(item, reason) {
+      const action = reason && reason.remediation ? reason.remediation.action : "";
+      if (action === "promote") {
+        hostApi.promote(item.id);
+      } else if (action === "add-reference") {
+        hostApi.addReference(item.id);
+      } else if (action === "create-companion-doc") {
+        hostApi.createCompanionDoc(item.id);
+      }
+    }
+
+    function createReasonCard(item, reason, primary = false) {
+      const card = document.createElement("div");
+      card.className = `details__reason-card${primary ? " details__reason-card--primary" : ""}`;
+
+      const badge = document.createElement("span");
+      badge.className = "details__reason-badge";
+      badge.textContent = primary ? `Primary • ${reason.label}` : reason.label;
+      card.appendChild(badge);
+
+      const description = document.createElement("div");
+      description.className = "details__reason-description";
+      description.textContent = reason.description;
+      card.appendChild(description);
+
+      if (reason.remediation && reason.remediation.description) {
+        const remediation = document.createElement("div");
+        remediation.className = "details__reason-remediation";
+        remediation.textContent = reason.remediation.description;
+        card.appendChild(remediation);
+      }
+
+      if (reason.remediation && reason.remediation.label) {
+        if (reason.remediation.action) {
+          card.appendChild(
+            createInlineCta(reason.remediation.label, () => handleReasonAction(item, reason), "details__inline-cta--primary")
+          );
+        } else {
+          const note = document.createElement("div");
+          note.className = "details__reason-remediation";
+          note.textContent = reason.remediation.label;
+          card.appendChild(note);
+        }
+      }
+
+      return card;
+    }
+
+    function createMapNode(targetItem, currentId) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "details__map-node";
+      if (targetItem.id === currentId) {
+        button.classList.add("details__map-node--current");
+        button.disabled = true;
+      }
+      button.textContent = `${getStageLabel(targetItem.stage)} • ${targetItem.id}`;
+      button.title = targetItem.title;
+      if (targetItem.id !== currentId) {
+        button.addEventListener("click", () => selectItem(targetItem.id));
+      }
+      return button;
+    }
+
     function applySectionCollapse(section, title, content, isCollapsed) {
       section.classList.toggle("details__section--collapsed", isCollapsed);
       title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -304,6 +373,106 @@
         applySectionCollapse(section, sectionHeader.title, indicatorList, getCollapsedDetailSections().has(indicatorKey));
         attachSectionToggle(section, sectionHeader.title, indicatorList, indicatorKey);
         detailsBody.appendChild(section);
+      }
+
+      const attentionReasons = typeof getAttentionReasons === "function" ? getAttentionReasons(item) : [];
+      if (attentionReasons.length) {
+        const attentionSection = document.createElement("div");
+        attentionSection.className = "details__section";
+        const attentionKey = "attentionExplain";
+        const attentionHeader = createSectionHeader("Attention explain", attentionKey);
+        const attentionContent = document.createElement("div");
+        attentionContent.className = "details__indicators";
+        attentionContent.appendChild(createReasonCard(item, attentionReasons[0], true));
+        attentionReasons.slice(1).forEach((reason) => attentionContent.appendChild(createReasonCard(item, reason)));
+        attentionSection.appendChild(attentionHeader.header);
+        attentionSection.appendChild(attentionContent);
+        applySectionCollapse(attentionSection, attentionHeader.title, attentionContent, getCollapsedDetailSections().has(attentionKey));
+        attachSectionToggle(attentionSection, attentionHeader.title, attentionContent, attentionKey);
+        detailsBody.appendChild(attentionSection);
+      }
+
+      const contextPack = typeof buildContextPack === "function" ? buildContextPack(item) : null;
+      if (contextPack) {
+        const contextSection = document.createElement("div");
+        contextSection.className = "details__section";
+        const contextKey = "contextPack";
+        const contextHeader = createSectionHeader("Context pack for Codex", contextKey);
+        const contextContent = document.createElement("div");
+        contextContent.className = "details__indicators";
+
+        const summary = document.createElement("div");
+        summary.className = "details__reason-description";
+        summary.textContent =
+          isPrimaryFlowStage(item.stage)
+            ? `${contextPack.summary.upstreamCount} upstream, ${contextPack.summary.downstreamCount} downstream, ${contextPack.summary.companionCount} companion docs, ${contextPack.summary.specCount} specs.`
+            : `${contextPack.summary.linkedWorkflowCount} linked workflow items, ${contextPack.summary.companionCount} companion docs, ${contextPack.summary.specCount} specs.`;
+        contextContent.appendChild(summary);
+
+        if (contextPack.summary.trimmed) {
+          const trimmed = document.createElement("div");
+          trimmed.className = "details__reason-remediation";
+          trimmed.textContent = "The preview is trimmed to keep the pack compact and predictable before injection.";
+          contextContent.appendChild(trimmed);
+        }
+
+        const previewToolbar = document.createElement("div");
+        previewToolbar.className = "details__pack-toolbar";
+        previewToolbar.appendChild(
+          createInlineCta(
+            contextPackPreviewId === item.id ? "Hide preview" : "Preview pack",
+            () => {
+              contextPackPreviewId = contextPackPreviewId === item.id ? null : item.id;
+              renderDetails();
+            },
+            "details__inline-cta--primary"
+          )
+        );
+        contextContent.appendChild(previewToolbar);
+
+        if (contextPackPreviewId === item.id) {
+          const preview = document.createElement("pre");
+          preview.className = "details__pack-preview";
+          preview.textContent = contextPack.text;
+          contextContent.appendChild(preview);
+          contextContent.appendChild(
+            createInlineCta("Inject into Codex", () => hostApi.injectPrompt(contextPack.text), "details__inline-cta--primary")
+          );
+        }
+
+        contextSection.appendChild(contextHeader.header);
+        contextSection.appendChild(contextContent);
+        applySectionCollapse(contextSection, contextHeader.title, contextContent, getCollapsedDetailSections().has(contextKey));
+        attachSectionToggle(contextSection, contextHeader.title, contextContent, contextKey);
+        detailsBody.appendChild(contextSection);
+      }
+
+      const dependencyMap = typeof buildDependencyMap === "function" ? buildDependencyMap(item) : null;
+      if (dependencyMap && dependencyMap.groups && dependencyMap.groups.length) {
+        const mapSection = document.createElement("div");
+        mapSection.className = "details__section";
+        const mapKey = "dependencyMap";
+        const mapHeader = createSectionHeader("Dependency map", mapKey);
+        const mapContent = document.createElement("div");
+        mapContent.className = "details__dependency-map";
+        dependencyMap.groups.forEach((group) => {
+          const groupEl = document.createElement("div");
+          groupEl.className = "details__map-group";
+          const label = document.createElement("div");
+          label.className = "details__map-group-label";
+          label.textContent = group.label;
+          groupEl.appendChild(label);
+          const nodes = document.createElement("div");
+          nodes.className = "details__map-nodes";
+          group.items.forEach((targetItem) => nodes.appendChild(createMapNode(targetItem, item.id)));
+          groupEl.appendChild(nodes);
+          mapContent.appendChild(groupEl);
+        });
+        mapSection.appendChild(mapHeader.header);
+        mapSection.appendChild(mapContent);
+        applySectionCollapse(mapSection, mapHeader.title, mapContent, getCollapsedDetailSections().has(mapKey));
+        attachSectionToggle(mapSection, mapHeader.title, mapContent, mapKey);
+        detailsBody.appendChild(mapSection);
       }
 
       const companionDocs = collectCompanionDocs(item);

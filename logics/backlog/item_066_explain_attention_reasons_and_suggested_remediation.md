@@ -1,9 +1,9 @@
 ## item_066_explain_attention_reasons_and_suggested_remediation - Explain attention reasons and suggested remediation
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0% planned
+> Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -62,18 +62,19 @@ flowchart LR
   - short labels may appear on cards or in the attention view, but full explanation lives in details;
   - one primary reason is shown first when multiple reasons apply;
   - remediation is clickable only when the plugin has a real corresponding action, otherwise it stays textual.
+- Task `task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # Tasks
 - `logics/tasks/task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map.md`
 
 # AC Traceability
-- AC1 -> Attention classification emits explicit user-readable reasons instead of a silent aggregate flag. Proof: TODO.
-- AC2 -> The first reason set covers high-confidence cases already present in the plugin. Proof: TODO.
-- AC3 -> Details-panel explanations and compact surface labels are rendered close to current item context. Proof: TODO.
-- AC4 -> Suggested remediation copy or action is attached to each explainable reason where possible. Proof: TODO.
-- AC5 -> The new explanation layer composes with existing filters and health signaling. Proof: TODO.
-- AC6 -> Primary and secondary reason ordering stays explicit when multiple reasons apply. Proof: TODO.
-- AC7 -> Automated coverage exercises reason classification and rendering behavior. Proof: TODO.
+- AC1 -> Attention classification emits explicit user-readable reasons instead of a silent aggregate flag. Proof: `media/logicsModel.js` now returns structured attention reasons with labels, descriptions, and remediation metadata.
+- AC2 -> The first reason set covers high-confidence cases already present in the plugin. Proof: the shipped taxonomy includes `Blocked`, `Workflow inconsistent`, `Orphaned`, and `Missing supporting doc`.
+- AC3 -> Details-panel explanations and compact surface labels are rendered close to current item context. Proof: `renderDetails.js` now renders an `Attention explain` section, and `renderBoard.js` uses the primary short labels as health badges on cards.
+- AC4 -> Suggested remediation copy or action is attached to each explainable reason where possible. Proof: reason cards now wire concrete actions only when the plugin can execute them (`Promote request`, `Link to primary flow`, `Create companion doc`) and otherwise keep remediation textual.
+- AC5 -> The new explanation layer composes with existing filters and health signaling. Proof: `webviewSelectors.js` now derives `needsAttention()` and health badges from the shared reason model, so filtering and badges stay aligned.
+- AC6 -> Primary and secondary reason ordering stays explicit when multiple reasons apply. Proof: the shared model sorts reasons by priority and the details panel renders one primary card followed by secondary cards.
+- AC7 -> Automated coverage exercises reason classification and rendering behavior. Proof: `tests/webview.harness-details-and-filters.test.ts` now checks primary-reason ordering and remediation action posting for an attention-triggering request.
 
 # Decision framing
 - Product framing: Consider

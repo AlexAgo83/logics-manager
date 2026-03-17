@@ -1,9 +1,9 @@
 ## item_065_build_codex_context_pack_for_related_logics_docs - Build Codex context pack for related Logics docs
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0% planned
+> Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -62,18 +62,19 @@ flowchart LR
   - default scope is current item plus direct parent, direct children, linked companion docs, and linked specs;
   - output is a structured pack, not a flat concatenated text dump;
   - preview comes first, with explicit user-triggered injection into Codex afterward.
+- Task `task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map` was finished via `logics_flow.py finish task` on 2026-03-17.
 
 # Tasks
 - `logics/tasks/task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map.md`
 
 # AC Traceability
-- AC1 -> Shared graph reasoning resolves the selected item and related docs into a reusable pack model. Proof: TODO.
-- AC2 -> Inclusion rules cover parent, child, and companion docs explicitly. Proof: TODO.
-- AC3 -> The pack renderer emits structured sections for the selected item and related docs. Proof: TODO.
-- AC4 -> Pack ordering and trimming rules are documented and implemented. Proof: TODO.
-- AC5 -> A visible detail-panel launch and preview flow is added before Codex injection. Proof: TODO.
-- AC5 -> Empty or inconsistent graph cases degrade gracefully with explicit fallback behavior. Proof: TODO.
-- AC6 -> Automated coverage exercises pack selection and output shaping. Proof: TODO.
+- AC1 -> Shared graph reasoning resolves the selected item and related docs into a reusable pack model. Proof: `media/logicsModel.js` now exposes `buildContextPack()` on top of shared relationship insights instead of a context-pack-only traversal path.
+- AC2 -> Inclusion rules cover parent, child, and companion docs explicitly. Proof: the pack builder includes the current item plus direct upstream/downstream workflow links for primary items, linked workflow items for supporting docs, companion docs, and specs.
+- AC3 -> The pack renderer emits structured sections for the selected item and related docs. Proof: the generated text includes explicit `Current item`, `Upstream` or `Linked workflow`, `Downstream`, `Companion docs`, `Specs`, and `Open questions` sections.
+- AC4 -> Pack ordering and trimming rules are documented and implemented. Proof: workflow items are stage-sorted and the preview trims upstream, downstream, companion-doc, and spec lists to bounded counts with explicit trim messaging in the details panel.
+- AC5 -> A visible detail-panel launch and preview flow is added before Codex injection. Proof: `renderDetails.js` now renders a `Context pack for Codex` section with `Preview pack` and `Inject into Codex` actions.
+- AC5 -> Empty or inconsistent graph cases degrade gracefully with explicit fallback behavior. Proof: empty sections render `(none)` placeholders, and open questions fall back to a neutral graph-risk note when no explicit attention reason exists.
+- AC6 -> Automated coverage exercises pack selection and output shaping. Proof: `tests/webview.harness-details-and-filters.test.ts` now asserts preview rendering and `inject-prompt` posting for the generated context pack.
 
 # Decision framing
 - Product framing: Consider

@@ -1,4 +1,6 @@
 (() => {
+  const WORKFLOW_STAGE_ORDER = ["request", "backlog", "task"];
+
   function getStageLabel(stage) {
     switch (stage) {
       case "request":
@@ -321,11 +323,286 @@
     return collectLinkedWorkflowItems(item, allItems).some((linkedItem) => isProcessedWorkflowItem(linkedItem));
   }
 
+  function getWorkflowStageRank(stage) {
+    return WORKFLOW_STAGE_ORDER.indexOf(stage);
+  }
+
+  function dedupeItems(items) {
+    const seen = new Set();
+    return (items || []).filter((item) => {
+      if (!item) {
+        return false;
+      }
+      const key = item.relPath || item.id;
+      if (!key || seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function sortWorkflowItems(items) {
+    return dedupeItems(items).sort((left, right) => {
+      const leftRank = getWorkflowStageRank(left.stage);
+      const rightRank = getWorkflowStageRank(right.stage);
+      if (leftRank !== rightRank) {
+        return leftRank - rightRank;
+      }
+      return String(left.id).localeCompare(String(right.id));
+    });
+  }
+
+  function sortManagedItems(items) {
+    return dedupeItems(items).sort((left, right) => {
+      const leftStage = getStageLabel(left.stage);
+      const rightStage = getStageLabel(right.stage);
+      if (leftStage !== rightStage) {
+        return leftStage.localeCompare(rightStage);
+      }
+      return String(left.id).localeCompare(String(right.id));
+    });
+  }
+
+  function getRelationshipInsights(item, allItems) {
+    const companions = collectCompanionDocs(item, allItems);
+    const specs = collectSpecs(item, allItems);
+    const primaryFlowLinks = collectPrimaryFlowItems(item, allItems);
+    const stageRank = getWorkflowStageRank(item && item.stage);
+
+    let upstream = [];
+    let downstream = [];
+    let linkedWorkflow = [];
+
+    if (stageRank >= 0) {
+      upstream = sortWorkflowItems(primaryFlowLinks.filter((candidate) => getWorkflowStageRank(candidate.stage) < stageRank));
+      downstream = sortWorkflowItems(primaryFlowLinks.filter((candidate) => getWorkflowStageRank(candidate.stage) > stageRank));
+    } else {
+      linkedWorkflow = sortWorkflowItems(primaryFlowLinks);
+    }
+
+    return {
+      upstream,
+      downstream,
+      linkedWorkflow,
+      companionDocs: sortManagedItems(companions.map((entry) => entry.item || entry).filter(Boolean)),
+      specs: sortManagedItems(specs),
+      supportingDocs: sortManagedItems([
+        ...companions.map((entry) => entry.item || entry).filter(Boolean),
+        ...specs
+      ])
+    };
+  }
+
+  function getAttentionReasons(item, allItems) {
+    if (!item) {
+      return [];
+    }
+
+    const insights = getRelationshipInsights(item, allItems);
+    const statusValue = normalizeStatus(item && item.indicators ? item.indicators.Status : "");
+    const progressValue = parseProgress(item && item.indicators ? item.indicators.Progress : "");
+    const reasons = [];
+
+    if (statusValue.includes("blocked")) {
+      reasons.push({
+        key: "blocked",
+        label: "Blocked",
+        shortLabel: "Blocked",
+        description: "This item is explicitly marked as blocked in its indicators.",
+        remediation: {
+          label: "Update blockers in the doc",
+          description: "Clarify the blocking dependency or move the item back to an actionable status."
+        }
+      });
+    }
+
+    if (progressValue === 100 && !statusValue.includes("done") && !statusValue.includes("complete")) {
+      reasons.push({
+        key: "workflow-inconsistent",
+        label: "Workflow inconsistent",
+        shortLabel: "Inconsistent",
+        description: "Progress is at 100% but the workflow status is not marked as done or complete.",
+        remediation: {
+          label: "Sync status with progress",
+          description: "Mark the item done or adjust progress so status and progress describe the same state."
+        }
+      });
+    }
+
+    if (item.stage === "request" && !isRequestProcessed(item, allItems)) {
+      reasons.push({
+        key: "workflow-inconsistent",
+        label: "Workflow inconsistent",
+        shortLabel: "No delivery child",
+        description: "This request has no linked backlog or task item in a delivery-ready workflow state yet.",
+        remediation: {
+          label: "Promote request",
+          action: "promote"
+        }
+      });
+    }
+
+    if (!isPrimaryFlowStage(item.stage) && insights.linkedWorkflow.length === 0) {
+      reasons.push({
+        key: "orphaned",
+        label: "Orphaned",
+        shortLabel: "Orphaned",
+        description: "This supporting document is not linked back to any request, backlog item, or task.",
+        remediation: {
+          label: "Link to primary flow",
+          action: "add-reference"
+        }
+      });
+    }
+
+    if ((item.stage === "request" || item.stage === "backlog") && insights.supportingDocs.length === 0) {
+      reasons.push({
+        key: "missing-supporting-doc",
+        label: "Missing supporting doc",
+        shortLabel: "Missing docs",
+        description: "This workflow item has no linked companion docs or specs yet.",
+        remediation: {
+          label: "Create companion doc",
+          action: "create-companion-doc"
+        }
+      });
+    }
+
+    const priority = {
+      blocked: 0,
+      "workflow-inconsistent": 1,
+      "missing-supporting-doc": 2,
+      orphaned: 3
+    };
+
+    return reasons
+      .sort((left, right) => {
+        const leftPriority = Object.prototype.hasOwnProperty.call(priority, left.key) ? priority[left.key] : 99;
+        const rightPriority = Object.prototype.hasOwnProperty.call(priority, right.key) ? priority[right.key] : 99;
+        if (leftPriority !== rightPriority) {
+          return leftPriority - rightPriority;
+        }
+        return String(left.label).localeCompare(String(right.label));
+      })
+      .filter((reason, index, collection) => collection.findIndex((candidate) => candidate.key === reason.key && candidate.description === reason.description) === index);
+  }
+
+  function describeContextItem(item) {
+    const status = item && item.indicators && item.indicators.Status ? ` [${item.indicators.Status}]` : "";
+    return `${getStageLabel(item.stage)} • ${item.id} — ${item.title}${status} (${item.relPath})`;
+  }
+
+  function renderContextSection(title, items) {
+    const safeItems = (items || []).filter(Boolean);
+    if (safeItems.length === 0) {
+      return [`## ${title}`, "- (none)"];
+    }
+    return [`## ${title}`, ...safeItems.map((item) => `- ${describeContextItem(item)}`)];
+  }
+
+  function buildContextPack(item, allItems) {
+    const insights = getRelationshipInsights(item, allItems);
+    const attentionReasons = getAttentionReasons(item, allItems).slice(0, 3);
+    const upstream = insights.upstream.slice(0, 2);
+    const downstream = insights.downstream.slice(0, 3);
+    const linkedWorkflow = insights.linkedWorkflow.slice(0, 3);
+    const companionDocs = insights.companionDocs.slice(0, 3);
+    const specs = insights.specs.slice(0, 3);
+
+    const openQuestions =
+      attentionReasons.length > 0
+        ? attentionReasons.map((reason) => `${reason.label}: ${reason.description}`)
+        : ["No explicit graph-risk question is currently detected for this item."];
+
+    const lines = [
+      "# Codex Context Pack",
+      "",
+      "## Current item",
+      `- ${describeContextItem(item)}`
+    ];
+
+    const contextSections = getWorkflowStageRank(item.stage) >= 0
+      ? [
+          renderContextSection("Upstream", upstream),
+          renderContextSection("Downstream", downstream)
+        ]
+      : [renderContextSection("Linked workflow", linkedWorkflow)];
+
+    contextSections.forEach((section) => {
+      lines.push("", ...section);
+    });
+    lines.push("", ...renderContextSection("Companion docs", companionDocs));
+    lines.push("", ...renderContextSection("Specs", specs));
+    lines.push("", "## Open questions", ...openQuestions.map((entry) => `- ${entry}`));
+
+    if (attentionReasons.length > 0) {
+      lines.push(
+        "",
+        "## Suggested next actions",
+        ...attentionReasons.map((reason) => {
+          const action = reason.remediation && reason.remediation.label ? reason.remediation.label : reason.label;
+          return `- ${action}`;
+        })
+      );
+    }
+
+    return {
+      text: lines.join("\n"),
+      summary: {
+        upstreamCount: upstream.length,
+        downstreamCount: downstream.length,
+        linkedWorkflowCount: linkedWorkflow.length,
+        companionCount: companionDocs.length,
+        specCount: specs.length,
+        trimmed:
+          insights.upstream.length > upstream.length ||
+          insights.downstream.length > downstream.length ||
+          insights.linkedWorkflow.length > linkedWorkflow.length ||
+          insights.companionDocs.length > companionDocs.length ||
+          insights.specs.length > specs.length
+      },
+      attentionReasons
+    };
+  }
+
+  function buildDependencyMap(item, allItems) {
+    const insights = getRelationshipInsights(item, allItems);
+    const groups =
+      getWorkflowStageRank(item.stage) >= 0
+        ? [
+            { key: "upstream", label: "Upstream", items: insights.upstream.slice(0, 2) },
+            { key: "current", label: "Current", items: [item] },
+            { key: "downstream", label: "Downstream", items: insights.downstream.slice(0, 3) },
+            { key: "supporting", label: "Supporting docs", items: insights.supportingDocs.slice(0, 4) }
+          ]
+        : [
+            { key: "workflow", label: "Linked workflow", items: insights.linkedWorkflow.slice(0, 3) },
+            { key: "current", label: "Current", items: [item] },
+            { key: "supporting", label: "Supporting docs", items: insights.supportingDocs.slice(0, 4) }
+          ];
+
+    const nodes = groups.flatMap((group) => group.items);
+    const edges = dedupeItems(nodes)
+      .filter((candidate) => candidate && candidate.id !== item.id)
+      .map((candidate) => ({ from: item.id, to: candidate.id }));
+
+    return {
+      groups: groups.filter((group) => group.items.length > 0),
+      nodes: dedupeItems(nodes),
+      edges
+    };
+  }
+
   window.CdxLogicsModel = {
+    buildContextPack,
+    buildDependencyMap,
     collectCompanionDocs,
     collectPrimaryFlowItems,
     collectSpecs,
     findManagedItemByReference,
+    getAttentionReasons,
+    getRelationshipInsights,
     getStageHeading,
     getStageLabel,
     isCompanionStage,

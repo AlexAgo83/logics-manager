@@ -1,9 +1,9 @@
 ## task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map - Orchestration delivery for req 056 context pack attention explain and dependency map
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0% planned
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -34,22 +34,22 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Define or extract the shared relationship and explanation model that all three features can reuse.
-- [ ] 2. Implement the `Context Pack for Codex` flow, including related-doc selection, trimming rules, and launch or preview behavior.
-- [ ] 3. Implement `Attention Explain` so explicit reasons and suggested remediation can be surfaced from the same underlying graph signals.
-- [ ] 4. Implement the first `Dependency Map` experience and synchronize node selection with current item details or actions.
-- [ ] 5. Add or adjust automated tests and any required UI documentation for the combined feature set.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Define or extract the shared relationship and explanation model that all three features can reuse.
+- [x] 2. Implement the `Context Pack for Codex` flow, including related-doc selection, trimming rules, and launch or preview behavior.
+- [x] 3. Implement `Attention Explain` so explicit reasons and suggested remediation can be surfaced from the same underlying graph signals.
+- [x] 4. Implement the first `Dependency Map` experience and synchronize node selection with current item details or actions.
+- [x] 5. Add or adjust automated tests and any required UI documentation for the combined feature set.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- item065-AC1/item067-AC5 -> Step 1. Proof: TODO.
-- item065-AC2/item065-AC3 -> Step 2. Proof: TODO.
-- item065-AC4/item065-AC5 -> Step 2. Proof: TODO.
-- item066-AC1/item066-AC2 -> Step 3. Proof: TODO.
-- item066-AC3/item066-AC4/item066-AC5 -> Step 3. Proof: TODO.
-- item067-AC1/item067-AC2 -> Step 4. Proof: TODO.
-- item067-AC3/item067-AC4 -> Step 4. Proof: TODO.
-- item065-AC6/item066-AC6/item067-AC6 -> Step 5. Proof: TODO.
+- item065-AC1/item067-AC5 -> Step 1. Proof: `media/logicsModel.js` now centralizes relationship insights, attention reasoning, context-pack assembly, and dependency-map shaping, while `media/webviewSelectors.js` reuses that layer instead of duplicating traversal logic.
+- item065-AC2/item065-AC3 -> Step 2. Proof: the generated pack includes the current item plus direct upstream/downstream workflow links, companion docs, specs, and explicit open-question sections, all rendered from the shared graph model.
+- item065-AC4/item065-AC5 -> Step 2. Proof: the details panel now exposes a `Context pack for Codex` section with compact counts, trim messaging, preview-first behavior, and an explicit `Inject into Codex` action wired through `hostApi.injectPrompt` and the extension host.
+- item066-AC1/item066-AC2 -> Step 3. Proof: attention reasoning now emits explicit `Blocked`, `Workflow inconsistent`, `Orphaned`, and `Missing supporting doc` reasons from the shared model instead of relying on opaque attention-only filtering.
+- item066-AC3/item066-AC4/item066-AC5 -> Step 3. Proof: the details panel renders primary and secondary attention reasons with remediation guidance, card badges use short reason labels, and only executable remediations produce clickable actions such as `Promote request`, `Link to primary flow`, or `Create companion doc`.
+- item067-AC1/item067-AC2 -> Step 4. Proof: the details panel now includes a `Dependency map` built from the existing Logics graph and covering requests, backlog items, tasks, companion docs, and specs already indexed by the plugin.
+- item067-AC3/item067-AC4 -> Step 4. Proof: the map is a bounded selected-item subgraph with one-level grouped neighbors (`Upstream`, `Downstream`, `Linked workflow`, `Supporting docs`) rather than a whole-workspace graph.
+- item065-AC6/item066-AC6/item067-AC6 -> Step 5. Proof: `tests/webview.harness-details-and-filters.test.ts` now covers context-pack preview/injection, attention reason ordering and remediation wiring, and dependency-map selection synchronization; the full `npm test` suite passed.
 - req056-AC7 -> Steps 1 through 4. Proof: implementation order is explicitly fixed to shared reasoning first, then context pack, then attention explain, then dependency map, with phased release allowed across versions.
 
 # Decision framing
@@ -87,11 +87,21 @@ flowchart LR
 - Manual: validate the Codex context-pack launch or preview flow from a realistic selected item.
 - Manual: validate attention reasons and suggested remediation on representative blocked, orphaned, or inconsistent items.
 - Manual: validate dependency-map navigation and synchronization with the details panel.
+- Manual UI checks were not run separately; the harness tests now cover preview, injection, remediation wiring, and map-selection synchronization.
+- Finish workflow executed on 2026-03-17.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-03-17.
+- Added a shared relationship-reasoning layer in `media/logicsModel.js` and reused it from selectors, the details panel, and card badges.
+- Added a preview-first `Context pack for Codex` flow with optional host-driven injection into Codex after review.
+- Added explicit attention explanations plus action-safe remediation wiring, and introduced a bounded dependency map that can switch the selected item directly from the details panel.
+- Validation passed on compile, TypeScript no-emit lint, full Vitest suite, and Logics doc lint.
+- Linked backlog item(s): `item_065_build_codex_context_pack_for_related_logics_docs`, `item_066_explain_attention_reasons_and_suggested_remediation`, `item_067_add_dependency_map_for_logics_workflow_relationships`
+- Related request(s): `req_056_add_codex_context_pack_attention_explain_and_dependency_map`

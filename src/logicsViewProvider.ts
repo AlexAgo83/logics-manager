@@ -118,6 +118,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "select-agent":
           await this.selectAgentFromPalette();
           break;
+        case "inject-prompt":
+          await this.injectPromptFromWebview(message.prompt);
+          break;
         case "bootstrap-logics":
           await this.bootstrapFromTools();
           break;
@@ -577,6 +580,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.injectPromptIntoCodexChat(agent.defaultPrompt, {
       codexCopiedMessage: "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
       fallbackCopiedMessage: "Could not inject prompt into Codex chat"
+    });
+  }
+
+  private async injectPromptFromWebview(prompt: string): Promise<void> {
+    await this.injectPromptIntoCodexChat(prompt, {
+      codexCopiedMessage: "Codex opened. Context pack copied to clipboard. Paste it in the Codex composer.",
+      fallbackCopiedMessage: "Could not inject the context pack into Codex chat"
     });
   }
 

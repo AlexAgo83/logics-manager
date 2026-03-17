@@ -75,7 +75,16 @@
   let attentionOnly = false;
   let helpDismissed = false;
   let collapsedListStages = new Set();
-  const defaultCollapsedDetailSections = ["companionDocs", "specs", "primaryFlow", "references", "usedBy"];
+  const defaultCollapsedDetailSections = [
+    "attentionExplain",
+    "contextPack",
+    "dependencyMap",
+    "companionDocs",
+    "specs",
+    "primaryFlow",
+    "references",
+    "usedBy"
+  ];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;
@@ -283,7 +292,10 @@
     getStageHeading,
     normalizeSearchValue,
     getStatusValue,
+    getAttentionReasons,
     getHealthSignals,
+    buildContextPack,
+    buildDependencyMap,
     needsAttention,
     getSuggestedActions,
     getActivityEntries,
@@ -685,6 +697,7 @@
         collectCompanionDocs,
         collectSpecs,
         collectPrimaryFlowItems,
+        getAttentionReasons,
         getHealthSignals,
         getSuggestedActions,
         progressState,
@@ -721,8 +734,15 @@
         collectCompanionDocs,
         collectSpecs,
         collectPrimaryFlowItems,
+        getAttentionReasons,
+        buildContextPack,
+        buildDependencyMap,
         findManagedItemByReference,
-        formatDate
+        formatDate,
+        selectItem(nextId) {
+          selectedId = nextId;
+          render();
+        }
       })
     : null;
 

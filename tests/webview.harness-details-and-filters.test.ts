@@ -898,4 +898,135 @@ describe("webview harness filters, details, and docs", () => {
     expect(html.includes("/node_modules/mermaid/dist/mermaid.min.js")).toBe(true);
     expect(html.includes("Mermaid preview unavailable")).toBe(true);
   });
+
+  it("renders attention explain, context pack preview, and dependency-map selection for a selected item", () => {
+    const { dom, postedMessages } = bootstrapWebview({
+      harness: false,
+      initialState: { collapsedDetailSections: [] }
+    });
+
+    const request = {
+      ...baseItem,
+      id: "req_010_context_request",
+      title: "Context request",
+      relPath: "logics/request/req_010_context_request.md",
+      path: "/workspace/mock/logics/request/req_010_context_request.md",
+      indicators: { Status: "Draft" },
+      references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_010_context_backlog.md" }]
+    };
+    const backlog = {
+      ...baseItem,
+      id: "item_010_context_backlog",
+      title: "Context backlog",
+      stage: "backlog",
+      relPath: "logics/backlog/item_010_context_backlog.md",
+      path: "/workspace/mock/logics/backlog/item_010_context_backlog.md",
+      indicators: { Status: "Blocked", Progress: "45%" },
+      references: [
+        { kind: "request", label: "Request", path: "logics/request/req_010_context_request.md" },
+        { kind: "task", label: "Task", path: "logics/tasks/task_010_context_task.md" },
+        { kind: "manual", label: "Reference", path: "logics/product/prod_010_context_product.md" },
+        { kind: "manual", label: "Reference", path: "logics/specs/spec_010_context_spec.md" }
+      ]
+    };
+    const task = {
+      ...baseItem,
+      id: "task_010_context_task",
+      title: "Context task",
+      stage: "task",
+      relPath: "logics/tasks/task_010_context_task.md",
+      path: "/workspace/mock/logics/tasks/task_010_context_task.md",
+      indicators: { Status: "Ready", Progress: "10%" },
+      references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_010_context_backlog.md" }]
+    };
+    const product = {
+      ...productItem,
+      id: "prod_010_context_product",
+      title: "Context product",
+      relPath: "logics/product/prod_010_context_product.md",
+      path: "/workspace/mock/logics/product/prod_010_context_product.md",
+      usedBy: [{ id: "item_010_context_backlog", stage: "backlog", title: "Context backlog", relPath: "logics/backlog/item_010_context_backlog.md" }]
+    };
+    const spec = {
+      ...specItem,
+      id: "spec_010_context_spec",
+      title: "Context spec",
+      relPath: "logics/specs/spec_010_context_spec.md",
+      path: "/workspace/mock/logics/specs/spec_010_context_spec.md",
+      usedBy: [{ id: "item_010_context_backlog", stage: "backlog", title: "Context backlog", relPath: "logics/backlog/item_010_context_backlog.md" }]
+    };
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "item_010_context_backlog",
+      items: [request, backlog, task, product, spec]
+    });
+
+    const document = dom.window.document;
+    const detailsBody = document.getElementById("details-body");
+    expect(detailsBody?.textContent).toContain("Attention explain");
+    expect(detailsBody?.textContent).toContain("Blocked");
+    expect(detailsBody?.textContent).toContain("Context pack for Codex");
+    expect(detailsBody?.textContent).toContain("Dependency map");
+
+    const previewButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
+      button.textContent?.includes("Preview pack")
+    );
+    previewButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(detailsBody?.textContent).toContain("# Codex Context Pack");
+
+    const injectButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
+      button.textContent?.includes("Inject into Codex")
+    );
+    injectButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some(
+        (message) => message.type === "inject-prompt" && String(message.prompt || "").includes("# Codex Context Pack")
+      )
+    ).toBe(true);
+
+    const taskNode = Array.from(detailsBody?.querySelectorAll(".details__map-node") || []).find((button) =>
+      button.textContent?.includes("task_010_context_task")
+    );
+    taskNode?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(document.getElementById("details-title")?.textContent).toContain("Context task");
+  });
+
+  it("shows a primary attention reason first and wires remediation actions when available", () => {
+    const { dom, postedMessages } = bootstrapWebview({
+      harness: false,
+      initialState: { collapsedDetailSections: [] }
+    });
+
+    const request = {
+      ...baseItem,
+      id: "req_011_attention_reason",
+      title: "Attention request",
+      relPath: "logics/request/req_011_attention_reason.md",
+      path: "/workspace/mock/logics/request/req_011_attention_reason.md",
+      indicators: { Status: "Draft" }
+    };
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_011_attention_reason",
+      items: [request]
+    });
+
+    const document = dom.window.document;
+    const primaryReason = document.querySelector(".details__reason-card--primary");
+    expect(primaryReason?.textContent).toContain("Workflow inconsistent");
+
+    const promoteButton = Array.from(document.querySelectorAll(".details__inline-cta")).find((button) =>
+      button.textContent?.includes("Promote request")
+    );
+    promoteButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "promote" && message.id === "req_011_attention_reason")).toBe(
+      true
+    );
+  });
 });

@@ -1,6 +1,6 @@
 ## req_059_guide_frontend_work_toward_the_ui_steering_skill_in_the_logics_kit - Guide frontend work toward the UI steering skill in the Logics kit
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium

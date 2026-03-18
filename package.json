@@ -68,6 +68,7 @@
     ]
   },
   "scripts": {
+    "postinstall": "npm run compile",
     "bundle:extension": "node scripts/build/package-extension.mjs",
     "compile": "tsc -p ./ && npm run bundle:extension",
     "watch": "tsc -watch -p ./",

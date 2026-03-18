@@ -63,7 +63,7 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 - Git available on PATH for bootstrap and submodule operations.
 - `logics/` is recommended if the project is already initialized; otherwise the extension can bootstrap it for you.
 - Logics skills kit at `logics/skills/` is required for create/promote/fix flows after initialization, and can be installed via `Bootstrap Logics`.
-- `python3` available on PATH (required for Logics flow scripts).
+- Python 3 available on PATH (the extension accepts `python3`, `python`, or `py` on Windows for Logics flow scripts).
 - Node.js + npm (for build/package).
 - VS Code CLI `code` available on PATH (for VSIX install).
 

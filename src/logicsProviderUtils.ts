@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { execFile } from "child_process";
 import { addLinkToSection, replaceManagedReferenceTokens } from "./logicsDocMaintenance";
 import { getManagedDocDirectories, LogicsItem } from "./logicsIndexer";
+import { runPythonCommand } from "./pythonRuntime";
 
 export function getWorkspaceRoots(): string[] {
   const folders = vscode.workspace.workspaceFolders;
@@ -345,18 +346,14 @@ export async function openCreatedDocFromOutput(stdout: string): Promise<void> {
 }
 
 export async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {
-  await new Promise<void>((resolve) => {
-    execFile("python3", [scriptPath, ...args], { cwd }, (error, stdout, stderr) => {
-      if (error) {
-        void vscode.window.showErrorMessage(`Promotion failed: ${stderr || error.message}`);
-        return resolve();
-      }
-      if (stdout.trim()) {
-        void vscode.window.showInformationMessage(stdout.trim());
-      }
-      resolve();
-    });
-  });
+  const result = await runPythonCommand(cwd, scriptPath, args);
+  if (result.error) {
+    void vscode.window.showErrorMessage(`Promotion failed: ${result.stderr || result.error.message}`);
+    return;
+  }
+  if (result.stdout.trim()) {
+    void vscode.window.showInformationMessage(result.stdout.trim());
+  }
 }
 
 export async function runPythonWithOutput(
@@ -364,15 +361,7 @@ export async function runPythonWithOutput(
   scriptPath: string,
   args: string[]
 ): Promise<{ stdout: string; stderr: string; error?: Error }> {
-  return new Promise((resolve) => {
-    execFile("python3", [scriptPath, ...args], { cwd }, (error, stdout, stderr) => {
-      resolve({
-        error: error ?? undefined,
-        stdout: stdout || "",
-        stderr: stderr || ""
-      });
-    });
-  });
+  return runPythonCommand(cwd, scriptPath, args);
 }
 
 export async function runGitWithOutput(

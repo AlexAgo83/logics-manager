@@ -52,6 +52,12 @@ flowchart LR
 - AC3 -> Flow-manager output exposes the recommendation in the chosen insertion points. Proof: TODO.
 - AC4 -> Non-frontend flows remain clean and multi-skill recommendations stay possible. Proof: TODO.
 - AC5 -> Tests and kit docs cover the new orchestration behavior. Proof: TODO.
+- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC4B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

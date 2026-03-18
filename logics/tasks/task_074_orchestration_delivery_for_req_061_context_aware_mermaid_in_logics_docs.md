@@ -43,6 +43,13 @@ flowchart LR
 - AC3 -> Mermaid stays compact and render-safe. Proof: TODO.
 - AC4 -> Stale or generic Mermaid detection follows warning-first behavior. Proof: TODO.
 - AC5 -> Tests and docs cover the improved Mermaid workflow. Proof: TODO.
+- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC3C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7C -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

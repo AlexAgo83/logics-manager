@@ -53,6 +53,14 @@ flowchart LR
 - AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: TODO.
 - AC4 -> Severity model distinguishes blocking structural failures from non-blocking warnings. Proof: TODO.
 - AC5 -> Tests and kit docs reflect the calibrated contract. Proof: TODO.
+- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC6C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8B -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC8C -> TODO: map this acceptance criterion to scope. Proof: TODO.
 
 # Decision framing
 - Product framing: Not needed

@@ -1,9 +1,9 @@
 ## task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs - Orchestration delivery for req_061 context aware Mermaid in Logics docs
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -19,6 +19,8 @@
   - add warning-first stale or generic Mermaid detection.
 
 ```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-061-conte|item-073-generate-context-aware-mermaid-|1-confirm-contextual-mermaid-requirement|python3-m-pytest-logics-skills-tests
 flowchart LR
     Backlog[item 073] --> Generate[improve generation paths]
     Generate --> Rules[define update and safety rules]
@@ -59,12 +61,17 @@ flowchart LR
 # Validation
 - `python3 -m pytest logics/skills/tests/test_logics_flow.py`
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+- Finish workflow executed on 2026-03-18.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Pending implementation.
+- Finished on 2026-03-18.
+- Linked backlog item(s): `item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`
+- Related request(s): `req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`

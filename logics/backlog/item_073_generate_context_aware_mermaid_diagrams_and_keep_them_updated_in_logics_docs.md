@@ -1,9 +1,9 @@
 ## item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs - Generate context aware Mermaid diagrams and keep them updated in Logics docs
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,6 +29,8 @@ This backlog slice turns the request into an actionable delivery target:
   - Rewriting the full historical repository in one slice.
 
 ```mermaid
+%% logics-kind: backlog
+%% logics-signature: backlog|generate-context-aware-mermaid-diagrams-|req-061-generate-context-aware-mermaid-d|mermaid-is-already-part-of-the|ac1-request-backlog-and-task-mermaid
 flowchart LR
     Req[req 061] --> Generate[generate need aware mermaid]
     Generate --> Update[define update triggers]
@@ -74,6 +76,7 @@ flowchart LR
 - Derived from request `req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`.
 - Source file: `logics/request/req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs.md`.
 - Request context seeded into this backlog item from `logics/request/req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs.md`.
+- Task `task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs` was finished via `logics_flow.py finish task` on 2026-03-18.
 
 # Tasks
 - `logics/tasks/task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs.md`

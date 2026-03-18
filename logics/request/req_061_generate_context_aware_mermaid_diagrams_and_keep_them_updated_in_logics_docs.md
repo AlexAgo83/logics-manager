@@ -1,8 +1,8 @@
 ## req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs - Generate context aware Mermaid diagrams and keep them updated in Logics docs
 > From version: 1.10.5
-> Status: Ready
-> Understanding: 96%
-> Confidence: 93%
+> Status: Done
+> Understanding: 97%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -34,6 +34,8 @@ This request is still constrained by current Mermaid safety rules:
 The preferred direction is to improve automatic generation at creation and promotion time, then add maintenance support so Mermaid stays aligned when the doc evolves. Mermaid should summarize the main flow of the current need, not try to encode every edge case.
 
 ```mermaid
+%% logics-kind: request
+%% logics-signature: request|generate-context-aware-mermaid-diagrams-|make-mermaid-diagrams-in-logics-docs|ac1-the-request-defines-a-kit-level
 flowchart TD
     A[Request backlog or task doc is created or updated] --> B[Mermaid should reflect the current need]
     B --> C[Generation or update uses real doc context]

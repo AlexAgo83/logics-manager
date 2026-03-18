@@ -1,6 +1,6 @@
 ## req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness - Audit flow manager doc generation and adjust doc linter strictness
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
 > Complexity: Medium

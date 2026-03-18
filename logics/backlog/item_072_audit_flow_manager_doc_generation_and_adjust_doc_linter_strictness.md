@@ -1,9 +1,9 @@
 ## item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness - Audit flow manager doc generation and adjust doc linter strictness
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -78,6 +78,7 @@ flowchart LR
 - Derived from request `req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`.
 - Source file: `logics/request/req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`.
 - Request context seeded into this backlog item from `logics/request/req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`.
+- Task `task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration` was finished via `logics_flow.py finish task` on 2026-03-18.
 
 # Tasks
 - `logics/tasks/task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration.md`

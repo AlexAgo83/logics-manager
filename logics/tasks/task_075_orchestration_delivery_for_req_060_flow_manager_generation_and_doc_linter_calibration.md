@@ -1,9 +1,9 @@
 ## task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration - Orchestration delivery for req_060 flow manager generation and doc linter calibration
 > From version: 1.10.5
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -59,12 +59,17 @@ flowchart LR
 # Validation
 - `python3 -m pytest logics/skills/tests/test_logics_flow.py logics/skills/tests/test_logics_lint.py`
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+- Finish workflow executed on 2026-03-18.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Pending implementation.
+- Finished on 2026-03-18.
+- Linked backlog item(s): `item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`
+- Related request(s): `req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`

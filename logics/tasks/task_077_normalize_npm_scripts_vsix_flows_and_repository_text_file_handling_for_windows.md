@@ -1,9 +1,9 @@
 ## task_077_normalize_npm_scripts_vsix_flows_and_repository_text_file_handling_for_windows - Normalize npm scripts VSIX flows and repository text-file handling for Windows
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,11 +28,11 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Replace Unix-only repo commands and helper flows with cross-platform script entrypoints for packaging, install, lint, audit, and release preparation.
-- [ ] 3. Define the repository text-file handling contract for Windows edits, including line-ending expectations where they affect supported workflows.
-- [ ] 4. Validate the result and update the linked Logics docs.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Replace Unix-only repo commands and helper flows with cross-platform script entrypoints for packaging, install, lint, audit, and release preparation.
+- [x] 3. Define the repository text-file handling contract for Windows edits, including line-ending expectations where they affect supported workflows.
+- [x] 4. Validate the result and update the linked Logics docs.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - AC1 -> Scope: The request explicitly covers both scopes:. Proof: TODO.
@@ -97,11 +97,27 @@ flowchart LR
 - `npm run package`
 - `npm run test`
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+- `npm run lint:ts`
+- `npm run lint:logics`
+- `npm run package:ci`
+- `npm run audit:logics` (wrapper executed correctly; command still reports pre-existing workflow/doc debt in current Logics docs)
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-03-19.
+- Implemented:
+  - added `scripts/run-python.mjs` so Logics-oriented npm scripts can resolve Python cross-platform instead of hardcoding `python3`;
+  - added `scripts/build/package-ci.mjs` and `scripts/build/install-vsix.mjs` so CI packaging and VSIX install no longer depend on `/tmp` or `$(...)`;
+  - added `.gitattributes` to define LF handling for the repo’s main text assets;
+  - rewired `package.json` scripts to use the new wrappers.
+- Validation executed:
+  - `npm run lint:ts`
+  - `npm run lint:logics`
+  - `npm run package:ci`
+  - `npm run test`
+  - `npm run audit:logics` (functional wrapper path confirmed, but the command still fails on existing Logics governance debt unrelated to the new wrappers)

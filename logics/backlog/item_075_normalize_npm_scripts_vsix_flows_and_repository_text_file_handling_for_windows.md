@@ -1,9 +1,9 @@
 ## item_075_normalize_npm_scripts_vsix_flows_and_repository_text_file_handling_for_windows - Normalize npm scripts VSIX flows and repository text-file handling for Windows
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -138,3 +138,4 @@ flowchart LR
 - Derived from request `req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit`.
 - Source file: `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
 - Request context seeded into this backlog item from `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
+- Completed via `task_077_normalize_npm_scripts_vsix_flows_and_repository_text_file_handling_for_windows`.

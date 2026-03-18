@@ -282,7 +282,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(obsoleteButton?.classList.contains("btn--caution")).toBe(true);
   });
 
-  it("opens selected item on card double-click in non-harness mode", () => {
+  it("reads selected item on card double-click in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {
       root: "/workspace/mock",
@@ -292,7 +292,24 @@ describe("webview harness filters, details, and docs", () => {
     const card = dom.window.document.querySelector(".card");
     card?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
 
-    expect(postedMessages.some((message) => message.type === "open")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "read")).toBe(true);
+  });
+
+  it("reads selected item on list row double-click in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const document = dom.window.document;
+    const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
+    modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const card = document.querySelector(".list-view__section .card");
+    card?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "req_000_kickoff")).toBe(true);
   });
 
   it("shows companion docs in details and opens linked companion items", () => {

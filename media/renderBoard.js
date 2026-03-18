@@ -560,7 +560,7 @@
       card.addEventListener("dblclick", () => {
         setSelectedId(item.id);
         render();
-        openSelectedItem("open");
+        openSelectedItem("read");
       });
       card.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && !preview.hidden) {

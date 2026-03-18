@@ -1,0 +1,70 @@
+## task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration - Orchestration delivery for req_060 flow manager generation and doc linter calibration
+> From version: 1.10.5
+> Status: Ready
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 0%
+> Complexity: Medium
+> Theme: Logics kit generation quality and governance calibration
+> Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+# Context
+- Derived from backlog item `item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`.
+- Source file: `logics/backlog/item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`.
+- Related request(s): `req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`.
+- Delivery goal:
+  - audit generator and linter mismatch first;
+  - fix generation where it should satisfy the contract;
+  - calibrate severity where lint is too blunt;
+  - keep strict blocking for structural failures and critical placeholders.
+
+```mermaid
+flowchart LR
+    Backlog[item 072] --> Audit[audit failing patterns]
+    Audit --> Decide[classify generator and lint ownership]
+    Decide --> Calibrate[implement fixes and severity model]
+    Calibrate --> Validate[validate docs and tests]
+    Validate --> Report[ready for report]
+```
+
+# Plan
+- [ ] 1. Confirm audit scope and select representative workflow samples.
+- [ ] 2. Classify recurring mismatches into generator, linter, or mixed ownership.
+- [ ] 3. Implement generator-side fixes for contract gaps that the flow manager should satisfy directly.
+- [ ] 4. Calibrate lint severity and messaging where warning-level treatment is more appropriate.
+- [ ] 5. Add or update tests and docs for the revised generation and governance contract.
+- [ ] FINAL: Update related Logics docs
+
+# AC Traceability
+- AC1 -> Audit path and failure taxonomy are defined before behavior changes. Proof: TODO.
+- AC2 -> Findings are assigned to generator, linter, or mixed ownership. Proof: TODO.
+- AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: TODO.
+- AC4 -> Severity model distinguishes blocking structural failures from warnings. Proof: TODO.
+- AC5 -> Tests and docs cover the calibrated contract. Proof: TODO.
+
+# Decision framing
+- Product framing: Not needed
+- Product signals: (none detected)
+- Product follow-up: No product brief follow-up is expected based on current signals.
+- Architecture framing: Consider
+- Architecture signals: contracts and integration
+- Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
+
+# Links
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)
+- Backlog item: `logics/backlog/item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`
+- Request(s): `logics/request/req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`
+
+# Validation
+- `python3 -m pytest logics/skills/tests/test_logics_flow.py logics/skills/tests/test_logics_lint.py`
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+
+# Definition of Done (DoD)
+- [ ] Scope implemented and acceptance criteria covered.
+- [ ] Validation commands executed and results captured.
+- [ ] Linked request/backlog/task docs updated.
+- [ ] Status is `Done` and progress is `100%`.
+
+# Report
+- Pending implementation.

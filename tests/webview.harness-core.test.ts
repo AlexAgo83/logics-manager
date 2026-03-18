@@ -557,6 +557,32 @@ describe("webview harness core behaviors", () => {
     expect(detailsTitle?.textContent).toContain("Hidden from board but visible in activity");
   });
 
+  it("reads an item when recent activity is double-clicked in non-harness mode", () => {
+    const recentItem = {
+      ...baseItem,
+      id: "req_003_activity_read_target",
+      title: "Activity read target",
+      updatedAt: "2024-05-01T00:00:00.000Z"
+    };
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, recentItem]
+    });
+
+    const document = dom.window.document;
+    const activityToggle = document.getElementById("activity-toggle");
+
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
+      button.textContent?.includes("Activity read target")
+    );
+    entry?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
+  });
+
   it("renders suggested-action badges for actionable items", () => {
     const orphanProduct = {
       ...productItem,

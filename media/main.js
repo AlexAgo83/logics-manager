@@ -474,6 +474,11 @@
           getSelectedItem,
           isCompactListForced,
           normalizeSearchValue,
+          readItemAndRender(nextId) {
+            selectedId = nextId;
+            render();
+            openSelectedItem("read");
+          },
           selectItemAndRender(nextId) {
             selectedId = nextId;
             render();

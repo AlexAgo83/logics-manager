@@ -48,6 +48,7 @@
       getToolsPanelOpen,
       getSelectedItem,
       isCompactListForced,
+      readItemAndRender,
       selectItemAndRender
     } = options;
 
@@ -127,6 +128,9 @@
 
           button.addEventListener("click", () => {
             selectItemAndRender(entry.id);
+          });
+          button.addEventListener("dblclick", () => {
+            readItemAndRender(entry.id);
           });
 
           list.appendChild(button);

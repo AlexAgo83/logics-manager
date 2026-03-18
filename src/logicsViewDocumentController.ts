@@ -5,6 +5,7 @@ import { AgentDefinition, AgentRegistrySnapshot } from "./agentRegistry";
 import { buildReadPreviewHtml } from "./logicsReadPreviewHtml";
 import { normalizeEntrySuffix, parseRenameTarget, validateRenameSuffix } from "./logicsDocMaintenance";
 import { canPromote, isRequestProcessed, LogicsItem, promotionCommand } from "./logicsIndexer";
+import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import {
   addLinkToSectionOnDisk,
   findCreatedDocPathFromOutput,
@@ -13,7 +14,6 @@ import {
   getFlowManagerScriptPath,
   normalizeRelationPath,
   openCreatedDocFromOutput,
-  runPython,
   runPythonWithOutput,
   updateMainHeadingId,
   updateManagedReferencesForRename
@@ -73,7 +73,7 @@ export class LogicsViewDocumentController {
 
     const result = await runPythonWithOutput(root, scriptPath, ["new", "request", "--title", title]);
     if (result.error) {
-      void vscode.window.showErrorMessage(`Request creation failed: ${result.stderr || result.error.message}`);
+      void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Request creation", result));
       return;
     }
 
@@ -146,7 +146,7 @@ export class LogicsViewDocumentController {
 
     const result = await runPythonWithOutput(root, scriptPath, ["new", kind, "--title", title]);
     if (result.error) {
-      void vscode.window.showErrorMessage(`Creation failed: ${result.stderr || result.error.message}`);
+      void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Logics document creation", result));
       return;
     }
 
@@ -217,9 +217,7 @@ export class LogicsViewDocumentController {
     const outDir = kindPick.value === "product" ? "logics/product" : "logics/architecture";
     const result = await runPythonWithOutput(root, scriptPath, ["--title", title, "--out-dir", outDir]);
     if (result.error) {
-      void vscode.window.showErrorMessage(
-        `${kindPick.label} creation failed: ${result.stderr || result.error.message}`
-      );
+      void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage(`${kindPick.label} creation`, result));
       return;
     }
 
@@ -265,7 +263,7 @@ export class LogicsViewDocumentController {
 
     const result = await runPythonWithOutput(root, scriptPath, ["--write"]);
     if (result.error) {
-      void vscode.window.showErrorMessage(`Doc fixer failed: ${result.stderr || result.error.message}`);
+      void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Logics doc fixer", result));
       return;
     }
 
@@ -337,7 +335,14 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    await runPython(root, scriptPath, ["promote", promotion, item.path]);
+    const result = await runPythonWithOutput(root, scriptPath, ["promote", promotion, item.path]);
+    if (result.error) {
+      void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Promotion", result));
+      return;
+    }
+    if (result.stdout.trim()) {
+      void vscode.window.showInformationMessage(result.stdout.trim());
+    }
     await this.options.refresh();
   }
 
@@ -442,6 +447,17 @@ export class LogicsViewDocumentController {
       "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to install logics/skills."
     );
     return null;
+  }
+
+  private buildScriptActionErrorMessage(
+    actionLabel: string,
+    result: { stdout: string; stderr: string; error?: Error }
+  ): string {
+    const detail = `${result.stderr}\n${result.stdout}\n${result.error?.message || ""}`.trim();
+    if (isMissingPythonFailureDetail(detail)) {
+      return `${actionLabel} requires Python 3. ${buildMissingPythonMessage()} Read-only Logics browsing remains available.`;
+    }
+    return `${actionLabel} failed: ${result.stderr || result.error?.message || "Unknown error."}`;
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

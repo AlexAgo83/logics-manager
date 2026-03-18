@@ -21,6 +21,8 @@ import {
   runPythonWithOutput,
   updateIndicatorsOnDisk
 } from "./logicsProviderUtils";
+import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
+import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
@@ -599,8 +601,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
     this.bootstrapPromptedRoots.add(root);
 
+    const logicsDirExists = fs.existsSync(path.join(root, "logics"));
+    const message = logicsDirExists
+      ? "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?"
+      : "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?";
+
     const choice = await vscode.window.showInformationMessage(
-      "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      message,
       "Bootstrap Logics",
       "Not now"
     );
@@ -611,6 +618,19 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async bootstrapLogics(root: string): Promise<void> {
+    const gitVersion = await runGitWithOutput(root, ["--version"]);
+    if (gitVersion.error) {
+      const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
+      if (isMissingGitFailureDetail(detail)) {
+        void vscode.window.showErrorMessage(
+          `Bootstrap Logics requires Git. ${buildMissingGitMessage()} Read-only Logics browsing remains available until bootstrap completes.`
+        );
+        return;
+      }
+      void vscode.window.showErrorMessage(`Failed to run git: ${gitVersion.stderr || gitVersion.error.message}`);
+      return;
+    }
+
     const gitCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (gitCheck.error || gitCheck.stdout.trim() !== "true") {
       const initChoice = await vscode.window.showWarningMessage(
@@ -666,6 +686,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (fs.existsSync(bootstrapScript)) {
       const result = await runPythonWithOutput(root, bootstrapScript, []);
       if (result.error) {
+        const detail = `${result.stderr}\n${result.stdout}\n${result.error.message}`.trim();
+        if (isMissingPythonFailureDetail(detail)) {
+          void vscode.window.showErrorMessage(
+            `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} Read-only Logics browsing remains available until bootstrap completes.`
+          );
+          return;
+        }
         void vscode.window.showErrorMessage(`Bootstrap script failed: ${result.stderr || result.error.message}`);
         return;
       }

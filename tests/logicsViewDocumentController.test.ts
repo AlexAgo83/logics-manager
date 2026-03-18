@@ -127,4 +127,36 @@ describe("LogicsViewDocumentController", () => {
       "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to install logics/skills."
     );
   });
+
+  it("shows a Python-specific action message when creation cannot run Python", async () => {
+    mocks.getFlowManagerScriptPath.mockReturnValue(
+      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py")
+    );
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: "",
+      stderr: "'python3' is not recognized as an internal or external command",
+      error: new Error("spawn python3 ENOENT")
+    });
+
+    const controller = new LogicsViewDocumentController({
+      context: { extensionPath: root } as never,
+      agentsOutput: { show: vi.fn() } as never,
+      getItems: () => [],
+      getAgentRegistry: () => ({ issues: [] }) as never,
+      getActionRoot: async () => root,
+      maybeOfferBootstrap: vi.fn(),
+      refresh: vi.fn(),
+      refreshAgents: vi.fn(),
+      findRequestAuthoringAgent: vi.fn(),
+      setActiveAgent: vi.fn(),
+      injectPromptIntoCodexChat: vi.fn(),
+      getReadPreviewPanel: vi.fn()
+    });
+
+    await controller.createItem("backlog");
+
+    expect(mocks.showErrorMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Logics document creation requires Python 3.");
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Read-only Logics browsing remains available.");
+  });
 });

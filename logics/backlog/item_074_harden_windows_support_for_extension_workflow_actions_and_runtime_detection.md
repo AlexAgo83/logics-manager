@@ -1,9 +1,9 @@
 ## item_074_harden_windows_support_for_extension_workflow_actions_and_runtime_detection - Harden Windows support for extension workflow actions and runtime detection
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -138,3 +138,4 @@ flowchart LR
 - Derived from request `req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit`.
 - Source file: `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
 - Request context seeded into this backlog item from `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
+- Task `task_076_harden_windows_support_for_extension_workflow_actions_and_runtime_detection` was finished via `logics_flow.py finish task` on 2026-03-19.

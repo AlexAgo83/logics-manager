@@ -66,11 +66,8 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = getFlowManagerScriptPath(root);
+    const scriptPath = await this.ensureFlowManagerScript(root);
     if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
       return;
     }
 
@@ -142,11 +139,8 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = getFlowManagerScriptPath(root);
+    const scriptPath = await this.ensureFlowManagerScript(root);
     if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
       return;
     }
 
@@ -338,11 +332,8 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = getFlowManagerScriptPath(root);
+    const scriptPath = await this.ensureFlowManagerScript(root);
     if (!scriptPath) {
-      void vscode.window.showErrorMessage(
-        "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py."
-      );
       return;
     }
 
@@ -433,6 +424,24 @@ export class LogicsViewDocumentController {
 
   private get items(): LogicsItem[] {
     return this.options.getItems();
+  }
+
+  private async ensureFlowManagerScript(root: string): Promise<string | null> {
+    let scriptPath = getFlowManagerScriptPath(root);
+    if (scriptPath) {
+      return scriptPath;
+    }
+
+    await this.options.maybeOfferBootstrap(root);
+    scriptPath = getFlowManagerScriptPath(root);
+    if (scriptPath) {
+      return scriptPath;
+    }
+
+    void vscode.window.showErrorMessage(
+      "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to install logics/skills."
+    );
+    return null;
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

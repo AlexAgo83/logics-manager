@@ -1,6 +1,6 @@
 ## req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs - Clarify Windows operator guidance and platform-specific helper boundaries in the Logics docs
 > From version: 1.10.7
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Medium

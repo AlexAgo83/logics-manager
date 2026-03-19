@@ -1,6 +1,6 @@
 ## req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit - Add a practical Windows validation strategy from macOS for the VS Code plugin and Logics kit
 > From version: 1.10.7
-> Status: Draft
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium

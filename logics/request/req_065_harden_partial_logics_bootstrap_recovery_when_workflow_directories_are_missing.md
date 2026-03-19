@@ -1,6 +1,6 @@
 ## req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing - Harden partial Logics bootstrap recovery when workflow directories are missing
 > From version: 1.10.7
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium

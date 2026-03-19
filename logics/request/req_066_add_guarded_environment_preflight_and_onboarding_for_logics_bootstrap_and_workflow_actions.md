@@ -1,6 +1,6 @@
 ## req_066_add_guarded_environment_preflight_and_onboarding_for_logics_bootstrap_and_workflow_actions - Add guarded environment preflight and onboarding for Logics bootstrap and workflow actions
 > From version: 1.10.7
-> Status: Draft
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium

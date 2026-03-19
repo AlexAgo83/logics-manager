@@ -1,6 +1,6 @@
 ## req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit - Harden Windows compatibility across the VS Code plugin and Logics kit
 > From version: 1.10.7
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
 > Complexity: High

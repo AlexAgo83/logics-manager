@@ -1,9 +1,9 @@
 ## task_085_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage - Clean contributor and release guidance for Windows-friendly shell and temp-path usage
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Replace Unix-only maintainer and release examples such as `/tmp` and shell-specific idioms with cross-platform guidance that matches the actual tooling.
-- [ ] 3. Clarify any remaining maintainer expectations around line endings, temp paths, and shell choice on Windows.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Replace Unix-only maintainer and release examples such as `/tmp` and shell-specific idioms with cross-platform guidance that matches the actual tooling.
+- [x] 3. Clarify any remaining maintainer expectations around line endings, temp paths, and shell choice on Windows.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -86,9 +86,15 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Updated contributor guidance in [`logics/skills/CONTRIBUTING.md`](logics/skills/CONTRIBUTING.md) to use the canonical `python ...` launcher, replace `/tmp` preview paths with repository-relative paths, and make line-ending expectations explicit for Windows contributors.
+- Removed the Unix-only `/tmp` assumption from [`logics/skills/tests/test_version_release_manager.py`](logics/skills/tests/test_version_release_manager.py) so the maintainer test surface matches the new guidance.
+- Kept the scope focused on maintainer and release ergonomics; broader README and skill examples were handled in separate tasks.
+- Validation run:
+- `python3 -m unittest discover -s logics/skills/tests -p 'test_*.py' -v`
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

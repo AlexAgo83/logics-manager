@@ -1,9 +1,9 @@
 ## item_080_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage - Clean contributor and release guidance for Windows-friendly shell and temp-path usage
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -115,3 +115,4 @@ flowchart LR
 - Derived from request `req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs`.
 - Source file: `logics/request/req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs.md`.
 - Request context seeded into this backlog item from `logics/request/req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs.md`.
+- Completed on 2026-03-19 via `task_085_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage`.

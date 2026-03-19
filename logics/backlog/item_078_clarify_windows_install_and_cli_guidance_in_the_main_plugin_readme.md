@@ -1,9 +1,9 @@
 ## item_078_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme - Clarify Windows install and CLI guidance in the main plugin README
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -115,3 +115,4 @@ flowchart LR
 - Derived from request `req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs`.
 - Source file: `logics/request/req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs.md`.
 - Request context seeded into this backlog item from `logics/request/req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs.md`.
+- Completed on 2026-03-19 via `task_083_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme`.

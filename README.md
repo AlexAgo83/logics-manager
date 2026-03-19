@@ -59,13 +59,21 @@ It is not only a workflow UI: the Logics kit is also a way to persist project co
 
 ## Requirements
 
-- A workspace folder open in VS Code.
-- Git available on PATH for bootstrap and submodule operations.
-- `logics/` is recommended if the project is already initialized; otherwise the extension can bootstrap it for you.
-- Logics skills kit at `logics/skills/` is required for create/promote/fix flows after initialization, and can be installed via `Bootstrap Logics`.
-- Python 3 available on PATH (the extension accepts `python3`, `python`, or `py` on Windows for Logics flow scripts).
-- Node.js + npm (for build/package).
-- VS Code CLI `code` available on PATH (for VSIX install).
+- To use the extension:
+  - A workspace folder open in VS Code.
+  - Git on PATH for bootstrap and submodule operations.
+  - `logics/` is recommended if the project is already initialized; otherwise the extension can bootstrap it for you.
+  - Logics skills kit at `logics/skills/` is required for create/promote/fix flows after initialization, and can be installed via `Bootstrap Logics`.
+  - Python 3 on PATH for script-backed workflow actions. The extension accepts `python3`, `python`, `py -3`, or `py`.
+- To build, package, or test the extension locally:
+  - Node.js + npm.
+- Optional CLI tooling:
+  - VS Code CLI `code` on PATH for terminal-based VSIX install or `npm run dev`.
+
+Windows notes:
+- You do not need the `code` CLI for normal extension usage inside VS Code.
+- If Python is installed through the Windows launcher, `py -3` is supported by the extension.
+- Repository-managed text files are normalized through [`.gitattributes`](/Users/alexandreagostini/Documents/cdx-logics-vscode/.gitattributes); let Git handle `CRLF`/`LF` conversion instead of rewriting line endings manually.
 
 ## Flow Manager Compatibility
 
@@ -94,8 +102,9 @@ https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
 code --install-extension cdx-logics-vscode-<version>.vsix --force
 ```
 
-If you don't have the `code` CLI on PATH, enable it in VS Code:
-**Command Palette → Shell Command: Install 'code' command in PATH**.
+If you don't have the `code` CLI on PATH:
+- Windows: either use the VS Code installer option that adds `code` to PATH, or install the `.vsix` from the VS Code UI via **Extensions → ... → Install from VSIX...**.
+- macOS/Linux: you can enable it from **Command Palette → Shell Command: Install 'code' command in PATH**.
 
 ### Install from source (dev)
 
@@ -109,6 +118,14 @@ Run the extension:
 - In VS Code: **Run → Start Debugging** (F5)
 - The Extension Development Host opens.
 - Open the **Logics** panel at the bottom → **Orchestrator**.
+
+If you prefer the terminal helper:
+
+```bash
+npm run dev
+```
+
+`npm run dev` requires the `code` CLI on PATH, so the F5 path above remains the safest cross-platform dev entrypoint.
 
 ## Deploy / Release (VSIX)
 
@@ -154,12 +171,14 @@ Contract:
 - `Logics: Open Item`
 - `Logics: Promote Item`
 - `Logics: New Request`
+- `Logics: Check Environment`
 
 ## Tools Menu
 
 - `Select Agent` picks the active Logics agent and prepares Codex chat context.
 - `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
+- `Check Environment` summarizes repository state, Python availability, Git availability, and whether read-only, workflow, or bootstrap actions are currently available.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.

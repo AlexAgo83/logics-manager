@@ -1,9 +1,9 @@
 ## task_083_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme - Clarify Windows install and CLI guidance in the main plugin README
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Update the main plugin README so Windows prerequisites, installation paths, and `code` CLI expectations are explicit and not macOS-centric.
-- [ ] 3. Reconcile the README examples with the actual supported runtime, packaging, and install flows.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Update the main plugin README so Windows prerequisites, installation paths, and `code` CLI expectations are explicit and not macOS-centric.
+- [x] 3. Reconcile the README examples with the actual supported runtime, packaging, and install flows.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -86,9 +86,15 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Clarified the main plugin README in [`README.md`](README.md) around three separate paths: using the extension, installing a VSIX, and developing locally.
+- Made Windows guidance explicit for `code` CLI expectations: normal extension usage does not require `code`, Windows can install VSIX files from the VS Code UI, and terminal-driven helpers such as `npm run dev` still require `code` on PATH.
+- Aligned the documented Python contract with the actual runtime support (`python3`, `python`, `py -3`, `py`) and added a note about Git-managed line endings via [`.gitattributes`](.gitattributes).
+- Documented the new `Logics: Check Environment` command and Tools menu entry as the supported way to inspect prerequisite and repository state.
+- Validation run:
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

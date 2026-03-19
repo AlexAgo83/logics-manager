@@ -1,9 +1,9 @@
 ## item_076_make_supported_logics_kit_command_entrypoints_cross_platform - Make supported Logics kit command entrypoints cross-platform
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -138,3 +138,4 @@ flowchart LR
 - Derived from request `req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit`.
 - Source file: `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
 - Request context seeded into this backlog item from `logics/request/req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit.md`.
+- Completed on 2026-03-19 via `task_080_make_supported_logics_kit_command_entrypoints_cross_platform`.

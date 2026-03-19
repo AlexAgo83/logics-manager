@@ -1,9 +1,9 @@
 ## task_080_make_supported_logics_kit_command_entrypoints_cross_platform - Make supported Logics kit command entrypoints cross-platform
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Inventory the supported kit command entrypoints and replace blind `python3` or POSIX-only assumptions with Windows-safe invocation guidance or helper logic where needed.
-- [ ] 3. Update kit smoke paths or tests so the supported command surface stays cross-platform instead of drifting back to Unix-only examples.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Inventory the supported kit command entrypoints and replace blind `python3` or POSIX-only assumptions with Windows-safe invocation guidance or helper logic where needed.
+- [x] 3. Update kit smoke paths or tests so the supported command surface stays cross-platform instead of drifting back to Unix-only examples.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -96,9 +96,17 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Normalized the top-level kit operator surface to use `python ...` as the canonical entrypoint in [`logics/skills/README.md`](logics/skills/README.md), [`logics/instructions.md`](logics/instructions.md), and the bootstrapped instructions template at [`logics/skills/logics-bootstrapper/assets/instructions.md`](logics/skills/logics-bootstrapper/assets/instructions.md).
+- Added explicit guidance that operators may substitute `python3` on Unix-like environments or `py -3` on Windows when that is the installed launcher, instead of documenting Unix-only `python3` as the default.
+- Updated generated review guidance in [`logics/skills/logics-global-reviewer/scripts/logics_global_review.py`](logics/skills/logics-global-reviewer/scripts/logics_global_review.py) so the kit itself does not reintroduce `python3` recommendations.
+- Added regression coverage in [`logics/skills/tests/test_bootstrapper.py`](logics/skills/tests/test_bootstrapper.py) and [`logics/skills/tests/test_global_reviewer.py`](logics/skills/tests/test_global_reviewer.py) to keep the canonical command surface cross-platform.
+- Validation run:
+- `python3 -m unittest discover -s logics/skills/tests -p 'test_*.py' -v`
+- `python3 logics/skills/tests/run_cli_smoke_checks.py`
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

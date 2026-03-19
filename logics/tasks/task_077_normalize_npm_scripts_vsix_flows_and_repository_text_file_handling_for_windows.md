@@ -1,5 +1,5 @@
 ## task_077_normalize_npm_scripts_vsix_flows_and_repository_text_file_handling_for_windows - Normalize npm scripts VSIX flows and repository text-file handling for Windows
-> From version: 1.10.7
+> From version: 1.10.8
 > Status: Done
 > Understanding: 96%
 > Confidence: 93%
@@ -73,9 +73,9 @@ flowchart LR
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Required
+- Architecture framing: Consider
 - Architecture signals: contracts and integration, security and identity
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
 
 # Links
 - Product brief(s): (none yet)

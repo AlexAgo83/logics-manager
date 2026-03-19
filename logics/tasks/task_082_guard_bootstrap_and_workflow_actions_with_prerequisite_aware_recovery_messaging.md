@@ -1,5 +1,5 @@
 ## task_082_guard_bootstrap_and_workflow_actions_with_prerequisite_aware_recovery_messaging - Guard bootstrap and workflow actions with prerequisite-aware recovery messaging
-> From version: 1.10.7
+> From version: 1.10.8
 > Status: Done
 > Understanding: 97%
 > Confidence: 95%
@@ -59,9 +59,9 @@ flowchart LR
 - AC15 -> Scope: optional diagnostic command or status surface.. Proof: TODO.
 
 # Decision framing
-- Product framing: Required
+- Product framing: Consider
 - Product signals: conversion journey, navigation and discoverability
-- Product follow-up: Create or link a product brief before implementation moves deeper into delivery.
+- Product follow-up: Review whether a product brief is needed before implementation becomes harder to reverse.
 - Architecture framing: Consider
 - Architecture signals: contracts and integration
 - Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.

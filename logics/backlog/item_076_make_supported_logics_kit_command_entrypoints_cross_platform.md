@@ -1,5 +1,5 @@
 ## item_076_make_supported_logics_kit_command_entrypoints_cross_platform - Make supported Logics kit command entrypoints cross-platform
-> From version: 1.10.7
+> From version: 1.10.8
 > Status: Done
 > Understanding: 96%
 > Confidence: 93%
@@ -105,9 +105,9 @@ flowchart LR
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Required
+- Architecture framing: Consider
 - Architecture signals: contracts and integration, runtime and boundaries, security and identity
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
 
 # Links
 - Product brief(s): (none yet)

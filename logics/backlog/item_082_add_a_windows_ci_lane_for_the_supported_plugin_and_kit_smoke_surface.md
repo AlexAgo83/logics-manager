@@ -1,5 +1,5 @@
 ## item_082_add_a_windows_ci_lane_for_the_supported_plugin_and_kit_smoke_surface - Add a Windows CI lane for the supported plugin and kit smoke surface
-> From version: 1.10.7
+> From version: 1.10.8
 > Status: Done
 > Understanding: 97%
 > Confidence: 95%
@@ -76,9 +76,9 @@ flowchart LR
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Required
+- Architecture framing: Consider
 - Architecture signals: contracts and integration, security and identity
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
 
 # Links
 - Product brief(s): (none yet)

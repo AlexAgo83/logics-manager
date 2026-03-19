@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildMissingGitMessage, isMissingGitFailureDetail } from "../src/gitRuntime";
+import { buildMissingGitMessage, getGitCommandCandidates, isMissingGitFailureDetail } from "../src/gitRuntime";
 
 describe("gitRuntime", () => {
   it("recognizes common missing-git launcher errors", () => {
@@ -10,5 +10,28 @@ describe("gitRuntime", () => {
   it("builds an actionable missing-git message", () => {
     expect(buildMissingGitMessage()).toContain("Install Git");
     expect(buildMissingGitMessage()).toContain("`git`");
+    expect(buildMissingGitMessage()).toContain("`git.path`");
+  });
+
+  it("prefers configured git.path entries before the plain git launcher", () => {
+    const candidates = getGitCommandCandidates("win32", {}, "C:\\Program Files\\Git\\cmd\\git.exe");
+
+    expect(candidates[0]?.command).toBe("C:\\Program Files\\Git\\cmd\\git.exe");
+    expect(candidates.some((candidate) => candidate.command === "git")).toBe(true);
+  });
+
+  it("adds common Windows fallback locations when PATH is insufficient", () => {
+    const candidates = getGitCommandCandidates("win32", {
+      ProgramFiles: "C:\\Program Files",
+      "ProgramFiles(x86)": "C:\\Program Files (x86)",
+      LocalAppData: "C:\\Users\\Alice\\AppData\\Local"
+    });
+
+    expect(candidates.some((candidate) => candidate.command === "C:\\Program Files\\Git\\cmd\\git.exe")).toBe(true);
+    expect(
+      candidates.some(
+        (candidate) => candidate.command === "C:\\Users\\Alice\\AppData\\Local\\Programs\\Git\\cmd\\git.exe"
+      )
+    ).toBe(true);
   });
 });

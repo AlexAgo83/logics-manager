@@ -195,7 +195,7 @@ describe("LogicsViewProvider", () => {
     await (provider as any).bootstrapLogics(root);
 
     expect(mocks.showErrorMessage).toHaveBeenCalledWith(
-      "Bootstrap Logics requires Git. Git not found. Install Git and ensure `git` is available on PATH, then retry. The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details. Read-only Logics browsing remains available until bootstrap completes."
+      "Bootstrap Logics requires Git. Git not found. Install Git and ensure `git` is available on PATH or configure VS Code `git.path`, then retry. The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details. Read-only Logics browsing remains available until bootstrap completes."
     );
     expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
   });

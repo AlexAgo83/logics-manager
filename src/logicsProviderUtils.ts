@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { execFile } from "child_process";
 import { addLinkToSection, replaceManagedReferenceTokens } from "./logicsDocMaintenance";
 import { getManagedDocDirectories, LogicsItem } from "./logicsIndexer";
+import { runGitCommand } from "./gitRuntime";
 import { runPythonCommand } from "./pythonRuntime";
 
 export function getWorkspaceRoots(): string[] {
@@ -368,13 +368,5 @@ export async function runGitWithOutput(
   cwd: string,
   args: string[]
 ): Promise<{ stdout: string; stderr: string; error?: Error }> {
-  return new Promise((resolve) => {
-    execFile("git", args, { cwd }, (error, stdout, stderr) => {
-      resolve({
-        error: error ?? undefined,
-        stdout: stdout || "",
-        stderr: stderr || ""
-      });
-    });
-  });
+  return runGitCommand(cwd, args);
 }

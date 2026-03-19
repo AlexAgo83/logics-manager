@@ -1,9 +1,9 @@
 ## task_079_make_missing_workflow_directories_an_explicit_self_healing_logics_contract - Make missing workflow directories an explicit self-healing Logics contract
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and workflow directory recovery
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -29,10 +29,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Make the self-healing contract explicit in the flow manager and any extension-facing messaging for missing `request`, `backlog`, and `tasks` directories.
-- [ ] 3. Add targeted regression coverage for missing-directory create flows while preserving explicit failure modes for missing kit scripts or incomplete installs.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Make the self-healing contract explicit in the flow manager and any extension-facing messaging for missing `request`, `backlog`, and `tasks` directories.
+- [x] 3. Add targeted regression coverage for missing-directory create flows while preserving explicit failure modes for missing kit scripts or incomplete installs.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -80,9 +80,18 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Documented the self-healing contract directly in [`logics/skills/logics-flow-manager/scripts/logics_flow_support.py`](logics/skills/logics-flow-manager/scripts/logics_flow_support.py) at `_reserve_doc`, which is the path used by `new request`, `new backlog`, and `new task`.
+- Added direct regression coverage in [`logics/skills/tests/test_logics_flow.py`](logics/skills/tests/test_logics_flow.py) for:
+- missing `logics/request` then `new request`
+- missing `logics/backlog` then `new backlog`
+- missing `logics/tasks` then `new task`
+- Kept failure handling for broader broken-kit states unchanged; this task only codifies missing workflow directories as an intentional recovery case when the kit and scripts are otherwise present.
+- Validation run:
+- `python3 -m unittest discover -s logics/skills/tests -p 'test_*.py' -v`
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

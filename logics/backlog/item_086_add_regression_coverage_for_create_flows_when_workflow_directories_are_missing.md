@@ -1,9 +1,9 @@
 ## item_086_add_regression_coverage_for_create_flows_when_workflow_directories_are_missing - Add regression coverage for create flows when workflow directories are missing
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and workflow directory recovery
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -97,3 +97,4 @@ flowchart LR
 - Derived from request `req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing`.
 - Source file: `logics/request/req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing.md`.
 - Request context seeded into this backlog item from `logics/request/req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing.md`.
+- Completed on 2026-03-19 via `task_079_make_missing_workflow_directories_an_explicit_self_healing_logics_contract`.

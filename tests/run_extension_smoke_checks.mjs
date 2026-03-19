@@ -22,11 +22,7 @@ if (!/deactivate:\s*\(\)\s*=>\s*deactivate/.test(compiledBundle) || !/module\.ex
 }
 
 const vsixPath = path.join(os.tmpdir(), `cdx-logics-vscode-smoke-${Date.now()}.vsix`);
-const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
-execFileSync(npxCommand, ["@vscode/vsce", "package", "--out", vsixPath], {
-  cwd: root,
-  stdio: "ignore"
-});
+runVscePackage(vsixPath, "ignore");
 
 const entries = await listZipEntries(vsixPath);
 assertHas(entries, "extension/package.json");
@@ -89,4 +85,19 @@ function assertMissing(entries, unexpected) {
   if (entries.includes(unexpected)) {
     throw new Error(`Expected VSIX to exclude ${unexpected}`);
   }
+}
+
+function runVscePackage(outputPath, stdio) {
+  if (process.platform === "win32") {
+    execFileSync("cmd.exe", ["/d", "/s", "/c", "npx", "@vscode/vsce", "package", "--out", outputPath], {
+      cwd: root,
+      stdio
+    });
+    return;
+  }
+
+  execFileSync("npx", ["@vscode/vsce", "package", "--out", outputPath], {
+    cwd: root,
+    stdio
+  });
 }

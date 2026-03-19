@@ -1,9 +1,9 @@
 ## task_082_guard_bootstrap_and_workflow_actions_with_prerequisite_aware_recovery_messaging - Guard bootstrap and workflow actions with prerequisite-aware recovery messaging
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Gate bootstrap, create, promote, and fix actions early with prerequisite-aware recovery messaging for missing tools, missing scripts, missing kit state, and partial bootstrap cases.
-- [ ] 3. Add focused tests that preserve read-only behavior while making action failures explicit and actionable.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Gate bootstrap, create, promote, and fix actions early with prerequisite-aware recovery messaging for missing tools, missing scripts, missing kit state, and partial bootstrap cases.
+- [x] 3. Add focused tests that preserve read-only behavior while making action failures explicit and actionable.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -87,9 +87,17 @@ flowchart LR
 - `npm run test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Moved prerequisite-aware gating earlier in [`src/logicsViewDocumentController.ts`](src/logicsViewDocumentController.ts) so create and promote flows now block before prompting for input when Python or the Logics workflow surface is already known to be unavailable.
+- Distinguished missing repository state, missing kit state, and missing scripts with more specific recovery messages, all pointing operators to `Logics: Check Environment` instead of leaving them with late generic failures.
+- Tightened bootstrap failure messages in [`src/logicsViewProvider.ts`](src/logicsViewProvider.ts) so missing Git or Python explicitly state that the extension can repair repository state but cannot install system tools automatically.
+- Extended coverage in [`tests/logicsViewDocumentController.test.ts`](tests/logicsViewDocumentController.test.ts) and [`tests/logicsViewProvider.test.ts`](tests/logicsViewProvider.test.ts) to lock the new guarded entry behavior and recovery wording.
+- Validation run:
+- `npm run compile`
+- `npm run lint:ts`
+- `npm run test`

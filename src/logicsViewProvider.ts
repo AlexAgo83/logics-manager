@@ -677,7 +677,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
       if (isMissingGitFailureDetail(detail)) {
         void vscode.window.showErrorMessage(
-          `Bootstrap Logics requires Git. ${buildMissingGitMessage()} Read-only Logics browsing remains available until bootstrap completes.`
+          `Bootstrap Logics requires Git. ${buildMissingGitMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
         );
         return;
       }
@@ -743,7 +743,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         const detail = `${result.stderr}\n${result.stdout}\n${result.error.message}`.trim();
         if (isMissingPythonFailureDetail(detail)) {
           void vscode.window.showErrorMessage(
-            `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} Read-only Logics browsing remains available until bootstrap completes.`
+            `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
           );
           return;
         }

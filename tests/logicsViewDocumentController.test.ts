@@ -14,6 +14,15 @@ const mocks = vi.hoisted(() => ({
   runPythonWithOutput: vi.fn()
 }));
 
+vi.mock("../src/logicsEnvironment", () => ({
+  inspectLogicsEnvironment: vi.fn(async () => ({
+    hasLogicsDir: true,
+    hasSkillsDir: true,
+    hasFlowManagerScript: true,
+    python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
+  }))
+}));
+
 vi.mock("vscode", () => ({
   window: {
     showErrorMessage: mocks.showErrorMessage,
@@ -104,6 +113,13 @@ describe("LogicsViewDocumentController", () => {
 
   it("shows an actionable error when the flow manager is still missing after bootstrap", async () => {
     mocks.getFlowManagerScriptPath.mockReturnValue(null);
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: false,
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
+    } as never);
 
     const controller = new LogicsViewDocumentController({
       context: { extensionPath: root } as never,
@@ -123,20 +139,21 @@ describe("LogicsViewDocumentController", () => {
     await controller.createItem("backlog");
 
     expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
-    expect(mocks.showErrorMessage).toHaveBeenCalledWith(
-      "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to install logics/skills."
-    );
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("flow manager script is missing");
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Logics: Check Environment");
   });
 
-  it("shows a Python-specific action message when creation cannot run Python", async () => {
+  it("blocks creation before prompting for input when Python is missing", async () => {
     mocks.getFlowManagerScriptPath.mockReturnValue(
       path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py")
     );
-    mocks.runPythonWithOutput.mockResolvedValue({
-      stdout: "",
-      stderr: "'python3' is not recognized as an internal or external command",
-      error: new Error("spawn python3 ENOENT")
-    });
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      python: { available: false, command: null }
+    } as never);
 
     const controller = new LogicsViewDocumentController({
       context: { extensionPath: root } as never,
@@ -155,8 +172,12 @@ describe("LogicsViewDocumentController", () => {
 
     await controller.createItem("backlog");
 
+    expect(mocks.showInputBox).not.toHaveBeenCalled();
+    expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
     expect(mocks.showErrorMessage).toHaveBeenCalledTimes(1);
     expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Logics document creation requires Python 3.");
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("cannot install system tools automatically");
+    expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Logics: Check Environment");
     expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Read-only Logics browsing remains available.");
   });
 });

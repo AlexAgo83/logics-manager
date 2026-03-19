@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { AgentDefinition, AgentRegistrySnapshot } from "./agentRegistry";
+import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import { buildReadPreviewHtml } from "./logicsReadPreviewHtml";
 import { normalizeEntrySuffix, parseRenameTarget, validateRenameSuffix } from "./logicsDocMaintenance";
 import { canPromote, isRequestProcessed, LogicsItem, promotionCommand } from "./logicsIndexer";
@@ -52,9 +53,8 @@ export class LogicsViewDocumentController {
     if (!root) {
       return;
     }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.options.maybeOfferBootstrap(root);
+    const scriptPath = await this.ensureWorkflowActionReady(root, "Request creation");
+    if (!scriptPath) {
       return;
     }
 
@@ -63,11 +63,6 @@ export class LogicsViewDocumentController {
       prompt: "Title for the request"
     });
     if (!title) {
-      return;
-    }
-
-    const scriptPath = await this.ensureFlowManagerScript(root);
-    if (!scriptPath) {
       return;
     }
 
@@ -119,9 +114,8 @@ export class LogicsViewDocumentController {
     if (!root) {
       return;
     }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
-      await this.options.maybeOfferBootstrap(root);
+    const scriptPath = await this.ensureWorkflowActionReady(root, "Logics document creation");
+    if (!scriptPath) {
       return;
     }
 
@@ -136,11 +130,6 @@ export class LogicsViewDocumentController {
       prompt: `Title for the ${config.label}`
     });
     if (!title) {
-      return;
-    }
-
-    const scriptPath = await this.ensureFlowManagerScript(root);
-    if (!scriptPath) {
       return;
     }
 
@@ -159,9 +148,14 @@ export class LogicsViewDocumentController {
     if (!root) {
       return;
     }
-    if (!fs.existsSync(path.join(root, "logics"))) {
-      void vscode.window.showErrorMessage(`No logics/ folder found in: ${root}.`);
+    const environment = await inspectLogicsEnvironment(root);
+    if (!environment.hasLogicsDir) {
+      void vscode.window.showErrorMessage(this.buildMissingLogicsMessage(root, "Companion doc creation"));
       await this.options.maybeOfferBootstrap(root);
+      return;
+    }
+    if (!environment.python.available) {
+      void vscode.window.showErrorMessage(this.buildMissingPythonActionMessage("Companion doc creation"));
       return;
     }
 
@@ -210,7 +204,9 @@ export class LogicsViewDocumentController {
 
     const scriptPath = getCompanionDocScriptPath(root, kindPick.value);
     if (!scriptPath) {
-      void vscode.window.showErrorMessage(`Companion doc script not found for ${kindPick.label.toLowerCase()}.`);
+      void vscode.window.showErrorMessage(
+        `Companion doc creation is blocked because the ${kindPick.label.toLowerCase()} script is missing from logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
+      );
       return;
     }
 
@@ -245,6 +241,16 @@ export class LogicsViewDocumentController {
     if (!root) {
       return;
     }
+    const environment = await inspectLogicsEnvironment(root);
+    if (!environment.hasLogicsDir) {
+      void vscode.window.showErrorMessage(this.buildMissingLogicsMessage(root, "Logics doc fixer"));
+      await this.options.maybeOfferBootstrap(root);
+      return;
+    }
+    if (!environment.python.available) {
+      void vscode.window.showErrorMessage(this.buildMissingPythonActionMessage("Logics doc fixer"));
+      return;
+    }
 
     const confirm = await vscode.window.showWarningMessage(
       "Run Logics fixer? This will update Logics docs on disk.",
@@ -257,7 +263,9 @@ export class LogicsViewDocumentController {
 
     const scriptPath = path.join(root, "logics", "skills", "logics-doc-fixer", "scripts", "fix_logics_docs.py");
     if (!fs.existsSync(scriptPath)) {
-      void vscode.window.showErrorMessage("Logics doc fixer script not found in logics/skills.");
+      void vscode.window.showErrorMessage(
+        `Logics doc fixer script not found in logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
+      );
       return;
     }
 
@@ -315,6 +323,10 @@ export class LogicsViewDocumentController {
     if (!root) {
       return;
     }
+    const scriptPath = await this.ensureWorkflowActionReady(root, "Promotion");
+    if (!scriptPath) {
+      return;
+    }
 
     const promotion = promotionCommand(item.stage);
     if (!promotion) {
@@ -327,11 +339,6 @@ export class LogicsViewDocumentController {
     }
     if (item.isPromoted) {
       void vscode.window.showInformationMessage("This item has already been promoted.");
-      return;
-    }
-
-    const scriptPath = await this.ensureFlowManagerScript(root);
-    if (!scriptPath) {
       return;
     }
 
@@ -431,6 +438,20 @@ export class LogicsViewDocumentController {
     return this.options.getItems();
   }
 
+  private async ensureWorkflowActionReady(root: string, actionLabel: string): Promise<string | null> {
+    const environment = await inspectLogicsEnvironment(root);
+    if (!environment.hasLogicsDir) {
+      void vscode.window.showErrorMessage(this.buildMissingLogicsMessage(root, actionLabel));
+      await this.options.maybeOfferBootstrap(root);
+      return null;
+    }
+    if (!environment.python.available) {
+      void vscode.window.showErrorMessage(this.buildMissingPythonActionMessage(actionLabel));
+      return null;
+    }
+    return this.ensureFlowManagerScript(root);
+  }
+
   private async ensureFlowManagerScript(root: string): Promise<string | null> {
     let scriptPath = getFlowManagerScriptPath(root);
     if (scriptPath) {
@@ -443,8 +464,22 @@ export class LogicsViewDocumentController {
       return scriptPath;
     }
 
+    const environment = await inspectLogicsEnvironment(root);
+    if (!environment.hasSkillsDir) {
+      void vscode.window.showErrorMessage(
+        `Workflow actions are blocked because logics/skills is missing. Run Bootstrap Logics to install the kit. ${this.buildRecoveryGuidance()}`
+      );
+      return null;
+    }
+    if (!environment.hasFlowManagerScript) {
+      void vscode.window.showErrorMessage(
+        `Workflow actions are blocked because the flow manager script is missing from logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
+      );
+      return null;
+    }
+
     void vscode.window.showErrorMessage(
-      "Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to install logics/skills."
+      `Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to repair the kit. ${this.buildRecoveryGuidance()}`
     );
     return null;
   }
@@ -455,9 +490,21 @@ export class LogicsViewDocumentController {
   ): string {
     const detail = `${result.stderr}\n${result.stdout}\n${result.error?.message || ""}`.trim();
     if (isMissingPythonFailureDetail(detail)) {
-      return `${actionLabel} requires Python 3. ${buildMissingPythonMessage()} Read-only Logics browsing remains available.`;
+      return this.buildMissingPythonActionMessage(actionLabel);
     }
     return `${actionLabel} failed: ${result.stderr || result.error?.message || "Unknown error."}`;
+  }
+
+  private buildMissingLogicsMessage(root: string, actionLabel: string): string {
+    return `${actionLabel} requires a logics/ folder in: ${root}. Bootstrap Logics to install the kit and workflow docs. ${this.buildRecoveryGuidance()}`;
+  }
+
+  private buildMissingPythonActionMessage(actionLabel: string): string {
+    return `${actionLabel} requires Python 3. ${buildMissingPythonMessage()} ${this.buildRecoveryGuidance()} Read-only Logics browsing remains available.`;
+  }
+
+  private buildRecoveryGuidance(): string {
+    return "The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details.";
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

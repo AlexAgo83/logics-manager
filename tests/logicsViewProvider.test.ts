@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   showErrorMessage: vi.fn(),
   showInformationMessage: vi.fn(),
+  showQuickPick: vi.fn(),
   showWarningMessage: vi.fn(),
   createWebviewPanel: vi.fn(),
   openExternal: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock("vscode", () => ({
   window: {
     showErrorMessage: mocks.showErrorMessage,
     showInformationMessage: mocks.showInformationMessage,
+    showQuickPick: mocks.showQuickPick,
     showWarningMessage: mocks.showWarningMessage,
     createWebviewPanel: mocks.createWebviewPanel
   },
@@ -88,6 +90,38 @@ vi.mock("../src/logicsWebviewHtml", () => ({
   buildLogicsWebviewHtml: vi.fn(() => "<html></html>")
 }));
 
+vi.mock("../src/logicsEnvironment", () => ({
+  inspectLogicsEnvironment: vi.fn(async () => ({
+    root: "/workspace/mock",
+    repositoryState: "partial-bootstrap",
+    hasLogicsDir: true,
+    hasSkillsDir: true,
+    hasFlowManagerScript: true,
+    hasBootstrapScript: true,
+    missingWorkflowDirs: ["logics/request"],
+    git: { available: true },
+    python: { available: false, command: null },
+    capabilities: {
+      readOnly: {
+        status: "available",
+        summary: "Browsing existing Logics docs remains available even when Git or Python prerequisites are missing."
+      },
+      workflowMutation: {
+        status: "unavailable",
+        summary: "Requires Python 3 on PATH for create, promote, and fix actions."
+      },
+      bootstrapRepair: {
+        status: "available",
+        summary: "Bootstrap or repair is available from the extension."
+      },
+      diagnostics: {
+        status: "available",
+        summary: "Always available from the command palette or Tools menu."
+      }
+    }
+  }))
+}));
+
 import { LogicsViewProvider } from "../src/logicsViewProvider";
 
 describe("LogicsViewProvider", () => {
@@ -99,6 +133,7 @@ describe("LogicsViewProvider", () => {
     mocks.showErrorMessage.mockReset();
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
+    mocks.showQuickPick.mockReset();
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.hasLogicsSubmodule.mockReset();
@@ -163,5 +198,15 @@ describe("LogicsViewProvider", () => {
       "Bootstrap Logics requires Git. Git not found. Install Git and ensure `git` is available on PATH, then retry. Read-only Logics browsing remains available until bootstrap completes."
     );
     expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+  });
+
+  it("surfaces the environment capability snapshot through the diagnostic quick pick", async () => {
+    await provider.checkEnvironmentFromCommand();
+
+    expect(mocks.showQuickPick).toHaveBeenCalledTimes(1);
+    const [items, options] = mocks.showQuickPick.mock.calls[0];
+    expect(options.title).toBe("Logics: Check Environment");
+    expect(items.some((item: { label: string }) => item.label.includes("Workflow actions: Unavailable"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
   });
 });

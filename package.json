@@ -64,6 +64,10 @@
       {
         "command": "logics.createCompanionDoc",
         "title": "Logics: Create Companion Doc"
+      },
+      {
+        "command": "logics.checkEnvironment",
+        "title": "Logics: Check Environment"
       }
     ]
   },

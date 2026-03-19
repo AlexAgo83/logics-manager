@@ -1,9 +1,9 @@
 ## item_087_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes - Add environment capability detection for read-only workflow and bootstrap modes
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -109,3 +109,4 @@ flowchart LR
 - Derived from request `req_066_add_guarded_environment_preflight_and_onboarding_for_logics_bootstrap_and_workflow_actions`.
 - Source file: `logics/request/req_066_add_guarded_environment_preflight_and_onboarding_for_logics_bootstrap_and_workflow_actions.md`.
 - Request context seeded into this backlog item from `logics/request/req_066_add_guarded_environment_preflight_and_onboarding_for_logics_bootstrap_and_workflow_actions.md`.
+- Completed on 2026-03-19 via `task_081_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes`.

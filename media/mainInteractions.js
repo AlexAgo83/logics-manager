@@ -5,6 +5,7 @@
       attentionToggle,
       board,
       bootstrapLogicsButton,
+      checkEnvironmentButton,
       changeProjectRootButton,
       compactListQuery,
       createCompanionDocToolButton,
@@ -29,6 +30,7 @@
       onActivityToggle,
       onBoardScroll,
       onBootstrapLogics,
+      onCheckEnvironment,
       onChangeProjectRoot,
       onCreateCompanionDoc,
       onDetailsScroll,
@@ -101,6 +103,9 @@
       }
       if (bootstrapLogicsButton) {
         bootstrapLogicsButton.addEventListener("click", () => onBootstrapLogics());
+      }
+      if (checkEnvironmentButton) {
+        checkEnvironmentButton.addEventListener("click", () => onCheckEnvironment());
       }
       if (newRequestToolButton) {
         newRequestToolButton.addEventListener("click", () => onCreateCompanionDoc("new-request-guided"));
@@ -229,6 +234,7 @@
       setControlDescription(selectAgentButton, "Select active agent");
       setControlDescription(newRequestToolButton, "Start a guided new request in Codex");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
+      setControlDescription(checkEnvironmentButton, "Check environment prerequisites");
       setControlDescription(changeProjectRootButton, "Change project root");
       setControlDescription(resetProjectRootButton, "Use workspace root");
       setControlDescription(fixDocsButton, "Fix Logics");

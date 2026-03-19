@@ -11,6 +11,7 @@ import {
 import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
+import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
   getWorkspaceRoot,
@@ -125,6 +126,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           break;
         case "bootstrap-logics":
           await this.bootstrapFromTools();
+          break;
+        case "check-environment":
+          await this.checkEnvironmentFromTools();
           break;
         case "about":
           await this.openAbout();
@@ -259,6 +263,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
   }
 
+  async checkEnvironmentFromCommand(): Promise<void> {
+    await this.checkEnvironmentFromTools();
+  }
+
   async refreshAgentsFromCommand(): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
@@ -312,6 +320,52 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     await this.bootstrapLogics(root);
+  }
+
+  private async checkEnvironmentFromTools(): Promise<void> {
+    const { root, invalidOverridePath } = this.resolveProjectRoot();
+    const snapshot = await inspectLogicsEnvironment(root, invalidOverridePath);
+    const quickPickItems = [
+      {
+        label: `Workspace root: ${snapshot.root ?? "(none selected)"}`,
+        description: `Repository state: ${snapshot.repositoryState}`
+      },
+      {
+        label: `Read-only browsing: ${snapshot.capabilities.readOnly.status === "available" ? "Available" : "Unavailable"}`,
+        description: snapshot.capabilities.readOnly.summary
+      },
+      {
+        label: `Workflow actions: ${snapshot.capabilities.workflowMutation.status === "available" ? "Available" : "Unavailable"}`,
+        description: snapshot.capabilities.workflowMutation.summary
+      },
+      {
+        label: `Bootstrap or repair: ${snapshot.capabilities.bootstrapRepair.status === "available" ? "Available" : "Unavailable"}`,
+        description: snapshot.capabilities.bootstrapRepair.summary
+      },
+      {
+        label: `Git: ${snapshot.git.available ? "Detected" : "Missing"}`,
+        description: snapshot.git.available ? "Git is available on PATH." : buildMissingGitMessage()
+      },
+      {
+        label: `Python 3: ${snapshot.python.available ? `Detected (${snapshot.python.command?.displayLabel || "python"})` : "Missing"}`,
+        description: snapshot.python.available
+          ? "Python-backed workflow actions can run."
+          : buildMissingPythonMessage()
+      }
+    ];
+
+    if (snapshot.missingWorkflowDirs.length > 0) {
+      quickPickItems.push({
+        label: "Partial bootstrap: workflow directories will self-heal",
+        description: `Missing directories: ${snapshot.missingWorkflowDirs.join(", ")}. Create flows will recreate them automatically.`
+      });
+    }
+
+    await vscode.window.showQuickPick(quickPickItems, {
+      title: "Logics: Check Environment",
+      placeHolder: "Review current prerequisite and repository capability status",
+      ignoreFocusOut: true
+    });
   }
 
   private async openAbout(): Promise<void> {

@@ -76,6 +76,10 @@ export async function runPythonCommand(cwd: string, scriptPath: string, args: st
   return result;
 }
 
+export async function detectPythonRuntime(): Promise<PythonCommand | null> {
+  return resolvePythonCommand();
+}
+
 async function resolvePythonCommand(): Promise<PythonCommand | null> {
   if (!resolvedPythonCommandPromise) {
     resolvedPythonCommandPromise = detectPythonCommand();

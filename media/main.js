@@ -35,6 +35,7 @@
   const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
+  const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
@@ -935,6 +936,7 @@
         attentionToggle,
         board,
         bootstrapLogicsButton,
+        checkEnvironmentButton,
         changeProjectRootButton,
         compactListQuery,
         createCompanionDocToolButton,
@@ -970,6 +972,10 @@
         },
         onBootstrapLogics() {
           handleBootstrapLogics();
+          setToolsPanelOpen(false);
+        },
+        onCheckEnvironment() {
+          hostApi.checkEnvironment();
           setToolsPanelOpen(false);
         },
         onChangeProjectRoot() {

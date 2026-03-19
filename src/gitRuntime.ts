@@ -1,3 +1,5 @@
+import { execFile } from "child_process";
+
 export function isMissingGitFailureDetail(detail: string): boolean {
   const normalized = detail.toLowerCase();
   return (
@@ -11,4 +13,12 @@ export function isMissingGitFailureDetail(detail: string): boolean {
 
 export function buildMissingGitMessage(): string {
   return "Git not found. Install Git and ensure `git` is available on PATH, then retry.";
+}
+
+export async function detectGitCommand(): Promise<boolean> {
+  return new Promise((resolve) => {
+    execFile("git", ["--version"], (error) => {
+      resolve(!error);
+    });
+  });
 }

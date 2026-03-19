@@ -23,6 +23,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <button id="tools-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
               <button data-action="new-request-guided"></button>
+              <button data-action="check-environment"></button>
               <button data-action="change-project-root"></button>
               <button data-action="reset-project-root"></button>
               <button data-action="refresh"></button>

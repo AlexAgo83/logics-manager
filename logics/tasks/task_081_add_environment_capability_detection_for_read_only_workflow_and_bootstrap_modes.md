@@ -1,9 +1,9 @@
 ## task_081_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes - Add environment capability detection for read-only workflow and bootstrap modes
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -29,10 +29,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Implement a reusable capability model that distinguishes read-only browsing, workflow mutation, bootstrap or repair, and diagnostic surfaces.
-- [ ] 3. Expose that model through a dedicated environment diagnostic command or panel state without degrading read-only usage.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Implement a reusable capability model that distinguishes read-only browsing, workflow mutation, bootstrap or repair, and diagnostic surfaces.
+- [x] 3. Expose that model through a dedicated environment diagnostic command or panel state without degrading read-only usage.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -88,9 +88,17 @@ flowchart LR
 - `npm run test`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Added a reusable capability model in [`src/logicsEnvironment.ts`](src/logicsEnvironment.ts) that classifies repository state (`no-root`, `missing-logics`, `missing-kit`, `missing-flow-manager`, `partial-bootstrap`, `ready`) and evaluates the four supported surfaces: read-only browsing, workflow mutation, bootstrap or repair, and diagnostics.
+- Exposed the diagnostic through a new extension command `logics.checkEnvironment`, the Tools menu button `Check Environment`, and a quick-pick summary surfaced by [`src/logicsViewProvider.ts`](src/logicsViewProvider.ts).
+- Kept read-only behavior independent from mutation prerequisites: the diagnostic explicitly reports when browsing can continue even though Python or Git are missing.
+- Added regression coverage in [`tests/logicsEnvironment.test.ts`](tests/logicsEnvironment.test.ts), [`tests/logicsViewProvider.test.ts`](tests/logicsViewProvider.test.ts), and [`tests/webview.harness-core.test.ts`](tests/webview.harness-core.test.ts).
+- Validation run:
+- `npm run compile`
+- `npm run lint:ts`
+- `npm run test`

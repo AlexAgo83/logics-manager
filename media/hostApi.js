@@ -70,6 +70,9 @@
       bootstrapLogics() {
         invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
       },
+      checkEnvironment() {
+        invokeHostOnly("check-environment", {}, "Check Environment");
+      },
       selectAgent() {
         invokeHostOnly("select-agent", {}, "Select Agent");
       },

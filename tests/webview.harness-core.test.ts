@@ -114,6 +114,15 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
   });
 
+  it("posts check-environment action in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const button = dom.window.document.querySelector('[data-action="check-environment"]');
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "check-environment")).toBe(true);
+  });
+
   it("posts create companion doc action from tools in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 

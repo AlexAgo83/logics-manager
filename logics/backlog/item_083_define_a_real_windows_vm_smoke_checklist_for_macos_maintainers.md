@@ -1,9 +1,9 @@
 ## item_083_define_a_real_windows_vm_smoke_checklist_for_macos_maintainers - Define a real Windows VM smoke checklist for macOS maintainers
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cross-platform validation strategy and test environment realism
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -103,3 +103,4 @@ flowchart LR
 - Derived from request `req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit`.
 - Source file: `logics/request/req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit.md`.
 - Request context seeded into this backlog item from `logics/request/req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit.md`.
+- Completed on 2026-03-19 via `task_087_define_a_real_windows_vm_smoke_checklist_for_macos_maintainers`.

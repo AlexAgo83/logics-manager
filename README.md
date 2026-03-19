@@ -196,6 +196,33 @@ Contract:
 
 CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
 
+## Windows Validation From macOS
+
+Use a two-layer strategy:
+
+- CI is the fast default. The repository now validates supported Windows flows in GitHub Actions on `windows-latest`.
+- A real Windows VM is still required for targeted debugging and release confidence on shell, PATH, launcher, filesystem, and VS Code host behavior.
+
+Recommended local VM path from macOS:
+
+- Apple Silicon: UTM with Windows 11 ARM is the pragmatic low-cost option.
+- Intel Mac: UTM or another Windows-capable VM is fine.
+
+Suggested VM checklist:
+
+1. Install VS Code, Git, Python 3, and Node.js inside the VM.
+2. Confirm launchers from the Windows shell you actually care about (`git --version`, `py -3 --version` or `python --version`, `node --version`, `npm --version`).
+3. Clone the repo, initialize submodules, and run `npm ci`.
+4. Run the automated baseline first: `npm run ci:check` and `python logics/skills/tests/run_cli_smoke_checks.py`.
+5. Smoke the real Windows-only paths:
+   - install the `.vsix` from VS Code or with `code --install-extension ...`
+   - trigger `Bootstrap Logics`
+   - run `Logics: Check Environment`
+   - create a request, backlog item, and task
+   - promote request -> backlog and backlog -> task
+   - confirm `py -3` or `python` launcher resolution works as expected
+6. Use the VM for release preparation and any bug that smells like shell quoting, PATH resolution, case-insensitive paths, symlink restrictions, or extension-host behavior. Do not treat macOS-only local simulation as a full Windows substitute.
+
 ## Closing Logics Work
 
 Do not mark a Logics task as `Done` by editing markdown indicators manually.

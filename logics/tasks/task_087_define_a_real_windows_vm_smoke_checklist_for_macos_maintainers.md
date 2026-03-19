@@ -1,9 +1,9 @@
 ## task_087_define_a_real_windows_vm_smoke_checklist_for_macos_maintainers - Define a real Windows VM smoke checklist for macOS maintainers
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cross-platform validation strategy and test environment realism
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -29,10 +29,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Define the real Windows VM setup, prerequisites, and smoke checklist that macOS maintainers should use for extension and CLI validation.
-- [ ] 3. Integrate that checklist into release preparation and debugging guidance so manual Windows checks complement CI instead of duplicating it blindly.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Define the real Windows VM setup, prerequisites, and smoke checklist that macOS maintainers should use for extension and CLI validation.
+- [x] 3. Integrate that checklist into release preparation and debugging guidance so manual Windows checks complement CI instead of duplicating it blindly.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -83,9 +83,14 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Added a dedicated `Windows Validation From macOS` section to [`README.md`](README.md) that explicitly separates the automated `windows-latest` CI lane from the real-Windows VM path.
+- Documented the pragmatic VM options for macOS maintainers, including the Apple Silicon recommendation (`UTM` + Windows 11 ARM), and defined a concrete smoke checklist for release preparation and targeted debugging.
+- Integrated the manual checklist with the existing automated baseline so the VM path complements CI instead of duplicating every routine check blindly.
+- Validation run:
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

@@ -1,9 +1,9 @@
 ## task_084_rewrite_logics_kit_readme_and_skill_examples_for_windows_safe_operator_paths - Rewrite Logics kit README and skill examples for Windows-safe operator paths
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Rewrite the highest-traffic kit README and `SKILL.md` command examples so supported operator paths are Windows-safe or explicitly split by shell.
-- [ ] 3. Prefer the least-friction install and invocation paths, including HTTPS submodule guidance where SSH is not required.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Rewrite the highest-traffic kit README and `SKILL.md` command examples so supported operator paths are Windows-safe or explicitly split by shell.
+- [x] 3. Prefer the least-friction install and invocation paths, including HTTPS submodule guidance where SSH is not required.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -87,9 +87,19 @@ flowchart LR
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Reworked the top operator path in [`logics/skills/README.md`](logics/skills/README.md) to prefer HTTPS submodule installation, remove `mkdir -p` as the default instruction, and collapse the highest-traffic examples into single-line commands that are easier to paste in Windows shells.
+- Normalized the most-used workflow skill examples to the canonical `python ...` launcher and added explicit launcher substitution notes in:
+- [`logics/skills/logics-flow-manager/SKILL.md`](logics/skills/logics-flow-manager/SKILL.md)
+- [`logics/skills/logics-task-breakdown/SKILL.md`](logics/skills/logics-task-breakdown/SKILL.md)
+- [`logics/skills/logics-backlog-groomer/SKILL.md`](logics/skills/logics-backlog-groomer/SKILL.md)
+- [`logics/skills/logics-triage-assistant/SKILL.md`](logics/skills/logics-triage-assistant/SKILL.md)
+- Kept the task scoped to the highest-traffic workflow surface; maintainer docs, platform-specific helpers, and lower-traffic connector examples remain covered by later doc tasks.
+- Validation run:
+- `python3 logics/skills/tests/run_cli_smoke_checks.py`
+- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`

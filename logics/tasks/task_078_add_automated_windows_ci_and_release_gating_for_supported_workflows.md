@@ -1,9 +1,9 @@
 ## task_078_add_automated_windows_ci_and_release_gating_for_supported_workflows - Add automated Windows CI and release gating for supported workflows
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -29,10 +29,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Add a supported Windows CI lane that covers the selected build, test, packaging, and smoke paths for the plugin and kit.
-- [ ] 3. Wire Windows results into release gating and keep the smoke surface aligned with existing helpers such as `npx.cmd`, `os.tmpdir()`, and symlink fallbacks.
-- [ ] 4. Validate the result and update the linked Logics docs.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Add a supported Windows CI lane that covers the selected build, test, packaging, and smoke paths for the plugin and kit.
+- [x] 3. Wire Windows results into release gating and keep the smoke surface aligned with existing helpers such as `npx.cmd`, `os.tmpdir()`, and symlink fallbacks.
+- [x] 4. Validate the result and update the linked Logics docs.
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
@@ -99,9 +99,17 @@ flowchart LR
 - `node tests/run_extension_smoke_checks.mjs`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Added explicit `windows-latest` validation in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) alongside the existing Ubuntu lane instead of relying on Ubuntu-only confidence.
+- Moved both CI lanes to `actions/setup-python@v5` plus `python` entrypoints so the workflow no longer depends on `python3` naming and can execute the same Logics strict lint, sync, audit, Python tests, and CLI smoke checks on both operating systems.
+- Expanded automated coverage to include `logics/skills/tests/run_cli_smoke_checks.py` in CI and release validation so the Windows lane exercises the kit flow-manager/bootstrap/spec smoke surface instead of only string-level runtime tests.
+- Split [`.github/workflows/release.yml`](.github/workflows/release.yml) into `validate-release-ubuntu`, `validate-release-windows`, and a publish job gated on both, preserving package-version tag verification before publishing.
+- Validation run locally on the updated surface:
+- `npm run ci:check`
+- `python3 -m unittest discover -s logics/skills/tests -p 'test_*.py' -v`
+- `python3 logics/skills/tests/run_cli_smoke_checks.py`

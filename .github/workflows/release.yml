@@ -10,13 +10,40 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  validate-release-ubuntu:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Logics docs lint (strict status)
+        run: python logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status
+
+      - name: Logics flow sync close-eligible requests
+        run: python logics/skills/logics-flow-manager/scripts/logics_flow.py sync close-eligible-requests
+
+      - name: Ensure requests unchanged after sync
+        run: git diff --exit-code -- logics/request
+
+      - name: Workflow audit (blocking, grouped)
+        run: python logics/skills/logics-flow-manager/scripts/workflow_audit.py --legacy-cutoff-version 1.1.0 --group-by-doc
+
+      - name: Workflow audit (JSON report)
+        continue-on-error: true
+        run: python logics/skills/logics-flow-manager/scripts/workflow_audit.py --format json
+
+      - name: Logics kit Python tests
+        run: python -m unittest discover -s logics/skills/tests -p "test_*.py" -v
+
+      - name: Logics kit CLI smoke checks
+        run: python logics/skills/tests/run_cli_smoke_checks.py
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -49,6 +76,99 @@ jobs:
 
       - name: Logics docs lint
         run: npm run lint:logics
+
+      - name: VSIX package validation
+        run: npm run package:ci
+
+  validate-release-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Logics docs lint (strict status)
+        run: python logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status
+
+      - name: Logics flow sync close-eligible requests
+        run: python logics/skills/logics-flow-manager/scripts/logics_flow.py sync close-eligible-requests
+
+      - name: Ensure requests unchanged after sync
+        run: git diff --exit-code -- logics/request
+
+      - name: Workflow audit (blocking, grouped)
+        run: python logics/skills/logics-flow-manager/scripts/workflow_audit.py --legacy-cutoff-version 1.1.0 --group-by-doc
+
+      - name: Workflow audit (JSON report)
+        continue-on-error: true
+        run: python logics/skills/logics-flow-manager/scripts/workflow_audit.py --format json
+
+      - name: Logics kit Python tests
+        run: python -m unittest discover -s logics/skills/tests -p "test_*.py" -v
+
+      - name: Logics kit CLI smoke checks
+        run: python logics/skills/tests/run_cli_smoke_checks.py
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Extension smoke checks
+        run: npm run test:smoke
+
+      - name: Logics docs lint
+        run: npm run lint:logics
+
+      - name: VSIX package validation
+        run: npm run package:ci
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - validate-release-ubuntu
+      - validate-release-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure tag matches package version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "v${PACKAGE_VERSION}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version v${PACKAGE_VERSION}" >&2
+            exit 1
+          fi
 
       - name: Resolve curated changelog
         id: release_changelog

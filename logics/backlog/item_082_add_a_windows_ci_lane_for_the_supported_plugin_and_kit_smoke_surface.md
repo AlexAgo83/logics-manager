@@ -1,9 +1,9 @@
 ## item_082_add_a_windows_ci_lane_for_the_supported_plugin_and_kit_smoke_surface - Add a Windows CI lane for the supported plugin and kit smoke surface
 > From version: 1.10.7
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cross-platform validation strategy and test environment realism
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -103,3 +103,4 @@ flowchart LR
 - Derived from request `req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit`.
 - Source file: `logics/request/req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit.md`.
 - Request context seeded into this backlog item from `logics/request/req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit.md`.
+- Completed on 2026-03-19 via `task_078_add_automated_windows_ci_and_release_gating_for_supported_workflows`.

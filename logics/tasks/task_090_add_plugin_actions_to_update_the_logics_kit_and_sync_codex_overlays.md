@@ -1,9 +1,9 @@
 ## task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
-> Status: In progress
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -32,7 +32,7 @@ flowchart LR
 - [x] 2. Implement the next coherent delivery wave from the backlog item.
 - [x] 3. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.
 - [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -47,6 +47,7 @@ flowchart LR
 - AC5 -> Scope: The plugin keeps the kit and overlay logic delegated to the existing submodule and Python scripts rather than duplicating those behaviors in TypeScript.. Proof: TODO.
 - AC6 -> Scope: The new actions are surfaced from at least one user-facing remediation surface that already reports the corresponding problem state.. Proof: TODO.
 - AC7 -> Scope: Documentation and user-facing messaging explain when the plugin can remediate automatically and when it only provides manual guidance.. Proof: TODO.
+- AC8 -> Scope: The first implementation pass can expose the remediation flow from both the Tools menu and actionable environment diagnostics without expanding beyond the current wrapper role.. Proof: Implemented through new Tools menu entries plus actionable `Logics: Check Environment` remediation items.
 
 # Decision framing
 - Product framing: Consider
@@ -79,14 +80,16 @@ flowchart LR
 - Confirm the completed wave leaves the repository in a commit-ready state.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Wave 1 completed on 2026-03-23.
 - Added explicit plugin remediation actions for `Update Logics Kit` and `Sync Codex Overlay`, exposed through both the Tools menu and actionable environment diagnostics.
 - Kept kit updates delegated to the canonical `logics/skills` submodule flow with Git safety checks for missing Git, non-canonical layouts, non-git roots, and dirty worktrees.
 - Added regression coverage for direct remediation from `Logics: Check Environment` and updated the plugin README to explain the new automation path and fallback behavior.
+- Final closure completed on 2026-03-23.
+- Full extension validation passed with TypeScript lint, the full Vitest suite, Logics lint, and the workflow audit after updating the linked request and backlog docs to reflect the delivered remediation path.

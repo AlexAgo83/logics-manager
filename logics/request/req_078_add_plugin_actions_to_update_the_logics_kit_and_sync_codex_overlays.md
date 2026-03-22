@@ -1,8 +1,8 @@
 ## req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
-> Status: Draft
-> Understanding: 96%
-> Confidence: 94%
+> Status: Done
+> Understanding: 97%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -84,6 +84,10 @@ flowchart LR
 - This request is about plugin actions for supported remediation flows, not about turning the plugin into a package manager.
 - The plugin can still expose manual commands for unsupported cases or for operators who prefer explicit shell control.
 - The supported auto-update path should target the canonical `logics/skills` submodule model first; non-canonical kit layouts can remain guided-manual in the first pass.
+
+# AC Traceability
+- AC8 -> Backlog: `item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`. Proof: the backlog scope keeps both tools-menu and diagnostic quick-pick surfacing open for the first implementation pass.
+- AC8 -> Task: `task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`. Proof: the execution task covers user-facing remediation surfaces plus the validation and documentation work needed to close the first pass.
 
 # References
 - Related request(s): `logics/request/req_067_add_multi_project_codex_workspace_overlays_for_logics_skills.md`

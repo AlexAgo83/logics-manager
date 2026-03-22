@@ -1,9 +1,9 @@
 ## item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -48,6 +48,7 @@ flowchart LR
 - AC5: The plugin keeps the kit and overlay logic delegated to the existing submodule and Python scripts rather than duplicating those behaviors in TypeScript.
 - AC6: The new actions are surfaced from at least one user-facing remediation surface that already reports the corresponding problem state.
 - AC7: Documentation and user-facing messaging explain when the plugin can remediate automatically and when it only provides manual guidance.
+- AC8: The first implementation pass can expose the remediation flow from both the Tools menu and actionable environment diagnostics without expanding beyond the current wrapper role.
 
 # AC Traceability
 - AC1 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: TODO.
@@ -57,6 +58,7 @@ flowchart LR
 - AC5 -> Scope: Supporting arbitrary copied, vendored, or forked kit layouts as fully automated update targets in the first pass.. Proof: Excluded to preserve delegation to the existing kit and script contract.
 - AC6 -> Scope: Surface the actions from the plugin surfaces where the missing state is already detected, such as the tools menu or environment diagnostics.. Proof: TODO.
 - AC7 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: TODO.
+- AC8 -> Scope: Surface the actions from the plugin surfaces where the missing state is already detected, such as the tools menu or environment diagnostics.. Proof: Implemented through `Update Logics Kit` and `Sync Codex Overlay` actions in the Tools menu plus remediation actions inside `Logics: Check Environment`.
 
 # Decision framing
 - Product framing: Not needed

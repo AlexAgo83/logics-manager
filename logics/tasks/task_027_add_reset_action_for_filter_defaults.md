@@ -14,6 +14,7 @@
 - Related request(s): `req_028_add_reset_action_for_filter_defaults`.
 
 ```mermaid
+%% logics-signature: task|add-reset-action-to-restore-default-filt|item-034-add-reset-action-for-filter-def|1-identify-or-centralize-the-canonical|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> Defaults[Identify default filter source]
     Defaults --> UI[Add Reset control to filter panel]

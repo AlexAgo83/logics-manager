@@ -19,6 +19,7 @@
   - lock the behavior with focused webview regressions.
 
 ```mermaid
+%% logics-signature: task|double-click-should-read-items-from-list|item-070-double-click-should-read-items-|1-confirm-scope-dependencies-and-linked|executed
 flowchart LR
     Backlog[item 070] --> Step1[update board and list card handlers]
     Step1 --> Step2[add activity read helper]

@@ -23,6 +23,7 @@ The extension already exposes a `Read` action, but the rendered preview does not
   - Broad redesign of the details panel or editor experience.
 
 ```mermaid
+%% logics-signature: backlog|render-mermaid-diagrams-in-read-markdown|req-019-render-mermaid-diagrams-in-read-|the-extension-already-exposes-a-read|ac1-read-renders-valid-mermaid-diagrams
 flowchart LR
     Req[Request req_019] --> Problem[Read preview lacks guaranteed Mermaid rendering]
     Problem --> Scope[Add Mermaid-aware preview path]

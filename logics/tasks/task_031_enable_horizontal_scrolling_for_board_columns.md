@@ -15,6 +15,7 @@
 - Related architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`.
 
 ```mermaid
+%% logics-signature: task|enable-horizontal-scrolling-for-board-co|item-037-enable-horizontal-scrolling-for|1-identify-the-correct-board-container|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> Container[Identify correct board overflow container]
     Container --> Scroll[Enable horizontal scroll behavior]

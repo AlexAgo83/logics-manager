@@ -14,6 +14,7 @@
 - Related request(s): `req_030_add_confirmation_for_done_and_obsolete_actions`.
 
 ```mermaid
+%% logics-signature: task|add-confirmation-before-done-and-obsolet|item-035-add-confirmation-for-done-and-o|1-identify-the-current-host-side-entry|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> Entry[Identify Done/Obsolete entry points]
     Entry --> Confirm[Add confirmation before mutation]

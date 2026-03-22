@@ -21,6 +21,7 @@ Without it, the new workflow model would stay partially external to the cockpit 
 - Heavy automated detection of whether a companion doc should be created.
 
 ```mermaid
+%% logics-signature: backlog|add-companion-doc-creation-flows-and-reg|req-022-align-vs-code-plugin-with-compan|companion-docs-needed-a-clear-creation|ac1-the-plugin-exposes-an-intentional
 flowchart LR
     Req[Request source] --> Problem[Problem to solve]
     Problem --> Scope[Scoped delivery]

@@ -28,6 +28,7 @@
 - Changing the workflow semantics already handled by the current plugin features.
 
 ```mermaid
+%% logics-signature: backlog|refactor-webview-frontend-structure-with|req-026-refactor-webview-frontend-struct|the-webview-frontend-has-grown-beyond|ac1-the-backlog-item-frames-the
 flowchart TD
     A[Current webview frontend] --> B[Monolithic JS and CSS files]
     B --> C[Mixed concerns and higher regression risk]

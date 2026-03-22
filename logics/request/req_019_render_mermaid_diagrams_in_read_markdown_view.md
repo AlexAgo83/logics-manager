@@ -19,12 +19,12 @@ In VS Code runtime, `Read` opens the markdown preview via `markdown.showPreview`
 The Logics workflow now uses Mermaid diagrams in request/backlog/task documents by default, so the current preview experience is incomplete if the graph is not interpreted visually.
 From a user perspective, clicking `Read` on a Logics document that includes:
 - ```mermaid
+%% logics-signature: request|render-mermaid-diagrams-in-read-markdown|when-a-logics-document-contains-a|ac1-if-a-selected-logics-document
   flowchart TD
       A[Need] --> B[Implementation]
   ```
 should show the actual diagram in the rendered page.
 This should improve readability for flow-oriented docs without degrading the existing markdown reading flow.
-
 ```mermaid
 flowchart TD
     User[User clicks Read] --> Preview[Markdown preview opens]

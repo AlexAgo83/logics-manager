@@ -34,6 +34,7 @@ The desired UX is:
 - user can accept or skip the commit.
 
 ```mermaid
+%% logics-signature: request|propose-commit-after-bootstrap-with-gene|at-the-end-of-project-bootstrap|ac1-after-a-successful-bootstrap-the
 flowchart TD
     Start[User runs Bootstrap Logics] --> Bootstrap[Bootstrap succeeds]
     Bootstrap --> Detect[Collect created/modified files]

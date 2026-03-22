@@ -33,6 +33,7 @@ This backlog item owns the user-facing entrypoint and naming contract:
   - Implementing the broader rule corpus owned by `item_068`.
 
 ```mermaid
+%% logics-signature: backlog|add-an-internal-ui-steering-agent-manife|req-057-add-an-internal-ui-steering-skil|creating-the-internal-ui-steering-skill|ac1-the-skill-package-has-a
 flowchart LR
     Skill[Internal UI steering skill] --> Name[Choose stable internal name]
     Name --> Manifest[Add openai.yaml manifest]

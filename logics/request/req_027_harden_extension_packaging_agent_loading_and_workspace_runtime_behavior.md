@@ -41,6 +41,7 @@ Related but separate topics already exist:
 - `req_026` for refactoring the webview frontend structure.
 
 ```mermaid
+%% logics-signature: request|harden-extension-packaging-agent-loading|harden-the-main-vs-code-extension|ac1-the-packaged-vsix-excludes-developme
 flowchart TD
     A[Project audit] --> B[Package includes too much]
     A --> C[Agent YAML parser too narrow]

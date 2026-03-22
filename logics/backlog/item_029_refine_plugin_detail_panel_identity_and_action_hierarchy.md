@@ -16,6 +16,7 @@ Describe the problem and user impact
 - Out:
 
 ```mermaid
+%% logics-signature: backlog|refine-plugin-detail-panel-identity-and-|req-024-refine-plugin-detail-panel-ident|describe-the-problem-and-user-impact|ac1-define-an-objective-acceptance-check
 flowchart LR
     Req[Request source] --> Problem[Problem to solve]
     Problem --> Scope[Scoped delivery]

@@ -31,6 +31,7 @@ Constraint:
 - do not reintroduce hardcoded stage assumptions while adding companion-doc support.
 
 ```mermaid
+%% logics-signature: task|align-vs-code-plugin-with-companion-docs|item-022-align-vs-code-plugin-with-compa|1-lock-the-execution-order-and|npm-run-compile
 flowchart LR
     Umbrella[Umbrella item 022] --> Step1[Item 023 indexer and model]
     Step1 --> Step2[Item 024 maintenance coverage]

@@ -28,6 +28,7 @@ This backlog slice turns that request into an actionable delivery target:
   - Solving unrelated frontend-quality issues outside skill orchestration.
 
 ```mermaid
+%% logics-signature: backlog|guide-frontend-work-toward-the-ui-steeri|req-059-guide-frontend-work-toward-the-u|the-logics-kit-already-contains-logics-u|ac1-frontend-oriented-logics-workflows-e
 flowchart LR
     Req[req 059] --> Detect[detect frontend signals]
     Detect --> Guide[surface ui steering guidance]

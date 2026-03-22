@@ -14,6 +14,7 @@
 - Related request(s): `req_029_default_collapsed_secondary_sections_in_detail_panel`.
 
 ```mermaid
+%% logics-signature: task|default-secondary-detail-sections-to-col|item-033-default-collapsed-secondary-sec|1-clarify-where-default-collapsed-sectio|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> State[Define default open/collapsed section state]
     State --> Renderer[Apply defaults in details renderer]

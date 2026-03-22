@@ -17,6 +17,7 @@
 - The first pass should cover the workflow-oriented entrypoints needed to discover and run the Logics request flow from Claude Code.
 
 ```mermaid
+%% logics-signature: task|add-a-minimal-claude-code-bridge-for-log|item-064-add-a-minimal-claude-code-bridg|1-define-the-minimal-claude-agents|python3-logics-skills-logics-doc-linter-
 flowchart LR
     Backlog[Backlog item] --> Contract[Define ownership contract]
     Contract --> Agent[Add thin Claude agent bridge]

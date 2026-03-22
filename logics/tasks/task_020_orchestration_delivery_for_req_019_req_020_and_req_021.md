@@ -23,6 +23,7 @@ Constraint:
 - preserve current direct create flows, bootstrap safety, and existing markdown rendering behavior while extending these workflows.
 
 ```mermaid
+%% logics-signature: task|orchestration-delivery-for-req-019-req-0|item-019-render-mermaid-diagrams-in-read|1-implement-mermaid-aware-read-preview-p|npm-run-compile
 flowchart LR
     Backlog[Items 019 020 021] --> Step1[Implement Mermaid-aware Read preview]
     Step1 --> Step2[Add guided Tools New Request flow]

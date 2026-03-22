@@ -14,6 +14,7 @@
 - Related request(s): `req_031_remove_column_eye_toggle_from_board`.
 
 ```mermaid
+%% logics-signature: task|remove-the-eye-toggle-from-board-columns|item-036-remove-column-eye-toggle-from-b|1-identify-where-the-eye-toggle|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> Header[Inspect board header rendering]
     Header --> Remove[Remove eye toggle UI and interaction]

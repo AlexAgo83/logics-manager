@@ -37,6 +37,7 @@ The desired UX is:
 This action should be clearly distinguished from the existing request-generation command, which creates a markdown request file directly from templates.
 
 ```mermaid
+%% logics-signature: request|add-tools-new-request-action-for-codex-p|add-a-new-request-action-in|ac1-the-tools-menu-exposes-a
 flowchart TD
     Need[User has a new need] --> Tools[Open Tools menu]
     Tools --> Action[Click New Request]

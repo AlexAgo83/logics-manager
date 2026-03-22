@@ -29,6 +29,7 @@ This backlog slice turns that diagnosis into delivery scope:
   - Cleaning the entire historical corpus in one pass.
 
 ```mermaid
+%% logics-signature: backlog|audit-flow-manager-doc-generation-and-ad|req-060-audit-flow-manager-doc-generatio|the-flow-manager-and-the-doc|ac1-delivery-starts-with-an-explicit
 flowchart LR
     Req[req 060] --> Audit[audit generation and lint contract]
     Audit --> Classify[classify generator and lint gaps]

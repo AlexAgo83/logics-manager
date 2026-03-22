@@ -29,6 +29,7 @@ This slice standardizes double-click on `Read` across board, list, and activity 
   - Broad IA or visual redesign of board, list, or activity surfaces.
 
 ```mermaid
+%% logics-signature: backlog|double-click-should-read-items-from-list|req-058-double-click-should-read-items-f|the-plugin-already-exposes-both-open|ac1-double-click-on-an-item-card
 flowchart LR
     Req[req 058] --> Problem[double click behavior is inconsistent]
     Problem --> Scope[read becomes the common double click action]

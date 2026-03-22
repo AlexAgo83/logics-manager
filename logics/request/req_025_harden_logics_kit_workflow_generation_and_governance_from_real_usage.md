@@ -53,6 +53,7 @@ It is about making the existing workflow:
 - and more effective as a day-to-day acceleration layer for the agent itself.
 
 ```mermaid
+%% logics-signature: request|harden-logics-kit-workflow-generation-an|improve-the-logics-kit-so-real|ac1-promotion-from-request-backlog
 flowchart TD
     A[Real project usage of Logics kit] --> B[Promotion still leaves generic placeholders]
     A --> C[Split remains manual]

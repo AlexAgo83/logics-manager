@@ -30,6 +30,7 @@ That limits trust in the feature and forces users back into manual inspection. T
   - Replacing the existing attention filter with a separate dashboard.
 
 ```mermaid
+%% logics-signature: backlog|explain-attention-reasons-and-suggested-|req-056-add-codex-context-pack-attention|the-plugin-already-exposes-an-attention|ac1-every-attention-state-shown-by
 flowchart LR
     Request[Request req 056] --> Problem[Attention signal is opaque]
     Problem --> Rules[Classify explicit attention reasons]

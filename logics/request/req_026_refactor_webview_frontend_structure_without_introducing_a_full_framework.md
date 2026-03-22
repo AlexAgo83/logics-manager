@@ -35,6 +35,7 @@ The intended architecture direction is:
 - shared workflow logic is centralized instead of duplicated inside rendering code.
 
 ```mermaid
+%% logics-signature: request|refactor-webview-frontend-structure-with|refactor-the-plugin-webview-frontend-so|ac1-the-webview-frontend-is-split
 flowchart TD
     A[Current webview frontend] --> B[main.js mixes state render host bridge and helpers]
     A --> C[main.css mixes all visual concerns]

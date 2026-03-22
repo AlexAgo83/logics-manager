@@ -17,6 +17,7 @@ This is an orchestration task for the frontend-structure refactor of the webview
 It should improve maintainability without changing the plugin into a framework-heavy frontend or destabilizing current behavior.
 
 ```mermaid
+%% logics-signature: task|refactor-webview-frontend-structure-with|item-032-refactor-webview-frontend-struc|1-extract-shared-workflow-model-helpers|npm-run-compile
 flowchart LR
     Backlog[Umbrella backlog item] --> Model[Shared model helpers]
     Model --> Host[Host bridge extraction]

@@ -24,6 +24,7 @@ Constraint:
 - release can be phased across multiple versions, but the orchestration task is only considered complete when all three backlog slices are delivered.
 
 ```mermaid
+%% logics-signature: task|orchestration-delivery-for-req-056-conte|item-065-build-codex-context-pack-for-re|1-define-or-extract-the-shared|npm-run-compile
 flowchart LR
     Backlog[Items 065 066 067] --> Step1[Build shared relationship reasoning]
     Step1 --> Step2[Implement Codex context pack]

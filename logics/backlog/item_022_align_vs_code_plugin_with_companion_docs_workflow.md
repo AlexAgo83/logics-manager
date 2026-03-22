@@ -25,6 +25,7 @@ Without an explicit split, execution risks become high:
 - Implementing the feature work directly inside this umbrella item.
 
 ```mermaid
+%% logics-signature: backlog|align-vs-code-plugin-with-companion-docs|req-022-align-vs-code-plugin-with-compan|the-request-is-too-broad-to|ac1-the-request-is-split-into
 flowchart LR
     Req[Request source] --> Umbrella[Umbrella backlog item]
     Umbrella --> Indexer[Indexer and managed-doc model]

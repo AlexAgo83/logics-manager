@@ -40,6 +40,7 @@ Its role is to turn the broad hardening request into an executable phased delive
 - Repo-specific behavior that only fits `cdx-logics-vscode`.
 
 ```mermaid
+%% logics-signature: backlog|harden-logics-kit-workflow-generation-an|req-025-harden-logics-kit-workflow-gener|real-usage-of-the-shared-logics|ac1-the-hardening-request-is-turned
 flowchart LR
     Req[Shared kit hardening request] --> V1[V1 foundations]
     V1 --> Promote[Promotion quality]

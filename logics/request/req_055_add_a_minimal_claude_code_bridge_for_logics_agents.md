@@ -30,6 +30,7 @@ The desired direction is therefore a bridge, not a migration:
 - the bridge should point Claude Code back toward `logics/instructions.md` and the relevant skill docs/scripts instead of copying detailed logic into root files.
 
 ```mermaid
+%% logics-signature: request|add-a-minimal-claude-code-bridge-for-log|make-logics-more-natively-usable-from|ac1-the-solution-defines-a-minimal
 flowchart TD
     Need[Team wants Claude Code support] --> Constraint[Keep logics as source of truth]
     Constraint --> Bridge[Add thin claude bridge]

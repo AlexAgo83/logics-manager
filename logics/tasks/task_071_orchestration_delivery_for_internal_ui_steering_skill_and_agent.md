@@ -25,6 +25,7 @@ Constraint:
 - the Logics kit documentation should be updated in the same delivery slice so the new skill is discoverable in `logics/skills/README.md`.
 
 ```mermaid
+%% logics-signature: task|orchestration-delivery-for-internal-ui-s|item-068-create-an-internal-ui-steering-|1-create-the-internal-ui-steering|python3-logics-skills-logics-doc-linter-
 flowchart LR
     Backlog[Items 068 069] --> Step1[Build internal skill corpus]
     Step1 --> Step2[Add agent manifest and activation contract]

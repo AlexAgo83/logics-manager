@@ -49,6 +49,7 @@ The expected adaptation plan is:
 - then complete commands, affordances, and regression tests.
 
 ```mermaid
+%% logics-signature: request|align-vs-code-plugin-with-companion-docs|adapt-the-vs-code-plugin-so|ac1-the-plugin-indexer-recognizes-logics
 flowchart TD
     A[Logics kit adds product and architecture companion docs] --> B[VS Code plugin must align with expanded workflow model]
     B --> C[Indexer and shared data model understand request backlog task spec product architecture]

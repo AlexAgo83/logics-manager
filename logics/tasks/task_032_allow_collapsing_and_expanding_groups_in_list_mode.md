@@ -14,6 +14,7 @@
 - Related request(s): `req_033_allow_collapsing_and_expanding_groups_in_list_mode`.
 
 ```mermaid
+%% logics-signature: task|allow-collapsing-and-expanding-groups-in|item-038-allow-collapsing-and-expanding-|1-identify-how-list-groups-are|npm-run-compile
 flowchart LR
     Backlog[Backlog source] --> Groups[Inspect current list-group rendering]
     Groups --> Controls[Add collapse/expand controls to headers]

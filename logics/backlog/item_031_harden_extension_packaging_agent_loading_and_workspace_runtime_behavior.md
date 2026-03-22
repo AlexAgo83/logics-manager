@@ -38,6 +38,7 @@ It coordinates hardening work across packaging, runtime behavior, and integratio
 - Broad UI redesign or workflow-model changes.
 
 ```mermaid
+%% logics-signature: backlog|harden-extension-packaging-agent-loading|req-027-harden-extension-packaging-agent|the-extension-is-functionally-solid-but|ac1-the-request-is-turned-into
 flowchart LR
     Req[Extension hardening request] --> Package[Package hygiene]
     Req --> Agents[Agent loading]

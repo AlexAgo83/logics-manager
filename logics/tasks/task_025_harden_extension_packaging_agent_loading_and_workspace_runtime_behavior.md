@@ -17,6 +17,7 @@ This is an orchestration task for the main extension project.
 It should sequence the hardening work so packaging, runtime behavior, and integration safety improve without mixing this delivery with shared-kit changes or the broader webview-structure refactor.
 
 ```mermaid
+%% logics-signature: task|harden-extension-packaging-agent-loading|item-031-harden-extension-packaging-agen|1-lock-packaging-boundaries-so-the|npm-run-compile
 flowchart LR
     Backlog[Umbrella backlog item] --> Package[Packaging boundaries]
     Package --> Agents[Agent loading hardening]

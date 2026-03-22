@@ -35,6 +35,7 @@ It should preserve the current workflow behavior while improving:
 - and resilience of the panel layout in edge cases.
 
 ```mermaid
+%% logics-signature: request|refine-plugin-detail-panel-identity-and-|refine-the-vs-code-plugin-detail|ac1-the-detail-panel-title-area
 flowchart TD
     A[Current detail panel] --> B[Readable but visually dense identity block]
     A --> C[Footer actions with similar visual weight]

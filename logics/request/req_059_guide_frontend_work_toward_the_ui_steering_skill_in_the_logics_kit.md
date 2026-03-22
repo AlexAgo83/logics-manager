@@ -33,6 +33,7 @@ The preferred direction is a real kit behavior, not a documentation-only reminde
 This should stay a guidance and orchestration improvement, not an overreach into hard-wiring every frontend task to a single skill. When product framing, architecture framing, or another specialized skill is also relevant, the kit should allow multiple coherent recommendations instead of forcing a single winner.
 
 ```mermaid
+%% logics-signature: request|guide-frontend-work-toward-the-ui-steeri|make-the-logics-kit-steer-frontend|ac1-the-request-defines-a-kit-level
 flowchart TD
     A[User defines frontend or interface work in Logics] --> B[Flow manager detects UI oriented scope]
     B --> C[Workflow docs surface the ui steering skill]

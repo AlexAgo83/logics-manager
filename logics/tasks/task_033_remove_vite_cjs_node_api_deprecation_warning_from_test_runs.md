@@ -14,6 +14,7 @@
 - Related request(s): `req_034_remove_vite_cjs_node_api_deprecation_warning_from_test_runs`.
 
 ```mermaid
+%% logics-signature: task|remove-the-vite-cjs-node-api-deprecation|item-039-remove-vite-cjs-node-api-deprec|1-identify-the-exact-config-or|npm-test
 flowchart LR
     Backlog[Backlog source] --> Diagnose[Identify deprecated Vite path]
     Diagnose --> Config[Adjust config/module format]

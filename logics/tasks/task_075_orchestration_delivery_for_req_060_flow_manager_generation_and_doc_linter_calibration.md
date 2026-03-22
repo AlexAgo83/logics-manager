@@ -19,6 +19,7 @@
   - keep strict blocking for structural failures and critical placeholders.
 
 ```mermaid
+%% logics-signature: task|orchestration-delivery-for-req-060-flow-|item-072-audit-flow-manager-doc-generati|1-confirm-audit-scope-and-select|python3-m-pytest-logics-skills-tests
 flowchart LR
     Backlog[item 072] --> Audit[audit failing patterns]
     Audit --> Decide[classify generator and lint ownership]

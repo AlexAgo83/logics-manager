@@ -22,6 +22,7 @@ If exposed naively as permanent first-class columns, they would reduce scanabili
 - A full alternate board product just for documentation governance.
 
 ```mermaid
+%% logics-signature: backlog|add-supporting-doc-visibility-controls-t|req-022-align-vs-code-plugin-with-compan|supporting-docs-needed-to-be-discoverabl|ac1-supporting-doc-visibility-is-control
 flowchart LR
     Req[Request source] --> Problem[Problem to solve]
     Problem --> Scope[Scoped delivery]

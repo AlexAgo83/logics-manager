@@ -19,6 +19,7 @@ It must keep two constraints visible through the whole delivery:
 - the resulting workflow must reduce repetitive manual cleanup for the agent itself, not only for downstream users.
 
 ```mermaid
+%% logics-signature: task|harden-logics-kit-workflow-generation-an|item-030-harden-logics-kit-workflow-gene|1-lock-the-phased-execution-model|python3-m-unittest-discover-s-tests
 flowchart LR
     Backlog[Umbrella backlog item] --> Step1[V1 foundations]
     Step1 --> Step2[V2 workflow follow-up]

@@ -23,6 +23,7 @@ The extension supports agent selection and Codex prompt bootstrapping, but start
   - General redesign of the Tools menu beyond this guided entrypoint.
 
 ```mermaid
+%% logics-signature: backlog|add-tools-new-request-action-for-codex-p|req-020-add-tools-new-request-action-for|the-extension-supports-agent-selection-a|ac1-the-tools-menu-exposes-new
 flowchart LR
     Req[Request req_020] --> Problem[Request drafting via Codex is still manual]
     Problem --> Scope[Add guided Tools New Request action]

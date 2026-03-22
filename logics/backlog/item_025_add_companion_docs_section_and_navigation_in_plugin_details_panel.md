@@ -21,6 +21,7 @@ Without an explicit details-panel affordance, companion docs would remain techni
 - Full redesign of the board itself.
 
 ```mermaid
+%% logics-signature: backlog|add-companion-docs-section-and-navigatio|req-022-align-vs-code-plugin-with-compan|even-after-indexing-companion-docs-users|ac1-the-details-panel-exposes-a
 flowchart LR
     Req[Request source] --> Problem[Problem to solve]
     Problem --> Scope[Scoped delivery]

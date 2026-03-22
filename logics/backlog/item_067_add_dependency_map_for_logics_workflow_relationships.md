@@ -30,6 +30,7 @@ A first `Dependency Map` should turn the existing indexed graph into a navigable
   - Replacing the current board and list as the primary workflow surface.
 
 ```mermaid
+%% logics-signature: backlog|add-dependency-map-for-logics-workflow-r|req-056-add-codex-context-pack-attention|the-extension-already-computes-a-useful|ac1-the-plugin-exposes-a-dependency
 flowchart LR
     Request[Request req 056] --> Problem[Workflow graph is hidden in text and lists]
     Problem --> Graph[Index requests backlog tasks and companions]

@@ -14,6 +14,7 @@
 - Related request(s): `req_023_replace_hide_used_requests_with_hide_processed_requests_semantics`.
 
 ```mermaid
+%% logics-signature: task|replace-hide-used-requests-with-hide-pro|item-028-replace-hide-used-requests-with|1-clarify-scope-and-acceptance-criteria|npm-run-tests
 flowchart LR
     Backlog[Backlog source] --> Step1[Implementation step 1]
     Step1 --> Step2[Implementation step 2]

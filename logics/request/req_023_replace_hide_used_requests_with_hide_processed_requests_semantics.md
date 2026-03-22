@@ -37,6 +37,7 @@ This request is about both:
 - and the workflow rule behind that wording.
 
 ```mermaid
+%% logics-signature: request|replace-hide-used-requests-with-hide-pro|replace-the-current-plugin-filter-concep|ac1-the-plugin-no-longer-exposes
 flowchart LR
     A[Current filter hide used requests] --> B[Technical interpretation]
     B --> C[Request disappears once linked]

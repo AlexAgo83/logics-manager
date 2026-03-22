@@ -264,6 +264,11 @@ If you want a full repository-wide check afterward, run:
 
 If you edit statuses by hand, the docs can look valid while the request/backlog chain is left out of sync.
 
+For multi-wave delivery work, prefer coherent checkpoints:
+- update the linked Logics docs during the wave that changes the behavior;
+- leave the repo in a commit-ready state at the end of the wave;
+- then create the reviewed commit checkpoint instead of batching several undocumented partial states.
+
 ## Webview Browser Debug
 
 Run the harness server:

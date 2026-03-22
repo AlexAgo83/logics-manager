@@ -14,6 +14,7 @@
 - Related request(s): `req_024_refine_plugin_detail_panel_identity_and_action_hierarchy`.
 
 ```mermaid
+%% logics-signature: task|refine-plugin-detail-panel-identity-and-|item-029-refine-plugin-detail-panel-iden|1-clarify-scope-and-acceptance-criteria|npm-run-tests
 flowchart LR
     Backlog[Backlog source] --> Step1[Implementation step 1]
     Step1 --> Step2[Implementation step 2]

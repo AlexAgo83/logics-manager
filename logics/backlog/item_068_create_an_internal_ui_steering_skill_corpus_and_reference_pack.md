@@ -35,6 +35,7 @@ This backlog item owns the internalized guidance corpus itself. The implementati
   - Redesigning the existing plugin UI as part of this backlog slice.
 
 ```mermaid
+%% logics-signature: backlog|create-an-internal-ui-steering-skill-cor|req-057-add-an-internal-ui-steering-skil|the-repository-needs-a-dedicated-interna|ac1-a-new-internal-skill-exists
 flowchart LR
     Need[Frontend generation needs stricter guardrails] --> Corpus[Build internal UI steering corpus]
     Corpus --> Skill[Create SKILL.md and internal references]

@@ -38,6 +38,7 @@ The main constraint is architectural cleanliness:
   - Broad connector or MCP setup beyond the minimum bridge needed for Claude Code entrypoints.
 
 ```mermaid
+%% logics-signature: backlog|add-a-minimal-claude-code-bridge-for-log|req-055-add-a-minimal-claude-code-bridge|the-logics-kit-is-already-usable|ac1-the-solution-defines-a-minimal
 flowchart LR
     Request[Request source] --> Canonical[Keep logics as canonical source]
     Canonical --> Bridge[Add thin claude bridge]

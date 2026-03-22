@@ -28,6 +28,7 @@ The outcome should be a plugin that not only shows workflow state but actively h
 - launch Codex work with a tighter, more reliable context window.
 
 ```mermaid
+%% logics-signature: request|add-codex-context-pack-attention-explain|help-users-start-codex-work-with|ac1-the-request-defines-a-context
 flowchart TD
     A[User selects item or agent] --> B[Plugin resolves related docs and workflow links]
     B --> C[Context Pack prepared for Codex]

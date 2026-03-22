@@ -18,6 +18,7 @@
   - keep the guidance advisory and compatible with other skill framings.
 
 ```mermaid
+%% logics-signature: task|orchestration-delivery-for-req-059-ui-st|item-071-guide-frontend-work-toward-the-|1-confirm-trigger-vocabulary-insertion-p|python3-m-pytest-logics-skills-tests
 flowchart LR
     Backlog[item 071] --> Audit[audit trigger surfaces]
     Audit --> Design[define trigger and insertion rules]

@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   clipboardWriteText: vi.fn(),
   workspaceStateGet: vi.fn(),
   workspaceStateUpdate: vi.fn(),
+  buildLogicsKitUpdateCommand: vi.fn(),
+  inspectLogicsKitSubmodule: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   hasLogicsSubmodule: vi.fn(),
@@ -58,9 +60,11 @@ vi.mock("vscode", () => ({
 
 vi.mock("../src/logicsProviderUtils", () => ({
   areSamePath: mocks.areSamePath,
+  buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
   getWorkspaceRoot: mocks.getWorkspaceRoot,
   hasLogicsSubmodule: mocks.hasLogicsSubmodule,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
+  inspectLogicsKitSubmodule: mocks.inspectLogicsKitSubmodule,
   isExistingDirectory: mocks.isExistingDirectory,
   runGitWithOutput: mocks.runGitWithOutput,
   runPythonWithOutput: mocks.runPythonWithOutput,
@@ -146,6 +150,8 @@ describe("LogicsViewProvider", () => {
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
     mocks.showQuickPick.mockReset();
+    mocks.buildLogicsKitUpdateCommand.mockReset();
+    mocks.inspectLogicsKitSubmodule.mockReset();
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.hasLogicsSubmodule.mockReset();
@@ -165,6 +171,12 @@ describe("LogicsViewProvider", () => {
     mocks.hasMultipleWorkspaceFolders.mockReturnValue(false);
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.inspectLogicsKitSubmodule.mockReturnValue({
+      exists: true,
+      isCanonical: true,
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
 
     provider = new LogicsViewProvider(
       {
@@ -222,5 +234,185 @@ describe("LogicsViewProvider", () => {
     expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex overlay runtime: Needs attention"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex overlay run command"))).toBe(true);
+  });
+
+  it("can run overlay sync directly from environment diagnostics", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    const managerScriptPath = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py");
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+        },
+        codexOverlay: {
+          status: "missing-overlay",
+          summary: "Overlay missing.",
+          issues: ["Workspace overlay is missing or not initialized."],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+        },
+        codexOverlay: {
+          status: "missing-overlay",
+          summary: "Overlay missing.",
+          issues: ["Workspace overlay is missing or not initialized."],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Overlay ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Overlay ready.",
+          issues: [],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never);
+    mocks.showQuickPick.mockImplementationOnce(async (items) =>
+      items.find((item: { label: string }) => item.label === "Run: Sync Codex Overlay")
+    );
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "synced", stderr: "" });
+    mocks.showInformationMessage.mockResolvedValue(undefined);
+
+    await provider.checkEnvironmentFromCommand();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, managerScriptPath, ["sync"]);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Codex workspace overlay synced after environment diagnostics. Overlay ready.",
+      "Copy Overlay Run Command"
+    );
+  });
+
+  it("can run the canonical kit update directly from environment diagnostics", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "unavailable", summary: "Manager missing." }
+        },
+        codexOverlay: {
+          status: "missing-manager",
+          summary: "Manager missing.",
+          issues: ["Overlay manager script is missing."],
+          warnings: [],
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Overlay ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Overlay ready.",
+          issues: [],
+          warnings: [],
+          managerScriptPath: path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py"),
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never);
+    mocks.showQuickPick.mockImplementationOnce(async (items) =>
+      items.find((item: { label: string }) => item.label === "Run: Update Logics Kit")
+    );
+    mocks.runGitWithOutput
+      .mockResolvedValueOnce({ stdout: "git version 2.0.0", stderr: "" })
+      .mockResolvedValueOnce({ stdout: "true\n", stderr: "" })
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })
+      .mockResolvedValueOnce({ stdout: " abc123 logics/skills", stderr: "" })
+      .mockResolvedValueOnce({ stdout: "Updating", stderr: "" })
+      .mockResolvedValueOnce({ stdout: " def456 logics/skills", stderr: "" });
+    mocks.showInformationMessage.mockResolvedValue(undefined);
+
+    await provider.checkEnvironmentFromCommand();
+
+    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Logics kit updated after environment diagnostics. Review and commit the submodule pointer change in your repository when ready."
+    );
   });
 });

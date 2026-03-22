@@ -196,7 +196,10 @@ Contract:
 - `Select Agent` picks the active Logics agent and prepares Codex chat context.
 - `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
+- `Update Logics Kit` runs the supported submodule update flow when the repository uses the canonical `logics/skills` kit submodule and Git state is safe for automation.
+- `Sync Codex Overlay` runs the overlay manager from the plugin when the current kit already includes `logics_codex_workspace.py`.
 - `Check Environment` summarizes repository state, Python availability, Git availability, Codex overlay runtime state, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
+- `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing or stale overlay runtime.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
 - Bootstrap completion messaging now distinguishes repo-local kit readiness from Codex workspace-overlay readiness.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
@@ -227,6 +230,12 @@ Runtime contract:
 - each repository gets its own overlay under `~/.codex-workspaces/<repo-id>/`.
 - repo-local Logics skills shadow same-named global skills.
 - shared user assets such as `auth.json`, `config.toml`, and `skills/.system` stay global and are referenced into the overlay when available.
+
+Plugin remediation path:
+
+- if the kit is too old for overlays and the repository uses the canonical `logics/skills` submodule, the plugin can run the supported kit update flow directly.
+- if the overlay manager exists but the workspace overlay is missing or stale, the plugin can run the overlay sync directly instead of only copying the terminal command.
+- unsupported or unsafe cases, such as a dirty worktree or a non-canonical kit layout, fall back to explicit manual guidance instead of partial automation.
 
 ## Validation
 

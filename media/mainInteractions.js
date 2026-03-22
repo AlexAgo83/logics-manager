@@ -61,6 +61,8 @@
       onToggleViewMode,
       onToggleAttention,
       onToolsPanelToggle,
+      onUpdateLogicsKit,
+      onSyncCodexOverlay,
       onWindowMessage,
       onWindowResize,
       openButton,
@@ -75,8 +77,10 @@
       sortBySelect,
       splitter,
       stackedQuery,
+      syncCodexOverlayButton,
       toolsPanel,
       toolsToggle,
+      updateLogicsKitButton,
       viewModeToggleButton,
       aboutButton
     } = options;
@@ -103,6 +107,12 @@
       }
       if (bootstrapLogicsButton) {
         bootstrapLogicsButton.addEventListener("click", () => onBootstrapLogics());
+      }
+      if (updateLogicsKitButton) {
+        updateLogicsKitButton.addEventListener("click", () => onUpdateLogicsKit());
+      }
+      if (syncCodexOverlayButton) {
+        syncCodexOverlayButton.addEventListener("click", () => onSyncCodexOverlay());
       }
       if (checkEnvironmentButton) {
         checkEnvironmentButton.addEventListener("click", () => onCheckEnvironment());

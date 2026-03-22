@@ -60,6 +60,83 @@ export function hasLogicsSubmodule(root: string): boolean {
   }
 }
 
+export type LogicsKitSubmoduleInspection = {
+  exists: boolean;
+  isCanonical: boolean;
+  remoteUrl?: string;
+  reason: string;
+};
+
+export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspection {
+  const skillsDir = path.join(root, "logics", "skills");
+  if (!fs.existsSync(skillsDir)) {
+    return {
+      exists: false,
+      isCanonical: false,
+      reason: "logics/skills is missing from the selected repository."
+    };
+  }
+
+  const gitmodulesPath = path.join(root, ".gitmodules");
+  if (!fs.existsSync(gitmodulesPath)) {
+    return {
+      exists: true,
+      isCanonical: false,
+      reason: "The repository does not declare logics/skills in .gitmodules."
+    };
+  }
+
+  let content = "";
+  try {
+    content = fs.readFileSync(gitmodulesPath, "utf8");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      exists: true,
+      isCanonical: false,
+      reason: `Could not read .gitmodules: ${message}`
+    };
+  }
+
+  const sections = content.split(/\r?\n(?=\[submodule )/);
+  for (const section of sections) {
+    if (!section.includes("path = logics/skills")) {
+      continue;
+    }
+    const urlMatch = section.match(/^\s*url\s*=\s*(.+)\s*$/m);
+    const remoteUrl = urlMatch ? urlMatch[1].trim() : undefined;
+    if (!remoteUrl) {
+      return {
+        exists: true,
+        isCanonical: false,
+        reason: "The logics/skills submodule is missing a configured URL in .gitmodules."
+      };
+    }
+    const normalized = remoteUrl.toLowerCase();
+    const isCanonical =
+      normalized.includes("alexago83/cdx-logics-kit") ||
+      normalized.includes("github.com:alexago83/cdx-logics-kit");
+    return {
+      exists: true,
+      isCanonical,
+      remoteUrl,
+      reason: isCanonical
+        ? "Canonical cdx-logics-kit submodule detected."
+        : `logics/skills points to a non-canonical submodule URL: ${remoteUrl}`
+    };
+  }
+
+  return {
+    exists: true,
+    isCanonical: false,
+    reason: "The repository does not declare a logics/skills submodule entry in .gitmodules."
+  };
+}
+
+export function buildLogicsKitUpdateCommand(): string {
+  return "git submodule update --init --remote --merge -- logics/skills";
+}
+
 export type CreateItemConfig = { dir: string; prefix: string; label: string };
 
 export function getCreateConfig(kind: "request" | "backlog" | "task"): CreateItemConfig | null {

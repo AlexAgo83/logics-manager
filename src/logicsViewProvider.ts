@@ -14,8 +14,10 @@ import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
+  buildLogicsKitUpdateCommand,
   getWorkspaceRoot,
   hasLogicsSubmodule,
+  inspectLogicsKitSubmodule,
   hasMultipleWorkspaceFolders,
   isExistingDirectory,
   runGitWithOutput,
@@ -129,6 +131,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           break;
         case "check-environment":
           await this.checkEnvironmentFromTools();
+          break;
+        case "update-logics-kit":
+          await this.updateLogicsKitFromTools();
+          break;
+        case "sync-codex-overlay":
+          await this.syncCodexOverlayFromTools();
           break;
         case "about":
           await this.openAbout();
@@ -326,7 +334,34 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async checkEnvironmentFromTools(): Promise<void> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     const snapshot = await inspectLogicsEnvironment(root, invalidOverridePath);
-    const quickPickItems = [
+    const quickPickItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
+
+    if (root && snapshot.codexOverlay.status === "missing-manager") {
+      quickPickItems.push({
+        label: "Run: Update Logics Kit",
+        description: "Try the canonical submodule update flow from inside the plugin.",
+        action: async () => {
+          await this.updateLogicsKit(root, "environment diagnostics");
+        }
+      });
+    }
+
+    if (
+      root &&
+      snapshot.codexOverlay.status !== "healthy" &&
+      snapshot.codexOverlay.status !== "warning" &&
+      snapshot.codexOverlay.status !== "missing-manager"
+    ) {
+      quickPickItems.push({
+        label: "Run: Sync Codex Overlay",
+        description: "Materialize or repair the workspace overlay for this repository.",
+        action: async () => {
+          await this.syncCodexOverlay(root, "environment diagnostics");
+        }
+      });
+    }
+
+    quickPickItems.push(
       {
         label: `Workspace root: ${snapshot.root ?? "(none selected)"}`,
         description: `Repository state: ${snapshot.repositoryState}`
@@ -361,7 +396,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           ? "Python-backed workflow actions can run."
           : buildMissingPythonMessage()
       }
-    ];
+    );
 
     if (snapshot.missingWorkflowDirs.length > 0) {
       quickPickItems.push({
@@ -384,15 +419,34 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
-    await vscode.window.showQuickPick(quickPickItems, {
+    const choice = await vscode.window.showQuickPick(quickPickItems, {
       title: "Logics: Check Environment",
       placeHolder: "Review current prerequisite and repository capability status",
       ignoreFocusOut: true
     });
+    if (choice?.action) {
+      await choice.action();
+    }
   }
 
   private async openAbout(): Promise<void> {
     await vscode.env.openExternal(vscode.Uri.parse(PROJECT_GITHUB_URL));
+  }
+
+  private async updateLogicsKitFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    await this.updateLogicsKit(root, "tools menu");
+  }
+
+  private async syncCodexOverlayFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    await this.syncCodexOverlay(root, "tools menu");
   }
 
   private async markItemDone(id: string): Promise<void> {
@@ -839,10 +893,27 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       void vscode.window.showInformationMessage("Logics bootstrapped. Repo-local kit and Codex overlay runtime are ready. Refreshing.");
       return;
     }
-    const action = overlay.syncCommand ? "Copy Overlay Sync Command" : undefined;
+    const actions: string[] = [];
+    if (overlay.status !== "missing-manager" && snapshot.python.available) {
+      actions.push("Sync Codex Overlay");
+    }
+    if (overlay.status === "missing-manager") {
+      actions.push("Update Logics Kit");
+    }
+    if (overlay.syncCommand) {
+      actions.push("Copy Overlay Sync Command");
+    }
     const message = `Logics bootstrapped. Repo-local kit is ready, but the Codex workspace overlay is not ready yet. ${overlay.summary}`;
-    const choice = action ? await vscode.window.showInformationMessage(message, action) : undefined;
-    if (choice === action && overlay.syncCommand) {
+    const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
+    if (choice === "Sync Codex Overlay") {
+      await this.syncCodexOverlay(root, "bootstrap completion");
+      return;
+    }
+    if (choice === "Update Logics Kit") {
+      await this.updateLogicsKit(root, "bootstrap completion");
+      return;
+    }
+    if (choice === "Copy Overlay Sync Command" && overlay.syncCommand) {
       await vscode.env.clipboard.writeText(overlay.syncCommand);
       void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
       return;
@@ -869,18 +940,253 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    if (!overlay.syncCommand) {
+    if (overlay.status === "missing-manager") {
+      const inspection = inspectLogicsKitSubmodule(root);
+      const actions: string[] = [];
+      if (inspection.exists && inspection.isCanonical) {
+        actions.push("Update Logics Kit");
+      }
+      const updateCommand = buildLogicsKitUpdateCommand();
+      actions.push("Copy Update Command");
+      const choice = await vscode.window.showInformationMessage(
+        `Repo-local Logics is ready after ${trigger}, but the current kit does not include the Codex overlay manager yet. ${overlay.summary}`,
+        ...actions
+      );
+      if (choice === "Update Logics Kit") {
+        await this.updateLogicsKit(root, trigger);
+        return;
+      }
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
       return;
     }
-    const action = "Copy Overlay Sync Command";
+
+    const actions: string[] = [];
+    if (snapshot.python.available) {
+      actions.push("Sync Codex Overlay");
+    }
+    if (overlay.syncCommand) {
+      actions.push("Copy Overlay Sync Command");
+    }
+    if (actions.length === 0) {
+      return;
+    }
     const choice = await vscode.window.showInformationMessage(
       `Repo-local Logics is ready after ${trigger}, but the Codex overlay runtime still needs sync. ${overlay.summary}`,
-      action
+      ...actions
     );
-    if (choice === action) {
+    if (choice === "Sync Codex Overlay") {
+      await this.syncCodexOverlay(root, trigger);
+      return;
+    }
+    if (choice === "Copy Overlay Sync Command" && overlay.syncCommand) {
       await vscode.env.clipboard.writeText(overlay.syncCommand);
       void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
     }
+  }
+
+  private async updateLogicsKit(root: string, trigger: string): Promise<boolean> {
+    const gitVersion = await runGitWithOutput(root, ["--version"]);
+    if (gitVersion.error) {
+      const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
+      if (isMissingGitFailureDetail(detail)) {
+        void vscode.window.showErrorMessage(
+          `Updating the Logics kit requires Git. ${buildMissingGitMessage()} The extension cannot install Git automatically. Use \`Logics: Check Environment\` for details.`
+        );
+        return false;
+      }
+      void vscode.window.showErrorMessage(`Failed to run git: ${gitVersion.stderr || gitVersion.error.message}`);
+      return false;
+    }
+
+    const inspection = inspectLogicsKitSubmodule(root);
+    const updateCommand = buildLogicsKitUpdateCommand();
+    if (!inspection.exists || !inspection.isCanonical) {
+      const choice = await vscode.window.showWarningMessage(
+        `Automatic Logics kit update is only supported for the canonical logics/skills submodule. ${inspection.reason}`,
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
+    if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
+      const choice = await vscode.window.showWarningMessage(
+        "Automatic Logics kit update requires a git worktree rooted at the selected project. Use the canonical submodule update command manually if needed.",
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    const worktreeStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
+    if (worktreeStatus.error) {
+      void vscode.window.showErrorMessage(
+        `Failed to inspect repository state before updating the Logics kit: ${worktreeStatus.stderr || worktreeStatus.error.message}`
+      );
+      return false;
+    }
+    if (worktreeStatus.stdout.trim()) {
+      const choice = await vscode.window.showWarningMessage(
+        "Automatic Logics kit update is blocked because the repository has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    const beforeStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
+    if (beforeStatus.error) {
+      const choice = await vscode.window.showWarningMessage(
+        `The plugin could not confirm the canonical logics/skills submodule before updating it. ${beforeStatus.stderr || beforeStatus.error.message}`,
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    const updateResult = await runGitWithOutput(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
+    if (updateResult.error) {
+      const detail = `${updateResult.stderr}\n${updateResult.stdout}`.trim();
+      const choice = await vscode.window.showErrorMessage(
+        `Failed to update the Logics kit. ${detail || updateResult.error.message}`,
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    const afterStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
+    const updated = beforeStatus.stdout.trim() !== afterStatus.stdout.trim();
+    await this.refresh();
+    const snapshot = await inspectLogicsEnvironment(root);
+
+    if (snapshot.codexOverlay.status === "missing-manager") {
+      void vscode.window.showWarningMessage(
+        updated
+          ? "The Logics kit submodule updated, but the overlay manager is still missing. Check whether the repository is pinned to an older kit branch or tag."
+          : "The Logics kit is already at the current tracked submodule revision, but the overlay manager is still missing. Check whether the repository is pinned to an older kit branch or tag."
+      );
+      return true;
+    }
+
+    const actions: string[] = [];
+    if (
+      snapshot.codexOverlay.status !== "healthy" &&
+      snapshot.codexOverlay.status !== "warning" &&
+      snapshot.python.available
+    ) {
+      actions.push("Sync Codex Overlay");
+    }
+    const message = updated
+      ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.`
+      : "The Logics kit is already up to date on the tracked submodule revision.";
+    const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
+    if (choice === "Sync Codex Overlay") {
+      await this.syncCodexOverlay(root, "kit update");
+    } else {
+      void vscode.window.showInformationMessage(message);
+    }
+    return true;
+  }
+
+  private async syncCodexOverlay(root: string, trigger: string): Promise<boolean> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const overlay = snapshot.codexOverlay;
+    if (overlay.status === "healthy" || overlay.status === "warning") {
+      void vscode.window.showInformationMessage("Codex workspace overlay is already ready for this repository.");
+      return true;
+    }
+
+    if (overlay.status === "missing-manager") {
+      const inspection = inspectLogicsKitSubmodule(root);
+      const actions: string[] = [];
+      if (inspection.exists && inspection.isCanonical) {
+        actions.push("Update Logics Kit");
+      }
+      actions.push("Copy Update Command");
+      const choice = await vscode.window.showWarningMessage(
+        `Codex overlay sync is unavailable because the Logics kit in this repository is too old. ${overlay.summary}`,
+        ...actions
+      );
+      if (choice === "Update Logics Kit") {
+        await this.updateLogicsKit(root, trigger);
+      }
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    if (!snapshot.python.available) {
+      void vscode.window.showErrorMessage(
+        `Codex overlay sync requires Python 3. ${buildMissingPythonMessage()} The extension cannot install system tools automatically. Use \`Logics: Check Environment\` for details.`
+      );
+      return false;
+    }
+
+    const managerScriptPath =
+      overlay.managerScriptPath ||
+      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py");
+    const result = await runPythonWithOutput(root, managerScriptPath, ["sync"]);
+    if (result.error) {
+      const detail = `${result.stderr}\n${result.stdout}\n${result.error.message}`.trim();
+      if (isMissingPythonFailureDetail(detail)) {
+        void vscode.window.showErrorMessage(
+          `Codex overlay sync requires Python 3. ${buildMissingPythonMessage()} The extension cannot install system tools automatically. Use \`Logics: Check Environment\` for details.`
+        );
+        return false;
+      }
+      void vscode.window.showErrorMessage(`Codex overlay sync failed: ${result.stderr || result.error.message}`);
+      return false;
+    }
+
+    await this.refresh();
+    const refreshed = await inspectLogicsEnvironment(root);
+    if (refreshed.codexOverlay.status === "healthy" || refreshed.codexOverlay.status === "warning") {
+      const actions: string[] = [];
+      if (refreshed.codexOverlay.runCommand) {
+        actions.push("Copy Overlay Run Command");
+      }
+      const choice = actions.length > 0
+        ? await vscode.window.showInformationMessage(
+            `Codex workspace overlay synced after ${trigger}. ${refreshed.codexOverlay.summary}`,
+            ...actions
+          )
+        : undefined;
+      if (choice === "Copy Overlay Run Command" && refreshed.codexOverlay.runCommand) {
+        await vscode.env.clipboard.writeText(refreshed.codexOverlay.runCommand);
+        void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
+      }
+      if (!choice) {
+        void vscode.window.showInformationMessage(`Codex workspace overlay synced. ${refreshed.codexOverlay.summary}`);
+      }
+      return true;
+    }
+
+    void vscode.window.showWarningMessage(
+      `Codex overlay sync completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
+    );
+    return false;
   }
 
   private getReadPreviewPanel(): vscode.WebviewPanel {

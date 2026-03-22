@@ -1,9 +1,9 @@
 ## task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
-> Status: Ready
+> Status: In progress
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -28,10 +28,10 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
-- [ ] 2. Implement the next coherent delivery wave from the backlog item.
-- [ ] 3. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria.
+- [x] 2. Implement the next coherent delivery wave from the backlog item.
+- [x] 3. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
 - [ ] FINAL: Update related Logics docs
 
 # Delivery checkpoints
@@ -86,3 +86,7 @@ flowchart LR
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Wave 1 completed on 2026-03-23.
+- Added explicit plugin remediation actions for `Update Logics Kit` and `Sync Codex Overlay`, exposed through both the Tools menu and actionable environment diagnostics.
+- Kept kit updates delegated to the canonical `logics/skills` submodule flow with Git safety checks for missing Git, non-canonical layouts, non-git roots, and dirty worktrees.
+- Added regression coverage for direct remediation from `Logics: Check Environment` and updated the plugin README to explain the new automation path and fallback behavior.

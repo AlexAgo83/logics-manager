@@ -35,6 +35,8 @@
   const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
+  const updateLogicsKitButton = document.querySelector('[data-action="update-logics-kit"]');
+  const syncCodexOverlayButton = document.querySelector('[data-action="sync-codex-overlay"]');
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
@@ -974,6 +976,14 @@
           handleBootstrapLogics();
           setToolsPanelOpen(false);
         },
+        onUpdateLogicsKit() {
+          hostApi.updateLogicsKit();
+          setToolsPanelOpen(false);
+        },
+        onSyncCodexOverlay() {
+          hostApi.syncCodexOverlay();
+          setToolsPanelOpen(false);
+        },
         onCheckEnvironment() {
           hostApi.checkEnvironment();
           setToolsPanelOpen(false);
@@ -1141,8 +1151,10 @@
         sortBySelect,
         splitter,
         stackedQuery,
+        syncCodexOverlayButton,
         toolsPanel,
         toolsToggle,
+        updateLogicsKitButton,
         viewModeToggleButton,
         aboutButton
       })

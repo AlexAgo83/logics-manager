@@ -70,6 +70,12 @@
       bootstrapLogics() {
         invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
       },
+      updateLogicsKit() {
+        invokeHostOnly("update-logics-kit", {}, "Update Logics Kit");
+      },
+      syncCodexOverlay() {
+        invokeHostOnly("sync-codex-overlay", {}, "Sync Codex Overlay");
+      },
       checkEnvironment() {
         invokeHostOnly("check-environment", {}, "Check Environment");
       },

@@ -69,6 +69,8 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Create Companion Doc</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="update-logics-kit" title="Update the Logics kit submodule when the canonical setup is present">Update Logics Kit</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Sync the Codex workspace overlay for this repository">Sync Codex Overlay</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>

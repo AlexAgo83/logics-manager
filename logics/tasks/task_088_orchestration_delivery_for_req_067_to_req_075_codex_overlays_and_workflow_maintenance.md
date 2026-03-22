@@ -1,9 +1,9 @@
 ## task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance - Orchestration delivery for req_067 to req_075 Codex overlays and workflow maintenance
 > From version: 1.10.8
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 25%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -54,8 +54,8 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm portfolio scope, linked ADRs, and shared test or documentation surfaces across items `090` to `098`.
-- [ ] 2. Wave 1: implement the minimum viable Codex workspace-overlay path across items `090` and `092`, so a repo-local skill set can be projected into an isolated workspace home and launched through a supported operator flow.
+- [x] 1. Confirm portfolio scope, linked ADRs, and shared test or documentation surfaces across items `090` to `098`.
+- [x] 2. Wave 1: implement the minimum viable Codex workspace-overlay path across items `090` and `092`, so a repo-local skill set can be projected into an isolated workspace home and launched through a supported operator flow.
 - [ ] 3. Wave 2: harden the overlay portfolio across items `093`, `094`, `095`, `096`, and `097`, covering precedence, diagnostics, publication mode visibility, concurrent validation, and workspace identity or lifecycle behavior.
 - [ ] 4. Wave 3: implement the workflow-maintenance slices for items `091` and `098`, so Mermaid signature refresh and task-wave checkpoint guidance land with explicit doc-generation or governance support.
 - [ ] 5. Wave 4: track and integrate the plugin-facing follow-on through `task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness`, so overlay rollout, bootstrap semantics, and plugin messaging remain aligned.
@@ -136,4 +136,7 @@ flowchart LR
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending implementation.
+- Wave 1 completed on 2026-03-23.
+- Added the first operator-facing Codex workspace overlay manager under `logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py`.
+- Added regression coverage for sync, run, doctor, and concurrent multi-repo isolation in `logics/skills/tests/test_codex_workspace_overlay.py`.
+- Updated the kit and extension README surfaces so the new overlay workflow is documented before the next wave.

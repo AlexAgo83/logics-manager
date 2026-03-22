@@ -185,6 +185,28 @@ Contract:
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
 
+## Codex Workspace Overlays
+
+The Logics kit now includes a dedicated workspace manager for Codex multi-project usage.
+Use it when you want several repositories to expose their own `logics/skills` trees to separate Codex sessions without merging everything into one global `~/.codex/skills` pool.
+
+Examples:
+
+```bash
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py register
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py status
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py doctor --fix
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex
+```
+
+Runtime contract:
+
+- `logics/skills/` stays canonical inside each repository.
+- each repository gets its own overlay under `~/.codex-workspaces/<repo-id>/`.
+- repo-local Logics skills shadow same-named global skills.
+- shared user assets such as `auth.json`, `config.toml`, and `skills/.system` stay global and are referenced into the overlay when available.
+
 ## Validation
 
 - Compile: `npm run compile`

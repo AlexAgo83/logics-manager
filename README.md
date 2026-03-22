@@ -12,6 +12,23 @@ VS Code extension that provides a visual orchestration panel for the Logics work
 
 It is not only a workflow UI: the Logics kit is also a way to persist project context in structured Markdown so AI assistants do not need the whole project to be re-explained in every prompt. In practice, that gives teams a durable, inspectable project memory, reduces token usage, and makes AI-driven development sessions more stable over time.
 
+## Logics Kit Repository
+
+This extension is designed to work with the Logics kit repository:
+
+- Kit repo: `https://github.com/AlexAgo83/cdx-logics-kit`
+- Kit releases: `https://github.com/AlexAgo83/cdx-logics-kit/releases`
+- Kit README and install guide: `https://github.com/AlexAgo83/cdx-logics-kit/blob/main/README.md`
+
+Recommended project setup keeps the kit as a submodule at `logics/skills`:
+
+```bash
+git submodule add -b main https://github.com/AlexAgo83/cdx-logics-kit.git logics/skills
+git submodule update --init --recursive
+```
+
+If you already use the extension but want to inspect the workflow scripts, templates, release notes, or track kit updates independently from the plugin, start from that repository.
+
 ## Features
 
 - Flow board view plus grouped list view, with forced list mode below `500px`.
@@ -78,6 +95,7 @@ Windows notes:
 ## Flow Manager Compatibility
 
 - Minimum supported Logics kit baseline: `v1.0.4+`.
+- Canonical Logics kit repo: `https://github.com/AlexAgo83/cdx-logics-kit`
 - Required script path: `logics/skills/logics-flow-manager/scripts/logics_flow.py`.
 - If the script is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
 

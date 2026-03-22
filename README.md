@@ -196,7 +196,9 @@ Examples:
 python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py register
 python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync
 python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py status
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py status --all
 python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py doctor --fix
+python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync --publication-mode copy
 python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex
 ```
 

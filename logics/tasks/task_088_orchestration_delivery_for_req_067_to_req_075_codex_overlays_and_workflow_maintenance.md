@@ -3,7 +3,7 @@
 > Status: In progress
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 25%
+> Progress: 50%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -56,7 +56,7 @@ flowchart LR
 # Plan
 - [x] 1. Confirm portfolio scope, linked ADRs, and shared test or documentation surfaces across items `090` to `098`.
 - [x] 2. Wave 1: implement the minimum viable Codex workspace-overlay path across items `090` and `092`, so a repo-local skill set can be projected into an isolated workspace home and launched through a supported operator flow.
-- [ ] 3. Wave 2: harden the overlay portfolio across items `093`, `094`, `095`, `096`, and `097`, covering precedence, diagnostics, publication mode visibility, concurrent validation, and workspace identity or lifecycle behavior.
+- [x] 3. Wave 2: harden the overlay portfolio across items `093`, `094`, `095`, `096`, and `097`, covering precedence, diagnostics, publication mode visibility, concurrent validation, and workspace identity or lifecycle behavior.
 - [ ] 4. Wave 3: implement the workflow-maintenance slices for items `091` and `098`, so Mermaid signature refresh and task-wave checkpoint guidance land with explicit doc-generation or governance support.
 - [ ] 5. Wave 4: track and integrate the plugin-facing follow-on through `task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness`, so overlay rollout, bootstrap semantics, and plugin messaging remain aligned.
 - [ ] 6. Add or update tests, audits, and kit documentation so each completed wave leaves a validated and documented checkpoint instead of only partial implementation state.
@@ -140,3 +140,6 @@ flowchart LR
 - Added the first operator-facing Codex workspace overlay manager under `logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py`.
 - Added regression coverage for sync, run, doctor, and concurrent multi-repo isolation in `logics/skills/tests/test_codex_workspace_overlay.py`.
 - Updated the kit and extension README surfaces so the new overlay workflow is documented before the next wave.
+- Wave 2 completed on 2026-03-23.
+- Hardened overlay diagnostics with explicit missing/stale states, publication-mode visibility, and registry-wide status checks.
+- Added regression coverage for copy-mode drift and moved-repository lifecycle behavior.

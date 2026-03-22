@@ -1,6 +1,6 @@
 ## req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays - Add diagnostics and self-healing for Codex workspace overlays
 > From version: 1.10.8
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Medium

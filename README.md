@@ -178,8 +178,9 @@ Contract:
 - `Select Agent` picks the active Logics agent and prepares Codex chat context.
 - `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
-- `Check Environment` summarizes repository state, Python availability, Git availability, and whether read-only, workflow, or bootstrap actions are currently available.
+- `Check Environment` summarizes repository state, Python availability, Git availability, Codex overlay runtime state, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
+- Bootstrap completion messaging now distinguishes repo-local kit readiness from Codex workspace-overlay readiness.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.

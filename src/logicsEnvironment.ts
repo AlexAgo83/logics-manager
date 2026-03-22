@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { detectGitCommand } from "./gitRuntime";
+import { CodexOverlaySnapshot, inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 import { detectPythonRuntime, PythonCommand } from "./pythonRuntime";
 
 export type CapabilityStatus = "available" | "unavailable";
@@ -27,10 +28,12 @@ export type LogicsEnvironmentSnapshot = {
     available: boolean;
     command: PythonCommand | null;
   };
+  codexOverlay: CodexOverlaySnapshot;
   capabilities: {
     readOnly: Capability;
     workflowMutation: Capability;
     bootstrapRepair: Capability;
+    codexRuntime: Capability;
     diagnostics: Capability;
   };
 };
@@ -38,6 +41,7 @@ export type LogicsEnvironmentSnapshot = {
 type DetectorOptions = {
   detectGit?: () => Promise<boolean>;
   detectPython?: () => Promise<PythonCommand | null>;
+  inspectOverlay?: (root: string | null) => CodexOverlaySnapshot;
 };
 
 export async function inspectLogicsEnvironment(
@@ -47,6 +51,7 @@ export async function inspectLogicsEnvironment(
 ): Promise<LogicsEnvironmentSnapshot> {
   const detectGit = options.detectGit ?? detectGitCommand;
   const detectPython = options.detectPython ?? detectPythonRuntime;
+  const inspectOverlay = options.inspectOverlay ?? inspectCodexWorkspaceOverlay;
   const projectRoot = root ?? "";
   const hasLogicsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics"));
   const hasSkillsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics", "skills"));
@@ -59,6 +64,7 @@ export async function inspectLogicsEnvironment(
   const missingWorkflowDirs = root ? getMissingWorkflowDirs(root) : [];
   const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
   const pythonAvailable = Boolean(pythonCommand);
+  const codexOverlay = inspectOverlay(root);
   const repositoryState = computeRepositoryState({
     root,
     hasLogicsDir,
@@ -83,15 +89,36 @@ export async function inspectLogicsEnvironment(
       available: pythonAvailable,
       command: pythonCommand
     },
+    codexOverlay,
     capabilities: {
       readOnly: buildReadOnlyCapability(repositoryState, root, invalidOverridePath),
       workflowMutation: buildWorkflowMutationCapability(hasLogicsDir, hasFlowManagerScript, pythonAvailable),
       bootstrapRepair: buildBootstrapCapability(root, gitAvailable, pythonAvailable, hasBootstrapScript),
+      codexRuntime: buildCodexRuntimeCapability(root, codexOverlay),
       diagnostics: {
         status: "available",
         summary: "Always available from the command palette or Tools menu."
       }
     }
+  };
+}
+
+function buildCodexRuntimeCapability(root: string | null, overlay: CodexOverlaySnapshot): Capability {
+  if (!root) {
+    return {
+      status: "unavailable",
+      summary: "Requires a selected workspace or project root."
+    };
+  }
+  if (overlay.status === "healthy" || overlay.status === "warning") {
+    return {
+      status: "available",
+      summary: overlay.summary
+    };
+  }
+  return {
+    status: "unavailable",
+    summary: overlay.summary
   };
 }
 

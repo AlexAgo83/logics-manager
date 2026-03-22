@@ -1,6 +1,6 @@
 ## req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback - Harden cross-platform overlay publication for symlink junction and copy fallback
 > From version: 1.10.8
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
 > Complexity: Medium

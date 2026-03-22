@@ -1,6 +1,6 @@
 ## req_069_add_an_operator_facing_logics_codex_workspace_manager_cli - Add an operator-facing Logics Codex workspace manager CLI
 > From version: 1.10.8
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
 > Complexity: Medium

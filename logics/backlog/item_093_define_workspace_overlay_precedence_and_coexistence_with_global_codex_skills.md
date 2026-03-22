@@ -1,9 +1,9 @@
 ## item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills - Define workspace overlay precedence and coexistence with global Codex skills
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Skill resolution policy and overlay coexistence
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

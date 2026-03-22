@@ -1,9 +1,9 @@
 ## item_099_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays - Adapt the VS Code Logics plugin to Codex workspace overlays
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin integration and Codex overlay awareness
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

@@ -1,9 +1,9 @@
 ## item_090_add_multi_project_codex_workspace_overlays_for_logics_skills - Add multi-project Codex workspace overlays for Logics skills
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Agent orchestration and Codex workspace isolation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

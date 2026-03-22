@@ -117,7 +117,19 @@ vi.mock("../src/logicsEnvironment", () => ({
       diagnostics: {
         status: "available",
         summary: "Always available from the command palette or Tools menu."
+      },
+      codexRuntime: {
+        status: "unavailable",
+        summary: "Repo-local Logics is ready, but the Codex workspace overlay still needs sync."
       }
+    },
+    codexOverlay: {
+      status: "missing-overlay",
+      summary: "Repo-local Logics is ready, but the Codex workspace overlay still needs sync.",
+      issues: ["Workspace overlay is missing or not initialized."],
+      warnings: [],
+      syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+      runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
     }
   }))
 }));
@@ -208,5 +220,7 @@ describe("LogicsViewProvider", () => {
     expect(options.title).toBe("Logics: Check Environment");
     expect(items.some((item: { label: string }) => item.label.includes("Workflow actions: Unavailable"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Codex overlay runtime: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Codex overlay run command"))).toBe(true);
   });
 });

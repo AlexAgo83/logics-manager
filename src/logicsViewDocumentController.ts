@@ -106,6 +106,7 @@ export class LogicsViewDocumentController {
       fallbackCopiedMessage: "Could not inject the new-request prompt into Codex chat."
     });
     void vscode.window.showInformationMessage(`Active Logics agent: ${agent.displayName} (${agent.id})`);
+    await this.maybeShowCodexOverlayHandoff(root, "guided request handoff");
     await this.options.refresh();
   }
 
@@ -505,6 +506,38 @@ export class LogicsViewDocumentController {
 
   private buildRecoveryGuidance(): string {
     return "The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details.";
+  }
+
+  private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
+    const environment = await inspectLogicsEnvironment(root);
+    const overlay = environment.codexOverlay;
+    if (overlay.status === "healthy" || overlay.status === "warning") {
+      if (!overlay.runCommand) {
+        return;
+      }
+      const action = "Copy Overlay Run Command";
+      const choice = await vscode.window.showInformationMessage(
+        `Codex overlay runtime is ready after ${trigger}. Use the overlay run command for terminal Codex sessions bound to this repository.`,
+        action
+      );
+      if (choice === action) {
+        await vscode.env.clipboard.writeText(overlay.runCommand);
+        void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
+      }
+      return;
+    }
+    if (!overlay.syncCommand) {
+      return;
+    }
+    const action = "Copy Overlay Sync Command";
+    const choice = await vscode.window.showInformationMessage(
+      `Repo-local Logics is ready after ${trigger}, but the Codex overlay runtime still needs sync. ${overlay.summary}`,
+      action
+    );
+    if (choice === action) {
+      await vscode.env.clipboard.writeText(overlay.syncCommand);
+      void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
+    }
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

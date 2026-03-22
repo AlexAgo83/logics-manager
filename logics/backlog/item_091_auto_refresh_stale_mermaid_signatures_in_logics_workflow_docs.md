@@ -1,9 +1,9 @@
 ## item_091_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs - Auto-refresh stale Mermaid signatures in Logics workflow docs
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc maintenance and Mermaid signature integrity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

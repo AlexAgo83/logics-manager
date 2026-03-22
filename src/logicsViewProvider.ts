@@ -261,6 +261,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.setActiveAgent(pick.agent.id);
     await this.injectAgentPromptIntoCodexChat(pick.agent);
     void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
+    await this.maybeShowCodexOverlayHandoff(root, "agent selection");
   }
 
   async checkEnvironmentFromCommand(): Promise<void> {
@@ -331,6 +332,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: `Repository state: ${snapshot.repositoryState}`
       },
       {
+        label: `Codex overlay runtime: ${snapshot.codexOverlay.status === "healthy" ? "Ready" : snapshot.codexOverlay.status === "warning" ? "Ready with warnings" : "Needs attention"}`,
+        description: snapshot.codexOverlay.summary
+      },
+      {
         label: `Read-only browsing: ${snapshot.capabilities.readOnly.status === "available" ? "Available" : "Unavailable"}`,
         description: snapshot.capabilities.readOnly.summary
       },
@@ -341,6 +346,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       {
         label: `Bootstrap or repair: ${snapshot.capabilities.bootstrapRepair.status === "available" ? "Available" : "Unavailable"}`,
         description: snapshot.capabilities.bootstrapRepair.summary
+      },
+      {
+        label: `Terminal Codex handoff: ${snapshot.capabilities.codexRuntime.status === "available" ? "Available" : "Unavailable"}`,
+        description: snapshot.capabilities.codexRuntime.summary
       },
       {
         label: `Git: ${snapshot.git.available ? "Detected" : "Missing"}`,
@@ -358,6 +367,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       quickPickItems.push({
         label: "Partial bootstrap: workflow directories will self-heal",
         description: `Missing directories: ${snapshot.missingWorkflowDirs.join(", ")}. Create flows will recreate them automatically.`
+      });
+    }
+
+    if (snapshot.codexOverlay.runCommand) {
+      quickPickItems.push({
+        label: "Codex overlay run command",
+        description: snapshot.codexOverlay.runCommand
+      });
+    }
+
+    for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
+      quickPickItems.push({
+        label: "Codex overlay issue",
+        description: issue
       });
     }
 
@@ -753,7 +776,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus);
-    void vscode.window.showInformationMessage("Logics bootstrapped. Refreshing.");
+    await this.notifyBootstrapCompletion(root);
     await this.refresh();
   }
 
@@ -807,6 +830,57 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
+  }
+
+  private async notifyBootstrapCompletion(root: string): Promise<void> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const overlay = snapshot.codexOverlay;
+    if (overlay.status === "healthy" || overlay.status === "warning") {
+      void vscode.window.showInformationMessage("Logics bootstrapped. Repo-local kit and Codex overlay runtime are ready. Refreshing.");
+      return;
+    }
+    const action = overlay.syncCommand ? "Copy Overlay Sync Command" : undefined;
+    const message = `Logics bootstrapped. Repo-local kit is ready, but the Codex workspace overlay is not ready yet. ${overlay.summary}`;
+    const choice = action ? await vscode.window.showInformationMessage(message, action) : undefined;
+    if (choice === action && overlay.syncCommand) {
+      await vscode.env.clipboard.writeText(overlay.syncCommand);
+      void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
+      return;
+    }
+    void vscode.window.showInformationMessage("Logics bootstrapped. Refreshing.");
+  }
+
+  private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const overlay = snapshot.codexOverlay;
+    if (overlay.status === "healthy" || overlay.status === "warning") {
+      if (!overlay.runCommand) {
+        return;
+      }
+      const action = "Copy Overlay Run Command";
+      const choice = await vscode.window.showInformationMessage(
+        `Codex overlay runtime is ready after ${trigger}. Use the overlay run command for terminal Codex sessions bound to this repository.`,
+        action
+      );
+      if (choice === action) {
+        await vscode.env.clipboard.writeText(overlay.runCommand);
+        void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
+      }
+      return;
+    }
+
+    if (!overlay.syncCommand) {
+      return;
+    }
+    const action = "Copy Overlay Sync Command";
+    const choice = await vscode.window.showInformationMessage(
+      `Repo-local Logics is ready after ${trigger}, but the Codex overlay runtime still needs sync. ${overlay.summary}`,
+      action
+    );
+    if (choice === action) {
+      await vscode.env.clipboard.writeText(overlay.syncCommand);
+      void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
+    }
   }
 
   private getReadPreviewPanel(): vscode.WebviewPanel {

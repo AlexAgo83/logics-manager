@@ -1,6 +1,6 @@
 ## req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories - Define workspace identity and overlay lifecycle for moved or renamed repositories
 > From version: 1.10.8
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 91%
 > Complexity: Medium

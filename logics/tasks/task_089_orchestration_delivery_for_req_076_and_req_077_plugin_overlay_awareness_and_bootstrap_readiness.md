@@ -1,9 +1,9 @@
 ## task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness - Orchestration delivery for req_076 and req_077 plugin overlay awareness and bootstrap readiness
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code overlay integration and bootstrap diagnostics
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -36,11 +36,11 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, linked items, shared dependencies, and the plugin surfaces that must become overlay-aware.
-- [ ] 2. Wave 1: implement the plugin-facing overlay-awareness path from `item_099`, covering status visibility, launch or handoff guidance, and operator-facing recovery messaging.
-- [ ] 3. Wave 2: implement the bootstrap and environment-check alignment from `item_100`, separating repo-local kit readiness from overlay runtime readiness without breaking current repo-local workflows.
-- [ ] 4. Validate the result and update the linked Logics docs so the two plugin slices land as one coherent checkpoint.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm scope, linked items, shared dependencies, and the plugin surfaces that must become overlay-aware.
+- [x] 2. Wave 1: implement the plugin-facing overlay-awareness path from `item_099`, covering status visibility, launch or handoff guidance, and operator-facing recovery messaging.
+- [x] 3. Wave 2: implement the bootstrap and environment-check alignment from `item_100`, separating repo-local kit readiness from overlay runtime readiness without breaking current repo-local workflows.
+- [x] 4. Validate the result and update the linked Logics docs so the two plugin slices land as one coherent checkpoint.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - item099-AC1/item099-AC2/item099-AC3/item099-AC4/item099-AC5/item099-AC6/item099-AC7/item099-AC8 -> Steps 1 and 2. Proof: TODO.
@@ -86,9 +86,13 @@ flowchart LR
 - Manual: verify plugin messaging can distinguish repo-local Logics readiness from overlay-backed Codex runtime readiness.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Completed on 2026-03-23 as the plugin-facing delivery child of `task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance`.
+- Added `src/logicsCodexWorkspace.ts` so the extension can inspect overlay manifests, skill projections, shared assets, and sync or run handoff commands without owning the overlay manager itself.
+- Updated `src/logicsEnvironment.ts`, `src/logicsViewProvider.ts`, and `src/logicsViewDocumentController.ts` so environment checks, agent-selection handoff, guided-request handoff, and bootstrap completion messaging can distinguish repo-local Logics readiness from overlay-backed Codex runtime readiness.
+- Added regression coverage in `tests/logicsCodexWorkspace.test.ts`, `tests/logicsEnvironment.test.ts`, and `tests/logicsViewProvider.test.ts`, then validated the result with TypeScript lint and test runs plus the Logics lint and workflow audit commands.

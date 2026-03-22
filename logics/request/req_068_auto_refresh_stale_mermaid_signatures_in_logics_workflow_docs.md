@@ -1,6 +1,6 @@
 ## req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs - Auto-refresh stale Mermaid signatures in Logics workflow docs
 > From version: 1.10.8
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium

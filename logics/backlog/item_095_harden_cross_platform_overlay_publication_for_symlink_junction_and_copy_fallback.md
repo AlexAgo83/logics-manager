@@ -1,9 +1,9 @@
 ## item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback - Harden cross-platform overlay publication for symlink junction and copy fallback
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cross-platform overlay publication and filesystem compatibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

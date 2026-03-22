@@ -1,9 +1,9 @@
 ## item_094_add_diagnostics_and_self_healing_for_codex_workspace_overlays - Add diagnostics and self-healing for Codex workspace overlays
 > From version: 1.10.8
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Overlay diagnostics and recovery workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

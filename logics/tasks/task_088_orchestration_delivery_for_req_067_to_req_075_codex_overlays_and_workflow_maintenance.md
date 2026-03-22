@@ -1,9 +1,9 @@
 ## task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance - Orchestration delivery for req_067 to req_075 Codex overlays and workflow maintenance
 > From version: 1.10.8
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 75%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -58,9 +58,9 @@ flowchart LR
 - [x] 2. Wave 1: implement the minimum viable Codex workspace-overlay path across items `090` and `092`, so a repo-local skill set can be projected into an isolated workspace home and launched through a supported operator flow.
 - [x] 3. Wave 2: harden the overlay portfolio across items `093`, `094`, `095`, `096`, and `097`, covering precedence, diagnostics, publication mode visibility, concurrent validation, and workspace identity or lifecycle behavior.
 - [x] 4. Wave 3: implement the workflow-maintenance slices for items `091` and `098`, so Mermaid signature refresh and task-wave checkpoint guidance land with explicit doc-generation or governance support.
-- [ ] 5. Wave 4: track and integrate the plugin-facing follow-on through `task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness`, so overlay rollout, bootstrap semantics, and plugin messaging remain aligned.
-- [ ] 6. Add or update tests, audits, and kit documentation so each completed wave leaves a validated and documented checkpoint instead of only partial implementation state.
-- [ ] FINAL: Update related Logics docs
+- [x] 5. Wave 4: track and integrate the plugin-facing follow-on through `task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness`, so overlay rollout, bootstrap semantics, and plugin messaging remain aligned.
+- [x] 6. Add or update tests, audits, and kit documentation so each completed wave leaves a validated and documented checkpoint instead of only partial implementation state.
+- [x] FINAL: Update related Logics docs
 
 # AC Traceability
 - item090-AC1/item090-AC2/item090-AC3/item090-AC4/item090-AC5/item090-AC6 -> Steps 1 and 2. Proof: TODO.
@@ -130,10 +130,10 @@ flowchart LR
 - Manual: verify the task-wave guidance and Mermaid-signature maintenance flows are reflected in generated or updated docs.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Wave 1 completed on 2026-03-23.
@@ -147,3 +147,7 @@ flowchart LR
 - Added `logics_flow.py sync refresh-mermaid-signatures` and aligned linter signature expectations with the shared flow-manager computation.
 - Updated generated task templates and plan/validation defaults so delivery waves explicitly require commit-ready checkpoints and in-wave Logics doc updates.
 - Applied the Mermaid signature refresh across the current workflow corpus to remove bookkeeping drift already present in managed docs.
+- Wave 4 completed on 2026-03-23.
+- Added plugin-side Codex overlay inspection and surfaced overlay runtime health through environment diagnostics, agent handoff guidance, and bootstrap completion messaging.
+- Added extension-side regression coverage for overlay inspection, environment capability reporting, and tools menu guidance, while keeping the repo-local `logics/skills` contract intact.
+- Final validation passed across TypeScript lint and tests, Python workflow tests, workflow audit, and Logics lint, and the related request/backlog/task portfolio was marked done.

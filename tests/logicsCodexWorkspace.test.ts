@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { inspectCodexWorkspaceOverlay } from "../src/logicsCodexWorkspace";
+import { buildCodexOverlayRunCommand, buildCodexOverlaySyncCommand, inspectCodexWorkspaceOverlay } from "../src/logicsCodexWorkspace";
 
 describe("inspectCodexWorkspaceOverlay", () => {
   const roots: string[] = [];
@@ -94,5 +94,14 @@ describe("inspectCodexWorkspaceOverlay", () => {
     expect(snapshot.status).toBe("healthy");
     expect(snapshot.publicationMode).toBe("copy");
     expect(snapshot.runCommand).toContain("logics_codex_workspace.py run -- codex");
+  });
+
+  it("builds overlay commands from the detected python launcher", () => {
+    expect(
+      buildCodexOverlaySyncCommand({ command: "python3", argsPrefix: [], displayLabel: "python3" })
+    ).toBe("python3 logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync");
+    expect(
+      buildCodexOverlayRunCommand({ command: "py", argsPrefix: ["-3"], displayLabel: "py -3" })
+    ).toBe("py -3 logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex");
   });
 });

@@ -1007,12 +1007,18 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       if (!overlay.runCommand) {
         return;
       }
-      const action = "Copy Overlay Run Command";
+      const launchAction = "Launch Codex in Terminal";
+      const copyAction = "Copy Overlay Run Command";
       const choice = await vscode.window.showInformationMessage(
         `Codex overlay runtime is ready after ${trigger}. Use the overlay run command for terminal Codex sessions bound to this repository.`,
-        action
+        launchAction,
+        copyAction
       );
-      if (choice === action) {
+      if (choice === launchAction) {
+        this.launchCodexOverlayTerminal(root, overlay.runCommand);
+        return;
+      }
+      if (choice === copyAction) {
         await vscode.env.clipboard.writeText(overlay.runCommand);
         void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
       }
@@ -1244,7 +1250,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (refreshed.codexOverlay.status === "healthy" || refreshed.codexOverlay.status === "warning") {
       const actions: string[] = [];
       if (refreshed.codexOverlay.runCommand) {
-        actions.push("Copy Overlay Run Command");
+        actions.push("Launch Codex in Terminal", "Copy Overlay Run Command");
       }
       const choice = actions.length > 0
         ? await vscode.window.showInformationMessage(
@@ -1252,6 +1258,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
             ...actions
           )
         : undefined;
+      if (choice === "Launch Codex in Terminal" && refreshed.codexOverlay.runCommand) {
+        this.launchCodexOverlayTerminal(root, refreshed.codexOverlay.runCommand);
+        return true;
+      }
       if (choice === "Copy Overlay Run Command" && refreshed.codexOverlay.runCommand) {
         await vscode.env.clipboard.writeText(refreshed.codexOverlay.runCommand);
         void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
@@ -1266,6 +1276,15 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       `Codex overlay sync completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
     );
     return false;
+  }
+
+  private launchCodexOverlayTerminal(root: string, runCommand: string): void {
+    const terminal = vscode.window.createTerminal({
+      name: `Codex Overlay: ${path.basename(root)}`,
+      cwd: root
+    });
+    terminal.show(true);
+    terminal.sendText(runCommand, true);
   }
 
   private getReadPreviewPanel(): vscode.WebviewPanel {

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   showQuickPick: vi.fn(),
   showWarningMessage: vi.fn(),
   createWebviewPanel: vi.fn(),
+  createTerminal: vi.fn(),
   openExternal: vi.fn(),
   clipboardWriteText: vi.fn(),
   workspaceStateGet: vi.fn(),
@@ -33,7 +34,8 @@ vi.mock("vscode", () => ({
     showInformationMessage: mocks.showInformationMessage,
     showQuickPick: mocks.showQuickPick,
     showWarningMessage: mocks.showWarningMessage,
-    createWebviewPanel: mocks.createWebviewPanel
+    createWebviewPanel: mocks.createWebviewPanel,
+    createTerminal: mocks.createTerminal
   },
   env: {
     openExternal: mocks.openExternal,
@@ -162,6 +164,7 @@ describe("LogicsViewProvider", () => {
     mocks.hasMultipleWorkspaceFolders.mockReset();
     mocks.isExistingDirectory.mockReset();
     mocks.areSamePath.mockReset();
+    mocks.createTerminal.mockReset();
 
     mocks.hasLogicsSubmodule.mockReturnValue(false);
     mocks.indexLogics.mockReturnValue([]);
@@ -176,6 +179,10 @@ describe("LogicsViewProvider", () => {
       exists: true,
       isCanonical: true,
       reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    mocks.createTerminal.mockReturnValue({
+      show: vi.fn(),
+      sendText: vi.fn()
     });
 
     provider = new LogicsViewProvider(
@@ -361,6 +368,7 @@ describe("LogicsViewProvider", () => {
     expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, managerScriptPath, ["sync"]);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       "Codex workspace overlay synced after environment diagnostics. Overlay ready.",
+      "Launch Codex in Terminal",
       "Copy Overlay Run Command"
     );
   });

@@ -41,7 +41,7 @@ export type LogicsEnvironmentSnapshot = {
 type DetectorOptions = {
   detectGit?: () => Promise<boolean>;
   detectPython?: () => Promise<PythonCommand | null>;
-  inspectOverlay?: (root: string | null) => CodexOverlaySnapshot;
+  inspectOverlay?: (root: string | null, pythonCommand?: PythonCommand | null) => CodexOverlaySnapshot;
 };
 
 export async function inspectLogicsEnvironment(
@@ -64,7 +64,7 @@ export async function inspectLogicsEnvironment(
   const missingWorkflowDirs = root ? getMissingWorkflowDirs(root) : [];
   const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
   const pythonAvailable = Boolean(pythonCommand);
-  const codexOverlay = inspectOverlay(root);
+  const codexOverlay = inspectOverlay(root, pythonCommand);
   const repositoryState = computeRepositoryState({
     root,
     hasLogicsDir,

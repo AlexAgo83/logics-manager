@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { PythonCommand } from "./pythonRuntime";
 
 export type CodexOverlayStatus = "unavailable" | "missing-manager" | "missing-overlay" | "stale" | "warning" | "healthy";
 
@@ -41,7 +42,15 @@ export type CodexOverlaySnapshot = {
 
 const MANIFEST_NAME = "logics-codex-overlay.json";
 
-export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlaySnapshot {
+export function buildCodexOverlaySyncCommand(pythonCommand?: PythonCommand | null): string {
+  return `${buildPythonLauncher(pythonCommand)} logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync`;
+}
+
+export function buildCodexOverlayRunCommand(pythonCommand?: PythonCommand | null): string {
+  return `${buildPythonLauncher(pythonCommand)} logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex`;
+}
+
+export function inspectCodexWorkspaceOverlay(root: string | null, pythonCommand?: PythonCommand | null): CodexOverlaySnapshot {
   if (!root) {
     return {
       status: "unavailable",
@@ -60,8 +69,8 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     "scripts",
     "logics_codex_workspace.py"
   );
-  const syncCommand = `python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync`;
-  const runCommand = `python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex`;
+  const syncCommand = buildCodexOverlaySyncCommand(pythonCommand);
+  const runCommand = buildCodexOverlayRunCommand(pythonCommand);
   if (!fs.existsSync(managerScriptPath)) {
     return {
       status: "missing-manager",
@@ -171,6 +180,13 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     warnings,
     publicationMode: manifest.publication_mode ?? undefined
   };
+}
+
+function buildPythonLauncher(pythonCommand?: PythonCommand | null): string {
+  if (!pythonCommand) {
+    return "python";
+  }
+  return [pythonCommand.command, ...pythonCommand.argsPrefix].join(" ");
 }
 
 function computeOverlayIdentity(root: string): string {

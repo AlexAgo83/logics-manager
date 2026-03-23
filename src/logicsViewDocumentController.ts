@@ -515,12 +515,18 @@ export class LogicsViewDocumentController {
       if (!overlay.runCommand) {
         return;
       }
-      const action = "Copy Overlay Run Command";
+      const launchAction = "Launch Codex in Terminal";
+      const copyAction = "Copy Overlay Run Command";
       const choice = await vscode.window.showInformationMessage(
         `Codex overlay runtime is ready after ${trigger}. Use the overlay run command for terminal Codex sessions bound to this repository.`,
-        action
+        launchAction,
+        copyAction
       );
-      if (choice === action) {
+      if (choice === launchAction) {
+        this.launchCodexOverlayTerminal(root, overlay.runCommand);
+        return;
+      }
+      if (choice === copyAction) {
         await vscode.env.clipboard.writeText(overlay.runCommand);
         void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
       }
@@ -538,6 +544,15 @@ export class LogicsViewDocumentController {
       await vscode.env.clipboard.writeText(overlay.syncCommand);
       void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
     }
+  }
+
+  private launchCodexOverlayTerminal(root: string, runCommand: string): void {
+    const terminal = vscode.window.createTerminal({
+      name: `Codex Overlay: ${path.basename(root)}`,
+      cwd: root
+    });
+    terminal.show(true);
+    terminal.sendText(runCommand, true);
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

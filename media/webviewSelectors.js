@@ -7,6 +7,10 @@
       compactListQuery,
       getItems,
       getSelectedId,
+      getActiveWorkspaceRoot,
+      getChangedPaths,
+      getActiveAgent,
+      getLastInjectedContext,
       getHideCompleted,
       getHideProcessedRequests,
       getHideSpec,
@@ -71,8 +75,16 @@
       return typeof modelApi.getAttentionReasons === "function" ? modelApi.getAttentionReasons(item, getItems()) : [];
     }
 
-    function buildContextPack(item) {
-      return typeof modelApi.buildContextPack === "function" ? modelApi.buildContextPack(item, getItems()) : null;
+    function buildContextPack(item, options = {}) {
+      return typeof modelApi.buildContextPack === "function"
+        ? modelApi.buildContextPack(item, getItems(), {
+            changedPaths: typeof getChangedPaths === "function" ? getChangedPaths() : [],
+            activeAgent: typeof getActiveAgent === "function" ? getActiveAgent() : null,
+            lastInjectedContext: typeof getLastInjectedContext === "function" ? getLastInjectedContext() : null,
+            currentRoot: typeof getActiveWorkspaceRoot === "function" ? getActiveWorkspaceRoot() : null,
+            ...options
+          })
+        : null;
     }
 
     function buildDependencyMap(item) {

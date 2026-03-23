@@ -8,6 +8,10 @@ export interface AgentDefinition {
   displayName: string;
   shortDescription: string;
   defaultPrompt: string;
+  preferredContextProfile: "tiny" | "normal" | "deep";
+  allowedDocStages: string[];
+  blockedDocStages: string[];
+  responseStyle: "concise" | "balanced" | "detailed";
   sourcePath: string;
   relSourcePath: string;
 }
@@ -97,6 +101,24 @@ export function loadAgentRegistry(root: string): AgentRegistrySnapshot {
     const displayName = expectRequiredString(parsed.values, "display_name", relSourcePath, fileIssues);
     const shortDescription = expectRequiredString(parsed.values, "short_description", relSourcePath, fileIssues);
     const defaultPrompt = expectRequiredString(parsed.values, "default_prompt", relSourcePath, fileIssues);
+    const preferredContextProfile = parseOptionalEnum(
+      parsed.values,
+      "preferred_context_profile",
+      ["tiny", "normal", "deep"],
+      "normal",
+      relSourcePath,
+      fileIssues
+    );
+    const responseStyle = parseOptionalEnum(
+      parsed.values,
+      "response_style",
+      ["concise", "balanced", "detailed"],
+      "concise",
+      relSourcePath,
+      fileIssues
+    );
+    const allowedDocStages = parseOptionalStringArray(parsed.values, "allowed_doc_stages", relSourcePath, fileIssues);
+    const blockedDocStages = parseOptionalStringArray(parsed.values, "blocked_doc_stages", relSourcePath, fileIssues);
 
     if (fileIssues.length > 0 || !invocationId || !displayName || !shortDescription || !defaultPrompt) {
       issues.push(...fileIssues);
@@ -109,6 +131,10 @@ export function loadAgentRegistry(root: string): AgentRegistrySnapshot {
       displayName,
       shortDescription,
       defaultPrompt,
+      preferredContextProfile,
+      allowedDocStages,
+      blockedDocStages,
+      responseStyle,
       sourcePath,
       relSourcePath
     });
@@ -232,6 +258,62 @@ function deriveInvocationId(skillName: string): string | null {
     return null;
   }
   return `$${normalized}`;
+}
+
+function parseOptionalEnum<T extends string>(
+  values: Record<string, unknown>,
+  key: string,
+  allowed: readonly T[],
+  fallback: T,
+  sourcePath: string,
+  issues: AgentValidationIssue[]
+): T {
+  const value = values[key];
+  if (value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== "string") {
+    issues.push({
+      sourcePath,
+      message: `Field interface.${key} must be a string when present.`
+    });
+    return fallback;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return fallback;
+  }
+  if (!allowed.includes(normalized as T)) {
+    issues.push({
+      sourcePath,
+      message: `Field interface.${key} must be one of: ${allowed.join(", ")}.`
+    });
+    return fallback;
+  }
+  return normalized as T;
+}
+
+function parseOptionalStringArray(
+  values: Record<string, unknown>,
+  key: string,
+  sourcePath: string,
+  issues: AgentValidationIssue[]
+): string[] {
+  const value = values[key];
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    issues.push({
+      sourcePath,
+      message: `Field interface.${key} must be a string array when present.`
+    });
+    return [];
+  }
+  return value
+    .map((entry) => String(entry).trim().toLowerCase())
+    .filter((entry) => entry.length > 0)
+    .filter((entry, index, collection) => collection.indexOf(entry) === index);
 }
 
 function findDuplicateIds(ids: string[]): Set<string> {

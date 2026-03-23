@@ -101,6 +101,35 @@ describe("agentRegistry", () => {
     expect(snapshot.agents[0].defaultPrompt).toContain("Keep the workflow clean.");
   });
 
+  it("loads optional routing and response fields when present", () => {
+    const root = mkRepo();
+    writeYaml(
+      root,
+      "logics-flow-manager",
+      [
+        "interface:",
+        "  display_name: \"Flow Manager\"",
+        "  short_description: \"Manage workflow docs\"",
+        "  default_prompt: \"Use $logics-flow-manager\"",
+        "  preferred_context_profile: \"tiny\"",
+        "  allowed_doc_stages:",
+        "    - request",
+        "    - backlog",
+        "  blocked_doc_stages:",
+        "    - spec",
+        "  response_style: \"balanced\""
+      ].join("\n")
+    );
+
+    const snapshot = loadAgentRegistry(root);
+    expect(snapshot.issues).toHaveLength(0);
+    expect(snapshot.agents).toHaveLength(1);
+    expect(snapshot.agents[0].preferredContextProfile).toBe("tiny");
+    expect(snapshot.agents[0].allowedDocStages).toEqual(["request", "backlog"]);
+    expect(snapshot.agents[0].blockedDocStages).toEqual(["spec"]);
+    expect(snapshot.agents[0].responseStyle).toBe("balanced");
+  });
+
   it("flags duplicate derived invocation ids", () => {
     const root = mkRepo();
     writeYaml(

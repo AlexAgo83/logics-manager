@@ -260,6 +260,8 @@ export function pushData(
     root?: string;
     canResetProjectRoot?: boolean;
     canBootstrapLogics?: boolean;
+    changedPaths?: string[];
+    activeAgent?: Record<string, unknown> | null;
     items: Array<Record<string, unknown>>;
   }
 ) {

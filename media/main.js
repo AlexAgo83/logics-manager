@@ -66,6 +66,9 @@
 
   let items = [];
   let selectedId = null;
+  let changedPaths = [];
+  let activeAgent = null;
+  let lastInjectedContext = null;
   let hideCompleted = defaultFilterState.hideCompleted;
   let hideProcessedRequests = defaultFilterState.hideProcessedRequests;
   let hideSpec = defaultFilterState.hideSpec;
@@ -273,6 +276,10 @@
           compactListQuery,
           getItems: () => items,
           getSelectedId: () => selectedId,
+          getActiveWorkspaceRoot: () => activeWorkspaceRoot,
+          getChangedPaths: () => changedPaths,
+          getActiveAgent: () => activeAgent,
+          getLastInjectedContext: () => lastInjectedContext,
           getHideCompleted: () => hideCompleted,
           getHideProcessedRequests: () => hideProcessedRequests,
           getHideSpec: () => hideSpec,
@@ -735,6 +742,10 @@
         hostApi,
         getItems: () => items,
         getSelectedId: () => selectedId,
+        getActiveWorkspaceRoot: () => activeWorkspaceRoot,
+        getChangedPaths: () => changedPaths,
+        getActiveAgent: () => activeAgent,
+        getLastInjectedContext: () => lastInjectedContext,
         getCollapsedDetailSections: () => collapsedDetailSections,
         persistState,
         getStageLabel,
@@ -747,6 +758,9 @@
         buildDependencyMap,
         findManagedItemByReference,
         formatDate,
+        setLastInjectedContext(nextValue) {
+          lastInjectedContext = nextValue;
+        },
         selectItem(nextId) {
           selectedId = nextId;
           render();
@@ -828,6 +842,8 @@
       if (payload && typeof payload.canBootstrapLogics === "boolean") {
         canBootstrapLogics = payload.canBootstrapLogics;
       }
+      changedPaths = Array.isArray(payload && payload.changedPaths) ? payload.changedPaths : [];
+      activeAgent = payload && payload.activeAgent ? payload.activeAgent : null;
       if (payload && payload.error) {
         debugLog("host:data:error", { error: payload.error });
         board.innerHTML = `<div class="state-message">${payload.error}</div>`;

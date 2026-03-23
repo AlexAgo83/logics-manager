@@ -1,9 +1,9 @@
 ## task_092_orchestration_delivery_for_req_080_token_efficient_codex_context_shaping - Orchestration delivery for req_080 token-efficient Codex context shaping
 > From version: 1.11.1
-> Status: Ready
+> Status: In progress
 > Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Confidence: 95%
+> Progress: 85%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -46,13 +46,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm portfolio scope, dependencies, and linked request acceptance criteria across items `103` to `107`.
-- [ ] 2. Wave 1: implement the shared context-budget and trimming contract from `item_103`, plus the summary-first document building blocks from `item_104`.
-- [ ] 3. Wave 2: implement agent-aware routing through `item_105` and delta-oriented context-pack selection through `item_106`.
-- [ ] 4. Wave 3: implement token-hygiene detection and operator guidance through `item_107`, then align the full portfolio behavior end to end.
-- [ ] 5. Add or update validation, documentation, and operator-facing surfaces so each wave leaves a coherent and inspectable checkpoint.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm portfolio scope, dependencies, and linked request acceptance criteria across items `103` to `107`.
+- [x] 2. Wave 1: implement the shared context-budget and trimming contract from `item_103`, plus the summary-first document building blocks from `item_104`.
+- [x] 3. Wave 2: implement agent-aware routing through `item_105` and delta-oriented context-pack selection through `item_106`.
+- [x] 4. Wave 3: implement token-hygiene detection and operator guidance through `item_107`, then align the full portfolio behavior end to end.
+- [x] 5. Add or update validation, documentation, and operator-facing surfaces so each wave leaves a coherent and inspectable checkpoint.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -109,3 +109,12 @@ flowchart LR
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Implementation wave landed on 2026-03-23.
+- Added compact doc metadata extraction in [`src/logicsIndexer.ts`](src/logicsIndexer.ts) so Codex handoffs can use summary points, acceptance criteria, and deterministic doc size signals without reparsing the repo in the webview.
+- Extended [`src/agentRegistry.ts`](src/agentRegistry.ts) with optional routing fields for preferred context profile, allowed or blocked doc stages, and response style, then surfaced the active-agent routing payload from [`src/logicsViewProvider.ts`](src/logicsViewProvider.ts).
+- Replaced the previous single-shape context pack with multi-mode handoff assembly in [`media/logicsModel.js`](media/logicsModel.js), covering explicit profiles, deterministic trimming, summary-first packs, diff-first packs from changed paths, stale-context exclusion, and concise response contracts.
+- Updated [`media/main.js`](media/main.js), [`media/webviewSelectors.js`](media/webviewSelectors.js), [`media/renderDetails.js`](media/renderDetails.js), and [`media/hostApi.js`](media/hostApi.js) so the details panel now exposes budget visibility, multi-mode previews, active-agent-aware routing, and fresh-thread Codex handoff actions.
+- Added regression coverage in [`tests/agentRegistry.test.ts`](tests/agentRegistry.test.ts), [`tests/logicsViewProvider.test.ts`](tests/logicsViewProvider.test.ts), [`tests/webview.harness-details-and-filters.test.ts`](tests/webview.harness-details-and-filters.test.ts), and [`tests/webviewHarnessTestUtils.ts`](tests/webviewHarnessTestUtils.ts).
+- Validation executed:
+  - `npm run lint`
+  - `npm run test`

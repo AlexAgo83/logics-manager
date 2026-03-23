@@ -985,9 +985,11 @@ describe("webview harness filters, details, and docs", () => {
     expect(detailsBody?.textContent).toContain("Blocked");
     expect(detailsBody?.textContent).toContain("Context pack for Codex");
     expect(detailsBody?.textContent).toContain("Dependency map");
+    expect(detailsBody?.textContent).toContain("Mode standard");
+    expect(detailsBody?.textContent).toContain("Characters");
 
     const previewButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
-      button.textContent?.includes("Preview pack")
+      button.textContent?.includes("Preview standard")
     );
     previewButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
@@ -1010,6 +1012,56 @@ describe("webview harness filters, details, and docs", () => {
     taskNode?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(document.getElementById("details-title")?.textContent).toContain("Context task");
+  });
+
+  it("supports summary-only and fresh-thread Codex handoffs", () => {
+    const { dom, postedMessages } = bootstrapWebview({
+      harness: false,
+      initialState: { collapsedDetailSections: [] }
+    });
+
+    const item = {
+      ...baseItem,
+      id: "task_011_summary_only",
+      title: "Summary only task",
+      stage: "task",
+      relPath: "logics/tasks/task_011_summary_only.md",
+      path: "/workspace/mock/logics/tasks/task_011_summary_only.md",
+      indicators: { Status: "Ready" },
+      summaryPoints: ["Keep the first handoff compact.", "Escalate only when extra context is needed."],
+      acceptanceCriteria: ["A summary-only mode exists.", "A fresh-thread launch remains available."]
+    };
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: item.id,
+      changedPaths: ["src/logicsViewProvider.ts", "media/renderDetails.js"],
+      items: [item]
+    });
+
+    const detailsBody = dom.window.document.getElementById("details-body");
+    const previewButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
+      button.textContent?.includes("Preview summary-only")
+    );
+    previewButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(detailsBody?.textContent).toContain("Mode summary-only");
+    expect(detailsBody?.textContent).toContain("Summary");
+
+    const freshThreadButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
+      button.textContent?.includes("Inject in fresh thread")
+    );
+    freshThreadButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(
+      postedMessages.some(
+        (message) =>
+          message.type === "inject-prompt" &&
+          message.options &&
+          message.options.preferNewThread === true &&
+          String(message.prompt || "").includes("# Codex Context Pack")
+      )
+    ).toBe(true);
   });
 
   it("shows a primary attention reason first and wires remediation actions when available", () => {

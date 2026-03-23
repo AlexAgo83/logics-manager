@@ -180,6 +180,10 @@ describe("LogicsViewProvider", () => {
       isCanonical: true,
       reason: "Canonical cdx-logics-kit submodule detected."
     });
+    mocks.runGitWithOutput.mockResolvedValue({
+      stdout: "",
+      stderr: ""
+    });
     mocks.createTerminal.mockReturnValue({
       show: vi.fn(),
       sendText: vi.fn()

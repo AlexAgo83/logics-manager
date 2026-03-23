@@ -501,14 +501,271 @@
     return [`## ${title}`, ...safeItems.map((item) => `- ${describeContextItem(item)}`)];
   }
 
-  function buildContextPack(item, allItems) {
+  function normalizeContextMode(value) {
+    const normalized = String(value || "standard").trim().toLowerCase();
+    if (normalized === "summary-only" || normalized === "diff-first") {
+      return normalized;
+    }
+    return "standard";
+  }
+
+  function normalizeContextProfile(value) {
+    const normalized = String(value || "normal").trim().toLowerCase();
+    if (normalized === "tiny" || normalized === "deep") {
+      return normalized;
+    }
+    return "normal";
+  }
+
+  function normalizeResponseStyle(value) {
+    const normalized = String(value || "concise").trim().toLowerCase();
+    if (normalized === "balanced" || normalized === "detailed") {
+      return normalized;
+    }
+    return "concise";
+  }
+
+  function inferTaskKind(item, mode) {
+    if (mode === "diff-first") {
+      return item && item.stage === "spec" ? "review" : "implementation";
+    }
+    if (!item || item.stage === "request") {
+      return "request";
+    }
+    if (item.stage === "backlog" || item.stage === "task") {
+      return "implementation";
+    }
+    if (item.stage === "spec") {
+      return "spec";
+    }
+    return "review";
+  }
+
+  function inferDefaultProfile(item, activeAgent, mode, taskKind) {
+    if (activeAgent && activeAgent.preferredContextProfile) {
+      return normalizeContextProfile(activeAgent.preferredContextProfile);
+    }
+    if (mode === "summary-only") {
+      return "tiny";
+    }
+    if (mode === "diff-first") {
+      return "tiny";
+    }
+    if (taskKind === "spec") {
+      return "deep";
+    }
+    if (item && item.stage === "request") {
+      return "normal";
+    }
+    return "normal";
+  }
+
+  function buildProfileLimits(profile, mode) {
+    if (mode === "summary-only") {
+      return { upstream: 1, downstream: 1, linkedWorkflow: 2, companion: 1, specs: 1, summaryPoints: 3, acceptanceCriteria: 3, changedPaths: 6 };
+    }
+    if (mode === "diff-first") {
+      return { upstream: 1, downstream: 2, linkedWorkflow: 2, companion: 1, specs: 1, summaryPoints: 2, acceptanceCriteria: 4, changedPaths: 12 };
+    }
+    if (profile === "tiny") {
+      return { upstream: 1, downstream: 2, linkedWorkflow: 2, companion: 1, specs: 1, summaryPoints: 3, acceptanceCriteria: 3, changedPaths: 6 };
+    }
+    if (profile === "deep") {
+      return { upstream: 3, downstream: 4, linkedWorkflow: 4, companion: 4, specs: 3, summaryPoints: 5, acceptanceCriteria: 6, changedPaths: 16 };
+    }
+    return { upstream: 2, downstream: 3, linkedWorkflow: 3, companion: 3, specs: 2, summaryPoints: 4, acceptanceCriteria: 4, changedPaths: 10 };
+  }
+
+  function isCompleteStatus(item) {
+    const status = String(item && item.indicators && item.indicators.Status ? item.indicators.Status : "").trim().toLowerCase();
+    return status === "done" || status === "archived" || status === "obsolete" || status === "superseded";
+  }
+
+  function isWeaklyLinked(item, currentItem) {
+    if (!item || !currentItem || item.id === currentItem.id) {
+      return false;
+    }
+    if (item.stage === "product" || item.stage === "architecture" || item.stage === "spec") {
+      return true;
+    }
+    return false;
+  }
+
+  function allowDocStage(item, activeAgent) {
+    if (!item || !activeAgent) {
+      return true;
+    }
+    const stage = String(item.stage || "").trim().toLowerCase();
+    if (Array.isArray(activeAgent.blockedDocStages) && activeAgent.blockedDocStages.includes(stage)) {
+      return false;
+    }
+    if (Array.isArray(activeAgent.allowedDocStages) && activeAgent.allowedDocStages.length > 0) {
+      return activeAgent.allowedDocStages.includes(stage);
+    }
+    return true;
+  }
+
+  function filterContextItems(items, currentItem, activeAgent) {
+    const included = [];
+    let staleExcluded = 0;
+    let blockedExcluded = 0;
+    (items || []).forEach((candidate) => {
+      if (!candidate) {
+        return;
+      }
+      if (!allowDocStage(candidate, activeAgent)) {
+        blockedExcluded += 1;
+        return;
+      }
+      if (candidate.id !== currentItem.id && isCompleteStatus(candidate) && isWeaklyLinked(candidate, currentItem)) {
+        staleExcluded += 1;
+        return;
+      }
+      included.push(candidate);
+    });
+    return { included, staleExcluded, blockedExcluded };
+  }
+
+  function sliceContextItems(items, limit) {
+    return (items || []).filter(Boolean).slice(0, Math.max(0, limit || 0));
+  }
+
+  function getSummaryPoints(item, limit) {
+    const summaryPoints = Array.isArray(item && item.summaryPoints) ? item.summaryPoints : [];
+    return summaryPoints.filter(Boolean).slice(0, Math.max(0, limit || 0));
+  }
+
+  function getAcceptanceCriteria(item, limit) {
+    const criteria = Array.isArray(item && item.acceptanceCriteria) ? item.acceptanceCriteria : [];
+    return criteria.filter(Boolean).slice(0, Math.max(0, limit || 0));
+  }
+
+  function buildResponseContract(taskKind, responseStyle) {
+    const style = normalizeResponseStyle(responseStyle);
+    if (taskKind === "review") {
+      return style === "detailed"
+        ? "Review mode: findings first, then open questions, then a brief change summary."
+        : "Review mode: findings first. Keep the response terse unless deeper analysis is requested.";
+    }
+    if (taskKind === "implementation") {
+      return style === "detailed"
+        ? "Implementation mode: give the smallest complete fix, then a short verification note."
+        : "Implementation mode: respond concisely with the concrete change and a brief verification note.";
+    }
+    if (taskKind === "spec") {
+      return style === "concise"
+        ? "Spec mode: keep the structure clear and compact, and avoid unnecessary prose."
+        : "Spec mode: stay structured and avoid repeating context already present in the Logics docs.";
+    }
+    return style === "detailed"
+      ? "Default mode: stay grounded in the provided context and avoid repeating obvious repository history."
+      : "Default mode: respond briefly unless more depth is explicitly requested.";
+  }
+
+  function estimateTokens(charCount) {
+    return Math.max(1, Math.ceil(Number(charCount || 0) / 4));
+  }
+
+  function classifyBudget(tokenEstimate) {
+    if (tokenEstimate <= 180) {
+      return "Lean";
+    }
+    if (tokenEstimate <= 420) {
+      return "Medium";
+    }
+    return "Heavy";
+  }
+
+  function normalizeChangedPaths(paths, limit) {
+    return (Array.isArray(paths) ? paths : [])
+      .map((entry) => String(entry || "").replace(/\\/g, "/").trim())
+      .filter((entry, index, collection) => entry.length > 0 && collection.indexOf(entry) === index)
+      .slice(0, Math.max(0, limit || 0));
+  }
+
+  function getRelevantChangedPaths(item, insights, changedPaths, limit) {
+    const relatedPathHints = new Set([
+      String(item && item.relPath ? item.relPath : "").replace(/\\/g, "/"),
+      ...((insights.upstream || []).map((entry) => String(entry.relPath || "").replace(/\\/g, "/"))),
+      ...((insights.downstream || []).map((entry) => String(entry.relPath || "").replace(/\\/g, "/"))),
+      ...((insights.linkedWorkflow || []).map((entry) => String(entry.relPath || "").replace(/\\/g, "/"))),
+      ...((insights.supportingDocs || []).map((entry) => String(entry.relPath || "").replace(/\\/g, "/")))
+    ]);
+
+    const matching = normalizeChangedPaths(changedPaths, 80).filter((entry) => {
+      if (relatedPathHints.has(entry)) {
+        return true;
+      }
+      return Array.from(relatedPathHints).some((hint) => hint && entry.endsWith(pathBasename(hint)));
+    });
+
+    const fallback = matching.length > 0 ? matching : normalizeChangedPaths(changedPaths, limit);
+    return fallback.slice(0, Math.max(0, limit || 0));
+  }
+
+  function pathBasename(value) {
+    const normalized = String(value || "").replace(/\\/g, "/");
+    const segments = normalized.split("/");
+    return segments[segments.length - 1] || normalized;
+  }
+
+  function buildSessionHint(item, mode, taskKind, currentRoot, lastInjectedContext) {
+    if (!lastInjectedContext) {
+      return null;
+    }
+    if (lastInjectedContext.root && currentRoot && lastInjectedContext.root !== currentRoot) {
+      return "Fresh session recommended: the active repository root changed since the last Codex handoff.";
+    }
+    if (lastInjectedContext.itemId && lastInjectedContext.itemId !== item.id) {
+      if (lastInjectedContext.taskKind && lastInjectedContext.taskKind !== taskKind) {
+        return "Fresh session recommended: the active task type changed since the last Codex handoff.";
+      }
+      return "Fresh session recommended: you switched to a different Logics item since the last Codex handoff.";
+    }
+    if (lastInjectedContext.mode && lastInjectedContext.mode !== mode) {
+      return "Fresh session recommended: the handoff mode changed materially since the last Codex handoff.";
+    }
+    return null;
+  }
+
+  function buildContextPack(item, allItems, options) {
+    const safeOptions = options || {};
+    const activeAgent = safeOptions.activeAgent || null;
+    const mode = normalizeContextMode(safeOptions.mode);
+    const taskKind = inferTaskKind(item, mode);
+    const profile = normalizeContextProfile(safeOptions.profile || inferDefaultProfile(item, activeAgent, mode, taskKind));
+    const limits = buildProfileLimits(profile, mode);
     const insights = getRelationshipInsights(item, allItems);
     const attentionReasons = getAttentionReasons(item, allItems).slice(0, 3);
-    const upstream = insights.upstream.slice(0, 2);
-    const downstream = insights.downstream.slice(0, 3);
-    const linkedWorkflow = insights.linkedWorkflow.slice(0, 3);
-    const companionDocs = insights.companionDocs.slice(0, 3);
-    const specs = insights.specs.slice(0, 3);
+    const upstreamState = filterContextItems(insights.upstream, item, activeAgent);
+    const downstreamState = filterContextItems(insights.downstream, item, activeAgent);
+    const linkedWorkflowState = filterContextItems(insights.linkedWorkflow, item, activeAgent);
+    const companionState = filterContextItems(insights.companionDocs, item, activeAgent);
+    const specsState = filterContextItems(insights.specs, item, activeAgent);
+    const upstream = sliceContextItems(upstreamState.included, limits.upstream);
+    const downstream = sliceContextItems(downstreamState.included, limits.downstream);
+    const linkedWorkflow = sliceContextItems(linkedWorkflowState.included, limits.linkedWorkflow);
+    const companionDocs = sliceContextItems(companionState.included, limits.companion);
+    const specs = sliceContextItems(specsState.included, limits.specs);
+    const summaryPoints = getSummaryPoints(item, limits.summaryPoints);
+    const acceptanceCriteria = getAcceptanceCriteria(item, limits.acceptanceCriteria);
+    const changedPaths = getRelevantChangedPaths(item, insights, safeOptions.changedPaths, limits.changedPaths);
+    const responseContract = buildResponseContract(taskKind, activeAgent && activeAgent.responseStyle);
+    const sessionHint = buildSessionHint(item, mode, taskKind, safeOptions.currentRoot, safeOptions.lastInjectedContext);
+    const profileLabel = profile.toUpperCase();
+    const modeLabel = mode === "summary-only" ? "SUMMARY" : mode === "diff-first" ? "DIFF-FIRST" : "STANDARD";
+    const excludedStaleCount =
+      upstreamState.staleExcluded +
+      downstreamState.staleExcluded +
+      linkedWorkflowState.staleExcluded +
+      companionState.staleExcluded +
+      specsState.staleExcluded;
+    const blockedDocCount =
+      upstreamState.blockedExcluded +
+      downstreamState.blockedExcluded +
+      linkedWorkflowState.blockedExcluded +
+      companionState.blockedExcluded +
+      specsState.blockedExcluded;
 
     const openQuestions =
       attentionReasons.length > 0
@@ -518,23 +775,51 @@
     const lines = [
       "# Codex Context Pack",
       "",
+      `- Mode: ${modeLabel}`,
+      `- Profile: ${profileLabel}`,
+      `- Task type: ${taskKind}`,
+      activeAgent ? `- Active agent: ${activeAgent.displayName} (${activeAgent.id})` : "- Active agent: (none selected)",
+      "",
       "## Current item",
       `- ${describeContextItem(item)}`
     ];
 
-    const contextSections = getWorkflowStageRank(item.stage) >= 0
-      ? [
-          renderContextSection("Upstream", upstream),
-          renderContextSection("Downstream", downstream)
-        ]
-      : [renderContextSection("Linked workflow", linkedWorkflow)];
+    if (summaryPoints.length > 0) {
+      lines.push("", "## Summary", ...summaryPoints.map((entry) => `- ${entry}`));
+    }
+
+    if (acceptanceCriteria.length > 0) {
+      lines.push("", "## Acceptance criteria", ...acceptanceCriteria.map((entry) => `- ${entry}`));
+    }
+
+    if (changedPaths.length > 0) {
+      lines.push("", mode === "diff-first" ? "## Changed files first" : "## Recent changed files", ...changedPaths.map((entry) => `- ${entry}`));
+    }
+
+    const contextSections =
+      mode === "summary-only"
+        ? []
+        : getWorkflowStageRank(item.stage) >= 0
+          ? [
+              renderContextSection("Upstream", upstream),
+              renderContextSection("Downstream", downstream)
+            ]
+          : [renderContextSection("Linked workflow", linkedWorkflow)];
 
     contextSections.forEach((section) => {
       lines.push("", ...section);
     });
-    lines.push("", ...renderContextSection("Companion docs", companionDocs));
-    lines.push("", ...renderContextSection("Specs", specs));
+
+    if (mode !== "summary-only") {
+      lines.push("", ...renderContextSection("Companion docs", companionDocs));
+      lines.push("", ...renderContextSection("Specs", specs));
+    }
     lines.push("", "## Open questions", ...openQuestions.map((entry) => `- ${entry}`));
+    lines.push("", "## Response contract", `- ${responseContract}`);
+
+    if (sessionHint) {
+      lines.push("", "## Session hygiene", `- ${sessionHint}`);
+    }
 
     if (attentionReasons.length > 0) {
       lines.push(
@@ -547,22 +832,45 @@
       );
     }
 
+    const text = lines.join("\n");
+    const relatedDocCount = 1 + upstream.length + downstream.length + linkedWorkflow.length + companionDocs.length + specs.length;
+    const lineCount = text.split("\n").length;
+    const charCount = text.length;
+    const tokenEstimate = estimateTokens(charCount);
+
     return {
-      text: lines.join("\n"),
+      text,
       summary: {
+        mode,
+        profile,
+        taskKind,
         upstreamCount: upstream.length,
         downstreamCount: downstream.length,
         linkedWorkflowCount: linkedWorkflow.length,
         companionCount: companionDocs.length,
         specCount: specs.length,
+        changedPathCount: changedPaths.length,
+        summaryPointCount: summaryPoints.length,
+        acceptanceCriteriaCount: acceptanceCriteria.length,
+        docCount: relatedDocCount,
+        lineCount,
+        charCount,
+        tokenEstimate,
+        budgetLabel: classifyBudget(tokenEstimate),
+        excludedStaleCount,
+        blockedDocCount,
+        responseContract,
+        sessionHint,
         trimmed:
-          insights.upstream.length > upstream.length ||
-          insights.downstream.length > downstream.length ||
-          insights.linkedWorkflow.length > linkedWorkflow.length ||
-          insights.companionDocs.length > companionDocs.length ||
-          insights.specs.length > specs.length
+          upstreamState.included.length > upstream.length ||
+          downstreamState.included.length > downstream.length ||
+          linkedWorkflowState.included.length > linkedWorkflow.length ||
+          companionState.included.length > companionDocs.length ||
+          specsState.included.length > specs.length
       },
-      attentionReasons
+      attentionReasons,
+      sessionHygiene: sessionHint,
+      relatedChangedPaths: changedPaths
     };
   }
 

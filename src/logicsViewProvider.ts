@@ -125,7 +125,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.selectAgentFromPalette();
           break;
         case "inject-prompt":
-          await this.injectPromptFromWebview(message.prompt);
+          await this.injectPromptFromWebview(message.prompt, message.options);
           break;
         case "bootstrap-logics":
           await this.bootstrapFromTools();
@@ -197,13 +197,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     this.items = indexLogics(root);
     await this.refreshAgents("silent", root);
+    const changedPaths = await this.getGitChangedPaths(root);
     this.postData({
       items: this.items,
       root,
       selectedId,
       canBootstrapLogics,
       canResetProjectRoot,
-      activeAgentId: this.activeAgentId ?? undefined
+      activeAgentId: this.activeAgentId ?? undefined,
+      activeAgent: this.getActiveAgentPayload(),
+      changedPaths
     });
     await this.maybeOfferBootstrap(root);
     await this.maybeOfferCodexStartupRemediation(root);
@@ -664,6 +667,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     options?: {
       codexCopiedMessage?: string;
       fallbackCopiedMessage?: string;
+      preferNewThread?: boolean;
     }
   ): Promise<void> {
     const normalizedPrompt = prompt.trim();
@@ -682,13 +686,17 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
       if (hasCodexSidebarCommand) {
         await vscode.commands.executeCommand("chatgpt.openSidebar");
-        await vscode.env.clipboard.writeText(normalizedPrompt);
         if (hasCodexNewChatCommand) {
+          if (options?.preferNewThread) {
+            await vscode.commands.executeCommand("chatgpt.newChat");
+          }
+          await vscode.env.clipboard.writeText(normalizedPrompt);
           const action = await vscode.window.showInformationMessage(codexCopiedMessage, "New Codex Thread");
           if (action === "New Codex Thread") {
             await vscode.commands.executeCommand("chatgpt.newChat");
           }
         } else {
+          await vscode.env.clipboard.writeText(normalizedPrompt);
           void vscode.window.showInformationMessage(codexCopiedMessage);
         }
         return;
@@ -718,11 +726,55 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private async injectPromptFromWebview(prompt: string): Promise<void> {
+  private async injectPromptFromWebview(
+    prompt: string,
+    options?: {
+      preferNewThread?: boolean;
+    }
+  ): Promise<void> {
     await this.injectPromptIntoCodexChat(prompt, {
       codexCopiedMessage: "Codex opened. Context pack copied to clipboard. Paste it in the Codex composer.",
-      fallbackCopiedMessage: "Could not inject the context pack into Codex chat"
+      fallbackCopiedMessage: "Could not inject the context pack into Codex chat",
+      preferNewThread: options?.preferNewThread
     });
+  }
+
+  private getActiveAgentPayload():
+    | {
+        id: string;
+        displayName: string;
+        preferredContextProfile: "tiny" | "normal" | "deep";
+        allowedDocStages: string[];
+        blockedDocStages: string[];
+        responseStyle: "concise" | "balanced" | "detailed";
+      }
+    | undefined {
+    if (!this.activeAgentId) {
+      return undefined;
+    }
+    const agent = this.agentRegistry.agents.find((entry) => entry.id === this.activeAgentId);
+    if (!agent) {
+      return undefined;
+    }
+    return {
+      id: agent.id,
+      displayName: agent.displayName,
+      preferredContextProfile: agent.preferredContextProfile,
+      allowedDocStages: [...agent.allowedDocStages],
+      blockedDocStages: [...agent.blockedDocStages],
+      responseStyle: agent.responseStyle
+    };
+  }
+
+  private async getGitChangedPaths(root: string): Promise<string[]> {
+    const result = await runGitWithOutput(root, ["status", "--short"]);
+    if (result.error) {
+      return [];
+    }
+    return parseGitStatusEntries(result.stdout)
+      .map((entry) => entry.path)
+      .filter((entry, index, collection) => entry.length > 0 && collection.indexOf(entry) === index)
+      .slice(0, 40);
   }
 
   private async maybeOfferBootstrap(root: string): Promise<void> {
@@ -1340,6 +1392,15 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     canBootstrapLogics?: boolean;
     canResetProjectRoot?: boolean;
     activeAgentId?: string;
+    changedPaths?: string[];
+    activeAgent?: {
+      id: string;
+      displayName: string;
+      preferredContextProfile: "tiny" | "normal" | "deep";
+      allowedDocStages: string[];
+      blockedDocStages: string[];
+      responseStyle: "concise" | "balanced" | "detailed";
+    };
   }): void {
     if (!this.view) {
       return;

@@ -1,9 +1,9 @@
 ## task_093_orchestration_delivery_for_req_081_observable_and_lightweight_codex_handoffs - Orchestration delivery for req_081 observable and lightweight Codex handoffs
 > From version: 1.11.1
-> Status: Ready
+> Status: In progress
 > Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Confidence: 95%
+> Progress: 90%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -47,13 +47,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm portfolio scope, dependencies, and linked request acceptance criteria across items `108` to `113`.
-- [ ] 2. Wave 1: implement pre-injection measurement through `item_108` and the summary-only first-pass flow through `item_109`.
-- [ ] 3. Wave 2: implement diff-first code handoffs through `item_110` and stale-context exclusion or deprioritization through `item_111`.
-- [ ] 4. Wave 3: implement session-hygiene guidance through `item_112` plus task-type default budgets and concise response contracts through `item_113`.
-- [ ] 5. Add or update documentation, operator-facing surfaces, and validation so each wave leaves a coherent lightweight-handoff checkpoint.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm portfolio scope, dependencies, and linked request acceptance criteria across items `108` to `113`.
+- [x] 2. Wave 1: implement pre-injection measurement through `item_108` and the summary-only first-pass flow through `item_109`.
+- [x] 3. Wave 2: implement diff-first code handoffs through `item_110` and stale-context exclusion or deprioritization through `item_111`.
+- [x] 4. Wave 3: implement session-hygiene guidance through `item_112` plus task-type default budgets and concise response contracts through `item_113`.
+- [x] 5. Add or update documentation, operator-facing surfaces, and validation so each wave leaves a coherent lightweight-handoff checkpoint.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -113,3 +113,12 @@ flowchart LR
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Implementation wave landed on 2026-03-23.
+- Added visible pre-injection budget signals in the `Context pack for Codex` panel so operators can inspect mode, profile, doc count, lines, characters, estimated tokens, changed-path count, and excluded stale context before injecting.
+- Added explicit `Preview summary-only` and `Preview diff-first` flows in [`media/renderDetails.js`](media/renderDetails.js), backed by mode-aware pack generation in [`media/logicsModel.js`](media/logicsModel.js).
+- Added fresh-session guidance and a direct `Inject in fresh thread` action so topic changes and handoff-mode changes can steer operators toward a new Codex thread without rebuilding the pack manually.
+- Added task-type-aware response contracts and default lightweight routing so implementation, review, request, and spec-shaped handoffs no longer all look the same.
+- Extended harness coverage so the details panel regression tests assert the new budget copy, summary-only preview, and fresh-thread handoff payload.
+- Validation executed:
+  - `npm run lint`
+  - `npm run test`

@@ -42,6 +42,10 @@
       hostApi,
       getItems,
       getSelectedId,
+      getActiveWorkspaceRoot,
+      getChangedPaths,
+      getActiveAgent,
+      getLastInjectedContext,
       getCollapsedDetailSections,
       persistState,
       getStageLabel,
@@ -54,9 +58,10 @@
       buildDependencyMap,
       findManagedItemByReference,
       formatDate,
+      setLastInjectedContext,
       selectItem
     } = options;
-    let contextPackPreviewId = null;
+    let contextPackPreview = { id: null, mode: "standard" };
 
     function createSectionTitle(label, key) {
       const title = document.createElement("button");
@@ -392,7 +397,9 @@
         detailsBody.appendChild(attentionSection);
       }
 
-      const contextPack = typeof buildContextPack === "function" ? buildContextPack(item) : null;
+        const activeWorkspaceRoot = typeof getActiveWorkspaceRoot === "function" ? getActiveWorkspaceRoot() : null;
+        const previewMode = contextPackPreview.id === item.id ? contextPackPreview.mode : "standard";
+        const contextPack = typeof buildContextPack === "function" ? buildContextPack(item, { mode: previewMode }) : null;
       if (contextPack) {
         const contextSection = document.createElement("div");
         contextSection.className = "details__section";
@@ -403,11 +410,24 @@
 
         const summary = document.createElement("div");
         summary.className = "details__reason-description";
-        summary.textContent =
-          isPrimaryFlowStage(item.stage)
-            ? `${contextPack.summary.upstreamCount} upstream, ${contextPack.summary.downstreamCount} downstream, ${contextPack.summary.companionCount} companion docs, ${contextPack.summary.specCount} specs.`
-            : `${contextPack.summary.linkedWorkflowCount} linked workflow items, ${contextPack.summary.companionCount} companion docs, ${contextPack.summary.specCount} specs.`;
+        summary.textContent = `Mode ${String(contextPack.summary.mode || "standard")} • Profile ${String(contextPack.summary.profile || "normal")} • ${contextPack.summary.docCount} docs • ~${contextPack.summary.tokenEstimate} tokens (${contextPack.summary.budgetLabel}).`;
         contextContent.appendChild(summary);
+
+        const estimateList = document.createElement("div");
+        estimateList.className = "details__indicators";
+        estimateList.appendChild(createIndicatorRow("Task type", contextPack.summary.taskKind || "default"));
+        estimateList.appendChild(createIndicatorRow("Response", contextPack.summary.responseContract || "Keep the answer concise."));
+        estimateList.appendChild(createIndicatorRow("Docs", String(contextPack.summary.docCount || 0)));
+        estimateList.appendChild(createIndicatorRow("Lines", String(contextPack.summary.lineCount || 0)));
+        estimateList.appendChild(createIndicatorRow("Characters", String(contextPack.summary.charCount || 0)));
+        estimateList.appendChild(createIndicatorRow("Changed paths", String(contextPack.summary.changedPathCount || 0)));
+        if (contextPack.summary.excludedStaleCount) {
+          estimateList.appendChild(createIndicatorRow("Stale excluded", String(contextPack.summary.excludedStaleCount)));
+        }
+        if (contextPack.summary.blockedDocCount) {
+          estimateList.appendChild(createIndicatorRow("Agent filtered", String(contextPack.summary.blockedDocCount)));
+        }
+        contextContent.appendChild(estimateList);
 
         if (contextPack.summary.trimmed) {
           const trimmed = document.createElement("div");
@@ -416,28 +436,77 @@
           contextContent.appendChild(trimmed);
         }
 
+        if (contextPack.sessionHygiene) {
+          const hygiene = document.createElement("div");
+          hygiene.className = "details__reason-remediation";
+          hygiene.textContent = contextPack.sessionHygiene;
+          contextContent.appendChild(hygiene);
+        }
+
         const previewToolbar = document.createElement("div");
         previewToolbar.className = "details__pack-toolbar";
-        previewToolbar.appendChild(
-          createInlineCta(
-            contextPackPreviewId === item.id ? "Hide preview" : "Preview pack",
-            () => {
-              contextPackPreviewId = contextPackPreviewId === item.id ? null : item.id;
-              renderDetails();
-            },
-            "details__inline-cta--primary"
-          )
-        );
+        const previewActions = [
+          { label: "Preview standard", mode: "standard" },
+          { label: "Preview summary-only", mode: "summary-only" }
+        ];
+        const changedPaths = typeof getChangedPaths === "function" ? getChangedPaths() : [];
+        if (Array.isArray(changedPaths) && changedPaths.length > 0) {
+          previewActions.push({ label: "Preview diff-first", mode: "diff-first" });
+        }
+        previewActions.forEach((action) => {
+          const isActive = contextPackPreview.id === item.id && contextPackPreview.mode === action.mode;
+          previewToolbar.appendChild(
+            createInlineCta(
+              isActive ? `Hide ${action.mode}` : action.label,
+              () => {
+                contextPackPreview = isActive ? { id: null, mode: "standard" } : { id: item.id, mode: action.mode };
+                renderDetails();
+              },
+              isActive ? "details__inline-cta--primary" : ""
+            )
+          );
+        });
         contextContent.appendChild(previewToolbar);
 
-        if (contextPackPreviewId === item.id) {
+        if (contextPackPreview.id === item.id) {
           const preview = document.createElement("pre");
           preview.className = "details__pack-preview";
           preview.textContent = contextPack.text;
           contextContent.appendChild(preview);
-          contextContent.appendChild(
-            createInlineCta("Inject into Codex", () => hostApi.injectPrompt(contextPack.text), "details__inline-cta--primary")
+
+          const injectToolbar = document.createElement("div");
+          injectToolbar.className = "details__pack-toolbar";
+          injectToolbar.appendChild(
+            createInlineCta(
+              "Inject into Codex",
+              () => {
+                if (typeof setLastInjectedContext === "function") {
+                  setLastInjectedContext({
+                    itemId: item.id,
+                    mode: contextPack.summary.mode,
+                    taskKind: contextPack.summary.taskKind,
+                    root: activeWorkspaceRoot
+                  });
+                }
+                hostApi.injectPrompt(contextPack.text);
+              },
+              "details__inline-cta--primary"
+            )
           );
+          injectToolbar.appendChild(
+            createInlineCta("Inject in fresh thread", () => {
+              if (typeof setLastInjectedContext === "function") {
+                  setLastInjectedContext({
+                    itemId: item.id,
+                    mode: contextPack.summary.mode,
+                    taskKind: contextPack.summary.taskKind,
+                    root: activeWorkspaceRoot
+                  });
+                }
+                hostApi.injectPrompt(contextPack.text, { preferNewThread: true });
+            })
+          );
+          contextContent.appendChild(injectToolbar);
         }
 
         contextSection.appendChild(contextHeader.header);

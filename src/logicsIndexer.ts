@@ -19,6 +19,10 @@ export interface LogicsItem {
   filename: string;
   updatedAt: string;
   indicators: Record<string, string>;
+  summaryPoints: string[];
+  acceptanceCriteria: string[];
+  lineCount: number;
+  charCount: number;
   isPromoted: boolean;
   references: LogicsReference[];
   usedBy: LogicsUsage[];
@@ -89,6 +93,8 @@ export function indexLogics(root: string): LogicsItem[] {
       const title = parseTitle(lines, entry.name.replace(/\.md$/, ""));
       const indicators = parseIndicators(lines);
       const stat = fs.statSync(fullPath);
+      const summaryPoints = buildSummaryPoints(content, title);
+      const acceptanceCriteria = extractSummaryEntries(content, "Acceptance criteria", 6);
 
       items.push({
         id: entry.name.replace(/\.md$/, ""),
@@ -99,6 +105,10 @@ export function indexLogics(root: string): LogicsItem[] {
         filename: entry.name,
         updatedAt: stat.mtime.toISOString(),
         indicators,
+        summaryPoints,
+        acceptanceCriteria,
+        lineCount: lines.length,
+        charCount: content.length,
         isPromoted: false,
         references,
         usedBy: []
@@ -197,6 +207,80 @@ function extractReferences(content: string): LogicsReference[] {
   }
 
   return refs;
+}
+
+function buildSummaryPoints(content: string, fallbackTitle: string): string[] {
+  const summary = [
+    ...extractSummaryEntries(content, "Needs", 2),
+    ...extractSummaryEntries(content, "Problem", 2),
+    ...extractSummaryEntries(content, "Context", 2),
+    ...extractSummaryEntries(content, "Scope", 2)
+  ];
+  const deduped = dedupeSummaryEntries(summary).slice(0, 4);
+  if (deduped.length > 0) {
+    return deduped;
+  }
+  return [fallbackTitle];
+}
+
+function extractSummaryEntries(content: string, sectionTitle: string, limit: number): string[] {
+  const lines = extractSectionLines(content, sectionTitle);
+  if (lines.length === 0) {
+    return [];
+  }
+  const entries: string[] = [];
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      continue;
+    }
+    if (/^-+\s*$/.test(line) || /^```/.test(line) || /^%%/.test(line)) {
+      continue;
+    }
+    const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+    if (bulletMatch && bulletMatch[1]) {
+      entries.push(normalizeSummaryEntry(bulletMatch[1]));
+    } else if (!line.startsWith("#")) {
+      entries.push(normalizeSummaryEntry(line.replace(/^>\s*/, "")));
+    }
+    if (entries.length >= limit) {
+      break;
+    }
+  }
+  return dedupeSummaryEntries(entries).slice(0, limit);
+}
+
+function extractSectionLines(content: string, sectionTitle: string): string[] {
+  const lines = content.split(/\r?\n/);
+  const expectedHeader = `# ${sectionTitle}`.toLowerCase();
+  const collected: string[] = [];
+  let inSection = false;
+  for (const line of lines) {
+    if (line.trim().toLowerCase() === expectedHeader) {
+      inSection = true;
+      continue;
+    }
+    if (!inSection) {
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      break;
+    }
+    collected.push(line);
+  }
+  return collected;
+}
+
+function normalizeSummaryEntry(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function dedupeSummaryEntries(entries: string[]): string[] {
+  return entries.filter(
+    (entry, index, collection) =>
+      entry.length > 0 &&
+      collection.findIndex((candidate) => candidate.toLowerCase() === entry.toLowerCase()) === index
+  );
 }
 
 function extractBacklogLinks(content: string): string[] {

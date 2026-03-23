@@ -1,9 +1,9 @@
 ## item_118_export_workflow_graphs_and_validate_structured_skill_package_contracts - Export workflow graphs and validate structured skill package contracts
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit governance and automation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -46,9 +46,9 @@ flowchart LR
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Required
+- Architecture framing: Consider
 - Architecture signals: data model and persistence, contracts and integration, runtime and boundaries, state and sync
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture follow-up: Capture an ADR only if the graph and skill validation payloads become a stable external compatibility surface.
 
 # Links
 - Product brief(s): (none yet)
@@ -81,3 +81,4 @@ flowchart LR
 - Derived from request `req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives`.
 - Source file: `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`.
 - Request context seeded into this backlog item from `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`.
+- Task `task_095_orchestration_delivery_for_req_083_kit_governance_migration_and_machine_readable_tooling_primitives` was finished via `logics_flow.py finish task` on 2026-03-24.

@@ -1,9 +1,9 @@
 ## task_095_orchestration_delivery_for_req_083_kit_governance_migration_and_machine_readable_tooling_primitives - Orchestration delivery for req_083 kit governance migration and machine-readable tooling primitives
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -99,12 +99,17 @@ flowchart LR
 - `python3 -m unittest discover -s logics/skills/tests -p "test_*.py" -v`
 - Manual: verify machine-readable outputs and schema migration commands remain stable enough for downstream automation.
 - Manual: verify graph export, skill validation, and governance profiles all consume the same workflow-doc and skill metadata contracts.
+- Finish workflow executed on 2026-03-24.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-03-24.
+- Linked backlog item(s): `item_116_extend_workflow_audit_and_repair_tooling_for_structural_autofix_coverage`, `item_118_export_workflow_graphs_and_validate_structured_skill_package_contracts`, `item_120_define_strict_governance_profiles_and_extract_reusable_kit_document_assembly_apis`, `item_122_add_machine_readable_json_outputs_for_core_flow_manager_commands`, `item_123_introduce_workflow_doc_schema_versioning_and_named_migration_commands`
+- Related request(s): `req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation`, `req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives`

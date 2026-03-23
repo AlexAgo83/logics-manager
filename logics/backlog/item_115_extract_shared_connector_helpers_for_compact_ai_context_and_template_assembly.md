@@ -1,9 +1,9 @@
 ## item_115_extract_shared_connector_helpers_for_compact_ai_context_and_template_assembly - Extract shared connector helpers for compact AI context and template assembly
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: AI workflow and kit maintenance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -43,12 +43,12 @@ flowchart LR
 - AC5 -> Scope: Generated assets and skill-level metadata are audited or normalized so outdated workflow templates and missing capability descriptors do not silently reintroduce token-heavy or stale behavior.. Proof: TODO.
 
 # Decision framing
-- Product framing: Required
-- Product signals: engagement loop, experience scope
-- Product follow-up: Create or link a product brief before implementation moves deeper into delivery.
-- Architecture framing: Required
+- Product framing: Not needed
+- Product signals: (none detected)
+- Product follow-up: No product brief follow-up is expected based on current signals.
+- Architecture framing: Consider
 - Architecture signals: contracts and integration, state and sync
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture follow-up: Capture an ADR only if connector assembly becomes a long-lived public integration surface across the kit.
 
 # Links
 - Product brief(s): (none yet)
@@ -84,3 +84,4 @@ flowchart LR
 - Derived from request `req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation`.
 - Source file: `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`.
 - Request context seeded into this backlog item from `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`.
+- Task `task_094_orchestration_delivery_for_req_082_compact_ai_context_and_reusable_handoff_generation` was finished via `logics_flow.py finish task` on 2026-03-24.

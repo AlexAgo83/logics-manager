@@ -1,6 +1,6 @@
 ## req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives - Add internal Logics kit governance, migration, and machine-readable tooling primitives
 > From version: 1.11.1
-> Status: Draft
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: High

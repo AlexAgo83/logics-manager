@@ -1,9 +1,9 @@
 ## item_126_centralize_logics_kit_conventions_capability_registry_and_machine_readable_release_metadata - Centralize Logics kit conventions capability registry and machine-readable release metadata
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -73,3 +73,4 @@ flowchart LR
 - Derived from request `req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts`.
 - Source file: `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`.
 - Request context seeded into this backlog item from `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`.
+- Task `task_096_orchestration_delivery_for_req_084_diagnostics_safety_and_internal_runtime_contracts` was finished via `logics_flow.py finish task` on 2026-03-24.

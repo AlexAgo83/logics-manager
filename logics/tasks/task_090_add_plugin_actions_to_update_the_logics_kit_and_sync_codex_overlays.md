@@ -1,8 +1,8 @@
 ## task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 97%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
@@ -93,3 +93,5 @@ flowchart LR
 - Added regression coverage for direct remediation from `Logics: Check Environment` and updated the plugin README to explain the new automation path and fallback behavior.
 - Final closure completed on 2026-03-23.
 - Full extension validation passed with TypeScript lint, the full Vitest suite, Logics lint, and the workflow audit after updating the linked request and backlog docs to reflect the delivered remediation path.
+- Follow-up remediation UX completed on 2026-03-23.
+- Added startup-time VS Code notifications that proactively offer `Update Logics Kit` or `Sync Codex Overlay` once per unresolved repository state, matching the existing bootstrap prompt model without spamming repeated refreshes.

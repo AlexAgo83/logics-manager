@@ -322,6 +322,33 @@ describe("LogicsViewProvider", () => {
           syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
           runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
         }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Overlay ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Overlay ready.",
+          issues: [],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
       } as never);
     mocks.showQuickPick.mockImplementationOnce(async (items) =>
       items.find((item: { label: string }) => item.label === "Run: Sync Codex Overlay")
@@ -413,6 +440,95 @@ describe("LogicsViewProvider", () => {
     expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       "Logics kit updated after environment diagnostics. Review and commit the submodule pointer change in your repository when ready."
+    );
+  });
+
+  it("offers a startup notification to update the kit when overlays are unsupported by the current submodule", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Manager missing." }
+      },
+      codexOverlay: {
+        status: "missing-manager",
+        summary: "Overlay manager script is missing from logics/skills. Repair or update the Logics kit before relying on Codex workspace overlays.",
+        issues: ["Overlay manager script is missing."],
+        warnings: [],
+        syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+      }
+    } as never);
+    mocks.showInformationMessage.mockResolvedValue(undefined);
+
+    await provider.refresh();
+    await provider.refresh();
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "This repository already has Logics, but the current kit is too old for Codex overlays. Overlay manager script is missing from logics/skills. Repair or update the Logics kit before relying on Codex workspace overlays.",
+      "Update Logics Kit",
+      "Copy Update Command",
+      "Not now"
+    );
+  });
+
+  it("offers a startup notification to sync the overlay only once per unresolved state", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Repo-local Logics is available, but the Codex workspace overlay has not been materialized yet. Run the overlay sync before terminal Codex sessions should see this repo's skills.",
+        issues: ["Workspace overlay is missing or not initialized."],
+        warnings: [],
+        managerScriptPath: path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py"),
+        syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+      }
+    } as never);
+    mocks.showInformationMessage.mockResolvedValue(undefined);
+
+    await provider.refresh();
+    await provider.refresh();
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Logics is ready in this repository, but the Codex overlay runtime still needs attention. Repo-local Logics is available, but the Codex workspace overlay has not been materialized yet. Run the overlay sync before terminal Codex sessions should see this repo's skills.",
+      "Sync Codex Overlay",
+      "Copy Overlay Sync Command",
+      "Not now"
     );
   });
 });

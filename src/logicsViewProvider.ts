@@ -37,6 +37,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private view?: vscode.WebviewView;
   private items: LogicsItem[] = [];
   private readonly bootstrapPromptedRoots = new Set<string>();
+  private readonly codexRemediationPromptedKeys = new Set<string>();
   private projectRootOverride: string | null;
   private invalidRootNotice?: string;
   private activeAgentId: string | null;
@@ -205,6 +206,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       activeAgentId: this.activeAgentId ?? undefined
     });
     await this.maybeOfferBootstrap(root);
+    await this.maybeOfferCodexStartupRemediation(root);
   }
 
   async openFromPalette(): Promise<void> {
@@ -746,6 +748,83 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     await this.bootstrapLogics(root);
+  }
+
+  private clearCodexRemediationPromptState(root: string): void {
+    const prefix = `${root}::`;
+    for (const key of Array.from(this.codexRemediationPromptedKeys)) {
+      if (key.startsWith(prefix)) {
+        this.codexRemediationPromptedKeys.delete(key);
+      }
+    }
+  }
+
+  private async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const overlay = snapshot.codexOverlay;
+    if (
+      overlay.status === "healthy" ||
+      overlay.status === "warning" ||
+      overlay.status === "unavailable"
+    ) {
+      this.clearCodexRemediationPromptState(root);
+      return;
+    }
+
+    if (overlay.status === "missing-manager") {
+      const key = `${root}::missing-manager`;
+      if (this.codexRemediationPromptedKeys.has(key)) {
+        return;
+      }
+      this.codexRemediationPromptedKeys.add(key);
+      const inspection = inspectLogicsKitSubmodule(root);
+      const actions: string[] = [];
+      if (inspection.exists && inspection.isCanonical) {
+        actions.push("Update Logics Kit");
+      }
+      actions.push("Copy Update Command", "Not now");
+      const choice = await vscode.window.showInformationMessage(
+        `This repository already has Logics, but the current kit is too old for Codex overlays. ${overlay.summary}`,
+        ...actions
+      );
+      if (choice === "Update Logics Kit") {
+        await this.updateLogicsKit(root, "startup remediation");
+        return;
+      }
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return;
+    }
+
+    if (overlay.status === "missing-overlay" || overlay.status === "stale") {
+      const key = `${root}::overlay-sync`;
+      if (this.codexRemediationPromptedKeys.has(key)) {
+        return;
+      }
+      this.codexRemediationPromptedKeys.add(key);
+      const actions: string[] = [];
+      if (snapshot.python.available) {
+        actions.push("Sync Codex Overlay");
+      }
+      if (overlay.syncCommand) {
+        actions.push("Copy Overlay Sync Command");
+      }
+      actions.push("Not now");
+      const choice = await vscode.window.showInformationMessage(
+        `Logics is ready in this repository, but the Codex overlay runtime still needs attention. ${overlay.summary}`,
+        ...actions
+      );
+      if (choice === "Sync Codex Overlay") {
+        await this.syncCodexOverlay(root, "startup remediation");
+        return;
+      }
+      if (choice === "Copy Overlay Sync Command" && overlay.syncCommand) {
+        await vscode.env.clipboard.writeText(overlay.syncCommand);
+        void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
+      }
+    }
   }
 
   private async bootstrapLogics(root: string): Promise<void> {

@@ -200,6 +200,7 @@ Contract:
 - `Sync Codex Overlay` runs the overlay manager from the plugin when the current kit already includes `logics_codex_workspace.py`.
 - `Check Environment` summarizes repository state, Python availability, Git availability, Codex overlay runtime state, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
 - `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing or stale overlay runtime.
+- On load, the extension can proactively propose `Update Logics Kit` or `Sync Codex Overlay` once per unresolved repository state, using the same action-confirmation pattern as bootstrap prompts.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
 - Bootstrap completion messaging now distinguishes repo-local kit readiness from Codex workspace-overlay readiness.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
@@ -235,6 +236,7 @@ Plugin remediation path:
 
 - if the kit is too old for overlays and the repository uses the canonical `logics/skills` submodule, the plugin can run the supported kit update flow directly.
 - if the overlay manager exists but the workspace overlay is missing or stale, the plugin can run the overlay sync directly instead of only copying the terminal command.
+- if either of those states is detected when the plugin loads, VS Code can proactively offer the relevant remediation action instead of waiting for a manual environment check.
 - unsupported or unsafe cases, such as a dirty worktree or a non-canonical kit layout, fall back to explicit manual guidance instead of partial automation.
 
 ## Validation

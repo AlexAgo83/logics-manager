@@ -1,6 +1,6 @@
 ## adr_010_pin_github_actions_to_a_node_24_compatible_baseline - Pin GitHub Actions to a Node 24 compatible baseline
 > Date: 2026-03-23
-> Status: Proposed
+> Status: Accepted
 > Drivers: GitHub runner compatibility, CI stability on Ubuntu and Windows, predictable release automation
 > Related request: `req_079_migrate_github_actions_off_node_20_before_runner_deprecation`
 > Related backlog: `item_102_migrate_github_actions_off_node_20_before_runner_deprecation`
@@ -26,6 +26,7 @@ flowchart LR
 
 # Decision
 - Audit the workflow files that use GitHub-hosted JavaScript actions and move them to maintained versions that explicitly support the post-Node-20 runner contract.
+- Pin the repository workflows to `actions/checkout@v6`, `actions/setup-node@v6`, and `actions/setup-python@v6`, while keeping the repository build toolchain on `node-version: 20` until a separate runtime-upgrade decision is made.
 - Keep the migration small and workflow-focused: update the action versions, keep the existing validation matrix and release gates, and only change maintainer documentation when action behavior or requirements actually shift.
 - Treat Ubuntu and Windows parity as part of the decision, not a follow-up nice-to-have.
 
@@ -38,6 +39,7 @@ This was rejected for now because the current issue is action-runtime compatibil
 # Consequences
 - CI and release maintenance now includes tracking action-runtime compatibility in addition to normal Node and Python toolchain compatibility.
 - The repository should avoid a time-compressed workflow migration when GitHub enforces the Node 24 default.
+- The hosted-action runtime migration is now decoupled from any future decision to move the extension build itself off Node 20.
 - If action major versions or contracts change, documentation and validation scripts may need minor follow-up updates.
 
 # Migration and rollout
@@ -53,4 +55,4 @@ This was rejected for now because the current issue is action-runtime compatibil
 - `.github/workflows/release.yml`
 
 # Follow-up work
-- Implement the workflow action upgrade in `task_091_migrate_github_actions_off_node_20_before_runner_deprecation`.
+- Implemented in `task_091_migrate_github_actions_off_node_20_before_runner_deprecation`.

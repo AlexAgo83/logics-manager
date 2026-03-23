@@ -1,9 +1,9 @@
 ## item_102_migrate_github_actions_off_node_20_before_runner_deprecation - Migrate GitHub Actions off Node 20 before runner deprecation
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: CI and release maintenance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -62,3 +62,4 @@ flowchart LR
 - Derived from request `req_079_migrate_github_actions_off_node_20_before_runner_deprecation`.
 - Source file: `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`.
 - Request context seeded into this backlog item from `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`.
+- Task `task_091_migrate_github_actions_off_node_20_before_runner_deprecation` was finished via `logics_flow.py finish task` on 2026-03-23.

@@ -1,6 +1,6 @@
 ## req_079_migrate_github_actions_off_node_20_before_runner_deprecation - Migrate GitHub Actions off Node 20 before runner deprecation
 > From version: 1.11.1
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 95%
 > Complexity: Medium

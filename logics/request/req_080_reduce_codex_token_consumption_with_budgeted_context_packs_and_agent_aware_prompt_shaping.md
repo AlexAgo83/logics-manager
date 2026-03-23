@@ -1,6 +1,6 @@
 ## req_080_reduce_codex_token_consumption_with_budgeted_context_packs_and_agent_aware_prompt_shaping - Reduce Codex token consumption with budgeted context packs and agent-aware prompt shaping
 > From version: 1.11.1
-> Status: Draft
+> Status: Done
 > Understanding: 97%
 > Confidence: 96%
 > Complexity: High

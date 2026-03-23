@@ -1,9 +1,9 @@
 ## item_111_exclude_or_deprioritize_stale_completed_and_weakly_linked_context_by_default - Exclude or deprioritize stale completed and weakly linked context by default
 > From version: 1.11.1
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -74,3 +74,4 @@ flowchart LR
 - Derived from request `req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption`.
 - Source file: `logics/request/req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption.md`.
 - Request context seeded into this backlog item from `logics/request/req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption.md`.
+- Task `task_093_orchestration_delivery_for_req_081_observable_and_lightweight_codex_handoffs` was finished via `logics_flow.py finish task` on 2026-03-23.

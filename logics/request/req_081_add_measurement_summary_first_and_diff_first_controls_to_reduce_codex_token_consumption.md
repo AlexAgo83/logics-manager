@@ -1,6 +1,6 @@
 ## req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption - Add measurement, summary-first, and diff-first controls to reduce Codex token consumption
 > From version: 1.11.1
-> Status: Draft
+> Status: Done
 > Understanding: 97%
 > Confidence: 96%
 > Complexity: Medium

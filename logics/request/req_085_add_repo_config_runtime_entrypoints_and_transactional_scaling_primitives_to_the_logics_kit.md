@@ -1,8 +1,8 @@
 ## req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit - Add repo config, runtime entrypoints, and transactional scaling primitives to the Logics kit
 > From version: 1.12.0
-> Status: Draft
-> Understanding: 97%
-> Confidence: 95%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -68,12 +68,12 @@ flowchart TD
 - Risk: enforcing a split policy too aggressively can block legitimate decomposition when ownership, dependency, or validation concerns genuinely require several slices.
 
 # AC Traceability
-- AC1 -> `item_129_introduce_repo_native_logics_configuration_and_policy_resolution`. Proof: add a repo-native config file or loader and show at least one repository policy being read from it instead of hard-coded defaults.
-- AC2 -> `item_130_add_a_unified_logics_cli_entrypoint_with_compatibility_routing`. Proof: add a stable top-level `logics` entrypoint that can run the main workflow flows without requiring direct script paths.
-- AC3 -> `item_131_extend_machine_readable_outputs_across_automation_facing_kit_skills`. Proof: extend machine-readable outputs to at least a representative subset of automation-facing skills outside the flow manager.
-- AC4 -> `item_132_add_incremental_workflow_and_skill_indexing_for_repeated_kit_operations`. Proof: add an index or cache contract used by at least one repeated corpus operation and validate invalidation behavior.
-- AC5 -> `item_133_strengthen_bulk_mutation_safety_with_transactional_apply_or_rollback_semantics`. Proof: provide an apply-or-fail or rollback-aware path for a multi-file mutation flow and document the operator contract.
-- AC6 -> `item_134_codify_minimal_slice_split_policy_across_backlog_generation_and_operator_guidance`. Proof: encode or document a minimal-slice split rule in templates, prompts, CLI help, or generation logic so backlog decomposition defaults to the minimum coherent number of items.
+- AC1 -> `item_129_introduce_repo_native_logics_configuration_and_policy_resolution`. Proof: the kit now bootstraps `logics.yaml`, merges repo overrides through `logics_flow_config.py`, and exposes `sync show-config`.
+- AC2 -> `item_130_add_a_unified_logics_cli_entrypoint_with_compatibility_routing`. Proof: `logics/skills/logics.py` routes bootstrap, flow, audit, index, lint, doctor, and config inspection through one stable entrypoint.
+- AC3 -> `item_131_extend_machine_readable_outputs_across_automation_facing_kit_skills`. Proof: the bootstrapper, indexer, and doc linter now expose `--format json` alongside the flow-manager JSON contracts.
+- AC4 -> `item_132_add_incremental_workflow_and_skill_indexing_for_repeated_kit_operations`. Proof: `logics_flow_index.py` now backs repeated workflow and skill scans, and `sync build-index` plus `index --format json` report cache statistics.
+- AC5 -> `item_133_strengthen_bulk_mutation_safety_with_transactional_apply_or_rollback_semantics`. Proof: `refresh-ai-context` and `migrate-schema` now support transactional apply-or-rollback semantics with JSONL audit records.
+- AC6 -> `item_134_codify_minimal_slice_split_policy_across_backlog_generation_and_operator_guidance`. Proof: the shipped config defaults to `minimal-coherent`, split commands enforce the threshold, and operator guidance documents `--allow-extra-slices`.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -96,6 +96,10 @@ flowchart TD
 - `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`
 - `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
+- `logics/skills/logics.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_config.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_index.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_transactions.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
 - `logics/skills/logics-flow-manager/scripts/workflow_audit.py`
 - `logics/skills/README.md`

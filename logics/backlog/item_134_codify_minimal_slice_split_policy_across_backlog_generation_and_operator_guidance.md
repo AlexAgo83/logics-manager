@@ -1,49 +1,46 @@
 ## item_134_codify_minimal_slice_split_policy_across_backlog_generation_and_operator_guidance - Codify minimal-slice split policy across backlog generation and operator guidance
 > From version: 1.12.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-- Make the Logics kit easier to adopt, configure, automate, and scale across repositories without relying on hard-coded conventions or script-specific entrypoints.
-- Add repo-native configuration, a unified operator CLI, broader machine-readable contracts, incremental corpus indexing, transactional bulk mutations, and explicit split guidance so the kit behaves more like a stable platform than a loose set of scripts.
-- - `req_082`, `req_083`, and `req_084` strengthened compact AI context, machine-readable governance primitives, diagnostics, safe-write previews, and internal runtime contracts inside the kit.
-- - The current kit is much more capable than before, but several structural gaps still remain outside those requests:
+- The kit had no explicit default saying that split operations should create the smallest coherent number of executable slices.
+- That allowed oversplitting by habit, which weakens operator guidance and fragments request/backlog delivery chains.
 
 # Scope
 - In:
+  - codify the default split policy in `logics.yaml`
+  - enforce the policy in split commands with an explicit override path
+  - document the policy in README and flow-manager guidance
 - Out:
+  - preventing legitimate decomposition when an operator explicitly justifies it
+  - applying the split policy outside the Logics workflow surfaces
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|codify-minimal-slice-split-policy-across|req-082-strengthen-logics-kit-primitives|make-the-logics-kit-easier-to|ac1-the-kit-supports-a-repo-native
+%% logics-signature: backlog|codify-minimal-slice-split-policy-across|req-085-add-repo-config-runtime-entrypoi|the-kit-had-no-explicit-default|ac1-the-default-repo-config-declares
 flowchart LR
-    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Make the Logics kit easier to]
-    Problem --> Scope[Codify minimal-slice split policy across b]
-    Scope --> Acceptance[AC1: The kit supports a repo-native]
-    Acceptance --> Tasks[Execution task]
+    Need[Workflow splitting needs a clear default] --> Policy[Define minimal coherent split policy]
+    Policy --> Enforce[Enforce defaults in split commands]
+    Enforce --> Guide[Document override path for justified extra slices]
+    Guide --> Done[Done]
 ```
 
 # Acceptance criteria
-- AC1: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.
-- AC2: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.
-- AC3: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.
-- AC4: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.
-- AC5: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.
-- AC6: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.
+- AC1: The default repo config declares a minimal coherent split policy and a child-slice threshold.
+- AC2: `split request` and `split backlog` enforce the policy unless the operator explicitly overrides it.
+- AC3: Operator guidance explains the policy, the default behavior, and the override path.
 
 # AC Traceability
-- AC1 -> Scope: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.. Proof: TODO.
-- AC2 -> Scope: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.. Proof: TODO.
-- AC3 -> Scope: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.. Proof: TODO.
-- AC4 -> Scope: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.. Proof: TODO.
-- AC5 -> Scope: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.. Proof: TODO.
-- AC6 -> Scope: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.. Proof: TODO.
+- AC6 -> `logics/skills/logics-bootstrapper/assets/logics.yaml`. Proof: the shipped default config now declares `workflow.split.policy: minimal-coherent` and `max_children_without_override: 2`.
+- AC6 -> `logics/skills/logics-flow-manager/scripts/logics_flow.py`. Proof: split commands enforce the policy and require `--allow-extra-slices` beyond the configured default threshold.
+- AC6 -> `logics/skills/README.md`, `logics/skills/logics-flow-manager/SKILL.md`, and `logics/skills/tests/test_logics_flow.py`. Proof: docs explain the policy and tests verify both the blocked and explicit override paths.
 
 # Decision framing
 - Product framing: Not needed
@@ -60,27 +57,24 @@ flowchart LR
 - Primary task(s): `task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives`
 
 # AI Context
-- Summary: Add repo-native kit config, a unified CLI, broader structured outputs, incremental indexing, transactional bulk mutations, and explicit minimal-slice...
-- Keywords: logics, kit, config, cli, json, index, cache, transaction, split policy
-- Use when: Use when planning the next kit-side runtime and operator ergonomics wave after the current governance, diagnostics, and context-pack foundations.
-- Skip when: Skip when the work targets another feature, repository, or workflow stage.
+- Summary: Make minimal coherent slicing the default split policy and require an explicit override for broader decomposition.
+- Keywords: logics, split policy, minimal slice, backlog, task, guidance, override
+- Use when: Use when operators split requests or backlog items into child execution slices.
+- Skip when: Skip when the work does not involve workflow decomposition.
 
 # References
-- `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`
-- `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`
-- `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
+- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`
+- `logics/tasks/task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives.md`
+- `logics/skills/logics-bootstrapper/assets/logics.yaml`
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
-- `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
-- `logics/skills/logics-flow-manager/scripts/workflow_audit.py`
+- `logics/skills/logics-flow-manager/SKILL.md`
 - `logics/skills/README.md`
-- `logics/skills/CONTRIBUTING.md`
-- `logics/skills/logics-ui-steering/SKILL.md`
+- `logics/skills/tests/test_logics_flow.py`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: Medium
+- Urgency: High
 
 # Notes
-- Derived from request `req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit`.
-- Source file: `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
-- Request context seeded into this backlog item from `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
+- The policy defaults to restraint, not prohibition: operators can still exceed the default threshold, but only through an explicit `--allow-extra-slices` decision.
+- This closes the req_085 guidance gap that kept decomposition behavior too implicit and too easy to fragment.

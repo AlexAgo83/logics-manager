@@ -1,49 +1,46 @@
 ## item_130_add_a_unified_logics_cli_entrypoint_with_compatibility_routing - Add a unified logics CLI entrypoint with compatibility routing
 > From version: 1.12.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-- Make the Logics kit easier to adopt, configure, automate, and scale across repositories without relying on hard-coded conventions or script-specific entrypoints.
-- Add repo-native configuration, a unified operator CLI, broader machine-readable contracts, incremental corpus indexing, transactional bulk mutations, and explicit split guidance so the kit behaves more like a stable platform than a loose set of scripts.
-- - `req_082`, `req_083`, and `req_084` strengthened compact AI context, machine-readable governance primitives, diagnostics, safe-write previews, and internal runtime contracts inside the kit.
-- - The current kit is much more capable than before, but several structural gaps still remain outside those requests:
+- Operators still had to remember several direct script paths, which made the kit feel script-centric instead of platform-like.
+- The repo needed one stable entrypoint that can route toward the flow manager, bootstrapper, linter, audit, indexer, and config inspection flows.
 
 # Scope
 - In:
+  - add `logics/skills/logics.py` as the stable CLI surface
+  - keep compatibility by routing toward existing scripts instead of rewriting every script interface
+  - cover the unified path in smoke tests
 - Out:
+  - removing the legacy direct script paths
+  - introducing a packaging/distribution story beyond the repository checkout
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-a-unified-logics-cli-entrypoint-with|req-082-strengthen-logics-kit-primitives|make-the-logics-kit-easier-to|ac1-the-kit-supports-a-repo-native
+%% logics-signature: backlog|add-a-unified-logics-cli-entrypoint-with|req-085-add-repo-config-runtime-entrypoi|operators-still-had-to-remember-several|ac1-a-top-level-logics-py-entrypoint-exi
 flowchart LR
-    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Make the Logics kit easier to]
-    Problem --> Scope[Add a unified logics CLI entrypoint]
-    Scope --> Acceptance[AC1: The kit supports a repo-native]
-    Acceptance --> Tasks[Execution task]
+    Need[Operators need one stable kit command] --> Route[Route core commands through logics py]
+    Route --> Compat[Keep legacy scripts behind compatibility routing]
+    Compat --> Smoke[Cover the routed paths in smoke checks]
+    Smoke --> Done[Done]
 ```
 
 # Acceptance criteria
-- AC1: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.
-- AC2: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.
-- AC3: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.
-- AC4: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.
-- AC5: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.
-- AC6: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.
+- AC1: A top-level `logics.py` entrypoint exists and routes to bootstrap, flow, audit, index, lint, doctor, and config inspection flows.
+- AC2: The routed CLI keeps the underlying command contracts intact instead of changing operator semantics unexpectedly.
+- AC3: Smoke coverage proves the unified CLI can bootstrap, create docs, promote, split, lint, and audit a temporary repository.
 
 # AC Traceability
-- AC1 -> Scope: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.. Proof: TODO.
-- AC2 -> Scope: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.. Proof: TODO.
-- AC3 -> Scope: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.. Proof: TODO.
-- AC4 -> Scope: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.. Proof: TODO.
-- AC5 -> Scope: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.. Proof: TODO.
-- AC6 -> Scope: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.. Proof: TODO.
+- AC1 -> `logics/skills/logics.py`. Proof: the wrapper routes `bootstrap`, `flow`, `audit`, `index`, `lint`, `config show`, and `doctor`.
+- AC2 -> `logics/skills/README.md` and `logics/skills/logics-flow-manager/SKILL.md`. Proof: operator docs now present `python logics/skills/logics.py ...` as the preferred stable entrypoint while keeping compatibility references.
+- AC3 -> `logics/skills/tests/run_cli_smoke_checks.py` and `logics/skills/tests/test_logics_flow.py`. Proof: the smoke fixture now exercises the routed CLI and the dedicated CLI test verifies bootstrap plus config inspection.
 
 # Decision framing
 - Product framing: Not needed
@@ -60,27 +57,24 @@ flowchart LR
 - Primary task(s): `task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives`
 
 # AI Context
-- Summary: Add repo-native kit config, a unified CLI, broader structured outputs, incremental indexing, transactional bulk mutations, and explicit minimal-slice...
-- Keywords: logics, kit, config, cli, json, index, cache, transaction, split policy
-- Use when: Use when planning the next kit-side runtime and operator ergonomics wave after the current governance, diagnostics, and context-pack foundations.
-- Skip when: Skip when the work targets another feature, repository, or workflow stage.
+- Summary: Provide a single stable `logics.py` operator entrypoint that routes toward the core kit scripts.
+- Keywords: logics, cli, routing, bootstrap, audit, lint, index, compatibility
+- Use when: Use when operators should invoke the kit through one documented command surface.
+- Skip when: Skip when the work is limited to a single script that does not affect operator entrypoints.
 
 # References
-- `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`
-- `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`
-- `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
-- `logics/skills/logics-flow-manager/scripts/logics_flow.py`
-- `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
-- `logics/skills/logics-flow-manager/scripts/workflow_audit.py`
+- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`
+- `logics/tasks/task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives.md`
+- `logics/skills/logics.py`
 - `logics/skills/README.md`
-- `logics/skills/CONTRIBUTING.md`
-- `logics/skills/logics-ui-steering/SKILL.md`
+- `logics/skills/logics-flow-manager/SKILL.md`
+- `logics/skills/tests/run_cli_smoke_checks.py`
+- `logics/skills/tests/test_logics_flow.py`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High
+- Urgency: High
 
 # Notes
-- Derived from request `req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit`.
-- Source file: `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
-- Request context seeded into this backlog item from `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
+- This item turned the kit from “a folder of scripts” into a repo-local CLI with compatibility routing.
+- Legacy script paths remain valid, but they are no longer the only documented operator contract.

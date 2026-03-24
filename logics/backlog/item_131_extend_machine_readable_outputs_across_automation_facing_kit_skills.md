@@ -1,49 +1,46 @@
 ## item_131_extend_machine_readable_outputs_across_automation_facing_kit_skills - Extend machine-readable outputs across automation-facing kit skills
 > From version: 1.12.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-- Make the Logics kit easier to adopt, configure, automate, and scale across repositories without relying on hard-coded conventions or script-specific entrypoints.
-- Add repo-native configuration, a unified operator CLI, broader machine-readable contracts, incremental corpus indexing, transactional bulk mutations, and explicit split guidance so the kit behaves more like a stable platform than a loose set of scripts.
-- - `req_082`, `req_083`, and `req_084` strengthened compact AI context, machine-readable governance primitives, diagnostics, safe-write previews, and internal runtime contracts inside the kit.
-- - The current kit is much more capable than before, but several structural gaps still remain outside those requests:
+- The flow manager already exposed JSON contracts, but adjacent automation-facing scripts still forced downstream tooling back into text parsing.
+- The kit needed a broader structured surface so repo automation could bootstrap, lint, and index without mixing JSON from one script with ad hoc text from another.
 
 # Scope
 - In:
+  - add JSON output contracts to the bootstrapper, indexer, and doc linter
+  - keep text output available for operators
+  - document the structured entrypoints through the unified CLI
 - Out:
+  - rewriting every kit skill in one pass
+  - removing human-readable text output
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|extend-machine-readable-outputs-across-a|req-082-strengthen-logics-kit-primitives|make-the-logics-kit-easier-to|ac1-the-kit-supports-a-repo-native
+%% logics-signature: backlog|extend-machine-readable-outputs-across-a|req-085-add-repo-config-runtime-entrypoi|the-flow-manager-already-exposed-json|ac1-the-bootstrapper-can-return-a
 flowchart LR
-    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Make the Logics kit easier to]
-    Problem --> Scope[Extend machine-readable outputs across aut]
-    Scope --> Acceptance[AC1: The kit supports a repo-native]
-    Acceptance --> Tasks[Execution task]
+    Need[Automation needs structured kit outputs] --> JSON[Add json contracts to adjacent scripts]
+    JSON --> Docs[Document routed machine-readable entrypoints]
+    Docs --> Tests[Verify the structured payloads in tests]
+    Tests --> Done[Done]
 ```
 
 # Acceptance criteria
-- AC1: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.
-- AC2: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.
-- AC3: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.
-- AC4: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.
-- AC5: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.
-- AC6: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.
+- AC1: The bootstrapper can return a machine-readable payload describing the planned actions and repo root.
+- AC2: The indexer can return counts plus runtime-index cache stats in JSON.
+- AC3: The doc linter can return machine-readable issues and warnings without changing its pass/fail semantics.
 
 # AC Traceability
-- AC1 -> Scope: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.. Proof: TODO.
-- AC2 -> Scope: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.. Proof: TODO.
-- AC3 -> Scope: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.. Proof: TODO.
-- AC4 -> Scope: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.. Proof: TODO.
-- AC5 -> Scope: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.. Proof: TODO.
-- AC6 -> Scope: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.. Proof: TODO.
+- AC1 -> `logics/skills/logics-bootstrapper/scripts/logics_bootstrap.py`. Proof: `--format json` now emits the bootstrap action plan and status.
+- AC2 -> `logics/skills/logics-indexer/scripts/generate_index.py`. Proof: `--format json` reports output metadata and incremental cache hit/miss stats.
+- AC3 -> `logics/skills/logics-doc-linter/scripts/logics_lint.py`. Proof: `--format json` returns structured issue and warning lists while preserving the exit code contract.
 
 # Decision framing
 - Product framing: Not needed
@@ -60,27 +57,25 @@ flowchart LR
 - Primary task(s): `task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives`
 
 # AI Context
-- Summary: Add repo-native kit config, a unified CLI, broader structured outputs, incremental indexing, transactional bulk mutations, and explicit minimal-slice...
-- Keywords: logics, kit, config, cli, json, index, cache, transaction, split policy
-- Use when: Use when planning the next kit-side runtime and operator ergonomics wave after the current governance, diagnostics, and context-pack foundations.
-- Skip when: Skip when the work targets another feature, repository, or workflow stage.
+- Summary: Extend stable JSON output contracts beyond the flow manager to the core automation-facing kit scripts.
+- Keywords: logics, json, machine-readable, bootstrap, lint, index, automation
+- Use when: Use when adjacent kit automation should be consumed by scripts without text parsing.
+- Skip when: Skip when the change is only about human-facing prose output.
 
 # References
-- `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`
-- `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`
-- `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
-- `logics/skills/logics-flow-manager/scripts/logics_flow.py`
-- `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
-- `logics/skills/logics-flow-manager/scripts/workflow_audit.py`
+- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`
+- `logics/tasks/task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives.md`
+- `logics/skills/logics-bootstrapper/scripts/logics_bootstrap.py`
+- `logics/skills/logics-indexer/scripts/generate_index.py`
+- `logics/skills/logics-doc-linter/scripts/logics_lint.py`
 - `logics/skills/README.md`
-- `logics/skills/CONTRIBUTING.md`
-- `logics/skills/logics-ui-steering/SKILL.md`
+- `logics/skills/tests/test_bootstrapper.py`
+- `logics/skills/tests/test_indexer_links.py`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High
+- Urgency: Medium
 
 # Notes
-- Derived from request `req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit`.
-- Source file: `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
-- Request context seeded into this backlog item from `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
+- This item completed the “broader machine-readable surface” expected by `req_085` without turning the whole kit into a single-format-only toolchain.
+- The unified CLI now exposes these contracts through `logics.py`, which lets automation stay stable while operators keep readable text output.

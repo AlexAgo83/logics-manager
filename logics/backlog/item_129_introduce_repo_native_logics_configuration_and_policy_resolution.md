@@ -1,49 +1,46 @@
 ## item_129_introduce_repo_native_logics_configuration_and_policy_resolution - Introduce repo-native Logics configuration and policy resolution
 > From version: 1.12.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
 
 # Problem
-- Make the Logics kit easier to adopt, configure, automate, and scale across repositories without relying on hard-coded conventions or script-specific entrypoints.
-- Add repo-native configuration, a unified operator CLI, broader machine-readable contracts, incremental corpus indexing, transactional bulk mutations, and explicit split guidance so the kit behaves more like a stable platform than a loose set of scripts.
-- - `req_082`, `req_083`, and `req_084` strengthened compact AI context, machine-readable governance primitives, diagnostics, safe-write previews, and internal runtime contracts inside the kit.
-- - The current kit is much more capable than before, but several structural gaps still remain outside those requests:
+- The kit still encoded runtime defaults in Python modules, which made split policy, mutation behavior, and cache locations hard to inspect or override from a consuming repository.
+- Operators needed a repo-native contract that stays deterministic, lightweight, and visible in git instead of hidden behind script-local constants.
 
 # Scope
 - In:
+  - ship a default `logics.yaml` template during bootstrap
+  - parse and merge repo overrides with stable kit defaults
+  - expose the effective configuration to automation and operators
 - Out:
+  - remote configuration services
+  - arbitrary unvalidated plugin-side settings
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|introduce-repo-native-logics-configurati|req-082-strengthen-logics-kit-primitives|make-the-logics-kit-easier-to|ac1-the-kit-supports-a-repo-native
+%% logics-signature: backlog|introduce-repo-native-logics-configurati|req-085-add-repo-config-runtime-entrypoi|the-kit-still-encoded-runtime-defaults|ac1-bootstrapping-the-kit-creates-a
 flowchart LR
-    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Make the Logics kit easier to]
-    Problem --> Scope[Introduce repo-native Logics configuration]
-    Scope --> Acceptance[AC1: The kit supports a repo-native]
-    Acceptance --> Tasks[Execution task]
+    Need[Repo runtime defaults must be visible and overridable] --> Config[Ship logics yaml and config loader]
+    Config --> Loader[Merge repo overrides with kit defaults]
+    Loader --> Inspect[Expose effective config to operators]
+    Inspect --> Done[Done]
 ```
 
 # Acceptance criteria
-- AC1: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.
-- AC2: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.
-- AC3: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.
-- AC4: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.
-- AC5: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.
-- AC6: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.
+- AC1: Bootstrapping the kit creates a repo-local `logics.yaml` file with deterministic defaults for split policy, mutation mode, and runtime-index location.
+- AC2: The runtime can load `logics.yaml`, merge it with shipped defaults, and keep behavior deterministic when keys are omitted.
+- AC3: Operators and automation can inspect the effective config without parsing the YAML file themselves.
 
 # AC Traceability
-- AC1 -> Scope: The kit supports a repo-native configuration surface, for example `logics.yaml`, that can define or override governance defaults, workflow conventions, split policy, connector allowances, or similar repository-level behavior without editing kit source files.. Proof: TODO.
-- AC2 -> Scope: The kit exposes a unified CLI entrypoint, for example `logics`, that can route to the main flow-manager and related kit commands with a stable operator-facing contract instead of requiring direct invocation of many individual Python scripts.. Proof: TODO.
-- AC3 -> Scope: Core skills that are expected to participate in automation can expose stable machine-readable outputs, for example JSON, so downstream tools do not need to mix structured flow-manager payloads with ad hoc text parsing from adjacent kit skills.. Proof: TODO.
-- AC4 -> Scope: The kit can build and reuse an incremental workflow or skill index so repeated audit, doctor, validation, or context-oriented operations do not need to fully reparse the repository every time.. Proof: TODO.
-- AC5 -> Scope: Multi-file kit mutations can support a stronger transactional or rollback-aware execution model beyond preview-only flows, so large corpus edits either apply coherently or fail with a clear recovery path.. Proof: TODO.
-- AC6 -> Scope: The kit documents and enforces an explicit split policy that prefers the smallest number of independently valuable, executable backlog or task slices rather than splitting by default or over-fragmenting work.. Proof: TODO.
+- AC1 -> `logics/skills/logics-bootstrapper/assets/logics.yaml` and `logics/skills/logics-bootstrapper/scripts/logics_bootstrap.py`. Proof: bootstrap now writes `logics.yaml` and the bootstrapper JSON payload reports the planned config action.
+- AC2 -> `logics/skills/logics-flow-manager/scripts/logics_flow_config.py`. Proof: a minimal YAML parser plus deep-merge logic resolves repo overrides against the shipped defaults.
+- AC3 -> `logics/skills/logics-flow-manager/scripts/logics_flow.py`. Proof: `sync show-config` returns the merged config, including the active split policy, mutation mode, and runtime-index path.
 
 # Decision framing
 - Product framing: Not needed
@@ -60,27 +57,25 @@ flowchart LR
 - Primary task(s): `task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives`
 
 # AI Context
-- Summary: Add repo-native kit config, a unified CLI, broader structured outputs, incremental indexing, transactional bulk mutations, and explicit minimal-slice...
-- Keywords: logics, kit, config, cli, json, index, cache, transaction, split policy
-- Use when: Use when planning the next kit-side runtime and operator ergonomics wave after the current governance, diagnostics, and context-pack foundations.
-- Skip when: Skip when the work targets another feature, repository, or workflow stage.
+- Summary: Add a deterministic repo-native `logics.yaml` contract and expose the merged config to the runtime.
+- Keywords: logics, config, yaml, defaults, policy, split, mutation, cache
+- Use when: Use when the kit needs repository-level runtime policy without editing kit source files.
+- Skip when: Skip when the change is purely plugin-side or does not affect runtime policy resolution.
 
 # References
-- `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`
-- `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`
-- `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
+- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`
+- `logics/tasks/task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives.md`
+- `logics/skills/logics-bootstrapper/assets/logics.yaml`
+- `logics/skills/logics-bootstrapper/scripts/logics_bootstrap.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_config.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
-- `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
-- `logics/skills/logics-flow-manager/scripts/workflow_audit.py`
-- `logics/skills/README.md`
-- `logics/skills/CONTRIBUTING.md`
-- `logics/skills/logics-ui-steering/SKILL.md`
+- `logics/skills/tests/test_bootstrapper.py`
+- `logics/skills/tests/test_logics_flow.py`
 
 # Priority
-- Impact:
-- Urgency:
+- Impact: High
+- Urgency: High
 
 # Notes
-- Derived from request `req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit`.
-- Source file: `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
-- Request context seeded into this backlog item from `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`.
+- Delivered the repo-native config surface requested by `req_085` and wired it into the flow-manager runtime instead of leaving it as documentation-only policy.
+- The config now drives split policy, mutation mode, and runtime-index path, which are reused by the later req_085 slices.

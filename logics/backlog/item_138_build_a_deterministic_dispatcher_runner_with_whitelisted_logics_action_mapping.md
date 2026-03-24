@@ -1,10 +1,10 @@
 ## item_138_build_a_deterministic_dispatcher_runner_with_whitelisted_logics_action_mapping - Build a deterministic dispatcher runner with whitelisted Logics action mapping
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Deterministic workflow execution safeguards
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -76,7 +76,9 @@ flowchart LR
 - `logics/request/req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration.md`
 - `logics/backlog/item_137_define_a_compact_dispatcher_context_package_and_strict_local_decision_contract.md`
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_dispatcher.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow_support.py`
+- `logics/skills/tests/test_logics_flow.py`
 - `logics/request/req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts.md`
 
 # Priority
@@ -87,3 +89,4 @@ flowchart LR
 - Derived from request `req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration`.
 - Source file: `logics/request/req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration.md`.
 - Request context seeded into this backlog item from `logics/request/req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration.md`.
+- Task `task_099_orchestration_delivery_for_req_088_local_llm_dispatcher_for_deterministic_logics_flow_orchestration` was finished via `logics_flow.py finish task` on 2026-03-24.

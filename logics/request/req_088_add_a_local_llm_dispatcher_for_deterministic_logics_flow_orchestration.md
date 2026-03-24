@@ -1,9 +1,9 @@
 ## req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration - Add a local LLM dispatcher for deterministic Logics flow orchestration
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 98%
-> Confidence: 96%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: Local agent orchestration for workflow automation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -121,8 +121,11 @@ Suggested canonical payload shape:
 
 # References
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
+- `logics/skills/logics-flow-manager/scripts/logics_flow_dispatcher.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow_registry.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow_support.py`
+- `logics/skills/logics-flow-manager/SKILL.md`
+- `logics/skills/tests/test_logics_flow.py`
 - `logics/skills/README.md`
 - `logics/request/req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation.md`
 - `logics/request/req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives.md`

@@ -7,10 +7,12 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
 
-VS Code extension that provides a visual orchestration panel for the Logics workflow
-(requests → backlog → tasks → specs), backed by the existing Markdown files in `logics/*`.
+Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code.
 
-It is not only a workflow UI: the Logics kit is also a way to persist project context in structured Markdown so AI assistants do not need the whole project to be re-explained in every prompt. In practice, that gives teams a durable, inspectable project memory, reduces token usage, and makes AI-driven development sessions more stable over time.
+`cdx-logics-vscode` gives you a visual orchestration layer for the Logics workflow
+(`requests -> backlog -> tasks -> specs`) without moving the source of truth out of the repository.
+
+This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
 
 ## Logics Kit Repository
 
@@ -31,11 +33,17 @@ If you already use the extension but want to inspect the workflow scripts, templ
 
 ## Features
 
+- Workflow visibility that feels operational, not archival: board view, grouped list view, recent activity, triage signals, and reverse references on top of the existing Markdown docs.
+- Faster AI handoffs from the exact item you are working on, instead of rebuilding context manually from chat history.
+- Safer day-to-day flow management with create, promote, read, bootstrap, root-management, and agent-selection actions directly in the extension.
 - Flow board view plus grouped list view, with forced list mode below `500px`.
 - Horizontal board scrolling, list-group collapse/expand, and improved keyboard navigation across cards and groups.
 - Instant local search, explicit sorting/grouping controls, and an `Attention` triage filter for actionable items.
 - Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
+- `Context pack for Codex` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
+- Preview modes for Codex handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
+- Direct `Inject into Codex` and `Inject in fresh thread` actions from the details panel for faster low-token handoffs.
 - Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
 - `Hide empty columns` now behaves consistently in board and list mode.
 - Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
@@ -48,11 +56,11 @@ If you already use the extension but want to inspect the workflow scripts, templ
 
 ## Why This Matters For AI Projects
 
-- Logics turns scattered AI chat history into explicit project artifacts stored in the repo.
-- Requests, backlog items, tasks, specs, and links act as long-lived context that can be reused across sessions and across assistants.
-- Instead of repasting large amounts of project history into every prompt, the assistant can rely on the structured `logics/*` corpus as the project memory.
-- That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing prior decisions.
-- Because the context is written as Markdown in the repository, it stays reviewable by humans, diffable in git, and portable across tools.
+- AI sessions become cheaper because the project memory already exists in the repo instead of living only in previous chats.
+- Requests, backlog items, tasks, specs, and links become reusable context blocks that survive model changes, thread resets, and handoffs between assistants.
+- The plugin makes that memory operational: you can inspect it, navigate it, and inject a smaller Codex handoff directly from the active item.
+- That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing earlier decisions.
+- Because the memory is plain Markdown in git, it stays reviewable by humans, diffable in pull requests, and portable across tools.
 
 <table>
   <tr>
@@ -208,6 +216,18 @@ Contract:
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
+
+## Codex Handoffs
+
+The plugin now builds a lighter Codex handoff directly from the selected Logics item.
+
+- The details panel shows a `Context pack for Codex` summary with docs, lines, characters, approximate token cost, and a coarse budget label.
+- `summary-only` trims the handoff to the current item, compact summary points, acceptance criteria, and response contract.
+- `diff-first` puts relevant changed files first when the repository has recent Git changes tied to the current item.
+- Agent-aware filtering can exclude docs that do not belong to the active agent profile.
+- Session-hygiene hints warn when switching item, task type, workspace root, or handoff mode makes a fresh Codex thread safer.
+
+These flows are designed to reduce token waste without hiding the underlying Logics docs. The Markdown corpus in `logics/*` remains the source of truth; the plugin only shapes a smaller handoff from it.
 
 ## Codex Workspace Overlays
 

@@ -2,8 +2,8 @@
 > From version: 1.12.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 96%
+> Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Cross-item delivery orchestration
@@ -36,12 +36,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria across items `135` and `136`, with `item_135` treated as the baseline path.
-- [ ] 2. Wave 1: update `logics-ollama-specialist` for `deepseek-coder-v2` installation, validation, local API access, and Continue guidance.
-- [ ] 3. Wave 2: extend the same skill with Roo Code setup guidance, dedicated local autocomplete guidance, and explicit tool-selection rules.
-- [ ] 4. Validate the updated skill assets and linked Logics docs so the final workflow is coherent and commit-ready.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria across items `135` and `136`, with `item_135` treated as the baseline path.
+- [x] 2. Wave 1: update `logics-ollama-specialist` for `deepseek-coder-v2` installation, validation, local API access, and Continue guidance.
+- [x] 3. Wave 2: extend the same skill with Roo Code setup guidance, dedicated local autocomplete guidance, and explicit tool-selection rules.
+- [x] 4. Validate the updated skill assets and linked Logics docs so the final workflow is coherent and commit-ready.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.

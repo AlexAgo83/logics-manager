@@ -1,10 +1,10 @@
 ## item_136_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows - Extend the Logics Ollama specialist for Roo Code and dedicated local autocomplete workflows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Editor integrations for local coding models
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -44,10 +44,10 @@ flowchart LR
 - AC4: References or helper assets cover the common troubleshooting and validation steps for the new editor workflows without regressing the base path from `item_135`.
 
 # AC Traceability
-- AC1 -> Scope: add Roo Code guidance to the repository skill. Proof: the skill documents provider, base URL, model id, and validation checks.
-- AC2 -> Scope: add the dedicated autocomplete pattern. Proof: the skill names a completion-model path and explains why it differs from the main chat or edit model.
-- AC3 -> Scope: add editor-selection guidance. Proof: the skill includes decision rules for Continue, Roo Code, and split-model local coding.
-- AC4 -> Scope: keep the new paths actionable. Proof: references or scripts include validation and troubleshooting steps for the new editor workflows.
+- AC1 -> Scope: add Roo Code guidance to the repository skill. Proof: `logics/skills/logics-ollama-specialist/SKILL.md` now documents the Roo Code provider, base URL, model id, and an ordered validation path against the local Ollama baseline.
+- AC2 -> Scope: add the dedicated autocomplete pattern. Proof: the skill and `references/ollama-integration.md` now document a split-model setup using `deepseek-coder-v2:16b` for chat or edit work and a smaller coder model such as `qwen2.5-coder:1.5b` for autocomplete.
+- AC3 -> Scope: add editor-selection guidance. Proof: the skill now distinguishes the default Continue path, the explicit Roo Code path, and the split chat-plus-autocomplete setup by operator need.
+- AC4 -> Scope: keep the new paths actionable. Proof: the skill troubleshooting section and `references/ollama-integration.md` now include validation and recovery guidance for Roo Code, Continue, autocomplete, and the shared Ollama baseline.
 
 # Decision framing
 - Product framing: Not needed
@@ -84,3 +84,4 @@ flowchart LR
 - Derived from request `req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows`.
 - Source file: `logics/request/req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`.
 - Request context seeded into this backlog item from `logics/request/req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`.
+- Task `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows` was finished via `logics_flow.py finish task` on 2026-03-24.

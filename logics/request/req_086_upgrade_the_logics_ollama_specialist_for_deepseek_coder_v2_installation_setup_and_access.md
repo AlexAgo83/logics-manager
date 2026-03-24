@@ -1,7 +1,7 @@
 ## req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access - Upgrade the Logics Ollama specialist for deepseek-coder-v2 installation setup and access
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
 > Complexity: Medium

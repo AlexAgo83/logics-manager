@@ -1,7 +1,7 @@
 ## req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows - Extend the Logics Ollama specialist for Roo Code and dedicated local autocomplete workflows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Medium

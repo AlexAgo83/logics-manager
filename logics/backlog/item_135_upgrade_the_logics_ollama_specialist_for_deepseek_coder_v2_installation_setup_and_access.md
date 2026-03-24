@@ -1,10 +1,10 @@
 ## item_135_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access - Upgrade the Logics Ollama specialist for deepseek-coder-v2 installation setup and access
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Local Ollama coding workflows
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -44,10 +44,10 @@ flowchart LR
 - AC4: The updated skill references or scripts support repeatable operator checks for the DeepSeek workflow and remain aligned with the existing repository skill structure.
 
 # AC Traceability
-- AC1 -> Scope: document the preferred DeepSeek setup in `logics/skills/logics-ollama-specialist/SKILL.md`. Proof: the skill names the preferred tag and explains model-selection defaults.
-- AC2 -> Scope: revise helper assets and commands for install, daemon, model, and smoke-test validation. Proof: updated scripts or references show a runnable validation path.
-- AC3 -> Scope: add Continue guidance to the skill. Proof: the skill shows the config path and required local fields without overwriting unrelated config.
-- AC4 -> Scope: keep the workflow actionable through repository-native helper assets. Proof: the updated references and scripts support the documented DeepSeek operator path.
+- AC1 -> Scope: document the preferred DeepSeek setup in `logics/skills/logics-ollama-specialist/SKILL.md`. Proof: the skill now prefers `deepseek-coder-v2:16b`, warns against defaulting to larger tags, and normalizes common DeepSeek naming variants.
+- AC2 -> Scope: revise helper assets and commands for install, daemon, model, and smoke-test validation. Proof: `logics/skills/logics-ollama-specialist/scripts/ollama_check.sh` validates daemon reachability, `/api/tags`, local model presence, and Continue config, while `logics/skills/logics-ollama-specialist/scripts/ollama_install_macos.sh` now defaults to `deepseek-coder-v2:16b`.
+- AC3 -> Scope: add Continue guidance to the skill. Proof: the skill now documents `~/.continue/config.yaml`, the expected `provider`, `model`, and `apiBase` fields, and a patch-in-place editing rule.
+- AC4 -> Scope: keep the workflow actionable through repository-native helper assets. Proof: `logics/skills/logics-ollama-specialist/references/ollama-integration.md` now documents DeepSeek-specific commands and editor wiring, while the skill and helper script form a repeatable operator path.
 
 # Decision framing
 - Product framing: Not needed
@@ -84,3 +84,4 @@ flowchart LR
 - Derived from request `req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access`.
 - Source file: `logics/request/req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`.
 - Request context seeded into this backlog item from `logics/request/req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`.
+- Task `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows` was finished via `logics_flow.py finish task` on 2026-03-24.

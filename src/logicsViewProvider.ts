@@ -118,6 +118,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "new-request-guided":
           await this.startGuidedRequestFromTools();
           break;
+        case "launch-codex-overlay":
+          await this.launchCodexFromTools();
+          break;
         case "fix-docs":
           await this.fixDocs();
           break;
@@ -300,6 +303,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async startGuidedRequestFromTools(): Promise<void> {
     await this.documentController.startGuidedRequestFromTools();
+  }
+
+  private async launchCodexFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+
+    const snapshot = await inspectLogicsEnvironment(root);
+    const overlay = snapshot.codexOverlay;
+    if ((overlay.status === "healthy" || overlay.status === "warning") && overlay.runCommand) {
+      this.launchCodexOverlayTerminal(root, overlay.runCommand);
+      return;
+    }
+
+    await this.syncCodexOverlay(root, "Tools > Launch Codex", { autoLaunchOnSuccess: true });
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
@@ -1245,10 +1264,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     return true;
   }
 
-  private async syncCodexOverlay(root: string, trigger: string): Promise<boolean> {
+  private async syncCodexOverlay(
+    root: string,
+    trigger: string,
+    options?: {
+      autoLaunchOnSuccess?: boolean;
+    }
+  ): Promise<boolean> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
     if (overlay.status === "healthy" || overlay.status === "warning") {
+      if (options?.autoLaunchOnSuccess && overlay.runCommand) {
+        this.launchCodexOverlayTerminal(root, overlay.runCommand);
+        return true;
+      }
       void vscode.window.showInformationMessage("Codex workspace overlay is already ready for this repository.");
       return true;
     }
@@ -1300,6 +1329,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.refresh();
     const refreshed = await inspectLogicsEnvironment(root);
     if (refreshed.codexOverlay.status === "healthy" || refreshed.codexOverlay.status === "warning") {
+      if (options?.autoLaunchOnSuccess && refreshed.codexOverlay.runCommand) {
+        this.launchCodexOverlayTerminal(root, refreshed.codexOverlay.runCommand);
+        void vscode.window.showInformationMessage(`Codex workspace overlay synced after ${trigger}. Launching Codex in Terminal.`);
+        return true;
+      }
       const actions: string[] = [];
       if (refreshed.codexOverlay.runCommand) {
         actions.push("Launch Codex in Terminal", "Copy Overlay Run Command");

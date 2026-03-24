@@ -31,6 +31,7 @@
   const helpBannerDismiss = document.getElementById("help-banner-dismiss");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
+  const launchCodexOverlayButton = document.querySelector('[data-action="launch-codex-overlay"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
   const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
@@ -971,6 +972,7 @@
         hideProcessedRequestsToggle,
         hideSpecToggle,
         layoutController,
+        launchCodexOverlayButton,
         mainPane,
         markDoneButton,
         markObsoleteButton,
@@ -1002,6 +1004,10 @@
         },
         onCheckEnvironment() {
           hostApi.checkEnvironment();
+          setToolsPanelOpen(false);
+        },
+        onLaunchCodexOverlay() {
+          hostApi.launchCodexOverlay();
           setToolsPanelOpen(false);
         },
         onChangeProjectRoot() {

@@ -375,7 +375,7 @@
       if (typeof getSuggestedActions !== "function") {
         return null;
       }
-      const actions = getSuggestedActions(item);
+      const actions = getSuggestedActions(item).filter((action) => action.key !== "promote" && action.key !== "add-docs");
       if (!actions || actions.length === 0) {
         return null;
       }

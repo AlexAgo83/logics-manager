@@ -22,6 +22,7 @@
       hideProcessedRequestsToggle,
       hideSpecToggle,
       layoutController,
+      launchCodexOverlayButton,
       mainPane,
       markDoneButton,
       markObsoleteButton,
@@ -33,6 +34,7 @@
       onCheckEnvironment,
       onChangeProjectRoot,
       onCreateCompanionDoc,
+      onLaunchCodexOverlay,
       onDetailsScroll,
       onDetailsToggle,
       onDocumentClick,
@@ -119,6 +121,9 @@
       }
       if (newRequestToolButton) {
         newRequestToolButton.addEventListener("click", () => onCreateCompanionDoc("new-request-guided"));
+      }
+      if (launchCodexOverlayButton) {
+        launchCodexOverlayButton.addEventListener("click", () => onLaunchCodexOverlay());
       }
       if (createCompanionDocToolButton) {
         createCompanionDocToolButton.addEventListener("click", () => onCreateCompanionDoc("create-companion-doc"));

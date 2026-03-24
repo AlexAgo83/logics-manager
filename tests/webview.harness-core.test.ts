@@ -592,7 +592,7 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
   });
 
-  it("renders suggested-action badges for actionable items", () => {
+  it("hides promote and add-docs badges on cards while keeping other suggested actions", () => {
     const orphanProduct = {
       ...productItem,
       references: [],
@@ -608,8 +608,8 @@ describe("webview harness core behaviors", () => {
     const requestCard = document.querySelector('.card[data-id="req_000_kickoff"]');
     const productCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
 
-    expect(requestCard?.textContent).toContain("Promote");
-    expect(requestCard?.textContent).toContain("Add docs");
+    expect(requestCard?.textContent).not.toContain("Promote");
+    expect(requestCard?.textContent).not.toContain("Add docs");
     expect(productCard?.textContent).toContain("Link flow");
   });
 

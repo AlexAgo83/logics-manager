@@ -22,6 +22,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <button id="filter-toggle" class="toolbar__filter"></button>
             <button id="tools-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
+              <button data-action="launch-codex-overlay" title="Launch Codex with this repository's skills"></button>
               <button data-action="new-request-guided"></button>
               <button data-action="check-environment"></button>
               <button data-action="change-project-root"></button>

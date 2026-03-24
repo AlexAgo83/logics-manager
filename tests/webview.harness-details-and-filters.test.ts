@@ -795,6 +795,7 @@ describe("webview harness filters, details, and docs", () => {
     const document = dom.window.document;
     const filterToggle = document.getElementById("filter-toggle");
     const toolsToggle = document.getElementById("tools-toggle");
+    const launchCodexButton = document.querySelector('[data-action="launch-codex-overlay"]');
     const newRequestButton = document.querySelector('[data-action="new-request-guided"]');
     const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
@@ -803,11 +804,15 @@ describe("webview harness filters, details, and docs", () => {
 
     expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
+    expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with this repository's skills");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(
       Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))
-    ).toContain("refresh");
+    ).toEqual(
+      expect.arrayContaining(["launch-codex-overlay", "refresh"])
+    );
+    expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("launch-codex-overlay");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);

@@ -67,6 +67,9 @@
       newGuidedRequest() {
         invokeHostOnly("new-request-guided", {}, "New Request");
       },
+      launchCodexOverlay() {
+        invokeHostOnly("launch-codex-overlay", {}, "Launch Codex");
+      },
       bootstrapLogics() {
         invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
       },

@@ -65,6 +65,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with this repository's skills">Launch Codex</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Create Companion Doc</button>

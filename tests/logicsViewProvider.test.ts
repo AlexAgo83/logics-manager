@@ -377,6 +377,156 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("launches Codex immediately from Tools when the overlay is already healthy", async () => {
+    const show = vi.fn();
+    const sendText = vi.fn();
+    mocks.createTerminal.mockReturnValue({ show, sendText });
+
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "available", summary: "Overlay ready." }
+      },
+      codexOverlay: {
+        status: "healthy",
+        summary: "Overlay ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+      }
+    } as never);
+
+    await (provider as any).launchCodexFromTools();
+
+    expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+    expect(mocks.createTerminal).toHaveBeenCalledWith({
+      name: `Codex Overlay: ${path.basename(root)}`,
+      cwd: root
+    });
+    expect(show).toHaveBeenCalledWith(true);
+    expect(sendText).toHaveBeenCalledWith(
+      "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex",
+      true
+    );
+  });
+
+  it("syncs and launches Codex from Tools when the overlay is missing", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    const managerScriptPath = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py");
+    const show = vi.fn();
+    const sendText = vi.fn();
+    mocks.createTerminal.mockReturnValue({ show, sendText });
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "synced", stderr: "" });
+
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+        },
+        codexOverlay: {
+          status: "missing-overlay",
+          summary: "Overlay missing.",
+          issues: ["Workspace overlay is missing or not initialized."],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+        },
+        codexOverlay: {
+          status: "missing-overlay",
+          summary: "Overlay missing.",
+          issues: ["Workspace overlay is missing or not initialized."],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Overlay ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Overlay ready.",
+          issues: [],
+          warnings: [],
+          managerScriptPath,
+          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
+          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        }
+      } as never);
+
+    await (provider as any).launchCodexFromTools();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, managerScriptPath, ["sync"]);
+    expect(sendText).toHaveBeenCalledWith(
+      "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex",
+      true
+    );
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Codex workspace overlay synced after Tools > Launch Codex. Launching Codex in Terminal."
+    );
+  });
+
   it("can run the canonical kit update directly from environment diagnostics", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.hasLogicsSubmodule.mockReturnValue(true);

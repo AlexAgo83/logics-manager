@@ -1001,7 +1001,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(detailsBody?.textContent).toContain("# Codex Context Pack");
 
     const injectButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
-      button.textContent?.includes("Inject into Codex")
+      button.textContent?.includes("Copy for Codex")
     );
     injectButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
@@ -1019,7 +1019,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(document.getElementById("details-title")?.textContent).toContain("Context task");
   });
 
-  it("supports summary-only and fresh-thread Codex handoffs", () => {
+  it("supports summary-only and fresh-thread clipboard handoffs", () => {
     const { dom, postedMessages } = bootstrapWebview({
       harness: false,
       initialState: { collapsedDetailSections: [] }
@@ -1054,7 +1054,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(detailsBody?.textContent).toContain("Summary");
 
     const freshThreadButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
-      button.textContent?.includes("Inject in fresh thread")
+      button.textContent?.includes("Copy for new Codex thread")
     );
     freshThreadButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 

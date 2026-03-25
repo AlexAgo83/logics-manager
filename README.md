@@ -43,7 +43,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
 - `Context pack for AI assistants` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
 - Preview modes for Codex handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
-- Direct `Inject into Codex` and `Inject in fresh thread` actions from the details panel for faster low-token handoffs.
+- Direct `Copy for Codex` and `Copy for new Codex thread` actions from the details panel for faster low-token handoffs.
 - Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
 - `Hide empty columns` now behaves consistently in board and list mode.
 - Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.

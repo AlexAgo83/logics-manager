@@ -478,7 +478,7 @@
           injectToolbar.className = "details__pack-toolbar";
           injectToolbar.appendChild(
             createInlineCta(
-              "Inject into Codex",
+              "Copy for Codex",
               () => {
                 if (typeof setLastInjectedContext === "function") {
                   setLastInjectedContext({
@@ -494,7 +494,7 @@
             )
           );
           injectToolbar.appendChild(
-            createInlineCta("Inject in fresh thread", () => {
+            createInlineCta("Copy for new Codex thread", () => {
               if (typeof setLastInjectedContext === "function") {
                   setLastInjectedContext({
                     itemId: item.id,

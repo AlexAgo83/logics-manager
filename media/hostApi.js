@@ -104,7 +104,7 @@
         if (!prompt) {
           return;
         }
-        invokeHostOnly("inject-prompt", { prompt, options }, "Inject into Codex");
+        invokeHostOnly("inject-prompt", { prompt, options }, "Copy for Codex");
       },
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");

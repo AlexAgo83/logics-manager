@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   createTerminal: vi.fn(),
   openExternal: vi.fn(),
   clipboardWriteText: vi.fn(),
+  getCommands: vi.fn(),
+  executeCommand: vi.fn(),
   workspaceStateGet: vi.fn(),
   workspaceStateUpdate: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
@@ -51,8 +53,8 @@ vi.mock("vscode", () => ({
     Beside: 2
   },
   commands: {
-    getCommands: vi.fn(async () => []),
-    executeCommand: vi.fn()
+    getCommands: mocks.getCommands,
+    executeCommand: mocks.executeCommand
   },
   workspace: {
     workspaceFolders: [],
@@ -166,6 +168,9 @@ describe("LogicsViewProvider", () => {
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
     mocks.showQuickPick.mockReset();
+    mocks.clipboardWriteText.mockReset();
+    mocks.getCommands.mockReset();
+    mocks.executeCommand.mockReset();
     mocks.buildLogicsKitUpdateCommand.mockReset();
     mocks.inspectLogicsKitSubmodule.mockReset();
     mocks.runGitWithOutput.mockReset();
@@ -203,6 +208,7 @@ describe("LogicsViewProvider", () => {
       show: vi.fn(),
       sendText: vi.fn()
     });
+    mocks.getCommands.mockResolvedValue([]);
 
     provider = new LogicsViewProvider(
       {
@@ -290,6 +296,34 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       "Hybrid assist runtime: Degraded via codex. Degraded reasons: ollama-unreachable."
     );
+  });
+
+  it("copies prompts to the clipboard without using VS Code chat commands", async () => {
+    mocks.getCommands.mockResolvedValue([
+      "chatgpt.openSidebar",
+      "chatgpt.newChat",
+      "workbench.action.chat.open",
+      "workbench.action.chat.focusInput"
+    ]);
+
+    await (provider as any).injectPromptIntoCodexChat("Draft this request");
+
+    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("Draft this request");
+    expect(mocks.executeCommand).not.toHaveBeenCalled();
+  });
+
+  it("copies prompts for a fresh Codex thread without opening Codex automatically", async () => {
+    mocks.getCommands.mockResolvedValue(["chatgpt.openSidebar", "chatgpt.newChat"]);
+
+    await (provider as any).injectPromptIntoCodexChat("Draft this request", {
+      preferNewThread: true
+    });
+
+    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("Draft this request");
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Prompt copied to clipboard. Open a new Codex thread, then paste it into the composer."
+    );
+    expect(mocks.executeCommand).not.toHaveBeenCalled();
   });
 
   it("opens the hybrid insights panel from the shared roi-report runtime command", async () => {

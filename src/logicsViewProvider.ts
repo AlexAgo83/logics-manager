@@ -905,54 +905,26 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const codexCopiedMessage = options?.codexCopiedMessage || "Codex opened. Prompt copied to clipboard. Paste it in the Codex composer.";
-    const fallbackCopiedMessage = options?.fallbackCopiedMessage || "Could not inject prompt into Codex chat.";
+    const codexCopiedMessage =
+      options?.codexCopiedMessage ||
+      (options?.preferNewThread
+        ? "Prompt copied to clipboard. Open a new Codex thread, then paste it into the composer."
+        : "Prompt copied to clipboard for Codex. Paste it into the Codex composer.");
+    const fallbackCopiedMessage = options?.fallbackCopiedMessage || "Could not copy the prompt to the clipboard.";
 
     try {
-      const availableCommands = await vscode.commands.getCommands(true);
-      const hasCodexSidebarCommand = availableCommands.includes("chatgpt.openSidebar");
-      const hasCodexNewChatCommand = availableCommands.includes("chatgpt.newChat");
-      const hasWorkbenchChatCommand = availableCommands.includes("workbench.action.chat.open");
-
-      if (hasCodexSidebarCommand) {
-        await vscode.commands.executeCommand("chatgpt.openSidebar");
-        if (hasCodexNewChatCommand) {
-          if (options?.preferNewThread) {
-            await vscode.commands.executeCommand("chatgpt.newChat");
-          }
-          await vscode.env.clipboard.writeText(normalizedPrompt);
-          const action = await vscode.window.showInformationMessage(codexCopiedMessage, "New Codex Thread");
-          if (action === "New Codex Thread") {
-            await vscode.commands.executeCommand("chatgpt.newChat");
-          }
-        } else {
-          await vscode.env.clipboard.writeText(normalizedPrompt);
-          void vscode.window.showInformationMessage(codexCopiedMessage);
-        }
-        return;
-      }
-
-      if (hasWorkbenchChatCommand) {
-        await vscode.commands.executeCommand("workbench.action.chat.open", {
-          query: normalizedPrompt,
-          isPartialQuery: true
-        });
-        await vscode.commands.executeCommand("workbench.action.chat.focusInput");
-        return;
-      }
-
-      throw new Error("No supported chat open command available");
+      await vscode.env.clipboard.writeText(normalizedPrompt);
+      void vscode.window.showInformationMessage(codexCopiedMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      await vscode.env.clipboard.writeText(normalizedPrompt);
-      void vscode.window.showWarningMessage(`${fallbackCopiedMessage} (${message}). Prompt copied to clipboard.`);
+      void vscode.window.showWarningMessage(`${fallbackCopiedMessage} (${message})`);
     }
   }
 
   private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
     await this.injectPromptIntoCodexChat(agent.defaultPrompt, {
-      codexCopiedMessage: "Codex opened. Agent prompt copied to clipboard. Paste it in the Codex composer.",
-      fallbackCopiedMessage: "Could not inject prompt into Codex chat"
+      codexCopiedMessage: "Agent prompt copied to clipboard for Codex. Paste it into the Codex composer.",
+      fallbackCopiedMessage: "Could not copy the agent prompt to the clipboard."
     });
   }
 
@@ -963,8 +935,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
   ): Promise<void> {
     await this.injectPromptIntoCodexChat(prompt, {
-      codexCopiedMessage: "Codex opened. Context pack copied to clipboard. Paste it in the Codex composer.",
-      fallbackCopiedMessage: "Could not inject the context pack into Codex chat",
+      codexCopiedMessage: options?.preferNewThread
+        ? "Context pack copied to clipboard. Open a new Codex thread, then paste it into the composer."
+        : "Context pack copied to clipboard for Codex. Paste it into the Codex composer.",
+      fallbackCopiedMessage: "Could not copy the context pack to the clipboard.",
       preferNewThread: options?.preferNewThread
     });
   }

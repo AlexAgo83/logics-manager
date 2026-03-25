@@ -1,10 +1,10 @@
 ## task_101_orchestration_delivery_for_req_096_and_req_097_plugin_polish_and_hybrid_local_model_profile_flexibility - Orchestration delivery for req_096 and req_097 plugin polish and hybrid local model profile flexibility
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 96%
-> Progress: 50%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Coordinated plugin polish and kit-side model profile flexibility
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -34,7 +34,7 @@ Constraints:
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|orchestration-delivery-for-req-096-and-r|item-158-collapse-bottom-details-when-ac|1-confirm-the-scope-split-and-ac|python3-logics-skills-logics-flow-manage
+%% logics-signature: task|orchestration-delivery-for-req-096-and-r|item-158-collapse-bottom-details-when-ac|1-confirm-the-scope-split-between|python3-logics-skills-logics-flow-manage
 flowchart LR
     Start[req_096 and req_097] --> Wave1[Wave 1 kit side local model profiles and docs]
     Wave1 --> Wave2[Wave 2 plugin responsive polish wording and timestamps]
@@ -45,10 +45,10 @@ flowchart LR
 # Plan
 - [x] 1. Confirm the scope split between plugin-only work in `req_096` and kit/runtime work in `req_097`, plus AC traceability across items `158` through `163`.
 - [x] 2. Wave 1: deliver hybrid runtime model-profile flexibility and aligned Ollama specialist guidance through items `162` and `163`.
-- [ ] 3. Wave 2: deliver plugin responsive behavior, iconography, timestamp precision, and context-pack wording polish through items `158`, `159`, `160`, and `161`.
-- [ ] 4. Validate the combined result across kit runtime surfaces, Ollama guidance, plugin webview behavior, and updated terminology.
-- [ ] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 3. Wave 2: deliver plugin responsive behavior, iconography, timestamp precision, and context-pack wording polish through items `158`, `159`, `160`, and `161`.
+- [x] 4. Validate the combined result across kit runtime surfaces, Ollama guidance, plugin webview behavior, and updated terminology.
+- [x] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Keep Wave 1 reviewable as a kit/runtime checkpoint before any plugin changes are layered on top.
@@ -120,8 +120,8 @@ flowchart LR
 - Manual: verify the hybrid runtime reports the configured local-model profile coherently when using the curated DeepSeek and Qwen support set.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.

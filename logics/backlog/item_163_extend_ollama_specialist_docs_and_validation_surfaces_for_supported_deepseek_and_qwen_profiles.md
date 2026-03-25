@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|extend-ollama-specialist-docs-and-valida|req-097-expand-hybrid-local-model-suppor|even-if-the-runtime-supports-multiple|ac1-the-ollama-specialist-and-related
+%% logics-signature: backlog|extend-ollama-specialist-docs-and-valida|req-086-upgrade-the-logics-ollama-specia|even-if-the-runtime-supports-multiple|ac1-the-ollama-specialist-and-related
 flowchart LR
     Request[req_097] --> Problem[Docs and validation are still DeepSeek biased]
     Problem --> Specialist[Extend specialist guidance for supported profiles]

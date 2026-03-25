@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-configurable-deepseek-and-qwen-local|req-097-expand-hybrid-local-model-suppor|the-hybrid-runtime-currently-assumes|ac1-the-hybrid-runtime-supports
+%% logics-signature: backlog|add-configurable-deepseek-and-qwen-local|req-097-expand-hybrid-local-model-suppor|the-hybrid-runtime-currently-assumes-a|ac1-the-hybrid-runtime-supports-at
 flowchart LR
     Request[req_097] --> Problem[Hybrid runtime assumes DeepSeek first]
     Problem --> Profiles[Add DeepSeek and Qwen profiles]

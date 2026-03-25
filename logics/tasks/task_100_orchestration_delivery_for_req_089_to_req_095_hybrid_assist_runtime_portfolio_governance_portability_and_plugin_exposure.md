@@ -1,10 +1,10 @@
 ## task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure - Orchestration delivery for req_089 to req_095 hybrid assist runtime portfolio governance portability and plugin exposure
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
-> Confidence: 96%
-> Progress: 75%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-request hybrid assist delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -59,10 +59,10 @@ flowchart LR
 - [x] 2. Wave 1: deliver shared governance, context-pack, observability, and degraded-result foundations through items `150`, `151`, `152`, `153`, and `154`.
 - [x] 3. Wave 2: deliver reusable runtime and portability foundations through items `140`, `141`, `145`, and `146`.
 - [x] 4. Wave 3: deliver the concrete assist-flow portfolio through items `142`, `143`, `144`, `147`, `148`, and `149`.
-- [ ] 5. Wave 4: expose hybrid runtime health, actions, audit visibility, and messaging cleanup in the plugin through items `155`, `156`, and `157`.
-- [ ] 6. Validate the end-to-end portfolio across shared CLI surfaces, agent adapters, Windows-safe paths, degraded-mode behavior, and plugin UX.
-- [ ] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 5. Wave 4: expose hybrid runtime health, actions, audit visibility, and messaging cleanup in the plugin through items `155`, `156`, and `157`.
+- [x] 6. Validate the end-to-end portfolio across shared CLI surfaces, agent adapters, Windows-safe paths, degraded-mode behavior, and plugin UX.
+- [x] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -160,8 +160,8 @@ flowchart LR
 - Manual: verify Windows-safe command examples remain valid or explicitly labeled when a helper is OS-specific.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.

@@ -1,9 +1,9 @@
 ## req_092_add_a_second_wave_of_hybrid_ollama_or_codex_assist_flows_for_risk_triage_commit_planning_closure_summaries_doc_consistency_checks_and_validation_checklists - Add a second wave of hybrid Ollama or Codex assist flows for risk triage commit planning closure summaries doc consistency checks and validation checklists
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 99%
-> Confidence: 96%
+> Confidence: 97%
 > Complexity: High
 > Theme: Second-wave bounded assist flows for delivery review and operational hygiene
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

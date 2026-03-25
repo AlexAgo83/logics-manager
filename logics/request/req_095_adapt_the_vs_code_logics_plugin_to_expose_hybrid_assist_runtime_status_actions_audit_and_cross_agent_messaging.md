@@ -1,9 +1,9 @@
 ## req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging - Adapt the VS Code Logics plugin to expose hybrid assist runtime status actions audit and cross-agent messaging
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 99%
-> Confidence: 96%
+> Confidence: 97%
 > Complexity: High
 > Theme: VS Code plugin UX for hybrid assist runtime visibility and control
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

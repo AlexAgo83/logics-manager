@@ -4,7 +4,11 @@
       activityToggle,
       attentionToggle,
       board,
+      assistCommitAllButton,
+      assistNextStepButton,
+      assistSummarizeValidationButton,
       bootstrapLogicsButton,
+      checkHybridRuntimeButton,
       checkEnvironmentButton,
       changeProjectRootButton,
       compactListQuery,
@@ -31,8 +35,12 @@
       onActivityToggle,
       onBoardScroll,
       onBootstrapLogics,
+      onCheckHybridRuntime,
       onCheckEnvironment,
       onChangeProjectRoot,
+      onAssistCommitAll,
+      onAssistNextStep,
+      onAssistSummarizeValidation,
       onCreateCompanionDoc,
       onLaunchCodexOverlay,
       onDetailsScroll,
@@ -118,6 +126,18 @@
       }
       if (checkEnvironmentButton) {
         checkEnvironmentButton.addEventListener("click", () => onCheckEnvironment());
+      }
+      if (checkHybridRuntimeButton) {
+        checkHybridRuntimeButton.addEventListener("click", () => onCheckHybridRuntime());
+      }
+      if (assistCommitAllButton) {
+        assistCommitAllButton.addEventListener("click", () => onAssistCommitAll());
+      }
+      if (assistNextStepButton) {
+        assistNextStepButton.addEventListener("click", () => onAssistNextStep());
+      }
+      if (assistSummarizeValidationButton) {
+        assistSummarizeValidationButton.addEventListener("click", () => onAssistSummarizeValidation());
       }
       if (newRequestToolButton) {
         newRequestToolButton.addEventListener("click", () => onCreateCompanionDoc("new-request-guided"));
@@ -250,6 +270,10 @@
       setControlDescription(newRequestToolButton, "Start a guided new request in Codex");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Check environment prerequisites");
+      setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
+      setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");
+      setControlDescription(assistNextStepButton, "Suggest the next bounded workflow step");
+      setControlDescription(assistSummarizeValidationButton, "Summarize validation status");
       setControlDescription(changeProjectRootButton, "Change project root");
       setControlDescription(resetProjectRootButton, "Use workspace root");
       setControlDescription(fixDocsButton, "Fix Logics");

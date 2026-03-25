@@ -52,7 +52,9 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
+- Tools menu now includes shared hybrid-assist actions for `Check Hybrid Runtime`, `Commit All Changes`, `Suggest Next Step`, and `Summarize Validation`.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
+- Environment diagnostics now show hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
 
 ## Why This Matters For AI Projects
 
@@ -208,6 +210,11 @@ Contract:
 - `Sync Codex Overlay` runs the overlay manager from the plugin when the current kit already includes `logics_codex_workspace.py`.
 - `Check Environment` summarizes repository state, Python availability, Git availability, Codex overlay runtime state, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
 - `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing or stale overlay runtime.
+- `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
+- `Check Hybrid Runtime` probes the shared `logics.py flow assist runtime-status` surface and reports backend provenance plus degraded-state reasons.
+- `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
+- `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
+- `Summarize Validation` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
 - On load, the extension can proactively propose `Update Logics Kit` or `Sync Codex Overlay` once per unresolved repository state, using the same action-confirmation pattern as bootstrap prompts.
 - Overlay sync and run commands shown by the plugin now use the detected Python launcher such as `python3`, `python`, or `py -3`, instead of assuming `python` exists on every shell.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
@@ -216,6 +223,11 @@ Contract:
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
+
+The plugin remains a thin client over the shared runtime:
+- shared hybrid actions call `python logics/skills/logics.py flow assist ...`;
+- backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
+- Codex overlay actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 
 ## Codex Handoffs
 

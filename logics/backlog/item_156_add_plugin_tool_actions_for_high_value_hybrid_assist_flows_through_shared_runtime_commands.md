@@ -1,10 +1,10 @@
 ## item_156_add_plugin_tool_actions_for_high_value_hybrid_assist_flows_through_shared_runtime_commands - Add plugin tool actions for high-value hybrid assist flows through shared runtime commands
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Plugin actions over shared hybrid runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

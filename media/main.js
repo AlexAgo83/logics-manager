@@ -39,6 +39,10 @@
   const updateLogicsKitButton = document.querySelector('[data-action="update-logics-kit"]');
   const syncCodexOverlayButton = document.querySelector('[data-action="sync-codex-overlay"]');
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
+  const checkHybridRuntimeButton = document.querySelector('[data-action="check-hybrid-runtime"]');
+  const assistCommitAllButton = document.querySelector('[data-action="assist-commit-all"]');
+  const assistNextStepButton = document.querySelector('[data-action="assist-next-step"]');
+  const assistSummarizeValidationButton = document.querySelector('[data-action="assist-summarize-validation"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
@@ -955,8 +959,12 @@
         attentionToggle,
         board,
         bootstrapLogicsButton,
+        checkHybridRuntimeButton,
         checkEnvironmentButton,
         changeProjectRootButton,
+        assistCommitAllButton,
+        assistNextStepButton,
+        assistSummarizeValidationButton,
         compactListQuery,
         createCompanionDocToolButton,
         detailsBody,
@@ -1004,6 +1012,22 @@
         },
         onCheckEnvironment() {
           hostApi.checkEnvironment();
+          setToolsPanelOpen(false);
+        },
+        onCheckHybridRuntime() {
+          hostApi.checkHybridRuntime();
+          setToolsPanelOpen(false);
+        },
+        onAssistCommitAll() {
+          hostApi.assistCommitAll();
+          setToolsPanelOpen(false);
+        },
+        onAssistNextStep() {
+          hostApi.assistNextStep();
+          setToolsPanelOpen(false);
+        },
+        onAssistSummarizeValidation() {
+          hostApi.assistSummarizeValidation();
           setToolsPanelOpen(false);
         },
         onLaunchCodexOverlay() {

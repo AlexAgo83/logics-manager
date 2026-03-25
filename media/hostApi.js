@@ -82,6 +82,18 @@
       checkEnvironment() {
         invokeHostOnly("check-environment", {}, "Check Environment");
       },
+      checkHybridRuntime() {
+        invokeHostOnly("check-hybrid-runtime", {}, "Check Hybrid Runtime");
+      },
+      assistCommitAll() {
+        invokeHostOnly("assist-commit-all", {}, "Commit All Changes");
+      },
+      assistNextStep() {
+        invokeHostOnly("assist-next-step", {}, "Suggest Next Step");
+      },
+      assistSummarizeValidation() {
+        invokeHostOnly("assist-summarize-validation", {}, "Summarize Validation");
+      },
       selectAgent() {
         invokeHostOnly("select-agent", {}, "Select Agent");
       },

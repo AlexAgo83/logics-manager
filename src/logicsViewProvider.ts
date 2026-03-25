@@ -136,11 +136,23 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "check-environment":
           await this.checkEnvironmentFromTools();
           break;
+        case "check-hybrid-runtime":
+          await this.checkHybridRuntimeFromTools();
+          break;
         case "update-logics-kit":
           await this.updateLogicsKitFromTools();
           break;
         case "sync-codex-overlay":
           await this.syncCodexOverlayFromTools();
+          break;
+        case "assist-commit-all":
+          await this.commitAllChangesFromTools();
+          break;
+        case "assist-next-step":
+          await this.suggestNextStepFromTools();
+          break;
+        case "assist-summarize-validation":
+          await this.summarizeValidationFromTools();
           break;
         case "about":
           await this.openAbout();
@@ -358,6 +370,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async checkEnvironmentFromTools(): Promise<void> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     const snapshot = await inspectLogicsEnvironment(root, invalidOverridePath);
+    const hybridRuntime = snapshot.hybridRuntime ?? {
+      state: "unavailable",
+      summary: "Hybrid assist runtime status is unavailable.",
+      backend: null,
+      requestedBackend: null,
+      degraded: true,
+      degradedReasons: ["hybrid-runtime-unreported"],
+      claudeBridgeAvailable: false,
+      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+    };
+    const hybridCapability = snapshot.capabilities.hybridAssist ?? {
+      status: "unavailable",
+      summary: "Hybrid assist capability is unavailable."
+    };
     const quickPickItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
 
     if (root && snapshot.codexOverlay.status === "missing-manager") {
@@ -411,6 +437,24 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: snapshot.capabilities.codexRuntime.summary
       },
       {
+        label: `Hybrid assist runtime: ${hybridRuntime.state === "ready" ? "Ready" : hybridRuntime.state === "degraded" ? "Degraded" : "Unavailable"}`,
+        description: hybridRuntime.summary
+      },
+      {
+        label: `Hybrid assist actions: ${hybridCapability.status === "available" ? "Available" : "Unavailable"}`,
+        description: hybridCapability.summary
+      },
+      {
+        label: `Claude bridge: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
+        description: hybridRuntime.claudeBridgeAvailable
+          ? "Claude bridge files point to the shared hybrid runtime."
+          : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
+      },
+      {
+        label: "Hybrid runtime entrypoint",
+        description: hybridRuntime.windowsSafeEntrypoint
+      },
+      {
         label: `Git: ${snapshot.git.available ? "Detected" : "Missing"}`,
         description: snapshot.git.available ? "Git is available on PATH." : buildMissingGitMessage()
       },
@@ -443,6 +487,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
+    for (const reason of hybridRuntime.degradedReasons.slice(0, 3)) {
+      quickPickItems.push({
+        label: "Hybrid runtime note",
+        description: reason
+      });
+    }
+
     const choice = await vscode.window.showQuickPick(quickPickItems, {
       title: "Logics: Check Environment",
       placeHolder: "Review current prerequisite and repository capability status",
@@ -451,6 +502,106 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private async runHybridAssistCommand(root: string, args: string[]): Promise<Record<string, unknown> | null> {
+    const runtimeEntry = path.join(root, "logics", "skills", "logics.py");
+    if (!fs.existsSync(runtimeEntry)) {
+      void vscode.window.showErrorMessage("Hybrid assist runtime is unavailable because logics/skills/logics.py is missing.");
+      return null;
+    }
+
+    const result = await runPythonWithOutput(root, runtimeEntry, ["flow", "assist", ...args, "--format", "json"]);
+    if (result.error) {
+      void vscode.window.showErrorMessage(`Hybrid assist command failed: ${result.stderr || result.error.message}`);
+      return null;
+    }
+
+    try {
+      return JSON.parse(result.stdout) as Record<string, unknown>;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Hybrid assist command returned invalid JSON: ${message}`);
+      return null;
+    }
+  }
+
+  private async checkHybridRuntimeFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommand(root, ["runtime-status"]);
+    if (!payload) {
+      return;
+    }
+    const backend = payload.backend as Record<string, unknown> | undefined;
+    const degradedReasons = Array.isArray(payload.degraded_reasons) ? payload.degraded_reasons.join(", ") : "none";
+    void vscode.window.showInformationMessage(
+      `Hybrid assist runtime: ${String((payload as { degraded?: boolean }).degraded ? "Degraded" : "Ready")} via ${String(backend?.selected_backend || "unknown")}. Degraded reasons: ${degradedReasons}.`
+    );
+  }
+
+  private async commitAllChangesFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommand(root, ["commit-all"]);
+    if (!payload) {
+      return;
+    }
+    const plan = payload.plan as { steps?: Array<{ scope?: string; summary?: string }> } | undefined;
+    const steps = Array.isArray(plan?.steps) ? plan.steps : [];
+    const summary = steps.length > 0 ? steps.map((step) => `${step.scope}: ${step.summary}`).join(" | ") : "No commit steps suggested.";
+    const choice = await vscode.window.showInformationMessage(
+      `Hybrid commit plan ready. ${summary}`,
+      "Execute Commit Plan"
+    );
+    if (choice === "Execute Commit Plan") {
+      const executed = await this.runHybridAssistCommand(root, ["commit-all", "--execution-mode", "execute"]);
+      if (!executed) {
+        return;
+      }
+      void vscode.window.showInformationMessage("Hybrid commit plan executed.");
+      await this.refresh();
+    }
+  }
+
+  private async suggestNextStepFromTools(): Promise<void> {
+    if (!this.items.length) {
+      await this.refresh();
+    }
+    const pick = await this.pickItem(this.items.filter((item) => ["request", "backlog", "task"].includes(item.stage)), "Suggest next workflow step");
+    if (!pick) {
+      return;
+    }
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommand(root, ["next-step", pick.id]);
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { decision?: { action?: string; target_ref?: string }; mapped_command?: { summary?: string } } | undefined;
+    const decision = result?.decision;
+    void vscode.window.showInformationMessage(
+      `Hybrid next step: ${decision?.action || "unknown"} on ${decision?.target_ref || "no target"}. ${result?.mapped_command?.summary || ""}`.trim()
+    );
+  }
+
+  private async summarizeValidationFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommand(root, ["summarize-validation"]);
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { overall?: string; summary?: string } | undefined;
+    void vscode.window.showInformationMessage(`Hybrid validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim());
   }
 
   private async openAbout(): Promise<void> {

@@ -124,10 +124,24 @@ vi.mock("../src/logicsEnvironment", () => ({
         status: "available",
         summary: "Always available from the command palette or Tools menu."
       },
+      hybridAssist: {
+        status: "available",
+        summary: "Hybrid assist runtime ready (codex fallback)."
+      },
       codexRuntime: {
         status: "unavailable",
         summary: "Repo-local Logics is ready, but the Codex workspace overlay still needs sync."
       }
+    },
+    hybridRuntime: {
+      state: "degraded",
+      summary: "Hybrid assist runtime degraded (codex fallback).",
+      backend: "codex",
+      requestedBackend: "auto",
+      degraded: true,
+      degradedReasons: ["ollama-unreachable"],
+      claudeBridgeAvailable: true,
+      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
     },
     codexOverlay: {
       status: "missing-overlay",
@@ -244,7 +258,37 @@ describe("LogicsViewProvider", () => {
     expect(items.some((item: { label: string }) => item.label.includes("Workflow actions: Unavailable"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex overlay runtime: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Hybrid assist runtime: Degraded"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex overlay run command"))).toBe(true);
+  });
+
+  it("can surface hybrid runtime status through the shared assist command", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: JSON.stringify({
+        ok: true,
+        degraded: true,
+        degraded_reasons: ["ollama-unreachable"],
+        backend: {
+          selected_backend: "codex"
+        }
+      }),
+      stderr: ""
+    });
+
+    await (provider as any).checkHybridRuntimeFromTools();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+      "flow",
+      "assist",
+      "runtime-status",
+      "--format",
+      "json"
+    ]);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Hybrid assist runtime: Degraded via codex. Degraded reasons: ollama-unreachable."
+    );
   });
 
   it("can run overlay sync directly from environment diagnostics", async () => {

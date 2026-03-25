@@ -24,19 +24,23 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <div id="tools-panel">
               <button data-action="launch-codex-overlay" title="Launch Codex with this repository's skills"></button>
               <button data-action="new-request-guided"></button>
+              <button data-action="bootstrap-logics"></button>
               <button data-action="check-environment"></button>
+              <button data-action="check-hybrid-runtime"></button>
+              <button data-action="assist-commit-all"></button>
+              <button data-action="assist-next-step"></button>
+              <button data-action="assist-summarize-validation"></button>
               <button data-action="change-project-root"></button>
               <button data-action="reset-project-root"></button>
               <button data-action="refresh"></button>
               <button data-action="fix-docs"></button>
+              <button data-action="about"></button>
             </div>
             <button id="activity-toggle" type="button"></button>
             <button id="attention-toggle" type="button"></button>
             <button data-action="toggle-view-mode"></button>
             <button data-action="select-agent"></button>
             <button data-action="create-companion-doc" title="Create a companion doc"></button>
-            <button data-action="bootstrap-logics"></button>
-            <button data-action="about"></button>
           </div>
           <div id="filter-panel" class="toolbar__row toolbar__row--secondary" hidden>
             <input id="search-input" type="search" />

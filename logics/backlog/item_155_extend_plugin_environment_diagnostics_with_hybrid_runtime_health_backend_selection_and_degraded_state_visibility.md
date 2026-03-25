@@ -1,10 +1,10 @@
 ## item_155_extend_plugin_environment_diagnostics_with_hybrid_runtime_health_backend_selection_and_degraded_state_visibility - Extend plugin environment diagnostics with hybrid runtime health, backend selection, and degraded-state visibility
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Plugin hybrid runtime diagnostics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

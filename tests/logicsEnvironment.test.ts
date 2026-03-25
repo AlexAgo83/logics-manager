@@ -75,4 +75,44 @@ describe("inspectLogicsEnvironment", () => {
     expect(snapshot.capabilities.workflowMutation.summary).toContain("Python 3");
     expect(snapshot.capabilities.codexRuntime.status).toBe("available");
   });
+
+  it("surfaces hybrid runtime readiness and capability state", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
+      "#!/usr/bin/env python\n",
+      "utf8"
+    );
+
+    const snapshot = await inspectLogicsEnvironment(root, undefined, {
+      detectGit: async () => true,
+      detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+      inspectOverlay: () => ({
+        status: "healthy",
+        summary: "Overlay ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+      }),
+      inspectHybridRuntime: async () => ({
+        state: "ready",
+        summary: "Hybrid assist runtime ready (ollama).",
+        backend: "ollama",
+        requestedBackend: "auto",
+        degraded: false,
+        degradedReasons: [],
+        claudeBridgeAvailable: true,
+        windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      })
+    });
+
+    expect(snapshot.hybridRuntime?.state).toBe("ready");
+    expect(snapshot.capabilities.hybridAssist?.status).toBe("available");
+    expect(snapshot.capabilities.hybridAssist?.summary).toContain("Hybrid assist runtime ready");
+  });
 });

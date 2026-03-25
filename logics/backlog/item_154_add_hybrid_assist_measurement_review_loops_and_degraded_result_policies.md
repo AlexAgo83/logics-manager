@@ -1,10 +1,10 @@
 ## item_154_add_hybrid_assist_measurement_review_loops_and_degraded_result_policies - Add hybrid assist measurement, review loops, and degraded-result policies
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid assist evaluation and degraded behavior
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

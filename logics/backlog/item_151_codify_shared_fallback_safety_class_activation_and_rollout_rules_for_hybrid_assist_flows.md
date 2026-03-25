@@ -1,10 +1,10 @@
 ## item_151_codify_shared_fallback_safety_class_activation_and_rollout_rules_for_hybrid_assist_flows - Codify shared fallback, safety-class, activation, and rollout rules for hybrid assist flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Shared hybrid runtime governance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

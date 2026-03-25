@@ -1,10 +1,10 @@
 ## item_162_add_configurable_deepseek_and_qwen_local_model_profiles_to_the_hybrid_runtime - Add configurable DeepSeek and Qwen local model profiles to the hybrid runtime
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid runtime local model flexibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

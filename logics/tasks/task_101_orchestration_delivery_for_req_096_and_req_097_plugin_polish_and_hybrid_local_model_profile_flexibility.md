@@ -1,10 +1,10 @@
 ## task_101_orchestration_delivery_for_req_096_and_req_097_plugin_polish_and_hybrid_local_model_profile_flexibility - Orchestration delivery for req_096 and req_097 plugin polish and hybrid local model profile flexibility
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 50%
 > Complexity: High
 > Theme: Coordinated plugin polish and kit-side model profile flexibility
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -43,8 +43,8 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm the scope split between plugin-only work in `req_096` and kit/runtime work in `req_097`, plus AC traceability across items `158` through `163`.
-- [ ] 2. Wave 1: deliver hybrid runtime model-profile flexibility and aligned Ollama specialist guidance through items `162` and `163`.
+- [x] 1. Confirm the scope split between plugin-only work in `req_096` and kit/runtime work in `req_097`, plus AC traceability across items `158` through `163`.
+- [x] 2. Wave 1: deliver hybrid runtime model-profile flexibility and aligned Ollama specialist guidance through items `162` and `163`.
 - [ ] 3. Wave 2: deliver plugin responsive behavior, iconography, timestamp precision, and context-pack wording polish through items `158`, `159`, `160`, and `161`.
 - [ ] 4. Validate the combined result across kit runtime surfaces, Ollama guidance, plugin webview behavior, and updated terminology.
 - [ ] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update the linked Logics docs before continuing.

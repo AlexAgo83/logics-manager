@@ -1,10 +1,10 @@
 ## item_163_extend_ollama_specialist_docs_and_validation_surfaces_for_supported_deepseek_and_qwen_profiles - Extend Ollama specialist docs and validation surfaces for supported DeepSeek and Qwen profiles
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Ollama specialist profile guidance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

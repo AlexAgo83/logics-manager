@@ -1,9 +1,9 @@
 ## req_097_expand_hybrid_local_model_support_beyond_deepseek_with_configurable_qwen_and_deepseek_profiles - Expand hybrid local-model support beyond DeepSeek with configurable Qwen and DeepSeek profiles
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 97%
-> Confidence: 94%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Kit-side local model flexibility for hybrid assist flows
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_164_add_a_canonical_hybrid_assist_roi_report_runtime_surface_over_existing_measurement_and_audit_logs - Add a canonical hybrid assist ROI report runtime surface over existing measurement and audit logs
 > From version: 1.13.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Runtime aggregation for hybrid assist ROI reporting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-a-canonical-hybrid-assist-roi-report|req-098-add-a-hybrid-assist-roi-dispatch|the-kit-already-collects-hybrid-assist-a|ac1-a-shared-runtime-report-command
+%% logics-signature: backlog|add-a-canonical-hybrid-assist-roi-report|req-098-add-a-hybrid-assist-roi-dispatch|the-kit-already-collects-hybrid-assist|ac1-a-shared-runtime-report-command
 flowchart LR
     Request[req_098] --> Problem[Raw hybrid logs are too manual to consume]
     Problem --> Command[Add canonical roi-report runtime command]

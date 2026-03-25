@@ -10,6 +10,7 @@ import {
 } from "./agentRegistry";
 import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
+import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
@@ -43,6 +44,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private activeAgentId: string | null;
   private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
   private readPreviewPanel?: vscode.WebviewPanel;
+  private hybridInsightsPanel?: vscode.WebviewPanel;
   private readonly documentController: LogicsViewDocumentController;
 
   constructor(
@@ -153,6 +155,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           break;
         case "assist-summarize-validation":
           await this.summarizeValidationFromTools();
+          break;
+        case "open-hybrid-insights":
+          await this.openHybridInsightsFromTools();
           break;
         case "about":
           await this.openAbout();
@@ -307,6 +312,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await this.refreshAgents("notify", root);
+  }
+
+  async openHybridInsightsFromCommand(): Promise<void> {
+    await this.openHybridInsightsFromTools();
   }
 
   async createRequest(): Promise<void> {
@@ -602,6 +611,57 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
     const result = payload.result as { overall?: string; summary?: string } | undefined;
     void vscode.window.showInformationMessage(`Hybrid validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim());
+  }
+
+  private async openHybridInsightsFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const panel = this.getHybridInsightsPanel();
+    panel.reveal(vscode.ViewColumn.Beside, true);
+    await this.refreshHybridInsightsPanel(root);
+  }
+
+  private async refreshHybridInsightsPanel(root: string): Promise<void> {
+    const panel = this.getHybridInsightsPanel();
+    const payload = await this.runHybridAssistCommand(root, ["roi-report"]);
+    if (!payload) {
+      return;
+    }
+    panel.title = `Hybrid Insights: ${path.basename(root)}`;
+    panel.webview.html = buildHybridInsightsHtml({
+      webview: panel.webview,
+      report: payload,
+      rootLabel: path.basename(root) || root
+    });
+  }
+
+  private async openHybridInsightsSourceLog(root: string, source: "audit" | "measurement"): Promise<void> {
+    const payload = await this.runHybridAssistCommand(root, ["roi-report", "--recent-limit", "1"]);
+    if (!payload) {
+      return;
+    }
+    const sources = (payload.sources ?? {}) as Record<string, unknown>;
+    const relPath =
+      source === "audit"
+        ? typeof sources.audit_log === "string"
+          ? sources.audit_log
+          : ""
+        : typeof sources.measurement_log === "string"
+          ? sources.measurement_log
+          : "";
+    if (!relPath) {
+      void vscode.window.showWarningMessage("Hybrid insights source log path is unavailable.");
+      return;
+    }
+    const fullPath = path.join(root, relPath);
+    if (!fs.existsSync(fullPath)) {
+      void vscode.window.showWarningMessage(`Hybrid insights source log not found: ${relPath}`);
+      return;
+    }
+    const document = await vscode.workspace.openTextDocument(fullPath);
+    await vscode.window.showTextDocument(document, { preview: false });
   }
 
   private async openAbout(): Promise<void> {
@@ -1548,6 +1608,46 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
 
     this.readPreviewPanel = panel;
+    return panel;
+  }
+
+  private getHybridInsightsPanel(): vscode.WebviewPanel {
+    if (this.hybridInsightsPanel) {
+      return this.hybridInsightsPanel;
+    }
+
+    const panel = vscode.window.createWebviewPanel(
+      "logics.hybridInsights",
+      "Hybrid Assist Insights",
+      vscode.ViewColumn.Beside,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [this.context.extensionUri]
+      }
+    );
+
+    panel.webview.onDidReceiveMessage(async (message) => {
+      const root = await this.getActionRoot();
+      if (!root) {
+        return;
+      }
+      if (message?.type === "refresh-report") {
+        await this.refreshHybridInsightsPanel(root);
+        return;
+      }
+      if (message?.type === "open-source-log" && (message.source === "audit" || message.source === "measurement")) {
+        await this.openHybridInsightsSourceLog(root, message.source);
+      }
+    });
+
+    panel.onDidDispose(() => {
+      if (this.hybridInsightsPanel === panel) {
+        this.hybridInsightsPanel = undefined;
+      }
+    });
+
+    this.hybridInsightsPanel = panel;
     return panel;
   }
 

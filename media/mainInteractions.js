@@ -10,6 +10,7 @@
       bootstrapLogicsButton,
       checkHybridRuntimeButton,
       checkEnvironmentButton,
+      openHybridInsightsButton,
       changeProjectRootButton,
       compactListQuery,
       createCompanionDocToolButton,
@@ -37,6 +38,7 @@
       onBootstrapLogics,
       onCheckHybridRuntime,
       onCheckEnvironment,
+      onOpenHybridInsights,
       onChangeProjectRoot,
       onAssistCommitAll,
       onAssistNextStep,
@@ -129,6 +131,9 @@
       }
       if (checkHybridRuntimeButton) {
         checkHybridRuntimeButton.addEventListener("click", () => onCheckHybridRuntime());
+      }
+      if (openHybridInsightsButton) {
+        openHybridInsightsButton.addEventListener("click", () => onOpenHybridInsights());
       }
       if (assistCommitAllButton) {
         assistCommitAllButton.addEventListener("click", () => onAssistCommitAll());
@@ -271,6 +276,7 @@
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Check environment prerequisites");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
+      setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
       setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");
       setControlDescription(assistNextStepButton, "Suggest the next bounded workflow step");
       setControlDescription(assistSummarizeValidationButton, "Summarize validation status");

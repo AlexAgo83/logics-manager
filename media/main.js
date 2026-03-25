@@ -40,6 +40,7 @@
   const syncCodexOverlayButton = document.querySelector('[data-action="sync-codex-overlay"]');
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const checkHybridRuntimeButton = document.querySelector('[data-action="check-hybrid-runtime"]');
+  const openHybridInsightsButton = document.querySelector('[data-action="open-hybrid-insights"]');
   const assistCommitAllButton = document.querySelector('[data-action="assist-commit-all"]');
   const assistNextStepButton = document.querySelector('[data-action="assist-next-step"]');
   const assistSummarizeValidationButton = document.querySelector('[data-action="assist-summarize-validation"]');
@@ -961,6 +962,7 @@
         bootstrapLogicsButton,
         checkHybridRuntimeButton,
         checkEnvironmentButton,
+        openHybridInsightsButton,
         changeProjectRootButton,
         assistCommitAllButton,
         assistNextStepButton,
@@ -1026,6 +1028,10 @@
         },
         onCheckHybridRuntime() {
           hostApi.checkHybridRuntime();
+          setToolsPanelOpen(false);
+        },
+        onOpenHybridInsights() {
+          hostApi.openHybridInsights();
           setToolsPanelOpen(false);
         },
         onAssistCommitAll() {

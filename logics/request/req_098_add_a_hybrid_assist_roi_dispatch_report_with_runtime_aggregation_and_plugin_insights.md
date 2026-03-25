@@ -1,9 +1,9 @@
 ## req_098_add_a_hybrid_assist_roi_dispatch_report_with_runtime_aggregation_and_plugin_insights - Add a hybrid assist ROI dispatch report with runtime aggregation and plugin insights
 > From version: 1.13.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: High
 > Theme: Hybrid assist observability, ROI reporting, and plugin insight surfaces
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

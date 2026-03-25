@@ -27,6 +27,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
               <button data-action="bootstrap-logics"></button>
               <button data-action="check-environment"></button>
               <button data-action="check-hybrid-runtime"></button>
+              <button data-action="open-hybrid-insights"></button>
               <button data-action="assist-commit-all"></button>
               <button data-action="assist-next-step"></button>
               <button data-action="assist-summarize-validation"></button>

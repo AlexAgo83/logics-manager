@@ -1,10 +1,10 @@
 ## task_102_orchestration_delivery_for_req_098_hybrid_assist_roi_dispatch_reporting_and_plugin_insights - Orchestration delivery for req_098 hybrid assist ROI dispatch reporting and plugin insights
 > From version: 1.13.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Coordinated kit and plugin delivery for hybrid assist ROI observability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -41,12 +41,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm the kit-first versus plugin-second split across items `164` through `166` and keep AC traceability aligned.
-- [ ] 2. Wave 1: deliver the canonical runtime `roi-report` surface plus explicit measured, derived, and estimated semantics through items `164` and `165`.
-- [ ] 3. Wave 2: deliver the plugin insights screen and recent audit drill-down through item `166`.
-- [ ] 4. Validate the combined result across runtime outputs, plugin rendering, documentation, and test coverage.
-- [ ] CHECKPOINT: leave each wave in a coherent, commit-ready state and update linked Logics docs before moving on.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm the kit-first versus plugin-second split across items `164` through `166` and keep AC traceability aligned.
+- [x] 2. Wave 1: deliver the canonical runtime `roi-report` surface plus explicit measured, derived, and estimated semantics through items `164` and `165`.
+- [x] 3. Wave 2: deliver the plugin insights screen and recent audit drill-down through item `166`.
+- [x] 4. Validate the combined result across runtime outputs, plugin rendering, documentation, and test coverage.
+- [x] CHECKPOINT: leave each wave in a coherent, commit-ready state and update linked Logics docs before moving on.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Keep Wave 1 reviewable as a pure kit/runtime checkpoint before any plugin insights UI is introduced.
@@ -95,6 +95,7 @@ flowchart LR
 - `logics/skills/logics-flow-manager/scripts/logics_flow.py`
 - `logics/skills/logics-flow-manager/scripts/logics_flow_hybrid.py`
 - `src/logicsEnvironment.ts`
+- `src/logicsHybridInsightsHtml.ts`
 - `src/logicsViewProvider.ts`
 - `src/logicsWebviewHtml.ts`
 - `README.md`
@@ -108,10 +109,25 @@ flowchart LR
 - `npm run lint:ts`
 - Manual: verify the runtime report clearly separates measured values from estimated ROI proxies.
 - Manual: verify the plugin insights screen exposes fallback and degraded reasons without forcing raw log inspection.
+- Executed on 2026-03-25: `python3 logics/skills/logics-flow-manager/scripts/logics_flow.py sync refresh-mermaid-signatures --format json`
+- Executed on 2026-03-25: `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status`
+- Executed on 2026-03-25: `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`
+- Executed on 2026-03-25: `python3 -m unittest discover -s logics/skills/tests -p "test_*.py" -v`
+- Executed on 2026-03-25: `npm test`
+- Executed on 2026-03-25: `python3 -m unittest logics.skills.tests.test_logics_flow.LogicsFlowTest.test_assist_roi_report_aggregates_measured_derived_and_estimated_sections -v`
+- Executed on 2026-03-25: `npx vitest run tests/logicsViewProvider.test.ts tests/webview.harness-details-and-filters.test.ts`
+- Executed on 2026-03-25: `npm run lint:ts`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
+
+# Report
+- Finished implementation on 2026-03-25.
+- Wave 1 added the shared `flow assist roi-report` runtime surface over `logics/hybrid_assist_audit.jsonl` and `logics/hybrid_assist_measurements.jsonl`, with stable measured, derived, and estimated sections plus bounded recent-run drill-down.
+- Wave 1 also documented the measured-versus-estimated semantics in the shared Logics runtime docs so CLI and plugin consumers interpret fallback-heavy or degraded-heavy reports the same way.
+- Wave 2 added a dedicated VS Code `Hybrid Insights` panel backed directly by the shared runtime report, plus Tools menu and command-palette entrypoints and source-log shortcuts.
+- Coverage was extended with a focused Python runtime test for `assist roi-report`, provider coverage for the panel handoff, and webview harness updates for the new tool action.

@@ -212,6 +212,7 @@ Contract:
 - `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing or stale overlay runtime.
 - `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - `Check Hybrid Runtime` probes the shared `logics.py flow assist runtime-status` surface and reports backend provenance plus degraded-state reasons.
+- `Hybrid Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with measured counters, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
 - `Summarize Validation` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
@@ -226,6 +227,7 @@ Contract:
 
 The plugin remains a thin client over the shared runtime:
 - shared hybrid actions call `python logics/skills/logics.py flow assist ...`;
+- hybrid ROI aggregation and semantics also stay in the kit through `python logics/skills/logics.py flow assist roi-report --format json`;
 - backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
 - Codex overlay actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 

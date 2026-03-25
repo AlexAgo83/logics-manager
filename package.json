@@ -68,6 +68,10 @@
       {
         "command": "logics.checkEnvironment",
         "title": "Logics: Check Environment"
+      },
+      {
+        "command": "logics.openHybridInsights",
+        "title": "Logics: Open Hybrid Insights"
       }
     ]
   },

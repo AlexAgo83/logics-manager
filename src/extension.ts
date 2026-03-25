@@ -57,7 +57,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("logics.promote", () => provider?.promoteFromPalette()),
     vscode.commands.registerCommand("logics.newRequest", () => provider?.createRequest()),
     vscode.commands.registerCommand("logics.createCompanionDoc", () => provider?.createCompanionDocFromPalette()),
-    vscode.commands.registerCommand("logics.checkEnvironment", () => provider?.checkEnvironmentFromCommand())
+    vscode.commands.registerCommand("logics.checkEnvironment", () => provider?.checkEnvironmentFromCommand()),
+    vscode.commands.registerCommand("logics.openHybridInsights", () => provider?.openHybridInsightsFromCommand())
   );
 
   setupWatcher();

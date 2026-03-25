@@ -170,6 +170,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReset();
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
+    mocks.createWebviewPanel.mockReset();
     mocks.hasLogicsSubmodule.mockReset();
     mocks.indexLogics.mockReset();
     mocks.createEmptyAgentRegistry.mockReset();
@@ -289,6 +290,106 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       "Hybrid assist runtime: Degraded via codex. Degraded reasons: ollama-unreachable."
     );
+  });
+
+  it("opens the hybrid insights panel from the shared roi-report runtime command", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    const onDidDispose = vi.fn();
+    const onDidReceiveMessage = vi.fn();
+    const reveal = vi.fn();
+    const panel = {
+      title: "",
+      reveal,
+      onDidDispose,
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage,
+        postMessage: vi.fn()
+      }
+    };
+    mocks.createWebviewPanel.mockReturnValue(panel as never);
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: JSON.stringify({
+        ok: true,
+        report_kind: "hybrid-assist-roi-report",
+        generated_at: "2026-03-25T09:00:00+00:00",
+        sources: {
+          audit_log: "logics/hybrid_assist_audit.jsonl",
+          measurement_log: "logics/hybrid_assist_measurements.jsonl"
+        },
+        limits: {
+          recent_limit: 8,
+          window_days: 14
+        },
+        measured: {
+          totals: {
+            runs: 3,
+            fallback_runs: 1,
+            degraded_runs: 1,
+            review_recommended_runs: 1,
+            local_runs: 2
+          },
+          runs_by_flow: {
+            "next-step": 1
+          },
+          backend_requested: {
+            auto: 2
+          },
+          backend_used: {
+            codex: 1,
+            ollama: 2
+          },
+          recent_result_distribution: {
+            degraded: 1,
+            ok: 2
+          },
+          flow_breakdown: {}
+        },
+        derived: {
+          rates: {
+            fallback_rate: 0.3333,
+            degraded_rate: 0.3333,
+            review_recommended_rate: 0.3333,
+            local_offload_rate: 0.6667
+          },
+          dispatch_split: [],
+          top_degraded_reasons: [],
+          top_fallback_reasons: [],
+          health_summary: ["Runtime looks healthy enough for review."]
+        },
+        estimated: {
+          assumptions: {
+            remote_tokens_per_local_run: 1200,
+            token_avoidance_note: "Illustrative only.",
+            interpretation_note: "Not billing truth."
+          },
+          proxies: {
+            estimated_remote_dispatches_avoided: 2,
+            estimated_remote_token_avoidance: 2400,
+            estimated_local_offload_share: 0.6667
+          }
+        },
+        recent_runs: []
+      }),
+      stderr: ""
+    });
+
+    await provider.openHybridInsightsFromCommand();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+      "flow",
+      "assist",
+      "roi-report",
+      "--format",
+      "json"
+    ]);
+    expect(mocks.createWebviewPanel).toHaveBeenCalledTimes(1);
+    expect(reveal).toHaveBeenCalled();
+    expect(panel.title).toBe(`Hybrid Insights: ${path.basename(root)}`);
+    expect(panel.webview.html).toContain("Hybrid Assist Insights");
+    expect(panel.webview.html).toContain("Estimated ROI Proxies");
   });
 
   it("can run overlay sync directly from environment diagnostics", async () => {

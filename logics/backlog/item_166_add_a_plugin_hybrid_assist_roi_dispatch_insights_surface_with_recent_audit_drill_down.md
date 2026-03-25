@@ -1,10 +1,10 @@
 ## item_166_add_a_plugin_hybrid_assist_roi_dispatch_insights_surface_with_recent_audit_drill_down - Add a plugin hybrid assist ROI dispatch insights surface with recent audit drill-down
 > From version: 1.13.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Plugin insights surface for hybrid assist observability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-a-plugin-hybrid-assist-roi-dispatch-|req-098-add-a-hybrid-assist-roi-dispatch|even-with-a-canonical-runtime-report-op|ac1-the-plugin-exposes-a-dedicated
+%% logics-signature: backlog|add-a-plugin-hybrid-assist-roi-dispatch-|req-095-adapt-the-vs-code-logics-plugin-|even-with-a-canonical-runtime-report|ac1-the-plugin-exposes-a-dedicated
 flowchart LR
     Request[req_098] --> Problem[Operators need plugin visible insights]
     Problem --> Surface[Add dedicated ROI dispatch insights panel]

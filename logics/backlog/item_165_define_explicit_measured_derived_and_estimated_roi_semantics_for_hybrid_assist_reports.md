@@ -1,10 +1,10 @@
 ## item_165_define_explicit_measured_derived_and_estimated_roi_semantics_for_hybrid_assist_reports - Define explicit measured, derived, and estimated ROI semantics for hybrid assist reports
 > From version: 1.13.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Trustworthy semantics for hybrid assist ROI reporting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|define-explicit-measured-derived-and-est|req-098-add-a-hybrid-assist-roi-dispatch|a-hybrid-dispatch-report-is-only-trustwo|ac1-report-fields-clearly-separate-measu
+%% logics-signature: backlog|define-explicit-measured-derived-and-est|req-093-add-shared-hybrid-assist-contrac|a-hybrid-dispatch-report-is-only|ac1-report-fields-clearly-separate-measu
 flowchart LR
     Request[req_098] --> Problem[ROI values need trustworthy semantics]
     Problem --> Measured[Define measured facts]

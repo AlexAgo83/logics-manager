@@ -117,6 +117,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Sync the Codex workspace overlay for this repository">Sync Codex Overlay</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Check Hybrid Runtime</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Summarize Validation</button>

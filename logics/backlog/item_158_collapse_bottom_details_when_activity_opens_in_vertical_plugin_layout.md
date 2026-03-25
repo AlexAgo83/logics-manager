@@ -1,10 +1,10 @@
 ## item_158_collapse_bottom_details_when_activity_opens_in_vertical_plugin_layout - Collapse bottom details when Activity opens in vertical plugin layout
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Plugin responsive layout behavior
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|collapse-bottom-details-when-activity-op|req-096-refine-plugin-responsive-activit|in-the-vertical-plugin-layout-the|ac1-opening-activity-in-the
+%% logics-signature: backlog|collapse-bottom-details-when-activity-op|req-096-refine-plugin-responsive-activit|in-the-vertical-plugin-layout-the|ac1-opening-activity-in-the-vertical
 flowchart LR
     Request[req_096] --> Problem[Vertical layout has competing bottom panels]
     Problem --> Detect[Detect vertical docked-details mode]

@@ -1,10 +1,10 @@
 ## item_159_replace_textual_activity_attention_and_view_mode_labels_with_accessible_toolbar_icons - Replace textual Activity, Attention, and view-mode labels with accessible toolbar icons
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Plugin toolbar density and control clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|replace-textual-activity-attention-and-v|req-096-refine-plugin-responsive-activit|the-plugin-toolbar-still-mixes|ac1-the-toolbar-uses-icon-led
+%% logics-signature: backlog|replace-textual-activity-attention-and-v|req-096-refine-plugin-responsive-activit|the-plugin-toolbar-still-mixes-icon|ac1-the-plugin-toolbar-uses-icon-led
 flowchart LR
     Request[req_096] --> Problem[Toolbar still mixes text and icon controls]
     Problem --> Icons[Replace Activity Attention and mode labels with icons]

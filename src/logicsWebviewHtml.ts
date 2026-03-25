@@ -1,6 +1,49 @@
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
 
+function activityIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 12h4l2.2-5 3.6 10 2.2-5H20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `;
+}
+
+function attentionIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M12 4l8 14H4z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <circle cx="12" cy="17" r="1" fill="currentColor" />
+    </svg>
+  `;
+}
+
+function boardViewIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+    </svg>
+  `;
+}
+
 export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode.Webview): string {
   const modelScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "logicsModel.js"));
   const uiStatusScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "uiStatus.js"));
@@ -86,9 +129,32 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
         </div>
       </div>
       <div class="toolbar__buttons">
-        <button class="btn btn--secondary" id="activity-toggle" type="button" title="Show recent activity">Activity</button>
-        <button class="btn btn--secondary" id="attention-toggle" type="button" title="Show blocked, orphaned, unprocessed, or inconsistent items">Attention</button>
-        <button class="btn" data-action="toggle-view-mode" title="Switch display mode">List</button>
+        <button
+          class="btn btn--secondary btn--icon"
+          id="activity-toggle"
+          type="button"
+          aria-label="Show recent activity"
+          title="Show recent activity"
+        >
+          ${activityIcon()}
+        </button>
+        <button
+          class="btn btn--secondary btn--icon"
+          id="attention-toggle"
+          type="button"
+          aria-label="Show blocked, orphaned, unprocessed, or inconsistent items"
+          title="Show blocked, orphaned, unprocessed, or inconsistent items"
+        >
+          ${attentionIcon()}
+        </button>
+        <button
+          class="btn btn--icon"
+          data-action="toggle-view-mode"
+          aria-label="Switch display mode"
+          title="Switch display mode"
+        >
+          ${boardViewIcon()}
+        </button>
       </div>
     </div>
     <div class="toolbar__row toolbar__row--secondary" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>

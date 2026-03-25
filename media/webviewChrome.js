@@ -52,13 +52,42 @@
       selectItemAndRender
     } = options;
 
+    function setButtonIcon(button, svgMarkup) {
+      if (!button) {
+        return;
+      }
+      button.innerHTML = svgMarkup;
+    }
+
+    function listModeIcon() {
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M8 7h12M8 12h12M8 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <circle cx="5" cy="7" r="1.5" fill="currentColor" />
+          <circle cx="5" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="5" cy="17" r="1.5" fill="currentColor" />
+        </svg>
+      `;
+    }
+
+    function boardModeIcon() {
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+          <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+          <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+          <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+      `;
+    }
+
     function updateViewModeToggle() {
       if (!viewModeToggleButton) {
         return;
       }
       const currentMode = getEffectiveViewMode();
       if (isCompactListForced()) {
-        viewModeToggleButton.textContent = "List";
+        setButtonIcon(viewModeToggleButton, listModeIcon());
         viewModeToggleButton.dataset.currentMode = currentMode;
         viewModeToggleButton.setAttribute("aria-pressed", "true");
         viewModeToggleButton.setAttribute("aria-label", "Current mode: list. List mode is required below 500px");
@@ -67,7 +96,7 @@
         return;
       }
       const switchToList = currentMode !== "list";
-      viewModeToggleButton.textContent = switchToList ? "List" : "Board";
+      setButtonIcon(viewModeToggleButton, switchToList ? listModeIcon() : boardModeIcon());
       viewModeToggleButton.dataset.currentMode = currentMode;
       viewModeToggleButton.setAttribute("aria-pressed", String(currentMode === "list"));
       viewModeToggleButton.setAttribute(
@@ -248,6 +277,12 @@
       if (attentionToggle) {
         attentionToggle.classList.toggle("btn--active", getAttentionOnly());
         attentionToggle.setAttribute("aria-pressed", String(getAttentionOnly()));
+        attentionToggle.setAttribute(
+          "aria-label",
+          getAttentionOnly()
+            ? "Showing blocked, orphaned, unprocessed, or inconsistent items"
+            : "Show blocked, orphaned, unprocessed, or inconsistent items"
+        );
         attentionToggle.title = getAttentionOnly()
           ? "Showing blocked, orphaned, unprocessed, or inconsistent items"
           : "Show blocked, orphaned, unprocessed, or inconsistent items";
@@ -255,6 +290,10 @@
       if (activityToggle) {
         activityToggle.classList.toggle("btn--active", options.getActivityPanelOpen());
         activityToggle.setAttribute("aria-pressed", String(options.getActivityPanelOpen()));
+        activityToggle.setAttribute(
+          "aria-label",
+          options.getActivityPanelOpen() ? "Hide recent activity" : "Show recent activity"
+        );
         activityToggle.title = options.getActivityPanelOpen() ? "Hide recent activity" : "Show recent activity";
       }
     }

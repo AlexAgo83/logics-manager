@@ -247,11 +247,33 @@
   color: var(--vscode-button-foreground, #ffffff);
 }
 
+.btn--icon {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn--icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .btn--secondary,
 .btn--contextual {
   background: var(--vscode-button-secondaryBackground, #3a3d41);
   color: var(--vscode-button-secondaryForeground, #e7e7e7);
   border-color: var(--vscode-panel-border, #333333);
+}
+
+.btn--active:not(:disabled) {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  border-color: var(--vscode-button-border, transparent);
 }
 
 .btn--contextual.btn--contextual-active:not(:disabled) {

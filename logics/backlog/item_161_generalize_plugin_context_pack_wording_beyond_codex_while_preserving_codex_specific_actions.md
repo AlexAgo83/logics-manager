@@ -1,10 +1,10 @@
 ## item_161_generalize_plugin_context_pack_wording_beyond_codex_while_preserving_codex_specific_actions - Generalize plugin context pack wording beyond Codex while preserving Codex specific actions
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent-neutral plugin handoff wording
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|generalize-plugin-context-pack-wording-b|req-096-refine-plugin-responsive-activit|the-plugin-still-says-context-pack|ac1-the-shared-context-pack
+%% logics-signature: backlog|generalize-plugin-context-pack-wording-b|req-095-adapt-the-vs-code-logics-plugin-|the-plugin-still-says-context-pack|ac1-the-shared-context-pack-surface-uses
 flowchart LR
     Request[req_096] --> Problem[Shared context pack is still framed as Codex only]
     Problem --> Neutral[Use agent neutral wording]

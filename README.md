@@ -41,7 +41,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Instant local search, explicit sorting/grouping controls, and an `Attention` triage filter for actionable items.
 - Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
-- `Context pack for Codex` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
+- `Context pack for AI assistants` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
 - Preview modes for Codex handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
 - Direct `Inject into Codex` and `Inject in fresh thread` actions from the details panel for faster low-token handoffs.
 - Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
@@ -233,7 +233,7 @@ The plugin remains a thin client over the shared runtime:
 
 The plugin now builds a lighter Codex handoff directly from the selected Logics item.
 
-- The details panel shows a `Context pack for Codex` summary with docs, lines, characters, approximate token cost, and a coarse budget label.
+- The details panel shows a `Context pack for AI assistants` summary with docs, lines, characters, approximate token cost, and a coarse budget label.
 - `summary-only` trims the handoff to the current item, compact summary points, acceptance criteria, and response contract.
 - `diff-first` puts relevant changed files first when the repository has recent Git changes tied to the current item.
 - Agent-aware filtering can exclude docs that do not belong to the active agent profile.

@@ -465,23 +465,38 @@ describe("webview collapsed details layout behavior", () => {
     expect((splitter as HTMLElement | null)?.style.display).toBe("none");
   });
 
-  it("keeps stacked split sizing stable when activity replaces the main pane", () => {
+  it("opens activity and disables the stacked splitter when activity replaces the main pane", () => {
     const { dom } = bootstrapWebview(true);
     const document = dom.window.document;
-    const details = document.getElementById("details") as HTMLElement | null;
+    const board = document.getElementById("board");
+    const activityPanel = document.getElementById("activity-panel");
     const splitter = document.getElementById("splitter") as HTMLElement | null;
     const activityToggle = document.getElementById("activity-toggle");
 
-    expect(details?.style.height).toBe("234px");
-    expect(splitter?.style.bottom).toBe("234px");
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(board?.hidden).toBe(true);
+    expect(activityPanel?.hidden).toBe(false);
+    expect(splitter?.getAttribute("aria-disabled")).toBe("true");
+    expect(splitter?.tabIndex).toBe(-1);
+  });
+
+  it("collapses bottom details when activity opens in stacked layout", () => {
+    const { dom } = bootstrapWebview(true);
+    const document = dom.window.document;
+    const activityToggle = document.getElementById("activity-toggle");
+    const details = document.getElementById("details");
+    const detailsToggle = document.getElementById("details-toggle");
+
+    expect(details?.classList.contains("details--collapsed")).toBe(false);
 
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(details?.style.height).toBe("234px");
-    expect(splitter?.style.bottom).toBe("234px");
+    expect(details?.classList.contains("details--collapsed")).toBe(true);
+    expect(detailsToggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("sizes stacked details from the active main pane instead of the hidden board", () => {
+  it("disables stacked split sizing once activity collapses the bottom details", () => {
     const { dom, setBoardContentHeight } = bootstrapWebview(true);
     const document = dom.window.document;
     const details = document.getElementById("details") as HTMLElement | null;
@@ -491,7 +506,8 @@ describe("webview collapsed details layout behavior", () => {
     setBoardContentHeight(140);
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(details?.style.height).toBe("234px");
-    expect(splitter?.style.bottom).toBe("234px");
+    expect(details?.classList.contains("details--collapsed")).toBe(true);
+    expect(splitter?.getAttribute("aria-disabled")).toBe("true");
+    expect(splitter?.tabIndex).toBe(-1);
   });
 });

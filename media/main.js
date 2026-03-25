@@ -990,6 +990,16 @@
           setToolsPanelOpen(false);
         },
         onActivityToggle() {
+          const nextOpen = !activityPanelOpen;
+          const shouldCollapseForStackedLayout =
+            nextOpen &&
+            ((stackedQuery && stackedQuery.matches) ||
+              (layoutController &&
+                typeof layoutController.isStackedLayout === "function" &&
+                layoutController.isStackedLayout()));
+          if (shouldCollapseForStackedLayout) {
+            uiState.detailsCollapsed = true;
+          }
           activityPanelOpen = !activityPanelOpen;
           persistState();
           render();

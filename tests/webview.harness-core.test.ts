@@ -533,6 +533,30 @@ describe("webview harness core behaviors", () => {
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
   });
 
+  it("shows more precise Updated values for recently changed cards", () => {
+    const recentItem = {
+      ...baseItem,
+      id: "req_004_recent_precision",
+      title: "Recent precision",
+      updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: recentItem.id,
+      items: [recentItem]
+    });
+
+    const document = dom.window.document;
+    const card = document.querySelector('.card[data-id="req_004_recent_precision"]') as HTMLDivElement | null;
+
+    card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+
+    const preview = card?.querySelector(".card__preview");
+    expect(preview?.textContent).toContain("Updated");
+    expect(preview?.textContent).toContain("ago");
+  });
+
   it("updates details from activity even when the selected item is filtered out of the board", () => {
     const hiddenBySearch = {
       ...baseItem,

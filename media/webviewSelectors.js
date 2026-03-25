@@ -396,6 +396,23 @@
       if (Number.isNaN(date.getTime())) {
         return value;
       }
+      const diffMs = Date.now() - date.getTime();
+      if (diffMs >= 0 && diffMs < 24 * 60 * 60 * 1000) {
+        const totalMinutes = Math.max(1, Math.round(diffMs / (60 * 1000)));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const relativeLabel =
+          hours > 0
+            ? minutes > 0
+              ? `${hours}h ${minutes}m ago`
+              : `${hours}h ago`
+            : `${totalMinutes}m ago`;
+        const preciseTime = new Intl.DateTimeFormat(undefined, {
+          hour: "2-digit",
+          minute: "2-digit"
+        }).format(date);
+        return `${relativeLabel} • ${preciseTime}`;
+      }
       return date.toLocaleString();
     }
 

@@ -988,7 +988,7 @@ describe("webview harness filters, details, and docs", () => {
     const detailsBody = document.getElementById("details-body");
     expect(detailsBody?.textContent).toContain("Attention explain");
     expect(detailsBody?.textContent).toContain("Blocked");
-    expect(detailsBody?.textContent).toContain("Context pack for Codex");
+    expect(detailsBody?.textContent).toContain("Context pack for AI assistants");
     expect(detailsBody?.textContent).toContain("Dependency map");
     expect(detailsBody?.textContent).toContain("Mode standard");
     expect(detailsBody?.textContent).toContain("Characters");

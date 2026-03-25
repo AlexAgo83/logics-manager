@@ -404,7 +404,7 @@
         const contextSection = document.createElement("div");
         contextSection.className = "details__section";
         const contextKey = "contextPack";
-        const contextHeader = createSectionHeader("Context pack for Codex", contextKey);
+        const contextHeader = createSectionHeader("Context pack for AI assistants", contextKey);
         const contextContent = document.createElement("div");
         contextContent.className = "details__indicators";
 

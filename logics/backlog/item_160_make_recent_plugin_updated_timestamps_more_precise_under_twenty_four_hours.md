@@ -1,10 +1,10 @@
 ## item_160_make_recent_plugin_updated_timestamps_more_precise_under_twenty_four_hours - Make recent plugin Updated timestamps more precise under twenty four hours
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Low
 > Theme: Plugin recency readability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|make-recent-plugin-updated-timestamps-mo|req-096-refine-plugin-responsive-activit|the-plugin-currently-shows-updated|ac1-updated-values-are-more
+%% logics-signature: backlog|make-recent-plugin-updated-timestamps-mo|req-096-refine-plugin-responsive-activit|the-plugin-currently-shows-updated-value|ac1-updated-values-are-more-precise
 flowchart LR
     Request[req_096] --> Problem[Recent Updated values are too coarse]
     Problem --> Recent[Use more precise formatting under 24h]

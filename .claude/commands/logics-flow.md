@@ -1,6 +1,6 @@
 ---
 description: Run the Logics workflow manager for request backlog task operations
-argument-hint: [new|promote|split|close|finish|sync] ...
+argument-hint: [new|promote|split|close|finish|sync|assist] ...
 ---
 
 Use the canonical Logics workflow instead of inventing a new process.
@@ -23,6 +23,9 @@ Behavior:
    - `close ...`
    - `finish task ...`
    - `sync close-eligible-requests`
+   - `assist runtime-status`
+   - `assist commit-all`
+   - `assist next-step ...`
 3. Use the existing Python workflow script to perform the action.
 4. Keep `.claude/` derivative. Do not copy detailed rules from `SKILL.md` into this command.
 5. After any write, validate the result with the Logics linter and workflow audit.

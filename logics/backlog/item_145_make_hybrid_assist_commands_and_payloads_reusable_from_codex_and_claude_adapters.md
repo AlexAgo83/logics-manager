@@ -1,10 +1,10 @@
 ## item_145_make_hybrid_assist_commands_and_payloads_reusable_from_codex_and_claude_adapters - Make hybrid assist commands and payloads reusable from Codex and Claude adapters
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Agent-agnostic hybrid runtime surfaces
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

@@ -1,6 +1,6 @@
 ---
 name: logics-flow-manager
-description: Use when the task is to create, promote, split, close, finish, or synchronize Logics workflow docs in this repository. Read the canonical instructions in logics/instructions.md and logics/skills/logics-flow-manager/SKILL.md, then use the existing Logics scripts instead of inventing a parallel workflow.
+description: Use when the task is to create, promote, split, close, finish, synchronize, or run shared assist flows over Logics workflow docs in this repository. Read the canonical instructions in logics/instructions.md and logics/skills/logics-flow-manager/SKILL.md, then use the existing Logics scripts instead of inventing a parallel workflow.
 tools: Read, Edit, Write, Glob, Grep, Bash
 ---
 
@@ -24,4 +24,5 @@ Typical entrypoints:
 - promote request to backlog or backlog to task
 - split an oversized request or backlog item
 - close, finish, or sync workflow docs
+- run the shared hybrid assist aliases such as `assist next-step`, `assist triage`, or `assist summarize-validation`
 - run Logics lint and workflow audit after changes

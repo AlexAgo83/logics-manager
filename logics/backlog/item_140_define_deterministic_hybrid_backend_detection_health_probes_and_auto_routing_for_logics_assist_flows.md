@@ -1,10 +1,10 @@
 ## item_140_define_deterministic_hybrid_backend_detection_health_probes_and_auto_routing_for_logics_assist_flows - Define deterministic hybrid backend detection health probes and auto routing for Logics assist flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 96%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid backend detection and routing
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

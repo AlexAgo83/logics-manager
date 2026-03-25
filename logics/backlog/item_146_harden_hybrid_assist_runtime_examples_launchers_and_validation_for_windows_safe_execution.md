@@ -1,10 +1,10 @@
 ## item_146_harden_hybrid_assist_runtime_examples_launchers_and_validation_for_windows_safe_execution - Harden hybrid assist runtime examples, launchers, and validation for Windows-safe execution
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Windows-safe hybrid runtime portability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

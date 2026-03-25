@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 25%
+> Progress: 50%
 > Complexity: High
 > Theme: Cross-request hybrid assist delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -57,7 +57,7 @@ flowchart LR
 # Plan
 - [x] 1. Confirm cross-request scope, dependencies, and acceptance-criterion traceability across items `140` through `157`.
 - [x] 2. Wave 1: deliver shared governance, context-pack, observability, and degraded-result foundations through items `150`, `151`, `152`, `153`, and `154`.
-- [ ] 3. Wave 2: deliver reusable runtime and portability foundations through items `140`, `141`, `145`, and `146`.
+- [x] 3. Wave 2: deliver reusable runtime and portability foundations through items `140`, `141`, `145`, and `146`.
 - [ ] 4. Wave 3: deliver the concrete assist-flow portfolio through items `142`, `143`, `144`, `147`, `148`, and `149`.
 - [ ] 5. Wave 4: expose hybrid runtime health, actions, audit visibility, and messaging cleanup in the plugin through items `155`, `156`, and `157`.
 - [ ] 6. Validate the end-to-end portfolio across shared CLI surfaces, agent adapters, Windows-safe paths, degraded-mode behavior, and plugin UX.

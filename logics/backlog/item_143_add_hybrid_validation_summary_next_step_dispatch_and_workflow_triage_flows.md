@@ -1,10 +1,10 @@
 ## item_143_add_hybrid_validation_summary_next_step_dispatch_and_workflow_triage_flows - Add hybrid validation-summary, next-step dispatch, and workflow-triage flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: First-wave hybrid triage and orchestration flows
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

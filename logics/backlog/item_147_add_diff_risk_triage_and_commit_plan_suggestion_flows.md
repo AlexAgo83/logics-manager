@@ -1,10 +1,10 @@
 ## item_147_add_diff_risk_triage_and_commit_plan_suggestion_flows - Add diff-risk triage and commit-plan suggestion flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Second-wave hybrid review signals
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

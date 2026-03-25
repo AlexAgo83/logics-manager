@@ -1,10 +1,10 @@
 ## item_144_add_hybrid_handoff_packet_and_bounded_split_suggestion_flows - Add hybrid handoff-packet and bounded split-suggestion flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: First-wave medium-fit hybrid planning flows
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

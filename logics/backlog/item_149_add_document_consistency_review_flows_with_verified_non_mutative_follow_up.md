@@ -1,10 +1,10 @@
 ## item_149_add_document_consistency_review_flows_with_verified_non_mutative_follow_up - Add document-consistency review flows with verified non-mutative follow-up
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Second-wave hybrid document review
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

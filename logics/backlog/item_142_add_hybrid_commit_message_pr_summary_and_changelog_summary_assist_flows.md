@@ -1,10 +1,10 @@
 ## item_142_add_hybrid_commit_message_pr_summary_and_changelog_summary_assist_flows - Add hybrid commit-message, PR-summary, and changelog-summary assist flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: First-wave hybrid summary flows
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

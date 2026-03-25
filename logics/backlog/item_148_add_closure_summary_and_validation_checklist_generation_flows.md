@@ -1,10 +1,10 @@
 ## item_148_add_closure_summary_and_validation_checklist_generation_flows - Add closure-summary and validation-checklist generation flows
 > From version: 1.12.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Second-wave hybrid delivery hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

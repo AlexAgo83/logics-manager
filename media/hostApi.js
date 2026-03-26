@@ -94,8 +94,20 @@
       assistNextStep() {
         invokeHostOnly("assist-next-step", {}, "Suggest Next Step");
       },
+      assistTriage() {
+        invokeHostOnly("assist-triage", {}, "Triage Item");
+      },
+      assistDiffRisk() {
+        invokeHostOnly("assist-diff-risk", {}, "Assess Diff Risk");
+      },
       assistSummarizeValidation() {
         invokeHostOnly("assist-summarize-validation", {}, "Summarize Validation");
+      },
+      assistValidationChecklist() {
+        invokeHostOnly("assist-validation-checklist", {}, "Validation Checklist");
+      },
+      assistDocConsistency() {
+        invokeHostOnly("assist-doc-consistency", {}, "Doc Consistency");
       },
       selectAgent() {
         invokeHostOnly("select-agent", {}, "Select Agent");

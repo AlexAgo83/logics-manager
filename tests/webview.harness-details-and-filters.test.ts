@@ -810,7 +810,17 @@ describe("webview harness filters, details, and docs", () => {
     expect(
       Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))
     ).toEqual(
-      expect.arrayContaining(["launch-codex-overlay", "check-hybrid-runtime", "open-hybrid-insights", "assist-commit-all", "refresh"])
+      expect.arrayContaining([
+        "launch-codex-overlay",
+        "check-hybrid-runtime",
+        "open-hybrid-insights",
+        "assist-commit-all",
+        "assist-triage",
+        "assist-diff-risk",
+        "assist-validation-checklist",
+        "assist-doc-consistency",
+        "refresh"
+      ])
     );
     expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("launch-codex-overlay");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");

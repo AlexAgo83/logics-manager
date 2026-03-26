@@ -72,6 +72,22 @@
       {
         "command": "logics.openHybridInsights",
         "title": "Logics: Open Hybrid Insights"
+      },
+      {
+        "command": "logics.assistTriage",
+        "title": "Logics: Triage Item"
+      },
+      {
+        "command": "logics.assistDiffRisk",
+        "title": "Logics: Assess Diff Risk"
+      },
+      {
+        "command": "logics.assistValidationChecklist",
+        "title": "Logics: Build Validation Checklist"
+      },
+      {
+        "command": "logics.assistDocConsistency",
+        "title": "Logics: Review Doc Consistency"
       }
     ]
   },

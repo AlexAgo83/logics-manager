@@ -43,7 +43,11 @@
   const openHybridInsightsButton = document.querySelector('[data-action="open-hybrid-insights"]');
   const assistCommitAllButton = document.querySelector('[data-action="assist-commit-all"]');
   const assistNextStepButton = document.querySelector('[data-action="assist-next-step"]');
+  const assistTriageButton = document.querySelector('[data-action="assist-triage"]');
+  const assistDiffRiskButton = document.querySelector('[data-action="assist-diff-risk"]');
   const assistSummarizeValidationButton = document.querySelector('[data-action="assist-summarize-validation"]');
+  const assistValidationChecklistButton = document.querySelector('[data-action="assist-validation-checklist"]');
+  const assistDocConsistencyButton = document.querySelector('[data-action="assist-doc-consistency"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
   const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
@@ -966,7 +970,11 @@
         changeProjectRootButton,
         assistCommitAllButton,
         assistNextStepButton,
+        assistTriageButton,
+        assistDiffRiskButton,
         assistSummarizeValidationButton,
+        assistValidationChecklistButton,
+        assistDocConsistencyButton,
         compactListQuery,
         createCompanionDocToolButton,
         detailsBody,
@@ -1042,8 +1050,24 @@
           hostApi.assistNextStep();
           setToolsPanelOpen(false);
         },
+        onAssistTriage() {
+          hostApi.assistTriage();
+          setToolsPanelOpen(false);
+        },
+        onAssistDiffRisk() {
+          hostApi.assistDiffRisk();
+          setToolsPanelOpen(false);
+        },
         onAssistSummarizeValidation() {
           hostApi.assistSummarizeValidation();
+          setToolsPanelOpen(false);
+        },
+        onAssistValidationChecklist() {
+          hostApi.assistValidationChecklist();
+          setToolsPanelOpen(false);
+        },
+        onAssistDocConsistency() {
+          hostApi.assistDocConsistency();
           setToolsPanelOpen(false);
         },
         onLaunchCodexOverlay() {

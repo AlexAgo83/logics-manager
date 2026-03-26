@@ -6,7 +6,11 @@
       board,
       assistCommitAllButton,
       assistNextStepButton,
+      assistTriageButton,
+      assistDiffRiskButton,
       assistSummarizeValidationButton,
+      assistValidationChecklistButton,
+      assistDocConsistencyButton,
       bootstrapLogicsButton,
       checkHybridRuntimeButton,
       checkEnvironmentButton,
@@ -42,7 +46,11 @@
       onChangeProjectRoot,
       onAssistCommitAll,
       onAssistNextStep,
+      onAssistTriage,
+      onAssistDiffRisk,
       onAssistSummarizeValidation,
+      onAssistValidationChecklist,
+      onAssistDocConsistency,
       onCreateCompanionDoc,
       onLaunchCodexOverlay,
       onDetailsScroll,
@@ -141,8 +149,20 @@
       if (assistNextStepButton) {
         assistNextStepButton.addEventListener("click", () => onAssistNextStep());
       }
+      if (assistTriageButton) {
+        assistTriageButton.addEventListener("click", () => onAssistTriage());
+      }
+      if (assistDiffRiskButton) {
+        assistDiffRiskButton.addEventListener("click", () => onAssistDiffRisk());
+      }
       if (assistSummarizeValidationButton) {
         assistSummarizeValidationButton.addEventListener("click", () => onAssistSummarizeValidation());
+      }
+      if (assistValidationChecklistButton) {
+        assistValidationChecklistButton.addEventListener("click", () => onAssistValidationChecklist());
+      }
+      if (assistDocConsistencyButton) {
+        assistDocConsistencyButton.addEventListener("click", () => onAssistDocConsistency());
       }
       if (newRequestToolButton) {
         newRequestToolButton.addEventListener("click", () => onCreateCompanionDoc("new-request-guided"));
@@ -279,7 +299,11 @@
       setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
       setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");
       setControlDescription(assistNextStepButton, "Suggest the next bounded workflow step");
+      setControlDescription(assistTriageButton, "Classify a workflow doc through the shared runtime");
+      setControlDescription(assistDiffRiskButton, "Assess the current diff risk through the shared runtime");
       setControlDescription(assistSummarizeValidationButton, "Summarize validation status");
+      setControlDescription(assistValidationChecklistButton, "Build a bounded validation checklist through the shared runtime");
+      setControlDescription(assistDocConsistencyButton, "Review workflow doc consistency through the shared runtime");
       setControlDescription(changeProjectRootButton, "Change project root");
       setControlDescription(resetProjectRootButton, "Use workspace root");
       setControlDescription(fixDocsButton, "Fix Logics");

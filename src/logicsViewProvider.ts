@@ -154,8 +154,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "assist-next-step":
           await this.suggestNextStepFromTools();
           break;
+        case "assist-triage":
+          await this.triageWorkflowDocFromTools();
+          break;
+        case "assist-diff-risk":
+          await this.assessDiffRiskFromTools();
+          break;
         case "assist-summarize-validation":
           await this.summarizeValidationFromTools();
+          break;
+        case "assist-validation-checklist":
+          await this.buildValidationChecklistFromTools();
+          break;
+        case "assist-doc-consistency":
+          await this.reviewDocConsistencyFromTools();
           break;
         case "open-hybrid-insights":
           await this.openHybridInsightsFromTools();
@@ -318,6 +330,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async openHybridInsightsFromCommand(): Promise<void> {
     await this.openHybridInsightsFromTools();
+  }
+
+  async triageWorkflowDocFromCommand(): Promise<void> {
+    await this.triageWorkflowDocFromTools();
+  }
+
+  async assessDiffRiskFromCommand(): Promise<void> {
+    await this.assessDiffRiskFromTools();
+  }
+
+  async buildValidationChecklistFromCommand(): Promise<void> {
+    await this.buildValidationChecklistFromTools();
+  }
+
+  async reviewDocConsistencyFromCommand(): Promise<void> {
+    await this.reviewDocConsistencyFromTools();
   }
 
   async createRequest(): Promise<void> {
@@ -708,6 +736,61 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     );
   }
 
+  private async triageWorkflowDocFromTools(): Promise<void> {
+    if (!this.items.length) {
+      await this.refresh();
+    }
+    const pick = await this.pickItem(this.items.filter((item) => ["request", "backlog", "task"].includes(item.stage)), "Triage workflow doc");
+    if (!pick) {
+      return;
+    }
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["triage", pick.id], {
+      actionLabel: "Triage Item"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { classification?: string; summary?: string; next_actions?: string[] } | undefined;
+    const nextActions = Array.isArray(result?.next_actions) ? result?.next_actions : [];
+    const detail = [
+      result?.classification ? `Classification: ${result.classification}.` : "",
+      result?.summary || "",
+      nextActions.length > 0 ? `Next actions: ${nextActions.slice(0, 2).join(" | ")}` : ""
+    ]
+      .filter((value) => value.trim().length > 0)
+      .join(" ")
+      .trim();
+    this.notifyHybridAssistCompletion("Triage Item", payload, detail || "Triage completed.");
+  }
+
+  private async assessDiffRiskFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["diff-risk"], {
+      actionLabel: "Assess Diff Risk"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { risk?: string; summary?: string; drivers?: string[] } | undefined;
+    const drivers = Array.isArray(result?.drivers) ? result.drivers : [];
+    const detail = [
+      result?.risk ? `Risk: ${result.risk}.` : "",
+      result?.summary || "",
+      drivers.length > 0 ? `Drivers: ${drivers.slice(0, 2).join(" | ")}` : ""
+    ]
+      .filter((value) => value.trim().length > 0)
+      .join(" ")
+      .trim();
+    this.notifyHybridAssistCompletion("Assess Diff Risk", payload, detail || "Diff risk assessed.");
+  }
+
   private async summarizeValidationFromTools(): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
@@ -725,6 +808,47 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       payload,
       `Validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim()
     );
+  }
+
+  private async buildValidationChecklistFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["validation-checklist"], {
+      actionLabel: "Build Validation Checklist"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { profile?: string; checks?: string[] } | undefined;
+    const checks = Array.isArray(result?.checks) ? result.checks : [];
+    const detail = `Checklist profile ${result?.profile || "unknown"} with ${checks.length} check(s).`;
+    this.notifyHybridAssistCompletion("Build Validation Checklist", payload, detail);
+  }
+
+  private async reviewDocConsistencyFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["doc-consistency"], {
+      actionLabel: "Review Doc Consistency"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = payload.result as { overall?: string; summary?: string; issues?: string[] } | undefined;
+    const issues = Array.isArray(result?.issues) ? result.issues : [];
+    const detail = [
+      result?.overall ? `Overall: ${result.overall}.` : "",
+      result?.summary || "",
+      issues.length > 0 ? `Issues: ${issues.slice(0, 2).join(" | ")}` : ""
+    ]
+      .filter((value) => value.trim().length > 0)
+      .join(" ")
+      .trim();
+    this.notifyHybridAssistCompletion("Review Doc Consistency", payload, detail || "Doc consistency review completed.");
   }
 
   private async openHybridInsightsFromTools(): Promise<void> {

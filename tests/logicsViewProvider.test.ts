@@ -514,6 +514,39 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("can surface the shared diff-risk flow from tools", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: JSON.stringify({
+        ok: true,
+        backend_used: "ollama",
+        backend_requested: "auto",
+        result_status: "ok",
+        degraded_reasons: [],
+        result: {
+          risk: "medium",
+          summary: "Runtime and plugin surfaces both changed in this diff.",
+          drivers: ["Diff spans shared runtime and extension files."]
+        }
+      }),
+      stderr: ""
+    });
+
+    await (provider as any).assessDiffRiskFromTools();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+      "flow",
+      "assist",
+      "diff-risk",
+      "--format",
+      "json"
+    ]);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Assess Diff Risk completed via ollama. Risk: medium. Runtime and plugin surfaces both changed in this diff. Drivers: Diff spans shared runtime and extension files."
+    );
+  });
+
   it("copies prompts to the clipboard without using VS Code chat commands", async () => {
     mocks.getCommands.mockResolvedValue([
       "chatgpt.openSidebar",

@@ -120,7 +120,11 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Summarize Validation</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
+            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
             <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>

@@ -1,6 +1,6 @@
 {
   "cache_path": "logics/.cache/runtime_index.json",
-  "generated_at": "2026-03-26T07:42:16.442325+00:00",
+  "generated_at": "2026-03-26T08:14:20.364021+00:00",
   "skill_packages": {
     "logics/skills/logics-acceptance-to-tests": {
       "data": {
@@ -1743,8 +1743,8 @@
     }
   },
   "stats": {
-    "cache_hits": 415,
-    "cache_misses": 13,
+    "cache_hits": 428,
+    "cache_misses": 0,
     "removed_entries": 0,
     "skill_count": 47,
     "workflow_doc_count": 381
@@ -22114,10 +22114,10 @@
           "Complexity": "Medium",
           "Confidence": "94%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "VS Code plugin UX for Ollama backed assist execution feedback",
           "Understanding": "96%"
         },
@@ -22249,8 +22249,8 @@
         "title": "Add plugin in-progress feedback for Ollama-backed hybrid assist actions"
       },
       "signature": {
-        "mtime_ns": 1774510838170518512,
-        "size": 7764
+        "mtime_ns": 1774511906999836155,
+        "size": 7765
       }
     },
     "logics/backlog/item_171_add_backend_aware_success_and_failure_notifications_for_plugin_hybrid_assist_runs.md": {
@@ -22265,10 +22265,10 @@
           "Complexity": "Medium",
           "Confidence": "94%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "VS Code plugin UX for Ollama backed assist execution feedback",
           "Understanding": "96%"
         },
@@ -22400,8 +22400,8 @@
         "title": "Add backend-aware success and failure notifications for plugin hybrid assist runs"
       },
       "signature": {
-        "mtime_ns": 1774510838170983349,
-        "size": 7784
+        "mtime_ns": 1774511907000013657,
+        "size": 7785
       }
     },
     "logics/backlog/item_172_add_regression_coverage_for_plugin_hybrid_assist_execution_feedback.md": {
@@ -22416,10 +22416,10 @@
           "Complexity": "Medium",
           "Confidence": "94%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "VS Code plugin UX for Ollama backed assist execution feedback",
           "Understanding": "96%"
         },
@@ -22551,8 +22551,8 @@
         "title": "Add regression coverage for plugin hybrid assist execution feedback"
       },
       "signature": {
-        "mtime_ns": 1774510838171340894,
-        "size": 7755
+        "mtime_ns": 1774511990242743674,
+        "size": 7756
       }
     },
     "logics/backlog/item_173_attempt_global_kit_publication_automatically_when_bootstrap_finishes_with_a_healthy_repo_local_source.md": {
@@ -22567,10 +22567,10 @@
           "Complexity": "Medium",
           "Confidence": "95%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Bootstrap completion semantics and global kit publication",
           "Understanding": "97%"
         },
@@ -22698,8 +22698,8 @@
         "title": "Attempt global kit publication automatically when bootstrap finishes with a healthy repo-local source"
       },
       "signature": {
-        "mtime_ns": 1774510838171698147,
-        "size": 8136
+        "mtime_ns": 1774511428649550370,
+        "size": 8137
       }
     },
     "logics/backlog/item_174_tighten_bootstrap_completion_and_partial_failure_messaging_around_global_kit_readiness.md": {
@@ -22714,10 +22714,10 @@
           "Complexity": "Medium",
           "Confidence": "95%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Bootstrap completion semantics and global kit publication",
           "Understanding": "97%"
         },
@@ -22845,8 +22845,8 @@
         "title": "Tighten bootstrap completion and partial failure messaging around global kit readiness"
       },
       "signature": {
-        "mtime_ns": 1774510838172059233,
-        "size": 8106
+        "mtime_ns": 1774511428649731830,
+        "size": 8107
       }
     },
     "logics/backlog/item_175_add_regression_coverage_for_bootstrap_global_publication_outcomes.md": {
@@ -22861,10 +22861,10 @@
           "Complexity": "Medium",
           "Confidence": "95%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Bootstrap completion semantics and global kit publication",
           "Understanding": "97%"
         },
@@ -22992,8 +22992,8 @@
         "title": "Add regression coverage for bootstrap global publication outcomes"
       },
       "signature": {
-        "mtime_ns": 1774510838172409278,
-        "size": 8064
+        "mtime_ns": 1774511990242929467,
+        "size": 8065
       }
     },
     "logics/backlog/item_176_harden_ollama_hybrid_prompt_messages_for_supported_local_flows.md": {
@@ -23008,10 +23008,10 @@
           "Complexity": "Medium",
           "Confidence": "96%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Hybrid assist local-runtime contract reliability and Ollama result validation",
           "Understanding": "98%"
         },
@@ -23124,8 +23124,8 @@
         "title": "Harden Ollama hybrid prompt messages for supported local flows"
       },
       "signature": {
-        "mtime_ns": 1774510838172723781,
-        "size": 6179
+        "mtime_ns": 1774511729783874688,
+        "size": 6180
       }
     },
     "logics/backlog/item_177_preserve_invalid_local_payload_diagnostics_when_hybrid_validation_fails.md": {
@@ -23140,10 +23140,10 @@
           "Complexity": "Medium",
           "Confidence": "96%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Hybrid assist local-runtime contract reliability and Ollama result validation",
           "Understanding": "98%"
         },
@@ -23255,8 +23255,8 @@
         "title": "Preserve invalid local payload diagnostics when hybrid validation fails"
       },
       "signature": {
-        "mtime_ns": 1774510838173021492,
-        "size": 5853
+        "mtime_ns": 1774511729784065815,
+        "size": 5854
       }
     },
     "logics/backlog/item_178_add_semantic_ollama_hybrid_runtime_tests_for_valid_and_invalid_payloads.md": {
@@ -23271,10 +23271,10 @@
           "Complexity": "Medium",
           "Confidence": "96%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and linked task references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Hybrid assist local-runtime contract reliability and Ollama result validation",
           "Understanding": "98%"
         },
@@ -23385,8 +23385,8 @@
         "title": "Add semantic Ollama hybrid runtime tests for valid and invalid payloads"
       },
       "signature": {
-        "mtime_ns": 1774510838173308077,
-        "size": 5600
+        "mtime_ns": 1774511990243049926,
+        "size": 5601
       }
     },
     "logics/request/req_000_kickoff.md": {
@@ -36615,7 +36615,7 @@
           "From version": "1.14.0",
           "Reminder": "Update status/understanding/confidence and references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "VS Code plugin UX for Ollama backed assist execution feedback",
           "Understanding": "96%"
         },
@@ -36767,8 +36767,8 @@
         "title": "Add user feedback and VS Code notifications for Ollama backend calls"
       },
       "signature": {
-        "mtime_ns": 1774510838140608338,
-        "size": 10171
+        "mtime_ns": 1774511990243511472,
+        "size": 10170
       }
     },
     "logics/request/req_101_make_logics_bootstrap_converge_to_a_ready_global_kit_before_reporting_completion.md": {
@@ -36785,7 +36785,7 @@
           "From version": "1.14.0",
           "Reminder": "Update status/understanding/confidence and references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Bootstrap completion semantics and global kit publication",
           "Understanding": "97%"
         },
@@ -36937,8 +36937,8 @@
         "title": "Make Logics bootstrap converge to a ready global kit before reporting completion"
       },
       "signature": {
-        "mtime_ns": 1774510838140991633,
-        "size": 10594
+        "mtime_ns": 1774511990243797349,
+        "size": 10593
       }
     },
     "logics/request/req_102_harden_ollama_hybrid_assist_prompts_and_response_validation_so_local_runs_stop_echoing_the_contract.md": {
@@ -36955,7 +36955,7 @@
           "From version": "1.14.0",
           "Reminder": "Update status/understanding/confidence and references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Hybrid assist local-runtime contract reliability and Ollama result validation",
           "Understanding": "98%"
         },
@@ -37113,8 +37113,8 @@
         "title": "Harden Ollama hybrid assist prompts and response validation so local runs stop echoing the contract"
       },
       "signature": {
-        "mtime_ns": 1774510838141399512,
-        "size": 10985
+        "mtime_ns": 1774511990243982809,
+        "size": 10984
       }
     },
     "logics/tasks/task_000_define_ux_and_ia_for_logics_orchestrator.md": {
@@ -48031,10 +48031,10 @@
           "Complexity": "High",
           "Confidence": "96%",
           "From version": "1.14.0",
-          "Progress": "0%",
+          "Progress": "100%",
           "Reminder": "Update status/understanding/confidence/progress and dependencies/references when you edit this doc.",
           "Schema version": "1.0",
-          "Status": "Ready",
+          "Status": "Done",
           "Theme": "Coordinated hybrid runtime trust, plugin feedback UX, and bootstrap global kit readiness",
           "Understanding": "98%"
         },
@@ -48146,11 +48146,11 @@
             ""
           ],
           "Definition of Done (DoD)": [
-            "- [ ] Scope implemented and acceptance criteria covered.",
-            "- [ ] Validation commands executed and results captured.",
-            "- [ ] Linked request/backlog/task docs updated during completed waves and at closure.",
-            "- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.",
-            "- [ ] Status is `Done` and progress is `100%`.",
+            "- [x] Scope implemented and acceptance criteria covered.",
+            "- [x] Validation commands executed and results captured.",
+            "- [x] Linked request/backlog/task docs updated during completed waves and at closure.",
+            "- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.",
+            "- [x] Status is `Done` and progress is `100%`.",
             ""
           ],
           "Delivery checkpoints": [
@@ -48184,12 +48184,12 @@
             ""
           ],
           "Plan": [
-            "- [ ] 1. Confirm the shared plugin surfaces, runtime dependencies, and AC traceability across items `170` through `178`.",
-            "- [ ] 2. Wave 1: deliver bootstrap-triggered global publication convergence and tighten completion or repair messaging through items `173` and `174`.",
-            "- [ ] 3. Wave 2: harden Ollama prompt messages and preserve invalid local payload diagnostics through items `176` and `177`.",
-            "- [ ] 4. Wave 3: deliver in-progress feedback plus backend-aware success and failure notifications for hybrid assist actions through items `170` and `171`.",
-            "- [ ] 5. Wave 4: add regression coverage for plugin execution-feedback behavior, bootstrap global-publication outcomes, and local hybrid runtime semantics through items `172`, `175`, and `178`.",
-            "- [ ] 6. Validate the combined result across bootstrap, global kit health, local hybrid runtime behavior, plugin messaging, and targeted tests.",
+            "- [x] 1. Confirm the shared plugin surfaces, runtime dependencies, and AC traceability across items `170` through `178`.",
+            "- [x] 2. Wave 1: deliver bootstrap-triggered global publication convergence and tighten completion or repair messaging through items `173` and `174`.",
+            "- [x] 3. Wave 2: harden Ollama prompt messages and preserve invalid local payload diagnostics through items `176` and `177`.",
+            "- [x] 4. Wave 3: deliver in-progress feedback plus backend-aware success and failure notifications for hybrid assist actions through items `170` and `171`.",
+            "- [x] 5. Wave 4: add regression coverage for plugin execution-feedback behavior, bootstrap global-publication outcomes, and local hybrid runtime semantics through items `172`, `175`, and `178`.",
+            "- [x] 6. Validate the combined result across bootstrap, global kit health, local hybrid runtime behavior, plugin messaging, and targeted tests.",
             "- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.",
             "- [ ] FINAL: Update related Logics docs",
             ""
@@ -48218,7 +48218,19 @@
             "- `tests/webview.harness-details-and-filters.test.ts`",
             ""
           ],
-          "Report": [],
+          "Report": [
+            "- Wave 1 delivered bootstrap-triggered global publication convergence and explicit partial-success messaging when the repo-local kit is ready but the global kit is still blocked or failed.",
+            "- Wave 2 hardened Ollama prompt wording, preserved bounded invalid local payload diagnostics on fallback, and added runtime tests that distinguish valid local payloads, semantic failures, and transport unavailability.",
+            "- Wave 3 added VS Code progress feedback plus backend-aware completion and error notifications while keeping the plugin as a thin client over the shared hybrid runtime.",
+            "- Validation:",
+            "  - `python3 logics/skills/logics.py flow sync refresh-mermaid-signatures --format json`",
+            "  - `python3 logics/skills/logics.py audit --refs req_100 --refs req_101 --refs req_102 --refs item_170 --refs item_171 --refs item_172 --refs item_173 --refs item_174 --refs item_175 --refs item_176 --refs item_177 --refs item_178 --refs task_104`",
+            "  - `python3 -m pytest logics/skills/tests/test_logics_flow.py -q`",
+            "  - `npx vitest run tests/logicsViewProvider.test.ts tests/logicsCodexWorkspace.test.ts tests/webview.harness-details-and-filters.test.ts`",
+            "  - `npm run lint:ts`",
+            "  - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status`",
+            "  - `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`"
+          ],
           "Validation": [
             "- `python3 logics/skills/logics-flow-manager/scripts/logics_flow.py sync refresh-mermaid-signatures --format json`",
             "- `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status`",
@@ -48235,8 +48247,8 @@
         "title": "Orchestration delivery for req_100, req_101, and req_102 across plugin feedback, bootstrap global kit convergence, and hybrid runtime contract hardening"
       },
       "signature": {
-        "mtime_ns": 1774510838186135604,
-        "size": 13842
+        "mtime_ns": 1774511990244175478,
+        "size": 15174
       }
     }
   }

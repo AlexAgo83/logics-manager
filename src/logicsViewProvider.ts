@@ -1031,14 +1031,31 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async ensureGlobalCodexKit(root: string): Promise<boolean> {
+  private async inspectGlobalCodexKitPublishability(root: string): Promise<{
+    inspectionOk: boolean;
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>;
+    shouldPublish: boolean;
+  }> {
     const inspection = inspectLogicsKitSubmodule(root);
     if (!inspection.exists || !inspection.isCanonical) {
-      return false;
+      return {
+        inspectionOk: false,
+        snapshot: await inspectLogicsEnvironment(root),
+        shouldPublish: false
+      };
     }
 
     const snapshot = await inspectLogicsEnvironment(root);
-    if (!shouldPublishRepoKit(root, snapshot.codexOverlay)) {
+    return {
+      inspectionOk: true,
+      snapshot,
+      shouldPublish: shouldPublishRepoKit(root, snapshot.codexOverlay)
+    };
+  }
+
+  private async ensureGlobalCodexKit(root: string): Promise<boolean> {
+    const publishability = await this.inspectGlobalCodexKitPublishability(root);
+    if (!publishability.inspectionOk || !publishability.shouldPublish) {
       return false;
     }
 
@@ -1053,6 +1070,39 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         void vscode.window.showWarningMessage(`Automatic global Codex kit publish failed: ${message}`);
       }
       return false;
+    }
+  }
+
+  private async attemptBootstrapGlobalKitConvergence(root: string): Promise<{
+    attempted: boolean;
+    published: boolean;
+    failed: boolean;
+    failureMessage?: string;
+  }> {
+    const publishability = await this.inspectGlobalCodexKitPublishability(root);
+    if (!publishability.inspectionOk || !publishability.shouldPublish) {
+      return {
+        attempted: false,
+        published: false,
+        failed: false
+      };
+    }
+
+    try {
+      publishCodexWorkspaceOverlay(root);
+      return {
+        attempted: true,
+        published: true,
+        failed: false
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        attempted: true,
+        published: false,
+        failed: true,
+        failureMessage: message
+      };
     }
   }
 
@@ -1192,7 +1242,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus);
-    await this.notifyBootstrapCompletion(root);
+    const globalKitOutcome = await this.attemptBootstrapGlobalKitConvergence(root);
+    await this.notifyBootstrapCompletion(root, globalKitOutcome);
     await this.refresh();
   }
 
@@ -1248,11 +1299,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
   }
 
-  private async notifyBootstrapCompletion(root: string): Promise<void> {
+  private async notifyBootstrapCompletion(
+    root: string,
+    globalKitOutcome?: {
+      attempted: boolean;
+      published: boolean;
+      failed: boolean;
+      failureMessage?: string;
+    }
+  ): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
     if (overlay.status === "healthy" || overlay.status === "warning") {
-      void vscode.window.showInformationMessage("Logics bootstrapped. Repo-local kit and the global Codex kit are ready. Refreshing.");
+      const detail = globalKitOutcome?.published ? " Global Codex kit publication completed during bootstrap." : "";
+      void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local kit and the global Codex kit are ready.${detail} Refreshing.`);
       return;
     }
     const actions: string[] = [];
@@ -1262,7 +1322,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (overlay.status !== "missing-manager") {
       actions.push("Publish Global Codex Kit");
     }
-    const message = `Logics bootstrapped. Repo-local kit is ready, but the global Codex kit is not ready yet. ${overlay.summary}`;
+    const outcomeNote =
+      globalKitOutcome?.failed && globalKitOutcome.failureMessage
+        ? ` Automatic publication failed during bootstrap: ${globalKitOutcome.failureMessage}.`
+        : globalKitOutcome?.attempted
+          ? " Automatic publication ran during bootstrap, but the global kit still needs attention."
+          : "";
+    const message = `Logics bootstrapped partially. Repo-local kit is ready, but the global Codex kit is not ready yet. ${overlay.summary}${outcomeNote}`;
     const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
     if (choice === "Publish Global Codex Kit") {
       await this.syncCodexOverlay(root, "bootstrap completion");
@@ -1272,7 +1338,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       await this.updateLogicsKit(root, "bootstrap completion");
       return;
     }
-    void vscode.window.showInformationMessage("Logics bootstrapped. Refreshing.");
+    void vscode.window.showInformationMessage("Logics bootstrapped partially. Refreshing.");
   }
 
   private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {

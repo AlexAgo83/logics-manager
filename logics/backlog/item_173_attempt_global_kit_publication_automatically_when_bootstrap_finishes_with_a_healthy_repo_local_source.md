@@ -1,10 +1,10 @@
 ## item_173_attempt_global_kit_publication_automatically_when_bootstrap_finishes_with_a_healthy_repo_local_source - Attempt global kit publication automatically when bootstrap finishes with a healthy repo-local source
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap completion semantics and global kit publication
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

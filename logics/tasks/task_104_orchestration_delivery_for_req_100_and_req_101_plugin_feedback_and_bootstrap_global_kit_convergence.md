@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 96%
-> Progress: 25%
+> Progress: 50%
 > Complexity: High
 > Theme: Coordinated hybrid runtime trust, plugin feedback UX, and bootstrap global kit readiness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -55,7 +55,7 @@ flowchart LR
 # Plan
 - [x] 1. Confirm the shared plugin surfaces, runtime dependencies, and AC traceability across items `170` through `178`.
 - [x] 2. Wave 1: deliver bootstrap-triggered global publication convergence and tighten completion or repair messaging through items `173` and `174`.
-- [ ] 3. Wave 2: harden Ollama prompt messages and preserve invalid local payload diagnostics through items `176` and `177`.
+- [x] 3. Wave 2: harden Ollama prompt messages and preserve invalid local payload diagnostics through items `176` and `177`.
 - [ ] 4. Wave 3: deliver in-progress feedback plus backend-aware success and failure notifications for hybrid assist actions through items `170` and `171`.
 - [ ] 5. Wave 4: add regression coverage for plugin execution-feedback behavior, bootstrap global-publication outcomes, and local hybrid runtime semantics through items `172`, `175`, and `178`.
 - [ ] 6. Validate the combined result across bootstrap, global kit health, local hybrid runtime behavior, plugin messaging, and targeted tests.

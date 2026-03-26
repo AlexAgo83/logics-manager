@@ -1,10 +1,10 @@
 ## item_176_harden_ollama_hybrid_prompt_messages_for_supported_local_flows - Harden Ollama hybrid prompt messages for supported local flows
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist local-runtime contract reliability and Ollama result validation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

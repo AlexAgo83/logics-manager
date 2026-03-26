@@ -1,9 +1,9 @@
 ## req_103_separate_optional_claude_bridge_status_from_hybrid_runtime_degradation_and_expand_ollama_first_dispatch_across_supported_flows - Separate optional Claude bridge status from hybrid runtime degradation and expand Ollama-first dispatch across supported flows
 > From version: 1.15.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: High
 > Theme: Hybrid assist runtime health semantics, adapter-neutral status, and broader Ollama-first delegation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

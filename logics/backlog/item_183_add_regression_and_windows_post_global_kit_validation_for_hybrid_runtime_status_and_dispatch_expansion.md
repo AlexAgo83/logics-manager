@@ -1,10 +1,10 @@
 ## item_183_add_regression_and_windows_post_global_kit_validation_for_hybrid_runtime_status_and_dispatch_expansion - Add regression and Windows post-global-kit validation for hybrid runtime status and dispatch expansion
 > From version: 1.15.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Regression safety and Windows compatibility after global Codex kit deployment
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -80,3 +80,5 @@ flowchart LR
 # Notes
 - Derived from request `req_103_separate_optional_claude_bridge_status_from_hybrid_runtime_degradation_and_expand_ollama_first_dispatch_across_supported_flows`.
 - Source file: `logics/request/req_103_separate_optional_claude_bridge_status_from_hybrid_runtime_degradation_and_expand_ollama_first_dispatch_across_supported_flows.md`.
+- Automated evidence now covers the healthy-without-Claude runtime-status path, unified bridge detection, and new dispatch-policy paths such as `diff-risk` and `next-step` under `auto`.
+- Windows post-global-kit evidence is kept explicit in `README.md`: the supported shared-runtime entrypoint remains `python logics/skills/logics.py flow assist ...`, with manual VM smoke steps for `runtime-status`, `diff-risk`, and `validation-checklist` after the move away from repo-local overlays.

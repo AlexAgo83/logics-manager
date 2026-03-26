@@ -1,10 +1,10 @@
 ## item_181_define_per_flow_ollama_first_dispatch_policy_for_supported_hybrid_assist_flows - Define per-flow Ollama-first dispatch policy for supported hybrid assist flows
 > From version: 1.15.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Explicit local-first hybrid dispatch policy and bounded backend selection
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

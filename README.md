@@ -52,7 +52,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
-- Tools menu now includes shared hybrid-assist actions for `Check Hybrid Runtime`, `Commit All Changes`, `Suggest Next Step`, and `Summarize Validation`.
+- Tools menu now includes shared hybrid-assist actions for `Check Hybrid Runtime`, `Commit All Changes`, `Suggest Next Step`, `Triage Item`, `Assess Diff Risk`, `Summarize Validation`, `Validation Checklist`, and `Doc Consistency`.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
 - Environment diagnostics now show hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
 
@@ -200,6 +200,11 @@ Contract:
 - `Logics: Promote Item`
 - `Logics: New Request`
 - `Logics: Check Environment`
+- `Logics: Open Hybrid Insights`
+- `Logics: Triage Item`
+- `Logics: Assess Diff Risk`
+- `Logics: Build Validation Checklist`
+- `Logics: Review Doc Consistency`
 
 ## Tools Menu
 
@@ -215,7 +220,11 @@ Contract:
 - `Hybrid Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with measured counters, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
+- `Triage Item` classifies a selected request, backlog item, or task through the shared hybrid runtime and keeps backend provenance visible in the completion notification.
+- `Assess Diff Risk` runs the shared `diff-risk` flow directly from the plugin so the current change surface can stay local-first when policy allows it.
 - `Summarize Validation` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
+- `Validation Checklist` asks the shared runtime for a bounded validation checklist derived from the current diff surface.
+- `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
 - On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
 - Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
@@ -309,6 +318,9 @@ Suggested VM checklist:
    - install the `.vsix` from VS Code or with `code --install-extension ...`
    - trigger `Bootstrap Logics`
    - run `Logics: Check Environment`
+   - run `python logics/skills/logics.py flow assist runtime-status --format json` and confirm `windows_safe_entrypoint` still points to `python logics/skills/logics.py flow assist ...`
+   - run `python logics/skills/logics.py flow assist diff-risk --backend auto --format json` and `python logics/skills/logics.py flow assist validation-checklist --backend auto --format json`
+   - confirm those shared-runtime commands still work without relying on any repo-local Codex overlay path
    - create a request, backlog item, and task
    - promote request -> backlog and backlog -> task
    - confirm `py -3` or `python` launcher resolution works as expected

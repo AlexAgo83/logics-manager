@@ -1,10 +1,10 @@
 ## item_180_unify_claude_bridge_detection_contracts_across_runtime_and_extension_status_surfaces - Unify Claude bridge detection contracts across runtime and extension status surfaces
 > From version: 1.15.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Claude bridge contract unification across Python runtime and VS Code extension
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

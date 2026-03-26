@@ -1,10 +1,10 @@
 ## task_105_orchestration_delivery_for_req_103_hybrid_runtime_status_semantics_dispatch_expansion_and_windows_global_kit_validation - Orchestration delivery for req_103 across hybrid runtime status semantics, dispatch expansion, and Windows global-kit validation
 > From version: 1.15.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid runtime health semantics, adapter contract alignment, broader Ollama-first delegation, and Windows-safe validation after global kit migration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -50,14 +50,14 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm req_103 traceability, current runtime-status semantics, existing bridge detection paths, and the currently exposed hybrid assist operator flows.
-- [ ] 2. Wave 1: deliver hybrid runtime health semantic correction and unified Claude bridge detection through items `179` and `180`.
-- [ ] 3. Wave 2: define and implement the explicit per-flow Ollama-first dispatch policy through item `181`.
-- [ ] 4. Wave 3: expose additional bounded high-value hybrid assist flows through plugin or shared operator surfaces via item `182`.
-- [ ] 5. Wave 4: add regression coverage and perform the Windows post-global-kit validation pass through item `183`.
-- [ ] 6. Validate the combined result across runtime status, adapter availability, dispatch policy, operator surfaces, observability, and Windows-safe post-global-kit assumptions.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm req_103 traceability, current runtime-status semantics, existing bridge detection paths, and the currently exposed hybrid assist operator flows.
+- [x] 2. Wave 1: deliver hybrid runtime health semantic correction and unified Claude bridge detection through items `179` and `180`.
+- [x] 3. Wave 2: define and implement the explicit per-flow Ollama-first dispatch policy through item `181`.
+- [x] 4. Wave 3: expose additional bounded high-value hybrid assist flows through plugin or shared operator surfaces via item `182`.
+- [x] 5. Wave 4: add regression coverage and perform the Windows post-global-kit validation pass through item `183`.
+- [x] 6. Validate the combined result across runtime status, adapter availability, dispatch policy, operator surfaces, observability, and Windows-safe post-global-kit assumptions.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Keep Wave 1 reviewable as a semantic-correction checkpoint before any broader Ollama delegation is exposed.
@@ -135,11 +135,22 @@ flowchart LR
 - Manual: verify Windows post-global-kit assumptions around entrypoints, runtime-status, and dispatcher behavior remain explicit and supported.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending implementation.
+- Wave 1 shipped the semantic correction and shared Claude-bridge detection contract:
+  - missing Claude bridge files no longer degrade `runtime-status` on their own;
+  - runtime and extension now agree on the supported bridge variants and preferred reporting order.
+- Wave 2 encoded explicit backend policy in the shared runtime:
+  - per-flow policy metadata now distinguishes `ollama-first` flows from `codex-only` flows under `auto`;
+  - `next-step` now stays policy-routed to Codex under `auto`, while bounded proposal flows such as `diff-risk` remain eligible for local-first execution.
+- Wave 3 expanded thin-client operator surfaces in the plugin:
+  - the tools menu and command palette now expose `Triage Item`, `Assess Diff Risk`, `Validation Checklist`, and `Doc Consistency`;
+  - those actions still route through `python logics/skills/logics.py flow assist ...` and reuse shared runtime notifications.
+- Wave 4 closed regression and Windows/post-global-kit evidence:
+  - Python and Vitest coverage now proves the healthy-without-Claude status path, unified bridge detection, explicit policy metadata, one new Ollama-eligible path, and one codex-only `auto` path;
+  - `README.md` now documents the Windows VM checklist around the post-global-kit shared runtime entrypoint and explicitly calls out the supported `python logics/skills/logics.py flow assist ...` path instead of any repo-local overlay shortcut.

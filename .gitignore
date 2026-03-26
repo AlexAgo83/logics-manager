@@ -5,6 +5,10 @@ dist/
 *.vsix
 .DS_Store
 
+# Python bytecode caches
+__pycache__/
+*.pyc
+
 # Generated Logics runtime artifacts
 logics/.cache/
 logics/hybrid_assist_audit.jsonl

@@ -24,6 +24,40 @@ export type HybridRuntimeSnapshot = {
   windowsSafeEntrypoint: string;
 };
 
+export type ClaudeBridgeStatus = {
+  available: boolean;
+  preferredVariant: "hybrid-assist" | "flow-manager" | null;
+  detectedVariants: string[];
+  supportedVariants: string[];
+};
+
+const CLAUDE_BRIDGE_VARIANTS = [
+  {
+    id: "hybrid-assist",
+    commandPath: [".claude", "commands", "logics-assist.md"],
+    agentPath: [".claude", "agents", "logics-hybrid-delivery-assistant.md"]
+  },
+  {
+    id: "flow-manager",
+    commandPath: [".claude", "commands", "logics-flow.md"],
+    agentPath: [".claude", "agents", "logics-flow-manager.md"]
+  }
+] as const;
+
+export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
+  const detectedVariants = CLAUDE_BRIDGE_VARIANTS.filter(
+    (variant) =>
+      fs.existsSync(path.join(root, ...variant.commandPath)) &&
+      fs.existsSync(path.join(root, ...variant.agentPath))
+  ).map((variant) => variant.id);
+  return {
+    available: detectedVariants.length > 0,
+    preferredVariant: detectedVariants[0] ?? null,
+    detectedVariants: [...detectedVariants],
+    supportedVariants: CLAUDE_BRIDGE_VARIANTS.map((variant) => variant.id)
+  };
+}
+
 export type LogicsEnvironmentSnapshot = {
   root: string | null;
   invalidOverridePath?: string;
@@ -307,9 +341,8 @@ async function inspectHybridAssistRuntime(
     };
   }
 
-  const claudeBridgeAvailable =
-    fs.existsSync(path.join(root, ".claude", "commands", "logics-assist.md")) &&
-    fs.existsSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"));
+  const claudeBridgeStatus = detectClaudeBridgeStatus(root);
+  const claudeBridgeAvailable = claudeBridgeStatus.available;
 
   if (!pythonCommand) {
     return {

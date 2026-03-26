@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { inspectLogicsEnvironment } from "../src/logicsEnvironment";
+import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
 
 describe("inspectLogicsEnvironment", () => {
   const roots: string[] = [];
@@ -114,5 +114,31 @@ describe("inspectLogicsEnvironment", () => {
     expect(snapshot.hybridRuntime?.state).toBe("ready");
     expect(snapshot.capabilities.hybridAssist?.status).toBe("available");
     expect(snapshot.capabilities.hybridAssist?.summary).toContain("Hybrid assist runtime ready");
+  });
+
+  it("detects both supported Claude bridge variants with a stable preference order", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
+    fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
+
+    let status = detectClaudeBridgeStatus(root);
+    expect(status.available).toBe(false);
+    expect(status.detectedVariants).toEqual([]);
+
+    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-flow.md"), "bridge\n", "utf8");
+    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "bridge\n", "utf8");
+    status = detectClaudeBridgeStatus(root);
+    expect(status.available).toBe(true);
+    expect(status.preferredVariant).toBe("flow-manager");
+    expect(status.detectedVariants).toEqual(["flow-manager"]);
+
+    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-assist.md"), "bridge\n", "utf8");
+    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"), "bridge\n", "utf8");
+    status = detectClaudeBridgeStatus(root);
+    expect(status.available).toBe(true);
+    expect(status.preferredVariant).toBe("hybrid-assist");
+    expect(status.detectedVariants).toEqual(["hybrid-assist", "flow-manager"]);
+    expect(status.supportedVariants).toEqual(["hybrid-assist", "flow-manager"]);
   });
 });

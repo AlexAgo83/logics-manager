@@ -1,10 +1,11 @@
 ## adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable - Keep Codex workspace overlays repo local isolated and composable
 > Date: 2026-03-22
-> Status: Accepted
+> Status: Superseded
 > Drivers: Keep `logics/skills/` as the canonical source of truth, support multiple active repositories concurrently, prevent global skill collisions, preserve shared user-level Codex state where appropriate, and keep overlay operations diagnosable across platforms.
 > Related request: `req_067_add_multi_project_codex_workspace_overlays_for_logics_skills`, `req_069_add_an_operator_facing_logics_codex_workspace_manager_cli`, `req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills`, `req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays`, `req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback`, `req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays`, `req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories`
 > Related backlog: `item_090_add_multi_project_codex_workspace_overlays_for_logics_skills`, `item_092_add_an_operator_facing_logics_codex_workspace_manager_cli`, `item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills`, `item_094_add_diagnostics_and_self_healing_for_codex_workspace_overlays`, `item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback`, `item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays`, `item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories`
 > Related task: (none yet)
+> Superseded by: `adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit`
 > Reminder: Update status, linked refs, decision rationale, consequences, migration plan, and follow-up work when you edit this doc.
 
 # Overview

@@ -1,10 +1,10 @@
 ## task_103_orchestration_delivery_for_req_099_global_logics_kit_publication_and_overlay_migration - Orchestration delivery for req_099 global Logics kit publication and overlay migration
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Coordinated migration from overlay-backed Codex runtime to a globally published Logics kit
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -33,7 +33,7 @@ Constraints:
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|orchestration-delivery-for-req-099-globa|item-167-define-a-global-logics-kit-publ|1-confirm-the-manifest-policy-and|python3-logics-skills-logics-flow-manage
+%% logics-signature: task|orchestration-delivery-for-req-099-globa|item-167-define-a-global-logics-kit-publ|1-confirm-the-architecture-shift-from|python3-logics-skills-logics-flow-manage
 flowchart LR
     Start[req_099] --> Wave1[Wave 1 manifest policy and provenance contract]
     Wave1 --> Wave2[Wave 2 plugin publication and zero touch auto upgrade]
@@ -43,13 +43,13 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm the architecture shift from overlays to a globally published kit and keep AC traceability aligned across items `167` through `169`.
-- [ ] 2. Wave 1: define and implement the global publication manifest, provenance model, and version-resolution policy through item `167`.
-- [ ] 3. Wave 2: deliver plugin-side detection, publication, repair, and zero-touch auto-upgrade behavior through item `168`.
-- [ ] 4. Wave 3: migrate plugin diagnostics, tools, and README/operator guidance away from overlay-specific runtime wording through item `169`.
-- [ ] 5. Validate the combined result across existing-repo migration, degraded-state behavior, plugin visibility, and documentation coherence.
-- [ ] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm the architecture shift from overlays to a globally published kit and keep AC traceability aligned across items `167` through `169`.
+- [x] 2. Wave 1: define and implement the global publication manifest, provenance model, and version-resolution policy through item `167`.
+- [x] 3. Wave 2: deliver plugin-side detection, publication, repair, and zero-touch auto-upgrade behavior through item `168`.
+- [x] 4. Wave 3: migrate plugin diagnostics, tools, and README/operator guidance away from overlay-specific runtime wording through item `169`.
+- [x] 5. Validate the combined result across existing-repo migration, degraded-state behavior, plugin visibility, and documentation coherence.
+- [x] CHECKPOINT: leave each completed wave in a coherent, commit-ready state and update linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Keep Wave 1 reviewable as a pure contract and runtime-state checkpoint before plugin automation mutates the global Codex home.
@@ -119,11 +119,14 @@ flowchart LR
 - Manual: verify that older repositories with the canonical submodule still behave as valid publication sources during migration.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending implementation.
+- Delivered the global kit manifest and provenance policy in `src/logicsCodexWorkspace.ts`, including publish/repair state inspection, source revision tracking, and idempotent publication into `~/.codex`.
+- Delivered zero-touch plugin publication and upgrade behavior in `src/logicsViewProvider.ts`, plus migration of launch, diagnostics, and handoff flows in `src/logicsViewDocumentController.ts`, `src/logicsWebviewHtml.ts`, and `media/hostApi.js`.
+- Updated README and Logics architecture/docs to make the global published kit the primary runtime model and explicitly downscope legacy overlay tooling to compatibility use only.
+- Validation completed with `npm test -- tests/logicsCodexWorkspace.test.ts tests/logicsViewProvider.test.ts tests/webview.harness-details-and-filters.test.ts`, `npm run lint:ts`, `npm test`, `npm run lint:logics`, and `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`.

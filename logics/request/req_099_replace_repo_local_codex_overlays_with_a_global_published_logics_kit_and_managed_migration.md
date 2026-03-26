@@ -1,9 +1,9 @@
 ## req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration - Replace repo-local Codex overlays with a global published Logics kit and managed migration
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 95%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
 > Complexity: High
 > Theme: Global Codex kit publication, plugin-managed upgrades, and migration off overlays
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -44,7 +44,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|replace-repo-local-codex-overlays-with|replace-the-current-repo-local-codex|ac1-the-request-defines-a-global
+%% logics-signature: request|replace-repo-local-codex-overlays-with-a|replace-the-current-repo-local-codex-ove|ac1-the-request-defines-a-new
 flowchart TD
     Repos[Many repos already import the Logics kit] --> Pain[Overlay ready does not guarantee session visibility]
     Pain --> Shift[Adopt one global published kit runtime]
@@ -127,10 +127,10 @@ flowchart TD
 - AC5 -> explicit multi-project version policy. Proof: the request requires the system to state who wins when several repositories expose different kit revisions.
 - AC6 -> migration and overlay retirement path. Proof: the request explicitly covers existing overlay-aware repos and UX rather than treating migration as out-of-band cleanup.
 - AC6b -> automatic adoption by existing projects. Proof: the request explicitly forbids a per-project manual migration burden in the normal path.
-- AC7 -> boundary between shared kit runtime and repo-owned workflow content. Proof: the request explicitly prevents accidental globalization of project documents.
+- AC7 -> `item_167_define_a_global_logics_kit_publication_manifest_and_version_resolution_policy` and `item_168_publish_and_auto_upgrade_the_global_codex_logics_kit_from_canonical_repo_sources_in_the_plugin`. Proof: the manifest contract and plugin publication flow both explicitly keep workflow docs and other repo-owned content out of the global runtime surface.
 - AC8 -> repair and degraded-state semantics for the global model. Proof: the request requires deterministic handling for missing manifests, partial installs, and failed upgrades.
 - AC9 -> plugin diagnostics and UX updates. Proof: the request requires user-facing surfaces to describe the active global runtime rather than obsolete overlay concepts.
-- AC10 -> implementation-ready follow-up scope. Proof: the request requires enough architectural clarity for backlog and task slicing without reopening the main decision.
+- AC10 -> `item_167_define_a_global_logics_kit_publication_manifest_and_version_resolution_policy`, `item_168_publish_and_auto_upgrade_the_global_codex_logics_kit_from_canonical_repo_sources_in_the_plugin`, and `item_169_migrate_plugin_docs_and_existing_overlay_ux_to_the_global_published_kit_model`. Proof: the request now resolves into one manifest contract slice, one plugin automation slice, and one UX/docs migration slice without reopening the architecture choice.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -140,7 +140,7 @@ flowchart TD
 
 # Companion docs
 - Product brief(s): (none yet)
-- Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable` (expected to be revisited or superseded), `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`
+- Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable` (superseded), `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`, `adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit`
 
 # AI Context
 - Summary: Replace repo-local Codex overlays with a globally published Logics kit that the plugin auto-updates from canonical repo-local kit sources, while defining migration and deprecation behavior for all existing overlay-aware projects.
@@ -154,6 +154,7 @@ flowchart TD
 - `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`
 - `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`
 - `logics/architecture/adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable.md`
+- `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`
 - `logics/skills/README.md`
 - `logics/skills/logics-flow-manager/SKILL.md`
 - `logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py`
@@ -161,6 +162,11 @@ flowchart TD
 - `src/logicsEnvironment.ts`
 - `src/logicsViewProvider.ts`
 - `README.md`
+
+# Delivery notes
+- Delivered the global publication manifest and version/source provenance contract in `src/logicsCodexWorkspace.ts` with publication into `~/.codex` and a machine-readable `logics-global-kit.json` manifest.
+- Delivered zero-touch plugin publication and upgrade behavior through `src/logicsViewProvider.ts`, including automatic convergence on refresh for compatible canonical repositories.
+- Migrated plugin actions, diagnostics, handoff wording, and README/operator guidance away from the overlay-first mental model while leaving the legacy overlay manager explicitly downscoped for compatibility only.
 
 # Backlog
 - `item_167_define_a_global_logics_kit_publication_manifest_and_version_resolution_policy`

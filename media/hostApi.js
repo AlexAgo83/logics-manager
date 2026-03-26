@@ -77,7 +77,7 @@
         invokeHostOnly("update-logics-kit", {}, "Update Logics Kit");
       },
       syncCodexOverlay() {
-        invokeHostOnly("sync-codex-overlay", {}, "Sync Codex Overlay");
+        invokeHostOnly("sync-codex-overlay", {}, "Publish Global Codex Kit");
       },
       checkEnvironment() {
         invokeHostOnly("check-environment", {}, "Check Environment");

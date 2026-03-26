@@ -1,10 +1,10 @@
 ## item_168_publish_and_auto_upgrade_the_global_codex_logics_kit_from_canonical_repo_sources_in_the_plugin - Publish and auto-upgrade the global Codex Logics kit from canonical repo sources in the plugin
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: High
 > Theme: Zero-touch plugin publication and global kit upgrades
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,7 +29,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|publish-and-auto-upgrade-the-global-cod|req-099-replace-repo-local-codex-overla|opening-a-compatible-repository|ac1-the-plugin-detects-canonical
+%% logics-signature: backlog|publish-and-auto-upgrade-the-global-code|req-076-adapt-the-vs-code-logics-plugin-|req-099-only-improves-the-operator-exper|ac1-the-plugin-detects-compatible-repo-l
 flowchart LR
     Request[req_099] --> Problem[Repository open should converge runtime automatically]
     Problem --> Detect[Detect canonical repo local kit]
@@ -73,6 +73,7 @@ flowchart LR
 - `logics/request/req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration.md`
 - `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`
 - `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`
+- `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`
 - `logics/skills/README.md`
 - `src/logicsEnvironment.ts`
 - `src/logicsViewProvider.ts`
@@ -85,3 +86,4 @@ flowchart LR
 
 # Notes
 - Favor idempotent publication and repair behavior so repeated repository opens are safe.
+- Delivered in `src/logicsViewProvider.ts` through `ensureGlobalCodexKit(...)`, `shouldPublishRepoKit(...)`, direct publish/repair flows, and automatic convergence during repository refresh for compatible canonical sources.

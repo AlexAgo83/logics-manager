@@ -207,19 +207,19 @@ Contract:
 - `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
 - `Update Logics Kit` runs the supported submodule update flow when the repository uses the canonical `logics/skills` kit submodule and Git state is safe for automation.
-- `Sync Codex Overlay` runs the overlay manager from the plugin when the current kit already includes `logics_codex_workspace.py`.
-- `Check Environment` summarizes repository state, Python availability, Git availability, Codex overlay runtime state, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
-- `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing or stale overlay runtime.
+- `Publish Global Codex Kit` publishes or repairs the shared global Logics kit in `~/.codex` from the current canonical repo-local source when needed.
+- `Check Environment` summarizes repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
+- `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
 - `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - `Check Hybrid Runtime` probes the shared `logics.py flow assist runtime-status` surface and reports backend provenance plus degraded-state reasons.
 - `Hybrid Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with measured counters, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
 - `Summarize Validation` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
-- On load, the extension can proactively propose `Update Logics Kit` or `Sync Codex Overlay` once per unresolved repository state, using the same action-confirmation pattern as bootstrap prompts.
-- Overlay sync and run commands shown by the plugin now use the detected Python launcher such as `python3`, `python`, or `py -3`, instead of assuming `python` exists on every shell.
+- On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
+- Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
-- Bootstrap completion messaging now distinguishes repo-local kit readiness from Codex workspace-overlay readiness.
+- Bootstrap completion messaging now distinguishes repo-local kit readiness from global Codex kit readiness.
 - `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
@@ -229,7 +229,7 @@ The plugin remains a thin client over the shared runtime:
 - shared hybrid actions call `python logics/skills/logics.py flow assist ...`;
 - hybrid ROI aggregation and semantics also stay in the kit through `python logics/skills/logics.py flow assist roi-report --format json`;
 - backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
-- Codex overlay actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
+- global Codex kit actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 
 ## Codex Handoffs
 
@@ -243,37 +243,38 @@ The plugin now builds a lighter Codex handoff directly from the selected Logics 
 
 These flows are designed to reduce token waste without hiding the underlying Logics docs. The Markdown corpus in `logics/*` remains the source of truth; the plugin only shapes a smaller handoff from it.
 
-## Codex Workspace Overlays
+## Global Codex Kit Publication
 
-The Logics kit now includes a dedicated workspace manager for Codex multi-project usage.
-Use it when you want several repositories to expose their own `logics/skills` trees to separate Codex sessions without merging everything into one global `~/.codex/skills` pool.
+The primary Codex runtime model is now a globally published Logics kit under `~/.codex`.
+Repositories still keep `logics/skills/` as the canonical source of truth, but the plugin auto-publishes or upgrades that kit into the shared Codex home when it detects a compatible canonical submodule.
 
 Examples:
 
 ```bash
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py register
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py status
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py status --all
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py doctor --fix
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync --publication-mode copy
-python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex
+codex
+cat ~/.codex/logics-global-kit.json
 ```
 
 Runtime contract:
 
-- `logics/skills/` stays canonical inside each repository.
-- each repository gets its own overlay under `~/.codex-workspaces/<repo-id>/`.
-- repo-local Logics skills shadow same-named global skills.
-- shared user assets such as `auth.json`, `config.toml`, and `skills/.system` stay global and are referenced into the overlay when available.
+- `logics/skills/` stays canonical inside each compatible repository.
+- the active shared runtime is published into the main Codex home under `~/.codex/skills`.
+- the publication manifest `~/.codex/logics-global-kit.json` records installed version, source repo, source revision, publish time, and published skills.
+- the plugin can auto-upgrade the shared runtime when a newer compatible repo-local kit is detected.
+- repo-owned workflow documents under `logics/request`, `logics/backlog`, `logics/tasks`, product briefs, and ADRs stay inside the repository and are never globalized.
 
 Plugin remediation path:
 
-- if the kit is too old for overlays and the repository uses the canonical `logics/skills` submodule, the plugin can run the supported kit update flow directly.
-- if the overlay manager exists but the workspace overlay is missing or stale, the plugin can run the overlay sync directly instead of only copying the terminal command.
-- if either of those states is detected when the plugin loads, VS Code can proactively offer the relevant remediation action instead of waiting for a manual environment check.
-- when the overlay is healthy, the plugin can launch the terminal Codex handoff directly and still keeps a clipboard fallback for users who prefer to inspect or reuse the command manually.
-- unsupported or unsafe cases, such as a dirty worktree or a non-canonical kit layout, fall back to explicit manual guidance instead of partial automation.
+- if the kit is too old to act as a publication source and the repository uses the canonical `logics/skills` submodule, the plugin can run the supported kit update flow directly.
+- if the global kit is missing or stale, opening a compatible repository can auto-publish it without a separate migration action in the normal path.
+- if publication is unavailable or broken, the plugin exposes direct diagnostics and repair actions through `Check Environment`.
+- when the global kit is healthy, the plugin can launch Codex directly and still keeps a clipboard fallback for prompt handoff flows.
+- stale legacy overlay artifacts are no longer part of the normal operator path and should be treated as deprecated compatibility state.
+
+Legacy compatibility:
+
+- `logics_codex_workspace.py` remains available as a legacy overlay manager for transitional troubleshooting or older flows.
+- overlays are no longer the primary runtime contract for the plugin or the recommended default operator path.
 
 ## Validation
 

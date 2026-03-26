@@ -516,9 +516,9 @@ export class LogicsViewDocumentController {
         return;
       }
       const launchAction = "Launch Codex in Terminal";
-      const copyAction = "Copy Overlay Run Command";
+      const copyAction = "Copy Codex Launch Command";
       const choice = await vscode.window.showInformationMessage(
-        `Codex overlay runtime is ready after ${trigger}. Use the overlay run command for terminal Codex sessions bound to this repository.`,
+        `Global Codex kit is ready after ${trigger}. Launch Codex normally to use the published Logics skills.`,
         launchAction,
         copyAction
       );
@@ -528,27 +528,23 @@ export class LogicsViewDocumentController {
       }
       if (choice === copyAction) {
         await vscode.env.clipboard.writeText(overlay.runCommand);
-        void vscode.window.showInformationMessage("Codex overlay run command copied to clipboard.");
+        void vscode.window.showInformationMessage("Codex launch command copied to clipboard.");
       }
       return;
     }
-    if (!overlay.syncCommand) {
-      return;
-    }
-    const action = "Copy Overlay Sync Command";
+    const action = "Publish Global Codex Kit from Tools";
     const choice = await vscode.window.showInformationMessage(
-      `Repo-local Logics is ready after ${trigger}, but the Codex overlay runtime still needs sync. ${overlay.summary}`,
+      `Repo-local Logics is ready after ${trigger}, but the global Codex kit still needs publication or repair. ${overlay.summary}`,
       action
     );
     if (choice === action) {
-      await vscode.env.clipboard.writeText(overlay.syncCommand);
-      void vscode.window.showInformationMessage("Codex overlay sync command copied to clipboard.");
+      void vscode.window.showInformationMessage("Use Tools > Publish Global Codex Kit to update the shared runtime.");
     }
   }
 
   private launchCodexOverlayTerminal(root: string, runCommand: string): void {
     const terminal = vscode.window.createTerminal({
-      name: `Codex Overlay: ${path.basename(root)}`,
+      name: `Codex: ${path.basename(root)}`,
       cwd: root
     });
     terminal.show(true);

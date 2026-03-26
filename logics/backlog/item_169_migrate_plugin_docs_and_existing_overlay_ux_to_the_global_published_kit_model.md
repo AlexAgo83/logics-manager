@@ -1,10 +1,10 @@
 ## item_169_migrate_plugin_docs_and_existing_overlay_ux_to_the_global_published_kit_model - Migrate plugin docs and existing overlay UX to the global published kit model
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Plugin migration UX and overlay retirement
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,7 +28,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|migrate-plugin-docs-and-existing-overla|req-099-replace-repo-local-codex-overla|operators-will-stay-confused-if|ac1-plugin-and-docs-name-the-global
+%% logics-signature: backlog|migrate-plugin-docs-and-existing-overlay|req-076-adapt-the-vs-code-logics-plugin-|even-if-the-runtime-and-publication|ac1-plugin-and-documentation-surfaces-de
 flowchart LR
     Request[req_099] --> Problem[Overlay wording would keep old mental model alive]
     Problem --> Plugin[Update diagnostics tools and status surfaces]
@@ -46,6 +46,7 @@ flowchart LR
 - req099-AC6 -> Scope: migrate overlay-aware UX and docs. Proof: the item explicitly covers deprecation and retirement of overlay-specific surfaces.
 - req099-AC6b -> Scope: preserve the automatic migration story in user-facing flows. Proof: the item requires documentation and UX to avoid reintroducing manual migration steps.
 - req099-AC9 -> Scope: update `Check Environment`, launch wording, and kit visibility. Proof: the item explicitly covers the plugin surfaces most affected by the new runtime model.
+- req099-AC10 -> Scope: deliver one concrete migration slice for implementation. Proof: this item makes the request directly actionable as the UX/docs retirement slice without reopening the architecture choice.
 
 # Decision framing
 - Product framing: Yes
@@ -57,7 +58,7 @@ flowchart LR
 
 # Links
 - Product brief(s): `prod_002_plugin_hybrid_assist_runtime_visibility_and_action_ux`
-- Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable`, `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`
+- Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable`, `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`, `adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit`
 - Request: `req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration`
 - Primary task(s): `task_103_orchestration_delivery_for_req_099_global_logics_kit_publication_and_overlay_migration`
 
@@ -72,6 +73,7 @@ flowchart LR
 - `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`
 - `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`
 - `logics/architecture/adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable.md`
+- `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`
 - `src/logicsEnvironment.ts`
 - `src/logicsViewProvider.ts`
 - `src/logicsViewDocumentController.ts`
@@ -83,3 +85,4 @@ flowchart LR
 
 # Notes
 - Remove obsolete operator instructions quickly enough that the normal path stays singular.
+- Delivered across `src/logicsViewProvider.ts`, `src/logicsViewDocumentController.ts`, `src/logicsWebviewHtml.ts`, `media/hostApi.js`, `README.md`, and related tests by replacing the primary overlay UX with global-kit wording and explicit legacy compatibility downscoping.

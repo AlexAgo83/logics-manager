@@ -27,7 +27,9 @@ const mocks = vi.hoisted(() => ({
   getWorkspaceRoot: vi.fn(),
   hasMultipleWorkspaceFolders: vi.fn(),
   isExistingDirectory: vi.fn(),
-  areSamePath: vi.fn()
+  areSamePath: vi.fn(),
+  publishCodexWorkspaceOverlay: vi.fn(),
+  shouldPublishRepoKit: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -98,6 +100,11 @@ vi.mock("../src/logicsWebviewHtml", () => ({
   buildLogicsWebviewHtml: vi.fn(() => "<html></html>")
 }));
 
+vi.mock("../src/logicsCodexWorkspace", () => ({
+  publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
+  shouldPublishRepoKit: mocks.shouldPublishRepoKit
+}));
+
 vi.mock("../src/logicsEnvironment", () => ({
   inspectLogicsEnvironment: vi.fn(async () => ({
     root: "/workspace/mock",
@@ -132,7 +139,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       },
       codexRuntime: {
         status: "unavailable",
-        summary: "Repo-local Logics is ready, but the Codex workspace overlay still needs sync."
+        summary: "Repo-local Logics is ready, but the global Codex kit still needs publication."
       }
     },
     hybridRuntime: {
@@ -147,11 +154,12 @@ vi.mock("../src/logicsEnvironment", () => ({
     },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "Repo-local Logics is ready, but the Codex workspace overlay still needs sync.",
-      issues: ["Workspace overlay is missing or not initialized."],
+      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
+      issues: ["Global Logics kit manifest is missing."],
       warnings: [],
-      syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-      runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+      runCommand: "codex",
+      installedVersion: "1.4.0",
+      sourceRepo: "/workspace/mock"
     }
   }))
 }));
@@ -185,6 +193,8 @@ describe("LogicsViewProvider", () => {
     mocks.isExistingDirectory.mockReset();
     mocks.areSamePath.mockReset();
     mocks.createTerminal.mockReset();
+    mocks.publishCodexWorkspaceOverlay.mockReset();
+    mocks.shouldPublishRepoKit.mockReset();
 
     mocks.hasLogicsSubmodule.mockReturnValue(false);
     mocks.indexLogics.mockReturnValue([]);
@@ -209,6 +219,14 @@ describe("LogicsViewProvider", () => {
       sendText: vi.fn()
     });
     mocks.getCommands.mockResolvedValue([]);
+    mocks.shouldPublishRepoKit.mockReturnValue(false);
+    mocks.publishCodexWorkspaceOverlay.mockReturnValue({
+      publicationMode: "symlink",
+      manifestPath: "/tmp/logics-global-kit.json",
+      installedVersion: "1.4.0",
+      sourceRevision: "abc123",
+      publishedSkillNames: ["demo-skill"]
+    });
 
     provider = new LogicsViewProvider(
       {
@@ -264,9 +282,9 @@ describe("LogicsViewProvider", () => {
     expect(options.title).toBe("Logics: Check Environment");
     expect(items.some((item: { label: string }) => item.label.includes("Workflow actions: Unavailable"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Codex overlay runtime: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Global Codex kit: Needs attention"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Hybrid assist runtime: Degraded"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Codex overlay run command"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Codex launch command"))).toBe(true);
   });
 
   it("can surface hybrid runtime status through the shared assist command", async () => {
@@ -426,10 +444,9 @@ describe("LogicsViewProvider", () => {
     expect(panel.webview.html).toContain("Estimated ROI Proxies");
   });
 
-  it("can run overlay sync directly from environment diagnostics", async () => {
+  it("can publish the global kit directly from environment diagnostics", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     mocks.hasLogicsSubmodule.mockReturnValue(true);
-    const managerScriptPath = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py");
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
       .mockResolvedValueOnce({
@@ -447,16 +464,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
         },
         codexOverlay: {
           status: "missing-overlay",
-          summary: "Overlay missing.",
-          issues: ["Workspace overlay is missing or not initialized."],
+          summary: "Global kit missing.",
+          issues: ["Global Logics kit manifest is missing."],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -474,16 +489,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
         },
         codexOverlay: {
           status: "missing-overlay",
-          summary: "Overlay missing.",
-          issues: ["Workspace overlay is missing or not initialized."],
+          summary: "Global kit missing.",
+          issues: ["Global Logics kit manifest is missing."],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -501,16 +514,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Overlay ready." }
+          codexRuntime: { status: "available", summary: "Global kit ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Overlay ready.",
+          summary: "Global kit ready.",
           issues: [],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -528,31 +539,53 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Overlay ready." }
+          codexRuntime: { status: "available", summary: "Global kit ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Overlay ready.",
+          summary: "Global kit ready.",
           issues: [],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Global kit ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
         }
       } as never);
     mocks.showQuickPick.mockImplementationOnce(async (items) =>
-      items.find((item: { label: string }) => item.label === "Run: Sync Codex Overlay")
+      items.find((item: { label: string }) => item.label === "Run: Publish Global Codex Kit")
     );
-    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "synced", stderr: "" });
     mocks.showInformationMessage.mockResolvedValue(undefined);
 
     await provider.checkEnvironmentFromCommand();
 
-    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, managerScriptPath, ["sync"]);
+    expect(mocks.publishCodexWorkspaceOverlay).toHaveBeenCalledWith(root);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Codex workspace overlay synced after environment diagnostics. Overlay ready.",
+      "Global Codex kit published after environment diagnostics. Global kit ready.",
       "Launch Codex in Terminal",
-      "Copy Overlay Run Command"
+      "Copy Codex Launch Command"
     );
   });
 
@@ -577,38 +610,33 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-        codexRuntime: { status: "available", summary: "Overlay ready." }
-      },
-      codexOverlay: {
-        status: "healthy",
-        summary: "Overlay ready.",
-        issues: [],
-        warnings: [],
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
-      }
-    } as never);
+          codexRuntime: { status: "available", summary: "Global kit ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never);
 
     await (provider as any).launchCodexFromTools();
 
     expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
     expect(mocks.createTerminal).toHaveBeenCalledWith({
-      name: `Codex Overlay: ${path.basename(root)}`,
+      name: `Codex: ${path.basename(root)}`,
       cwd: root
     });
     expect(show).toHaveBeenCalledWith(true);
-    expect(sendText).toHaveBeenCalledWith(
-      "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex",
-      true
-    );
+    expect(sendText).toHaveBeenCalledWith("codex", true);
   });
 
-  it("syncs and launches Codex from Tools when the overlay is missing", async () => {
+  it("publishes and launches Codex from Tools when the global kit is missing", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
-    const managerScriptPath = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py");
     const show = vi.fn();
     const sendText = vi.fn();
     mocks.createTerminal.mockReturnValue({ show, sendText });
-    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "synced", stderr: "" });
 
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
@@ -627,16 +655,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
         },
         codexOverlay: {
           status: "missing-overlay",
-          summary: "Overlay missing.",
-          issues: ["Workspace overlay is missing or not initialized."],
+          summary: "Global kit missing.",
+          issues: ["Global Logics kit manifest is missing."],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -654,16 +680,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Overlay missing." }
+          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
         },
         codexOverlay: {
           status: "missing-overlay",
-          summary: "Overlay missing.",
-          issues: ["Workspace overlay is missing or not initialized."],
+          summary: "Global kit missing.",
+          issues: ["Global Logics kit manifest is missing."],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -681,28 +705,23 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Overlay ready." }
+          codexRuntime: { status: "available", summary: "Global kit ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Overlay ready.",
+          summary: "Global kit ready.",
           issues: [],
           warnings: [],
-          managerScriptPath,
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never);
 
     await (provider as any).launchCodexFromTools();
 
-    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, managerScriptPath, ["sync"]);
-    expect(sendText).toHaveBeenCalledWith(
-      "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex",
-      true
-    );
+    expect(mocks.publishCodexWorkspaceOverlay).toHaveBeenCalledWith(root);
+    expect(sendText).toHaveBeenCalledWith("codex", true);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Codex workspace overlay synced after Tools > Launch Codex. Launching Codex in Terminal."
+      "Global Codex kit published after Tools > Launch Codex. Launching Codex in Terminal."
     );
   });
 
@@ -726,15 +745,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Manager missing." }
+          codexRuntime: { status: "unavailable", summary: "Global kit source unsupported." }
         },
         codexOverlay: {
           status: "missing-manager",
-          summary: "Manager missing.",
-          issues: ["Overlay manager script is missing."],
+          summary: "This repository does not expose a compatible repo-local Logics kit source for global publication.",
+          issues: ["No repo-local Logics skills were found under logics/skills."],
           warnings: [],
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never)
       .mockResolvedValueOnce({
@@ -752,16 +770,14 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Overlay ready." }
+          codexRuntime: { status: "available", summary: "Global kit ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Overlay ready.",
+          summary: "Global kit ready.",
           issues: [],
           warnings: [],
-          managerScriptPath: path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py"),
-          syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-          runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+          runCommand: "codex"
         }
       } as never);
     mocks.showQuickPick.mockImplementationOnce(async (items) =>
@@ -807,11 +823,10 @@ describe("LogicsViewProvider", () => {
       },
       codexOverlay: {
         status: "missing-manager",
-        summary: "Overlay manager script is missing from logics/skills. Repair or update the Logics kit before relying on Codex workspace overlays.",
-        issues: ["Overlay manager script is missing."],
+        summary: "This repository does not expose a compatible repo-local Logics kit source for global publication.",
+        issues: ["No compatible repo-local Logics kit source is available for global publication."],
         warnings: [],
-        syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        runCommand: "codex"
       }
     } as never);
     mocks.showInformationMessage.mockResolvedValue(undefined);
@@ -821,14 +836,14 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "This repository already has Logics, but the current kit is too old for Codex overlays. Overlay manager script is missing from logics/skills. Repair or update the Logics kit before relying on Codex workspace overlays.",
+      "This repository already has Logics, but it cannot act as a healthy global Codex kit source yet. This repository does not expose a compatible repo-local Logics kit source for global publication.",
       "Update Logics Kit",
       "Copy Update Command",
       "Not now"
     );
   });
 
-  it("offers a startup notification to sync the overlay only once per unresolved state", async () => {
+  it("offers a startup notification to publish the global kit only once per unresolved state", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.hasLogicsSubmodule.mockReturnValue(true);
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
@@ -847,29 +862,22 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-        codexRuntime: { status: "unavailable", summary: "Overlay missing." }
-      },
-      codexOverlay: {
-        status: "missing-overlay",
-        summary: "Repo-local Logics is available, but the Codex workspace overlay has not been materialized yet. Run the overlay sync before terminal Codex sessions should see this repo's skills.",
-        issues: ["Workspace overlay is missing or not initialized."],
-        warnings: [],
-        managerScriptPath: path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_codex_workspace.py"),
-        syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
-      }
-    } as never);
-    mocks.showInformationMessage.mockResolvedValue(undefined);
-
+          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
+        },
+        codexOverlay: {
+          status: "missing-overlay",
+          summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
+          issues: ["Global Logics kit manifest is missing."],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never);
     await provider.refresh();
     await provider.refresh();
 
-    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
-    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics is ready in this repository, but the Codex overlay runtime still needs attention. Repo-local Logics is available, but the Codex workspace overlay has not been materialized yet. Run the overlay sync before terminal Codex sessions should see this repo's skills.",
-      "Sync Codex Overlay",
-      "Copy Overlay Sync Command",
-      "Not now"
+    expect(mocks.showWarningMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      "Global Codex kit still needs attention. No global Codex Logics kit is published yet. Opening this repository can publish it automatically."
     );
   });
 });

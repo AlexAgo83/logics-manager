@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   showInformationMessage: vi.fn(),
   showQuickPick: vi.fn(),
   showWarningMessage: vi.fn(),
+  withProgress: vi.fn(),
   createWebviewPanel: vi.fn(),
   createTerminal: vi.fn(),
   openExternal: vi.fn(),
@@ -38,6 +39,7 @@ vi.mock("vscode", () => ({
     showInformationMessage: mocks.showInformationMessage,
     showQuickPick: mocks.showQuickPick,
     showWarningMessage: mocks.showWarningMessage,
+    withProgress: mocks.withProgress,
     createWebviewPanel: mocks.createWebviewPanel,
     createTerminal: mocks.createTerminal
   },
@@ -53,6 +55,9 @@ vi.mock("vscode", () => ({
   },
   ViewColumn: {
     Beside: 2
+  },
+  ProgressLocation: {
+    Notification: 15
   },
   commands: {
     getCommands: mocks.getCommands,
@@ -235,6 +240,7 @@ describe("LogicsViewProvider", () => {
     mocks.showErrorMessage.mockReset();
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
+    mocks.withProgress.mockReset();
     mocks.showQuickPick.mockReset();
     mocks.clipboardWriteText.mockReset();
     mocks.getCommands.mockReset();
@@ -274,6 +280,7 @@ describe("LogicsViewProvider", () => {
       stdout: "",
       stderr: ""
     });
+    mocks.withProgress.mockImplementation(async (_options, task) => task({ report: vi.fn() }, {} as never));
     mocks.createTerminal.mockReturnValue({
       show: vi.fn(),
       sendText: vi.fn()
@@ -468,6 +475,12 @@ describe("LogicsViewProvider", () => {
 
     await (provider as any).checkHybridRuntimeFromTools();
 
+    expect(mocks.withProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Check Hybrid Runtime: waiting on hybrid assist backend..."
+      }),
+      expect.any(Function)
+    );
     expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
       "flow",
       "assist",
@@ -475,8 +488,29 @@ describe("LogicsViewProvider", () => {
       "--format",
       "json"
     ]);
-    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Hybrid assist runtime: Degraded via codex. Degraded reasons: ollama-unreachable."
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      "Check Hybrid Runtime completed via codex. Runtime is degraded. Degraded reasons: ollama-unreachable."
+    );
+  });
+
+  it("shows an action-specific error when a hybrid assist command returns invalid JSON", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: "not-json",
+      stderr: ""
+    });
+
+    await (provider as any).summarizeValidationFromTools();
+
+    expect(mocks.withProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Summarize Validation: waiting on hybrid assist backend..."
+      }),
+      expect.any(Function)
+    );
+    expect(mocks.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("Summarize Validation returned invalid JSON:")
     );
   });
 

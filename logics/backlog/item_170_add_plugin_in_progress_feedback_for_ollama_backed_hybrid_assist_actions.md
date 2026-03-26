@@ -1,10 +1,10 @@
 ## item_170_add_plugin_in_progress_feedback_for_ollama_backed_hybrid_assist_actions - Add plugin in-progress feedback for Ollama-backed hybrid assist actions
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin UX for Ollama backed assist execution feedback
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

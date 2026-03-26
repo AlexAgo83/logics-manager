@@ -530,15 +530,38 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async runHybridAssistCommand(root: string, args: string[]): Promise<Record<string, unknown> | null> {
+    return this.runHybridAssistCommandWithOptions(root, args, {
+      actionLabel: "Hybrid assist"
+    });
+  }
+
+  private async runHybridAssistCommandWithOptions(
+    root: string,
+    args: string[],
+    options: {
+      actionLabel: string;
+    }
+  ): Promise<Record<string, unknown> | null> {
     const runtimeEntry = path.join(root, "logics", "skills", "logics.py");
     if (!fs.existsSync(runtimeEntry)) {
-      void vscode.window.showErrorMessage("Hybrid assist runtime is unavailable because logics/skills/logics.py is missing.");
+      void vscode.window.showErrorMessage(
+        `${options.actionLabel} is unavailable because logics/skills/logics.py is missing.`
+      );
       return null;
     }
 
-    const result = await runPythonWithOutput(root, runtimeEntry, ["flow", "assist", ...args, "--format", "json"]);
+    const result = await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: `${options.actionLabel}: waiting on hybrid assist backend...`,
+        cancellable: false
+      },
+      async () => runPythonWithOutput(root, runtimeEntry, ["flow", "assist", ...args, "--format", "json"])
+    );
     if (result.error) {
-      void vscode.window.showErrorMessage(`Hybrid assist command failed: ${result.stderr || result.error.message}`);
+      void vscode.window.showErrorMessage(
+        `${options.actionLabel} failed: ${result.stderr || result.error.message}`
+      );
       return null;
     }
 
@@ -546,9 +569,65 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return JSON.parse(result.stdout) as Record<string, unknown>;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Hybrid assist command returned invalid JSON: ${message}`);
+      void vscode.window.showErrorMessage(`${options.actionLabel} returned invalid JSON: ${message}`);
       return null;
     }
+  }
+
+  private describeHybridAssistOutcome(payload: Record<string, unknown>): {
+    backendUsed: string | null;
+    backendRequested: string | null;
+    degradedReasons: string[];
+    degraded: boolean;
+  } {
+    const backend = payload.backend as Record<string, unknown> | undefined;
+    const backendUsed =
+      typeof payload.backend_used === "string"
+        ? payload.backend_used
+        : typeof backend?.selected_backend === "string"
+          ? String(backend.selected_backend)
+          : null;
+    const backendRequested =
+      typeof payload.backend_requested === "string"
+        ? payload.backend_requested
+        : typeof backend?.requested_backend === "string"
+          ? String(backend.requested_backend)
+          : null;
+    const degradedReasons = Array.isArray(payload.degraded_reasons)
+      ? payload.degraded_reasons.map((value) => String(value)).filter((value) => value.length > 0)
+      : [];
+    const degraded =
+      Boolean(payload.degraded) ||
+      payload.result_status === "degraded" ||
+      degradedReasons.length > 0;
+    return {
+      backendUsed,
+      backendRequested,
+      degradedReasons,
+      degraded
+    };
+  }
+
+  private notifyHybridAssistCompletion(
+    actionLabel: string,
+    payload: Record<string, unknown>,
+    detail: string
+  ): void {
+    const outcome = this.describeHybridAssistOutcome(payload);
+    const backendLabel = outcome.backendUsed
+      ? outcome.backendRequested === "auto" && outcome.backendUsed === "codex"
+        ? ` via ${outcome.backendUsed} (fallback)`
+        : ` via ${outcome.backendUsed}`
+      : "";
+    const degradedDetail = outcome.degradedReasons.length > 0
+      ? ` Degraded reasons: ${outcome.degradedReasons.join(", ")}.`
+      : "";
+    const message = `${actionLabel} completed${backendLabel}. ${detail}${degradedDetail}`.trim();
+    if (outcome.degraded) {
+      void vscode.window.showWarningMessage(message);
+      return;
+    }
+    void vscode.window.showInformationMessage(message);
   }
 
   private async checkHybridRuntimeFromTools(): Promise<void> {
@@ -556,15 +635,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    const payload = await this.runHybridAssistCommand(root, ["runtime-status"]);
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["runtime-status"], {
+      actionLabel: "Check Hybrid Runtime"
+    });
     if (!payload) {
       return;
     }
-    const backend = payload.backend as Record<string, unknown> | undefined;
-    const degradedReasons = Array.isArray(payload.degraded_reasons) ? payload.degraded_reasons.join(", ") : "none";
-    void vscode.window.showInformationMessage(
-      `Hybrid assist runtime: ${String((payload as { degraded?: boolean }).degraded ? "Degraded" : "Ready")} via ${String(backend?.selected_backend || "unknown")}. Degraded reasons: ${degradedReasons}.`
-    );
+    const statusLabel = (payload as { degraded?: boolean }).degraded ? "Runtime is degraded." : "Runtime is ready.";
+    this.notifyHybridAssistCompletion("Check Hybrid Runtime", payload, statusLabel);
   }
 
   private async commitAllChangesFromTools(): Promise<void> {
@@ -572,23 +650,33 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    const payload = await this.runHybridAssistCommand(root, ["commit-all"]);
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["commit-all"], {
+      actionLabel: "Build Commit Plan"
+    });
     if (!payload) {
       return;
     }
     const plan = payload.plan as { steps?: Array<{ scope?: string; summary?: string }> } | undefined;
     const steps = Array.isArray(plan?.steps) ? plan.steps : [];
     const summary = steps.length > 0 ? steps.map((step) => `${step.scope}: ${step.summary}`).join(" | ") : "No commit steps suggested.";
+    const outcome = this.describeHybridAssistOutcome(payload);
+    const backendLabel = outcome.backendUsed
+      ? outcome.backendRequested === "auto" && outcome.backendUsed === "codex"
+        ? ` via ${outcome.backendUsed} (fallback)`
+        : ` via ${outcome.backendUsed}`
+      : "";
     const choice = await vscode.window.showInformationMessage(
-      `Hybrid commit plan ready. ${summary}`,
+      `Build Commit Plan completed${backendLabel}. ${summary}`,
       "Execute Commit Plan"
     );
     if (choice === "Execute Commit Plan") {
-      const executed = await this.runHybridAssistCommand(root, ["commit-all", "--execution-mode", "execute"]);
+      const executed = await this.runHybridAssistCommandWithOptions(root, ["commit-all", "--execution-mode", "execute"], {
+        actionLabel: "Execute Commit Plan"
+      });
       if (!executed) {
         return;
       }
-      void vscode.window.showInformationMessage("Hybrid commit plan executed.");
+      this.notifyHybridAssistCompletion("Execute Commit Plan", executed, "Commit plan executed.");
       await this.refresh();
     }
   }
@@ -605,14 +693,18 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    const payload = await this.runHybridAssistCommand(root, ["next-step", pick.id]);
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["next-step", pick.id], {
+      actionLabel: "Suggest Next Step"
+    });
     if (!payload) {
       return;
     }
     const result = payload.result as { decision?: { action?: string; target_ref?: string }; mapped_command?: { summary?: string } } | undefined;
     const decision = result?.decision;
-    void vscode.window.showInformationMessage(
-      `Hybrid next step: ${decision?.action || "unknown"} on ${decision?.target_ref || "no target"}. ${result?.mapped_command?.summary || ""}`.trim()
+    this.notifyHybridAssistCompletion(
+      "Suggest Next Step",
+      payload,
+      `${decision?.action || "unknown"} on ${decision?.target_ref || "no target"}. ${result?.mapped_command?.summary || ""}`.trim()
     );
   }
 
@@ -621,12 +713,18 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    const payload = await this.runHybridAssistCommand(root, ["summarize-validation"]);
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["summarize-validation"], {
+      actionLabel: "Summarize Validation"
+    });
     if (!payload) {
       return;
     }
     const result = payload.result as { overall?: string; summary?: string } | undefined;
-    void vscode.window.showInformationMessage(`Hybrid validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim());
+    this.notifyHybridAssistCompletion(
+      "Summarize Validation",
+      payload,
+      `Validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim()
+    );
   }
 
   private async openHybridInsightsFromTools(): Promise<void> {
@@ -641,7 +739,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private async refreshHybridInsightsPanel(root: string): Promise<void> {
     const panel = this.getHybridInsightsPanel();
-    const payload = await this.runHybridAssistCommand(root, ["roi-report"]);
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["roi-report"], {
+      actionLabel: "Refresh Hybrid Insights"
+    });
     if (!payload) {
       return;
     }

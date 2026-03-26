@@ -23,7 +23,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-backend-aware-success-and-failure-no|req-100-add-user-feedback-and-vs-code-no|give-the-operator-immediate-visible-feed|ac1-when-a-plugin-tool-action
+%% logics-signature: backlog|add-backend-aware-success-and-failure-no|req-095-adapt-the-vs-code-logics-plugin-|give-the-operator-immediate-visible-feed|ac1-when-a-plugin-tool-action
 flowchart LR
     Request[req_100_add_user_feedback_and_vs_code_noti] --> Problem[Give the operator immediate visible feedba]
     Problem --> Scope[Add backend-aware success and failure noti]

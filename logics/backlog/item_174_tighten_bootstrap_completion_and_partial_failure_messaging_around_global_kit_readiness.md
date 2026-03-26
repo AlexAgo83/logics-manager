@@ -23,7 +23,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|tighten-bootstrap-completion-and-partial|req-101-make-logics-bootstrap-converge-t|ensure-the-logics-bootstrap-flow-is|ac1-when-bootstrap-runs-on-a
+%% logics-signature: backlog|tighten-bootstrap-completion-and-partial|req-099-replace-repo-local-codex-overlay|ensure-the-logics-bootstrap-flow-is|ac1-when-bootstrap-runs-on-a
 flowchart LR
     Request[req_101_make_logics_bootstrap_converge_to_] --> Problem[Ensure the Logics bootstrap flow is]
     Problem --> Scope[Tighten bootstrap completion and partial f]

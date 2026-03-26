@@ -36,7 +36,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|make-logics-bootstrap-converge-to-a-read|ensure-the-logics-bootstrap-flow-is-tr|ac1-when-bootstrap-runs-on-a
+%% logics-signature: request|make-logics-bootstrap-converge-to-a-read|ensure-the-logics-bootstrap-flow-is|ac1-when-bootstrap-runs-on-a
 flowchart TD
     Trigger[Bootstrap installs repo local kit] --> Inspect[Inspect whether repo can publish global kit]
     Inspect --> Publish[Attempt global publication in the normal path]

@@ -35,7 +35,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|add-user-feedback-and-vs-code-notificati|give-the-operator-immediate-visible-fe|ac1-when-a-plugin-tool-action-triggers
+%% logics-signature: request|add-user-feedback-and-vs-code-notificati|give-the-operator-immediate-visible-feed|ac1-when-a-plugin-tool-action
 flowchart TD
     Trigger[Plugin action starts a hybrid assist run] --> Wait[Show in progress feedback in VS Code]
     Wait --> Run[Shared runtime calls local or fallback backend]

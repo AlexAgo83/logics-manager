@@ -1,10 +1,10 @@
 ## item_175_add_regression_coverage_for_bootstrap_global_publication_outcomes - Add regression coverage for bootstrap global publication outcomes
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap completion semantics and global kit publication
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

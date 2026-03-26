@@ -1,7 +1,7 @@
 ## req_101_make_logics_bootstrap_converge_to_a_ready_global_kit_before_reporting_completion - Make Logics bootstrap converge to a ready global kit before reporting completion
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium

@@ -1,7 +1,7 @@
 ## req_100_add_user_feedback_and_vs_code_notifications_for_ollama_backend_calls - Add user feedback and VS Code notifications for Ollama backend calls
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium

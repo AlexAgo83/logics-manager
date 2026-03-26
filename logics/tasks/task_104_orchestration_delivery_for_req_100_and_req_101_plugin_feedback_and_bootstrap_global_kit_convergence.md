@@ -1,10 +1,10 @@
 ## task_104_orchestration_delivery_for_req_100_and_req_101_plugin_feedback_and_bootstrap_global_kit_convergence - Orchestration delivery for req_100, req_101, and req_102 across plugin feedback, bootstrap global kit convergence, and hybrid runtime contract hardening
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
-> Progress: 75%
+> Progress: 100%
 > Complexity: High
 > Theme: Coordinated hybrid runtime trust, plugin feedback UX, and bootstrap global kit readiness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -57,8 +57,8 @@ flowchart LR
 - [x] 2. Wave 1: deliver bootstrap-triggered global publication convergence and tighten completion or repair messaging through items `173` and `174`.
 - [x] 3. Wave 2: harden Ollama prompt messages and preserve invalid local payload diagnostics through items `176` and `177`.
 - [x] 4. Wave 3: deliver in-progress feedback plus backend-aware success and failure notifications for hybrid assist actions through items `170` and `171`.
-- [ ] 5. Wave 4: add regression coverage for plugin execution-feedback behavior, bootstrap global-publication outcomes, and local hybrid runtime semantics through items `172`, `175`, and `178`.
-- [ ] 6. Validate the combined result across bootstrap, global kit health, local hybrid runtime behavior, plugin messaging, and targeted tests.
+- [x] 5. Wave 4: add regression coverage for plugin execution-feedback behavior, bootstrap global-publication outcomes, and local hybrid runtime semantics through items `172`, `175`, and `178`.
+- [x] 6. Validate the combined result across bootstrap, global kit health, local hybrid runtime behavior, plugin messaging, and targeted tests.
 - [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
 - [ ] FINAL: Update related Logics docs
 
@@ -152,10 +152,21 @@ flowchart LR
 - Manual: verify plugin hybrid assist actions show in-progress feedback, then accurate backend-aware success or failure messaging without duplicate toasts.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Wave 1 delivered bootstrap-triggered global publication convergence and explicit partial-success messaging when the repo-local kit is ready but the global kit is still blocked or failed.
+- Wave 2 hardened Ollama prompt wording, preserved bounded invalid local payload diagnostics on fallback, and added runtime tests that distinguish valid local payloads, semantic failures, and transport unavailability.
+- Wave 3 added VS Code progress feedback plus backend-aware completion and error notifications while keeping the plugin as a thin client over the shared hybrid runtime.
+- Validation:
+  - `python3 logics/skills/logics.py flow sync refresh-mermaid-signatures --format json`
+  - `python3 logics/skills/logics.py audit --refs req_100 --refs req_101 --refs req_102 --refs item_170 --refs item_171 --refs item_172 --refs item_173 --refs item_174 --refs item_175 --refs item_176 --refs item_177 --refs item_178 --refs task_104`
+  - `python3 -m pytest logics/skills/tests/test_logics_flow.py -q`
+  - `npx vitest run tests/logicsViewProvider.test.ts tests/logicsCodexWorkspace.test.ts tests/webview.harness-details-and-filters.test.ts`
+  - `npm run lint:ts`
+  - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status`
+  - `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`

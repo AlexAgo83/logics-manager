@@ -1,7 +1,7 @@
 ## req_102_harden_ollama_hybrid_assist_prompts_and_response_validation_so_local_runs_stop_echoing_the_contract - Harden Ollama hybrid assist prompts and response validation so local runs stop echoing the contract
 > From version: 1.14.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium

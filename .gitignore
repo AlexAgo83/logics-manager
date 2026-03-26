@@ -4,3 +4,9 @@ dist/
 .vscode-test/
 *.vsix
 .DS_Store
+
+# Generated Logics runtime artifacts
+logics/.cache/
+logics/hybrid_assist_audit.jsonl
+logics/hybrid_assist_measurements.jsonl
+logics/mutation_audit.jsonl

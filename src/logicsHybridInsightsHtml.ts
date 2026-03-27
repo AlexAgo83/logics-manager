@@ -44,6 +44,10 @@ function formatRate(value: unknown): string {
   return `${(rate * 100).toFixed(rate === 0 ? 0 : 1)}%`;
 }
 
+function formatCountMapValue(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
 function renderCountMap(map: CountMap, emptyLabel: string): string {
   const entries = Object.entries(map);
   if (!entries.length) {
@@ -56,7 +60,7 @@ function renderCountMap(map: CountMap, emptyLabel: string): string {
           ([label, count]) => `
             <div class="hybrid-insights__list-row">
               <span>${escapeHtml(label)}</span>
-              <strong>${count}</strong>
+              <strong>${escapeHtml(formatCountMapValue(count))}</strong>
             </div>
           `
         )
@@ -107,28 +111,42 @@ function renderFlowBreakdown(value: unknown): string {
     return `<p class="hybrid-insights__empty">No flow breakdown available yet.</p>`;
   }
   return `
-    <div class="hybrid-insights__flow-grid">
+    <div class="hybrid-insights__diagnostic-grid">
       ${entries
         .map(([flowName, rawFlow]) => {
           const flow = asRecord(rawFlow);
+          const runCount = asNumber(flow.run_count, 0);
+          const fallbackRate = asNumber(flow.fallback_rate, 0);
+          const degradedRate = asNumber(flow.degraded_rate, 0);
+          const reviewRate = asNumber(flow.review_recommended_rate, 0);
+          const pressure = [
+            { label: "Fallback", rate: fallbackRate },
+            { label: "Degraded", rate: degradedRate },
+            { label: "Review", rate: reviewRate }
+          ].sort((left, right) => right.rate - left.rate)[0];
+          const pressureLabel =
+            pressure.rate > 0 ? `${pressure.label} pressure ${formatRate(pressure.rate)}` : "No elevated pressure recorded.";
           return `
-            <section class="hybrid-insights__flow-card">
-              <div class="hybrid-insights__flow-head">
-                <h4>${escapeHtml(flowName)}</h4>
-                <strong>${asNumber(flow.run_count, 0)} run(s)</strong>
-              </div>
-              <div class="hybrid-insights__flow-metrics">
-                <span>Fallback ${formatRate(flow.fallback_rate)}</span>
-                <span>Degraded ${formatRate(flow.degraded_rate)}</span>
-                <span>Review ${formatRate(flow.review_recommended_rate)}</span>
-              </div>
-              <div class="hybrid-insights__flow-columns">
+            <section class="hybrid-insights__diagnostic-card">
+              <div class="hybrid-insights__diagnostic-head">
                 <div>
-                  <h5>Requested</h5>
+                  <h3>${escapeHtml(flowName)}</h3>
+                  <p>${escapeHtml(pressureLabel)}</p>
+                </div>
+                <strong>${runCount} run(s)</strong>
+              </div>
+              <div class="hybrid-insights__diagnostic-stats">
+                <div><span>Fallback</span><strong>${formatRate(fallbackRate)}</strong></div>
+                <div><span>Degraded</span><strong>${formatRate(degradedRate)}</strong></div>
+                <div><span>Review</span><strong>${formatRate(reviewRate)}</strong></div>
+              </div>
+              <div class="hybrid-insights__diagnostic-columns">
+                <div>
+                  <h4>Requested</h4>
                   ${renderCountMap(asCountMap(flow.backend_requested), "No requested backend data.")}
                 </div>
                 <div>
-                  <h5>Used</h5>
+                  <h4>Used</h4>
                   ${renderCountMap(asCountMap(flow.backend_used), "No backend usage data.")}
                 </div>
               </div>
@@ -150,26 +168,32 @@ function renderRecentRuns(value: unknown): string {
       ${runs
         .map((run) => {
           const degradedReasons = asArray<string>(run.degraded_reasons);
-          const validatedExcerpt = run.validated_excerpt;
+          const validatedExcerpt = asRecord(run.validated_excerpt);
+          const status = asString(run.result_status, "unknown");
+          const reviewRecommended = Boolean(run.review_recommended);
+          const statusClass =
+            status === "degraded" ? "is-bad" : reviewRecommended ? "is-warn" : "is-good";
           return `
             <details class="hybrid-insights__recent-item">
               <summary>
-                <span class="hybrid-insights__recent-primary">
-                  <strong>${escapeHtml(asString(run.flow, "unknown-flow"))}</strong>
-                  <span>${escapeHtml(asString(run.result_status, "unknown"))}</span>
-                </span>
-                <span class="hybrid-insights__recent-secondary">
-                  <span>${escapeHtml(asString(run.backend_requested, "unknown"))} -> ${escapeHtml(asString(run.backend_used, "unknown"))}</span>
-                  <span>${escapeHtml(asString(run.recorded_at, "unknown time"))}</span>
-                </span>
+                <div class="hybrid-insights__recent-summary-row">
+                  <div class="hybrid-insights__recent-primary">
+                    <strong>${escapeHtml(asString(run.flow, "unknown-flow"))}</strong>
+                    <span class="hybrid-insights__status ${statusClass}">${escapeHtml(status)}</span>
+                  </div>
+                  <div class="hybrid-insights__recent-secondary">
+                    <span>${escapeHtml(asString(run.backend_requested, "unknown"))} -> ${escapeHtml(asString(run.backend_used, "unknown"))}</span>
+                    <span>${escapeHtml(asString(run.recorded_at, "unknown time"))}</span>
+                  </div>
+                </div>
               </summary>
               <div class="hybrid-insights__recent-body">
-                <div class="hybrid-insights__recent-meta">
-                  <span>Safety class: ${escapeHtml(asString(run.safety_class, "unknown"))}</span>
-                  <span>Seed ref: ${escapeHtml(asString(run.seed_ref, "none"))}</span>
-                  <span>Review: ${Boolean(run.review_recommended) ? "recommended" : "not flagged"}</span>
-                </div>
                 <p class="hybrid-insights__recent-summary">${escapeHtml(asString(run.validated_summary, "No validated summary captured."))}</p>
+                <div class="hybrid-insights__meta-grid">
+                  <div class="hybrid-insights__meta-row"><span>Safety class</span><strong>${escapeHtml(asString(run.safety_class, "unknown"))}</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Seed ref</span><strong>${escapeHtml(asString(run.seed_ref, "none"))}</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Review</span><strong>${reviewRecommended ? "recommended" : "not flagged"}</strong></div>
+                </div>
                 ${
                   degradedReasons.length
                     ? `<div class="hybrid-insights__chips">${degradedReasons
@@ -178,10 +202,11 @@ function renderRecentRuns(value: unknown): string {
                     : ""
                 }
                 ${
-                  Object.keys(asRecord(validatedExcerpt)).length
-                    ? `<pre class="hybrid-insights__code">${escapeHtml(
-                        JSON.stringify(validatedExcerpt, null, 2)
-                      )}</pre>`
+                  Object.keys(validatedExcerpt).length
+                    ? `<details class="hybrid-insights__nested-details">
+                        <summary>Validated excerpt</summary>
+                        <pre class="hybrid-insights__code">${escapeHtml(JSON.stringify(validatedExcerpt, null, 2))}</pre>
+                      </details>`
                     : ""
                 }
               </div>
@@ -193,12 +218,34 @@ function renderRecentRuns(value: unknown): string {
   `;
 }
 
+type SignalCard = {
+  label: string;
+  value: string;
+  hint: string;
+  tone: "neutral" | "good" | "warn" | "bad";
+};
+
+function renderSignalCards(cards: SignalCard[]): string {
+  return cards
+    .map(
+      (card) => `
+        <section class="hybrid-insights__signal-card ${card.tone === "good" ? "is-good" : card.tone === "warn" ? "is-warn" : card.tone === "bad" ? "is-bad" : ""}">
+          <span>${escapeHtml(card.label)}</span>
+          <strong>${escapeHtml(card.value)}</strong>
+          <em>${escapeHtml(card.hint)}</em>
+        </section>
+      `
+    )
+    .join("");
+}
+
 export function buildHybridInsightsHtml(params: {
   webview: vscode.Webview;
   report: Record<string, unknown>;
   rootLabel: string;
 }): string {
   const { webview, report, rootLabel } = params;
+  void webview;
   const nonce = getNonce();
   const measured = asRecord(report.measured);
   const derived = asRecord(report.derived);
@@ -209,6 +256,38 @@ export function buildHybridInsightsHtml(params: {
   const proxies = asRecord(estimated.proxies);
   const sources = asRecord(report.sources);
   const limits = asRecord(report.limits);
+  const reportState = asRecord(derived.report_state);
+  const signalCards: SignalCard[] = [
+    {
+      label: "Local offload",
+      value: formatRate(rates.local_offload_rate),
+      hint: `${asNumber(totals.local_runs, 0)} local completion(s)`,
+      tone: "neutral"
+    },
+    {
+      label: "Fallback",
+      value: formatRate(rates.fallback_rate),
+      hint: `${asNumber(totals.fallback_runs, 0)} fallback run(s)`,
+      tone: asNumber(rates.fallback_rate, 0) >= 0.25 ? "warn" : "neutral"
+    },
+    {
+      label: "Degraded",
+      value: formatRate(rates.degraded_rate),
+      hint: `${asNumber(totals.degraded_runs, 0)} degraded run(s)`,
+      tone: asNumber(rates.degraded_rate, 0) > 0 ? "bad" : "good"
+    },
+    {
+      label: "Review",
+      value: formatRate(rates.review_recommended_rate),
+      hint: `${asNumber(totals.review_recommended_runs, 0)} run(s) still need attention`,
+      tone: asNumber(rates.review_recommended_rate, 0) >= 0.35 ? "warn" : "neutral"
+    }
+  ];
+  const reportFlags = [
+    reportState.fallback_heavy ? "Fallback pressure is elevated." : "",
+    reportState.degraded_heavy ? "Degraded outcomes need review." : "",
+    reportState.review_heavy ? "Review load remains high." : ""
+  ].filter((value) => value.length > 0);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -223,321 +302,417 @@ export function buildHybridInsightsHtml(params: {
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f4efe4;
-      --panel: rgba(255, 252, 245, 0.9);
-      --panel-strong: #fff9ef;
-      --ink: #1d1d1b;
-      --muted: #6a6258;
-      --accent: #9d3c20;
-      --accent-soft: rgba(157, 60, 32, 0.12);
-      --line: rgba(77, 63, 48, 0.18);
-      --good: #2f6b45;
-      --warn: #9d6512;
-      --bad: #9f2f2f;
-      --code: #17130f;
+      --bg: var(--vscode-editor-background, #1f1f1f);
+      --surface: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 84%, white 16%);
+      --surface-strong: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 72%, white 28%);
+      --surface-muted: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 88%, white 12%);
+      --ink: var(--vscode-editor-foreground, #e6e6e6);
+      --muted: color-mix(in srgb, var(--vscode-editor-foreground, #e6e6e6) 68%, transparent 32%);
+      --line: color-mix(in srgb, var(--vscode-editor-foreground, #e6e6e6) 16%, transparent 84%);
+      --accent: var(--vscode-textLink-foreground, #4ea1ff);
+      --good: #4da66c;
+      --warn: #d3a85f;
+      --bad: #d06c6c;
     }
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at top right, rgba(157, 60, 32, 0.12), transparent 28%),
-        linear-gradient(180deg, #f7f0e2 0%, #f1eadf 100%);
+      background: var(--bg);
       color: var(--ink);
-      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .hybrid-insights {
-      max-width: 1180px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 28px 20px 40px;
+      padding: 20px 20px 32px;
     }
-    .hybrid-insights__hero {
+    .hybrid-insights__header {
       display: grid;
-      gap: 18px;
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255, 250, 242, 0.98), rgba(250, 243, 231, 0.96));
-      box-shadow: 0 20px 40px rgba(53, 39, 27, 0.08);
+      gap: 16px;
+      padding: 20px 0 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
     }
-    .hybrid-insights__eyebrow {
-      margin: 0;
-      color: var(--accent);
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-    .hybrid-insights__title-row {
+    .hybrid-insights__header-row {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      align-items: start;
+      align-items: flex-start;
       flex-wrap: wrap;
     }
-    .hybrid-insights__title-row h1 {
+    .hybrid-insights__header h1 {
       margin: 0;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      line-height: 0.95;
-      letter-spacing: -0.04em;
+      font-size: 28px;
+      line-height: 1.1;
     }
-    .hybrid-insights__subtitle {
-      margin: 8px 0 0;
-      max-width: 70ch;
+    .hybrid-insights__root-label {
+      margin: 6px 0 0;
       color: var(--muted);
-      line-height: 1.55;
-      font-size: 15px;
+      font-size: 13px;
+    }
+    .hybrid-insights__summary {
+      margin: 8px 0 0;
+      max-width: 76ch;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
     }
     .hybrid-insights__toolbar {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .hybrid-insights__button {
       border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 9px 14px;
-      background: var(--panel-strong);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: var(--surface);
       color: var(--ink);
       cursor: pointer;
       font: inherit;
     }
     .hybrid-insights__button:hover {
-      border-color: rgba(157, 60, 32, 0.42);
-      background: #fffef9;
+      border-color: color-mix(in srgb, var(--accent) 48%, transparent 52%);
+      background: var(--surface-strong);
     }
-    .hybrid-insights__meta {
+    .hybrid-insights__signal-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
     }
-    .hybrid-insights__meta-card,
-    .hybrid-insights__section {
+    .hybrid-insights__signal-card,
+    .hybrid-insights__section,
+    .hybrid-insights__secondary-details {
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--panel);
+      border-radius: 10px;
+      background: var(--surface);
     }
-    .hybrid-insights__meta-card {
-      padding: 14px 16px;
+    .hybrid-insights__signal-card {
+      padding: 14px;
     }
-    .hybrid-insights__meta-card span {
+    .hybrid-insights__signal-card span,
+    .hybrid-insights__meta-row span {
       display: block;
-      color: var(--muted);
       font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      color: var(--muted);
     }
-    .hybrid-insights__meta-card strong {
-      font-size: 1rem;
-      line-height: 1.35;
+    .hybrid-insights__signal-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      line-height: 1;
+    }
+    .hybrid-insights__signal-card em {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-style: normal;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .hybrid-insights__signal-card.is-good strong {
+      color: var(--good);
+    }
+    .hybrid-insights__signal-card.is-warn strong {
+      color: var(--warn);
+    }
+    .hybrid-insights__signal-card.is-bad strong {
+      color: var(--bad);
+    }
+    .hybrid-insights__secondary-details {
+      overflow: hidden;
+    }
+    .hybrid-insights__secondary-details > summary,
+    .hybrid-insights__nested-details > summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    .hybrid-insights__secondary-details > summary {
+      padding: 12px 14px;
+      font-weight: 600;
+    }
+    .hybrid-insights__secondary-details > summary::-webkit-details-marker,
+    .hybrid-insights__nested-details > summary::-webkit-details-marker,
+    .hybrid-insights__recent-item > summary::-webkit-details-marker {
+      display: none;
+    }
+    .hybrid-insights__secondary-details-body {
+      padding: 0 14px 14px;
     }
     .hybrid-insights__sections {
       display: grid;
-      gap: 18px;
+      gap: 14px;
       margin-top: 18px;
     }
     .hybrid-insights__section {
-      padding: 18px;
+      padding: 16px;
     }
     .hybrid-insights__section h2 {
-      margin: 0 0 6px;
-      font-size: 1.35rem;
-      letter-spacing: -0.02em;
+      margin: 0;
+      font-size: 18px;
     }
-    .hybrid-insights__section > p {
-      margin: 0 0 16px;
+    .hybrid-insights__section-intro {
+      margin: 8px 0 0;
       color: var(--muted);
+      font-size: 13px;
       line-height: 1.5;
     }
-    .hybrid-insights__grid {
+    .hybrid-insights__columns,
+    .hybrid-insights__overview-grid {
       display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .hybrid-insights__stat {
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.54);
-    }
-    .hybrid-insights__stat span {
-      display: block;
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .hybrid-insights__stat strong {
-      display: block;
-      font-size: 2rem;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .hybrid-insights__stat em {
-      font-style: normal;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .hybrid-insights__columns {
-      display: grid;
-      gap: 14px;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
     }
     .hybrid-insights__panel {
-      border-radius: 16px;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.56);
-      padding: 16px;
+      border-radius: 10px;
+      background: var(--surface-muted);
+      padding: 14px;
     }
-    .hybrid-insights__panel h3,
-    .hybrid-insights__flow-card h4,
-    .hybrid-insights__flow-card h5 {
+    .hybrid-insights__panel h3 {
       margin: 0 0 10px;
+      font-size: 15px;
     }
     .hybrid-insights__list {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
-    .hybrid-insights__list-row {
+    .hybrid-insights__list-row,
+    .hybrid-insights__meta-row {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      align-items: center;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed var(--line);
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
     }
-    .hybrid-insights__list-row:last-child {
+    .hybrid-insights__list-row:last-child,
+    .hybrid-insights__meta-row:last-child {
       border-bottom: 0;
       padding-bottom: 0;
+    }
+    .hybrid-insights__list-row span {
+      color: var(--muted);
+    }
+    .hybrid-insights__list-row strong,
+    .hybrid-insights__meta-row strong {
+      font-size: 13px;
+      text-align: right;
     }
     .hybrid-insights__empty {
       margin: 0;
       color: var(--muted);
+      font-size: 13px;
     }
     .hybrid-insights__stack {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
     .hybrid-insights__note {
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: var(--accent-soft);
-      border: 1px solid rgba(157, 60, 32, 0.18);
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-muted);
+      font-size: 13px;
       line-height: 1.5;
     }
-    .hybrid-insights__flow-grid {
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-    .hybrid-insights__flow-card {
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.58);
-    }
-    .hybrid-insights__flow-head,
-    .hybrid-insights__recent-primary,
-    .hybrid-insights__recent-secondary {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: baseline;
-    }
-    .hybrid-insights__flow-metrics {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .hybrid-insights__flow-columns {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    }
-    .hybrid-insights__recent {
-      display: grid;
-      gap: 12px;
-    }
-    .hybrid-insights__recent-item {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.56);
-      overflow: hidden;
-    }
-    .hybrid-insights__recent-item summary {
-      cursor: pointer;
-      list-style: none;
-      padding: 14px 16px;
-      display: grid;
-      gap: 6px;
-    }
-    .hybrid-insights__recent-item summary::-webkit-details-marker {
-      display: none;
-    }
-    .hybrid-insights__recent-body {
-      padding: 0 16px 16px;
-    }
-    .hybrid-insights__recent-meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-    .hybrid-insights__recent-summary {
-      margin: 0 0 12px;
-      line-height: 1.55;
-    }
+    .hybrid-insights__status-row,
     .hybrid-insights__chips {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-top: 10px;
     }
+    .hybrid-insights__status,
     .hybrid-insights__chip {
-      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
       border-radius: 999px;
-      background: rgba(159, 47, 47, 0.1);
-      color: var(--bad);
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
       font-size: 12px;
-      border: 1px solid rgba(159, 47, 47, 0.18);
+    }
+    .hybrid-insights__status.is-good {
+      color: var(--good);
+      border-color: color-mix(in srgb, var(--good) 32%, transparent 68%);
+    }
+    .hybrid-insights__status.is-warn,
+    .hybrid-insights__chip {
+      color: var(--warn);
+      border-color: color-mix(in srgb, var(--warn) 32%, transparent 68%);
+    }
+    .hybrid-insights__status.is-bad {
+      color: var(--bad);
+      border-color: color-mix(in srgb, var(--bad) 32%, transparent 68%);
+    }
+    .hybrid-insights__diagnostic-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .hybrid-insights__diagnostic-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-muted);
+      padding: 14px;
+    }
+    .hybrid-insights__diagnostic-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__diagnostic-head h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+    .hybrid-insights__diagnostic-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hybrid-insights__diagnostic-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .hybrid-insights__diagnostic-stats div {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .hybrid-insights__diagnostic-stats span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .hybrid-insights__diagnostic-stats strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+    }
+    .hybrid-insights__diagnostic-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .hybrid-insights__diagnostic-columns h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+    .hybrid-insights__recent {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .hybrid-insights__recent-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-muted);
+      overflow: hidden;
+    }
+    .hybrid-insights__recent-item > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 12px 14px;
+    }
+    .hybrid-insights__recent-summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__recent-primary,
+    .hybrid-insights__recent-secondary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .hybrid-insights__recent-secondary {
+      color: var(--muted);
+      font-size: 12px;
+      justify-content: flex-end;
+    }
+    .hybrid-insights__recent-body {
+      padding: 0 14px 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .hybrid-insights__recent-summary {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .hybrid-insights__meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0 12px;
+    }
+    .hybrid-insights__nested-details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .hybrid-insights__nested-details > summary {
+      padding: 10px 12px;
+      font-weight: 600;
     }
     .hybrid-insights__code {
       margin: 0;
-      padding: 14px;
-      border-radius: 14px;
-      background: var(--code);
-      color: #f8f0e4;
-      overflow-x: auto;
+      padding: 0 12px 12px;
+      background: transparent;
+      color: var(--ink);
       font-size: 12px;
-      line-height: 1.55;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      overflow-x: auto;
     }
     @media (max-width: 720px) {
       .hybrid-insights {
-        padding: 18px 14px 32px;
+        padding: 16px 14px 28px;
       }
-      .hybrid-insights__hero,
-      .hybrid-insights__section {
-        padding: 16px;
+      .hybrid-insights__header {
+        padding-top: 8px;
+      }
+      .hybrid-insights__header h1 {
+        font-size: 24px;
+      }
+      .hybrid-insights__summary {
+        font-size: 13px;
+      }
+      .hybrid-insights__signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hybrid-insights__recent-summary-row,
+      .hybrid-insights__diagnostic-head {
+        flex-direction: column;
+      }
+      .hybrid-insights__recent-secondary {
+        justify-content: flex-start;
+      }
+      .hybrid-insights__meta-grid,
+      .hybrid-insights__diagnostic-columns,
+      .hybrid-insights__columns,
+      .hybrid-insights__overview-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
   <main class="hybrid-insights">
-    <section class="hybrid-insights__hero">
-      <p class="hybrid-insights__eyebrow">Hybrid Assist ROI Dispatch Report</p>
-      <div class="hybrid-insights__title-row">
+    <header class="hybrid-insights__header">
+      <div class="hybrid-insights__header-row">
         <div>
           <h1>Hybrid Assist Insights</h1>
-          <p class="hybrid-insights__subtitle">
-            Shared runtime report for <strong>${escapeHtml(rootLabel)}</strong>. Measured facts stay separate from derived rates and estimated ROI proxies so fallback-heavy or degraded-heavy usage remains visible.
+          <p class="hybrid-insights__root-label">Shared runtime report for <strong>${escapeHtml(rootLabel)}</strong></p>
+          <p class="hybrid-insights__summary">
+            Start with the operator signals first, then inspect recent runs and flow diagnostics. Estimates stay available, but secondary.
           </p>
         </div>
         <div class="hybrid-insights__toolbar">
@@ -546,61 +721,67 @@ export function buildHybridInsightsHtml(params: {
           <button class="hybrid-insights__button" type="button" data-action="open-source-log" data-source="measurement">Open measurement log</button>
         </div>
       </div>
-      <div class="hybrid-insights__meta">
-        <div class="hybrid-insights__meta-card">
-          <span>Generated</span>
-          <strong>${escapeHtml(asString(report.generated_at, "unknown"))}</strong>
-        </div>
-        <div class="hybrid-insights__meta-card">
-          <span>Audit Log</span>
-          <strong>${escapeHtml(asString(sources.audit_log, "n/a"))}</strong>
-        </div>
-        <div class="hybrid-insights__meta-card">
-          <span>Measurement Log</span>
-          <strong>${escapeHtml(asString(sources.measurement_log, "n/a"))}</strong>
-        </div>
-        <div class="hybrid-insights__meta-card">
-          <span>Window</span>
-          <strong>${asNumber(limits.window_days, 0)} day(s), ${asNumber(limits.recent_limit, 0)} recent run(s)</strong>
-        </div>
+      <div class="hybrid-insights__signal-grid">
+        ${renderSignalCards(signalCards)}
       </div>
-    </section>
+      <details class="hybrid-insights__secondary-details">
+        <summary>Report source and window</summary>
+        <div class="hybrid-insights__secondary-details-body">
+          <div class="hybrid-insights__meta-grid">
+            <div class="hybrid-insights__meta-row"><span>Generated</span><strong>${escapeHtml(asString(report.generated_at, "unknown"))}</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Audit log</span><strong>${escapeHtml(asString(sources.audit_log, "n/a"))}</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Measurement log</span><strong>${escapeHtml(asString(sources.measurement_log, "n/a"))}</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Window</span><strong>${asNumber(limits.window_days, 0)} day(s)</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Recent runs shown</span><strong>${asNumber(limits.recent_limit, 0)}</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Total measured runs</span><strong>${asNumber(totals.runs, 0)}</strong></div>
+          </div>
+        </div>
+      </details>
+    </header>
 
     <div class="hybrid-insights__sections">
       <section class="hybrid-insights__section">
-        <h2>Measured Facts</h2>
-        <p>These counters come directly from hybrid assist measurement records and recent audit provenance. No UI-side aggregation logic is added beyond rendering the runtime output.</p>
-        <div class="hybrid-insights__grid">
-          <div class="hybrid-insights__stat">
-            <span>Total runs</span>
-            <strong>${asNumber(totals.runs, 0)}</strong>
-            <em>Measured dispatch executions</em>
+        <h2>Overview</h2>
+        <p class="hybrid-insights__section-intro">Measured counters stay primary. Use this section to decide whether the current portfolio looks healthy enough to trust without opening raw logs.</p>
+        <div class="hybrid-insights__overview-grid">
+          <div class="hybrid-insights__panel">
+            <h3>Current posture</h3>
+            ${renderHealthSummary(derived.health_summary)}
+            ${reportFlags.length ? `<div class="hybrid-insights__status-row">${reportFlags
+              .map((flag) => `<span class="hybrid-insights__status is-warn">${escapeHtml(flag)}</span>`)
+              .join("")}</div>` : ""}
           </div>
-          <div class="hybrid-insights__stat">
-            <span>Fallback runs</span>
-            <strong>${asNumber(totals.fallback_runs, 0)}</strong>
-            <em>Requested local or auto, used codex</em>
+          <div class="hybrid-insights__panel">
+            <h3>Measured totals</h3>
+            ${renderCountMap(
+              {
+                "Total runs": asNumber(totals.runs, 0),
+                "Local runs": asNumber(totals.local_runs, 0),
+                "Fallback runs": asNumber(totals.fallback_runs, 0),
+                "Degraded runs": asNumber(totals.degraded_runs, 0),
+                "Review recommended": asNumber(totals.review_recommended_runs, 0)
+              },
+              "No measured totals available."
+            )}
           </div>
-          <div class="hybrid-insights__stat">
-            <span>Degraded runs</span>
-            <strong>${asNumber(totals.degraded_runs, 0)}</strong>
-            <em>Runs flagged degraded by the runtime</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Review recommended</span>
-            <strong>${asNumber(totals.review_recommended_runs, 0)}</strong>
-            <em>Runs that still need operator attention</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Local runs</span>
-            <strong>${asNumber(totals.local_runs, 0)}</strong>
-            <em>Measured Ollama-backed completions</em>
+          <div class="hybrid-insights__panel">
+            <h3>Recent result distribution</h3>
+            ${renderCountMap(asCountMap(measured.recent_result_distribution), "No recent results inside the bounded window.")}
           </div>
         </div>
-        <div class="hybrid-insights__columns" style="margin-top: 14px;">
+      </section>
+
+      <section class="hybrid-insights__section">
+        <h2>Where It Breaks Down</h2>
+        <p class="hybrid-insights__section-intro">These deterministic summaries explain what is driving pressure now, without giving estimates the same weight as measured outcomes.</p>
+        <div class="hybrid-insights__columns">
           <div class="hybrid-insights__panel">
             <h3>Usage by flow</h3>
             ${renderCountMap(asCountMap(measured.runs_by_flow), "No hybrid assist usage recorded yet.")}
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Backend split</h3>
+            ${renderRankedItems(derived.dispatch_split, "No dispatch split available.")}
           </div>
           <div class="hybrid-insights__panel">
             <h3>Requested backends</h3>
@@ -611,43 +792,6 @@ export function buildHybridInsightsHtml(params: {
             ${renderCountMap(asCountMap(measured.backend_used), "No backend usage data available.")}
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Recent result distribution</h3>
-            ${renderCountMap(asCountMap(measured.recent_result_distribution), "No recent results inside the bounded window.")}
-          </div>
-        </div>
-      </section>
-
-      <section class="hybrid-insights__section">
-        <h2>Derived Summaries</h2>
-        <p>These summaries and rates are deterministic transformations over the measured counters, kept in the shared runtime so CLI and plugin semantics do not drift.</p>
-        <div class="hybrid-insights__grid">
-          <div class="hybrid-insights__stat">
-            <span>Fallback rate</span>
-            <strong>${formatRate(rates.fallback_rate)}</strong>
-            <em>Fallback share of measured runs</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Degraded rate</span>
-            <strong>${formatRate(rates.degraded_rate)}</strong>
-            <em>Operational quality pressure</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Review rate</span>
-            <strong>${formatRate(rates.review_recommended_rate)}</strong>
-            <em>Manual review still advisable</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Local offload rate</span>
-            <strong>${formatRate(rates.local_offload_rate)}</strong>
-            <em>Measured local completion share</em>
-          </div>
-        </div>
-        <div class="hybrid-insights__columns" style="margin-top: 14px;">
-          <div class="hybrid-insights__panel">
-            <h3>Dispatch split</h3>
-            ${renderRankedItems(derived.dispatch_split, "No dispatch split available.")}
-          </div>
-          <div class="hybrid-insights__panel">
             <h3>Top degraded reasons</h3>
             ${renderRankedItems(derived.top_degraded_reasons, "No degraded reasons were recorded.")}
           </div>
@@ -655,58 +799,51 @@ export function buildHybridInsightsHtml(params: {
             <h3>Top fallback reasons</h3>
             ${renderRankedItems(derived.top_fallback_reasons, "No fallback reasons were recorded.")}
           </div>
-          <div class="hybrid-insights__panel">
-            <h3>Health summary</h3>
-            ${renderHealthSummary(derived.health_summary)}
-          </div>
         </div>
       </section>
 
       <section class="hybrid-insights__section">
-        <h2>Estimated ROI Proxies</h2>
-        <p>These figures are estimates only. They are useful for relative trend review, not for exact billing claims.</p>
-        <div class="hybrid-insights__grid">
-          <div class="hybrid-insights__stat">
-            <span>Estimated remote dispatches avoided</span>
-            <strong>${asNumber(proxies.estimated_remote_dispatches_avoided, 0)}</strong>
-            <em>Based on measured local completions</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Estimated remote token avoidance</span>
-            <strong>${asNumber(proxies.estimated_remote_token_avoidance, 0)}</strong>
-            <em>Illustrative token proxy only</em>
-          </div>
-          <div class="hybrid-insights__stat">
-            <span>Estimated local offload share</span>
-            <strong>${formatRate(proxies.estimated_local_offload_share)}</strong>
-            <em>Trend proxy, not a financial metric</em>
-          </div>
-        </div>
-        <div class="hybrid-insights__panel" style="margin-top: 14px;">
-          <h3>Assumptions</h3>
-          ${renderCountMap(
-            {
-              "remote_tokens_per_local_run": asNumber(assumptions.remote_tokens_per_local_run, 0)
-            },
-            "No numeric assumptions recorded."
-          )}
-          <div class="hybrid-insights__stack" style="margin-top: 12px;">
-            <div class="hybrid-insights__note">${escapeHtml(asString(assumptions.token_avoidance_note, "No token avoidance note recorded."))}</div>
-            <div class="hybrid-insights__note">${escapeHtml(asString(assumptions.interpretation_note, "No interpretation note recorded."))}</div>
-          </div>
-        </div>
+        <h2>Recent Runs</h2>
+        <p class="hybrid-insights__section-intro">Start here when something looks wrong. Each entry keeps status, backend path, and validated summary visible before any raw excerpt.</p>
+        ${renderRecentRuns(report.recent_runs)}
       </section>
 
       <section class="hybrid-insights__section">
-        <h2>Flow Drill-Down</h2>
-        <p>Per-flow summaries come directly from the runtime report. The plugin stays a renderer and does not recompute any of these rates.</p>
+        <h2>Flow Diagnostics</h2>
+        <p class="hybrid-insights__section-intro">Per-flow summaries stay compact: volume, pressure, and backend split without repeating the full report structure for every card.</p>
         ${renderFlowBreakdown(measured.flow_breakdown)}
       </section>
 
       <section class="hybrid-insights__section">
-        <h2>Recent Audit Drill-Down</h2>
-        <p>Recent runs expose backend provenance, degraded reasons, and a bounded validated excerpt so operators do not need to open raw JSONL logs for every review.</p>
-        ${renderRecentRuns(report.recent_runs)}
+        <details class="hybrid-insights__secondary-details">
+          <summary>Estimated ROI Proxies</summary>
+          <div class="hybrid-insights__secondary-details-body">
+            <p class="hybrid-insights__section-intro">These figures are estimates only. Use them for trend review, not billing claims or primary health decisions.</p>
+            <div class="hybrid-insights__columns">
+              <div class="hybrid-insights__panel">
+                <h3>Estimated proxies</h3>
+                ${renderCountMap(
+                  {
+                    "Remote dispatches avoided": asNumber(proxies.estimated_remote_dispatches_avoided, 0),
+                    "Remote token avoidance": asNumber(proxies.estimated_remote_token_avoidance, 0)
+                  },
+                  "No estimate recorded."
+                )}
+              </div>
+              <div class="hybrid-insights__panel">
+                <h3>Assumptions</h3>
+                ${renderCountMap(
+                  {
+                    "Remote tokens per local run": asNumber(assumptions.remote_tokens_per_local_run, 0)
+                  },
+                  "No numeric assumptions recorded."
+                )}
+                <p class="hybrid-insights__section-intro">${escapeHtml(asString(assumptions.token_avoidance_note, "No token avoidance note recorded."))}</p>
+                <p class="hybrid-insights__section-intro">${escapeHtml(asString(assumptions.interpretation_note, "No interpretation note recorded."))}</p>
+              </div>
+            </div>
+          </div>
+        </details>
       </section>
     </div>
   </main>

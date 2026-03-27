@@ -94,6 +94,7 @@ const parseArgs = (argv) => {
   let tagOrVersion = null;
   let githubOutputPath = null;
   let validateCurrent = false;
+  let requireCurated = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -106,20 +107,24 @@ const parseArgs = (argv) => {
       validateCurrent = true;
       continue;
     }
+    if (arg === "--require-curated") {
+      requireCurated = true;
+      continue;
+    }
     if (!arg.startsWith("--") && tagOrVersion === null) {
       tagOrVersion = arg;
     }
   }
 
-  return { tagOrVersion, githubOutputPath, validateCurrent };
+  return { tagOrVersion, githubOutputPath, validateCurrent, requireCurated };
 };
 
 const main = () => {
-  const { tagOrVersion, githubOutputPath, validateCurrent } = parseArgs(process.argv.slice(2));
+  const { tagOrVersion, githubOutputPath, validateCurrent, requireCurated } = parseArgs(process.argv.slice(2));
   const resolvedInput = tagOrVersion ?? (validateCurrent ? readPackageVersion(process.cwd()) : null);
   if (!resolvedInput) {
     process.stderr.write(
-      "Usage: node scripts/release/resolve-release-changelog.mjs <vX.Y.Z|X.Y.Z> [--github-output <path>] [--validate-current]\n"
+      "Usage: node scripts/release/resolve-release-changelog.mjs <vX.Y.Z|X.Y.Z> [--github-output <path>] [--validate-current] [--require-curated]\n"
     );
     process.exitCode = 1;
     return;
@@ -139,6 +144,11 @@ const main = () => {
     : `No curated changelog found for ${resolution.tag}; expected ${resolution.relativePath}. Falling back to generated notes.`;
   process.stdout.write(`${summary}\n`);
   if (!resolution.exists) {
+    if (requireCurated) {
+      process.stderr.write(`${summary}\n`);
+      process.exitCode = 1;
+      return;
+    }
     emitWarning(summary);
   }
 };

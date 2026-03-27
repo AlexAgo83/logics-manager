@@ -4,14 +4,14 @@ import { LogicsViewProvider } from "./logicsViewProvider";
 export function activate(context: vscode.ExtensionContext): void {
   let provider: LogicsViewProvider | undefined;
   let refreshTimer: NodeJS.Timeout | undefined;
-  let watcher: vscode.FileSystemWatcher | undefined;
+  const watchers: vscode.FileSystemWatcher[] = [];
   const agentsOutput = vscode.window.createOutputChannel("Logics Agents");
   context.subscriptions.push(agentsOutput);
   context.subscriptions.push(
     new vscode.Disposable(() => {
-      if (watcher) {
-        watcher.dispose();
-        watcher = undefined;
+      while (watchers.length > 0) {
+        const watcher = watchers.pop();
+        watcher?.dispose();
       }
     })
   );
@@ -26,19 +26,27 @@ export function activate(context: vscode.ExtensionContext): void {
   };
 
   const setupWatcher = () => {
-    if (watcher) {
-      watcher.dispose();
-      watcher = undefined;
+    while (watchers.length > 0) {
+      const watcher = watchers.pop();
+      watcher?.dispose();
     }
     const root = provider?.getWatcherRoot();
     if (!root) {
       return;
     }
-    const pattern = new vscode.RelativePattern(root, "logics/**/*.{md,markdown,yaml,yml}");
-    watcher = vscode.workspace.createFileSystemWatcher(pattern);
-    watcher.onDidChange(scheduleRefresh);
-    watcher.onDidCreate(scheduleRefresh);
-    watcher.onDidDelete(scheduleRefresh);
+    const patterns = [
+      "logics/**/*.{md,markdown,yaml,yml}",
+      ".claude/**/*.{md,markdown,yml,yaml}",
+      "logics.yaml"
+    ];
+    for (const rawPattern of patterns) {
+      const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(root, rawPattern));
+      watcher.onDidChange(scheduleRefresh);
+      watcher.onDidCreate(scheduleRefresh);
+      watcher.onDidDelete(scheduleRefresh);
+      watchers.push(watcher);
+      context.subscriptions.push(watcher);
+    }
   };
 
   provider = new LogicsViewProvider(context, setupWatcher, agentsOutput);

@@ -6,6 +6,7 @@
 **/out/**
 **/.pytest_cache/**
 **/__pycache__/**
+**/.claude/**
 src/**
 tests/**
 debug/**

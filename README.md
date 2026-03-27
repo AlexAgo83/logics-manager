@@ -189,7 +189,7 @@ Contract:
 - filename pattern: `CHANGELOGS_X_Y_Z.md`
 - version source of truth: root `package.json`
 - helper: `npm run release:changelog:resolve`
-- validation: `npm run release:changelog:validate`
+- validation: `npm run release:changelog:validate` fails when the curated changelog for the current package version is missing
 
 ## Commands
 
@@ -216,6 +216,7 @@ Contract:
 - `Check Environment` summarizes repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
 - `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
 - `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
+- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global-kit state still requires an explicit refresh because it lives outside the workspace.
 - `Check Hybrid Runtime` probes the shared `logics.py flow assist runtime-status` surface and reports backend provenance plus degraded-state reasons.
 - `Hybrid Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with measured counters, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
@@ -237,6 +238,7 @@ Contract:
 The plugin remains a thin client over the shared runtime:
 - shared hybrid actions call `python logics/skills/logics.py flow assist ...`;
 - hybrid ROI aggregation and semantics also stay in the kit through `python logics/skills/logics.py flow assist roi-report --format json`;
+- the shared runtime now distinguishes deterministic helpers such as `changed-surface-summary`, `release-changelog-status`, `test-impact-summary`, and `hybrid-insights-explainer` from Ollama-first proposal flows such as `windows-compat-risk`, `review-checklist`, and `doc-link-suggestion`;
 - backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
 - global Codex kit actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 

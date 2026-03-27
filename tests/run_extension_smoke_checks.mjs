@@ -45,6 +45,7 @@ assertMissingPrefix(entries, "extension/tests/");
 assertMissingPrefix(entries, "extension/debug/");
 assertMissingPrefix(entries, "extension/src/");
 assertMissingPrefix(entries, "extension/.github/");
+assertMissingPrefix(entries, "extension/.claude/");
 assertMissingPrefix(entries, "extension/changelogs/");
 assertMissing(entries, "extension/.gitignore");
 assertMissing(entries, "extension/.gitmodules");

@@ -94,8 +94,10 @@
   "scripts": {
     "postinstall": "npm run compile",
     "bundle:extension": "node scripts/build/package-extension.mjs",
+    "watch:bundle": "node scripts/build/package-extension.mjs --watch",
+    "watch:types": "tsc -watch -p ./",
     "compile": "tsc -p ./ && npm run bundle:extension",
-    "watch": "tsc -watch -p ./",
+    "watch": "npm run watch:bundle",
     "test": "vitest run",
     "test:smoke": "node tests/run_extension_smoke_checks.mjs",
     "test:watch": "vitest",
@@ -111,7 +113,7 @@
     "package": "npm run compile && npx @vscode/vsce package",
     "install:vsix": "npm run package && node scripts/build/install-vsix.mjs",
     "release:changelog:resolve": "node scripts/release/resolve-release-changelog.mjs --validate-current",
-    "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current"
+    "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current --require-curated"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

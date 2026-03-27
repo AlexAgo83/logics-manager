@@ -1,10 +1,10 @@
 ## item_184_harden_workflow_doc_proof_and_placeholder_enforcement - Harden workflow-doc proof and placeholder enforcement
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow governance, proof quality, and blocking placeholder detection
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -17,7 +17,7 @@
 # Scope
 - In:
   - tightening proof detection for ready or done workflow docs
-  - blocking unresolved proof markers such as `Proof: TODO` or equivalent placeholders under the intended governance contract
+  - blocking unresolved proof markers or equivalent placeholders under the intended governance contract
   - expanding placeholder detection in key workflow sections such as `Problem`, `Scope`, `Acceptance criteria`, and `AC Traceability`
   - adding regression coverage for the chosen strictness rules
 - Out:
@@ -36,7 +36,7 @@ flowchart LR
 ```
 
 # Acceptance criteria
-- AC1: Ready or done workflow docs no longer pass the selected audit or lint path when they still contain unresolved proof markers such as `Proof: TODO` or equivalent placeholder evidence.
+- AC1: Ready or done workflow docs no longer pass the selected audit or lint path when they still contain unresolved proof markers or equivalent placeholder evidence.
 - AC2: Generic scaffold content in key workflow sections is surfaced as a blocking failure where the repository contract requires it, rather than staying only a soft warning.
 - AC3: The strictness scope is explicit and bounded so draft or intentionally incomplete docs are not blocked by rules meant for implementation-ready or completed workflow states.
 - AC4: Regression coverage proves the hardened behavior against at least one placeholder-proof case and one generic-scaffold case.
@@ -80,3 +80,4 @@ flowchart LR
 # Notes
 - Derived from request `req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit`.
 - Source file: `logics/request/req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit.md`.
+- Task `task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion` was synchronized to `Done` on 2026-03-27 after confirming the delivered `1.6.0` runtime and documentation surface.

@@ -1,10 +1,10 @@
 ## item_185_enforce_internal_asset_exclusion_and_package_validation_coverage - Enforce internal asset exclusion and package validation coverage
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VSIX hygiene, packaging contract, and smoke validation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -77,3 +77,4 @@ flowchart LR
 # Notes
 - Derived from request `req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit`.
 - Source file: `logics/request/req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit.md`.
+- Task `task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion` was synchronized to `Done` on 2026-03-27 after confirming the delivered `1.6.0` runtime and documentation surface.

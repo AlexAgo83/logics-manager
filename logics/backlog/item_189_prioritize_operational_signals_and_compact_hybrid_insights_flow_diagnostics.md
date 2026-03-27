@@ -1,10 +1,10 @@
 ## item_189_prioritize_operational_signals_and_compact_hybrid_insights_flow_diagnostics - Prioritize operational signals and compact Hybrid Insights flow diagnostics
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Signal salience, section hierarchy, and compact flow diagnostics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -80,3 +80,4 @@ flowchart LR
 # Notes
 - Derived from request `req_105_refine_hybrid_insights_ux_ui_information_hierarchy`.
 - Source file: `logics/request/req_105_refine_hybrid_insights_ux_ui_information_hierarchy.md`.
+- Task `task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion` was synchronized to `Done` on 2026-03-27 after confirming the delivered `1.6.0` runtime and documentation surface.

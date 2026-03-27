@@ -1,7 +1,7 @@
 ## req_106_expand_deterministic_and_ollama_first_delivery_assist_to_reduce_codex_usage - Expand deterministic and Ollama-first delivery assist to reduce Codex usage
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: High

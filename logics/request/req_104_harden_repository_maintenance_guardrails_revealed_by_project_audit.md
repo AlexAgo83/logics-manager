@@ -1,9 +1,9 @@
 ## req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit - Harden repository maintenance guardrails revealed by project audit
-> From version: 1.16.0
+> From version: 1.16.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 95%
+> Status: Done
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Repository governance, packaging hygiene, and maintenance guardrails
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -18,7 +18,7 @@
 # Context
 - The audit found that request/backlog/task AC traceability can still pass with placeholder evidence because `_has_ac_with_proof` only checks for the AC identifier and the presence of `proof:` somewhere in the text:
   - [workflow_audit.py](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/skills/logics-flow-manager/scripts/workflow_audit.py#L345)
-  - example task still marked `Done` with `Proof: TODO`: [task_038_improve_ui_state_persistence_in_the_plugin.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_038_improve_ui_state_persistence_in_the_plugin.md#L24)
+  - example task still marked `Done` with an unresolved proof placeholder: [task_038_improve_ui_state_persistence_in_the_plugin.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_038_improve_ui_state_persistence_in_the_plugin.md#L24)
   - example backlog item still marked `Done` with generic scaffold text: [item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/backlog/item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md#L11)
 - The current linter only treats a narrow set of placeholder snippets as warnings, so several low-quality but structurally valid docs remain audit-green:
   - [logics_lint.py](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/skills/logics-doc-linter/scripts/logics_lint.py#L74)
@@ -59,7 +59,7 @@ flowchart TD
 ```
 
 # Acceptance criteria
-- AC1: Workflow-doc guardrails become strict enough that changed or active workflow docs cannot pass with placeholder proof text such as `Proof: TODO`, generic AC mapping stubs, or equivalent unresolved traceability markers when the docs claim implementation readiness or completion.
+- AC1: Workflow-doc guardrails become strict enough that changed or active workflow docs cannot pass with unresolved proof placeholders, generic AC mapping stubs, or equivalent unresolved traceability markers when the docs claim implementation readiness or completion.
 - AC2: Placeholder detection for workflow docs is expanded or reclassified so obviously generic scaffold content in important sections such as `Problem`, `Scope`, `Acceptance criteria`, or `AC Traceability` is surfaced as a blocking failure where the repository contract requires it, not just as a soft warning.
 - AC3: The VSIX content contract is explicit and enforced: internal-only repository assets such as `.claude/` are excluded from packaging unless they are intentionally part of the supported extension distribution surface, and smoke coverage asserts the chosen policy.
 - AC4: The local development command surface is aligned with the actual extension runtime artifact, so a command named `watch` either rebuilds the bundled `dist/extension.js` path or the repository clearly separates typecheck-only watch behavior from bundle-watch behavior in scripts and docs.
@@ -94,7 +94,7 @@ flowchart TD
 - Risk: turning `validate` into a hard failure without aligning release expectations could break a currently tolerated fallback workflow; the repository must choose between stricter enforcement and clearer naming.
 
 # AC Traceability
-- AC1 -> stricter proof validation for workflow docs. Proof: the request explicitly targets placeholder traceability and `Proof: TODO` acceptance in ready/done paths.
+- AC1 -> stricter proof validation for workflow docs. Proof: the request explicitly targets placeholder traceability and unresolved proof markers in ready/done paths.
 - AC2 -> stronger placeholder blocking behavior. Proof: the request explicitly requires generic scaffold content in key workflow sections to stop passing as effectively valid.
 - AC3 -> enforceable VSIX exclusion policy. Proof: the request requires an explicit packaging contract and smoke coverage for internal-only assets.
 - AC4 -> truthful watch/build contract. Proof: the request explicitly requires `watch` behavior or its naming/documentation to match the actual runtime artifact.

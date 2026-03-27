@@ -1,10 +1,10 @@
 ## item_193_expose_and_validate_the_expanded_local_first_delivery_portfolio_across_runtime_plugin_and_insights - Expose and validate the expanded local-first delivery portfolio across runtime, plugin, and insights
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator surfaces, observability, and validation for local-first portfolio expansion
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -80,3 +80,4 @@ flowchart LR
 # Notes
 - Derived from request `req_106_expand_deterministic_and_ollama_first_delivery_assist_to_reduce_codex_usage`.
 - Source file: `logics/request/req_106_expand_deterministic_and_ollama_first_delivery_assist_to_reduce_codex_usage.md`.
+- Task `task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion` was synchronized to `Done` on 2026-03-27 after confirming the delivered `1.6.0` runtime and documentation surface.

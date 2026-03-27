@@ -1,10 +1,10 @@
 ## item_186_align_watch_and_release_helper_contracts_with_actual_runtime_behavior - Align watch and release helper contracts with actual runtime behavior
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Contributor command truthfulness, bundle behavior, and release helper semantics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -79,3 +79,4 @@ flowchart LR
 # Notes
 - Derived from request `req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit`.
 - Source file: `logics/request/req_104_harden_repository_maintenance_guardrails_revealed_by_project_audit.md`.
+- Task `task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion` was synchronized to `Done` on 2026-03-27 after confirming the delivered `1.6.0` runtime and documentation surface.

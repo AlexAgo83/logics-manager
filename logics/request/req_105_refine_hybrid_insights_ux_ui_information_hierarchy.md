@@ -1,7 +1,7 @@
 ## req_105_refine_hybrid_insights_ux_ui_information_hierarchy - Refine Hybrid Insights UX/UI and information hierarchy
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium

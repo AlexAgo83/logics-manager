@@ -1,10 +1,10 @@
 ## item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu - Restructure the tools menu information architecture without moving actions out of the menu
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -59,8 +59,8 @@ flowchart LR
 - Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
 
 # Links
-- Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Product brief(s): `prod_003_plugin_tools_menu_and_activity_scanability`
+- Architecture decision(s): `adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend`
 - Request: `req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`
 - Primary task(s): `task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization`
 

@@ -17,7 +17,7 @@ import {
   areSamePath,
   buildLogicsKitUpdateCommand,
   getWorkspaceRoot,
-  hasLogicsSubmodule,
+  inspectLogicsBootstrapState,
   inspectLogicsKitSubmodule,
   hasMultipleWorkspaceFolders,
   isExistingDirectory,
@@ -201,13 +201,15 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   async refresh(selectedId?: string): Promise<void> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     const canResetProjectRoot = this.canResetProjectRoot();
-    const canBootstrapLogics = root ? !hasLogicsSubmodule(root) : false;
+    const bootstrapState = root ? inspectLogicsBootstrapState(root) : null;
+    const canBootstrapLogics = Boolean(bootstrapState?.canBootstrap);
     this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
       this.items = [];
       await this.clearAgentRegistry();
       this.postData({
         canBootstrapLogics,
+        bootstrapLogicsTitle: bootstrapState?.actionTitle,
         canResetProjectRoot,
         error: invalidOverridePath
           ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
@@ -221,6 +223,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       await this.clearAgentRegistry();
       this.postData({
         canBootstrapLogics,
+        bootstrapLogicsTitle: bootstrapState?.actionTitle,
         canResetProjectRoot,
         error: `No logics/ folder found in: ${root}.`
       });
@@ -236,6 +239,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       root,
       selectedId,
       canBootstrapLogics,
+      bootstrapLogicsTitle: bootstrapState?.actionTitle,
       canResetProjectRoot,
       activeAgentId: this.activeAgentId ?? undefined,
       activeAgent: this.getActiveAgentPayload(),
@@ -399,8 +403,15 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    if (hasLogicsSubmodule(root)) {
+    const bootstrapState = inspectLogicsBootstrapState(root);
+    if (bootstrapState.status === "canonical") {
       void vscode.window.showInformationMessage("Logics bootstrap already configured.");
+      return;
+    }
+    if (bootstrapState.status === "noncanonical") {
+      void vscode.window.showWarningMessage(
+        `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`
+      );
       return;
     }
     await this.bootstrapLogics(root);
@@ -1225,15 +1236,21 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (this.bootstrapPromptedRoots.has(root)) {
       return;
     }
-    if (hasLogicsSubmodule(root)) {
+    const bootstrapState = inspectLogicsBootstrapState(root);
+    if (bootstrapState.status === "canonical") {
       return;
     }
     this.bootstrapPromptedRoots.add(root);
+    if (bootstrapState.status === "noncanonical") {
+      void vscode.window.showWarningMessage(
+        `This repository already has a non-canonical or malformed logics/skills setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
+      );
+      return;
+    }
 
-    const logicsDirExists = fs.existsSync(path.join(root, "logics"));
-    const message = logicsDirExists
-      ? "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?"
-      : "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?";
+    const message =
+      bootstrapState.promptMessage ??
+      "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?";
 
     const choice = await vscode.window.showInformationMessage(
       message,
@@ -1926,6 +1943,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     error?: string;
     selectedId?: string;
     canBootstrapLogics?: boolean;
+    bootstrapLogicsTitle?: string;
     canResetProjectRoot?: boolean;
     activeAgentId?: string;
     changedPaths?: string[];

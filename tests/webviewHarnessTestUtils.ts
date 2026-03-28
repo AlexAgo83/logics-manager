@@ -22,24 +22,63 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <button id="filter-toggle" class="toolbar__filter"></button>
             <button id="tools-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
-              <button data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
-              <button data-action="new-request-guided"></button>
-              <button data-action="bootstrap-logics"></button>
-              <button data-action="check-environment"></button>
-              <button data-action="check-hybrid-runtime"></button>
-              <button data-action="open-hybrid-insights"></button>
-              <button data-action="assist-commit-all"></button>
-              <button data-action="assist-next-step"></button>
-              <button data-action="assist-triage"></button>
-              <button data-action="assist-diff-risk"></button>
-              <button data-action="assist-summarize-validation"></button>
-              <button data-action="assist-validation-checklist"></button>
-              <button data-action="assist-doc-consistency"></button>
-              <button data-action="change-project-root"></button>
-              <button data-action="reset-project-root"></button>
-              <button data-action="refresh"></button>
-              <button data-action="fix-docs"></button>
-              <button data-action="about"></button>
+              <div data-tools-section="recommended">
+                <div>Recommended</div>
+                <div data-tools-body="recommended">
+                  <button class="tools-panel__item" data-action="new-request-guided" title="Start a guided new request in Codex"></button>
+                  <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next step"></button>
+                  <button class="tools-panel__item" data-action="assist-triage" title="Turn a rough idea into a structured request"></button>
+                  <button class="tools-panel__item" data-action="bootstrap-logics" title="Bootstrap Logics in this repository"></button>
+                  <button class="tools-panel__item" data-action="check-environment" title="Check environment"></button>
+                </div>
+              </div>
+              <div data-tools-section="workflow">
+                <div>Workflow</div>
+                <div data-tools-body="workflow">
+                  <button class="tools-panel__item" data-action="select-agent" title="Select the active agent profile"></button>
+                  <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc"></button>
+                </div>
+              </div>
+              <div data-tools-section="assist">
+                <div>Assist</div>
+                <div data-tools-body="assist">
+                  <button class="tools-panel__item" data-action="assist-commit-all"></button>
+                  <button class="tools-panel__item" data-action="assist-diff-risk"></button>
+                  <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
+                  <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
+                  <button class="tools-panel__item" data-action="assist-doc-consistency"></button>
+                </div>
+              </div>
+              <div data-tools-section="runtime">
+                <div>Runtime</div>
+                <div data-tools-body="runtime">
+                  <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
+                  <button class="tools-panel__item" data-action="check-hybrid-runtime"></button>
+                  <button class="tools-panel__item" data-action="open-hybrid-insights"></button>
+                </div>
+              </div>
+              <div data-tools-section="kit">
+                <div>Kit</div>
+                <div data-tools-body="kit">
+                  <button class="tools-panel__item" data-action="update-logics-kit"></button>
+                  <button class="tools-panel__item" data-action="sync-codex-overlay"></button>
+                </div>
+              </div>
+              <div data-tools-section="workspace">
+                <div>Workspace</div>
+                <div data-tools-body="workspace">
+                  <button class="tools-panel__item" data-action="change-project-root"></button>
+                  <button class="tools-panel__item" data-action="reset-project-root"></button>
+                  <button class="tools-panel__item" data-action="refresh"></button>
+                </div>
+              </div>
+              <div data-tools-section="maintenance">
+                <div>Maintenance</div>
+                <div data-tools-body="maintenance">
+                  <button class="tools-panel__item" data-action="fix-docs"></button>
+                  <button class="tools-panel__item" data-action="about"></button>
+                </div>
+              </div>
             </div>
             <button id="activity-toggle" type="button"></button>
             <button id="attention-toggle" type="button"></button>
@@ -215,6 +254,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   const harnessApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/harnessApi.js"), "utf8");
   const layoutControllerScript = fs.readFileSync(path.resolve(process.cwd(), "media/layoutController.js"), "utf8");
   const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
+  const toolsPanelLayoutScript = fs.readFileSync(path.resolve(process.cwd(), "media/toolsPanelLayout.js"), "utf8");
   const webviewSelectorsScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewSelectors.js"), "utf8");
   const webviewPersistenceScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewPersistence.js"), "utf8");
   const webviewChromeScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewChrome.js"), "utf8");
@@ -228,6 +268,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   dom.window.eval(harnessApiScript);
   dom.window.eval(layoutControllerScript);
   dom.window.eval(hostApiScript);
+  dom.window.eval(toolsPanelLayoutScript);
   dom.window.eval(webviewSelectorsScript);
   dom.window.eval(webviewPersistenceScript);
   dom.window.eval(webviewChromeScript);
@@ -270,6 +311,7 @@ export function pushData(
     root?: string;
     canResetProjectRoot?: boolean;
     canBootstrapLogics?: boolean;
+    bootstrapLogicsTitle?: string;
     changedPaths?: string[];
     activeAgent?: Record<string, unknown> | null;
     items: Array<Record<string, unknown>>;

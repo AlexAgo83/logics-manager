@@ -32,6 +32,10 @@ type ParsedOpenAiInterface = {
   issues: AgentValidationIssue[];
 };
 
+const MAX_AGENT_MANIFEST_BYTES = 64 * 1024;
+const MAX_AGENT_MANIFEST_INDENT_LEVELS = 40;
+const MAX_AGENT_MANIFEST_FLOW_DEPTH = 40;
+
 export function createEmptyAgentRegistry(): AgentRegistrySnapshot {
   return {
     agents: [],
@@ -168,6 +172,15 @@ function parseOpenAiInterface(content: string, sourcePath: string): ParsedOpenAi
   const issues: AgentValidationIssue[] = [];
   const values: Record<string, unknown> = {};
 
+  const safetyIssue = getAgentManifestSafetyIssue(content);
+  if (safetyIssue) {
+    issues.push({
+      sourcePath,
+      message: safetyIssue
+    });
+    return { values, issues };
+  }
+
   let document;
   try {
     document = parseDocument(content, { prettyErrors: false });
@@ -213,6 +226,86 @@ function parseOpenAiInterface(content: string, sourcePath: string): ParsedOpenAi
   }
 
   return { values, issues };
+}
+
+function getAgentManifestSafetyIssue(content: string): string | null {
+  const contentBytes = Buffer.byteLength(content, "utf8");
+  if (contentBytes > MAX_AGENT_MANIFEST_BYTES) {
+    return `Agent manifest exceeds the safe size limit of ${MAX_AGENT_MANIFEST_BYTES} bytes.`;
+  }
+
+  let maxIndentLevels = 0;
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.replace(/\t/g, "  ");
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+    const match = line.match(/^ */);
+    const indentSpaces = match ? match[0].length : 0;
+    maxIndentLevels = Math.max(maxIndentLevels, Math.floor(indentSpaces / 2));
+    if (maxIndentLevels > MAX_AGENT_MANIFEST_INDENT_LEVELS) {
+      return `Agent manifest nesting exceeds the safe block-depth limit of ${MAX_AGENT_MANIFEST_INDENT_LEVELS} levels.`;
+    }
+  }
+
+  const flowDepth = getYamlFlowDepth(content);
+  if (flowDepth > MAX_AGENT_MANIFEST_FLOW_DEPTH) {
+    return `Agent manifest nesting exceeds the safe flow-depth limit of ${MAX_AGENT_MANIFEST_FLOW_DEPTH} levels.`;
+  }
+
+  return null;
+}
+
+function getYamlFlowDepth(content: string): number {
+  let maxDepth = 0;
+  let currentDepth = 0;
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+  let escaped = false;
+
+  for (const char of content) {
+    if (inDoubleQuote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (char === "\"") {
+        inDoubleQuote = false;
+      }
+      continue;
+    }
+
+    if (inSingleQuote) {
+      if (char === "'") {
+        inSingleQuote = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inDoubleQuote = true;
+      continue;
+    }
+    if (char === "'") {
+      inSingleQuote = true;
+      continue;
+    }
+    if (char === "[" || char === "{") {
+      currentDepth += 1;
+      maxDepth = Math.max(maxDepth, currentDepth);
+      continue;
+    }
+    if ((char === "]" || char === "}") && currentDepth > 0) {
+      currentDepth -= 1;
+    }
+  }
+
+  return maxDepth;
 }
 
 function expectRequiredString(

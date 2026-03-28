@@ -10,6 +10,63 @@ import {
 } from "./webviewHarnessTestUtils";
 
 describe("webview harness core behaviors", () => {
+  it("renders host error payloads as plain text instead of HTML", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    dom.window.dispatchEvent(
+      new dom.window.MessageEvent("message", {
+        data: {
+          type: "data",
+          payload: {
+            root: "/workspace/mock",
+            items: [],
+            error: 'Broken <strong>markup</strong> in /tmp/<repo>'
+          }
+        }
+      })
+    );
+
+    const board = dom.window.document.getElementById("board");
+    expect(board?.innerHTML).toContain("&lt;strong&gt;");
+    expect(board?.textContent).toContain("Broken <strong>markup</strong> in /tmp/<repo>");
+  });
+
+  it("uses host-provided bootstrap titles when bootstrap is unavailable", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      canBootstrapLogics: false,
+      bootstrapLogicsTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+      items: [baseItem]
+    });
+
+    const bootstrapButton = dom.window.document.querySelector('[data-action="bootstrap-logics"]') as HTMLButtonElement | null;
+    expect(bootstrapButton?.disabled).toBe(true);
+    expect(bootstrapButton?.title).toBe(
+      "Bootstrap unavailable until the current logics/skills setup is repaired"
+    );
+  });
+
+  it("keeps the tools menu grouped with a recommended section", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      canBootstrapLogics: true,
+      bootstrapLogicsTitle: "Bootstrap Logics in this project",
+      items: [baseItem]
+    });
+
+    const sections = Array.from(dom.window.document.querySelectorAll("[data-tools-section]"));
+    expect(sections.length).toBeGreaterThanOrEqual(6);
+
+    const recommendedActions = Array.from(
+      dom.window.document.querySelectorAll('[data-tools-body="recommended"] [data-action]')
+    ).map((element) => element.getAttribute("data-action"));
+    expect(recommendedActions).toEqual(["bootstrap-logics", "check-environment", "change-project-root"]);
+  });
+
   it("opens selected item in harness mode without posting open message", async () => {
     const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: true });
 
@@ -614,6 +671,50 @@ describe("webview harness core behaviors", () => {
     entry?.dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
+  });
+
+  it("shows updated metadata inside activity cells", () => {
+    const recentItem = {
+      ...baseItem,
+      id: "req_004_activity_updated",
+      title: "Activity updated target",
+      updatedAt: "2024-05-01T10:00:00.000Z"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, recentItem]
+    });
+
+    const document = dom.window.document;
+    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
+      button.textContent?.includes("Activity updated target")
+    );
+    expect(entry?.querySelector(".activity-panel__updated")?.textContent).toContain("Updated:");
+  });
+
+  it("degrades gracefully when an activity item has no valid updated timestamp", () => {
+    const invalidItem = {
+      ...baseItem,
+      id: "req_005_activity_unknown",
+      title: "Activity unknown timestamp",
+      updatedAt: "not-a-date"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [invalidItem]
+    });
+
+    const document = dom.window.document;
+    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
+      button.textContent?.includes("Activity unknown timestamp")
+    );
+    expect(entry?.querySelector(".activity-panel__updated")?.textContent).toBe("Updated: Unknown");
   });
 
   it("hides promote and add-docs badges on cards while keeping other suggested actions", () => {

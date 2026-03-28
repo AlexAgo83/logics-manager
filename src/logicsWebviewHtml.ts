@@ -50,6 +50,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   const harnessApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "harnessApi.js"));
   const layoutControllerScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "layoutController.js"));
   const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "hostApi.js"));
+  const toolsPanelLayoutScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "toolsPanelLayout.js"));
   const webviewSelectorsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewSelectors.js"));
   const webviewPersistenceScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewPersistence.js"));
   const webviewChromeScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewChrome.js"));
@@ -108,28 +109,63 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             </svg>
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Create Companion Doc</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="update-logics-kit" title="Update the Logics kit submodule when the canonical setup is present">Update Logics Kit</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Publish or repair the global Codex Logics kit from this repository">Publish Global Codex Kit</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Check Hybrid Runtime</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Summarize Validation</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Use Workspace Root</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
-            <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
+            <div class="tools-panel__section" data-tools-section="recommended">
+              <div class="tools-panel__section-label">Recommended</div>
+              <div class="tools-panel__section-body" data-tools-body="recommended">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Environment</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="workflow">
+              <div class="tools-panel__section-label">Workflow</div>
+              <div class="tools-panel__section-body" data-tools-body="workflow">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Companion Doc</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="assist">
+              <div class="tools-panel__section-label">Assist</div>
+              <div class="tools-panel__section-body" data-tools-body="assist">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Validation Summary</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="runtime">
+              <div class="tools-panel__section-label">Runtime</div>
+              <div class="tools-panel__section-body" data-tools-body="runtime">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Hybrid Runtime</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="kit">
+              <div class="tools-panel__section-label">Kit</div>
+              <div class="tools-panel__section-body" data-tools-body="kit">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="update-logics-kit" title="Update the Logics kit submodule when the canonical setup is present">Update Logics Kit</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Publish or repair the global Codex Logics kit from this repository">Publish Global Codex Kit</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="workspace">
+              <div class="tools-panel__section-label">Workspace</div>
+              <div class="tools-panel__section-body" data-tools-body="workspace">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Reset Project Root</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
+              </div>
+            </div>
+            <div class="tools-panel__section" data-tools-section="maintenance">
+              <div class="tools-panel__section-label">Maintenance</div>
+              <div class="tools-panel__section-body" data-tools-body="maintenance">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -261,6 +297,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>
   <script nonce="${nonce}" src="${layoutControllerScriptUri}"></script>
   <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
+  <script nonce="${nonce}" src="${toolsPanelLayoutScriptUri}"></script>
   <script nonce="${nonce}" src="${webviewSelectorsScriptUri}"></script>
   <script nonce="${nonce}" src="${webviewPersistenceScriptUri}"></script>
   <script nonce="${nonce}" src="${webviewChromeScriptUri}"></script>

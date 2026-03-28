@@ -190,15 +190,15 @@
   top: 34px;
   left: 0;
   right: auto;
-  min-width: 180px;
+  min-width: 240px;
   max-width: calc(100vw - 16px);
   background: var(--vscode-editorWidget-background, #202020);
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 8px;
-  padding: 6px;
+  padding: 8px;
   display: none;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
   z-index: 20;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
@@ -225,6 +225,32 @@
 .tools-panel__item:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.tools-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tools-panel__section:not(:last-child) {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+}
+
+.tools-panel__section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  padding: 0 8px;
+}
+
+.tools-panel__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .btn {
@@ -359,6 +385,16 @@
 .activity-panel__meta {
   font-size: 11px;
   color: var(--vscode-descriptionForeground, #9da5b4);
+  min-width: 0;
+  width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.activity-panel__updated {
+  font-size: 11px;
+  color: var(--vscode-editorInfo-foreground, var(--vscode-descriptionForeground, #9da5b4));
   min-width: 0;
   width: 100%;
   white-space: normal;

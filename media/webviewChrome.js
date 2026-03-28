@@ -31,6 +31,7 @@
       getActivityEntries,
       getAttentionOnly,
       getCanBootstrapLogics,
+      getBootstrapLogicsTitle,
       getCanResetProjectRoot,
       getEffectiveViewMode,
       getGroupMode,
@@ -51,6 +52,15 @@
       readItemAndRender,
       selectItemAndRender
     } = options;
+    const toolsPanelLayoutFactory = window.createCdxLogicsToolsPanelLayoutApi;
+    const toolsPanelLayout =
+      typeof toolsPanelLayoutFactory === "function"
+        ? toolsPanelLayoutFactory({
+            toolsPanel,
+            getCanBootstrapLogics,
+            getBootstrapLogicsTitle
+          })
+        : null;
 
     function setButtonIcon(button, svgMarkup) {
       if (!button) {
@@ -155,6 +165,14 @@
           meta.textContent = `${entry.label} • ${getStageLabel(entry.stage)} • ${entry.id}`;
           button.appendChild(meta);
 
+          const updated = document.createElement("div");
+          updated.className = "activity-panel__updated";
+          updated.textContent =
+            toolsPanelLayout && typeof toolsPanelLayout.formatActivityUpdated === "function"
+              ? toolsPanelLayout.formatActivityUpdated(entry.updatedAt)
+              : "Updated: Unknown";
+          button.appendChild(updated);
+
           button.addEventListener("click", () => {
             selectItemAndRender(entry.id);
           });
@@ -205,9 +223,10 @@
       }
       if (bootstrapLogicsButton) {
         bootstrapLogicsButton.disabled = !getCanBootstrapLogics();
-        bootstrapLogicsButton.title = getCanBootstrapLogics()
-          ? "Bootstrap Logics in this project"
-          : "Bootstrap already completed";
+        bootstrapLogicsButton.title = getBootstrapLogicsTitle();
+      }
+      if (toolsPanelLayout && typeof toolsPanelLayout.renderToolsPanelStructure === "function") {
+        toolsPanelLayout.renderToolsPanelStructure();
       }
     }
 

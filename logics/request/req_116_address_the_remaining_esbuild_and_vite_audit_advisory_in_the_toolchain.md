@@ -1,7 +1,7 @@
 ## req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain - Address the remaining esbuild and vite audit advisory in the toolchain
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

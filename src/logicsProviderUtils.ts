@@ -44,26 +44,22 @@ export function areSamePath(left: string, right: string): boolean {
 }
 
 export function hasLogicsSubmodule(root: string): boolean {
-  const skillsDir = path.join(root, "logics", "skills");
-  if (fs.existsSync(skillsDir)) {
-    return true;
-  }
-  const gitmodulesPath = path.join(root, ".gitmodules");
-  if (!fs.existsSync(gitmodulesPath)) {
-    return false;
-  }
-  try {
-    const content = fs.readFileSync(gitmodulesPath, "utf8");
-    return content.includes("cdx-logics-kit") || content.includes("logics/skills");
-  } catch {
-    return false;
-  }
+  const inspection = inspectLogicsKitSubmodule(root);
+  return inspection.exists && inspection.isCanonical;
 }
 
 export type LogicsKitSubmoduleInspection = {
   exists: boolean;
   isCanonical: boolean;
   remoteUrl?: string;
+  reason: string;
+};
+
+export type LogicsBootstrapState = {
+  status: "missing" | "incomplete" | "canonical" | "noncanonical";
+  canBootstrap: boolean;
+  actionTitle: string;
+  promptMessage?: string;
   reason: string;
 };
 
@@ -130,6 +126,48 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
     exists: true,
     isCanonical: false,
     reason: "The repository does not declare a logics/skills submodule entry in .gitmodules."
+  };
+}
+
+export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState {
+  const logicsDir = path.join(root, "logics");
+  const skillsDir = path.join(logicsDir, "skills");
+  const inspection = inspectLogicsKitSubmodule(root);
+
+  if (!fs.existsSync(logicsDir)) {
+    return {
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics in this project",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found in the selected repository."
+    };
+  }
+
+  if (!fs.existsSync(skillsDir)) {
+    return {
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Bootstrap or repair Logics in this project",
+      promptMessage: "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?",
+      reason: "The repository has logics/ but logics/skills is still missing."
+    };
+  }
+
+  if (inspection.exists && inspection.isCanonical) {
+    return {
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: inspection.reason
+    };
+  }
+
+  return {
+    status: "noncanonical",
+    canBootstrap: false,
+    actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+    reason: inspection.reason
   };
 }
 

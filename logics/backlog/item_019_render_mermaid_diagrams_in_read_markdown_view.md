@@ -3,7 +3,7 @@
 > Status: Done
 > Understanding: 100%
 > Confidence: 98%
-> Progress: 100% complete
+> Progress: 100%
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

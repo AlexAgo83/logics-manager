@@ -1,7 +1,7 @@
 ## req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs - Normalize workflow progress indicators and close placeholder debt in completed docs
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

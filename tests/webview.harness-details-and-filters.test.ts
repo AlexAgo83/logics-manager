@@ -822,7 +822,7 @@ describe("webview harness filters, details, and docs", () => {
         "refresh"
       ])
     );
-    expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("launch-codex-overlay");
+    expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("new-request-guided");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);

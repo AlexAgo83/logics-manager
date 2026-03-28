@@ -1,7 +1,7 @@
 ## req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html - Sanitize webview error rendering instead of injecting raw error HTML
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

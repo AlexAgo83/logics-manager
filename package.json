@@ -105,8 +105,10 @@
     "lint:ts": "tsc -p ./ --noEmit",
     "lint:logics": "node scripts/run-python.mjs logics/skills/logics-doc-linter/scripts/logics_lint.py",
     "audit:logics": "node scripts/run-python.mjs logics/skills/logics-flow-manager/scripts/workflow_audit.py && node scripts/run-python.mjs logics/skills/logics-doc-linter/scripts/logics_lint.py",
+    "audit:ci": "node scripts/check-npm-audit.mjs",
     "logics:finish:task": "node scripts/run-python.mjs logics/skills/logics-flow-manager/scripts/logics_flow.py finish task",
-    "ci:check": "npm run compile && npm run lint && npm run test && npm run test:smoke && npm run lint:logics && npm run package:ci",
+    "ci:fast": "npm run compile && npm run lint && npm run test && npm run test:smoke && npm run lint:logics && npm run package:ci",
+    "ci:check": "node scripts/ci-check.mjs",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
     "debug:webview": "node debug/webview/server.mjs",
     "package:ci": "node scripts/build/package-ci.mjs",
@@ -123,7 +125,7 @@
     "mermaid": "^11.12.3",
     "typescript": "^5.3.3",
     "vitest": "^2.1.8",
-    "yaml": "^2.8.1",
+    "yaml": "^2.8.3",
     "yauzl": "^3.2.0"
   }
 }

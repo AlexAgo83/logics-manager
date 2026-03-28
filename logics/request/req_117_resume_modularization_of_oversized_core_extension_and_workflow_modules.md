@@ -1,7 +1,7 @@
 ## req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules - Resume modularization of oversized core extension and workflow modules
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

@@ -1,7 +1,7 @@
 ## req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection - Replace coarse bootstrap detection with canonical kit inspection
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 90%
 > Complexity: Medium

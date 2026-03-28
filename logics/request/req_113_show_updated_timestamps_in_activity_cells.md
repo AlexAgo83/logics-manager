@@ -1,7 +1,7 @@
 ## req_113_show_updated_timestamps_in_activity_cells - Show updated timestamps in activity cells
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Low

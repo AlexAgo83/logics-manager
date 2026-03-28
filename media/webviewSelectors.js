@@ -228,7 +228,6 @@
 
     function getActivityEntries() {
       return [...getItems()]
-        .filter((item) => Date.parse(item.updatedAt || "") > 0)
         .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
         .slice(0, 12)
         .map((item) => {

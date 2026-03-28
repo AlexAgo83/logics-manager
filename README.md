@@ -294,7 +294,13 @@ Legacy compatibility:
 - Unit tests: `npm run test`
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
+- Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
+- Security audit policy gate: `npm run audit:ci`
+
+`npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, Python tests, CLI smoke checks, TypeScript validation, extension tests, and VSIX packaging.
+
+`npm run audit:ci` enforces the repository audit policy locally. It blocks new actionable vulnerabilities and only allows the explicitly documented temporary exceptions tracked in the backlog.
 
 CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
 

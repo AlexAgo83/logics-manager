@@ -1,7 +1,7 @@
 ## req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities - Make the security audit workflow block on actionable vulnerabilities
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

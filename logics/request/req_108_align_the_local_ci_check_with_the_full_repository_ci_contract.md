@@ -1,7 +1,7 @@
 ## req_108_align_the_local_ci_check_with_the_full_repository_ci_contract - Align the local ci check with the full repository CI contract
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

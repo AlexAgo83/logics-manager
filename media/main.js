@@ -108,6 +108,7 @@
   let toolsPanelOpen = false;
   let canResetProjectRoot = false;
   let canBootstrapLogics = false;
+  let bootstrapLogicsTitle = "Bootstrap Logics in this project";
   let activeWorkspaceRoot = null;
   let persistedWorkspaceRoot = null;
   const previousState = vscode.getState() || null;
@@ -475,6 +476,7 @@
           getAttentionOnly: () => attentionOnly,
           getActivityPanelOpen: () => activityPanelOpen,
           getCanBootstrapLogics: () => canBootstrapLogics,
+          getBootstrapLogicsTitle: () => bootstrapLogicsTitle,
           getCanResetProjectRoot: () => canResetProjectRoot,
           getEffectiveViewMode,
           getGroupMode: () => groupMode,
@@ -852,11 +854,14 @@
       if (payload && typeof payload.canBootstrapLogics === "boolean") {
         canBootstrapLogics = payload.canBootstrapLogics;
       }
+      if (payload && typeof payload.bootstrapLogicsTitle === "string") {
+        bootstrapLogicsTitle = payload.bootstrapLogicsTitle;
+      }
       changedPaths = Array.isArray(payload && payload.changedPaths) ? payload.changedPaths : [];
       activeAgent = payload && payload.activeAgent ? payload.activeAgent : null;
       if (payload && payload.error) {
         debugLog("host:data:error", { error: payload.error });
-        board.innerHTML = `<div class="state-message">${payload.error}</div>`;
+        renderBoardErrorState(payload.error);
         detailsBody.innerHTML = "";
         if (detailsTitle) {
           detailsTitle.textContent = "Details";
@@ -870,6 +875,17 @@
       const nextSelected = payload ? payload.selectedId : undefined;
       setState(nextItems, nextSelected);
     }
+  }
+
+  function renderBoardErrorState(message) {
+    if (!board) {
+      return;
+    }
+    board.replaceChildren();
+    const container = document.createElement("div");
+    container.className = "state-message";
+    container.textContent = String(message || "");
+    board.appendChild(container);
   }
 
   function handleDocumentClick(event) {

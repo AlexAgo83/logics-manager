@@ -1,7 +1,7 @@
 ## req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests - Harden agent registry YAML parsing against malicious skill manifests
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 90%
 > Complexity: Medium

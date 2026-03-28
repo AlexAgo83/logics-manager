@@ -1,7 +1,7 @@
 ## req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh - Fix false positive Mermaid signature warnings after signature refresh
 > From version: 1.16.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

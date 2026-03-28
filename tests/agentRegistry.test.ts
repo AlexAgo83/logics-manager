@@ -165,4 +165,48 @@ describe("agentRegistry", () => {
     expect(extractExplicitAgentInvocation("Use $LOGICS-FLOW-MANAGER now")).toBe("$logics-flow-manager");
     expect(extractExplicitAgentInvocation("No explicit invocation")).toBeNull();
   });
+
+  it("rejects deeply nested block YAML before parsing", () => {
+    const root = mkRepo();
+    const nestedLines = [
+      "interface:",
+      "  display_name: \"Flow Manager\"",
+      "  short_description: \"Manage workflow docs\"",
+      "  default_prompt: \"Use $logics-flow-manager\"",
+      "  metadata:"
+    ];
+    for (let depth = 0; depth < 45; depth += 1) {
+      nestedLines.push(`${"  ".repeat(depth + 2)}level_${depth}:`);
+    }
+    nestedLines.push(`${"  ".repeat(47)}leaf: true`);
+    writeYaml(root, "logics-flow-manager", nestedLines.join("\n"));
+
+    const snapshot = loadAgentRegistry(root);
+    expect(snapshot.agents).toHaveLength(0);
+    expect(
+      snapshot.issues.some((issue) => issue.message.includes("safe block-depth limit"))
+    ).toBe(true);
+  });
+
+  it("rejects deeply nested flow YAML before parsing", () => {
+    const root = mkRepo();
+    const deeplyNested = `${"[".repeat(45)}0${"]".repeat(45)}`;
+    writeYaml(
+      root,
+      "logics-flow-manager",
+      [
+        "interface:",
+        "  display_name: \"Flow Manager\"",
+        "  short_description: \"Manage workflow docs\"",
+        "  default_prompt: \"Use $logics-flow-manager\"",
+        `  allowed_doc_stages: ${deeplyNested}`
+      ].join("\n")
+    );
+
+    const snapshot = loadAgentRegistry(root);
+    expect(snapshot.agents).toHaveLength(0);
+    expect(
+      snapshot.issues.some((issue) => issue.message.includes("safe flow-depth limit"))
+    ).toBe(true);
+  });
 });

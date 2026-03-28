@@ -19,9 +19,9 @@ const mocks = vi.hoisted(() => ({
   workspaceStateUpdate: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
+  inspectLogicsBootstrapState: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
-  hasLogicsSubmodule: vi.fn(),
   indexLogics: vi.fn(),
   createEmptyAgentRegistry: vi.fn(),
   loadAgentRegistry: vi.fn(),
@@ -73,8 +73,8 @@ vi.mock("../src/logicsProviderUtils", () => ({
   areSamePath: mocks.areSamePath,
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
   getWorkspaceRoot: mocks.getWorkspaceRoot,
-  hasLogicsSubmodule: mocks.hasLogicsSubmodule,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
+  inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
   inspectLogicsKitSubmodule: mocks.inspectLogicsKitSubmodule,
   isExistingDirectory: mocks.isExistingDirectory,
   runGitWithOutput: mocks.runGitWithOutput,
@@ -250,7 +250,7 @@ describe("LogicsViewProvider", () => {
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.createWebviewPanel.mockReset();
-    mocks.hasLogicsSubmodule.mockReset();
+    mocks.inspectLogicsBootstrapState.mockReset();
     mocks.indexLogics.mockReset();
     mocks.createEmptyAgentRegistry.mockReset();
     mocks.loadAgentRegistry.mockReset();
@@ -262,7 +262,13 @@ describe("LogicsViewProvider", () => {
     mocks.publishCodexWorkspaceOverlay.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
 
-    mocks.hasLogicsSubmodule.mockReturnValue(false);
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics in this project",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found in the selected repository."
+    });
     mocks.indexLogics.mockReturnValue([]);
     mocks.createEmptyAgentRegistry.mockReturnValue({ agents: [], issues: [] });
     mocks.loadAgentRegistry.mockReturnValue({ agents: [], issues: [] });
@@ -317,6 +323,13 @@ describe("LogicsViewProvider", () => {
 
   it("uses a repair-oriented bootstrap prompt when logics exists but skills are missing", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Bootstrap or repair Logics in this project",
+      promptMessage: "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?",
+      reason: "The repository has logics/ but logics/skills is still missing."
+    });
     mocks.showInformationMessage.mockResolvedValue("Not now");
 
     await (provider as any).maybeOfferBootstrap(root);
@@ -325,6 +338,21 @@ describe("LogicsViewProvider", () => {
       "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?",
       "Bootstrap Logics",
       "Not now"
+    );
+  });
+
+  it("surfaces non-canonical bootstrap state instead of claiming bootstrap is complete", async () => {
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "noncanonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+      reason: "The repository does not declare logics/skills in .gitmodules."
+    });
+
+    await (provider as any).bootstrapFromTools();
+
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      "Bootstrap Logics is unavailable until the current logics/skills setup is repaired. The repository does not declare logics/skills in .gitmodules."
     );
   });
 
@@ -677,7 +705,12 @@ describe("LogicsViewProvider", () => {
 
   it("can publish the global kit directly from environment diagnostics", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
-    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
       .mockResolvedValueOnce({
@@ -1079,7 +1112,12 @@ describe("LogicsViewProvider", () => {
 
   it("can run the canonical kit update directly from environment diagnostics", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
       .mockResolvedValueOnce({
@@ -1154,7 +1192,12 @@ describe("LogicsViewProvider", () => {
 
   it("offers a startup notification to update the kit when overlays are unsupported by the current submodule", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       root,
@@ -1197,7 +1240,12 @@ describe("LogicsViewProvider", () => {
 
   it("offers a startup notification to publish the global kit only once per unresolved state", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    mocks.hasLogicsSubmodule.mockReturnValue(true);
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       root,

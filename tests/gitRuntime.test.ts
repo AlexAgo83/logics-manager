@@ -1,7 +1,16 @@
-import { describe, expect, it } from "vitest";
-import { buildMissingGitMessage, getGitCommandCandidates, isMissingGitFailureDetail } from "../src/gitRuntime";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  buildMissingGitMessage,
+  configureGitPathSettingReader,
+  getGitCommandCandidates,
+  isMissingGitFailureDetail
+} from "../src/gitRuntime";
 
 describe("gitRuntime", () => {
+  afterEach(() => {
+    configureGitPathSettingReader(undefined);
+  });
+
   it("recognizes common missing-git launcher errors", () => {
     expect(isMissingGitFailureDetail("'git' is not recognized as an internal or external command")).toBe(true);
     expect(isMissingGitFailureDetail("git: command not found")).toBe(true);
@@ -33,5 +42,13 @@ describe("gitRuntime", () => {
         (candidate) => candidate.command === "C:\\Users\\Alice\\AppData\\Local\\Programs\\Git\\cmd\\git.exe"
       )
     ).toBe(true);
+  });
+
+  it("reads configured git.path through the injected setting reader by default", () => {
+    configureGitPathSettingReader(() => "C:\\Tools\\git.exe");
+
+    const candidates = getGitCommandCandidates("win32", {});
+
+    expect(candidates[0]?.command).toBe("C:\\Tools\\git.exe");
   });
 });

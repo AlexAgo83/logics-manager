@@ -357,6 +357,34 @@ describe("LogicsViewProvider", () => {
   });
 
   it("shows an actionable error when bootstrap is requested without git on PATH", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "partial-bootstrap",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: false },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "unavailable", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
       stderr: "'git' is not recognized as an internal or external command",
@@ -372,9 +400,9 @@ describe("LogicsViewProvider", () => {
   });
 
   it("auto-publishes the global kit during bootstrap before reporting full completion", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-bootstrapper", "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-bootstrapper", "scripts", "logics_bootstrap.py"),
+      path.join(root, "logics", "skills", "logics.py"),
       "#!/usr/bin/env python\n",
       "utf8"
     );
@@ -395,9 +423,86 @@ describe("LogicsViewProvider", () => {
     });
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
     mocks.shouldPublishRepoKit.mockReturnValue(true);
+    (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
 
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
-    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never)
+      .mockResolvedValueOnce({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never)
+      .mockResolvedValueOnce({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "available", summary: "Global kit ready." }
+      },
+      codexOverlay: {
+        status: "healthy",
+        summary: "Global kit ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never)
+      .mockResolvedValueOnce({
       root,
       repositoryState: "ready",
       hasLogicsDir: true,

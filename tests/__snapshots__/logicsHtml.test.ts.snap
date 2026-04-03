@@ -1,0 +1,1136 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH';"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Assist Insights</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: var(--vscode-editor-background, #1f1f1f);
+      --surface: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 84%, white 16%);
+      --surface-strong: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 72%, white 28%);
+      --surface-muted: color-mix(in srgb, var(--vscode-editor-background, #1f1f1f) 88%, white 12%);
+      --ink: var(--vscode-editor-foreground, #e6e6e6);
+      --muted: color-mix(in srgb, var(--vscode-editor-foreground, #e6e6e6) 68%, transparent 32%);
+      --line: color-mix(in srgb, var(--vscode-editor-foreground, #e6e6e6) 16%, transparent 84%);
+      --accent: var(--vscode-textLink-foreground, #4ea1ff);
+      --good: #4da66c;
+      --warn: #d3a85f;
+      --bad: #d06c6c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .hybrid-insights {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 20px 32px;
+    }
+    .hybrid-insights__header {
+      display: grid;
+      gap: 16px;
+      padding: 20px 0 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .hybrid-insights__header-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__header h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+    .hybrid-insights__root-label {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hybrid-insights__summary {
+      margin: 8px 0 0;
+      max-width: 76ch;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .hybrid-insights__toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+    }
+    .hybrid-insights__button:hover {
+      border-color: color-mix(in srgb, var(--accent) 48%, transparent 52%);
+      background: var(--surface-strong);
+    }
+    .hybrid-insights__signal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+    .hybrid-insights__signal-card,
+    .hybrid-insights__section,
+    .hybrid-insights__secondary-details {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+    .hybrid-insights__signal-card {
+      padding: 14px;
+    }
+    .hybrid-insights__signal-card span,
+    .hybrid-insights__meta-row span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hybrid-insights__signal-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      line-height: 1;
+    }
+    .hybrid-insights__signal-card em {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-style: normal;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .hybrid-insights__signal-card.is-good strong {
+      color: var(--good);
+    }
+    .hybrid-insights__signal-card.is-warn strong {
+      color: var(--warn);
+    }
+    .hybrid-insights__signal-card.is-bad strong {
+      color: var(--bad);
+    }
+    .hybrid-insights__secondary-details {
+      overflow: hidden;
+    }
+    .hybrid-insights__secondary-details > summary,
+    .hybrid-insights__nested-details > summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    .hybrid-insights__secondary-details > summary {
+      padding: 12px 14px;
+      font-weight: 600;
+    }
+    .hybrid-insights__secondary-details > summary::-webkit-details-marker,
+    .hybrid-insights__nested-details > summary::-webkit-details-marker,
+    .hybrid-insights__recent-item > summary::-webkit-details-marker {
+      display: none;
+    }
+    .hybrid-insights__secondary-details-body {
+      padding: 0 14px 14px;
+    }
+    .hybrid-insights__sections {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .hybrid-insights__section {
+      padding: 16px;
+    }
+    .hybrid-insights__section h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .hybrid-insights__section-intro {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .hybrid-insights__columns,
+    .hybrid-insights__overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .hybrid-insights__panel {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-muted);
+      padding: 14px;
+    }
+    .hybrid-insights__panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+    .hybrid-insights__list {
+      display: grid;
+      gap: 8px;
+    }
+    .hybrid-insights__list-row,
+    .hybrid-insights__meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .hybrid-insights__list-row:last-child,
+    .hybrid-insights__meta-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    .hybrid-insights__list-row span {
+      color: var(--muted);
+    }
+    .hybrid-insights__list-row strong,
+    .hybrid-insights__meta-row strong {
+      font-size: 13px;
+      text-align: right;
+    }
+    .hybrid-insights__empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hybrid-insights__stack {
+      display: grid;
+      gap: 8px;
+    }
+    .hybrid-insights__note {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .hybrid-insights__status-row,
+    .hybrid-insights__chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .hybrid-insights__status,
+    .hybrid-insights__chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      font-size: 12px;
+    }
+    .hybrid-insights__status.is-good {
+      color: var(--good);
+      border-color: color-mix(in srgb, var(--good) 32%, transparent 68%);
+    }
+    .hybrid-insights__status.is-warn,
+    .hybrid-insights__chip {
+      color: var(--warn);
+      border-color: color-mix(in srgb, var(--warn) 32%, transparent 68%);
+    }
+    .hybrid-insights__status.is-bad {
+      color: var(--bad);
+      border-color: color-mix(in srgb, var(--bad) 32%, transparent 68%);
+    }
+    .hybrid-insights__diagnostic-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .hybrid-insights__diagnostic-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-muted);
+      padding: 14px;
+    }
+    .hybrid-insights__diagnostic-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__diagnostic-head h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+    .hybrid-insights__diagnostic-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hybrid-insights__diagnostic-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .hybrid-insights__diagnostic-stats div {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .hybrid-insights__diagnostic-stats span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .hybrid-insights__diagnostic-stats strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+    }
+    .hybrid-insights__diagnostic-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .hybrid-insights__diagnostic-columns h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+    .hybrid-insights__recent {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .hybrid-insights__recent-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-muted);
+      overflow: hidden;
+    }
+    .hybrid-insights__recent-item > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 12px 14px;
+    }
+    .hybrid-insights__recent-summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .hybrid-insights__recent-primary,
+    .hybrid-insights__recent-secondary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .hybrid-insights__recent-secondary {
+      color: var(--muted);
+      font-size: 12px;
+      justify-content: flex-end;
+    }
+    .hybrid-insights__recent-body {
+      padding: 0 14px 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .hybrid-insights__recent-summary {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .hybrid-insights__meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0 12px;
+    }
+    .hybrid-insights__nested-details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .hybrid-insights__nested-details > summary {
+      padding: 10px 12px;
+      font-weight: 600;
+    }
+    .hybrid-insights__code {
+      margin: 0;
+      padding: 0 12px 12px;
+      background: transparent;
+      color: var(--ink);
+      font-size: 12px;
+      overflow-x: auto;
+    }
+    @media (max-width: 720px) {
+      .hybrid-insights {
+        padding: 16px 14px 28px;
+      }
+      .hybrid-insights__header {
+        padding-top: 8px;
+      }
+      .hybrid-insights__header h1 {
+        font-size: 24px;
+      }
+      .hybrid-insights__summary {
+        font-size: 13px;
+      }
+      .hybrid-insights__signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hybrid-insights__recent-summary-row,
+      .hybrid-insights__diagnostic-head {
+        flex-direction: column;
+      }
+      .hybrid-insights__recent-secondary {
+        justify-content: flex-start;
+      }
+      .hybrid-insights__meta-grid,
+      .hybrid-insights__diagnostic-columns,
+      .hybrid-insights__columns,
+      .hybrid-insights__overview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="hybrid-insights">
+    <header class="hybrid-insights__header">
+      <div class="hybrid-insights__header-row">
+        <div>
+          <h1>Hybrid Assist Insights</h1>
+          <p class="hybrid-insights__root-label">Shared runtime report for <strong>/workspace/project</strong></p>
+          <p class="hybrid-insights__summary">
+            Start with the operator signals first, then inspect recent runs and flow diagnostics. Estimates stay available, but secondary.
+          </p>
+        </div>
+        <div class="hybrid-insights__toolbar">
+          <button class="hybrid-insights__button" type="button" data-action="refresh-report">Refresh</button>
+          <button class="hybrid-insights__button" type="button" data-action="open-source-log" data-source="audit">Open audit log</button>
+          <button class="hybrid-insights__button" type="button" data-action="open-source-log" data-source="measurement">Open measurement log</button>
+        </div>
+      </div>
+      <div class="hybrid-insights__signal-grid">
+        
+        <section class="hybrid-insights__signal-card ">
+          <span>Local offload</span>
+          <strong>70.0%</strong>
+          <em>7 local completion(s)</em>
+        </section>
+      
+        <section class="hybrid-insights__signal-card ">
+          <span>Fallback</span>
+          <strong>20.0%</strong>
+          <em>2 fallback run(s)</em>
+        </section>
+      
+        <section class="hybrid-insights__signal-card is-bad">
+          <span>Degraded</span>
+          <strong>10.0%</strong>
+          <em>1 degraded run(s)</em>
+        </section>
+      
+        <section class="hybrid-insights__signal-card ">
+          <span>Review</span>
+          <strong>30.0%</strong>
+          <em>3 run(s) still need attention</em>
+        </section>
+      
+      </div>
+      <details class="hybrid-insights__secondary-details">
+        <summary>Report source and window</summary>
+        <div class="hybrid-insights__secondary-details-body">
+          <div class="hybrid-insights__meta-grid">
+            <div class="hybrid-insights__meta-row"><span>Generated</span><strong>unknown</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Audit log</span><strong>logics/.cache/hybrid_assist_audit.jsonl</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Measurement log</span><strong>logics/.cache/hybrid_assist_measurements.jsonl</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Window</span><strong>0 day(s)</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Recent runs shown</span><strong>0</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Total measured runs</span><strong>0</strong></div>
+          </div>
+        </div>
+      </details>
+    </header>
+
+    <div class="hybrid-insights__sections">
+      <section class="hybrid-insights__section">
+        <h2>Overview</h2>
+        <p class="hybrid-insights__section-intro">Measured counters stay primary. Use this section to decide whether the current portfolio looks healthy enough to trust without opening raw logs.</p>
+        <div class="hybrid-insights__overview-grid">
+          <div class="hybrid-insights__panel">
+            <h3>Current posture</h3>
+            
+    <div class="hybrid-insights__stack">
+      <div class="hybrid-insights__note">Ollama healthy on most runs.</div><div class="hybrid-insights__note">Codex fallback only triggered twice.</div>
+    </div>
+  
+            <div class="hybrid-insights__status-row"><span class="hybrid-insights__status is-warn">Degraded outcomes need review.</span></div>
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Measured totals</h3>
+            
+    <div class="hybrid-insights__list">
+      
+            <div class="hybrid-insights__list-row">
+              <span>Total runs</span>
+              <strong>0</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Local runs</span>
+              <strong>7</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Fallback runs</span>
+              <strong>2</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Degraded runs</span>
+              <strong>1</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Review recommended</span>
+              <strong>3</strong>
+            </div>
+          
+    </div>
+  
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Recent result distribution</h3>
+            <p class="hybrid-insights__empty">No recent results inside the bounded window.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="hybrid-insights__section">
+        <h2>Where It Breaks Down</h2>
+        <p class="hybrid-insights__section-intro">These deterministic summaries explain what is driving pressure now, without giving estimates the same weight as measured outcomes.</p>
+        <div class="hybrid-insights__columns">
+          <div class="hybrid-insights__panel">
+            <h3>Usage by flow</h3>
+            <p class="hybrid-insights__empty">No hybrid assist usage recorded yet.</p>
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Backend split</h3>
+            <p class="hybrid-insights__empty">No dispatch split available.</p>
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Requested backends</h3>
+            <p class="hybrid-insights__empty">No backend request data available.</p>
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Backends used</h3>
+            <p class="hybrid-insights__empty">No backend usage data available.</p>
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Top degraded reasons</h3>
+            
+    <div class="hybrid-insights__list">
+      
+            <div class="hybrid-insights__list-row">
+              <span>ollama-timeout</span>
+              <strong>1</strong>
+            </div>
+          
+    </div>
+  
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Top fallback reasons</h3>
+            <p class="hybrid-insights__empty">No fallback reasons were recorded.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="hybrid-insights__section">
+        <h2>Recent Runs</h2>
+        <p class="hybrid-insights__section-intro">Start here when something looks wrong. Each entry keeps status, backend path, and validated summary visible before any raw excerpt.</p>
+        <p class="hybrid-insights__empty">No recent hybrid assist audit entries available yet.</p>
+      </section>
+
+      <section class="hybrid-insights__section">
+        <h2>Flow Diagnostics</h2>
+        <p class="hybrid-insights__section-intro">Per-flow summaries stay compact: volume, pressure, and backend split without repeating the full report structure for every card.</p>
+        <p class="hybrid-insights__empty">No flow breakdown available yet.</p>
+      </section>
+
+      <section class="hybrid-insights__section">
+        <details class="hybrid-insights__secondary-details">
+          <summary>Estimated ROI Proxies</summary>
+          <div class="hybrid-insights__secondary-details-body">
+            <p class="hybrid-insights__section-intro">These figures are estimates only. Use them for trend review, not billing claims or primary health decisions.</p>
+            <div class="hybrid-insights__columns">
+              <div class="hybrid-insights__panel">
+                <h3>Estimated proxies</h3>
+                
+    <div class="hybrid-insights__list">
+      
+            <div class="hybrid-insights__list-row">
+              <span>Remote dispatches avoided</span>
+              <strong>0</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Remote token avoidance</span>
+              <strong>0</strong>
+            </div>
+          
+    </div>
+  
+              </div>
+              <div class="hybrid-insights__panel">
+                <h3>Assumptions</h3>
+                
+    <div class="hybrid-insights__list">
+      
+            <div class="hybrid-insights__list-row">
+              <span>Remote tokens per local run</span>
+              <strong>0</strong>
+            </div>
+          
+    </div>
+  
+                <p class="hybrid-insights__section-intro">No token avoidance note recorded.</p>
+                <p class="hybrid-insights__section-intro">No interpretation note recorded.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+    </div>
+  </main>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH">
+    (() => {
+      const vscode = acquireVsCodeApi();
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const type = button.getAttribute("data-action");
+          const source = button.getAttribute("data-source");
+          vscode.postMessage({ type, source });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>"
+`;
+
+exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src webview-csp https: data:; style-src webview-csp 'unsafe-inline'; script-src 'nonce-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="webview:/extension/media/main.css" rel="stylesheet" />
+  <title>Logics Orchestrator</title>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="toolbar__row toolbar__row--primary">
+      <div class="toolbar__filters">
+        <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M4 6h16l-6 7v5l-4 2v-7z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+        <div class="toolbar__tools">
+          <button
+            class="toolbar__filter"
+            id="tools-toggle"
+            aria-label="Tools"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="tools-panel"
+            title="Tools"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M4 7h16M6 12h12M8 17h8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <div class="tools-panel__switcher" role="tablist" aria-label="Tools categories">
+              <button
+                class="tools-panel__switch is-active"
+                type="button"
+                role="tab"
+                id="tools-view-tab-workflow"
+                aria-selected="true"
+                aria-controls="tools-view-workflow"
+                tabindex="0"
+                data-tools-view-toggle="workflow"
+              >
+                Workflow
+              </button>
+              <button
+                class="tools-panel__switch"
+                type="button"
+                role="tab"
+                id="tools-view-tab-system"
+                aria-selected="false"
+                aria-controls="tools-view-system"
+                tabindex="-1"
+                data-tools-view-toggle="system"
+              >
+                System
+              </button>
+            </div>
+            <div class="tools-panel__section" data-tools-section="recommended">
+              <div class="tools-panel__section-label">Recommended</div>
+              <div class="tools-panel__section-body" data-tools-body="recommended">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Environment</button>
+              </div>
+            </div>
+            <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">
+              <div class="tools-panel__section" data-tools-section="workflow">
+                <div class="tools-panel__section-label">Workflow</div>
+                <div class="tools-panel__section-body" data-tools-body="workflow">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Companion Doc</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
+                </div>
+              </div>
+              <div class="tools-panel__section" data-tools-section="assist">
+                <div class="tools-panel__section-label">Assist</div>
+                <div class="tools-panel__section-body" data-tools-body="assist">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Validation Summary</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>
+                </div>
+              </div>
+            </div>
+            <div class="tools-panel__view" id="tools-view-system" data-tools-view="system" hidden>
+              <div class="tools-panel__section" data-tools-section="runtime">
+                <div class="tools-panel__section-label">Runtime</div>
+                <div class="tools-panel__section-body" data-tools-body="runtime">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Hybrid Runtime</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
+                </div>
+              </div>
+              <div class="tools-panel__section" data-tools-section="kit">
+                <div class="tools-panel__section-label">Kit</div>
+                <div class="tools-panel__section-body" data-tools-body="kit">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="update-logics-kit" title="Update the Logics kit submodule when the canonical setup is present">Update Logics Kit</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Publish or repair the global Codex Logics kit from this repository">Publish Global Codex Kit</button>
+                </div>
+              </div>
+              <div class="tools-panel__section" data-tools-section="workspace">
+                <div class="tools-panel__section-label">Workspace</div>
+                <div class="tools-panel__section-body" data-tools-body="workspace">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="change-project-root" title="Change project root">Change Project Root</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="reset-project-root" title="Use workspace root">Reset Project Root</button>
+                </div>
+              </div>
+              <div class="tools-panel__section" data-tools-section="maintenance">
+                <div class="tools-panel__section-label">Maintenance</div>
+                <div class="tools-panel__section-body" data-tools-body="maintenance">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar__buttons">
+        <button
+          class="btn btn--secondary btn--icon"
+          id="activity-toggle"
+          type="button"
+          aria-label="Show recent activity"
+          title="Show recent activity"
+        >
+          
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 12h4l2.2-5 3.6 10 2.2-5H20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  
+        </button>
+        <button
+          class="btn btn--secondary btn--icon"
+          id="attention-toggle"
+          type="button"
+          aria-label="Show blocked, orphaned, unprocessed, or inconsistent items"
+          title="Show blocked, orphaned, unprocessed, or inconsistent items"
+        >
+          
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M12 4l8 14H4z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <circle cx="12" cy="17" r="1" fill="currentColor" />
+    </svg>
+  
+        </button>
+        <button
+          class="btn btn--icon"
+          data-action="toggle-view-mode"
+          aria-label="Switch display mode"
+          title="Switch display mode"
+        >
+          
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+      <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+    </svg>
+  
+        </button>
+      </div>
+    </div>
+    <div class="toolbar__row toolbar__row--secondary" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
+      <div class="toolbar__search">
+        <input
+          class="toolbar__search-input"
+          id="search-input"
+          type="search"
+          placeholder="Search items"
+          aria-label="Search items"
+        />
+      </div>
+      <div class="toolbar__ordering">
+        <label class="toolbar__select">
+          <span>Group</span>
+          <select id="group-by" aria-label="Group items">
+            <option value="stage">Stage</option>
+            <option value="status">Status</option>
+          </select>
+        </label>
+        <label class="toolbar__select">
+          <span>Sort</span>
+          <select id="sort-by" aria-label="Sort items">
+            <option value="default">Default</option>
+            <option value="updated-desc">Updated</option>
+            <option value="progress-desc">Progress</option>
+            <option value="status-asc">Status</option>
+          </select>
+        </label>
+      </div>
+      <div class="toolbar__toggles">
+        <label class="toggle">
+          <input type="checkbox" id="hide-processed-requests" />
+          <span>Hide processed requests</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-complete" />
+          <span>Hide completed</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-spec" />
+          <span>Hide SPEC</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="show-companion-docs" />
+          <span>Show companion docs</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hide-empty-columns" />
+          <span>Hide empty columns</span>
+        </label>
+      </div>
+      <button class="filter-panel__reset toolbar__reset" type="button" id="filter-reset">Reset</button>
+    </div>
+  </div>
+  <div class="help-banner" id="help-banner" hidden>
+    <div class="help-banner__copy" id="help-banner-copy"></div>
+    <button class="help-banner__dismiss" id="help-banner-dismiss" type="button" title="Dismiss help">Dismiss</button>
+  </div>
+  <div class="layout" id="layout">
+    <div class="layout__main" id="layout-main">
+      <div class="board" id="board"></div>
+      <div class="activity-panel" id="activity-panel" hidden></div>
+    </div>
+    <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
+    <aside class="details" id="details">
+      <div class="details__header">
+        <div class="details__header-copy">
+          <div class="details__header-eyebrow" id="details-eyebrow">Logics item</div>
+          <div class="details__header-title" id="details-title">Details</div>
+        </div>
+        <button class="details__toggle" id="details-toggle" aria-label="Collapse details" aria-expanded="true" title="Collapse details">
+          <svg class="details__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 9l6 6 6-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="details__body" id="details-body">
+        <div class="details__empty">Select a card to see details.</div>
+      </div>
+      <div class="details__actions">
+        <button class="btn btn--primary" data-action="open" disabled title="Edit selected item">Edit</button>
+        <button class="btn btn--primary" data-action="read" disabled title="Read selected item">Read</button>
+        <button class="btn btn--contextual" data-action="promote" disabled title="Promote selected item">Promote</button>
+        <button class="btn btn--secondary" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
+        <button class="btn btn--caution" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
+      </div>
+    </aside>
+  </div>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/logicsModel.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/uiStatus.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/harnessApi.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/layoutController.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/hostApi.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/toolsPanelLayout.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewSelectors.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewPersistence.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewChrome.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderBoard.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderDetails.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderMarkdown.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractions.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/main.js"></script>
+</body>
+</html>"
+`;
+
+exports[`logics HTML builders > renders the read preview snapshot 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; img-src webview-csp https: data:; style-src 'unsafe-inline'; script-src webview-csp 'nonce-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH';"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>task_110</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.28);
+      --accent: #38bdf8;
+      --code-bg: rgba(148, 163, 184, 0.14);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+      color: var(--ink);
+    }
+    .read-preview {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 24px 48px;
+    }
+    .read-preview__header {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(10px);
+    }
+    .read-preview__eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .read-preview__title {
+      margin: 0 0 4px;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+    .read-preview__path {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .markdown-preview {
+      padding: 26px 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+    }
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3,
+    .markdown-preview h4,
+    .markdown-preview h5,
+    .markdown-preview h6 {
+      line-height: 1.15;
+      margin: 1.4em 0 0.6em;
+    }
+    .markdown-preview h1:first-child,
+    .markdown-preview h2:first-child,
+    .markdown-preview h3:first-child {
+      margin-top: 0;
+    }
+    .markdown-preview p,
+    .markdown-preview li {
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .markdown-preview ul,
+    .markdown-preview ol {
+      padding-left: 1.4rem;
+    }
+    .markdown-preview a {
+      color: #7dd3fc;
+    }
+    .markdown-preview pre {
+      overflow-x: auto;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--code-bg);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .markdown-preview code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    .markdown-preview p code,
+    .markdown-preview li code,
+    .markdown-preview h1 code,
+    .markdown-preview h2 code,
+    .markdown-preview h3 code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--code-bg);
+    }
+    .markdown-preview__diagram {
+      margin: 24px 0;
+    }
+    .markdown-preview__diagram svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .markdown-preview__mermaid-fallback {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.35);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="read-preview">
+    <header class="read-preview__header">
+      <p class="read-preview__eyebrow">task_110</p>
+      <h1 class="read-preview__title">Task 110</h1>
+      <p class="read-preview__path">logics/tasks/task_110.md</p>
+    </header>
+    <main class="markdown-preview"><h2>Summary</h2>
+<ul>
+<li>First item</li>
+<li>Second item</li>
+</ul>
+<section class="markdown-preview__diagram"><pre class="mermaid">graph TD
+  A --&gt; B</pre><div class="markdown-preview__mermaid-fallback" hidden>Mermaid preview unavailable. Raw diagram source shown below.</div></section></main>
+  </div>
+  
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH">
+    (() => {
+      const fallbackNodes = Array.from(document.querySelectorAll(".markdown-preview__mermaid-fallback"));
+      const showFallback = (message) => {
+        fallbackNodes.forEach((node) => {
+          node.hidden = false;
+          if (message) {
+            node.textContent = message;
+          }
+        });
+      };
+
+      if (!window.mermaid) {
+        showFallback("Mermaid preview unavailable. Raw diagram source shown below.");
+        return;
+      }
+
+      try {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "dark" });
+        const nodes = Array.from(document.querySelectorAll(".mermaid"));
+        if (nodes.length === 0) {
+          return;
+        }
+        Promise.resolve(window.mermaid.run({ nodes })).catch((error) => {
+          const detail = error instanceof Error ? error.message : String(error);
+          showFallback("Mermaid preview unavailable. Raw diagram source shown below. (" + detail + ")");
+        });
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        showFallback("Mermaid preview unavailable. Raw diagram source shown below. (" + detail + ")");
+      }
+    })();
+  </script>
+</body>
+</html>"
+`;

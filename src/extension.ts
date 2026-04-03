@@ -1,7 +1,19 @@
 import * as vscode from "vscode";
+import { configureGitPathSettingReader } from "./gitRuntime";
 import { LogicsViewProvider } from "./logicsViewProvider";
 
 export function activate(context: vscode.ExtensionContext): void {
+  configureGitPathSettingReader(() => {
+    const value = vscode.workspace.getConfiguration("git").get("path");
+    if (typeof value === "string") {
+      return value;
+    }
+    if (Array.isArray(value) && value.every((entry): entry is string => typeof entry === "string")) {
+      return value;
+    }
+    return undefined;
+  });
+
   let provider: LogicsViewProvider | undefined;
   let refreshTimer: NodeJS.Timeout | undefined;
   const watchers: vscode.FileSystemWatcher[] = [];

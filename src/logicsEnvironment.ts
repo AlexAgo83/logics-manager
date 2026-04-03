@@ -242,7 +242,7 @@ function buildReadOnlyCapability(
   if (repositoryState === "missing-logics") {
     return {
       status: "unavailable",
-      summary: "No logics/ folder found yet. Bootstrap or repair the repository to enable browsing."
+      summary: "This branch does not have a logics/ folder yet. Bootstrap or repair this branch to enable browsing."
     };
   }
   return {

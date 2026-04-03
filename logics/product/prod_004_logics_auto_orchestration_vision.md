@@ -10,7 +10,7 @@
 # Overview
 Logics should eventually move beyond a workflow that users must manually pilot step by step.
 The product direction is to let users start from a simple expressed need while the system progressively absorbs more of the framing, preparation, and delivery orchestration.
-The immediate product slice remains a three-step onboarding model, while auto orchestration stays as a bounded follow-on vision rather than current delivery scope.
+The immediate product slice remains a one-shot onboarding webview that explains the three-step model, while auto orchestration stays as a bounded follow-on vision rather than current delivery scope.
 The expected outcome is a future workflow that feels more guided and less protocol-heavy without sacrificing control, traceability, or operator trust.
 
 ```mermaid
@@ -18,7 +18,7 @@ The expected outcome is a future workflow that feels more guided and less protoc
 %% logics-signature: product|logics-auto-orchestration-vision|req-119-three-step-onboarding-for-need-f|logics-should-eventually-move-beyond-a-w|users-must-know-the-protocol-before-they
 flowchart LR
     Problem[Users must know the protocol before they can use the workflow well] --> Direction[Progressively guided orchestration]
-    Direction --> NearTerm[Three step onboarding first]
+    Direction --> NearTerm[One shot onboarding webview first]
     Direction --> Future[Deeper framing and execution automation later]
     NearTerm --> Outcome[Lower cognitive load]
     Future --> Outcome[More self-directed delivery flow]
@@ -50,7 +50,8 @@ flowchart LR
 
 # Key product decisions
 - Treat Need, Framing, and Execution as the user-facing mental model, even if preparation remains an internal system phase.
-- Deliver the three-step onboarding first so the entry model is stable before increasing autonomy deeper in the workflow.
+- Deliver the three-step onboarding first as a one-shot webview so the entry model is stable before increasing autonomy deeper in the workflow.
+- Use the onboarding as a first-run or post-update explanation surface, not as a permanent operational workspace.
 - Use this brief as the product frame for later exploration of autonomy levels, diagnostic behavior, and progressive orchestration.
 - Prefer assisted orchestration with visible checkpoints over opaque full automation that hides decision points from the operator.
 
@@ -75,5 +76,5 @@ flowchart LR
 
 # Open questions
 - When should autonomy levels become user-visible instead of staying as an internal behavior policy?
-- Which current entry surface should own the eventual transition from simple onboarding to richer guided orchestration?
+- How should first-run and post-update triggering be tuned so the onboarding stays helpful rather than intrusive?
 - How much delivery traceability must remain explicit to preserve operator trust once the system starts making more workflow decisions on the user's behalf?

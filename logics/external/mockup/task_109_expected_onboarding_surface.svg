@@ -1,0 +1,126 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#1E1E1E"/>
+  <rect x="0" y="0" width="1440" height="34" fill="#2D2D30"/>
+  <text x="20" y="22" fill="#D4D4D4" font-family="Arial, sans-serif" font-size="14">cdx-logics-vscode</text>
+
+  <rect x="0" y="34" width="54" height="866" fill="#333333"/>
+  <circle cx="27" cy="78" r="10" fill="#F2C94C"/>
+  <circle cx="27" cy="118" r="10" fill="#5A5D63"/>
+  <circle cx="27" cy="158" r="10" fill="#5A5D63"/>
+
+  <rect x="54" y="34" width="292" height="866" fill="#252526"/>
+  <text x="76" y="68" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="16" font-weight="700">LOGICS</text>
+  <text x="76" y="94" fill="#8F9399" font-family="Arial, sans-serif" font-size="12">Guided onboarding after task_109</text>
+
+  <rect x="72" y="132" width="256" height="274" rx="14" fill="#1F1F1F" stroke="#3A3A3A"/>
+  <text x="92" y="162" fill="#F4F4F4" font-family="Arial, sans-serif" font-size="13" font-weight="700">Tools</text>
+  <rect x="88" y="178" width="224" height="38" rx="10" fill="#2B2B2B" stroke="#4C8DFF"/>
+  <text x="104" y="201" fill="#DCE7FF" font-family="Arial, sans-serif" font-size="13" font-weight="700">New Request</text>
+  <text x="104" y="231" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Suggested next action</text>
+  <text x="104" y="261" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Suggest Next Step</text>
+  <text x="104" y="291" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Triage Item</text>
+  <text x="104" y="321" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Commit All Changes</text>
+  <text x="104" y="351" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Validation Summary</text>
+  <text x="104" y="381" fill="#969AA1" font-family="Arial, sans-serif" font-size="12">Environment</text>
+
+  <rect x="72" y="430" width="256" height="180" rx="14" fill="#1F1F1F" stroke="#3A3A3A"/>
+  <text x="92" y="460" fill="#F4F4F4" font-family="Arial, sans-serif" font-size="13" font-weight="700">Expected change</text>
+  <text x="92" y="490" fill="#C7CBD1" font-family="Arial, sans-serif" font-size="12">The operator no longer starts from</text>
+  <text x="92" y="509" fill="#C7CBD1" font-family="Arial, sans-serif" font-size="12">request / backlog / task jargon.</text>
+  <text x="92" y="542" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Visible entry model:</text>
+  <text x="92" y="565" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="12">Need -> Framing -> Execution</text>
+  <text x="92" y="598" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Internal flow stays:</text>
+  <text x="92" y="621" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="12">Request -> Backlog -> Task</text>
+
+  <rect x="346" y="34" width="1094" height="44" fill="#181818"/>
+  <text x="368" y="62" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="13">Guided Request</text>
+
+  <rect x="370" y="104" width="760" height="752" rx="18" fill="#1B1B1C" stroke="#343434"/>
+  <text x="404" y="152" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="28" font-weight="700">Start a new Logics request</text>
+  <text x="404" y="182" fill="#AEB4BC" font-family="Arial, sans-serif" font-size="15">A simpler entry point for the workflow. You describe the need, Logics structures it, then the delivery flow takes over.</text>
+
+  <rect x="404" y="214" width="692" height="84" rx="16" fill="#202125" stroke="#404249"/>
+  <text x="430" y="248" fill="#F2C94C" font-family="Arial, sans-serif" font-size="14" font-weight="700">What changed</text>
+  <text x="430" y="274" fill="#D7DBE0" font-family="Arial, sans-serif" font-size="13">You no longer need to know the protocol first. Start with your need and the workflow framing becomes visible immediately.</text>
+
+  <rect x="404" y="326" width="210" height="212" rx="18" fill="#22242A" stroke="#5A8FFF" stroke-width="2"/>
+  <text x="430" y="362" fill="#A8C5FF" font-family="Arial, sans-serif" font-size="12" font-weight="700">STEP 1</text>
+  <text x="430" y="394" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Need</text>
+  <text x="430" y="425" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">Describe what you want</text>
+  <text x="430" y="444" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">to change or deliver.</text>
+  <rect x="430" y="470" width="150" height="28" rx="14" fill="#2C313A"/>
+  <text x="447" y="488" fill="#DCE7FF" font-family="Arial, sans-serif" font-size="12">Simple entry prompt</text>
+  <text x="430" y="520" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">Example:</text>
+  <text x="430" y="540" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">"I have a new request"</text>
+
+  <rect x="660" y="326" width="210" height="212" rx="18" fill="#22242A" stroke="#3A3A3A"/>
+  <text x="686" y="362" fill="#B9BEC6" font-family="Arial, sans-serif" font-size="12" font-weight="700">STEP 2</text>
+  <text x="686" y="394" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Framing</text>
+  <text x="686" y="425" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">Clarify ambiguity, risks,</text>
+  <text x="686" y="444" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">scope, and assumptions.</text>
+  <rect x="686" y="470" width="144" height="28" rx="14" fill="#2C313A"/>
+  <text x="701" y="488" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="12">Guided refinement</text>
+  <text x="686" y="520" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">Output:</text>
+  <text x="686" y="540" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">clear request draft</text>
+
+  <rect x="916" y="326" width="180" height="212" rx="18" fill="#22242A" stroke="#3A3A3A"/>
+  <text x="942" y="362" fill="#B9BEC6" font-family="Arial, sans-serif" font-size="12" font-weight="700">STEP 3</text>
+  <text x="942" y="394" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Execution</text>
+  <text x="942" y="425" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">Turn framing into</text>
+  <text x="942" y="444" fill="#D5DAE1" font-family="Arial, sans-serif" font-size="13">backlog and delivery.</text>
+  <rect x="942" y="470" width="118" height="28" rx="14" fill="#2C313A"/>
+  <text x="957" y="488" fill="#E5E5E5" font-family="Arial, sans-serif" font-size="12">Tracked progress</text>
+  <text x="942" y="520" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">Internal model:</text>
+  <text x="942" y="540" fill="#97A0AB" font-family="Arial, sans-serif" font-size="12">request/backlog/task</text>
+
+  <rect x="404" y="574" width="692" height="242" rx="18" fill="#17181B" stroke="#31343A"/>
+  <text x="430" y="614" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">Expected guided request panel</text>
+
+  <rect x="430" y="640" width="640" height="58" rx="12" fill="#202226" stroke="#404249"/>
+  <text x="452" y="666" fill="#8FB4FF" font-family="Arial, sans-serif" font-size="12" font-weight="700">PROMPT</text>
+  <text x="452" y="687" fill="#E7EBF0" font-family="Arial, sans-serif" font-size="13">"Describe the need. Logics will frame it before turning it into the delivery flow."</text>
+
+  <rect x="430" y="716" width="204" height="72" rx="12" fill="#202226" stroke="#3A3A3A"/>
+  <text x="450" y="742" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Need</text>
+  <text x="450" y="763" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">User input only.</text>
+  <text x="450" y="780" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">No protocol wording required.</text>
+
+  <rect x="646" y="716" width="204" height="72" rx="12" fill="#202226" stroke="#3A3A3A"/>
+  <text x="666" y="742" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Framing</text>
+  <text x="666" y="763" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Questions, risks, and reformulation.</text>
+  <text x="666" y="780" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Visible before execution.</text>
+
+  <rect x="862" y="716" width="208" height="72" rx="12" fill="#202226" stroke="#3A3A3A"/>
+  <text x="882" y="742" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Execution</text>
+  <text x="882" y="763" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Backlog items and orchestration task.</text>
+  <text x="882" y="780" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Still tracked with Logics docs.</text>
+
+  <rect x="1154" y="104" width="250" height="752" rx="18" fill="#1F1F1F" stroke="#343434"/>
+  <text x="1180" y="146" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="19" font-weight="700">Details</text>
+  <text x="1180" y="176" fill="#8FB4FF" font-family="Arial, sans-serif" font-size="12" font-weight="700">Selected flow</text>
+  <text x="1180" y="208" fill="#D6DAE0" font-family="Arial, sans-serif" font-size="13">ID: req_119</text>
+  <text x="1180" y="230" fill="#D6DAE0" font-family="Arial, sans-serif" font-size="13">Theme: Workflow</text>
+  <text x="1180" y="252" fill="#D6DAE0" font-family="Arial, sans-serif" font-size="13">Status: Draft then structured</text>
+  <text x="1180" y="274" fill="#D6DAE0" font-family="Arial, sans-serif" font-size="13">Mode: Guided request</text>
+  <text x="1180" y="296" fill="#D6DAE0" font-family="Arial, sans-serif" font-size="13">Autonomy: unchanged</text>
+
+  <rect x="1178" y="330" width="202" height="112" rx="14" fill="#23252A"/>
+  <text x="1194" y="356" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">After task_109</text>
+  <text x="1194" y="380" fill="#E8EBEF" font-family="Arial, sans-serif" font-size="12">- model and copy defined</text>
+  <text x="1194" y="400" fill="#E8EBEF" font-family="Arial, sans-serif" font-size="12">- entry surface updated</text>
+  <text x="1194" y="420" fill="#E8EBEF" font-family="Arial, sans-serif" font-size="12">- workflow alignment kept</text>
+
+  <rect x="1178" y="470" width="202" height="176" rx="14" fill="#23252A"/>
+  <text x="1194" y="496" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Internal mapping</text>
+  <text x="1194" y="520" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Need -> request</text>
+  <text x="1194" y="540" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Framing -> refined request</text>
+  <text x="1194" y="560" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">Execution -> backlog + task</text>
+  <text x="1194" y="592" fill="#8FB4FF" font-family="Arial, sans-serif" font-size="12" font-weight="700">Deferred by design</text>
+  <text x="1194" y="616" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">No full auto orchestration</text>
+
+  <rect x="1178" y="672" width="202" height="110" rx="14" fill="#23252A"/>
+  <text x="1194" y="698" fill="#F2C94C" font-family="Arial, sans-serif" font-size="12" font-weight="700">Validation</text>
+  <text x="1194" y="722" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">compile</text>
+  <text x="1194" y="742" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">tests</text>
+  <text x="1194" y="762" fill="#C9CED5" font-family="Arial, sans-serif" font-size="12">logics lint + audit</text>
+</svg>

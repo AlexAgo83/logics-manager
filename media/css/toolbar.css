@@ -190,7 +190,7 @@
   top: 34px;
   left: 0;
   right: auto;
-  min-width: 240px;
+  min-width: 260px;
   max-width: calc(100vw - 16px);
   background: var(--vscode-editorWidget-background, #202020);
   border: 1px solid var(--vscode-panel-border, #333333);
@@ -205,6 +205,51 @@
 
 .tools-panel--open {
   display: flex;
+}
+
+.tools-panel__switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+}
+
+.tools-panel__switch {
+  min-height: 28px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tools-panel__switch:hover {
+  background: var(--vscode-list-hoverBackground, #2a2d2e);
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.tools-panel__switch.is-active {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  border-color: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+}
+
+.tools-panel__switch:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  outline-offset: 1px;
+}
+
+.tools-panel__view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tools-panel__view[hidden] {
+  display: none;
 }
 
 .tools-panel__item {

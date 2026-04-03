@@ -1,9 +1,26 @@
 (() => {
   window.createCdxLogicsToolsPanelLayoutApi = function createCdxLogicsToolsPanelLayoutApi(options) {
     const { toolsPanel, getCanBootstrapLogics, getBootstrapLogicsTitle } = options;
+    let activeToolsView = "workflow";
     const toolButtons = toolsPanel
       ? new Map(
           Array.from(toolsPanel.querySelectorAll(".tools-panel__item")).map((button) => [button.dataset.action, button])
+        )
+      : new Map();
+    const toolViewToggles = toolsPanel
+      ? new Map(
+          Array.from(toolsPanel.querySelectorAll("[data-tools-view-toggle]")).map((button) => [
+            button.getAttribute("data-tools-view-toggle"),
+            button
+          ])
+        )
+      : new Map();
+    const toolViews = toolsPanel
+      ? new Map(
+          Array.from(toolsPanel.querySelectorAll("[data-tools-view]")).map((view) => [
+            view.getAttribute("data-tools-view"),
+            view
+          ])
         )
       : new Map();
     const toolSectionBodies = toolsPanel
@@ -20,7 +37,7 @@
         )
       : new Map();
     const toolSectionLayout = {
-      workflow: ["select-agent", "new-request-guided", "create-companion-doc", "bootstrap-logics"],
+      workflow: ["select-agent", "new-request-guided", "create-companion-doc", "bootstrap-logics", "refresh"],
       assist: [
         "assist-next-step",
         "assist-triage",
@@ -35,6 +52,49 @@
       workspace: ["change-project-root", "reset-project-root", "refresh"],
       maintenance: ["fix-docs", "about"]
     };
+
+    function getOrderedViewNames() {
+      return Array.from(toolViewToggles.keys());
+    }
+
+    function focusViewToggle(viewName) {
+      const button = toolViewToggles.get(viewName);
+      if (button && typeof button.focus === "function") {
+        button.focus();
+      }
+    }
+
+    function applyActiveToolsView() {
+      toolViewToggles.forEach((button, viewName) => {
+        const isActive = viewName === activeToolsView;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+      });
+      toolViews.forEach((view, viewName) => {
+        view.hidden = viewName !== activeToolsView;
+      });
+    }
+
+    function setActiveToolsView(viewName, shouldFocus) {
+      if (!toolViews.has(viewName) || !toolViewToggles.has(viewName)) {
+        return;
+      }
+      activeToolsView = viewName;
+      applyActiveToolsView();
+      if (shouldFocus) {
+        focusViewToggle(viewName);
+      }
+    }
+
+    function getAdjacentViewName(direction) {
+      const viewNames = getOrderedViewNames();
+      const currentIndex = viewNames.indexOf(activeToolsView);
+      if (currentIndex < 0 || viewNames.length === 0) {
+        return null;
+      }
+      return viewNames[(currentIndex + direction + viewNames.length) % viewNames.length] || null;
+    }
 
     function formatActivityUpdated(updatedAt) {
       const timestamp = Date.parse(updatedAt || "");
@@ -75,6 +135,8 @@
         return;
       }
 
+      applyActiveToolsView();
+
       const assigned = new Set();
       const recommendedBody = toolSectionBodies.get("recommended");
       if (recommendedBody) {
@@ -112,6 +174,47 @@
         section.hidden = !body || body.childElementCount === 0;
       });
     }
+
+    toolViewToggles.forEach((button, viewName) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setActiveToolsView(viewName, false);
+      });
+      button.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          const nextView = getAdjacentViewName(1);
+          if (nextView) {
+            setActiveToolsView(nextView, true);
+          }
+          return;
+        }
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          const previousView = getAdjacentViewName(-1);
+          if (previousView) {
+            setActiveToolsView(previousView, true);
+          }
+          return;
+        }
+        if (event.key === "Home") {
+          event.preventDefault();
+          const firstView = getOrderedViewNames()[0];
+          if (firstView) {
+            setActiveToolsView(firstView, true);
+          }
+          return;
+        }
+        if (event.key === "End") {
+          event.preventDefault();
+          const viewNames = getOrderedViewNames();
+          const lastView = viewNames[viewNames.length - 1];
+          if (lastView) {
+            setActiveToolsView(lastView, true);
+          }
+        }
+      });
+    });
 
     return {
       formatActivityUpdated,

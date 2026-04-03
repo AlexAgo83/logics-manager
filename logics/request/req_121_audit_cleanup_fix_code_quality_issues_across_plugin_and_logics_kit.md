@@ -1,9 +1,9 @@
 ## req_121_audit_cleanup_fix_code_quality_issues_across_plugin_and_logics_kit - Audit cleanup — fix code quality issues across plugin and Logics kit
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 92%
+> Status: In progress
+> Understanding: 99%
+> Confidence: 93%
 > Complexity: High
 > Theme: Quality
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -121,7 +121,7 @@ flowchart TD
 # Delivery split strategy
 
 Three backlog items by criticality:
-- **Item A — Quick wins** (AC3, AC7, AC9, AC10, AC11, AC14, AC15): mechanical changes, low risk, achievable in one session. Goal: reduce noise immediately.
+- **Item A — Quick wins** (AC3, AC7, AC9, AC10, AC11, AC14, AC15): completed on 2026-04-04 in `task_110`; removed the dead export, cleared stale `.vsix` artifacts, switched the documented entrypoints to `logics.py`, aligned `.claude/`, added `logics/specs/README.md`, and seeded `logics.yaml`.
 - **Item B — Kit harmonization** (AC8, AC12, AC16): modifications in the submodule requiring an upstream PR. Grouped because they touch the same repo.
 - **Item C — Plugin and kit refactors** (AC1, AC2, AC4, AC5, AC6, AC13, AC17): structural refactors with regression risk, requiring test-by-test verification. AC13 (hybrid split) is prioritized as a prerequisite for req_120.
 

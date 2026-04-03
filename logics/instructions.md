@@ -65,5 +65,7 @@ Use the following markdown patterns for deterministic indexing in the VS Code ex
   - Do not rely only on `Related request/backlog/task/architecture` indicators.
   - Mirror those managed-doc links under `# References` as canonical backticked relative paths.
 
+Never write absolute filesystem paths such as `/Users/...` in Logics docs, changelogs, or summaries when a repo-relative path like `logics/...` or `src/...` is enough.
+
 Avoid storing critical links only in free-form prose when they need to appear in plugin references/promotion guards.
 Legacy nested list labels (`- References:` / `- Used by:`) are parsed for backward compatibility, but canonical headings remain preferred.

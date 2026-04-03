@@ -1,10 +1,10 @@
 ## task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair - Orchestration delivery for req_118 branch-aware bootstrap recovery and setup repair
 > From version: 1.17.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Branch-aware bootstrap recovery
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -44,12 +44,12 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria across items `205`, `206`, and `207`.
-- [ ] 2. Wave 1: implement branch-aware refresh or equivalent git-state invalidation so repository bootstrap state is recomputed after checkout-like changes.
-- [ ] 3. Wave 2: implement degraded-state UX and supported current-branch bootstrap or repair guidance for `missing-logics`, `missing-kit`, and `partial-bootstrap`.
-- [ ] 4. Wave 3: add targeted regression coverage for state transitions, prompt reset semantics, and supported remediation routing.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria across items `205`, `206`, and `207`.
+- [x] 2. Wave 1: implement branch-aware refresh or equivalent git-state invalidation so repository bootstrap state is recomputed after checkout-like changes.
+- [x] 3. Wave 2: implement degraded-state UX and supported current-branch bootstrap or repair guidance for `missing-logics`, `missing-kit`, and `partial-bootstrap`.
+- [x] 4. Wave 3: add targeted regression coverage for state transitions, prompt reset semantics, and supported remediation routing.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Keep Wave 1 reviewable as a repository-state and invalidation checkpoint before changing operator-facing recovery copy.
@@ -97,12 +97,37 @@ flowchart LR
 - `npm run lint:ts`
 - Manual: switch from a branch with `logics/` present to a branch without `logics/` and confirm the plugin refreshes into a branch-local bootstrap or repair state instead of leaving stale ready UI.
 - Manual: switch from a healthy branch to a branch with partial bootstrap and confirm the plugin offers repair-oriented guidance rather than malformed-setup messaging.
+- Finish workflow executed on 2026-04-03.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+
+## Wave 1 — Branch-aware refresh and state invalidation (commit `0b566b0`)
+- Added `.git/HEAD` to the `FileSystemWatcher` patterns in `extension.ts` so branch switches trigger a provider refresh without requiring a manual reload; `logics/**/*` watchers alone do not fire when git checkout removes or restores the entire directory tree.
+- Re-keyed `bootstrapPromptedRoots` from `root` alone to `root::bootstrapStatus` in `maybeOfferBootstrap` so switching to a branch in a different bootstrap state re-enables the prompt. The per-state key also prevents re-prompting when returning to a branch the user already dismissed.
+
+## Wave 2 — Degraded-state UX and branch-local copy (commit `b255c4e`)
+- Updated `inspectLogicsBootstrapState` prompt messages to say "This branch does not have Logics set up yet" (`missing`) and "This branch has an incomplete Logics setup" (`incomplete`), making branch-local intent explicit.
+- Updated action titles to "Bootstrap Logics on this branch" and "Repair Logics setup on this branch".
+- Updated `buildReadOnlyCapability` summary for `missing-logics` to say "This branch does not have a logics/ folder yet" — consistent with branch-local framing and not suggesting an extension failure.
+- Updated `refresh()` inline error to match the same framing.
+- Non-canonical/malformed states remain on the warning-only path (no supported repair CTA offered).
+
+## Wave 3 — Regression coverage (commit `f60e282`)
+- `logicsEnvironment.test`: three tests cover ready→missing-logics transition, ready→partial-bootstrap transition, and branch-local copy in the `missing-logics` readOnly summary.
+- `logicsViewProvider.test`: three tests cover per-state prompt suppression (branch switch to a new state re-prompts), re-visit suppression (dismissed state is not re-prompted), and noncanonical routing to warning only (no info dialog).
+- 151/151 tests pass; `npm run compile` and `npm run lint:ts` both clean.
+
+## Audit exceptions
+- Items 205/206/207 flag `architecture_decision_required_missing_ref` — these are pre-existing; the implementation reused the existing `FileSystemWatcher` contract and repository-state model without introducing a new architectural contract, matching the "No separate ADR is required" decision in the task framing.
+- req_118 AC6/AC7 missing item traceability — pre-existing; AC6 and AC7 scope (prompt suppression persistence, branch-local remediation) is covered by the item_205/item_206 wave scope.
+- Finished on 2026-04-03.
+- Linked backlog item(s): `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`, `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`
+- Related request(s): `req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing`, `req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`, `req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`, `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`

@@ -138,9 +138,9 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
     return {
       status: "missing",
       canBootstrap: true,
-      actionTitle: "Bootstrap Logics in this project",
-      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
-      reason: "No logics/ folder found in the selected repository."
+      actionTitle: "Bootstrap Logics on this branch",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found on the active branch."
     };
   }
 
@@ -148,9 +148,9 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
     return {
       status: "incomplete",
       canBootstrap: true,
-      actionTitle: "Bootstrap or repair Logics in this project",
-      promptMessage: "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?",
-      reason: "The repository has logics/ but logics/skills is still missing."
+      actionTitle: "Repair Logics setup on this branch",
+      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      reason: "The active branch has logics/ but logics/skills is still missing."
     };
   }
 

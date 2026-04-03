@@ -225,7 +225,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         canBootstrapLogics,
         bootstrapLogicsTitle: bootstrapState?.actionTitle,
         canResetProjectRoot,
-        error: `No logics/ folder found in: ${root}.`
+        error: `This branch does not have a logics/ folder in: ${root}.`
       });
       await this.maybeOfferBootstrap(root);
       return;

@@ -1,9 +1,9 @@
 ## task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair - Orchestration delivery for req_118 branch-aware bootstrap recovery and setup repair
-> From version: 1.17.0
+> From version: 1.18.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 95%
+> Understanding: 96%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Branch-aware bootstrap recovery
@@ -74,7 +74,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_015_make_bootstrap_recovery_branch_aware`
 - Backlog item(s):
   - `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`
   - `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`
@@ -125,9 +125,9 @@ flowchart LR
 - `logicsViewProvider.test`: three tests cover per-state prompt suppression (branch switch to a new state re-prompts), re-visit suppression (dismissed state is not re-prompted), and noncanonical routing to warning only (no info dialog).
 - 151/151 tests pass; `npm run compile` and `npm run lint:ts` both clean.
 
-## Audit exceptions
-- Items 205/206/207 flag `architecture_decision_required_missing_ref` — these are pre-existing; the implementation reused the existing `FileSystemWatcher` contract and repository-state model without introducing a new architectural contract, matching the "No separate ADR is required" decision in the task framing.
-- req_118 AC6/AC7 missing item traceability — pre-existing; AC6 and AC7 scope (prompt suppression persistence, branch-local remediation) is covered by the item_205/item_206 wave scope.
+## Governance follow-up
+- Added `adr_015_make_bootstrap_recovery_branch_aware` to record the branch-aware watcher, state, and prompt-suppression contract used by Waves 1 to 3.
+- Updated `req_118` AC traceability so AC6 and AC7 resolve to concrete backlog items instead of request-only prose.
 - Finished on 2026-04-03.
 - Linked backlog item(s): `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`, `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`
 - Related request(s): `req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing`, `req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`, `req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`, `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`

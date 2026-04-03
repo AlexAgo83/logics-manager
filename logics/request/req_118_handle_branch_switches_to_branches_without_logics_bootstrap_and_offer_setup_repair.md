@@ -1,9 +1,9 @@
 ## req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair - Handle branch switches to branches without Logics bootstrap and offer setup repair
-> From version: 1.17.0
+> From version: 1.18.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 93%
-> Confidence: 91%
+> Understanding: 94%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: Bootstrap resilience and branch-aware recovery
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -95,13 +95,13 @@ flowchart TD
 - `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`
 
 # AC Traceability
-- AC1 -> branch-aware state refresh. Proof: the request explicitly requires re-evaluation after branch or git-state change.
-- AC2 -> clear degraded-state UX. Proof: the request explicitly requires branch/setup guidance for missing or partial bootstrap states.
-- AC3 -> setup repair path. Proof: the request explicitly requires a supported repair/bootstrap action from the degraded branch state.
-- AC4 -> prompt behavior corrected. Proof: the request explicitly requires prompt suppression not to strand users across branch changes.
-- AC5 -> correct routing between uninitialized and malformed states. Proof: the request explicitly requires those states to stay distinct.
-- AC6 -> safe current-branch restoration. Proof: the request explicitly leaves room for canonical re-bootstrap or repair on the active branch.
-- AC7 -> regression protection. Proof: the request explicitly requires coverage for branch-switch transitions and remediation.
+- AC1 -> `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`. Proof: item 205 covers git-state-aware refresh triggers and repository-state recomputation after checkout-equivalent changes.
+- AC2 -> `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`. Proof: item 205 restores truthful state detection and item 206 defines the degraded-state guidance for missing or partial bootstrap branches.
+- AC3 -> `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`. Proof: item 206 makes supported branch-local bootstrap or repair actions explicit from degraded states.
+- AC4 -> `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`. Proof: item 205 resets prompt suppression on effective state changes and item 206 keeps the remediation flow understandable after branch transitions.
+- AC5 -> `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`, `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`. Proof: item 206 keeps malformed or non-canonical setup distinct from supported repair states and item 207 locks that routing under test.
+- AC6 -> `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`. Proof: item 206 explicitly leaves room for canonical re-bootstrap or repair of the active branch while keeping operator confirmation explicit.
+- AC7 -> `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`. Proof: item 207 defines automated coverage for ready-to-missing, ready-to-partial, and remediation-prompt scenarios.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -111,7 +111,7 @@ flowchart TD
 
 # Companion docs
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_015_make_bootstrap_recovery_branch_aware`
 
 # AI Context
 - Summary: Make the extension branch-aware for Logics bootstrap state so checkout to an unbootstrapped branch surfaces clear setup guidance and a supported repair path.

@@ -1,9 +1,9 @@
 ## item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair - Add regression coverage for branch-switch bootstrap degradation and repair
-> From version: 1.17.0
+> From version: 1.18.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and branch-aware recovery
@@ -48,6 +48,7 @@ flowchart LR
 - AC3 -> Scope: prompt reset coverage. Proof: this item explicitly requires suppression not to persist incorrectly across branch states.
 - AC4 -> Scope: degraded-state CTA coverage. Proof: this item explicitly requires supported repair/bootstrap affordance tests.
 - AC5 -> Scope: malformed and non-canonical routing coverage. Proof: this item explicitly requires the safe warning path to remain distinct.
+- req_118 AC7 -> Scope: branch-switch regression coverage. Proof: this item explicitly requires automated coverage for ready-to-missing, ready-to-partial, and remediation-prompt scenarios.
 
 # Decision framing
 - Product framing: Consider
@@ -59,7 +60,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_015_make_bootstrap_recovery_branch_aware`
 - Request: `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
 - Primary task(s): `task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair`
 

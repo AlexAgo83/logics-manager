@@ -31,6 +31,7 @@ type ControllerOptions = {
   getAgentRegistry: () => AgentRegistrySnapshot;
   getActionRoot: () => Promise<string | null>;
   maybeOfferBootstrap: (root: string) => Promise<void>;
+  maybeShowCodexOverlayHandoff: (root: string, trigger: string) => Promise<void>;
   refresh: (selectedId?: string) => Promise<void>;
   refreshAgents: (mode: AgentRefreshMode, root: string) => Promise<void>;
   findRequestAuthoringAgent: () => AgentDefinition | undefined;
@@ -106,7 +107,7 @@ export class LogicsViewDocumentController {
       fallbackCopiedMessage: "Could not copy the new-request prompt to the clipboard."
     });
     void vscode.window.showInformationMessage(`Active Logics agent: ${agent.displayName} (${agent.id})`);
-    await this.maybeShowCodexOverlayHandoff(root, "guided request handoff");
+    await this.options.maybeShowCodexOverlayHandoff(root, "guided request handoff");
     await this.options.refresh();
   }
 
@@ -506,49 +507,6 @@ export class LogicsViewDocumentController {
 
   private buildRecoveryGuidance(): string {
     return "The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details.";
-  }
-
-  private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
-    const environment = await inspectLogicsEnvironment(root);
-    const overlay = environment.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
-      if (!overlay.runCommand) {
-        return;
-      }
-      const launchAction = "Launch Codex in Terminal";
-      const copyAction = "Copy Codex Launch Command";
-      const choice = await vscode.window.showInformationMessage(
-        `Global Codex kit is ready after ${trigger}. Launch Codex normally to use the published Logics skills.`,
-        launchAction,
-        copyAction
-      );
-      if (choice === launchAction) {
-        this.launchCodexOverlayTerminal(root, overlay.runCommand);
-        return;
-      }
-      if (choice === copyAction) {
-        await vscode.env.clipboard.writeText(overlay.runCommand);
-        void vscode.window.showInformationMessage("Codex launch command copied to clipboard.");
-      }
-      return;
-    }
-    const action = "Publish Global Codex Kit from Tools";
-    const choice = await vscode.window.showInformationMessage(
-      `Repo-local Logics is ready after ${trigger}, but the global Codex kit still needs publication or repair. ${overlay.summary}`,
-      action
-    );
-    if (choice === action) {
-      void vscode.window.showInformationMessage("Use Tools > Publish Global Codex Kit to update the shared runtime.");
-    }
-  }
-
-  private launchCodexOverlayTerminal(root: string, runCommand: string): void {
-    const terminal = vscode.window.createTerminal({
-      name: `Codex: ${path.basename(root)}`,
-      cwd: root
-    });
-    terminal.show(true);
-    terminal.sendText(runCommand, true);
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

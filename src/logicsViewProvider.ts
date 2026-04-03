@@ -8,26 +8,24 @@ import {
   createEmptyAgentRegistry,
   loadAgentRegistry
 } from "./agentRegistry";
-import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
+import { parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
-import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
-  buildLogicsKitUpdateCommand,
   getWorkspaceRoot,
   inspectLogicsBootstrapState,
-  inspectLogicsKitSubmodule,
   hasMultipleWorkspaceFolders,
   isExistingDirectory,
   runGitWithOutput,
-  runPythonWithOutput,
   updateIndicatorsOnDisk
 } from "./logicsProviderUtils";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
-import { publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
+import { LogicsHybridAssistController } from "./logicsHybridAssistController";
+import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
+import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
@@ -38,15 +36,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private view?: vscode.WebviewView;
   private items: LogicsItem[] = [];
-  private readonly bootstrapPromptedRoots = new Set<string>();
-  private readonly codexRemediationPromptedKeys = new Set<string>();
   private projectRootOverride: string | null;
   private invalidRootNotice?: string;
   private activeAgentId: string | null;
   private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
   private readPreviewPanel?: vscode.WebviewPanel;
-  private hybridInsightsPanel?: vscode.WebviewPanel;
   private readonly documentController: LogicsViewDocumentController;
+  private readonly hybridAssistController: LogicsHybridAssistController;
+  private readonly codexWorkflowController: LogicsCodexWorkflowController;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -57,6 +54,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     this.projectRootOverride = storedOverride?.trim() || null;
     const storedAgentId = this.context.workspaceState.get<string>(ACTIVE_AGENT_STATE_KEY);
     this.activeAgentId = storedAgentId?.trim() || null;
+    this.hybridAssistController = new LogicsHybridAssistController({
+      context: this.context,
+      getActionRoot: () => this.getActionRoot(),
+      getItems: () => this.items,
+      pickItem: (items, placeHolder) => this.pickItem(items, placeHolder),
+      refresh: () => this.refresh()
+    });
+    this.codexWorkflowController = new LogicsCodexWorkflowController({
+      refresh: () => this.refresh()
+    });
     this.documentController = new LogicsViewDocumentController({
       context: this.context,
       agentsOutput: this.agentsOutput,
@@ -64,6 +71,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       getAgentRegistry: () => this.agentRegistry,
       getActionRoot: () => this.getActionRoot(),
       maybeOfferBootstrap: (root) => this.maybeOfferBootstrap(root),
+      maybeShowCodexOverlayHandoff: (root, trigger) => this.maybeShowCodexOverlayHandoff(root, trigger),
       refresh: (selectedId) => this.refresh(selectedId),
       refreshAgents: (mode, root) => this.refreshAgents(mode, root),
       findRequestAuthoringAgent: () => this.findRequestAuthoringAgent(),
@@ -83,112 +91,116 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     view.webview.html = this.getHtmlForWebview(view.webview);
 
-    view.webview.onDidReceiveMessage(async (message) => {
+    view.webview.onDidReceiveMessage(async (rawMessage) => {
+      const message = parseLogicsWebviewMessage(rawMessage);
+      if (!message) {
+        return;
+      }
       switch (message.type) {
         case "ready":
           await this.refresh();
-          break;
+          return;
         case "refresh":
           await this.refresh();
-          break;
+          return;
         case "open":
           await this.openItem(message.id);
-          break;
+          return;
         case "read":
           await this.readItem(message.id);
-          break;
+          return;
         case "promote":
           await this.promoteItem(message.id);
-          break;
+          return;
         case "add-reference":
           await this.addReference(message.id);
-          break;
+          return;
         case "add-used-by":
           await this.addUsedBy(message.id);
-          break;
+          return;
         case "rename-entry":
           await this.renameItem(message.id);
-          break;
+          return;
         case "create-companion-doc":
           await this.createCompanionDocFromPalette(message.id, message.preferredKind);
-          break;
+          return;
         case "create-item":
           await this.createItem(message.kind);
-          break;
+          return;
         case "new-request":
           await this.createRequest();
-          break;
+          return;
         case "new-request-guided":
           await this.startGuidedRequestFromTools();
-          break;
+          return;
         case "launch-codex-overlay":
           await this.launchCodexFromTools();
-          break;
+          return;
         case "fix-docs":
           await this.fixDocs();
-          break;
+          return;
         case "select-agent":
           await this.selectAgentFromPalette();
-          break;
+          return;
         case "inject-prompt":
           await this.injectPromptFromWebview(message.prompt, message.options);
-          break;
+          return;
         case "bootstrap-logics":
           await this.bootstrapFromTools();
-          break;
+          return;
         case "check-environment":
           await this.checkEnvironmentFromTools();
-          break;
+          return;
         case "check-hybrid-runtime":
           await this.checkHybridRuntimeFromTools();
-          break;
+          return;
         case "update-logics-kit":
           await this.updateLogicsKitFromTools();
-          break;
+          return;
         case "sync-codex-overlay":
           await this.syncCodexOverlayFromTools();
-          break;
+          return;
         case "assist-commit-all":
           await this.commitAllChangesFromTools();
-          break;
+          return;
         case "assist-next-step":
           await this.suggestNextStepFromTools();
-          break;
+          return;
         case "assist-triage":
           await this.triageWorkflowDocFromTools();
-          break;
+          return;
         case "assist-diff-risk":
           await this.assessDiffRiskFromTools();
-          break;
+          return;
         case "assist-summarize-validation":
           await this.summarizeValidationFromTools();
-          break;
+          return;
         case "assist-validation-checklist":
           await this.buildValidationChecklistFromTools();
-          break;
+          return;
         case "assist-doc-consistency":
           await this.reviewDocConsistencyFromTools();
-          break;
+          return;
         case "open-hybrid-insights":
           await this.openHybridInsightsFromTools();
-          break;
+          return;
         case "about":
           await this.openAbout();
-          break;
+          return;
         case "change-project-root":
           await this.changeProjectRoot();
-          break;
+          return;
         case "reset-project-root":
           await this.resetProjectRoot();
-          break;
+          return;
         case "mark-done":
           await this.markItemDone(message.id);
-          break;
+          return;
         case "mark-obsolete":
           await this.markItemObsolete(message.id);
-          break;
+          return;
         default:
-          break;
+          assertNever(message);
       }
     });
 
@@ -246,7 +258,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       changedPaths
     });
     await this.maybeOfferBootstrap(root);
-    await this.ensureGlobalCodexKit(root);
+    await this.codexWorkflowController.ensureGlobalCodexKit(root);
     await this.maybeOfferCodexStartupRemediation(root);
   }
 
@@ -333,23 +345,23 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   async openHybridInsightsFromCommand(): Promise<void> {
-    await this.openHybridInsightsFromTools();
+    await this.hybridAssistController.openHybridInsightsFromTools();
   }
 
   async triageWorkflowDocFromCommand(): Promise<void> {
-    await this.triageWorkflowDocFromTools();
+    await this.hybridAssistController.triageWorkflowDocFromTools();
   }
 
   async assessDiffRiskFromCommand(): Promise<void> {
-    await this.assessDiffRiskFromTools();
+    await this.hybridAssistController.assessDiffRiskFromTools();
   }
 
   async buildValidationChecklistFromCommand(): Promise<void> {
-    await this.buildValidationChecklistFromTools();
+    await this.hybridAssistController.buildValidationChecklistFromTools();
   }
 
   async reviewDocConsistencyFromCommand(): Promise<void> {
-    await this.reviewDocConsistencyFromTools();
+    await this.hybridAssistController.reviewDocConsistencyFromTools();
   }
 
   async createRequest(): Promise<void> {
@@ -365,15 +377,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-
-    const snapshot = await inspectLogicsEnvironment(root);
-    const globalKit = snapshot.codexOverlay;
-    if ((globalKit.status === "healthy" || globalKit.status === "warning") && globalKit.runCommand) {
-      this.launchCodexOverlayTerminal(root, globalKit.runCommand);
-      return;
-    }
-
-    await this.syncCodexOverlay(root, "Tools > Launch Codex", { autoLaunchOnSuccess: true });
+    await this.codexWorkflowController.launchCodexFromTools(root);
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
@@ -414,7 +418,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       );
       return;
     }
-    await this.bootstrapLogics(root);
+    await this.codexWorkflowController.bootstrapLogics(root);
   }
 
   private async checkEnvironmentFromTools(): Promise<void> {
@@ -441,7 +445,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         label: "Run: Update Logics Kit",
         description: "Try the canonical submodule update flow from inside the plugin.",
         action: async () => {
-          await this.updateLogicsKit(root, "environment diagnostics");
+          await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
         }
       });
     }
@@ -456,7 +460,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         label: "Run: Publish Global Codex Kit",
         description: "Publish or repair the shared global Codex Logics kit from this repository.",
         action: async () => {
-          await this.syncCodexOverlay(root, "environment diagnostics");
+          await this.codexWorkflowController.syncCodexOverlay(root, "environment diagnostics");
         }
       });
     }
@@ -568,351 +572,40 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async runHybridAssistCommand(root: string, args: string[]): Promise<Record<string, unknown> | null> {
-    return this.runHybridAssistCommandWithOptions(root, args, {
-      actionLabel: "Hybrid assist"
-    });
-  }
-
-  private async runHybridAssistCommandWithOptions(
-    root: string,
-    args: string[],
-    options: {
-      actionLabel: string;
-    }
-  ): Promise<Record<string, unknown> | null> {
-    const runtimeEntry = path.join(root, "logics", "skills", "logics.py");
-    if (!fs.existsSync(runtimeEntry)) {
-      void vscode.window.showErrorMessage(
-        `${options.actionLabel} is unavailable because logics/skills/logics.py is missing.`
-      );
-      return null;
-    }
-
-    const result = await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `${options.actionLabel}: waiting on hybrid assist backend...`,
-        cancellable: false
-      },
-      async () => runPythonWithOutput(root, runtimeEntry, ["flow", "assist", ...args, "--format", "json"])
-    );
-    if (result.error) {
-      void vscode.window.showErrorMessage(
-        `${options.actionLabel} failed: ${result.stderr || result.error.message}`
-      );
-      return null;
-    }
-
-    try {
-      return JSON.parse(result.stdout) as Record<string, unknown>;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`${options.actionLabel} returned invalid JSON: ${message}`);
-      return null;
-    }
-  }
-
-  private describeHybridAssistOutcome(payload: Record<string, unknown>): {
-    backendUsed: string | null;
-    backendRequested: string | null;
-    degradedReasons: string[];
-    degraded: boolean;
-  } {
-    const backend = payload.backend as Record<string, unknown> | undefined;
-    const backendUsed =
-      typeof payload.backend_used === "string"
-        ? payload.backend_used
-        : typeof backend?.selected_backend === "string"
-          ? String(backend.selected_backend)
-          : null;
-    const backendRequested =
-      typeof payload.backend_requested === "string"
-        ? payload.backend_requested
-        : typeof backend?.requested_backend === "string"
-          ? String(backend.requested_backend)
-          : null;
-    const degradedReasons = Array.isArray(payload.degraded_reasons)
-      ? payload.degraded_reasons.map((value) => String(value)).filter((value) => value.length > 0)
-      : [];
-    const degraded =
-      Boolean(payload.degraded) ||
-      payload.result_status === "degraded" ||
-      degradedReasons.length > 0;
-    return {
-      backendUsed,
-      backendRequested,
-      degradedReasons,
-      degraded
-    };
-  }
-
-  private notifyHybridAssistCompletion(
-    actionLabel: string,
-    payload: Record<string, unknown>,
-    detail: string
-  ): void {
-    const outcome = this.describeHybridAssistOutcome(payload);
-    const backendLabel = outcome.backendUsed
-      ? outcome.backendRequested === "auto" && outcome.backendUsed === "codex"
-        ? ` via ${outcome.backendUsed} (fallback)`
-        : ` via ${outcome.backendUsed}`
-      : "";
-    const degradedDetail = outcome.degradedReasons.length > 0
-      ? ` Degraded reasons: ${outcome.degradedReasons.join(", ")}.`
-      : "";
-    const message = `${actionLabel} completed${backendLabel}. ${detail}${degradedDetail}`.trim();
-    if (outcome.degraded) {
-      void vscode.window.showWarningMessage(message);
-      return;
-    }
-    void vscode.window.showInformationMessage(message);
-  }
-
   private async checkHybridRuntimeFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["runtime-status"], {
-      actionLabel: "Check Hybrid Runtime"
-    });
-    if (!payload) {
-      return;
-    }
-    const statusLabel = (payload as { degraded?: boolean }).degraded ? "Runtime is degraded." : "Runtime is ready.";
-    this.notifyHybridAssistCompletion("Check Hybrid Runtime", payload, statusLabel);
+    await this.hybridAssistController.checkHybridRuntimeFromTools();
   }
 
   private async commitAllChangesFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["commit-all"], {
-      actionLabel: "Build Commit Plan"
-    });
-    if (!payload) {
-      return;
-    }
-    const plan = payload.plan as { steps?: Array<{ scope?: string; summary?: string }> } | undefined;
-    const steps = Array.isArray(plan?.steps) ? plan.steps : [];
-    const summary = steps.length > 0 ? steps.map((step) => `${step.scope}: ${step.summary}`).join(" | ") : "No commit steps suggested.";
-    const outcome = this.describeHybridAssistOutcome(payload);
-    const backendLabel = outcome.backendUsed
-      ? outcome.backendRequested === "auto" && outcome.backendUsed === "codex"
-        ? ` via ${outcome.backendUsed} (fallback)`
-        : ` via ${outcome.backendUsed}`
-      : "";
-    const choice = await vscode.window.showInformationMessage(
-      `Build Commit Plan completed${backendLabel}. ${summary}`,
-      "Execute Commit Plan"
-    );
-    if (choice === "Execute Commit Plan") {
-      const executed = await this.runHybridAssistCommandWithOptions(root, ["commit-all", "--execution-mode", "execute"], {
-        actionLabel: "Execute Commit Plan"
-      });
-      if (!executed) {
-        return;
-      }
-      this.notifyHybridAssistCompletion("Execute Commit Plan", executed, "Commit plan executed.");
-      await this.refresh();
-    }
+    await this.hybridAssistController.commitAllChangesFromTools();
   }
 
   private async suggestNextStepFromTools(): Promise<void> {
-    if (!this.items.length) {
-      await this.refresh();
-    }
-    const pick = await this.pickItem(this.items.filter((item) => ["request", "backlog", "task"].includes(item.stage)), "Suggest next workflow step");
-    if (!pick) {
-      return;
-    }
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["next-step", pick.id], {
-      actionLabel: "Suggest Next Step"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { decision?: { action?: string; target_ref?: string }; mapped_command?: { summary?: string } } | undefined;
-    const decision = result?.decision;
-    this.notifyHybridAssistCompletion(
-      "Suggest Next Step",
-      payload,
-      `${decision?.action || "unknown"} on ${decision?.target_ref || "no target"}. ${result?.mapped_command?.summary || ""}`.trim()
-    );
+    await this.hybridAssistController.suggestNextStepFromTools();
   }
 
   private async triageWorkflowDocFromTools(): Promise<void> {
-    if (!this.items.length) {
-      await this.refresh();
-    }
-    const pick = await this.pickItem(this.items.filter((item) => ["request", "backlog", "task"].includes(item.stage)), "Triage workflow doc");
-    if (!pick) {
-      return;
-    }
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["triage", pick.id], {
-      actionLabel: "Triage Item"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { classification?: string; summary?: string; next_actions?: string[] } | undefined;
-    const nextActions = Array.isArray(result?.next_actions) ? result?.next_actions : [];
-    const detail = [
-      result?.classification ? `Classification: ${result.classification}.` : "",
-      result?.summary || "",
-      nextActions.length > 0 ? `Next actions: ${nextActions.slice(0, 2).join(" | ")}` : ""
-    ]
-      .filter((value) => value.trim().length > 0)
-      .join(" ")
-      .trim();
-    this.notifyHybridAssistCompletion("Triage Item", payload, detail || "Triage completed.");
+    await this.hybridAssistController.triageWorkflowDocFromTools();
   }
 
   private async assessDiffRiskFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["diff-risk"], {
-      actionLabel: "Assess Diff Risk"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { risk?: string; summary?: string; drivers?: string[] } | undefined;
-    const drivers = Array.isArray(result?.drivers) ? result.drivers : [];
-    const detail = [
-      result?.risk ? `Risk: ${result.risk}.` : "",
-      result?.summary || "",
-      drivers.length > 0 ? `Drivers: ${drivers.slice(0, 2).join(" | ")}` : ""
-    ]
-      .filter((value) => value.trim().length > 0)
-      .join(" ")
-      .trim();
-    this.notifyHybridAssistCompletion("Assess Diff Risk", payload, detail || "Diff risk assessed.");
+    await this.hybridAssistController.assessDiffRiskFromTools();
   }
 
   private async summarizeValidationFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["summarize-validation"], {
-      actionLabel: "Summarize Validation"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { overall?: string; summary?: string } | undefined;
-    this.notifyHybridAssistCompletion(
-      "Summarize Validation",
-      payload,
-      `Validation summary (${result?.overall || "unknown"}): ${result?.summary || ""}`.trim()
-    );
+    await this.hybridAssistController.summarizeValidationFromTools();
   }
 
   private async buildValidationChecklistFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["validation-checklist"], {
-      actionLabel: "Build Validation Checklist"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { profile?: string; checks?: string[] } | undefined;
-    const checks = Array.isArray(result?.checks) ? result.checks : [];
-    const detail = `Checklist profile ${result?.profile || "unknown"} with ${checks.length} check(s).`;
-    this.notifyHybridAssistCompletion("Build Validation Checklist", payload, detail);
+    await this.hybridAssistController.buildValidationChecklistFromTools();
   }
 
   private async reviewDocConsistencyFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["doc-consistency"], {
-      actionLabel: "Review Doc Consistency"
-    });
-    if (!payload) {
-      return;
-    }
-    const result = payload.result as { overall?: string; summary?: string; issues?: string[] } | undefined;
-    const issues = Array.isArray(result?.issues) ? result.issues : [];
-    const detail = [
-      result?.overall ? `Overall: ${result.overall}.` : "",
-      result?.summary || "",
-      issues.length > 0 ? `Issues: ${issues.slice(0, 2).join(" | ")}` : ""
-    ]
-      .filter((value) => value.trim().length > 0)
-      .join(" ")
-      .trim();
-    this.notifyHybridAssistCompletion("Review Doc Consistency", payload, detail || "Doc consistency review completed.");
+    await this.hybridAssistController.reviewDocConsistencyFromTools();
   }
 
   private async openHybridInsightsFromTools(): Promise<void> {
-    const root = await this.getActionRoot();
-    if (!root) {
-      return;
-    }
-    const panel = this.getHybridInsightsPanel();
-    panel.reveal(vscode.ViewColumn.Beside, true);
-    await this.refreshHybridInsightsPanel(root);
-  }
-
-  private async refreshHybridInsightsPanel(root: string): Promise<void> {
-    const panel = this.getHybridInsightsPanel();
-    const payload = await this.runHybridAssistCommandWithOptions(root, ["roi-report"], {
-      actionLabel: "Refresh Hybrid Insights"
-    });
-    if (!payload) {
-      return;
-    }
-    panel.title = `Hybrid Insights: ${path.basename(root)}`;
-    panel.webview.html = buildHybridInsightsHtml({
-      webview: panel.webview,
-      report: payload,
-      rootLabel: path.basename(root) || root
-    });
-  }
-
-  private async openHybridInsightsSourceLog(root: string, source: "audit" | "measurement"): Promise<void> {
-    const payload = await this.runHybridAssistCommand(root, ["roi-report", "--recent-limit", "1"]);
-    if (!payload) {
-      return;
-    }
-    const sources = (payload.sources ?? {}) as Record<string, unknown>;
-    const relPath =
-      source === "audit"
-        ? typeof sources.audit_log === "string"
-          ? sources.audit_log
-          : ""
-        : typeof sources.measurement_log === "string"
-          ? sources.measurement_log
-          : "";
-    if (!relPath) {
-      void vscode.window.showWarningMessage("Hybrid insights source log path is unavailable.");
-      return;
-    }
-    const fullPath = path.join(root, relPath);
-    if (!fs.existsSync(fullPath)) {
-      void vscode.window.showWarningMessage(`Hybrid insights source log not found: ${relPath}`);
-      return;
-    }
-    const document = await vscode.workspace.openTextDocument(fullPath);
-    await vscode.window.showTextDocument(document, { preview: false });
+    await this.hybridAssistController.openHybridInsightsFromTools();
   }
 
   private async openAbout(): Promise<void> {
@@ -924,7 +617,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    await this.updateLogicsKit(root, "tools menu");
+    await this.codexWorkflowController.updateLogicsKit(root, "tools menu");
   }
 
   private async syncCodexOverlayFromTools(): Promise<void> {
@@ -932,7 +625,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    await this.syncCodexOverlay(root, "tools menu");
+    await this.codexWorkflowController.syncCodexOverlay(root, "tools menu");
   }
 
   private async markItemDone(id: string): Promise<void> {
@@ -1182,14 +875,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async injectPromptFromWebview(
     prompt: string,
     options?: {
+      codexCopiedMessage?: string;
+      fallbackCopiedMessage?: string;
       preferNewThread?: boolean;
     }
   ): Promise<void> {
     await this.injectPromptIntoCodexChat(prompt, {
-      codexCopiedMessage: options?.preferNewThread
+      codexCopiedMessage: options?.codexCopiedMessage ?? (options?.preferNewThread
         ? "Context pack copied to clipboard. Open a new Codex thread, then paste it into the composer."
-        : "Context pack copied to clipboard for Codex. Paste it into the Codex composer.",
-      fallbackCopiedMessage: "Could not copy the context pack to the clipboard.",
+        : "Context pack copied to clipboard for Codex. Paste it into the Codex composer."),
+      fallbackCopiedMessage: options?.fallbackCopiedMessage ?? "Could not copy the context pack to the clipboard.",
       preferNewThread: options?.preferNewThread
     });
   }
@@ -1232,629 +927,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       .slice(0, 40);
   }
 
-  private async maybeOfferBootstrap(root: string): Promise<void> {
-    const bootstrapState = inspectLogicsBootstrapState(root);
-    if (bootstrapState.status === "canonical") {
-      return;
-    }
-    // Key by root + status so switching branches to a different bootstrap state
-    // re-enables the prompt even if this root was already prompted for a prior state.
-    const promptKey = `${root}::${bootstrapState.status}`;
-    if (this.bootstrapPromptedRoots.has(promptKey)) {
-      return;
-    }
-    this.bootstrapPromptedRoots.add(promptKey);
-    if (bootstrapState.status === "noncanonical") {
-      void vscode.window.showWarningMessage(
-        `This repository already has a non-canonical or malformed logics/skills setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
-      );
-      return;
-    }
-
-    const message =
-      bootstrapState.promptMessage ??
-      "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?";
-
-    const choice = await vscode.window.showInformationMessage(
-      message,
-      "Bootstrap Logics",
-      "Not now"
-    );
-    if (choice !== "Bootstrap Logics") {
-      return;
-    }
-    await this.bootstrapLogics(root);
-  }
-
-  private clearCodexRemediationPromptState(root: string): void {
-    const prefix = `${root}::`;
-    for (const key of Array.from(this.codexRemediationPromptedKeys)) {
-      if (key.startsWith(prefix)) {
-        this.codexRemediationPromptedKeys.delete(key);
-      }
-    }
-  }
-
-  private async inspectGlobalCodexKitPublishability(root: string): Promise<{
-    inspectionOk: boolean;
-    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>;
-    shouldPublish: boolean;
-  }> {
-    const inspection = inspectLogicsKitSubmodule(root);
-    if (!inspection.exists || !inspection.isCanonical) {
-      return {
-        inspectionOk: false,
-        snapshot: await inspectLogicsEnvironment(root),
-        shouldPublish: false
-      };
-    }
-
-    const snapshot = await inspectLogicsEnvironment(root);
-    return {
-      inspectionOk: true,
-      snapshot,
-      shouldPublish: shouldPublishRepoKit(root, snapshot.codexOverlay)
-    };
-  }
-
-  private async ensureGlobalCodexKit(root: string): Promise<boolean> {
-    const publishability = await this.inspectGlobalCodexKitPublishability(root);
-    if (!publishability.inspectionOk || !publishability.shouldPublish) {
-      return false;
-    }
-
-    try {
-      publishCodexWorkspaceOverlay(root);
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const key = `${root}::global-kit-autopublish-failed`;
-      if (!this.codexRemediationPromptedKeys.has(key)) {
-        this.codexRemediationPromptedKeys.add(key);
-        void vscode.window.showWarningMessage(`Automatic global Codex kit publish failed: ${message}`);
-      }
-      return false;
-    }
-  }
-
-  private async attemptBootstrapGlobalKitConvergence(root: string): Promise<{
-    attempted: boolean;
-    published: boolean;
-    failed: boolean;
-    failureMessage?: string;
-  }> {
-    const publishability = await this.inspectGlobalCodexKitPublishability(root);
-    if (!publishability.inspectionOk || !publishability.shouldPublish) {
-      return {
-        attempted: false,
-        published: false,
-        failed: false
-      };
-    }
-
-    try {
-      publishCodexWorkspaceOverlay(root);
-      return {
-        attempted: true,
-        published: true,
-        failed: false
-      };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      return {
-        attempted: true,
-        published: false,
-        failed: true,
-        failureMessage: message
-      };
-    }
-  }
-
-  private async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    const overlay = snapshot.codexOverlay;
-    if (
-      overlay.status === "healthy" ||
-      overlay.status === "warning" ||
-      overlay.status === "unavailable"
-    ) {
-      this.clearCodexRemediationPromptState(root);
-      return;
-    }
-
-    if (overlay.status === "missing-manager") {
-      const key = `${root}::missing-manager`;
-      if (this.codexRemediationPromptedKeys.has(key)) {
-        return;
-      }
-      this.codexRemediationPromptedKeys.add(key);
-      const inspection = inspectLogicsKitSubmodule(root);
-      const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
-      }
-      actions.push("Copy Update Command", "Not now");
-      const choice = await vscode.window.showInformationMessage(
-        `This repository already has Logics, but it cannot act as a healthy global Codex kit source yet. ${overlay.summary}`,
-        ...actions
-      );
-      if (choice === "Update Logics Kit") {
-        await this.updateLogicsKit(root, "startup remediation");
-        return;
-      }
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return;
-    }
-
-    if (overlay.status === "missing-overlay" || overlay.status === "stale") {
-      const key = `${root}::overlay-sync`;
-      if (this.codexRemediationPromptedKeys.has(key)) {
-        return;
-      }
-      this.codexRemediationPromptedKeys.add(key);
-      const published = await this.ensureGlobalCodexKit(root);
-      if (published) {
-        this.clearCodexRemediationPromptState(root);
-        return;
-      }
-      void vscode.window.showWarningMessage(`Global Codex kit still needs attention. ${overlay.summary}`);
-    }
-  }
-
-  private async bootstrapLogics(root: string): Promise<void> {
-    const gitVersion = await runGitWithOutput(root, ["--version"]);
-    if (gitVersion.error) {
-      const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
-      if (isMissingGitFailureDetail(detail)) {
-        void vscode.window.showErrorMessage(
-          `Bootstrap Logics requires Git. ${buildMissingGitMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
-        );
-        return;
-      }
-      void vscode.window.showErrorMessage(`Failed to run git: ${gitVersion.stderr || gitVersion.error.message}`);
-      return;
-    }
-
-    const gitCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
-    if (gitCheck.error || gitCheck.stdout.trim() !== "true") {
-      const initChoice = await vscode.window.showWarningMessage(
-        "Bootstrap requires a git repository. Initialize this folder with git now?",
-        "Initialize Git and Bootstrap",
-        "Cancel"
-      );
-      if (initChoice !== "Initialize Git and Bootstrap") {
-        return;
-      }
-
-      const gitInit = await runGitWithOutput(root, ["init"]);
-      if (gitInit.error) {
-        void vscode.window.showErrorMessage(
-          `Failed to initialize git repository: ${gitInit.stderr || gitInit.error.message}`
-        );
-        return;
-      }
-      void vscode.window.showInformationMessage("Git repository initialized.");
-    }
-
-    const beforeBootstrapStatusResult = await runGitWithOutput(root, ["status", "--porcelain"]);
-    const beforeBootstrapStatus = beforeBootstrapStatusResult.error
-      ? []
-      : parseGitStatusEntries(beforeBootstrapStatusResult.stdout);
-
-    const logicsDir = path.join(root, "logics");
-    if (!fs.existsSync(logicsDir)) {
-      fs.mkdirSync(logicsDir, { recursive: true });
-    }
-
-    const submoduleResult = await runGitWithOutput(root, [
-      "submodule",
-      "add",
-      "https://github.com/AlexAgo83/cdx-logics-kit",
-      "logics/skills"
-    ]);
-    if (submoduleResult.error) {
-      void vscode.window.showErrorMessage(
-        `Failed to add logics kit submodule: ${submoduleResult.stderr || submoduleResult.error.message}`
-      );
-      return;
-    }
-
-    const bootstrapScript = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-bootstrapper",
-      "scripts",
-      "logics_bootstrap.py"
-    );
-    if (fs.existsSync(bootstrapScript)) {
-      const result = await runPythonWithOutput(root, bootstrapScript, []);
-      if (result.error) {
-        const detail = `${result.stderr}\n${result.stdout}\n${result.error.message}`.trim();
-        if (isMissingPythonFailureDetail(detail)) {
-          void vscode.window.showErrorMessage(
-            `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
-          );
-          return;
-        }
-        void vscode.window.showErrorMessage(`Bootstrap script failed: ${result.stderr || result.error.message}`);
-        return;
-      }
-    }
-
-    await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus);
-    const globalKitOutcome = await this.attemptBootstrapGlobalKitConvergence(root);
-    await this.notifyBootstrapCompletion(root, globalKitOutcome);
-    await this.refresh();
-  }
-
-  private async maybeOfferBootstrapCommit(root: string, beforeBootstrapStatus: ReturnType<typeof parseGitStatusEntries>): Promise<void> {
-    if (beforeBootstrapStatus.length > 0) {
-      void vscode.window.showInformationMessage(
-        "Bootstrap completed. Commit proposal skipped because the repository already had uncommitted changes."
-      );
-      return;
-    }
-
-    const afterBootstrapStatusResult = await runGitWithOutput(root, ["status", "--porcelain"]);
-    if (afterBootstrapStatusResult.error) {
-      return;
-    }
-
-    const afterBootstrapStatus = parseGitStatusEntries(afterBootstrapStatusResult.stdout);
-    const bootstrapPaths = Array.from(
-      new Set(afterBootstrapStatus.map((entry) => entry.path).filter((entry) => isBootstrapScopedPath(entry)))
-    ).sort((left, right) => left.localeCompare(right));
-
-    if (bootstrapPaths.length === 0) {
-      return;
-    }
-
-    const commitMessage = buildBootstrapCommitMessage(bootstrapPaths);
-    const action = await vscode.window.showInformationMessage(
-      `Bootstrap completed. Create commit now with message: "${commitMessage}"?`,
-      "Commit Bootstrap Changes",
-      "Not now"
-    );
-    if (action !== "Commit Bootstrap Changes") {
-      return;
-    }
-
-    const addResult = await runGitWithOutput(root, ["add", "-A", "--", ...bootstrapPaths]);
-    if (addResult.error) {
-      void vscode.window.showErrorMessage(`Failed to stage bootstrap changes: ${addResult.stderr || addResult.error.message}`);
-      return;
-    }
-
-    const commitResult = await runGitWithOutput(root, ["commit", "-m", commitMessage]);
-    if (commitResult.error) {
-      const detail = `${commitResult.stderr}\n${commitResult.stdout}`.trim();
-      if (/nothing to commit/i.test(detail)) {
-        void vscode.window.showInformationMessage("Bootstrap changes were already clean; nothing to commit.");
-        return;
-      }
-      void vscode.window.showErrorMessage(`Failed to create bootstrap commit: ${detail || commitResult.error.message}`);
-      return;
-    }
-
-    void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
-  }
-
-  private async notifyBootstrapCompletion(
-    root: string,
-    globalKitOutcome?: {
-      attempted: boolean;
-      published: boolean;
-      failed: boolean;
-      failureMessage?: string;
-    }
-  ): Promise<void> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
-      const detail = globalKitOutcome?.published ? " Global Codex kit publication completed during bootstrap." : "";
-      void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local kit and the global Codex kit are ready.${detail} Refreshing.`);
-      return;
-    }
-    const actions: string[] = [];
-    if (overlay.status === "missing-manager") {
-      actions.push("Update Logics Kit");
-    }
-    if (overlay.status !== "missing-manager") {
-      actions.push("Publish Global Codex Kit");
-    }
-    const outcomeNote =
-      globalKitOutcome?.failed && globalKitOutcome.failureMessage
-        ? ` Automatic publication failed during bootstrap: ${globalKitOutcome.failureMessage}.`
-        : globalKitOutcome?.attempted
-          ? " Automatic publication ran during bootstrap, but the global kit still needs attention."
-          : "";
-    const message = `Logics bootstrapped partially. Repo-local kit is ready, but the global Codex kit is not ready yet. ${overlay.summary}${outcomeNote}`;
-    const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
-    if (choice === "Publish Global Codex Kit") {
-      await this.syncCodexOverlay(root, "bootstrap completion");
-      return;
-    }
-    if (choice === "Update Logics Kit") {
-      await this.updateLogicsKit(root, "bootstrap completion");
-      return;
-    }
-    void vscode.window.showInformationMessage("Logics bootstrapped partially. Refreshing.");
-  }
-
-  private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
-      if (!overlay.runCommand) {
-        return;
-      }
-      const launchAction = "Launch Codex in Terminal";
-      const copyAction = "Copy Codex Launch Command";
-      const choice = await vscode.window.showInformationMessage(
-        `Global Codex kit is ready after ${trigger}. Launch Codex normally to use the published Logics skills.`,
-        launchAction,
-        copyAction
-      );
-      if (choice === launchAction) {
-        this.launchCodexOverlayTerminal(root, overlay.runCommand);
-        return;
-      }
-      if (choice === copyAction) {
-        await vscode.env.clipboard.writeText(overlay.runCommand);
-        void vscode.window.showInformationMessage("Codex launch command copied to clipboard.");
-      }
-      return;
-    }
-
-    if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
-      const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
-      }
-      const updateCommand = buildLogicsKitUpdateCommand();
-      actions.push("Copy Update Command");
-      const choice = await vscode.window.showInformationMessage(
-        `Repo-local Logics is ready after ${trigger}, but the current kit cannot yet publish a healthy global Codex kit. ${overlay.summary}`,
-        ...actions
-      );
-      if (choice === "Update Logics Kit") {
-        await this.updateLogicsKit(root, trigger);
-        return;
-      }
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return;
-    }
-
-    const actions: string[] = [];
-    actions.push("Publish Global Codex Kit");
-    const choice = await vscode.window.showInformationMessage(
-      `Repo-local Logics is ready after ${trigger}, but the global Codex kit still needs publication or repair. ${overlay.summary}`,
-      ...actions
-    );
-    if (choice === "Publish Global Codex Kit") {
-      await this.syncCodexOverlay(root, trigger);
-    }
-  }
-
-  private async updateLogicsKit(root: string, trigger: string): Promise<boolean> {
-    const gitVersion = await runGitWithOutput(root, ["--version"]);
-    if (gitVersion.error) {
-      const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
-      if (isMissingGitFailureDetail(detail)) {
-        void vscode.window.showErrorMessage(
-          `Updating the Logics kit requires Git. ${buildMissingGitMessage()} The extension cannot install Git automatically. Use \`Logics: Check Environment\` for details.`
-        );
-        return false;
-      }
-      void vscode.window.showErrorMessage(`Failed to run git: ${gitVersion.stderr || gitVersion.error.message}`);
-      return false;
-    }
-
-    const inspection = inspectLogicsKitSubmodule(root);
-    const updateCommand = buildLogicsKitUpdateCommand();
-    if (!inspection.exists || !inspection.isCanonical) {
-      const choice = await vscode.window.showWarningMessage(
-        `Automatic Logics kit update is only supported for the canonical logics/skills submodule. ${inspection.reason}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
-    if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
-      const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics kit update requires a git worktree rooted at the selected project. Use the canonical submodule update command manually if needed.",
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const worktreeStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
-    if (worktreeStatus.error) {
-      void vscode.window.showErrorMessage(
-        `Failed to inspect repository state before updating the Logics kit: ${worktreeStatus.stderr || worktreeStatus.error.message}`
-      );
-      return false;
-    }
-    if (worktreeStatus.stdout.trim()) {
-      const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics kit update is blocked because the repository has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const beforeStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
-    if (beforeStatus.error) {
-      const choice = await vscode.window.showWarningMessage(
-        `The plugin could not confirm the canonical logics/skills submodule before updating it. ${beforeStatus.stderr || beforeStatus.error.message}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const updateResult = await runGitWithOutput(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
-    if (updateResult.error) {
-      const detail = `${updateResult.stderr}\n${updateResult.stdout}`.trim();
-      const choice = await vscode.window.showErrorMessage(
-        `Failed to update the Logics kit. ${detail || updateResult.error.message}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const afterStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
-    const updated = beforeStatus.stdout.trim() !== afterStatus.stdout.trim();
-    await this.refresh();
-    const snapshot = await inspectLogicsEnvironment(root);
-
-    if (snapshot.codexOverlay.status === "missing-manager") {
-      void vscode.window.showWarningMessage(
-        updated
-          ? "The Logics kit submodule updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older kit branch or tag."
-          : "The Logics kit is already at the current tracked submodule revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older kit branch or tag."
-      );
-      return true;
-    }
-
-    const actions: string[] = [];
-    if (snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
-      actions.push("Publish Global Codex Kit");
-    }
-    const message = updated
-      ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.`
-      : "The Logics kit is already up to date on the tracked submodule revision.";
-    const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
-    if (choice === "Publish Global Codex Kit") {
-      await this.syncCodexOverlay(root, "kit update");
-    } else {
-      void vscode.window.showInformationMessage(message);
-    }
-    return true;
-  }
-
-  private async syncCodexOverlay(
-    root: string,
-    trigger: string,
-    options?: {
-      autoLaunchOnSuccess?: boolean;
-    }
-  ): Promise<boolean> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
-      if (options?.autoLaunchOnSuccess && overlay.runCommand) {
-        this.launchCodexOverlayTerminal(root, overlay.runCommand);
-        return true;
-      }
-      void vscode.window.showInformationMessage("Global Codex kit is already ready for this repository.");
-      return true;
-    }
-
-    if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
-      const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
-      }
-      actions.push("Copy Update Command");
-      const choice = await vscode.window.showWarningMessage(
-        `Global Codex kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${overlay.summary}`,
-        ...actions
-      );
-      if (choice === "Update Logics Kit") {
-        await this.updateLogicsKit(root, trigger);
-      }
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    try {
-      publishCodexWorkspaceOverlay(root);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Global Codex kit publish failed: ${message}`);
-      return false;
-    }
-
-    await this.refresh();
-    const refreshed = await inspectLogicsEnvironment(root);
-    if (refreshed.codexOverlay.status === "healthy" || refreshed.codexOverlay.status === "warning") {
-      if (options?.autoLaunchOnSuccess && refreshed.codexOverlay.runCommand) {
-        this.launchCodexOverlayTerminal(root, refreshed.codexOverlay.runCommand);
-        void vscode.window.showInformationMessage(`Global Codex kit published after ${trigger}. Launching Codex in Terminal.`);
-        return true;
-      }
-      const actions: string[] = [];
-      if (refreshed.codexOverlay.runCommand) {
-        actions.push("Launch Codex in Terminal", "Copy Codex Launch Command");
-      }
-      const choice = actions.length > 0
-        ? await vscode.window.showInformationMessage(
-            `Global Codex kit published after ${trigger}. ${refreshed.codexOverlay.summary}`,
-            ...actions
-          )
-        : undefined;
-      if (choice === "Launch Codex in Terminal" && refreshed.codexOverlay.runCommand) {
-        this.launchCodexOverlayTerminal(root, refreshed.codexOverlay.runCommand);
-        return true;
-      }
-      if (choice === "Copy Codex Launch Command" && refreshed.codexOverlay.runCommand) {
-        await vscode.env.clipboard.writeText(refreshed.codexOverlay.runCommand);
-        void vscode.window.showInformationMessage("Codex launch command copied to clipboard.");
-      }
-      if (!choice) {
-        void vscode.window.showInformationMessage(`Global Codex kit published. ${refreshed.codexOverlay.summary}`);
-      }
-      return true;
-    }
-
-    void vscode.window.showWarningMessage(
-      `Global Codex kit publish completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
-    );
-    return false;
-  }
-
-  private launchCodexOverlayTerminal(root: string, runCommand: string): void {
-    const terminal = vscode.window.createTerminal({
-      name: `Codex: ${path.basename(root)}`,
-      cwd: root
-    });
-    terminal.show(true);
-    terminal.sendText(runCommand, true);
-  }
-
   private getReadPreviewPanel(): vscode.WebviewPanel {
     if (this.readPreviewPanel) {
       return this.readPreviewPanel;
@@ -1882,44 +954,32 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     return panel;
   }
 
-  private getHybridInsightsPanel(): vscode.WebviewPanel {
-    if (this.hybridInsightsPanel) {
-      return this.hybridInsightsPanel;
+  private async maybeOfferBootstrap(root: string): Promise<void> {
+    await this.codexWorkflowController.maybeOfferBootstrap(root);
+  }
+
+  private async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
+    await this.codexWorkflowController.maybeOfferCodexStartupRemediation(root);
+  }
+
+  private async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
+    await this.codexWorkflowController.maybeShowCodexOverlayHandoff(root, trigger);
+  }
+
+  private async bootstrapLogics(root: string): Promise<void> {
+    await this.codexWorkflowController.bootstrapLogics(root);
+  }
+
+  private async notifyBootstrapCompletion(
+    root: string,
+    globalKitOutcome?: {
+      attempted: boolean;
+      published: boolean;
+      failed: boolean;
+      failureMessage?: string;
     }
-
-    const panel = vscode.window.createWebviewPanel(
-      "logics.hybridInsights",
-      "Hybrid Assist Insights",
-      vscode.ViewColumn.Beside,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [this.context.extensionUri]
-      }
-    );
-
-    panel.webview.onDidReceiveMessage(async (message) => {
-      const root = await this.getActionRoot();
-      if (!root) {
-        return;
-      }
-      if (message?.type === "refresh-report") {
-        await this.refreshHybridInsightsPanel(root);
-        return;
-      }
-      if (message?.type === "open-source-log" && (message.source === "audit" || message.source === "measurement")) {
-        await this.openHybridInsightsSourceLog(root, message.source);
-      }
-    });
-
-    panel.onDidDispose(() => {
-      if (this.hybridInsightsPanel === panel) {
-        this.hybridInsightsPanel = undefined;
-      }
-    });
-
-    this.hybridInsightsPanel = panel;
-    return panel;
+  ): Promise<void> {
+    await this.codexWorkflowController.notifyBootstrapCompletion(root, globalKitOutcome);
   }
 
   private async pickItem(items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {

@@ -14,6 +14,7 @@ type ExecResult = {
 };
 
 let resolvedGitCommandPromise: Promise<GitCommand | null> | undefined;
+let gitPathSettingReader: (() => string | string[] | undefined) | undefined;
 
 export function isMissingGitFailureDetail(detail: string): boolean {
   const normalized = detail.toLowerCase();
@@ -32,6 +33,13 @@ export function buildMissingGitMessage(): string {
 
 export async function detectGitCommand(): Promise<boolean> {
   return Boolean(await resolveGitCommand());
+}
+
+export function configureGitPathSettingReader(
+  reader?: () => string | string[] | undefined
+): void {
+  gitPathSettingReader = reader;
+  resolvedGitCommandPromise = undefined;
 }
 
 export function getGitCommandCandidates(
@@ -161,14 +169,7 @@ function normalizeGitPathSetting(configuredGitPath: string | string[] | undefine
 
 function readConfiguredGitPathSetting(): string | string[] | undefined {
   try {
-    const vscode = require("vscode") as {
-      workspace?: {
-        getConfiguration?: (section: string) => {
-          get: (key: string) => unknown;
-        };
-      };
-    };
-    const value = vscode.workspace?.getConfiguration?.("git")?.get("path");
+    const value = gitPathSettingReader?.();
     if (typeof value === "string") {
       return value;
     }

@@ -8,7 +8,7 @@ Use the canonical Logics workflow instead of inventing a new process.
 Source of truth:
 - `@logics/instructions.md`
 - `@logics/skills/logics-flow-manager/SKILL.md`
-- `@logics/skills/logics-flow-manager/scripts/logics_flow.py`
+- `@logics/skills/logics.py`
 
 Behavior:
 1. Read the canonical Logics instructions before acting.

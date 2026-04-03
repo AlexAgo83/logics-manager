@@ -1,10 +1,10 @@
 ## task_110_orchestration_delivery_for_req_120_and_req_121_multi_provider_hybrid_dispatch_and_audit_cleanup - Orchestration delivery for req_120 and req_121 across audit cleanup and multi-provider hybrid dispatch
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 0%
+> Status: In progress
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 12%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -179,4 +179,5 @@ flowchart LR
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
-- Pending.
+- 2026-04-04: `item_210` completed as the first wave-1 checkpoint. Removed the dead `runPython()` export, deleted stale root `.vsix` artifacts, switched the documented and Claude bridge entrypoints to `python logics/skills/logics.py ...`, added `logics/specs/README.md`, and seeded `logics.yaml`.
+- Validation checkpoint for `item_210`: verified `.gitignore` still contains `*.vsix`, confirmed no `logics_flow.py` references remain in `logics/instructions.md`, the three targeted `SKILL.md` files, or `.claude/`, and confirmed the new specs/config files exist with the expected contents.

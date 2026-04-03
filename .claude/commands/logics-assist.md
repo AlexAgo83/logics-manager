@@ -8,7 +8,7 @@ Use the canonical hybrid assist runtime instead of inventing agent-specific flow
 Source of truth:
 - `@logics/instructions.md`
 - `@logics/skills/logics-hybrid-delivery-assistant/SKILL.md`
-- `@logics/skills/logics-flow-manager/scripts/logics_flow.py`
+- `@logics/skills/logics.py`
 
 Behavior:
 1. Keep `.claude/` thin and derivative.

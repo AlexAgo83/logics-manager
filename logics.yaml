@@ -1,0 +1,11 @@
+version: 1
+workflow:
+  split:
+    policy: minimal-coherent
+    max_children_without_override: 2
+mutations:
+  mode: transactional
+  audit_log: logics/mutation_audit.jsonl
+index:
+  enabled: true
+  path: logics/.cache/runtime_index.json

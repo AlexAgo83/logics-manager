@@ -10,14 +10,14 @@ Source of truth:
 - `logics/` remains canonical.
 - `logics/instructions.md` defines repository workflow rules.
 - `logics/skills/logics-flow-manager/SKILL.md` defines the real Logics flow behavior.
-- `logics/skills/logics-flow-manager/scripts/logics_flow.py` is the primary workflow script.
+- `logics/skills/logics.py` is the canonical workflow entrypoint.
 
 Operating rules:
 1. Start by reading `logics/instructions.md` and `logics/skills/logics-flow-manager/SKILL.md`.
 2. Prefer running the existing Logics scripts over manually creating filenames or editing workflow metadata by hand.
 3. Keep `.claude/` thin and derivative. Do not create a second prompt corpus here.
 4. When creating or updating workflow docs, keep links, indicators, and Logics conventions aligned with the canonical sources.
-5. When a task is completed, prefer `python3 logics/skills/logics-flow-manager/scripts/logics_flow.py finish task ...`.
+5. When a task is completed, prefer `python logics/skills/logics.py flow finish task ...`.
 
 Typical entrypoints:
 - create a new request, backlog item, or task

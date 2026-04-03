@@ -460,17 +460,6 @@ export async function openCreatedDocFromOutput(stdout: string): Promise<void> {
   await vscode.window.showTextDocument(document, { preview: false });
 }
 
-export async function runPython(cwd: string, scriptPath: string, args: string[]): Promise<void> {
-  const result = await runPythonCommand(cwd, scriptPath, args);
-  if (result.error) {
-    void vscode.window.showErrorMessage(`Promotion failed: ${result.stderr || result.error.message}`);
-    return;
-  }
-  if (result.stdout.trim()) {
-    void vscode.window.showInformationMessage(result.stdout.trim());
-  }
-}
-
 export async function runPythonWithOutput(
   cwd: string,
   scriptPath: string,

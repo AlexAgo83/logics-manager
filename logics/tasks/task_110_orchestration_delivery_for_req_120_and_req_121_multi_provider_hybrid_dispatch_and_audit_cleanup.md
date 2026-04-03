@@ -3,8 +3,8 @@
 > Schema version: 1.0
 > Status: In progress
 > Understanding: 97%
-> Confidence: 95%
-> Progress: 12%
+> Confidence: 96%
+> Progress: 25%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -181,3 +181,5 @@ flowchart LR
 # Report
 - 2026-04-04: `item_210` completed as the first wave-1 checkpoint. Removed the dead `runPython()` export, deleted stale root `.vsix` artifacts, switched the documented and Claude bridge entrypoints to `python logics/skills/logics.py ...`, added `logics/specs/README.md`, and seeded `logics.yaml`.
 - Validation checkpoint for `item_210`: verified `.gitignore` still contains `*.vsix`, confirmed no `logics_flow.py` references remain in `logics/instructions.md`, the three targeted `SKILL.md` files, or `.claude/`, and confirmed the new specs/config files exist with the expected contents.
+- 2026-04-04: `item_211` completed as the second wave-1 checkpoint inside the `logics/skills` submodule. Replaced the remaining 34 hardcoded `python3` launcher examples in `SKILL.md` files, converted `logics_flow.py` to an explicit `logics_flow_support` import list, updated bootstrap assets, and relocated hybrid audit/measurement runtime paths to `logics/.cache/`.
+- Validation checkpoint for `item_211`: confirmed zero `python3 ` launcher matches remain in `SKILL.md`, removed the wildcard support import, verified local runtime state now lives under `logics/.cache/`, and ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully.

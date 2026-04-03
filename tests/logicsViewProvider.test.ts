@@ -1238,6 +1238,95 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("prompts for bootstrap once per distinct bootstrap state, not once per root", async () => {
+    // First call: root is in 'missing' state → prompt shown
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics on this branch",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found on the active branch."
+    });
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+
+    // Second call: same root, same state → suppressed (already prompted for this state)
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+
+    // Third call: same root but different state (branch switch) → prompt fires again
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Repair Logics setup on this branch",
+      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      reason: "The active branch has logics/ but logics/skills is still missing."
+    });
+
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(2);
+    expect(mocks.showInformationMessage).toHaveBeenLastCalledWith(
+      "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      "Bootstrap Logics",
+      "Not now"
+    );
+  });
+
+  it("does not re-prompt when branch switches back to a previously-seen bootstrap state", async () => {
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics on this branch",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found on the active branch."
+    });
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    // First visit to a branch without logics/: prompt fires
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+
+    // Switch to a healthy branch (canonical): no prompt
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+
+    // Switch back to branch without logics/: same 'missing' state was already dismissed → suppressed
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics on this branch",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found on the active branch."
+    });
+    await (provider as any).maybeOfferBootstrap(root);
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("routes noncanonical state to a warning instead of a bootstrap prompt", async () => {
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "noncanonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+      reason: "logics/skills points to a non-canonical submodule URL: https://example.com/fork.git"
+    });
+
+    await (provider as any).maybeOfferBootstrap(root);
+
+    expect(mocks.showWarningMessage).toHaveBeenCalledOnce();
+    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      expect.stringContaining("non-canonical or malformed")
+    );
+  });
+
   it("offers a startup notification to publish the global kit only once per unresolved state", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({

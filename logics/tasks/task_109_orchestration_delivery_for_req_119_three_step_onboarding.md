@@ -1,10 +1,10 @@
 ## task_109_orchestration_delivery_for_req_119_three_step_onboarding - Orchestration delivery for req 119 three step onboarding
-> From version: 1.18.0
+> From version: 1.18.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 5%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -21,6 +21,7 @@ The task must stay aligned with:
 
 Constraints:
 - keep the visible model simple: Need, Framing, Execution
+- ship it as a one-shot onboarding webview, not as a permanent operational board surface
 - do not expand the slice into full auto orchestration
 - do not break the canonical internal request, backlog, task structure while simplifying the onboarding abstraction
 
@@ -37,8 +38,8 @@ flowchart LR
 
 # Plan
 - [ ] 1. Lock the split execution order and confirm the boundaries between `item_208` and `item_209`.
-- [ ] 2. Deliver `item_208` first so the visible Need, Framing, and Execution model plus operator copy are settled before UI integration.
-- [ ] 3. Deliver `item_209` on top of that model in the chosen guided request or workflow entry surfaces, then validate workflow alignment and linked docs.
+- [ ] 2. Deliver `item_208` first so the visible Need, Framing, and Execution model, onboarding narrative, and highlighted actions are settled before UI integration.
+- [ ] 3. Deliver `item_209` on top of that model as a one-shot onboarding webview with first-run or post-update visibility, manual reopen affordance, and workflow-alignment validation.
 - [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
 - [ ] FINAL: Update related Logics docs
 
@@ -48,11 +49,12 @@ flowchart LR
 - Prefer a reviewed commit checkpoint at the end of each meaningful wave instead of accumulating several undocumented partial states.
 
 # AC Traceability
-- AC1 -> Step 2 and Step 3. Proof: the visible Need, Framing, and Execution model is defined in `item_208` and rendered in the chosen surface through `item_209`.
+- AC1 -> Step 2 and Step 3. Proof: the visible Need, Framing, and Execution model is defined in `item_208` and rendered in the onboarding webview through `item_209`.
 - AC2 -> Step 2 and Step 3. Proof: operator-facing copy is defined first, then shown in-context without protocol-heavy wording.
-- AC3 -> Step 2 and Step 3. Proof: the model-to-workflow mapping is defined in `item_208` and preserved during entry-surface integration in `item_209`.
-- AC4 -> Step 3. Proof: at least one current entry surface exposes the three-step onboarding model.
-- AC5 -> Step 1 through Step 3. Proof: the orchestration explicitly keeps the slice bounded to onboarding and workflow comprehension.
+- AC3 -> Step 2 and Step 3. Proof: the main actions are defined in `item_208` and surfaced in the onboarding webview through `item_209`.
+- AC4 -> Step 2 and Step 3. Proof: the model-to-workflow mapping is defined in `item_208` and preserved during onboarding-webview integration in `item_209`.
+- AC5 -> Step 3. Proof: the onboarding webview appears through a bounded first-run or post-update lifecycle rather than as a permanent everyday surface.
+- AC6 -> Step 1 through Step 3. Proof: the orchestration explicitly keeps the slice bounded to onboarding and workflow comprehension.
 
 # Decision framing
 - Product framing: Required
@@ -69,8 +71,8 @@ flowchart LR
 - Request(s): `req_119_three_step_onboarding_for_need_framing_and_execution`
 
 # AI Context
-- Summary: Orchestrate req 119 across the split onboarding backlog items so the model and copy land first, then the entry-surface integration and validation follow coherently.
-- Keywords: onboarding, orchestration, workflow, need, framing, execution, guided request, entry surface
+- Summary: Orchestrate req 119 across the split onboarding backlog items so the onboarding narrative and actions land first, then the dedicated webview and its lifecycle follow coherently.
+- Keywords: onboarding, orchestration, workflow, need, framing, execution, webview, first run, update trigger
 - Use when: Use when delivering req 119 across `item_208` and `item_209` in a controlled order.
 - Skip when: Skip when the work is unrelated to the three-step onboarding slice or expands into auto orchestration.
 

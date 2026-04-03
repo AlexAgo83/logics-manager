@@ -1,9 +1,9 @@
 ## item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches - Detect and refresh Logics bootstrap state after git branch switches
-> From version: 1.17.0
+> From version: 1.18.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 95%
+> Understanding: 96%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and branch-aware recovery
@@ -60,7 +60,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_015_make_bootstrap_recovery_branch_aware`
 - Request: `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
 - Primary task(s): `task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair`
 

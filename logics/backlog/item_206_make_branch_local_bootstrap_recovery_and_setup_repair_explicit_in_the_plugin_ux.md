@@ -1,9 +1,9 @@
 ## item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux - Make branch-local bootstrap recovery and setup repair explicit in the plugin UX
-> From version: 1.17.0
+> From version: 1.18.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and branch-aware recovery
@@ -49,6 +49,7 @@ flowchart LR
 - AC3 -> Scope: separate treatment for malformed or non-canonical setup. Proof: this item explicitly preserves that state as a different guidance branch.
 - AC4 -> Scope: operator-facing wording. Proof: this item explicitly requires the UX to describe the issue as branch-local rather than extension breakage.
 - AC5 -> Scope: explicit operator-confirmed writes. Proof: this item explicitly prevents silent repair on possibly intentional branch states.
+- req_118 AC6 -> Scope: explicit current-branch bootstrap or repair flow. Proof: this item keeps canonical re-bootstrap or repair available for the active branch while preserving explicit operator confirmation.
 
 # Decision framing
 - Product framing: Consider
@@ -60,7 +61,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_015_make_bootstrap_recovery_branch_aware`
 - Request: `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
 - Primary task(s): `task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair`
 

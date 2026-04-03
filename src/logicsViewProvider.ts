@@ -1233,14 +1233,17 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async maybeOfferBootstrap(root: string): Promise<void> {
-    if (this.bootstrapPromptedRoots.has(root)) {
-      return;
-    }
     const bootstrapState = inspectLogicsBootstrapState(root);
     if (bootstrapState.status === "canonical") {
       return;
     }
-    this.bootstrapPromptedRoots.add(root);
+    // Key by root + status so switching branches to a different bootstrap state
+    // re-enables the prompt even if this root was already prompted for a prior state.
+    const promptKey = `${root}::${bootstrapState.status}`;
+    if (this.bootstrapPromptedRoots.has(promptKey)) {
+      return;
+    }
+    this.bootstrapPromptedRoots.add(promptKey);
     if (bootstrapState.status === "noncanonical") {
       void vscode.window.showWarningMessage(
         `This repository already has a non-canonical or malformed logics/skills setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`

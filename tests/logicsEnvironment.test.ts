@@ -142,3 +142,84 @@ describe("inspectLogicsEnvironment", () => {
     expect(status.supportedVariants).toEqual(["hybrid-assist", "flow-manager"]);
   });
 });
+
+describe("branch-state transitions", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  function makeReadyRoot(): string {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-branch-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
+      "#!/usr/bin/env python\n",
+      "utf8"
+    );
+    fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
+    return root;
+  }
+
+  const stubbedOptions = {
+    detectGit: async () => true,
+    detectPython: async (): Promise<import("../src/pythonRuntime").PythonCommand | null> =>
+      ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+    inspectOverlay: () =>
+      ({
+        status: "missing-overlay" as const,
+        summary: "Overlay missing.",
+        issues: [],
+        warnings: [],
+        syncCommand: "python logics/skills/logics.py ...",
+        runCommand: "python logics/skills/logics.py ..."
+      })
+  };
+
+  it("transitions from ready to missing-logics when logics/ is removed and re-inspected", async () => {
+    const root = makeReadyRoot();
+
+    const beforeSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
+    expect(beforeSwitch.repositoryState).toBe("ready");
+    expect(beforeSwitch.capabilities.readOnly.status).toBe("available");
+
+    // Simulate branch switch: remove logics/ (as git checkout would on a branch without it)
+    fs.rmSync(path.join(root, "logics"), { recursive: true, force: true });
+
+    const afterSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
+    expect(afterSwitch.repositoryState).toBe("missing-logics");
+    expect(afterSwitch.capabilities.readOnly.status).toBe("unavailable");
+    expect(afterSwitch.capabilities.readOnly.summary).toContain("branch");
+  });
+
+  it("transitions from ready to partial-bootstrap when workflow dirs are removed and re-inspected", async () => {
+    const root = makeReadyRoot();
+
+    const beforeSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
+    expect(beforeSwitch.repositoryState).toBe("ready");
+
+    // Simulate branch switch: remove one workflow directory
+    fs.rmSync(path.join(root, "logics", "tasks"), { recursive: true, force: true });
+
+    const afterSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
+    expect(afterSwitch.repositoryState).toBe("partial-bootstrap");
+    expect(afterSwitch.missingWorkflowDirs).toContain("logics/tasks");
+    expect(afterSwitch.capabilities.readOnly.status).toBe("available");
+  });
+
+  it("missing-logics readOnly summary uses branch-local copy, not generic repository message", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-branch-"));
+    roots.push(root);
+
+    const snapshot = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
+    expect(snapshot.repositoryState).toBe("missing-logics");
+    expect(snapshot.capabilities.readOnly.summary).toMatch(/branch/i);
+    expect(snapshot.capabilities.readOnly.summary).not.toMatch(/repository/i);
+  });
+});

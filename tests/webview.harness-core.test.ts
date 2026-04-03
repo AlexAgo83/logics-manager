@@ -67,6 +67,29 @@ describe("webview harness core behaviors", () => {
     expect(recommendedActions).toEqual(["bootstrap-logics", "check-environment", "change-project-root"]);
   });
 
+  it("switches the tools panel between workflow and system views", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const workflowView = dom.window.document.getElementById("tools-view-workflow");
+    const systemView = dom.window.document.getElementById("tools-view-system");
+    const systemTab = dom.window.document.querySelector('[data-tools-view-toggle="system"]') as HTMLButtonElement | null;
+
+    expect(workflowView?.hidden).toBe(false);
+    expect(systemView?.hidden).toBe(true);
+    expect(systemTab?.getAttribute("aria-selected")).toBe("false");
+
+    systemTab?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+
+    expect(workflowView?.hidden).toBe(true);
+    expect(systemView?.hidden).toBe(false);
+    expect(systemTab?.getAttribute("aria-selected")).toBe("true");
+  });
+
   it("opens selected item in harness mode without posting open message", async () => {
     const { dom, postedMessages, openedUrls } = bootstrapWebview({ harness: true });
 

@@ -22,6 +22,32 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <button id="filter-toggle" class="toolbar__filter"></button>
             <button id="tools-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
+              <div class="tools-panel__switcher" role="tablist" aria-label="Tools categories">
+                <button
+                  class="tools-panel__switch is-active"
+                  type="button"
+                  role="tab"
+                  id="tools-view-tab-workflow"
+                  aria-selected="true"
+                  aria-controls="tools-view-workflow"
+                  tabindex="0"
+                  data-tools-view-toggle="workflow"
+                >
+                  Workflow
+                </button>
+                <button
+                  class="tools-panel__switch"
+                  type="button"
+                  role="tab"
+                  id="tools-view-tab-system"
+                  aria-selected="false"
+                  aria-controls="tools-view-system"
+                  tabindex="-1"
+                  data-tools-view-toggle="system"
+                >
+                  System
+                </button>
+              </div>
               <div data-tools-section="recommended">
                 <div>Recommended</div>
                 <div data-tools-body="recommended">
@@ -32,51 +58,55 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <button class="tools-panel__item" data-action="check-environment" title="Check environment"></button>
                 </div>
               </div>
-              <div data-tools-section="workflow">
-                <div>Workflow</div>
-                <div data-tools-body="workflow">
-                  <button class="tools-panel__item" data-action="select-agent" title="Select the active agent profile"></button>
-                  <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc"></button>
+              <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">
+                <div data-tools-section="workflow">
+                  <div>Workflow</div>
+                  <div data-tools-body="workflow">
+                    <button class="tools-panel__item" data-action="select-agent" title="Select the active agent profile"></button>
+                    <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc"></button>
+                    <button class="tools-panel__item" data-action="refresh" title="Refresh"></button>
+                  </div>
+                </div>
+                <div data-tools-section="assist">
+                  <div>Assist</div>
+                  <div data-tools-body="assist">
+                    <button class="tools-panel__item" data-action="assist-commit-all"></button>
+                    <button class="tools-panel__item" data-action="assist-diff-risk"></button>
+                    <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
+                    <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
+                    <button class="tools-panel__item" data-action="assist-doc-consistency"></button>
+                  </div>
                 </div>
               </div>
-              <div data-tools-section="assist">
-                <div>Assist</div>
-                <div data-tools-body="assist">
-                  <button class="tools-panel__item" data-action="assist-commit-all"></button>
-                  <button class="tools-panel__item" data-action="assist-diff-risk"></button>
-                  <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
-                  <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
-                  <button class="tools-panel__item" data-action="assist-doc-consistency"></button>
+              <div class="tools-panel__view" id="tools-view-system" data-tools-view="system" hidden>
+                <div data-tools-section="runtime">
+                  <div>Runtime</div>
+                  <div data-tools-body="runtime">
+                    <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
+                    <button class="tools-panel__item" data-action="check-hybrid-runtime"></button>
+                    <button class="tools-panel__item" data-action="open-hybrid-insights"></button>
+                  </div>
                 </div>
-              </div>
-              <div data-tools-section="runtime">
-                <div>Runtime</div>
-                <div data-tools-body="runtime">
-                  <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
-                  <button class="tools-panel__item" data-action="check-hybrid-runtime"></button>
-                  <button class="tools-panel__item" data-action="open-hybrid-insights"></button>
+                <div data-tools-section="kit">
+                  <div>Kit</div>
+                  <div data-tools-body="kit">
+                    <button class="tools-panel__item" data-action="update-logics-kit"></button>
+                    <button class="tools-panel__item" data-action="sync-codex-overlay"></button>
+                  </div>
                 </div>
-              </div>
-              <div data-tools-section="kit">
-                <div>Kit</div>
-                <div data-tools-body="kit">
-                  <button class="tools-panel__item" data-action="update-logics-kit"></button>
-                  <button class="tools-panel__item" data-action="sync-codex-overlay"></button>
+                <div data-tools-section="workspace">
+                  <div>Workspace</div>
+                  <div data-tools-body="workspace">
+                    <button class="tools-panel__item" data-action="change-project-root"></button>
+                    <button class="tools-panel__item" data-action="reset-project-root"></button>
+                  </div>
                 </div>
-              </div>
-              <div data-tools-section="workspace">
-                <div>Workspace</div>
-                <div data-tools-body="workspace">
-                  <button class="tools-panel__item" data-action="change-project-root"></button>
-                  <button class="tools-panel__item" data-action="reset-project-root"></button>
-                  <button class="tools-panel__item" data-action="refresh"></button>
-                </div>
-              </div>
-              <div data-tools-section="maintenance">
-                <div>Maintenance</div>
-                <div data-tools-body="maintenance">
-                  <button class="tools-panel__item" data-action="fix-docs"></button>
-                  <button class="tools-panel__item" data-action="about"></button>
+                <div data-tools-section="maintenance">
+                  <div>Maintenance</div>
+                  <div data-tools-body="maintenance">
+                    <button class="tools-panel__item" data-action="fix-docs"></button>
+                    <button class="tools-panel__item" data-action="about"></button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 ## req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair - Handle branch switches to branches without Logics bootstrap and offer setup repair
 > From version: 1.17.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 93%
 > Confidence: 91%
 > Complexity: Medium

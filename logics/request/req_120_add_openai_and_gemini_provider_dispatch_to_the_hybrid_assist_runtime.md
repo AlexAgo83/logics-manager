@@ -2,8 +2,8 @@
 > From version: 1.18.1
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction, remote API dispatch, and backend policy expansion
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -204,6 +204,8 @@ flowchart TD
 - 2026-04-04: `item_216` completed. Hybrid observability now tracks execution paths beyond the old local-versus-codex split, `runtime-status` surfaces per-provider readiness details, and the plugin uses those details to summarize ready versus flagged providers directly in the `AI Runtime Status` flow.
 - `Hybrid Insights` now exposes provider mix, execution-path distribution, and provider-aware recent-run metadata so operators can distinguish remote-provider adoption, deterministic runs, codex fallback, and degraded outcomes without adding provider-specific workflow actions.
 - Validation remains green after the observability and UI update: `npm run test` and `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
+- 2026-04-04: `item_217` completed. The regression suite now covers ordered remote-provider fallback (`openai -> gemini`) and bounded semantic fallback after an invalid remote payload, alongside the existing missing-credential, cooldown, `ollama`, `deterministic`, and `codex-only` cases.
+- Validation remains green after the regression expansion: `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
 
 # AI Context
 - Summary: Add direct OpenAI and Gemini provider dispatch to the shared hybrid assist runtime through a provider abstraction that preserves strict flow contracts, explicit backend policy, and trustworthy observability.

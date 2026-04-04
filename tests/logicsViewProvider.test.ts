@@ -316,6 +316,11 @@ describe("LogicsViewProvider", () => {
       {
         extensionUri: {},
         extensionPath: root,
+        extension: { packageJSON: { version: "1.19.1" } },
+        globalState: {
+          get: vi.fn().mockReturnValue("1.19.1"),
+          update: vi.fn()
+        },
         workspaceState: {
           get: mocks.workspaceStateGet,
           update: mocks.workspaceStateUpdate

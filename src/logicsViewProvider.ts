@@ -34,7 +34,10 @@ import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
 const ONBOARDING_LAST_VERSION_KEY = "logics.onboardingLastVersion";
+const STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX = "logics.startupKitUpdatePrompt";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
+const MIN_LOGICS_KIT_MAJOR = 1;
+const MIN_LOGICS_KIT_MINOR = 7;
 
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
@@ -326,9 +329,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       activeAgent: this.getActiveAgentPayload(),
       changedPaths
     });
-    await this.maybeOfferBootstrap(root);
-    await this.codexWorkflowController.ensureGlobalCodexKit(root);
-    await this.maybeOfferCodexStartupRemediation(root);
+    const startupKitPromptShown = await this.maybeOfferStartupKitUpdate(root, bootstrapState);
+    if (!startupKitPromptShown) {
+      await this.maybeOfferBootstrap(root);
+      await this.codexWorkflowController.ensureGlobalCodexKit(root);
+      await this.maybeOfferCodexStartupRemediation(root);
+    }
     this.maybeShowOnboarding();
   }
 
@@ -1156,6 +1162,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private buildKitVersionQuickPickItem(
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
+    const updateNeed = this.inspectKitUpdateNeed(root);
+    if (!updateNeed) {
+      return null;
+    }
+    return {
+      label: `Run: Update Logics Kit (local kit is v${updateNeed.currentVersion}, minimum recommended v${updateNeed.minimumVersion})`,
+      description: "Older kit missing environment convergence, bootstrap credential scaffolding, and current repair support.",
+      action: async () => {
+        await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
+      }
+    };
+  }
+
+  private inspectKitUpdateNeed(root: string): { currentVersion: string; minimumVersion: string; signature: string } | null {
     const versionPath = path.join(root, "logics", "skills", "VERSION");
     if (!fs.existsSync(versionPath)) {
       return null;
@@ -1167,24 +1187,20 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return null;
     }
     const parts = raw.split(".").map(Number);
-    if (parts.length < 2 || parts.some(isNaN)) {
+    if (parts.length < 2 || parts.some((part) => Number.isNaN(part))) {
       return null;
     }
-    // Minimum version for full hybrid assist + .env.local merge support
-    const MIN_MAJOR = 1;
-    const MIN_MINOR = 7;
     const [major, minor] = parts;
     const isTooOld =
-      major < MIN_MAJOR || (major === MIN_MAJOR && minor < MIN_MINOR);
+      major < MIN_LOGICS_KIT_MAJOR || (major === MIN_LOGICS_KIT_MAJOR && minor < MIN_LOGICS_KIT_MINOR);
     if (!isTooOld) {
       return null;
     }
+    const minimumVersion = `${MIN_LOGICS_KIT_MAJOR}.${MIN_LOGICS_KIT_MINOR}.x`;
     return {
-      label: `Run: Update Logics Kit (local kit is v${raw}, minimum recommended v${MIN_MAJOR}.${MIN_MINOR}.x)`,
-      description: "Older kit missing .env.local merge, bootstrap credential scaffolding, and multi-provider dispatch.",
-      action: async () => {
-        await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
-      }
+      currentVersion: raw,
+      minimumVersion,
+      signature: `kit-too-old:${raw}->${minimumVersion}`
     };
   }
 
@@ -1594,6 +1610,45 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.codexWorkflowController.maybeOfferBootstrap(root);
   }
 
+  private async maybeOfferStartupKitUpdate(
+    root: string,
+    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
+  ): Promise<boolean> {
+    if (bootstrapState?.status !== "canonical") {
+      await this.clearStartupKitUpdatePromptState(root);
+      return false;
+    }
+
+    const updateNeed = this.inspectKitUpdateNeed(root);
+    if (!updateNeed) {
+      await this.clearStartupKitUpdatePromptState(root);
+      return false;
+    }
+
+    const promptKey = this.getStartupKitUpdatePromptStateKey(root);
+    const lastPromptSignature = this.context.globalState.get<string>(promptKey) ?? null;
+    if (lastPromptSignature === updateNeed.signature) {
+      return false;
+    }
+
+    await this.context.globalState.update(promptKey, updateNeed.signature);
+    const choice = await vscode.window.showInformationMessage(
+      `Older Logics kit detected in this repository (v${updateNeed.currentVersion}). Update now to restore migration, repair, and environment convergence support.`,
+      "Update Logics Kit",
+      "Check Environment",
+      "Not now"
+    );
+    if (choice === "Update Logics Kit") {
+      await this.codexWorkflowController.updateLogicsKit(root, "startup kit remediation");
+      return true;
+    }
+    if (choice === "Check Environment") {
+      await this.checkEnvironmentFromCommand();
+      return true;
+    }
+    return true;
+  }
+
   private async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
     await this.codexWorkflowController.maybeOfferCodexStartupRemediation(root);
   }
@@ -1671,6 +1726,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       type: "data",
       payload
     });
+  }
+
+  private getStartupKitUpdatePromptStateKey(root: string): string {
+    return `${STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX}:${path.resolve(root)}`;
+  }
+
+  private async clearStartupKitUpdatePromptState(root: string): Promise<void> {
+    await this.context.globalState.update(this.getStartupKitUpdatePromptStateKey(root), undefined);
   }
 
   private async openItem(id: string): Promise<void> {

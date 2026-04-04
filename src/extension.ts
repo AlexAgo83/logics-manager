@@ -92,7 +92,11 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   setupWatcher();
-  context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => setupWatcher()));
+  void provider.refresh();
+  context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    setupWatcher();
+    void provider?.refresh();
+  }));
 }
 
 export function deactivate(): void {}

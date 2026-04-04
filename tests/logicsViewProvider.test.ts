@@ -15,6 +15,8 @@ const mocks = vi.hoisted(() => ({
   clipboardWriteText: vi.fn(),
   getCommands: vi.fn(),
   executeCommand: vi.fn(),
+  globalStateGet: vi.fn(),
+  globalStateUpdate: vi.fn(),
   workspaceStateGet: vi.fn(),
   workspaceStateUpdate: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
@@ -252,6 +254,9 @@ describe("LogicsViewProvider", () => {
 
   beforeEach(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-provider-"));
+    const globalStateStore = new Map<string, unknown>([
+      ["logics.onboardingLastVersion", "1.19.1"]
+    ]);
     mocks.showErrorMessage.mockReset();
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
@@ -260,6 +265,8 @@ describe("LogicsViewProvider", () => {
     mocks.clipboardWriteText.mockReset();
     mocks.getCommands.mockReset();
     mocks.executeCommand.mockReset();
+    mocks.globalStateGet.mockReset();
+    mocks.globalStateUpdate.mockReset();
     mocks.buildLogicsKitUpdateCommand.mockReset();
     mocks.inspectLogicsKitSubmodule.mockReset();
     mocks.runGitWithOutput.mockReset();
@@ -340,6 +347,14 @@ describe("LogicsViewProvider", () => {
       available: true,
       title: "Create the release tag, push, and publish the GitHub release"
     });
+    mocks.globalStateGet.mockImplementation((key: string) => globalStateStore.get(key));
+    mocks.globalStateUpdate.mockImplementation(async (key: string, value: unknown) => {
+      if (typeof value === "undefined") {
+        globalStateStore.delete(key);
+      } else {
+        globalStateStore.set(key, value);
+      }
+    });
     vi.mocked(inspectLogicsEnvironment).mockReset();
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue(defaultEnvironmentSnapshot(root) as never);
 
@@ -349,8 +364,8 @@ describe("LogicsViewProvider", () => {
         extensionPath: root,
         extension: { packageJSON: { version: "1.19.1" } },
         globalState: {
-          get: vi.fn().mockReturnValue("1.19.1"),
-          update: vi.fn()
+          get: mocks.globalStateGet,
+          update: mocks.globalStateUpdate
         },
         workspaceState: {
           get: mocks.workspaceStateGet,
@@ -1659,6 +1674,46 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
       "Global Codex kit still needs attention. No global Codex Logics kit is published yet. Opening this repository can publish it automatically."
     );
+  });
+
+  it("proactively offers Logics kit update on refresh when the canonical repo kit is below the minimum version", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    await provider.refresh();
+    await provider.refresh();
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Older Logics kit detected in this repository (v1.5.0). Update now to restore migration, repair, and environment convergence support.",
+      "Update Logics Kit",
+      "Check Environment",
+      "Not now"
+    );
+  });
+
+  it("runs Update Logics Kit directly from the startup remediation prompt", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    mocks.showInformationMessage.mockResolvedValue("Update Logics Kit");
+    const updateSpy = vi.spyOn((provider as any).codexWorkflowController, "updateLogicsKit").mockResolvedValue(true);
+
+    await provider.refresh();
+
+    expect(updateSpy).toHaveBeenCalledWith(root, "startup kit remediation");
   });
 
   describe("migration checks in Check Environment", () => {

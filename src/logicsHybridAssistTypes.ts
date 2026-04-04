@@ -4,6 +4,7 @@ export type HybridAssistPayload = UnknownRecord & {
   backend?: UnknownRecord;
   sources?: UnknownRecord;
   result?: UnknownRecord;
+  providers?: UnknownRecord;
   backend_used?: string;
   backend_requested?: string;
   result_status?: string;
@@ -67,6 +68,17 @@ export type HybridDocConsistencyResult = {
 export type HybridInsightsSources = {
   audit_log?: string;
   measurement_log?: string;
+};
+
+export type HybridRuntimeProviderStatus = {
+  name?: string;
+  healthy?: boolean;
+  enabled?: boolean;
+  credential_present?: boolean;
+  selected_backend?: string;
+  endpoint?: string;
+  model?: string;
+  reasons?: string[];
 };
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -233,4 +245,31 @@ export function parseHybridInsightsSources(payload: HybridAssistPayload): Hybrid
     audit_log: typeof sources.audit_log === "string" ? sources.audit_log : undefined,
     measurement_log: typeof sources.measurement_log === "string" ? sources.measurement_log : undefined
   };
+}
+
+export function parseHybridRuntimeProviders(
+  payload: HybridAssistPayload
+): Record<string, HybridRuntimeProviderStatus> {
+  const providers = isRecord(payload.providers) ? payload.providers : undefined;
+  if (!providers) {
+    return {};
+  }
+  const next: Record<string, HybridRuntimeProviderStatus> = {};
+  for (const [key, rawValue] of Object.entries(providers)) {
+    if (!isRecord(rawValue)) {
+      continue;
+    }
+    next[key] = {
+      name: typeof rawValue.name === "string" ? rawValue.name : undefined,
+      healthy: typeof rawValue.healthy === "boolean" ? rawValue.healthy : undefined,
+      enabled: typeof rawValue.enabled === "boolean" ? rawValue.enabled : undefined,
+      credential_present:
+        typeof rawValue.credential_present === "boolean" ? rawValue.credential_present : undefined,
+      selected_backend: typeof rawValue.selected_backend === "string" ? rawValue.selected_backend : undefined,
+      endpoint: typeof rawValue.endpoint === "string" ? rawValue.endpoint : undefined,
+      model: typeof rawValue.model === "string" ? rawValue.model : undefined,
+      reasons: isStringArray(rawValue.reasons) ? rawValue.reasons : undefined
+    };
+  }
+  return next;
 }

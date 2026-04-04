@@ -10,6 +10,7 @@ import {
   parseHybridDocConsistencyResult,
   parseHybridInsightsSources,
   parseHybridNextStepResult,
+  parseHybridRuntimeProviders,
   parseHybridTriageResult,
   parseHybridValidationChecklistResult,
   parseHybridValidationSummaryResult,
@@ -43,7 +44,24 @@ export class LogicsHybridAssistController {
     if (!payload) {
       return;
     }
-    const statusLabel = payload.degraded ? "Runtime is degraded." : "Runtime is ready.";
+    const providers = parseHybridRuntimeProviders(payload);
+    const readyProviders = Object.entries(providers)
+      .filter(([, provider]) => provider.enabled !== false && provider.healthy)
+      .map(([providerName]) => providerName);
+    const flaggedProviders = Object.entries(providers)
+      .filter(([, provider]) => provider.enabled !== false && provider.healthy !== true)
+      .map(([providerName, provider]) => {
+        const reasons = provider.reasons ?? [];
+        const detail = reasons.length > 0 ? reasons[0] : "not-ready";
+        return `${providerName} (${detail})`;
+      });
+    const statusLabel = [
+      payload.degraded ? "Runtime is degraded." : "Runtime is ready.",
+      readyProviders.length > 0 ? `Ready providers: ${readyProviders.join(", ")}.` : "",
+      flaggedProviders.length > 0 ? `Attention: ${flaggedProviders.slice(0, 3).join(" | ")}.` : ""
+    ]
+      .filter((value) => value.length > 0)
+      .join(" ");
     this.notifyHybridAssistCompletion("Check Hybrid Runtime", payload, statusLabel);
   }
 

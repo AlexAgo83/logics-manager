@@ -599,6 +599,22 @@ describe("LogicsViewProvider", () => {
         ok: true,
         degraded: true,
         degraded_reasons: ["ollama-unreachable"],
+        providers: {
+          ollama: {
+            enabled: true,
+            healthy: false,
+            reasons: ["ollama-unreachable"]
+          },
+          openai: {
+            enabled: true,
+            healthy: true
+          },
+          gemini: {
+            enabled: true,
+            healthy: false,
+            reasons: ["missing-credentials"]
+          }
+        },
         backend: {
           selected_backend: "codex"
         }
@@ -622,7 +638,7 @@ describe("LogicsViewProvider", () => {
       "json"
     ]);
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Check Hybrid Runtime completed via codex. Runtime is degraded. Degraded reasons: ollama-unreachable."
+      "Check Hybrid Runtime completed via codex. Runtime is degraded. Ready providers: openai. Attention: ollama (ollama-unreachable) | gemini (missing-credentials). Degraded reasons: ollama-unreachable."
     );
   });
 

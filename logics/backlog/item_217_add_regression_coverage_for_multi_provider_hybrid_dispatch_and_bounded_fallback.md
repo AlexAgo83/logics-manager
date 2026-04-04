@@ -1,10 +1,10 @@
 ## item_217_add_regression_coverage_for_multi_provider_hybrid_dispatch_and_bounded_fallback - Add regression coverage for multi-provider hybrid dispatch and bounded fallback
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 93%
-> Progress: 0%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist provider abstraction
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -65,3 +65,12 @@ flowchart LR
 # Notes
 - Derived from request `req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime`.
 - Tests should be additive — existing test file `test_logics_flow.py` is extended, not replaced.
+
+# Delivery report
+- 2026-04-04: Extended `logics/skills/tests/test_logics_flow.py` with explicit regression coverage for ordered remote-provider fallback and bounded semantic fallback after an invalid remote payload.
+- The new tests prove that `auto` routing can fall through from `openai` to `gemini` without breaking the shared contract, and that an invalid remote payload still falls back safely to Codex under the bounded `auto` policy.
+- Existing legacy-path coverage for `ollama`, `deterministic`, `codex-only`, missing credentials, and provider cooldowns remains in place, so the expanded suite now exercises the multi-provider matrix more directly instead of only the happy paths.
+
+# Validation report
+- `python3 -m unittest logics.skills.tests.test_logics_flow.LogicsFlowTest.test_assist_run_commit_message_auto_falls_through_openai_to_gemini logics.skills.tests.test_logics_flow.LogicsFlowTest.test_assist_run_commit_message_falls_back_after_invalid_openai_payload -v`
+- `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`

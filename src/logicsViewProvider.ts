@@ -685,9 +685,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     root: string
   ): Promise<(vscode.QuickPickItem & { action: () => Promise<void> }) | null> {
     const ARTIFACTS = [
-      "logics/hybrid_audit.jsonl",
-      "logics/hybrid_measurement.jsonl",
-      "logics/mutation_audit.jsonl"
+      "logics/hybrid_assist_audit.jsonl",
+      "logics/hybrid_assist_measurements.jsonl",
+      "logics/mutation_audit.jsonl",
+      "logics/.cache/hybrid_assist_audit.jsonl",
+      "logics/.cache/hybrid_assist_measurements.jsonl"
     ];
     const result = await runGitWithOutput(root, ["ls-files", "--", ...ARTIFACTS]);
     if (!result.stdout.trim()) {

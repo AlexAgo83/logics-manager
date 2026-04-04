@@ -424,5 +424,47 @@ describe("LogicsHybridAssistController — provider remediation", () => {
         "Prepare Release checked release readiness. v1.21.0 is ready to publish."
       );
     });
+
+    it("offers a visible bump-and-prepare path when the current version is already published", async () => {
+      ensureRuntimeEntry();
+      mocks.runPythonWithOutput
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: false,
+            changelog_status: {
+              tag: "v1.21.0",
+              next_tag: "v1.21.1",
+              already_published: true,
+              summary: "Curated changelog ready for v1.21.0. v1.21.0 is already tagged or published; bump to v1.21.1 before preparing another release."
+            },
+            backend_requested: "auto",
+            backend_used: "deterministic"
+          }),
+          stderr: ""
+        })
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: true,
+            changelog_status: { tag: "v1.21.1" },
+            backend_requested: "auto",
+            backend_used: "deterministic"
+          }),
+          stderr: ""
+        });
+      mocks.showWarningMessage.mockResolvedValueOnce("Bump to v1.21.1 and prepare");
+      mocks.showInformationMessage.mockResolvedValueOnce(undefined);
+
+      await controller.prepareReleaseFromTools();
+
+      expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+        "v1.21.0 is not ready: Curated changelog ready for v1.21.0. v1.21.0 is already tagged or published; bump to v1.21.1 before preparing another release.",
+        "Bump to v1.21.1 and prepare"
+      );
+      expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+        "Prepare Release completed. v1.21.1 is now ready to publish."
+      );
+    });
   });
 });

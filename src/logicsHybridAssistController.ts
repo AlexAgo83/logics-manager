@@ -446,17 +446,21 @@ export class LogicsHybridAssistController {
     }
     const result = parseHybridPrepareReleaseResult(payload);
     const tag = result?.changelog_status?.tag ?? "release";
+    const nextTag = result?.changelog_status?.next_tag;
     const summary = result?.changelog_status?.summary ?? "";
     const ready = result?.ready ?? false;
     if (ready) {
       this.notifyPrepareReleaseCompletion(payload, `${tag} is ready to publish.`, { readinessOnly: true });
       return;
     }
-    const choice = await vscode.window.showInformationMessage(
+    const alreadyPublished = Boolean(result?.changelog_status?.already_published);
+    const actionLabel = alreadyPublished && nextTag ? `Bump to ${nextTag} and prepare` : "Auto-Prepare";
+    const chooser = alreadyPublished ? vscode.window.showWarningMessage : vscode.window.showInformationMessage;
+    const choice = await chooser(
       `${tag} is not ready: ${summary}`,
-      "Auto-Prepare"
+      actionLabel
     );
-    if (choice === "Auto-Prepare") {
+    if (choice === actionLabel) {
       const executed = await this.runHybridAssistCommandWithOptions(
         root,
         ["prepare-release", "--execution-mode", "execute"],
@@ -467,9 +471,10 @@ export class LogicsHybridAssistController {
       }
       const execResult = parseHybridPrepareReleaseResult(executed);
       const nowReady = execResult?.ready ?? false;
+      const resolvedTag = execResult?.changelog_status?.tag ?? nextTag ?? tag;
       this.notifyPrepareReleaseCompletion(
         executed,
-        nowReady ? `${tag} is now ready to publish.` : "Preparation incomplete — check the output log."
+        nowReady ? `${resolvedTag} is now ready to publish.` : "Preparation incomplete — check the output log."
       );
       await this.options.refresh();
     }

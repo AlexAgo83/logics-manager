@@ -75,8 +75,11 @@ export type HybridPrepareReleaseResult = {
   changelog_status?: {
     exists?: boolean;
     tag?: string;
+    next_tag?: string;
     version?: string;
+    next_version?: string;
     summary?: string;
+    already_published?: boolean;
   };
   prep_steps?: string[];
   prep_errors?: string[];
@@ -302,8 +305,11 @@ export function parseHybridPrepareReleaseResult(payload: UnknownRecord): HybridP
     changelog_status: {
       exists: typeof changelog_status.exists === "boolean" ? changelog_status.exists : undefined,
       tag: typeof changelog_status.tag === "string" ? changelog_status.tag : undefined,
+      next_tag: typeof changelog_status.next_tag === "string" ? changelog_status.next_tag : undefined,
       version: typeof changelog_status.version === "string" ? changelog_status.version : undefined,
-      summary: typeof changelog_status.summary === "string" ? changelog_status.summary : undefined
+      next_version: typeof changelog_status.next_version === "string" ? changelog_status.next_version : undefined,
+      summary: typeof changelog_status.summary === "string" ? changelog_status.summary : undefined,
+      already_published: typeof changelog_status.already_published === "boolean" ? changelog_status.already_published : undefined
     },
     prep_steps: isStringArray(payload.prep_steps) ? payload.prep_steps : undefined,
     prep_errors: isStringArray(payload.prep_errors) ? payload.prep_errors : undefined

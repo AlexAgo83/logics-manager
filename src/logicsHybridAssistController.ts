@@ -123,7 +123,7 @@ export class LogicsHybridAssistController {
 
   private readEnvKeys(root: string): Set<string> {
     const keys = new Set<string>();
-    for (const file of [".env.local", ".env"]) {
+    for (const file of this.getRepositoryEnvFiles(root)) {
       const filePath = path.join(root, file);
       if (!fs.existsSync(filePath)) {
         continue;
@@ -152,21 +152,29 @@ export class LogicsHybridAssistController {
   }
 
   private detectEnvFile(root: string): string {
-    const localPath = path.join(root, ".env.local");
-    if (fs.existsSync(localPath)) {
-      try {
-        const localContent = fs.readFileSync(localPath, "utf-8");
-        const hasKey = Object.values(LogicsHybridAssistController.KNOWN_PROVIDERS).some((cfg) =>
-          localContent.includes(cfg.envKey)
-        );
-        if (hasKey) {
-          return ".env.local";
-        }
-      } catch {
-        // fall through
-      }
+    const envFiles = this.getRepositoryEnvFiles(root);
+    if (envFiles.length === 0) {
+      return ".env.local";
     }
-    return ".env";
+    return envFiles[0];
+  }
+
+  private getRepositoryEnvFiles(root: string): string[] {
+    try {
+      return fs.readdirSync(root, { withFileTypes: true })
+        .filter((entry) => entry.isFile() && entry.name.startsWith(".env"))
+        .map((entry) => entry.name)
+        .sort((left, right) => {
+          const leftPriority = left === ".env.local" ? 0 : left === ".env" ? 1 : 2;
+          const rightPriority = right === ".env.local" ? 0 : right === ".env" ? 1 : 2;
+          if (leftPriority !== rightPriority) {
+            return leftPriority - rightPriority;
+          }
+          return left.localeCompare(right);
+        });
+    } catch {
+      return [];
+    }
   }
 
   private detectRemediationPlan(root: string): ProviderRemediationPlan | null {

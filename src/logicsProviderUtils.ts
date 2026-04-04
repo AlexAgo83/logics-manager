@@ -236,9 +236,9 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
     missingPaths.push(".gitignore");
   }
 
-  const missingEnvKeys = getMissingBootstrapEnvKeys(root);
-  if (missingEnvKeys.length > 0) {
-    missingPaths.push(detectBootstrapEnvTarget(root));
+  const missingEnvTargets = detectBootstrapEnvTargets(root);
+  if (missingEnvTargets.length > 0) {
+    missingPaths.push(...missingEnvTargets);
   }
 
   if (missingPaths.length === 0) {
@@ -277,20 +277,50 @@ function getMissingBootstrapGitignoreEntries(root: string): string[] {
 }
 
 function getMissingBootstrapEnvKeys(root: string): string[] {
-  const presentKeys = new Set([
-    ...readBootstrapEnvKeys(path.join(root, ".env")),
-    ...readBootstrapEnvKeys(path.join(root, ".env.local"))
-  ]);
+  const presentKeys = new Set(
+    getBootstrapEnvFileNames(root).flatMap((fileName) => readBootstrapEnvKeys(path.join(root, fileName)))
+  );
   return REQUIRED_ENV_KEYS.filter((key) => !presentKeys.has(key));
 }
 
-function detectBootstrapEnvTarget(root: string): string {
-  const envPath = path.join(root, ".env");
-  const envLocalPath = path.join(root, ".env.local");
-  if (fs.existsSync(envLocalPath) || !fs.existsSync(envPath)) {
-    return ".env.local";
+function getBootstrapEnvFileNames(root: string): string[] {
+  try {
+    const entries = fs.readdirSync(root, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isFile() && entry.name.startsWith(".env"))
+      .map((entry) => entry.name)
+      .sort((left, right) => {
+        const leftPriority = bootstrapEnvFilePriority(left);
+        const rightPriority = bootstrapEnvFilePriority(right);
+        if (leftPriority !== rightPriority) {
+          return leftPriority - rightPriority;
+        }
+        return left.localeCompare(right);
+      });
+  } catch {
+    return [];
   }
-  return ".env";
+}
+
+function bootstrapEnvFilePriority(fileName: string): number {
+  if (fileName === ".env.local") {
+    return 0;
+  }
+  if (fileName === ".env") {
+    return 1;
+  }
+  return 2;
+}
+
+function detectBootstrapEnvTargets(root: string): string[] {
+  const envFiles = getBootstrapEnvFileNames(root);
+  if (envFiles.length === 0) {
+    return [".env.local"];
+  }
+  return envFiles.filter((fileName) => {
+    const presentKeys = new Set(readBootstrapEnvKeys(path.join(root, fileName)));
+    return REQUIRED_ENV_KEYS.some((key) => !presentKeys.has(key));
+  });
 }
 
 function readBootstrapEnvKeys(filePath: string): string[] {

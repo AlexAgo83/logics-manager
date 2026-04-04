@@ -203,6 +203,17 @@ describe("LogicsHybridAssistController — provider remediation", () => {
 
       expect(readYaml()).toContain("env_file: .env");
     });
+
+    it("uses the first available repo env file when only custom env files exist", async () => {
+      writeYaml("version: 1\n");
+      fs.writeFileSync(path.join(root, ".env.development"), "OPENAI_API_KEY=sk-test\n", "utf-8");
+      mocks.showInformationMessage.mockResolvedValue("Enable in logics.yaml");
+
+      const item = await controller.buildProviderRemediationQuickPickItem(root);
+      await item!.action();
+
+      expect(readYaml()).toContain("env_file: .env.development");
+    });
   });
 
   describe("applyRemediation — insert-provider mode", () => {
@@ -278,6 +289,15 @@ describe("LogicsHybridAssistController — provider remediation", () => {
 
       const item = await controller.buildProviderRemediationQuickPickItem(root);
       expect(item).toBeNull();
+    });
+
+    it("detects keys from any repo env file, not only .env and .env.local", async () => {
+      writeYaml("version: 1\n");
+      fs.writeFileSync(path.join(root, ".env.production"), "OPENAI_API_KEY=sk-test\n", "utf-8");
+
+      const item = await controller.buildProviderRemediationQuickPickItem(root);
+      expect(item).not.toBeNull();
+      expect(item!.label).toContain("openai");
     });
   });
 

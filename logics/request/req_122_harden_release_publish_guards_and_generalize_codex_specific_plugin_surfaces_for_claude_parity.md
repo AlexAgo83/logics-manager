@@ -1,9 +1,9 @@
 ## req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity - Harden release publish guards and generalize Codex specific plugin surfaces for Claude parity
-> From version: 1.21.0
+> From version: 1.21.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 92%
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: High
 > Theme: AI Runtime
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -53,7 +53,7 @@ Out of scope for this request:
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|harden-release-publish-guards-and-genera|prevent-the-plugin-from-exposing-publish|ac1-the-plugin-exposes-publish-release-o
+%% logics-signature: request|harden-release-publish-guards-and-genera|prevent-the-plugin-from-exposing-publish|ac1-the-plugin-exposes-publish-release
 flowchart TD
     Trigger[Plugin exposes shared assistant and release actions] --> GuardA[Guard GitHub-only release publish]
     Trigger --> GuardB[Require explicit consent for release branch maintenance]

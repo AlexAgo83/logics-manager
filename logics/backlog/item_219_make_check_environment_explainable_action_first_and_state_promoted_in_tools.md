@@ -1,9 +1,9 @@
 ## item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools - Make Check Environment explainable, action first, and state promoted in Tools
-> From version: 1.19.1
+> From version: 1.21.1
 > Schema version: 1.0
 > Status: Done
 > Understanding: 100%
-> Confidence: 98%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: UI
@@ -30,7 +30,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|make-check-environment-explainable-actio|req-123-make-check-environment-explainab|check-environment-already-exposes-useful|ac1-the-first-implementation-wave-stays
+%% logics-signature: backlog|make-check-environment-explainable-actio|req-112-restructure-the-tools-menu-infor|check-environment-already-exposes-useful|ac1-the-first-implementation-wave-stays
 flowchart LR
     Request[req_123 environment diagnostics clarity] --> Summary[Add clear summary and severity model]
     Summary --> Actions[Prioritize recommended actions]
@@ -49,6 +49,7 @@ flowchart LR
 # AC Traceability
 - req123-AC1/AC3/AC4/AC9 -> Scope: information hierarchy and first-wave QuickPick delivery. Proof: the rendered diagnostics surface starts with a visible summary and ordered sections for actions, status, and details.
 - req123-AC2/AC5/AC6/AC7/AC13 -> Scope: action-versus-info distinction, operator wording, and severity treatment. Proof: remediation rows are clearly clickable, passive rows are explanatory, and visible severity labels follow the requested model.
+- req123-AC14 -> Scope: preserve narrow-width and keyboard-friendly diagnostics interaction. Proof: the delivery stays inside the existing QuickPick and Tools-menu model, so operators keep the narrow-pane and keyboard selection behavior instead of being forced into a wider custom diagnostics surface.
 - req123-AC8/AC15 -> Scope: healthy-state copy and secondary detail affordance. Proof: healthy diagnostics use calm explicit wording and the surface still offers an opt-in deeper detail path.
 - req123-AC10/AC11/AC12/AC16 -> Scope: restrained `Recommended` promotion with regression protection. Proof: Tools-menu recommendation behavior changes with blocked or degraded state and remains subdued on healthy repositories.
 

@@ -1,9 +1,9 @@
 ## req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools - Make Check Environment explainable, action first, and state promoted in Tools
-> From version: 1.19.1
+> From version: 1.21.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -163,6 +163,10 @@ Out of scope:
 - Risk: if `Check Environment` is promoted too aggressively in `Recommended`, healthy repositories may feel noisy or falsely broken.
 - Risk: if the UI hides technical detail too deeply, advanced operators may lose access to the evidence behind the recommendation.
 - Risk: if action and status wording are generalized carelessly, users may not understand which fixes are safe, optional, or repository-mutating.
+
+# AC Traceability
+- AC1/AC2/AC3/AC4/AC5/AC6/AC7/AC8/AC9/AC10/AC11/AC12/AC13/AC15/AC16 -> `item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools`. Proof: the backlog item scopes the structured QuickPick hierarchy, action-vs-info distinction, severity model, restrained `Recommended` promotion, detailed-report affordance, and regression coverage for the shipped diagnostics contract.
+- AC14 -> `item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools`. Proof: the implementation stays inside the existing QuickPick and Tools-menu interaction model, which preserves narrow plugin widths and keyboard-driven selection flows without requiring a wider dedicated diagnostics view.
 
 # Companion docs
 - Product brief(s): `prod_002_plugin_hybrid_assist_runtime_visibility_and_action_ux`, `prod_003_plugin_tools_menu_and_activity_scanability`

@@ -1,10 +1,10 @@
 ## item_215_add_provider_readiness_gating_and_skip_semantics_for_unconfigured_or_unhealthy_backends - Add provider readiness gating and skip semantics for unconfigured or unhealthy backends
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 92%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist provider abstraction
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -66,3 +66,12 @@ flowchart LR
 - Derived from request `req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime`.
 - Default cooldown: 5 minutes, configurable via `logics.yaml` `providers.readiness_cooldown_seconds`.
 - Persistence in `logics/.cache/provider_health.json` aligns with item_211 AC16 (runtime state relocation).
+
+# Delivery report
+- 2026-04-04: Added persisted provider readiness state in `logics/.cache/provider_health.json`, with bounded cooldown handling for failed remote-provider probes and cache invalidation when the endpoint or model changes.
+- Remote providers now skip live probes during the active cooldown window, surface explicit skip reasons such as `openai-cooldown-active`, and still avoid network calls entirely when providers are disabled or missing credentials.
+- The readiness settings are now repo-configurable through `logics.yaml` via `hybrid_assist.provider_health_path` and `hybrid_assist.providers.readiness_cooldown_seconds`.
+
+# Validation report
+- `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`
+- Added regression coverage proving a failed remote probe persists cooldown state, writes `provider_health.json`, and skips a second probe on the next CLI invocation.

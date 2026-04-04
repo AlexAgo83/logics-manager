@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 62%
+> Progress: 75%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -192,3 +192,6 @@ flowchart LR
 - 2026-04-04: `item_214` completed as the second wave-2 checkpoint inside the `logics/skills` submodule and root repo. Added direct OpenAI and Gemini transports, `.env` credential loading, non-secret provider configuration in `logics.yaml`, expanded backend choices across the assist CLI, and exposed provider availability through `runtime-status`.
 - Validation checkpoint for `item_214`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after adding remote-provider execution coverage, runtime-status provider checks, and missing-credential failure tests.
 - Wave 2 remains in progress. Next active delivery subject is `item_215`.
+- 2026-04-04: `item_215` completed as the third wave-2 checkpoint. Added persisted provider-health cooldown state in `logics/.cache/provider_health.json`, skipped known-unhealthy remote providers during the cooldown window, and kept disabled or missing-credential providers off the live-probe path.
+- Validation checkpoint for `item_215`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after adding cooldown regression coverage that proves a second CLI invocation skips the failed provider without re-probing it.
+- Wave 2 is now complete. Next active delivery subject is `item_216`.

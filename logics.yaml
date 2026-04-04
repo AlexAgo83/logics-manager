@@ -11,7 +11,9 @@ index:
   path: logics/.cache/runtime_index.json
 hybrid_assist:
   env_file: .env
+  provider_health_path: logics/.cache/provider_health.json
   providers:
+    readiness_cooldown_seconds: 300
     openai:
       enabled: false
       base_url: https://api.openai.com/v1

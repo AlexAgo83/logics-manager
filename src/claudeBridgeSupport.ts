@@ -55,10 +55,10 @@ export function repairClaudeBridgeFiles(root: string): ClaudeBridgeRepairOutcome
     const agentContent = renderAgentBridge(variant, prompt);
 
     if (writeFileIfChanged(commandPath, commandContent)) {
-      writtenPaths.push(path.relative(root, commandPath));
+      writtenPaths.push(toPosixRelative(root, commandPath));
     }
     if (writeFileIfChanged(agentPath, agentContent)) {
-      writtenPaths.push(path.relative(root, agentPath));
+      writtenPaths.push(toPosixRelative(root, agentPath));
     }
   }
 
@@ -126,4 +126,8 @@ function writeFileIfChanged(targetPath: string, content: string): boolean {
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
   fs.writeFileSync(targetPath, content, "utf8");
   return true;
+}
+
+function toPosixRelative(root: string, targetPath: string): string {
+  return path.relative(root, targetPath).split(path.sep).join("/");
 }

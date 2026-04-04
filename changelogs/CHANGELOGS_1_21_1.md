@@ -2,44 +2,44 @@
 
 ## Major Highlights
 
-- `Publish Release` est maintenant gardé par une vraie détection GitHub et reste visible mais désactivé avec une raison explicite quand le repo n'est pas publiable.
-- `Check Environment` devient plus actionnable: résumé global, actions recommandées, statuts courants, détails techniques, et meilleure mise en avant dans `Recommended`.
-- Le plugin rattrape mieux les anciens repos Logics: proposition proactive de `Update Logics Kit`, réconciliation bootstrap repo-local, réparation des bridges Claude et meilleur traitement des `.env*`.
-- Le sous-module `logics/skills` est mis à jour vers `v1.9.1`.
+- `Publish Release` is now guarded by explicit GitHub capability checks and stays visible but disabled with a precise reason when the repository is not publishable.
+- `Check Environment` is now more actionable, with a global summary, recommended fixes, current status, technical details, and stronger `Recommended` promotion when the repository actually needs attention.
+- The plugin now handles older Logics repositories more gracefully with proactive `Update Logics Kit` guidance, repo-local bootstrap reconciliation, Claude bridge repair, and broader `.env*` remediation.
+- The bundled `logics/skills` submodule is updated to `v1.9.1`.
 
 ## Release Workflow Guards
 
-- Ajout d'une inspection GitHub explicite avant d'autoriser `Publish Release` dans l'UI.
-- `Publish Release` reste visible mais désactivé avec un message précis si le repo n'a pas de remote GitHub compatible ou si `gh` n'est pas disponible.
-- Ajout d'un consentement repo-local dans `logics.yaml` pour toute aide future de fast-forward sur la branche locale `release`.
-- Le wording de `Prepare Release` ne laisse plus croire qu'une IA a tourné quand seule la vérification déterministe de readiness a été exécutée.
-- Le plugin gère maintenant le cas où la version actuelle est déjà publiée: il propose un bump patch de la prochaine version au lieu de sembler ne rien faire.
+- Added explicit GitHub capability inspection before enabling `Publish Release` in the UI.
+- `Publish Release` now remains visible but disabled with a precise reason when the repository has no compatible GitHub remote or when `gh` is unavailable.
+- Added repo-local consent in `logics.yaml` for any future helper that fast-forwards the local `release` branch.
+- `Prepare Release` messaging no longer implies AI execution when only the deterministic readiness check ran.
+- The plugin now handles already-published versions by proposing the next patch version instead of appearing to do nothing.
 
 ## Environment And Migration UX
 
-- `Check Environment` a été restructuré en QuickPick action-first avec ordre explicite: `Summary`, `Recommended actions`, `Current status`, `Technical details`.
-- Les actions de remédiation sont maintenant formulées côté opérateur (`Fix now`, `Optional`) au lieu de lignes techniques ambiguës.
-- L'extension peut lancer un check silencieux à l'ouverture et proposer directement `Update Logics Kit` quand un vieux kit canonique est détecté.
-- Les repos canonically bootstrappés mais incomplets ne sont plus considérés comme automatiquement convergés.
-- La réconciliation bootstrap couvre désormais `logics.yaml`, `.gitignore`, les artefacts runtime et les placeholders d'environnement.
+- `Check Environment` has been reworked into an action-first QuickPick with explicit section ordering: `Summary`, `Recommended actions`, `Current status`, `Technical details`.
+- Remediation actions now use operator-facing wording (`Fix now`, `Optional`) instead of ambiguous technical labels.
+- The extension can perform a silent startup check and proactively suggest `Update Logics Kit` when it detects an older canonical kit.
+- Canonically bootstrapped but incomplete repositories are no longer treated as automatically converged.
+- Bootstrap reconciliation now covers `logics.yaml`, `.gitignore`, runtime artifacts, and environment placeholders.
 
 ## Claude Parity And Assistant-Neutral Wording
 
-- Les surfaces partagées plugin passent à un wording assistant-neutral au lieu d'un wording Codex-only quand le flux fonctionne aussi avec Claude.
-- Le context pack UI, les hints de session et plusieurs textes de guidage ont été renommés autour de `Assistant` / `AI assistant`.
-- `Repair Logics Kit` sait maintenant recréer les bridges Claude attendus (`.claude/commands/*`, `.claude/agents/*`) au lieu de ne réparer que le chemin Codex.
+- Shared plugin surfaces now use assistant-neutral wording instead of Codex-only wording when the same flow also works with Claude.
+- The context-pack UI, session hints, and several guidance strings now use `Assistant` / `AI assistant` wording.
+- `Repair Logics Kit` can now recreate the expected Claude bridge files (`.claude/commands/*`, `.claude/agents/*`) instead of only repairing the Codex path.
 
 ## Version And Runtime Reliability
 
-- Le plugin et le runtime vérifient maintenant l'alignement `package.json` / `VERSION`, et les scripts de changelog/release préfèrent `package.json` quand il existe.
-- `Prepare Release` et `Publish Release` bloquent désormais les versions déjà taggées/publiées au lieu de traiter une release déjà live comme prête.
-- Les placeholders API sont mis à jour dans tous les fichiers `.env*` trouvés à la racine du repo, avec création de `.env.local` seulement si aucun fichier env n'existe.
-- `.vscodeignore` exclut maintenant correctement les fichiers `.env*` du VSIX.
+- The plugin and runtime now verify `package.json` / `VERSION` alignment, and the changelog/release scripts prefer `package.json` when it exists.
+- `Prepare Release` and `Publish Release` now block already tagged or published versions instead of treating a live release as ready.
+- API key placeholders are now updated across every root-level `.env*` file, with `.env.local` created only when no env file exists.
+- `.vscodeignore` now excludes `.env*` files from the VSIX correctly.
 
 ## Bundled Kit Update
 
-- Mise à jour du sous-module `logics/skills` vers `v1.9.1`.
-- Le kit embarqué inclut le durcissement du flow de release, la détection des versions déjà publiées, la synchro des artefacts de version, et l'amélioration bootstrap sur tous les `.env*`.
+- Updated the bundled `logics/skills` submodule to `v1.9.1`.
+- The bundled kit includes hardened release flows, already-published version detection, version-artifact synchronization, and bootstrap improvements across all `.env*` files.
 
 ## Validation
 

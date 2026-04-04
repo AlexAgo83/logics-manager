@@ -9,3 +9,14 @@ mutations:
 index:
   enabled: true
   path: logics/.cache/runtime_index.json
+hybrid_assist:
+  env_file: .env
+  providers:
+    openai:
+      enabled: false
+      base_url: https://api.openai.com/v1
+      model: gpt-4.1-mini
+    gemini:
+      enabled: false
+      base_url: https://generativelanguage.googleapis.com/v1beta
+      model: gemini-2.0-flash

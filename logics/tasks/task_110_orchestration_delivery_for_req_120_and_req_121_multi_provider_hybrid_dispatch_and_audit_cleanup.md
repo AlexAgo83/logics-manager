@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 50%
+> Progress: 62%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -189,3 +189,6 @@ flowchart LR
 - 2026-04-04: `item_213` completed as the first wave-2 checkpoint inside the `logics/skills` submodule. Introduced shared provider registry, selection, and execution helpers; moved `_run_hybrid_assist(...)` onto those abstractions; and extended backend-policy metadata to expose ordered provider routing without changing the current `ollama-first`, `codex-only`, or `deterministic` behavior.
 - Validation checkpoint for `item_213`: ran `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v` successfully after adding direct policy-regression coverage for provider order and policy-violation handling.
 - Wave 2 is now in progress. Next active delivery subject is `item_214`.
+- 2026-04-04: `item_214` completed as the second wave-2 checkpoint inside the `logics/skills` submodule and root repo. Added direct OpenAI and Gemini transports, `.env` credential loading, non-secret provider configuration in `logics.yaml`, expanded backend choices across the assist CLI, and exposed provider availability through `runtime-status`.
+- Validation checkpoint for `item_214`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after adding remote-provider execution coverage, runtime-status provider checks, and missing-credential failure tests.
+- Wave 2 remains in progress. Next active delivery subject is `item_215`.

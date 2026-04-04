@@ -1,10 +1,10 @@
 ## item_214_add_openai_and_gemini_provider_transports_with_config_and_credential_handling - Add OpenAI and Gemini provider transports with config and credential handling
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 90%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -70,3 +70,12 @@ flowchart LR
 - API surface: chat/completions (OpenAI) and generateContent (Gemini) only. No function calling or structured output mode initially.
 - `.env` parser: minimal inline (10-15 lines, `KEY=VALUE` without interpolation), no `python-dotenv` dependency.
 - No streaming — synchronous request/response with post-response validation.
+
+# Delivery report
+- 2026-04-04: Added direct `openai` and `gemini` transport implementations behind the shared provider abstraction, including explicit backend selection, auto routing through the ordered provider policy, and shared contract validation for both remote paths.
+- Added minimal `.env` loading plus non-secret provider configuration through `logics.yaml`, keeping API keys out of repo config while exposing provider enablement, base URLs, and default models in a reviewable surface.
+- `runtime-status` now reports configured provider availability, and the CLI backend choices now include `openai` and `gemini` across the shared assist commands.
+
+# Validation report
+- `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`
+- Remote-provider regression coverage now includes explicit OpenAI and Gemini execution, `.env` credential loading, runtime-status provider visibility, and clear missing-credential failures.

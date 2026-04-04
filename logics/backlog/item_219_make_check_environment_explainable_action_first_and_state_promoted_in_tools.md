@@ -1,10 +1,10 @@
 ## item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools - Make Check Environment explainable, action first, and state promoted in Tools
 > From version: 1.19.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -93,3 +93,14 @@ flowchart LR
 - Derived from request `req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools`.
 - Source file: `logics/request/req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools.md`.
 - This item intentionally stays focused on environment diagnostics and recommendation behavior. Release guardrails and assistant wording parity are tracked separately by `item_218`.
+
+# Delivery report
+- 2026-04-04: Reworked `Check Environment` into an action-first QuickPick with explicit `Summary`, `Recommended actions`, `Current status`, and `Technical details` sections, plus a calm healthy-state summary and an `Open detailed diagnostic report` affordance.
+- Reworded remediation and status rows into operator-readable language, separated clickable fixes from passive diagnostics, and surfaced runtime, bootstrap, provider, Claude bridge, publish-release, and repo-local `release` consent states more clearly.
+- Promoted `Check Environment` into `Recommended` only when repository or runtime state warrants it, and disabled `Publish Release` in the Tools surface with a reason when GitHub publication is unavailable.
+
+# Validation report
+- `npm run lint:ts`
+- `npm test`
+- `npm run test:smoke`
+- Added regression coverage for structured environment diagnostics, state-driven `Recommended` promotion, disabled `Publish Release`, and updated webview/html snapshots.

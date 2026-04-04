@@ -807,7 +807,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with the globally published Logics kit");
     expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude in this repository");
-    expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
+    expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(
       Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))
@@ -1013,16 +1013,16 @@ describe("webview harness filters, details, and docs", () => {
     );
     previewButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(detailsBody?.textContent).toContain("# Codex Context Pack");
+    expect(detailsBody?.textContent).toContain("# Assistant Context Pack");
 
     const injectButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
-      button.textContent?.includes("Copy for Codex")
+      button.textContent?.includes("Copy for assistant")
     );
     injectButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(
       postedMessages.some(
-        (message) => message.type === "inject-prompt" && String(message.prompt || "").includes("# Codex Context Pack")
+        (message) => message.type === "inject-prompt" && String(message.prompt || "").includes("# Assistant Context Pack")
       )
     ).toBe(true);
 
@@ -1069,7 +1069,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(detailsBody?.textContent).toContain("Summary");
 
     const freshThreadButton = Array.from(detailsBody?.querySelectorAll("button") || []).find((button) =>
-      button.textContent?.includes("Copy for new Codex thread")
+      button.textContent?.includes("Copy for new assistant session")
     );
     freshThreadButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
@@ -1079,7 +1079,7 @@ describe("webview harness filters, details, and docs", () => {
           message.type === "inject-prompt" &&
           message.options &&
           message.options.preferNewThread === true &&
-          String(message.prompt || "").includes("# Codex Context Pack")
+          String(message.prompt || "").includes("# Assistant Context Pack")
       )
     ).toBe(true);
   });

@@ -1,7 +1,7 @@
 ## req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity - Harden release publish guards and generalize Codex specific plugin surfaces for Claude parity
 > From version: 1.21.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 92%
 > Complexity: High
@@ -162,3 +162,4 @@ Out of scope:
 
 # Backlog
 - `item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity`
+- `task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity`

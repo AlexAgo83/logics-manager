@@ -32,7 +32,8 @@ const mocks = vi.hoisted(() => ({
   publishCodexWorkspaceOverlay: vi.fn(),
   shouldPublishRepoKit: vi.fn(),
   detectClaudeBridgeStatus: vi.fn(),
-  inspectRuntimeLaunchers: vi.fn()
+  inspectRuntimeLaunchers: vi.fn(),
+  inspectGitHubReleaseCapability: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -60,6 +61,9 @@ vi.mock("vscode", () => ({
   },
   ProgressLocation: {
     Notification: 15
+  },
+  QuickPickItemKind: {
+    Separator: -1
   },
   commands: {
     getCommands: mocks.getCommands,
@@ -114,6 +118,10 @@ vi.mock("../src/logicsCodexWorkspace", () => ({
 
 vi.mock("../src/runtimeLaunchers", () => ({
   inspectRuntimeLaunchers: mocks.inspectRuntimeLaunchers
+}));
+
+vi.mock("../src/releasePublishSupport", () => ({
+  inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
 }));
 
 vi.mock("../src/logicsEnvironment", () => ({
@@ -270,6 +278,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReset();
     mocks.detectClaudeBridgeStatus.mockReset();
     mocks.inspectRuntimeLaunchers.mockReset();
+    mocks.inspectGitHubReleaseCapability.mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
       preferredVariant: "hybrid-assist",
@@ -326,6 +335,10 @@ describe("LogicsViewProvider", () => {
         title: "Launch Claude in this repository",
         command: "claude"
       }
+    });
+    mocks.inspectGitHubReleaseCapability.mockResolvedValue({
+      available: true,
+      title: "Create the release tag, push, and publish the GitHub release"
     });
     vi.mocked(inspectLogicsEnvironment).mockReset();
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue(defaultEnvironmentSnapshot(root) as never);
@@ -665,11 +678,13 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showQuickPick).toHaveBeenCalledTimes(1);
     const [items, options] = mocks.showQuickPick.mock.calls[0];
     expect(options.title).toBe("Logics: Check Environment");
-    expect(items.some((item: { label: string }) => item.label.includes("Workflow actions: Unavailable"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Partial bootstrap"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Environment: Blocked"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Workflow editing: Blocked"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Workflow folders: Incomplete but recoverable"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Global Codex kit: Needs attention"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Hybrid assist runtime: Degraded"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("AI assistant runtime: Degraded"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex launch command"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Open detailed diagnostic report"))).toBe(true);
   });
 
   it("can surface hybrid runtime status through the shared assist command", async () => {
@@ -849,7 +864,7 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.clipboardWriteText).toHaveBeenCalledWith("Draft this request");
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Prompt copied to clipboard. Open a new Codex thread, then paste it into the composer."
+      "Prompt copied to clipboard. Open a new assistant session, then paste it."
     );
     expect(mocks.executeCommand).not.toHaveBeenCalled();
   });
@@ -1215,7 +1230,7 @@ describe("LogicsViewProvider", () => {
         }
       } as never);
     mocks.showQuickPick.mockImplementationOnce(async (items) =>
-      items.find((item: { label: string }) => item.label === "Run: Publish Global Codex Kit")
+      items.find((item: { label: string }) => item.label === "Fix now: Publish Global Codex Kit")
     );
     mocks.showInformationMessage.mockResolvedValue(undefined);
 
@@ -1440,7 +1455,7 @@ describe("LogicsViewProvider", () => {
         }
       } as never);
     mocks.showQuickPick.mockImplementationOnce(async (items) =>
-      items.find((item: { label: string }) => item.label === "Run: Update Logics Kit")
+      items.find((item: { label: string }) => item.label === "Fix now: Update Logics Kit")
     );
     mocks.runGitWithOutput
       .mockResolvedValueOnce({ stdout: "", stderr: "" }) // ls-files (gitignore check)
@@ -1688,7 +1703,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("missing logics.yaml blocks") && i.label.includes("mutations") && i.label.includes("index"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Fix now: Complete logics.yaml") && i.label.includes("mutations") && i.label.includes("index"))).toBe(true);
     });
 
     it("surfaces a bootstrap reconciliation action when canonical bootstrap still needs convergence", async () => {
@@ -1710,7 +1725,7 @@ describe("LogicsViewProvider", () => {
     it("appends missing blocks to logics.yaml when action is triggered", async () => {
       writeYaml("version: 1\n");
       mocks.showQuickPick.mockImplementationOnce(async (items: Array<{ label: string; action?: () => Promise<void> }>) =>
-        items.find((i) => i.label.includes("missing logics.yaml blocks"))
+        items.find((i) => i.label.includes("Fix now: Complete logics.yaml"))
       );
 
       await provider.checkEnvironmentFromCommand();
@@ -1728,7 +1743,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("missing logics.yaml blocks"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Fix now: Complete logics.yaml"))).toBe(false);
     });
 
     it("surfaces a gitignore action when hybrid runtime artifacts are tracked", async () => {
@@ -1742,7 +1757,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Optional: Ignore generated runtime artifacts"))).toBe(true);
     });
 
     it("patches .gitignore when gitignore action is triggered", async () => {
@@ -1753,7 +1768,7 @@ describe("LogicsViewProvider", () => {
         return { stdout: "", stderr: "" };
       });
       mocks.showQuickPick.mockImplementationOnce(async (items: Array<{ label: string; action?: () => Promise<void> }>) =>
-        items.find((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))
+        items.find((i) => i.label.includes("Optional: Ignore generated runtime artifacts"))
       );
 
       await provider.checkEnvironmentFromCommand();
@@ -1769,7 +1784,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Optional: Ignore generated runtime artifacts"))).toBe(false);
     });
 
     it("surfaces a warning when .env.local is absent and hybrid providers are configured", async () => {
@@ -1780,7 +1795,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes(".env.local is missing"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Fix now: Generate .env.local placeholders"))).toBe(true);
     });
 
     it("does not surface .env.local warning when file already exists", async () => {
@@ -1792,7 +1807,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes(".env.local is missing"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Fix now: Generate .env.local placeholders"))).toBe(false);
     });
 
     it("surfaces a Logics kit repair action when bridge files are missing", async () => {

@@ -51,11 +51,11 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
               <div data-tools-section="recommended">
                 <div>Recommended</div>
                 <div data-tools-body="recommended">
-                  <button class="tools-panel__item" data-action="new-request-guided" title="Start a guided new request in Codex"></button>
+                  <button class="tools-panel__item" data-action="new-request-guided" title="Start a guided new request"></button>
                   <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next step"></button>
                   <button class="tools-panel__item" data-action="assist-triage" title="Turn a rough idea into a structured request"></button>
                   <button class="tools-panel__item" data-action="bootstrap-logics" title="Bootstrap Logics in this repository"></button>
-                  <button class="tools-panel__item" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
+                  <button class="tools-panel__item" data-action="check-environment" title="Review environment health and recommended fixes">Check Environment</button>
                 </div>
               </div>
               <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">
@@ -73,6 +73,8 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                     <button class="tools-panel__item" data-action="assist-commit-all"></button>
                     <button class="tools-panel__item" data-action="assist-diff-risk"></button>
                     <button class="tools-panel__item" data-action="assist-summarize-changelog"></button>
+                    <button class="tools-panel__item" data-action="assist-prepare-release"></button>
+                    <button class="tools-panel__item" data-action="assist-publish-release"></button>
                     <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
                     <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
                     <button class="tools-panel__item" data-action="assist-doc-consistency"></button>
@@ -344,6 +346,9 @@ export function pushData(
     canResetProjectRoot?: boolean;
     canBootstrapLogics?: boolean;
     bootstrapLogicsTitle?: string;
+    canPublishRelease?: boolean;
+    publishReleaseTitle?: string;
+    shouldRecommendCheckEnvironment?: boolean;
     changedPaths?: string[];
     activeAgent?: Record<string, unknown> | null;
     items: Array<Record<string, unknown>>;

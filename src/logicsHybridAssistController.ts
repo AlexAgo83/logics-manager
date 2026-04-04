@@ -17,11 +17,18 @@ import {
   parseHybridTriageResult,
   parseHybridValidationChecklistResult,
   parseHybridValidationSummaryResult,
-  type HybridAssistPayload
+  type HybridAssistPayload,
+  type HybridPublishReleaseResult
 } from "./logicsHybridAssistTypes";
 import { LogicsItem } from "./logicsIndexer";
 import { runPythonWithOutput } from "./logicsProviderUtils";
 import { assertNever, parseHybridInsightsPanelMessage } from "./logicsViewMessages";
+import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
+import {
+  grantReleaseBranchFastForwardConsent,
+  inspectReleaseBranchFastForwardConsent
+} from "./releaseBranchConsent";
+import { runGitCommand } from "./gitRuntime";
 
 type HybridAssistControllerOptions = {
   context: vscode.ExtensionContext;
@@ -99,8 +106,8 @@ export class LogicsHybridAssistController {
     const names = plan.providers.map((p) => p.name).join(", ");
     const verb = plan.mode === "append-block" ? "Enable" : "Add";
     return {
-      label: `Run: ${verb} ${names} provider(s) in logics.yaml`,
-      description: `API key(s) found for ${names} but not configured in logics.yaml.`,
+      label: `Fix now: ${verb} ${names} provider(s) in logics.yaml`,
+      description: `API key(s) found for ${names}, but hybrid assist cannot use them until logics.yaml is updated.`,
       action: async () => {
         try {
           this.applyRemediation(plan);
@@ -471,6 +478,11 @@ export class LogicsHybridAssistController {
     if (!root) {
       return;
     }
+    const capability = await inspectGitHubReleaseCapability(root);
+    if (!capability.available) {
+      void vscode.window.showWarningMessage(capability.title);
+      return;
+    }
     const payload = await this.runHybridAssistCommandWithOptions(root, ["publish-release"], {
       actionLabel: "Publish Release"
     });
@@ -492,13 +504,48 @@ export class LogicsHybridAssistController {
             ? `Branch '${result.release_branch.name}' is behind '${result.release_branch.current_branch}'. Consider updating it before publishing.`
             : "The release branch is not up to date. Consider updating it before publishing.")
         : undefined;
+    const canFastForwardReleaseBranch =
+      result?.release_branch?.exists &&
+      result.release_branch.needs_update &&
+      result.release_branch.can_fast_forward &&
+      typeof result.release_branch.name === "string" &&
+      typeof result.release_branch.current_branch === "string";
+    const releaseConsent = canFastForwardReleaseBranch
+      ? inspectReleaseBranchFastForwardConsent(root)
+      : null;
+    const updateAndPublishLabel =
+      canFastForwardReleaseBranch && releaseConsent?.allowed
+        ? "Update release branch and publish"
+        : canFastForwardReleaseBranch
+          ? "Allow and update release branch"
+          : undefined;
     const choice = await vscode.window.showInformationMessage(
       releaseBranchSuggestion
-        ? `${tag} is ready. ${releaseBranchSuggestion} Create tag, push, and publish the GitHub release anyway?`
+        ? canFastForwardReleaseBranch && !releaseConsent?.allowed
+          ? `${tag} is ready. ${releaseBranchSuggestion} Automatic release-branch update stays disabled until repo-local consent is granted in logics.yaml. You can still publish now or allow the non-destructive fast-forward helper for this repository.`
+          : `${tag} is ready. ${releaseBranchSuggestion} Create tag, push, and publish the GitHub release anyway?`
         : `${tag} is ready. Create tag, push, and publish the GitHub release?`,
+      ...(updateAndPublishLabel ? [updateAndPublishLabel] : []),
       "Publish"
     );
-    if (choice === "Publish") {
+    let shouldPublish = choice === "Publish";
+    if (choice === updateAndPublishLabel && canFastForwardReleaseBranch && result?.release_branch) {
+      if (!releaseConsent?.allowed) {
+        try {
+          grantReleaseBranchFastForwardConsent(root);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          void vscode.window.showErrorMessage(`Failed to persist release-branch consent in logics.yaml: ${message}`);
+          return;
+        }
+      }
+      const fastForwarded = await this.fastForwardReleaseBranch(root, result.release_branch);
+      if (!fastForwarded) {
+        return;
+      }
+      shouldPublish = true;
+    }
+    if (shouldPublish) {
       const executed = await this.runHybridAssistCommandWithOptions(
         root,
         ["publish-release", "--execution-mode", "execute", "--push"],
@@ -516,6 +563,55 @@ export class LogicsHybridAssistController {
       );
       await this.options.refresh();
     }
+  }
+
+  private async fastForwardReleaseBranch(
+    root: string,
+    releaseBranch: NonNullable<HybridPublishReleaseResult["release_branch"]>
+  ): Promise<boolean> {
+    const releaseName = releaseBranch.name?.trim();
+    const sourceBranch = releaseBranch.current_branch?.trim();
+    if (!releaseName || !sourceBranch) {
+      void vscode.window.showWarningMessage(
+        "Release branch fast-forward could not start because the release or source branch is missing from the runtime payload."
+      );
+      return false;
+    }
+
+    const switchToRelease = await runGitCommand(root, ["switch", releaseName]);
+    if (switchToRelease.error) {
+      void vscode.window.showErrorMessage(
+        `Failed to switch to '${releaseName}' before publish: ${switchToRelease.stderr || switchToRelease.error.message}`
+      );
+      return false;
+    }
+
+    const mergeResult = await runGitCommand(root, ["merge", "--ff-only", sourceBranch]);
+    if (mergeResult.error) {
+      await runGitCommand(root, ["switch", sourceBranch]);
+      void vscode.window.showErrorMessage(
+        `Failed to fast-forward '${releaseName}' from '${sourceBranch}': ${mergeResult.stderr || mergeResult.error.message}`
+      );
+      return false;
+    }
+
+    const switchBack = await runGitCommand(root, ["switch", sourceBranch]);
+    if (switchBack.error) {
+      void vscode.window.showErrorMessage(
+        `Release branch updated, but switching back to '${sourceBranch}' failed: ${switchBack.stderr || switchBack.error.message}`
+      );
+      return false;
+    }
+
+    const pushResult = await runGitCommand(root, ["push", "origin", releaseName]);
+    if (pushResult.error) {
+      void vscode.window.showErrorMessage(
+        `Release branch fast-forward succeeded locally, but push failed: ${pushResult.stderr || pushResult.error.message}`
+      );
+      return false;
+    }
+
+    return true;
   }
 
   async buildValidationChecklistFromTools(): Promise<void> {

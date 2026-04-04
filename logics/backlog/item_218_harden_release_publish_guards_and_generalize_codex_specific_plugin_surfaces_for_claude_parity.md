@@ -1,10 +1,10 @@
 ## item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity - Harden release publish guards and generalize Codex specific plugin surfaces for Claude parity
 > From version: 1.21.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 92%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: AI Runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -98,3 +98,14 @@ flowchart LR
 - Derived from request `req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity`.
 - Source file: `logics/request/req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity.md`.
 - Keep this backlog item as one bounded delivery slice. The environment-diagnostics UX follow-on is intentionally tracked separately by `item_219`.
+
+# Delivery report
+- 2026-04-04: Added explicit GitHub release capability inspection in the plugin so `Publish Release` stays visible but becomes disabled with a precise reason when the repository is not a valid GitHub + `gh` execution target.
+- Added a repository-local consent contract for future non-destructive `release` fast-forward automation through `logics.yaml` (`release.maintenance.allow_fast_forward_local_release_branch: true`) and wired `Publish Release` so the plugin only auto-updates `release` after that consent is granted.
+- Neutralized shared plugin wording from Codex-only phrasing to assistant-neutral phrasing across guided request copy, context-pack labels, session hints, and prompt-routing surfaces while keeping explicit Codex and Claude labels on assistant-specific actions.
+
+# Validation report
+- `npm run lint:ts`
+- `npm test`
+- `npm run test:smoke`
+- Added targeted regression coverage for GitHub release capability detection, repo-local release-branch consent persistence, guarded fast-forward before publish, and assistant-neutral shared-surface wording.

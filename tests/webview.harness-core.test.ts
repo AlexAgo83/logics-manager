@@ -67,6 +67,36 @@ describe("webview harness core behaviors", () => {
     expect(recommendedActions).toEqual(["bootstrap-logics", "check-environment", "change-project-root"]);
   });
 
+  it("promotes Check Environment into recommended when the payload marks it as state-relevant", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      shouldRecommendCheckEnvironment: true,
+      items: [baseItem]
+    });
+
+    const recommendedActions = Array.from(
+      dom.window.document.querySelectorAll('[data-tools-body="recommended"] [data-action]')
+    ).map((element) => element.getAttribute("data-action"));
+    expect(recommendedActions).toEqual(["check-environment", "change-project-root"]);
+  });
+
+  it("disables Publish Release when the host marks GitHub release publication unavailable", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      canPublishRelease: false,
+      publishReleaseTitle: "Publish Release requires GitHub CLI (`gh`) on PATH.",
+      items: [baseItem]
+    });
+
+    const publishButton = dom.window.document.querySelector('[data-action="assist-publish-release"]') as HTMLButtonElement | null;
+    expect(publishButton?.disabled).toBe(true);
+    expect(publishButton?.title).toBe("Publish Release requires GitHub CLI (`gh`) on PATH.");
+  });
+
   it("switches the tools panel between workflow and system views", () => {
     const { dom } = bootstrapWebview({ harness: true });
 

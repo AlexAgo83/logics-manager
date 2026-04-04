@@ -142,7 +142,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Review environment health and recommended fixes">Check Environment</button>
               </div>
             </div>
             <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">

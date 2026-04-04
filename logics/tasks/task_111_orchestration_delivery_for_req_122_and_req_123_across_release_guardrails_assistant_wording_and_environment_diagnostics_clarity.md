@@ -1,10 +1,10 @@
 ## task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity - Orchestration delivery for req_122 and req_123 across release guardrails assistant wording and environment diagnostics clarity
 > From version: 1.21.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 99%
+> Progress: 100%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -42,14 +42,14 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm cross-item ordering, request coverage, and the rule that `item_218` lands before `item_219`.
-- [ ] 2. Wave 1: deliver `item_218`, covering GitHub publish gating, release-branch consent modeling, and assistant-neutral shared-surface wording.
-- [ ] 3. Wave 2: deliver `item_219`, covering `Check Environment` hierarchy, severity treatment, recommendation behavior, and detail affordances.
-- [ ] 4. Wave 3: close any integration-level docs, UI naming, and regression follow-through needed after both backlog items are in place.
-- [ ] 5. Rerun the relevant validation suite, update linked requests, backlog items, and this task, and leave the repo in a final commit-ready state.
-- [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm cross-item ordering, request coverage, and the rule that `item_218` lands before `item_219`.
+- [x] 2. Wave 1: deliver `item_218`, covering GitHub publish gating, release-branch consent modeling, and assistant-neutral shared-surface wording.
+- [x] 3. Wave 2: deliver `item_219`, covering `Check Environment` hierarchy, severity treatment, recommendation behavior, and detail affordances.
+- [x] 4. Wave 3: close any integration-level docs, UI naming, and regression follow-through needed after both backlog items are in place.
+- [x] 5. Rerun the relevant validation suite, update linked requests, backlog items, and this task, and leave the repo in a final commit-ready state.
+- [x] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -103,11 +103,17 @@ flowchart LR
 - Manual: confirm each wave leaves a commit-ready checkpoint scoped to one backlog item only.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- 2026-04-04: `item_218` completed as the first delivery wave. Added explicit GitHub publish gating, made `Publish Release` visible-disabled with a concrete reason on non-GitHub repos, introduced repo-local consent for non-destructive local `release` fast-forward automation in `logics.yaml`, and neutralized shared plugin wording so assistant-agnostic surfaces no longer sound Codex-only.
+- Validation checkpoint for `item_218`: added targeted tests for GitHub release capability inspection, repo-local release consent persistence, guarded release-branch fast-forward before publish, and assistant-neutral wording updates across the plugin and webview surfaces.
+- 2026-04-04: `item_219` completed as the second delivery wave. Reworked `Check Environment` into a structured QuickPick with `Summary`, `Recommended actions`, `Current status`, and `Technical details`, added `Open detailed diagnostic report`, exposed release-consent state, and promoted `Check Environment` into `Recommended` only when state actually warrants it.
+- Validation checkpoint for `item_219`: expanded `LogicsViewProvider`, webview harness, and HTML snapshot coverage for action-first diagnostics ordering, disabled publish-release behavior, and `Recommended` promotion rules.
+- 2026-04-04: Wave 3 integration closure finished the remaining cross-surface follow-through. Added a dedicated `Logics Environment` output channel, kept the Tools surface and diagnostics labels aligned, and tightened `.vscodeignore` so smoke packaging no longer leaks `.env*` files into the VSIX.
+- Final validation rerun completed successfully with `npm run lint:ts`, `npm test`, and `npm run test:smoke`. The repository is in a commit-ready state with linked request, backlog, and task docs synchronized to the delivered behavior.

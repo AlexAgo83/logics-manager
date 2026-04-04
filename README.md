@@ -199,6 +199,7 @@ Contract:
 - `Logics: Open Item`
 - `Logics: Promote Item`
 - `Logics: New Request`
+- `Logics: Create Companion Doc`
 - `Logics: Check Environment`
 - `Logics: Open Hybrid Insights`
 - `Logics: Triage Item`
@@ -208,29 +209,33 @@ Contract:
 
 ## Tools Menu
 
+- The Tools menu is split into `Workflow` and `System` views, with a `Recommended` section surfaced first for common day-to-day actions.
 - `Select Agent` picks the active Logics agent and prepares Codex chat context.
+- `Getting Started` opens the onboarding guide inside the extension.
+- `Companion Doc` creates a linked product brief or ADR from the current workflow context when the kit supports it.
 - `New Request` opens a guided Codex drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
 - `Update Logics Kit` runs the supported submodule update flow when the repository uses the canonical `logics/skills` kit submodule and Git state is safe for automation.
 - `Publish Global Codex Kit` publishes or repairs the shared global Logics kit in `~/.codex` from the current canonical repo-local source when needed.
-- `Check Environment` summarizes repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
-- `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
-- `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
+- `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
+- `Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
+- `Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global-kit state still requires an explicit refresh because it lives outside the workspace.
+- `Launch Codex` starts Codex using the globally published Logics kit when the shared runtime is healthy.
 - `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
 - `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
 - `Triage Item` classifies a selected request, backlog item, or task through the shared hybrid runtime and keeps backend provenance visible in the completion notification.
 - `Assess Diff Risk` runs the shared `diff-risk` flow directly from the plugin so the current change surface can stay local-first when policy allows it.
-- `Summarize Validation` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
+- `Validation Summary` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
 - `Validation Checklist` asks the shared runtime for a bounded validation checklist derived from the current diff surface.
 - `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
 - On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
 - Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
 - Bootstrap completion messaging now distinguishes repo-local kit readiness from global Codex kit readiness.
-- `Change Project Root` / `Use Workspace Root` control which repository root the extension operates on.
+- `Change Project Root` / `Reset Project Root` control which repository root the extension operates on.
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.

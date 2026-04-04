@@ -167,7 +167,6 @@ Out of scope:
 # Companion docs
 - Product brief(s): `prod_002_plugin_hybrid_assist_runtime_visibility_and_action_ux`, `prod_003_plugin_tools_menu_and_activity_scanability`
 - Architecture decision(s): `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`
-
 # AI Context
 - Summary: Redesign `Check Environment` so operators immediately understand overall health, recommended next actions, current status, and optional technical details, while also promoting the action more clearly in the Tools `Recommended` section when the current state warrants it.
 - Keywords: check environment, environment diagnostics, quick pick, recommended actions, tools menu, summary state, remediation, plugin UX, diagnostics clarity, recommended section
@@ -188,4 +187,4 @@ Out of scope:
 - `logics/backlog/item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`
 
 # Backlog
-- (none yet)
+- `item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools`

@@ -137,7 +137,6 @@ Out of scope:
 # Companion docs
 - Product brief(s): `prod_002_plugin_hybrid_assist_runtime_visibility_and_action_ux`
 - Architecture decision(s): `adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands`
-
 # AI Context
 - Summary: Gate GitHub-only release publication correctly in the plugin, define explicit consent before any direct `release` branch maintenance helper can run, close remaining Claude parity gaps on shared plugin surfaces beyond launcher and bridge support, and replace Codex-biased wording where the underlying flow is actually assistant-agnostic.
 - Keywords: plugin, release publish, GitHub, gh, release branch, consent, claude parity, codex wording, assistant neutral wording, context pack, guided request, UX contract
@@ -162,4 +161,4 @@ Out of scope:
 - `logics/request/req_103_separate_optional_claude_bridge_status_from_hybrid_runtime_degradation_and_expand_ollama_first_dispatch_across_supported_flows.md`
 
 # Backlog
-- (none yet)
+- `item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity`

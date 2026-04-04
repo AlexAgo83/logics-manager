@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { parseDocument } from "yaml";
 
 const mocks = vi.hoisted(() => ({
   showErrorMessage: vi.fn(),
@@ -219,6 +220,36 @@ describe("LogicsHybridAssistController — provider remediation", () => {
       expect(content).toContain("openai:");
       expect(content).toContain("gemini:");
       expect(content).toContain("gpt-4.1-mini");
+    });
+
+    it("creates a providers block when hybrid_assist exists without one", async () => {
+      writeYaml(
+        "version: 1\nhybrid_assist:\n  audit_log: logics/.cache/hybrid_assist_audit.jsonl\n  measurement_log: logics/.cache/hybrid_assist_measurements.jsonl\n"
+      );
+      writeEnvLocal("OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=ai-test\n");
+
+      const item = await controller.buildProviderRemediationQuickPickItem(root);
+      await item!.action();
+
+      const content = readYaml();
+      const parsed = parseDocument(content).toJS() as {
+        hybrid_assist?: {
+          env_file?: string;
+          provider_health_path?: string;
+          providers?: {
+            readiness_cooldown_seconds?: number;
+            openai?: { enabled?: boolean; model?: string };
+            gemini?: { enabled?: boolean; model?: string };
+          };
+        };
+      };
+
+      expect(parsed.hybrid_assist?.env_file).toBe(".env.local");
+      expect(parsed.hybrid_assist?.provider_health_path).toBe("logics/.cache/provider_health.json");
+      expect(parsed.hybrid_assist?.providers?.readiness_cooldown_seconds).toBe(300);
+      expect(parsed.hybrid_assist?.providers?.openai?.enabled).toBe(true);
+      expect(parsed.hybrid_assist?.providers?.gemini?.enabled).toBe(true);
+      expect(content).not.toContain("measurement_log: logics/.cache/hybrid_assist_measurements.jsonl\n    openai:");
     });
   });
 

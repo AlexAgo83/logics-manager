@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { parseDocument, stringify } from "yaml";
 import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import {
   parseHybridChangelogSummaryResult,
@@ -211,50 +212,44 @@ export class LogicsHybridAssistController {
   }
 
   private applyRemediation(plan: ProviderRemediationPlan): void {
-    const providerLines = plan.providers
-      .map(
-        (p) =>
-          `    ${p.name}:\n` +
-          `      enabled: true\n` +
-          `      base_url: ${p.baseUrl}\n` +
-          `      model: ${p.model}`
-      )
-      .join("\n");
-
-    let newContent: string;
-    if (plan.mode === "append-block") {
-      const separator = plan.yamlContent.endsWith("\n") ? "" : "\n";
-      newContent =
-        plan.yamlContent +
-        separator +
-        `hybrid_assist:\n` +
-        `  env_file: ${plan.envFile}\n` +
-        `  provider_health_path: logics/.cache/provider_health.json\n` +
-        `  providers:\n` +
-        `    readiness_cooldown_seconds: 300\n` +
-        providerLines +
-        "\n";
-    } else {
-      const insertMarker = "    readiness_cooldown_seconds:";
-      const markerIndex = plan.yamlContent.indexOf(insertMarker);
-      if (markerIndex >= 0) {
-        const lineEnd = plan.yamlContent.indexOf("\n", markerIndex);
-        if (lineEnd >= 0) {
-          newContent =
-            plan.yamlContent.slice(0, lineEnd + 1) +
-            providerLines +
-            "\n" +
-            plan.yamlContent.slice(lineEnd + 1);
-        } else {
-          newContent = plan.yamlContent + "\n" + providerLines + "\n";
-        }
-      } else {
-        const separator = plan.yamlContent.endsWith("\n") ? "" : "\n";
-        newContent = plan.yamlContent + separator + providerLines + "\n";
-      }
+    const document = parseDocument(plan.yamlContent);
+    const root = document.toJS();
+    if (!root || typeof root !== "object" || Array.isArray(root)) {
+      throw new Error("logics.yaml must contain a mapping at the document root.");
     }
 
-    fs.writeFileSync(plan.logicsYamlPath, newContent, "utf-8");
+    const content = root as Record<string, unknown>;
+    const hybridAssist =
+      content.hybrid_assist && typeof content.hybrid_assist === "object" && !Array.isArray(content.hybrid_assist)
+        ? (content.hybrid_assist as Record<string, unknown>)
+        : {};
+    const providers =
+      hybridAssist.providers && typeof hybridAssist.providers === "object" && !Array.isArray(hybridAssist.providers)
+        ? (hybridAssist.providers as Record<string, unknown>)
+        : {};
+
+    if (typeof hybridAssist.env_file !== "string" || !hybridAssist.env_file.trim()) {
+      hybridAssist.env_file = plan.envFile;
+    }
+    if (typeof hybridAssist.provider_health_path !== "string" || !hybridAssist.provider_health_path.trim()) {
+      hybridAssist.provider_health_path = "logics/.cache/provider_health.json";
+    }
+    if (typeof providers.readiness_cooldown_seconds !== "number") {
+      providers.readiness_cooldown_seconds = 300;
+    }
+
+    for (const provider of plan.providers) {
+      providers[provider.name] = {
+        enabled: true,
+        base_url: provider.baseUrl,
+        model: provider.model
+      };
+    }
+
+    hybridAssist.providers = providers;
+    content.hybrid_assist = hybridAssist;
+
+    fs.writeFileSync(plan.logicsYamlPath, stringify(content), "utf-8");
   }
 
   private async executeRemediationWithPrompt(plan: ProviderRemediationPlan): Promise<void> {

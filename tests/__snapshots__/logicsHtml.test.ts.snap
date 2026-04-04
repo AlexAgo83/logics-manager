@@ -798,6 +798,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-changelog" title="Generate bounded changelog entries through the shared runtime">Changelog Summary</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-prepare-release" title="Check release prerequisites and optionally publish the release">Prepare Release</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Validation Summary</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>

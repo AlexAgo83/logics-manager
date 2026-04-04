@@ -555,6 +555,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     );
 
+    if (root) {
+      this.ensureLogicsCacheDir(root);
+    }
+
     if (root && !hybridRuntime.claudeBridgeAvailable) {
       const bridgeStatus = detectClaudeBridgeStatus(root);
       const missingFiles = bridgeStatus.supportedVariants
@@ -628,6 +632,17 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
     if (choice?.action) {
       await choice.action();
+    }
+  }
+
+  private ensureLogicsCacheDir(root: string): void {
+    const cacheDir = path.join(root, "logics", ".cache");
+    if (!fs.existsSync(cacheDir)) {
+      try {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      } catch {
+        // non-blocking — runtime will surface errors if it can't write there
+      }
     }
   }
 

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: In progress
 > Understanding: 98%
-> Confidence: 95%
+> Confidence: 96%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction, remote API dispatch, and backend policy expansion
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -195,6 +195,9 @@ flowchart TD
 - 2026-04-04: `item_213` completed. The hybrid runtime now routes backend selection and execution through shared provider-abstraction helpers instead of direct Ollama-specific branching inside `_run_hybrid_assist(...)`.
 - Per-flow backend policy now exposes ordered provider routing metadata (`provider_order`, `allowed_backends`), which keeps `codex-only`, `deterministic`, and `ollama-first` behavior explicit while preparing `req_120` for direct `openai` and `gemini` transports in the next items.
 - Validation remains green after the refactor: `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v`.
+- 2026-04-04: `item_214` completed. The shared runtime now supports direct `openai` and `gemini` transports, explicit `--backend openai|gemini` selection, minimal `.env` credential loading, and non-secret provider configuration through `logics.yaml`.
+- `runtime-status` now surfaces configured provider availability for `ollama`, `openai`, `gemini`, `codex`, and `deterministic`, while the shared assist CLI keeps the same bounded contract validation and fallback behavior across local and remote providers.
+- Validation remains green after the transport/config expansion: `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
 
 # AI Context
 - Summary: Add direct OpenAI and Gemini provider dispatch to the shared hybrid assist runtime through a provider abstraction that preserves strict flow contracts, explicit backend policy, and trustworthy observability.

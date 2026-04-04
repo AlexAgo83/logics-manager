@@ -796,6 +796,7 @@ describe("webview harness filters, details, and docs", () => {
     const filterToggle = document.getElementById("filter-toggle");
     const toolsToggle = document.getElementById("tools-toggle");
     const launchCodexButton = document.querySelector('[data-action="launch-codex-overlay"]');
+    const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
     const newRequestButton = document.querySelector('[data-action="new-request-guided"]');
     const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
@@ -805,6 +806,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with the globally published Logics kit");
+    expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude in this repository");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request in Codex");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(
@@ -812,6 +814,7 @@ describe("webview harness filters, details, and docs", () => {
     ).toEqual(
       expect.arrayContaining([
         "launch-codex-overlay",
+        "launch-claude",
         "check-hybrid-runtime",
         "open-hybrid-insights",
         "assist-commit-all",
@@ -820,6 +823,7 @@ describe("webview harness filters, details, and docs", () => {
         "assist-summarize-changelog",
         "assist-validation-checklist",
         "assist-doc-consistency",
+        "repair-logics-kit",
         "refresh"
       ])
     );

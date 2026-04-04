@@ -5,6 +5,9 @@
       activityToggle,
       attentionToggle,
       bootstrapLogicsButton,
+      launchCodexOverlayButton,
+      launchClaudeButton,
+      repairLogicsKitButton,
       filterPanel,
       filterToggle,
       groupBySelect,
@@ -33,6 +36,12 @@
       getCanBootstrapLogics,
       getBootstrapLogicsTitle,
       getCanResetProjectRoot,
+      getCanLaunchCodex,
+      getLaunchCodexTitle,
+      getCanLaunchClaude,
+      getLaunchClaudeTitle,
+      getCanRepairLogicsKit,
+      getRepairLogicsKitTitle,
       getEffectiveViewMode,
       getGroupMode,
       getHelpBannerMessage,
@@ -224,6 +233,18 @@
       if (bootstrapLogicsButton) {
         bootstrapLogicsButton.disabled = !getCanBootstrapLogics();
         bootstrapLogicsButton.title = getBootstrapLogicsTitle();
+      }
+      if (launchCodexOverlayButton) {
+        launchCodexOverlayButton.disabled = !getCanLaunchCodex();
+        launchCodexOverlayButton.title = getLaunchCodexTitle();
+      }
+      if (launchClaudeButton) {
+        launchClaudeButton.disabled = !getCanLaunchClaude();
+        launchClaudeButton.title = getLaunchClaudeTitle();
+      }
+      if (repairLogicsKitButton) {
+        repairLogicsKitButton.disabled = !getCanRepairLogicsKit();
+        repairLogicsKitButton.title = getRepairLogicsKitTitle();
       }
       if (toolsPanelLayout && typeof toolsPanelLayout.renderToolsPanelStructure === "function") {
         toolsPanelLayout.renderToolsPanelStructure();

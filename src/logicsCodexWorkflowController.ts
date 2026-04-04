@@ -11,8 +11,9 @@ import {
   runPythonWithOutput
 } from "./logicsProviderUtils";
 import { publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
-import { maybeShowReadyCodexOverlayHandoff, launchCodexOverlayTerminal } from "./logicsOverlaySupport";
+import { maybeShowReadyCodexOverlayHandoff, launchClaudeTerminal, launchCodexOverlayTerminal } from "./logicsOverlaySupport";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
+import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "./workflowSupport";
 
 type BootstrapConvergenceOutcome = {
@@ -146,6 +147,12 @@ export class LogicsCodexWorkflowController {
   }
 
   async launchCodexFromTools(root: string): Promise<void> {
+    const launchers = await inspectRuntimeLaunchers(root);
+    if (!launchers.codex.available && launchers.codex.title === "Codex CLI not found on PATH") {
+      void vscode.window.showWarningMessage(launchers.codex.title);
+      return;
+    }
+
     const snapshot = await inspectLogicsEnvironment(root);
     const globalKit = snapshot.codexOverlay;
     if (globalKit.status === "healthy" || globalKit.status === "warning") {
@@ -179,6 +186,23 @@ export class LogicsCodexWorkflowController {
     }
 
     await this.syncCodexOverlay(root, "tools launch", { autoLaunchOnSuccess: true });
+  }
+
+  async launchClaudeFromTools(root: string): Promise<void> {
+    const launchers = await inspectRuntimeLaunchers(root);
+    if (!launchers.claude.available) {
+      const actions =
+        launchers.claude.title.includes("Repair Logics Kit")
+          ? ["Repair Logics Kit"]
+          : [];
+      const choice = await vscode.window.showWarningMessage(launchers.claude.title, ...actions);
+      if (choice === "Repair Logics Kit") {
+        await this.repairLogicsKit(root);
+      }
+      return;
+    }
+
+    launchClaudeTerminal(root, launchers.claude.command);
   }
 
   async bootstrapLogics(root: string): Promise<void> {
@@ -422,11 +446,12 @@ export class LogicsCodexWorkflowController {
     trigger: string,
     options?: {
       autoLaunchOnSuccess?: boolean;
+      forceRepublish?: boolean;
     }
   ): Promise<boolean> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !options?.forceRepublish) {
       if (options?.autoLaunchOnSuccess && overlay.runCommand) {
         launchCodexOverlayTerminal(root, overlay.runCommand);
         return true;
@@ -499,6 +524,31 @@ export class LogicsCodexWorkflowController {
       `Global Codex kit publish completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
     );
     return false;
+  }
+
+  async repairLogicsKit(root: string): Promise<boolean> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const inspection = inspectLogicsKitSubmodule(root);
+    if (snapshot.codexOverlay.status === "missing-manager") {
+      if (!inspection.exists || !inspection.isCanonical) {
+        const choice = await vscode.window.showWarningMessage(
+          `Repair Logics Kit requires the canonical logics/skills submodule. ${inspection.reason}`,
+          "Copy Update Command"
+        );
+        if (choice === "Copy Update Command") {
+          await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        }
+        return false;
+      }
+
+      const updated = await this.updateLogicsKit(root, "manual repair");
+      if (!updated) {
+        return false;
+      }
+    }
+
+    return this.syncCodexOverlay(root, "manual repair", { forceRepublish: true });
   }
 
   private async inspectGlobalCodexKitPublishability(root: string): Promise<{

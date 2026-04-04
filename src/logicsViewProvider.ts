@@ -27,6 +27,7 @@ import { LogicsHybridAssistController } from "./logicsHybridAssistController";
 import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
 import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
+import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
@@ -139,6 +140,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "launch-codex-overlay":
           await this.launchCodexFromTools();
           return;
+        case "launch-claude":
+          await this.launchClaudeFromTools();
+          return;
         case "fix-docs":
           await this.fixDocs();
           return;
@@ -162,6 +166,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           return;
         case "sync-codex-overlay":
           await this.syncCodexOverlayFromTools();
+          return;
+        case "repair-logics-kit":
+          await this.repairLogicsKitFromTools();
           return;
         case "assist-commit-all":
           await this.commitAllChangesFromTools();
@@ -237,6 +244,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         canBootstrapLogics,
         bootstrapLogicsTitle: bootstrapState?.actionTitle,
         canResetProjectRoot,
+        canLaunchCodex: false,
+        launchCodexTitle: "Select a project root first",
+        canLaunchClaude: false,
+        launchClaudeTitle: "Select a project root first",
+        canRepairLogicsKit: false,
+        repairLogicsKitTitle: "Select a project root first",
         error: invalidOverridePath
           ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
           : "Open a workspace or set a project root from Tools > Change Project Root."
@@ -251,6 +264,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         canBootstrapLogics,
         bootstrapLogicsTitle: bootstrapState?.actionTitle,
         canResetProjectRoot,
+        canLaunchCodex: false,
+        launchCodexTitle: "This branch does not have a logics/ folder yet",
+        canLaunchClaude: false,
+        launchClaudeTitle: "This branch does not have a logics/ folder yet",
+        canRepairLogicsKit: true,
+        repairLogicsKitTitle: "Bootstrap or repair Logics in this branch first.",
         error: `This branch does not have a logics/ folder in: ${root}.`
       });
       await this.maybeOfferBootstrap(root);
@@ -260,6 +279,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     this.items = indexLogics(root);
     await this.refreshAgents("silent", root);
     const changedPaths = await this.getGitChangedPaths(root);
+    const launchers = await inspectRuntimeLaunchers(root);
     this.postData({
       items: this.items,
       root,
@@ -267,6 +287,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       canBootstrapLogics,
       bootstrapLogicsTitle: bootstrapState?.actionTitle,
       canResetProjectRoot,
+      canLaunchCodex: launchers.codex.available,
+      launchCodexTitle: launchers.codex.title,
+      canLaunchClaude: launchers.claude.available,
+      launchClaudeTitle: launchers.claude.title,
+      canRepairLogicsKit: true,
+      repairLogicsKitTitle: "Check current Logics runtime state and repair the shared kit publication or bridge files.",
       activeAgentId: this.activeAgentId ?? undefined,
       activeAgent: this.getActiveAgentPayload(),
       changedPaths
@@ -397,6 +423,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     await this.codexWorkflowController.launchCodexFromTools(root);
+  }
+
+  private async launchClaudeFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    await this.codexWorkflowController.launchClaudeFromTools(root);
   }
 
   async createItem(kind: "request" | "backlog" | "task"): Promise<void> {
@@ -592,12 +626,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           return missing;
         });
       quickPickItems.push({
-        label: "Run: Repair Claude bridge (Publish Global Codex Kit)",
+        label: "Run: Repair Logics Kit",
         description: missingFiles.length > 0
           ? `Missing: ${missingFiles.join(", ")}`
-          : "Bridge files incomplete — republishing the global kit may restore them.",
+          : "Bridge files incomplete — run the repair flow to re-check and restore shared runtime wiring.",
         action: async () => {
-          await this.codexWorkflowController.syncCodexOverlay(root, "environment diagnostics");
+          await this.codexWorkflowController.repairLogicsKit(root);
         }
       });
     }
@@ -943,6 +977,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     await this.codexWorkflowController.syncCodexOverlay(root, "tools menu");
+  }
+
+  private async repairLogicsKitFromTools(): Promise<void> {
+    const root = await this.getActionRoot();
+    if (!root) {
+      return;
+    }
+    await this.codexWorkflowController.repairLogicsKit(root);
   }
 
   private async markItemDone(id: string): Promise<void> {
@@ -1325,6 +1367,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     canBootstrapLogics?: boolean;
     bootstrapLogicsTitle?: string;
     canResetProjectRoot?: boolean;
+    canLaunchCodex?: boolean;
+    launchCodexTitle?: string;
+    canLaunchClaude?: boolean;
+    launchClaudeTitle?: string;
+    canRepairLogicsKit?: boolean;
+    repairLogicsKitTitle?: string;
     activeAgentId?: string;
     changedPaths?: string[];
     activeAgent?: {

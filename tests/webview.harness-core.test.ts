@@ -203,6 +203,18 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "check-environment")).toBe(true);
   });
 
+  it("posts runtime launcher and repair actions in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const launchClaudeButton = dom.window.document.querySelector('[data-action="launch-claude"]');
+    const repairButton = dom.window.document.querySelector('[data-action="repair-logics-kit"]');
+    launchClaudeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    repairButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "launch-claude")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "repair-logics-kit")).toBe(true);
+  });
+
   it("posts create companion doc action from tools in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 
@@ -239,6 +251,38 @@ describe("webview harness core behaviors", () => {
       items: [baseItem]
     });
     expect(resetButton?.disabled).toBe(false);
+  });
+
+  it("uses host-provided launcher and repair availability in the tools menu", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      canLaunchCodex: false,
+      launchCodexTitle: "Codex CLI not found on PATH",
+      canLaunchClaude: false,
+      launchClaudeTitle: "Claude CLI not found on PATH",
+      canRepairLogicsKit: false,
+      repairLogicsKitTitle: "Select a project root first",
+      items: [baseItem]
+    });
+
+    const launchCodexButton = dom.window.document.querySelector(
+      '[data-action="launch-codex-overlay"]'
+    ) as HTMLButtonElement | null;
+    const launchClaudeButton = dom.window.document.querySelector(
+      '[data-action="launch-claude"]'
+    ) as HTMLButtonElement | null;
+    const repairButton = dom.window.document.querySelector(
+      '[data-action="repair-logics-kit"]'
+    ) as HTMLButtonElement | null;
+
+    expect(launchCodexButton?.disabled).toBe(true);
+    expect(launchCodexButton?.title).toBe("Codex CLI not found on PATH");
+    expect(launchClaudeButton?.disabled).toBe(true);
+    expect(launchClaudeButton?.title).toBe("Claude CLI not found on PATH");
+    expect(repairButton?.disabled).toBe(true);
+    expect(repairButton?.title).toBe("Select a project root first");
   });
 
   it("switches to list mode and persists view mode state", () => {

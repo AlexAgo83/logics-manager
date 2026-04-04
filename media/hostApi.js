@@ -70,6 +70,9 @@
       launchCodexOverlay() {
         invokeHostOnly("launch-codex-overlay", {}, "Launch Codex");
       },
+      launchClaude() {
+        invokeHostOnly("launch-claude", {}, "Launch Claude");
+      },
       bootstrapLogics() {
         invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
       },
@@ -78,6 +81,9 @@
       },
       syncCodexOverlay() {
         invokeHostOnly("sync-codex-overlay", {}, "Publish Global Codex Kit");
+      },
+      repairLogicsKit() {
+        invokeHostOnly("repair-logics-kit", {}, "Repair Logics Kit");
       },
       checkEnvironment() {
         invokeHostOnly("check-environment", {}, "Check Environment");

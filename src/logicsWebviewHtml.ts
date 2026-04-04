@@ -142,7 +142,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Environment</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
               </div>
             </div>
             <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">
@@ -172,6 +172,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
                 <div class="tools-panel__section-label">AI Runtime</div>
                 <div class="tools-panel__section-body" data-tools-body="runtime">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-claude" title="Launch Claude in this repository">Launch Claude</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                 </div>
@@ -180,7 +181,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
                 <div class="tools-panel__section-label">Kit</div>
                 <div class="tools-panel__section-body" data-tools-body="kit">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="update-logics-kit" title="Update the Logics kit submodule when the canonical setup is present">Update Logics Kit</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="sync-codex-overlay" title="Publish or repair the global Codex Logics kit from this repository">Publish Global Codex Kit</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="repair-logics-kit" title="Check current Logics runtime state and repair the shared kit publication or bridge files.">Repair Logics Kit</button>
                 </div>
               </div>
               <div class="tools-panel__section" data-tools-section="workspace">

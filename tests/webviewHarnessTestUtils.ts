@@ -55,7 +55,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next step"></button>
                   <button class="tools-panel__item" data-action="assist-triage" title="Turn a rough idea into a structured request"></button>
                   <button class="tools-panel__item" data-action="bootstrap-logics" title="Bootstrap Logics in this repository"></button>
-                  <button class="tools-panel__item" data-action="check-environment" title="Check environment"></button>
+                  <button class="tools-panel__item" data-action="check-environment" title="Check environment prerequisites">Check Environment</button>
                 </div>
               </div>
               <div class="tools-panel__view" id="tools-view-workflow" data-tools-view="workflow">
@@ -84,6 +84,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <div>AI Runtime</div>
                   <div data-tools-body="runtime">
                     <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
+                    <button class="tools-panel__item" data-action="launch-claude" title="Launch Claude in this repository"></button>
                     <button class="tools-panel__item" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
                     <button class="tools-panel__item" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                   </div>
@@ -92,7 +93,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <div>Kit</div>
                   <div data-tools-body="kit">
                     <button class="tools-panel__item" data-action="update-logics-kit"></button>
-                    <button class="tools-panel__item" data-action="sync-codex-overlay"></button>
+                    <button class="tools-panel__item" data-action="repair-logics-kit"></button>
                   </div>
                 </div>
                 <div data-tools-section="workspace">

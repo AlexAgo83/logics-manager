@@ -43,6 +43,8 @@ export type LogicsWebviewMessage =
   | { type: "assist-validation-checklist" }
   | { type: "assist-doc-consistency" }
   | { type: "open-hybrid-insights" }
+  | { type: "open-onboarding" }
+  | { type: "tool-action"; action: string }
   | { type: "about" }
   | { type: "create-companion-doc"; id?: string; preferredKind?: "product" | "architecture" }
   | PromptMessage
@@ -87,10 +89,15 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "assist-validation-checklist":
     case "assist-doc-consistency":
     case "open-hybrid-insights":
+    case "open-onboarding":
     case "about":
     case "change-project-root":
     case "reset-project-root":
       return { type };
+    case "tool-action": {
+      const action = readString(value.action);
+      return action ? { type, action } : null;
+    }
     case "open":
     case "read":
     case "promote":

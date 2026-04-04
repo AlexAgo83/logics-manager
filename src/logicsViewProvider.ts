@@ -26,9 +26,11 @@ import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pytho
 import { LogicsHybridAssistController } from "./logicsHybridAssistController";
 import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
 import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
+import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
+const ONBOARDING_LAST_VERSION_KEY = "logics.onboardingLastVersion";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
@@ -41,6 +43,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private activeAgentId: string | null;
   private agentRegistry: AgentRegistrySnapshot = createEmptyAgentRegistry();
   private readPreviewPanel?: vscode.WebviewPanel;
+  private onboardingPanel?: vscode.WebviewPanel;
   private readonly documentController: LogicsViewDocumentController;
   private readonly hybridAssistController: LogicsHybridAssistController;
   private readonly codexWorkflowController: LogicsCodexWorkflowController;
@@ -184,6 +187,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "open-hybrid-insights":
           await this.openHybridInsightsFromTools();
           return;
+        case "open-onboarding":
+          this.openOnboardingPanel();
+          return;
+        case "tool-action":
+          if (message.action) {
+            await this.view?.webview.postMessage({ type: "trigger-tool-action", action: message.action });
+          }
+          return;
         case "about":
           await this.openAbout();
           return;
@@ -260,6 +271,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.maybeOfferBootstrap(root);
     await this.codexWorkflowController.ensureGlobalCodexKit(root);
     await this.maybeOfferCodexStartupRemediation(root);
+    this.maybeShowOnboarding();
   }
 
   async openFromPalette(): Promise<void> {
@@ -346,6 +358,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async openHybridInsightsFromCommand(): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
+  }
+
+  openOnboardingFromCommand(): void {
+    this.openOnboardingPanel();
   }
 
   async triageWorkflowDocFromCommand(): Promise<void> {
@@ -788,6 +804,47 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         return Promise.resolve();
       }
     };
+  }
+
+  private maybeShowOnboarding(): void {
+    const extensionVersion =
+      (this.context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
+    const lastSeen = this.context.globalState.get<string>(ONBOARDING_LAST_VERSION_KEY) ?? null;
+    if (lastSeen === extensionVersion) {
+      return;
+    }
+    void this.context.globalState.update(ONBOARDING_LAST_VERSION_KEY, extensionVersion);
+    this.openOnboardingPanel();
+  }
+
+  private openOnboardingPanel(): void {
+    if (this.onboardingPanel) {
+      this.onboardingPanel.reveal(vscode.ViewColumn.Beside);
+      return;
+    }
+    const panel = vscode.window.createWebviewPanel(
+      "logics.onboarding",
+      "Logics: Getting Started",
+      vscode.ViewColumn.Beside,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: false,
+        localResourceRoots: [this.context.extensionUri]
+      }
+    );
+    panel.webview.html = buildOnboardingHtml(panel.webview);
+    panel.webview.onDidReceiveMessage(async (message: { type: string; action?: string }) => {
+      if (message.type === "tool-action" && message.action) {
+        panel.dispose();
+        await this.view?.webview.postMessage({ type: "trigger-tool-action", action: message.action });
+      }
+    });
+    panel.onDidDispose(() => {
+      if (this.onboardingPanel === panel) {
+        this.onboardingPanel = undefined;
+      }
+    });
+    this.onboardingPanel = panel;
   }
 
   private buildKitVersionQuickPickItem(

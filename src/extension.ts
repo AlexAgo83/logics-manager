@@ -82,6 +82,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("logics.createCompanionDoc", () => provider?.createCompanionDocFromPalette()),
     vscode.commands.registerCommand("logics.checkEnvironment", () => provider?.checkEnvironmentFromCommand()),
     vscode.commands.registerCommand("logics.openHybridInsights", () => provider?.openHybridInsightsFromCommand()),
+    vscode.commands.registerCommand("logics.openOnboarding", () => provider?.openOnboardingFromCommand()),
     vscode.commands.registerCommand("logics.assistTriage", () => provider?.triageWorkflowDocFromCommand()),
     vscode.commands.registerCommand("logics.assistDiffRisk", () => provider?.assessDiffRiskFromCommand()),
     vscode.commands.registerCommand("logics.assistValidationChecklist", () => provider?.buildValidationChecklistFromCommand()),

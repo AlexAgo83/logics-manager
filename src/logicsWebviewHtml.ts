@@ -149,6 +149,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
               <div class="tools-panel__section" data-tools-section="workflow">
                 <div class="tools-panel__section-label">Workflow</div>
                 <div class="tools-panel__section-body" data-tools-body="workflow">
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-onboarding" title="Open the getting started guide">Getting Started</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Companion Doc</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>

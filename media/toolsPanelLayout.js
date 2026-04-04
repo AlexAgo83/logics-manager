@@ -37,7 +37,7 @@
         )
       : new Map();
     const toolSectionLayout = {
-      workflow: ["select-agent", "new-request-guided", "create-companion-doc", "bootstrap-logics", "refresh"],
+      workflow: ["open-onboarding", "select-agent", "new-request-guided", "create-companion-doc", "bootstrap-logics", "refresh"],
       assist: [
         "assist-next-step",
         "assist-triage",

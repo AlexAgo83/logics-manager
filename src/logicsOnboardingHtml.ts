@@ -1,0 +1,163 @@
+import * as vscode from "vscode";
+import { getNonce } from "./logicsReadPreviewHtml";
+import {
+  ONBOARDING_FOOTER,
+  ONBOARDING_HEADLINE,
+  ONBOARDING_INTRO,
+  ONBOARDING_STAGES,
+  type OnboardingStage
+} from "./logicsOnboardingModel";
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderStage(stage: OnboardingStage, index: number): string {
+  const actionsHtml = stage.primaryActions
+    .map(
+      (action) => `
+        <button
+          class="onboarding__action"
+          type="button"
+          data-action="${escapeHtml(action.toolAction)}"
+          title="${escapeHtml(action.description)}"
+        >${escapeHtml(action.label)}</button>`
+    )
+    .join("");
+
+  return `
+    <div class="onboarding__stage">
+      <div class="onboarding__stage-number" aria-hidden="true">${index + 1}</div>
+      <div class="onboarding__stage-body">
+        <h2 class="onboarding__stage-label">${escapeHtml(stage.label)}</h2>
+        <p class="onboarding__stage-tagline">${escapeHtml(stage.tagline)}</p>
+        <p class="onboarding__stage-description">${escapeHtml(stage.description)}</p>
+        <p class="onboarding__stage-mapping">${escapeHtml(stage.workflowMapping)}</p>
+        ${actionsHtml.trim() ? `<div class="onboarding__actions">${actionsHtml}</div>` : ""}
+      </div>
+    </div>`;
+}
+
+export function buildOnboardingHtml(webview: vscode.Webview): string {
+  const nonce = getNonce();
+  const csp = `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';`;
+
+  const stagesHtml = ONBOARDING_STAGES.map((stage, i) => renderStage(stage, i)).join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="${csp}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(ONBOARDING_HEADLINE)}</title>
+  <style nonce="${nonce}">
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      color: var(--vscode-foreground);
+      background: var(--vscode-editor-background);
+      padding: 24px 28px;
+      max-width: 680px;
+    }
+    .onboarding__header { margin-bottom: 28px; }
+    .onboarding__headline {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: var(--vscode-foreground);
+      margin-bottom: 10px;
+    }
+    .onboarding__intro {
+      color: var(--vscode-descriptionForeground);
+      line-height: 1.55;
+    }
+    .onboarding__stages { display: flex; flex-direction: column; gap: 24px; margin-bottom: 28px; }
+    .onboarding__stage {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 6px;
+      border: 1px solid var(--vscode-widget-border, var(--vscode-editorWidget-border, #454545));
+      background: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+    }
+    .onboarding__stage-number {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: var(--vscode-focusBorder);
+      min-width: 28px;
+      line-height: 1;
+      padding-top: 2px;
+    }
+    .onboarding__stage-body { flex: 1; }
+    .onboarding__stage-label {
+      font-size: 1.05em;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .onboarding__stage-tagline {
+      font-size: 0.9em;
+      color: var(--vscode-focusBorder);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .onboarding__stage-description {
+      color: var(--vscode-foreground);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .onboarding__stage-mapping {
+      font-size: 0.85em;
+      color: var(--vscode-descriptionForeground);
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+    .onboarding__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .onboarding__action {
+      padding: 5px 12px;
+      border: 1px solid var(--vscode-button-border, transparent);
+      border-radius: 3px;
+      background: var(--vscode-button-secondaryBackground);
+      color: var(--vscode-button-secondaryForeground);
+      font-size: 0.9em;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .onboarding__action:hover {
+      background: var(--vscode-button-secondaryHoverBackground);
+    }
+    .onboarding__footer {
+      font-size: 0.85em;
+      color: var(--vscode-descriptionForeground);
+      border-top: 1px solid var(--vscode-widget-border, #454545);
+      padding-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header class="onboarding__header">
+    <h1 class="onboarding__headline">${escapeHtml(ONBOARDING_HEADLINE)}</h1>
+    <p class="onboarding__intro">${escapeHtml(ONBOARDING_INTRO)}</p>
+  </header>
+  <div class="onboarding__stages">
+    ${stagesHtml}
+  </div>
+  <footer class="onboarding__footer">
+    <p>${escapeHtml(ONBOARDING_FOOTER)}</p>
+  </footer>
+  <script nonce="${nonce}">
+    const vscode = acquireVsCodeApi();
+    document.querySelectorAll('.onboarding__action[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        vscode.postMessage({ type: 'tool-action', action: btn.dataset.action });
+      });
+    });
+  </script>
+</body>
+</html>`;
+}

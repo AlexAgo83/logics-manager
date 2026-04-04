@@ -28,10 +28,27 @@ type HybridAssistControllerOptions = {
   refresh: () => Promise<void>;
 };
 
+type KnownProviderConfig = { envKey: string; model: string; baseUrl: string };
+
+type ActivatableProvider = KnownProviderConfig & { name: string };
+
+type ProviderRemediationPlan = {
+  providers: ActivatableProvider[];
+  mode: "append-block" | "insert-provider";
+  yamlContent: string;
+  logicsYamlPath: string;
+  envFile: string;
+};
+
 export class LogicsHybridAssistController {
   private hybridInsightsPanel?: vscode.WebviewPanel;
 
   constructor(private readonly options: HybridAssistControllerOptions) {}
+
+  private static readonly KNOWN_PROVIDERS: Record<string, { envKey: string; model: string; baseUrl: string }> = {
+    openai: { envKey: "OPENAI_API_KEY", model: "gpt-4.1-mini", baseUrl: "https://api.openai.com/v1" },
+    gemini: { envKey: "GEMINI_API_KEY", model: "gemini-2.0-flash", baseUrl: "https://generativelanguage.googleapis.com/v1beta" }
+  };
 
   async checkHybridRuntimeFromTools(): Promise<void> {
     const root = await this.options.getActionRoot();
@@ -63,6 +80,191 @@ export class LogicsHybridAssistController {
       .filter((value) => value.length > 0)
       .join(" ");
     this.notifyHybridAssistCompletion("Check Hybrid Runtime", payload, statusLabel);
+    const plan = this.detectRemediationPlan(root);
+    if (plan) {
+      await this.executeRemediationWithPrompt(plan);
+    }
+  }
+
+  async buildProviderRemediationQuickPickItem(
+    root: string
+  ): Promise<(vscode.QuickPickItem & { action: () => Promise<void> }) | null> {
+    const plan = this.detectRemediationPlan(root);
+    if (!plan) {
+      return null;
+    }
+    const names = plan.providers.map((p) => p.name).join(", ");
+    const verb = plan.mode === "append-block" ? "Enable" : "Add";
+    return {
+      label: `Run: ${verb} ${names} provider(s) in logics.yaml`,
+      description: `API key(s) found for ${names} but not configured in logics.yaml.`,
+      action: async () => {
+        try {
+          this.applyRemediation(plan);
+          void vscode.window.showInformationMessage(`logics.yaml updated: ${names} provider(s) enabled.`);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          void vscode.window.showErrorMessage(`Failed to update logics.yaml: ${message}`);
+        }
+      }
+    };
+  }
+
+  private readEnvKeys(root: string): Set<string> {
+    const keys = new Set<string>();
+    for (const file of [".env.local", ".env"]) {
+      const filePath = path.join(root, file);
+      if (!fs.existsSync(filePath)) {
+        continue;
+      }
+      try {
+        const lines = fs.readFileSync(filePath, "utf-8").split(/\r?\n/);
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) {
+            continue;
+          }
+          const eqIndex = trimmed.indexOf("=");
+          if (eqIndex > 0) {
+            const key = trimmed.slice(0, eqIndex).trim();
+            const value = trimmed.slice(eqIndex + 1).trim();
+            if (key && value) {
+              keys.add(key);
+            }
+          }
+        }
+      } catch {
+        // skip unreadable file
+      }
+    }
+    return keys;
+  }
+
+  private detectEnvFile(root: string): string {
+    const localPath = path.join(root, ".env.local");
+    if (fs.existsSync(localPath)) {
+      try {
+        const localContent = fs.readFileSync(localPath, "utf-8");
+        const hasKey = Object.values(LogicsHybridAssistController.KNOWN_PROVIDERS).some((cfg) =>
+          localContent.includes(cfg.envKey)
+        );
+        if (hasKey) {
+          return ".env.local";
+        }
+      } catch {
+        // fall through
+      }
+    }
+    return ".env";
+  }
+
+  private detectRemediationPlan(root: string): ProviderRemediationPlan | null {
+    const logicsYamlPath = path.join(root, "logics.yaml");
+    if (!fs.existsSync(logicsYamlPath)) {
+      return null;
+    }
+    let yamlContent: string;
+    try {
+      yamlContent = fs.readFileSync(logicsYamlPath, "utf-8");
+    } catch {
+      return null;
+    }
+
+    const envKeys = this.readEnvKeys(root);
+    const hasHybridBlock = yamlContent.includes("hybrid_assist:");
+
+    const providers = Object.entries(LogicsHybridAssistController.KNOWN_PROVIDERS)
+      .filter(([name, cfg]) => {
+        if (!envKeys.has(cfg.envKey)) {
+          return false;
+        }
+        if (hasHybridBlock) {
+          const blockStart = yamlContent.indexOf("hybrid_assist:");
+          const hybridSection = yamlContent.slice(blockStart);
+          return !hybridSection.includes(`\n    ${name}:`);
+        }
+        return true;
+      })
+      .map(([name, cfg]) => ({ name, ...cfg }));
+
+    if (providers.length === 0) {
+      return null;
+    }
+
+    return {
+      providers,
+      mode: hasHybridBlock ? "insert-provider" : "append-block",
+      yamlContent,
+      logicsYamlPath,
+      envFile: this.detectEnvFile(root)
+    };
+  }
+
+  private applyRemediation(plan: ProviderRemediationPlan): void {
+    const providerLines = plan.providers
+      .map(
+        (p) =>
+          `    ${p.name}:\n` +
+          `      enabled: true\n` +
+          `      base_url: ${p.baseUrl}\n` +
+          `      model: ${p.model}`
+      )
+      .join("\n");
+
+    let newContent: string;
+    if (plan.mode === "append-block") {
+      const separator = plan.yamlContent.endsWith("\n") ? "" : "\n";
+      newContent =
+        plan.yamlContent +
+        separator +
+        `hybrid_assist:\n` +
+        `  env_file: ${plan.envFile}\n` +
+        `  provider_health_path: logics/.cache/provider_health.json\n` +
+        `  providers:\n` +
+        `    readiness_cooldown_seconds: 300\n` +
+        providerLines +
+        "\n";
+    } else {
+      const insertMarker = "    readiness_cooldown_seconds:";
+      const markerIndex = plan.yamlContent.indexOf(insertMarker);
+      if (markerIndex >= 0) {
+        const lineEnd = plan.yamlContent.indexOf("\n", markerIndex);
+        if (lineEnd >= 0) {
+          newContent =
+            plan.yamlContent.slice(0, lineEnd + 1) +
+            providerLines +
+            "\n" +
+            plan.yamlContent.slice(lineEnd + 1);
+        } else {
+          newContent = plan.yamlContent + "\n" + providerLines + "\n";
+        }
+      } else {
+        const separator = plan.yamlContent.endsWith("\n") ? "" : "\n";
+        newContent = plan.yamlContent + separator + providerLines + "\n";
+      }
+    }
+
+    fs.writeFileSync(plan.logicsYamlPath, newContent, "utf-8");
+  }
+
+  private async executeRemediationWithPrompt(plan: ProviderRemediationPlan): Promise<void> {
+    const names = plan.providers.map((p) => p.name).join(", ");
+    const verb = plan.mode === "append-block" ? "Enable in logics.yaml" : `Add ${names} to logics.yaml`;
+    const choice = await vscode.window.showInformationMessage(
+      `API key(s) found for ${names} but provider(s) not configured in logics.yaml.`,
+      verb,
+      "Dismiss"
+    );
+    if (choice !== verb) {
+      return;
+    }
+    try {
+      this.applyRemediation(plan);
+      void vscode.window.showInformationMessage(`logics.yaml updated: ${names} provider(s) enabled.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Failed to update logics.yaml: ${message}`);
+    }
   }
 
   async commitAllChangesFromTools(): Promise<void> {

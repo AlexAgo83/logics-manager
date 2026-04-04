@@ -450,6 +450,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
+    if (root) {
+      const providerItem = await this.hybridAssistController.buildProviderRemediationQuickPickItem(root);
+      if (providerItem) {
+        quickPickItems.push(providerItem);
+      }
+    }
+
     if (
       root &&
       snapshot.codexOverlay.status !== "healthy" &&

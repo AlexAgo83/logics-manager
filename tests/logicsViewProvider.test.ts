@@ -1317,6 +1317,44 @@ describe("LogicsViewProvider", () => {
     expect(sendText).toHaveBeenCalledWith("claude", true);
   });
 
+  it("repairs missing Claude bridge files from Tools when the Logics kit is already healthy", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "agents"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "SKILL.md"), "# skill\n", "utf8");
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents", "openai.yaml"),
+      "interface:\n  default_prompt: \"Use $logics-hybrid-delivery-assistant for delivery work.\"\n",
+      "utf8"
+    );
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics-flow-manager", "SKILL.md"), "# skill\n", "utf8");
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "logics-flow-manager", "agents", "openai.yaml"),
+      "interface:\n  default_prompt: \"Use $logics-flow-manager for workflow docs.\"\n",
+      "utf8"
+    );
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      ...defaultEnvironmentSnapshot(root),
+      repositoryState: "ready",
+      missingWorkflowDirs: [],
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      codexOverlay: {
+        status: "healthy",
+        summary: "Global kit ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+
+    await (provider as any).repairLogicsKitFromTools();
+
+    expect(fs.existsSync(path.join(root, ".claude", "commands", "logics-assist.md"))).toBe(true);
+    expect(fs.existsSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"))).toBe(true);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      expect.stringContaining("Repair Logics Kit restored Claude bridge files:")
+    );
+  });
+
   it("publishes the global kit from Tools when the global kit is missing", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     const show = vi.fn();

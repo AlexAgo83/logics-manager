@@ -80,11 +80,11 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
               </div>
               <div class="tools-panel__view" id="tools-view-system" data-tools-view="system" hidden>
                 <div data-tools-section="runtime">
-                  <div>Runtime</div>
+                  <div>AI Runtime</div>
                   <div data-tools-body="runtime">
                     <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
-                    <button class="tools-panel__item" data-action="check-hybrid-runtime"></button>
-                    <button class="tools-panel__item" data-action="open-hybrid-insights"></button>
+                    <button class="tools-panel__item" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
+                    <button class="tools-panel__item" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                   </div>
                 </div>
                 <div data-tools-section="kit">

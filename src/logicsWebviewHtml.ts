@@ -167,11 +167,11 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             </div>
             <div class="tools-panel__view" id="tools-view-system" data-tools-view="system" hidden>
               <div class="tools-panel__section" data-tools-section="runtime">
-                <div class="tools-panel__section-label">Runtime</div>
+                <div class="tools-panel__section-label">AI Runtime</div>
                 <div class="tools-panel__section-body" data-tools-body="runtime">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Hybrid Runtime</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                 </div>
               </div>
               <div class="tools-panel__section" data-tools-section="kit">

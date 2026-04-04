@@ -51,10 +51,16 @@ describe("logics HTML builders", () => {
       report: {
         measured: {
           totals: {
+            runs: 10,
             local_runs: 7,
             fallback_runs: 2,
             degraded_runs: 1,
             review_recommended_runs: 3
+          },
+          execution_paths: {
+            local: 7,
+            fallback: 2,
+            remote: 1
           }
         },
         derived: {
@@ -72,6 +78,11 @@ describe("logics HTML builders", () => {
           health_summary: ["Ollama healthy on most runs.", "Codex fallback only triggered twice."],
           top_degraded_reasons: [{ label: "ollama-timeout", count: 1 }],
           top_review_flows: [{ label: "commit-all", count: 2 }],
+          execution_path_split: [
+            { label: "local", count: 7 },
+            { label: "fallback", count: 2 },
+            { label: "remote", count: 1 }
+          ],
           flow_breakdown: {
             "commit-all": {
               run_count: 3,
@@ -79,7 +90,8 @@ describe("logics HTML builders", () => {
               degraded_rate: 0,
               review_recommended_rate: 0.66,
               backend_requested: { auto: 3 },
-              backend_used: { ollama: 2, codex: 1 }
+              backend_used: { ollama: 2, codex: 1 },
+              execution_paths: { local: 2, fallback: 1 }
             }
           },
           recent_runs: [
@@ -88,6 +100,7 @@ describe("logics HTML builders", () => {
               result_status: "degraded",
               backend_requested: "auto",
               backend_used: "codex",
+              execution_path: "fallback",
               recorded_at: "2026-04-04T10:00:00Z",
               validated_summary: "Fallback completed with review recommendation.",
               safety_class: "review",

@@ -424,7 +424,7 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
           <h1>Hybrid Assist Insights</h1>
           <p class="hybrid-insights__root-label">Shared runtime report for <strong>/workspace/project</strong></p>
           <p class="hybrid-insights__summary">
-            Start with the operator signals first, then inspect recent runs and flow diagnostics. Estimates stay available, but secondary.
+            Start with operator signals first, then inspect provider mix, recent runs, and flow diagnostics. Estimates stay available, but secondary.
           </p>
         </div>
         <div class="hybrid-insights__toolbar">
@@ -445,6 +445,12 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
           <span>Fallback</span>
           <strong>20.0%</strong>
           <em>2 fallback run(s)</em>
+        </section>
+      
+        <section class="hybrid-insights__signal-card ">
+          <span>Remote share</span>
+          <strong>10.0%</strong>
+          <em>1 remote provider run(s)</em>
         </section>
       
         <section class="hybrid-insights__signal-card is-bad">
@@ -469,7 +475,7 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
             <div class="hybrid-insights__meta-row"><span>Measurement log</span><strong>logics/.cache/hybrid_assist_measurements.jsonl</strong></div>
             <div class="hybrid-insights__meta-row"><span>Window</span><strong>0 day(s)</strong></div>
             <div class="hybrid-insights__meta-row"><span>Recent runs shown</span><strong>0</strong></div>
-            <div class="hybrid-insights__meta-row"><span>Total measured runs</span><strong>0</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Total measured runs</span><strong>10</strong></div>
           </div>
         </div>
       </details>
@@ -496,7 +502,7 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
       
             <div class="hybrid-insights__list-row">
               <span>Total runs</span>
-              <strong>0</strong>
+              <strong>10</strong>
             </div>
           
             <div class="hybrid-insights__list-row">
@@ -505,8 +511,23 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
             </div>
           
             <div class="hybrid-insights__list-row">
+              <span>Remote runs</span>
+              <strong>1</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Deterministic runs</span>
+              <strong>0</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
               <span>Fallback runs</span>
               <strong>2</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>Direct codex runs</span>
+              <strong>0</strong>
             </div>
           
             <div class="hybrid-insights__list-row">
@@ -538,15 +559,38 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
             <p class="hybrid-insights__empty">No hybrid assist usage recorded yet.</p>
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Backend split</h3>
+            <h3>Provider mix</h3>
             <p class="hybrid-insights__empty">No dispatch split available.</p>
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Requested backends</h3>
+            <h3>Execution paths</h3>
+            
+    <div class="hybrid-insights__list">
+      
+            <div class="hybrid-insights__list-row">
+              <span>local</span>
+              <strong>7</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>fallback</span>
+              <strong>2</strong>
+            </div>
+          
+            <div class="hybrid-insights__list-row">
+              <span>remote</span>
+              <strong>1</strong>
+            </div>
+          
+    </div>
+  
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Providers requested</h3>
             <p class="hybrid-insights__empty">No backend request data available.</p>
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Backends used</h3>
+            <h3>Providers used</h3>
             <p class="hybrid-insights__empty">No backend usage data available.</p>
           </div>
           <div class="hybrid-insights__panel">
@@ -748,11 +792,11 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
             </div>
             <div class="tools-panel__view" id="tools-view-system" data-tools-view="system" hidden>
               <div class="tools-panel__section" data-tools-section="runtime">
-                <div class="tools-panel__section-label">Runtime</div>
+                <div class="tools-panel__section-label">AI Runtime</div>
                 <div class="tools-panel__section-body" data-tools-body="runtime">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check hybrid assist runtime health">Hybrid Runtime</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open the hybrid assist ROI insights panel">Hybrid Insights</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                 </div>
               </div>
               <div class="tools-panel__section" data-tools-section="kit">

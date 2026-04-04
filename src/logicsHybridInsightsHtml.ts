@@ -170,6 +170,7 @@ function renderRecentRuns(value: unknown): string {
           const degradedReasons = asArray<string>(run.degraded_reasons);
           const validatedExcerpt = asRecord(run.validated_excerpt);
           const status = asString(run.result_status, "unknown");
+          const executionPath = asString(run.execution_path, "unknown");
           const reviewRecommended = Boolean(run.review_recommended);
           const statusClass =
             status === "degraded" ? "is-bad" : reviewRecommended ? "is-warn" : "is-good";
@@ -192,6 +193,7 @@ function renderRecentRuns(value: unknown): string {
                 <div class="hybrid-insights__meta-grid">
                   <div class="hybrid-insights__meta-row"><span>Safety class</span><strong>${escapeHtml(asString(run.safety_class, "unknown"))}</strong></div>
                   <div class="hybrid-insights__meta-row"><span>Seed ref</span><strong>${escapeHtml(asString(run.seed_ref, "none"))}</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Execution path</span><strong>${escapeHtml(executionPath)}</strong></div>
                   <div class="hybrid-insights__meta-row"><span>Review</span><strong>${reviewRecommended ? "recommended" : "not flagged"}</strong></div>
                 </div>
                 ${
@@ -257,6 +259,11 @@ export function buildHybridInsightsHtml(params: {
   const sources = asRecord(report.sources);
   const limits = asRecord(report.limits);
   const reportState = asRecord(derived.report_state);
+  const executionPaths = asCountMap(measured.execution_paths);
+  const remoteRuns = executionPaths.remote ?? 0;
+  const deterministicRuns = executionPaths.deterministic ?? 0;
+  const directCodexRuns = executionPaths["codex-direct"] ?? 0;
+  const remoteShare = asNumber(totals.runs, 0) > 0 ? remoteRuns / Math.max(asNumber(totals.runs, 0), 1) : 0;
   const signalCards: SignalCard[] = [
     {
       label: "Local offload",
@@ -269,6 +276,12 @@ export function buildHybridInsightsHtml(params: {
       value: formatRate(rates.fallback_rate),
       hint: `${asNumber(totals.fallback_runs, 0)} fallback run(s)`,
       tone: asNumber(rates.fallback_rate, 0) >= 0.25 ? "warn" : "neutral"
+    },
+    {
+      label: "Remote share",
+      value: formatRate(remoteShare),
+      hint: `${remoteRuns} remote provider run(s)`,
+      tone: remoteRuns > 0 ? "neutral" : "good"
     },
     {
       label: "Degraded",
@@ -712,7 +725,7 @@ export function buildHybridInsightsHtml(params: {
           <h1>Hybrid Assist Insights</h1>
           <p class="hybrid-insights__root-label">Shared runtime report for <strong>${escapeHtml(rootLabel)}</strong></p>
           <p class="hybrid-insights__summary">
-            Start with the operator signals first, then inspect recent runs and flow diagnostics. Estimates stay available, but secondary.
+            Start with operator signals first, then inspect provider mix, recent runs, and flow diagnostics. Estimates stay available, but secondary.
           </p>
         </div>
         <div class="hybrid-insights__toolbar">
@@ -757,7 +770,10 @@ export function buildHybridInsightsHtml(params: {
               {
                 "Total runs": asNumber(totals.runs, 0),
                 "Local runs": asNumber(totals.local_runs, 0),
+                "Remote runs": remoteRuns,
+                "Deterministic runs": deterministicRuns,
                 "Fallback runs": asNumber(totals.fallback_runs, 0),
+                "Direct codex runs": directCodexRuns,
                 "Degraded runs": asNumber(totals.degraded_runs, 0),
                 "Review recommended": asNumber(totals.review_recommended_runs, 0)
               },
@@ -780,15 +796,19 @@ export function buildHybridInsightsHtml(params: {
             ${renderCountMap(asCountMap(measured.runs_by_flow), "No hybrid assist usage recorded yet.")}
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Backend split</h3>
+            <h3>Provider mix</h3>
             ${renderRankedItems(derived.dispatch_split, "No dispatch split available.")}
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Requested backends</h3>
+            <h3>Execution paths</h3>
+            ${renderRankedItems(derived.execution_path_split, "No execution-path split available.")}
+          </div>
+          <div class="hybrid-insights__panel">
+            <h3>Providers requested</h3>
             ${renderCountMap(asCountMap(measured.backend_requested), "No backend request data available.")}
           </div>
           <div class="hybrid-insights__panel">
-            <h3>Backends used</h3>
+            <h3>Providers used</h3>
             ${renderCountMap(asCountMap(measured.backend_used), "No backend usage data available.")}
           </div>
           <div class="hybrid-insights__panel">

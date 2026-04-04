@@ -1,10 +1,10 @@
 ## item_216_update_observability_hybrid_insights_and_plugin_tools_surface_for_multi_provider_dispatch - Update observability, Hybrid Insights, and plugin tools surface for multi-provider dispatch
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 90%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -77,3 +77,13 @@ flowchart LR
 
 # Notes
 - Derived from request `req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime`.
+
+# Delivery report
+- 2026-04-04: Extended hybrid observability so measurement records now persist provider-aware execution paths (`local`, `remote`, `deterministic`, `fallback`, `codex-direct`) and the ROI report aggregates those paths alongside requested and used providers.
+- `runtime-status` now surfaces compact per-provider readiness details to the plugin, so operators can immediately see which providers are ready and which are blocked by cooldown, missing credentials, or other health reasons.
+- Updated the operator-facing UI surfaces to stay compact while becoming provider-aware: `Hybrid Insights` now shows provider mix and execution-path breakdowns, and the `Tools` menu keeps runtime management grouped under `AI Runtime` with `AI Runtime Status` and `AI Provider Insights`.
+
+# Validation report
+- `npm run test`
+- `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`
+- Snapshot and view-provider coverage now assert the provider-aware runtime summary, the renamed `AI Runtime` tools surface, and the expanded `Hybrid Insights` reporting panels.

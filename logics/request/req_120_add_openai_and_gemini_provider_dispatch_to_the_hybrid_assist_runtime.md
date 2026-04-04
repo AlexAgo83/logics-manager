@@ -1,9 +1,9 @@
 ## req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime - Add OpenAI and Gemini provider dispatch to the hybrid assist runtime
-> From version: 1.18.0
+> From version: 1.18.1
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction, remote API dispatch, and backend policy expansion
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -201,6 +201,9 @@ flowchart TD
 - 2026-04-04: `item_215` completed. The runtime now persists remote-provider health under `logics/.cache/provider_health.json`, skips known-unhealthy providers during a bounded cooldown window, and keeps disabled or unconfigured providers off the live-probe path.
 - Cooldown behavior is configurable in `logics.yaml`, and the persisted health entry is ignored automatically when the provider endpoint or model changes, preventing stale skip state after reconfiguration.
 - Validation remains green after the readiness-gate addition: `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
+- 2026-04-04: `item_216` completed. Hybrid observability now tracks execution paths beyond the old local-versus-codex split, `runtime-status` surfaces per-provider readiness details, and the plugin uses those details to summarize ready versus flagged providers directly in the `AI Runtime Status` flow.
+- `Hybrid Insights` now exposes provider mix, execution-path distribution, and provider-aware recent-run metadata so operators can distinguish remote-provider adoption, deterministic runs, codex fallback, and degraded outcomes without adding provider-specific workflow actions.
+- Validation remains green after the observability and UI update: `npm run test` and `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
 
 # AI Context
 - Summary: Add direct OpenAI and Gemini provider dispatch to the shared hybrid assist runtime through a provider abstraction that preserves strict flow contracts, explicit backend policy, and trustworthy observability.

@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 75%
+> Progress: 87%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -195,3 +195,6 @@ flowchart LR
 - 2026-04-04: `item_215` completed as the third wave-2 checkpoint. Added persisted provider-health cooldown state in `logics/.cache/provider_health.json`, skipped known-unhealthy remote providers during the cooldown window, and kept disabled or missing-credential providers off the live-probe path.
 - Validation checkpoint for `item_215`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after adding cooldown regression coverage that proves a second CLI invocation skips the failed provider without re-probing it.
 - Wave 2 is now complete. Next active delivery subject is `item_216`.
+- 2026-04-04: `item_216` completed as the first wave-3 checkpoint across the submodule and extension UI. Added provider-aware execution-path observability, richer `runtime-status` provider diagnostics, updated `Hybrid Insights` to show provider mix and execution paths, and kept the plugin tools surface compact under `AI Runtime`.
+- Validation checkpoint for `item_216`: ran `npm run test` and `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after updating the view-provider assertions, webview harness fixtures, and HTML snapshots for the provider-aware runtime surfaces.
+- Wave 3 is now in progress. Next active delivery subject is `item_217`.

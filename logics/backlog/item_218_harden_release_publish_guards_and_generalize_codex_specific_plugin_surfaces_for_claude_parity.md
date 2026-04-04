@@ -30,7 +30,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|harden-release-publish-guards-and-genera|req-122-harden-release-publish-guards-an|publish-release-still-relies-on-a-github|ac1-publish-release-is-guarded-by-a-conc
+%% logics-signature: backlog|harden-release-publish-guards-and-genera|req-092-add-a-second-wave-of-hybrid-olla|publish-release-still-relies-on-a|ac1-publish-release-is-guarded-by
 flowchart LR
     Request[req_122 release guards and wording parity] --> Guard[Gate GitHub publish action]
     Guard --> Consent[Define repository local release consent]

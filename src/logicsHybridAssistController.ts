@@ -446,7 +446,7 @@ export class LogicsHybridAssistController {
     const summary = result?.changelog_status?.summary ?? "";
     const ready = result?.ready ?? false;
     if (ready) {
-      this.notifyHybridAssistCompletion("Prepare Release", payload, `${tag} is ready to publish.`);
+      this.notifyPrepareReleaseCompletion(payload, `${tag} is ready to publish.`, { readinessOnly: true });
       return;
     }
     const choice = await vscode.window.showInformationMessage(
@@ -464,13 +464,36 @@ export class LogicsHybridAssistController {
       }
       const execResult = parseHybridPrepareReleaseResult(executed);
       const nowReady = execResult?.ready ?? false;
-      this.notifyHybridAssistCompletion(
-        "Prepare Release",
+      this.notifyPrepareReleaseCompletion(
         executed,
         nowReady ? `${tag} is now ready to publish.` : "Preparation incomplete — check the output log."
       );
       await this.options.refresh();
     }
+  }
+
+  private notifyPrepareReleaseCompletion(
+    payload: HybridAssistPayload,
+    detail: string,
+    options: { readinessOnly?: boolean } = {}
+  ): void {
+    const outcome = describeHybridAssistOutcome(payload);
+    if (outcome.backendUsed === "deterministic") {
+      const degradedDetail = outcome.degradedReasons.length > 0
+        ? ` Degraded reasons: ${outcome.degradedReasons.join(", ")}.`
+        : "";
+      const prefix = options.readinessOnly
+        ? "Prepare Release checked release readiness."
+        : "Prepare Release completed.";
+      const message = `${prefix} ${detail}${degradedDetail}`.trim();
+      if (outcome.degraded) {
+        void vscode.window.showWarningMessage(message);
+        return;
+      }
+      void vscode.window.showInformationMessage(message);
+      return;
+    }
+    this.notifyHybridAssistCompletion("Prepare Release", payload, detail);
   }
 
   async publishReleaseFromTools(): Promise<void> {

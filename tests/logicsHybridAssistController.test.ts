@@ -352,4 +352,26 @@ describe("LogicsHybridAssistController — provider remediation", () => {
       expect(mocks.runPythonWithOutput).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe("prepareReleaseFromTools", () => {
+    it("describes deterministic ready checks without implying AI backend usage", async () => {
+      ensureRuntimeEntry();
+      mocks.runPythonWithOutput.mockResolvedValue({
+        stdout: JSON.stringify({
+          ok: true,
+          ready: true,
+          changelog_status: { tag: "v1.21.0" },
+          backend_requested: "auto",
+          backend_used: "deterministic"
+        }),
+        stderr: ""
+      });
+
+      await controller.prepareReleaseFromTools();
+
+      expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+        "Prepare Release checked release readiness. v1.21.0 is ready to publish."
+      );
+    });
+  });
 });

@@ -478,6 +478,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    if (root) {
+      const envLocalItem = this.buildMissingEnvLocalQuickPickItem(root);
+      if (envLocalItem) {
+        quickPickItems.push(envLocalItem);
+      }
+    }
+
     if (
       root &&
       snapshot.codexOverlay.status !== "healthy" &&
@@ -598,6 +605,41 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private buildMissingEnvLocalQuickPickItem(
+    root: string
+  ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
+    const envLocalPath = path.join(root, ".env.local");
+    if (fs.existsSync(envLocalPath)) {
+      return null;
+    }
+    const yamlPath = path.join(root, "logics.yaml");
+    if (!fs.existsSync(yamlPath)) {
+      return null;
+    }
+    let content: string;
+    try {
+      content = fs.readFileSync(yamlPath, "utf-8");
+    } catch {
+      return null;
+    }
+    if (!content.includes("hybrid_assist:")) {
+      return null;
+    }
+    // Check that at least one provider is enabled
+    const hasEnabledProvider =
+      /enabled:\s*true/.test(content.slice(content.indexOf("hybrid_assist:")));
+    if (!hasEnabledProvider) {
+      return null;
+    }
+    return {
+      label: "Warning: .env.local is missing — hybrid providers will degrade (credential-missing)",
+      description: "Run Bootstrap Logics to generate .env.local with API key placeholders (kit 1.7.1+).",
+      action: async () => {
+        await this.codexWorkflowController.bootstrapLogics(root);
+      }
+    };
   }
 
   private async buildGitignoreArtifactsQuickPickItem(

@@ -3,12 +3,19 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+function toPosixPath(value: string): string {
+  return value.replace(/\\/g, "/");
+}
+
 vi.mock("vscode", () => ({
   Uri: {
-    file: (value: string) => ({ fsPath: value, path: value, toString: () => value }),
+    file: (value: string) => {
+      const normalized = toPosixPath(value);
+      return { fsPath: value, path: normalized, toString: () => normalized };
+    },
     joinPath: (base: { fsPath?: string; path?: string }, ...segments: string[]) => {
-      const basePath = base.fsPath ?? base.path ?? "";
-      const joined = path.join(basePath, ...segments);
+      const basePath = toPosixPath(base.path ?? base.fsPath ?? "");
+      const joined = path.posix.join(basePath, ...segments.map(toPosixPath));
       return {
         fsPath: joined,
         path: joined,
@@ -32,7 +39,7 @@ function createWebview(): WebviewLike {
   return {
     cspSource: "webview-csp",
     asWebviewUri: (uri) => ({
-      toString: () => `webview:${uri.fsPath ?? uri.path ?? uri.toString?.() ?? ""}`
+      toString: () => `webview:${toPosixPath(String(uri.path ?? uri.fsPath ?? uri.toString?.() ?? ""))}`
     })
   };
 }

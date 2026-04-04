@@ -15,6 +15,7 @@
       bootstrapLogicsButton,
       checkHybridRuntimeButton,
       checkEnvironmentButton,
+      launchClaudeButton,
       openHybridInsightsButton,
       changeProjectRootButton,
       compactListQuery,
@@ -33,6 +34,7 @@
       hideSpecToggle,
       layoutController,
       launchCodexOverlayButton,
+      repairLogicsKitButton,
       mainPane,
       markDoneButton,
       markObsoleteButton,
@@ -55,6 +57,7 @@
       onAssistDocConsistency,
       onCreateCompanionDoc,
       onLaunchCodexOverlay,
+      onLaunchClaude,
       onDetailsScroll,
       onDetailsToggle,
       onDocumentClick,
@@ -84,7 +87,7 @@
       onToggleAttention,
       onToolsPanelToggle,
       onUpdateLogicsKit,
-      onSyncCodexOverlay,
+      onRepairLogicsKit,
       onWindowMessage,
       onWindowResize,
       openButton,
@@ -99,7 +102,6 @@
       sortBySelect,
       splitter,
       stackedQuery,
-      syncCodexOverlayButton,
       toolsPanel,
       toolsToggle,
       updateLogicsKitButton,
@@ -133,8 +135,8 @@
       if (updateLogicsKitButton) {
         updateLogicsKitButton.addEventListener("click", () => onUpdateLogicsKit());
       }
-      if (syncCodexOverlayButton) {
-        syncCodexOverlayButton.addEventListener("click", () => onSyncCodexOverlay());
+      if (repairLogicsKitButton) {
+        repairLogicsKitButton.addEventListener("click", () => onRepairLogicsKit());
       }
       if (checkEnvironmentButton) {
         checkEnvironmentButton.addEventListener("click", () => onCheckEnvironment());
@@ -174,6 +176,9 @@
       }
       if (launchCodexOverlayButton) {
         launchCodexOverlayButton.addEventListener("click", () => onLaunchCodexOverlay());
+      }
+      if (launchClaudeButton) {
+        launchClaudeButton.addEventListener("click", () => onLaunchClaude());
       }
       if (createCompanionDocToolButton) {
         createCompanionDocToolButton.addEventListener("click", () => onCreateCompanionDoc("create-companion-doc"));
@@ -300,6 +305,8 @@
       setControlDescription(newRequestToolButton, "Start a guided new request in Codex");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Check environment prerequisites");
+      setControlDescription(launchCodexOverlayButton, "Launch Codex with the globally published Logics kit");
+      setControlDescription(launchClaudeButton, "Launch Claude in this repository");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
       setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
       setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");
@@ -312,6 +319,7 @@
       setControlDescription(assistDocConsistencyButton, "Review workflow doc consistency through the shared runtime");
       setControlDescription(changeProjectRootButton, "Change project root");
       setControlDescription(resetProjectRootButton, "Use workspace root");
+      setControlDescription(repairLogicsKitButton, "Check current Logics runtime state and repair the shared kit publication or bridge files.");
       setControlDescription(fixDocsButton, "Fix Logics");
       setControlDescription(aboutButton, "About this extension");
       setControlDescription(detailsToggle, detailsToggle?.getAttribute("aria-label") || "Collapse details");

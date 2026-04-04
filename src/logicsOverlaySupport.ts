@@ -29,8 +29,16 @@ export async function maybeShowReadyCodexOverlayHandoff(
 }
 
 export function launchCodexOverlayTerminal(root: string, runCommand: string): void {
+  launchAssistantTerminal(root, `Codex: ${path.basename(root)}`, runCommand);
+}
+
+export function launchClaudeTerminal(root: string, runCommand: string): void {
+  launchAssistantTerminal(root, `Claude: ${path.basename(root)}`, runCommand);
+}
+
+function launchAssistantTerminal(root: string, name: string, runCommand: string): void {
   const terminal = vscode.window.createTerminal({
-    name: `Codex: ${path.basename(root)}`,
+    name,
     cwd: root
   });
   terminal.show(true);

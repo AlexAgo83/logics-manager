@@ -31,7 +31,8 @@ const mocks = vi.hoisted(() => ({
   areSamePath: vi.fn(),
   publishCodexWorkspaceOverlay: vi.fn(),
   shouldPublishRepoKit: vi.fn(),
-  detectClaudeBridgeStatus: vi.fn()
+  detectClaudeBridgeStatus: vi.fn(),
+  inspectRuntimeLaunchers: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -109,6 +110,10 @@ vi.mock("../src/logicsWebviewHtml", () => ({
 vi.mock("../src/logicsCodexWorkspace", () => ({
   publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
   shouldPublishRepoKit: mocks.shouldPublishRepoKit
+}));
+
+vi.mock("../src/runtimeLaunchers", () => ({
+  inspectRuntimeLaunchers: mocks.inspectRuntimeLaunchers
 }));
 
 vi.mock("../src/logicsEnvironment", () => ({
@@ -264,6 +269,7 @@ describe("LogicsViewProvider", () => {
     mocks.publishCodexWorkspaceOverlay.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
     mocks.detectClaudeBridgeStatus.mockReset();
+    mocks.inspectRuntimeLaunchers.mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
       preferredVariant: "hybrid-assist",
@@ -308,6 +314,18 @@ describe("LogicsViewProvider", () => {
       installedVersion: "1.4.0",
       sourceRevision: "abc123",
       publishedSkillNames: ["demo-skill"]
+    });
+    mocks.inspectRuntimeLaunchers.mockResolvedValue({
+      codex: {
+        available: true,
+        title: "Launch Codex with the globally published Logics kit",
+        command: "codex"
+      },
+      claude: {
+        available: true,
+        title: "Launch Claude in this repository",
+        command: "claude"
+      }
     });
     vi.mocked(inspectLogicsEnvironment).mockReset();
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue(defaultEnvironmentSnapshot(root) as never);
@@ -1205,6 +1223,21 @@ describe("LogicsViewProvider", () => {
     expect(sendText).toHaveBeenCalledWith("codex", true);
   });
 
+  it("launches Claude immediately from Tools when the CLI and bridge are available", async () => {
+    const show = vi.fn();
+    const sendText = vi.fn();
+    mocks.createTerminal.mockReturnValue({ show, sendText });
+
+    await (provider as any).launchClaudeFromTools();
+
+    expect(mocks.createTerminal).toHaveBeenCalledWith({
+      name: `Claude: ${path.basename(root)}`,
+      cwd: root
+    });
+    expect(show).toHaveBeenCalledWith(true);
+    expect(sendText).toHaveBeenCalledWith("claude", true);
+  });
+
   it("publishes the global kit from Tools when the global kit is missing", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     const show = vi.fn();
@@ -1688,7 +1721,7 @@ describe("LogicsViewProvider", () => {
       expect(items.some((i) => i.label.includes(".env.local is missing"))).toBe(false);
     });
 
-    it("surfaces a Claude bridge repair action when bridge files are missing", async () => {
+    it("surfaces a Logics kit repair action when bridge files are missing", async () => {
       vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
         ...defaultEnvironmentSnapshot(root),
         hybridRuntime: {
@@ -1712,14 +1745,14 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Claude bridge"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Repair Logics Kit"))).toBe(true);
     });
 
     it("does not surface Claude bridge repair when bridge is available", async () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Claude bridge"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Repair Logics Kit"))).toBe(false);
     });
 
     it("creates logics/.cache directory when absent during Check Environment", async () => {

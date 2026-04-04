@@ -28,6 +28,7 @@ export type LogicsWebviewMessage =
   | { type: "new-request" }
   | { type: "new-request-guided" }
   | { type: "launch-codex-overlay" }
+  | { type: "launch-claude" }
   | { type: "fix-docs" }
   | { type: "select-agent" }
   | { type: "bootstrap-logics" }
@@ -35,6 +36,7 @@ export type LogicsWebviewMessage =
   | { type: "check-hybrid-runtime" }
   | { type: "update-logics-kit" }
   | { type: "sync-codex-overlay" }
+  | { type: "repair-logics-kit" }
   | { type: "assist-commit-all" }
   | { type: "assist-next-step" }
   | { type: "assist-triage" }
@@ -75,6 +77,7 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "new-request":
     case "new-request-guided":
     case "launch-codex-overlay":
+    case "launch-claude":
     case "fix-docs":
     case "select-agent":
     case "bootstrap-logics":
@@ -82,6 +85,7 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "check-hybrid-runtime":
     case "update-logics-kit":
     case "sync-codex-overlay":
+    case "repair-logics-kit":
     case "assist-commit-all":
     case "assist-next-step":
     case "assist-triage":
@@ -95,7 +99,7 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "about":
     case "change-project-root":
     case "reset-project-root":
-      return { type };
+      return { type } as LogicsWebviewMessage;
     case "tool-action": {
       const action = readString(value.action);
       return action ? { type, action } : null;

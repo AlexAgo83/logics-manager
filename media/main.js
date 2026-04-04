@@ -32,12 +32,13 @@
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
   const refreshButton = document.querySelector('[data-action="refresh"]');
   const launchCodexOverlayButton = document.querySelector('[data-action="launch-codex-overlay"]');
+  const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
   const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
   const updateLogicsKitButton = document.querySelector('[data-action="update-logics-kit"]');
-  const syncCodexOverlayButton = document.querySelector('[data-action="sync-codex-overlay"]');
+  const repairLogicsKitButton = document.querySelector('[data-action="repair-logics-kit"]');
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const checkHybridRuntimeButton = document.querySelector('[data-action="check-hybrid-runtime"]');
   const openHybridInsightsButton = document.querySelector('[data-action="open-hybrid-insights"]');
@@ -110,6 +111,12 @@
   let canResetProjectRoot = false;
   let canBootstrapLogics = false;
   let bootstrapLogicsTitle = "Bootstrap Logics in this project";
+  let canLaunchCodex = false;
+  let launchCodexTitle = "Launch Codex with the globally published Logics kit";
+  let canLaunchClaude = false;
+  let launchClaudeTitle = "Launch Claude in this repository";
+  let canRepairLogicsKit = false;
+  let repairLogicsKitTitle = "Check current Logics runtime state and repair the shared kit publication or bridge files.";
   let activeWorkspaceRoot = null;
   let persistedWorkspaceRoot = null;
   const previousState = vscode.getState() || null;
@@ -450,6 +457,9 @@
           activityToggle,
           attentionToggle,
           bootstrapLogicsButton,
+          launchCodexOverlayButton,
+          launchClaudeButton,
+          repairLogicsKitButton,
           filterPanel,
           filterToggle,
           groupBySelect,
@@ -479,6 +489,12 @@
           getCanBootstrapLogics: () => canBootstrapLogics,
           getBootstrapLogicsTitle: () => bootstrapLogicsTitle,
           getCanResetProjectRoot: () => canResetProjectRoot,
+          getCanLaunchCodex: () => canLaunchCodex,
+          getLaunchCodexTitle: () => launchCodexTitle,
+          getCanLaunchClaude: () => canLaunchClaude,
+          getLaunchClaudeTitle: () => launchClaudeTitle,
+          getCanRepairLogicsKit: () => canRepairLogicsKit,
+          getRepairLogicsKitTitle: () => repairLogicsKitTitle,
           getEffectiveViewMode,
           getGroupMode: () => groupMode,
           getHelpBannerMessage,
@@ -858,6 +874,24 @@
       if (payload && typeof payload.bootstrapLogicsTitle === "string") {
         bootstrapLogicsTitle = payload.bootstrapLogicsTitle;
       }
+      if (payload && typeof payload.canLaunchCodex === "boolean") {
+        canLaunchCodex = payload.canLaunchCodex;
+      }
+      if (payload && typeof payload.launchCodexTitle === "string") {
+        launchCodexTitle = payload.launchCodexTitle;
+      }
+      if (payload && typeof payload.canLaunchClaude === "boolean") {
+        canLaunchClaude = payload.canLaunchClaude;
+      }
+      if (payload && typeof payload.launchClaudeTitle === "string") {
+        launchClaudeTitle = payload.launchClaudeTitle;
+      }
+      if (payload && typeof payload.canRepairLogicsKit === "boolean") {
+        canRepairLogicsKit = payload.canRepairLogicsKit;
+      }
+      if (payload && typeof payload.repairLogicsKitTitle === "string") {
+        repairLogicsKitTitle = payload.repairLogicsKitTitle;
+      }
       changedPaths = Array.isArray(payload && payload.changedPaths) ? payload.changedPaths : [];
       activeAgent = payload && payload.activeAgent ? payload.activeAgent : null;
       if (payload && payload.error) {
@@ -983,6 +1017,7 @@
         bootstrapLogicsButton,
         checkHybridRuntimeButton,
         checkEnvironmentButton,
+        launchClaudeButton,
         openHybridInsightsButton,
         changeProjectRootButton,
         assistCommitAllButton,
@@ -1009,6 +1044,7 @@
         hideSpecToggle,
         layoutController,
         launchCodexOverlayButton,
+        repairLogicsKitButton,
         mainPane,
         markDoneButton,
         markObsoleteButton,
@@ -1044,8 +1080,8 @@
           hostApi.updateLogicsKit();
           setToolsPanelOpen(false);
         },
-        onSyncCodexOverlay() {
-          hostApi.syncCodexOverlay();
+        onRepairLogicsKit() {
+          hostApi.repairLogicsKit();
           setToolsPanelOpen(false);
         },
         onCheckEnvironment() {
@@ -1094,6 +1130,10 @@
         },
         onLaunchCodexOverlay() {
           hostApi.launchCodexOverlay();
+          setToolsPanelOpen(false);
+        },
+        onLaunchClaude() {
+          hostApi.launchClaude();
           setToolsPanelOpen(false);
         },
         onChangeProjectRoot() {
@@ -1259,7 +1299,6 @@
         sortBySelect,
         splitter,
         stackedQuery,
-        syncCodexOverlayButton,
         toolsPanel,
         toolsToggle,
         updateLogicsKitButton,

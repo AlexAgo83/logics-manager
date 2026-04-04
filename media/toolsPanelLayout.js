@@ -43,6 +43,7 @@
         "assist-triage",
         "assist-commit-all",
         "assist-diff-risk",
+        "assist-summarize-changelog",
         "assist-summarize-validation",
         "assist-validation-checklist",
         "assist-doc-consistency"

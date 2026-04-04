@@ -72,6 +72,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <div data-tools-body="assist">
                     <button class="tools-panel__item" data-action="assist-commit-all"></button>
                     <button class="tools-panel__item" data-action="assist-diff-risk"></button>
+                    <button class="tools-panel__item" data-action="assist-summarize-changelog"></button>
                     <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
                     <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
                     <button class="tools-panel__item" data-action="assist-doc-consistency"></button>

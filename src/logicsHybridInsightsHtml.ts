@@ -39,6 +39,69 @@ function asNumber(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function parseTimestamp(value: unknown): number | null {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
+  }
+  const raw = value.trim();
+  const candidates = [
+    raw,
+    raw.replace(" ", "T"),
+    raw.replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2"),
+    raw.replace(" ", "T").replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2")
+  ];
+  for (const candidate of candidates) {
+    const timestamp = Date.parse(candidate);
+    if (Number.isFinite(timestamp)) {
+      return timestamp;
+    }
+  }
+  return null;
+}
+
+function formatAbsoluteDateTime(value: unknown, fallback = "unknown"): string {
+  const timestamp = parseTimestamp(value);
+  if (timestamp === null) {
+    return asString(value, fallback);
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(timestamp));
+}
+
+function formatRelativeAge(diffMs: number): string {
+  const minuteMs = 60 * 1000;
+  const hourMs = 60 * minuteMs;
+  if (diffMs < minuteMs) {
+    return "less than a minute ago";
+  }
+  if (diffMs < hourMs) {
+    const minutes = Math.floor(diffMs / minuteMs);
+    return `${minutes} min ago`;
+  }
+  const hours = Math.floor(diffMs / hourMs);
+  return `${hours} hr${hours === 1 ? "" : "s"} ago`;
+}
+
+function formatReadableDateTime(value: unknown, fallback = "unknown"): string {
+  const timestamp = parseTimestamp(value);
+  if (timestamp === null) {
+    return asString(value, fallback);
+  }
+  const diffMs = Date.now() - timestamp;
+  if (diffMs >= 0 && diffMs < 24 * 60 * 60 * 1000) {
+    return formatRelativeAge(diffMs);
+  }
+  return formatAbsoluteDateTime(value, fallback);
+}
+
+function compareTimestampsDesc(left: unknown, right: unknown): number {
+  const leftTime = parseTimestamp(left) ?? Number.NEGATIVE_INFINITY;
+  const rightTime = parseTimestamp(right) ?? Number.NEGATIVE_INFINITY;
+  return rightTime - leftTime;
+}
+
 function formatRate(value: unknown): string {
   const rate = asNumber(value, 0);
   return `${(rate * 100).toFixed(rate === 0 ? 0 : 1)}%`;
@@ -159,7 +222,13 @@ function renderFlowBreakdown(value: unknown): string {
 }
 
 function renderRecentRuns(value: unknown): string {
-  const runs = asArray<Record<string, unknown>>(value);
+  const runs = asArray<Record<string, unknown>>(value)
+    .map((run, index) => ({ run, index }))
+    .sort((left, right) => {
+      const timestampDiff = compareTimestampsDesc(left.run.recorded_at, right.run.recorded_at);
+      return timestampDiff !== 0 ? timestampDiff : left.index - right.index;
+    })
+    .map(({ run }) => run);
   if (!runs.length) {
     return `<p class="hybrid-insights__empty">No recent hybrid assist audit entries available yet.</p>`;
   }
@@ -171,6 +240,8 @@ function renderRecentRuns(value: unknown): string {
           const validatedExcerpt = asRecord(run.validated_excerpt);
           const status = asString(run.result_status, "unknown");
           const executionPath = asString(run.execution_path, "unknown");
+          const recordedAtLabel = formatReadableDateTime(run.recorded_at, "unknown time");
+          const recordedAtTitle = formatAbsoluteDateTime(run.recorded_at, recordedAtLabel);
           const reviewRecommended = Boolean(run.review_recommended);
           const statusClass =
             status === "degraded" ? "is-bad" : reviewRecommended ? "is-warn" : "is-good";
@@ -184,7 +255,7 @@ function renderRecentRuns(value: unknown): string {
                   </div>
                   <div class="hybrid-insights__recent-secondary">
                     <span>${escapeHtml(asString(run.backend_requested, "unknown"))} -> ${escapeHtml(asString(run.backend_used, "unknown"))}</span>
-                    <span>${escapeHtml(asString(run.recorded_at, "unknown time"))}</span>
+                    <span title="${escapeHtml(recordedAtTitle)}">${escapeHtml(recordedAtLabel)}</span>
                   </div>
                 </div>
               </summary>
@@ -499,6 +570,11 @@ export function buildHybridInsightsHtml(params: {
       padding: 8px 0;
       border-bottom: 1px solid var(--line);
     }
+    .hybrid-insights__meta-row {
+      display: grid;
+      gap: 6px;
+      align-items: start;
+    }
     .hybrid-insights__list-row:last-child,
     .hybrid-insights__meta-row:last-child {
       border-bottom: 0;
@@ -510,7 +586,14 @@ export function buildHybridInsightsHtml(params: {
     .hybrid-insights__list-row strong,
     .hybrid-insights__meta-row strong {
       font-size: 13px;
+    }
+    .hybrid-insights__list-row strong {
       text-align: right;
+    }
+    .hybrid-insights__meta-row strong {
+      text-align: left;
+      overflow-wrap: anywhere;
+      line-height: 1.45;
     }
     .hybrid-insights__empty {
       margin: 0;
@@ -665,8 +748,8 @@ export function buildHybridInsightsHtml(params: {
     }
     .hybrid-insights__meta-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
     }
     .hybrid-insights__nested-details {
       border: 1px solid var(--line);
@@ -741,7 +824,7 @@ export function buildHybridInsightsHtml(params: {
         <summary>Report source and window</summary>
         <div class="hybrid-insights__secondary-details-body">
           <div class="hybrid-insights__meta-grid">
-            <div class="hybrid-insights__meta-row"><span>Generated</span><strong>${escapeHtml(asString(report.generated_at, "unknown"))}</strong></div>
+            <div class="hybrid-insights__meta-row"><span>Generated</span><strong>${escapeHtml(formatReadableDateTime(report.generated_at, "unknown"))}</strong></div>
             <div class="hybrid-insights__meta-row"><span>Audit log</span><strong>${escapeHtml(asString(sources.audit_log, "n/a"))}</strong></div>
             <div class="hybrid-insights__meta-row"><span>Measurement log</span><strong>${escapeHtml(asString(sources.measurement_log, "n/a"))}</strong></div>
             <div class="hybrid-insights__meta-row"><span>Window</span><strong>${asNumber(limits.window_days, 0)} day(s)</strong></div>

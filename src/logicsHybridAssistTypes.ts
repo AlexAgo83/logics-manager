@@ -54,6 +54,11 @@ export type HybridValidationSummaryResult = {
   summary?: string;
 };
 
+export type HybridChangelogSummaryResult = {
+  title?: string;
+  entries?: string[];
+};
+
 export type HybridValidationChecklistResult = {
   profile?: string;
   checks?: string[];
@@ -200,6 +205,21 @@ export function parseHybridValidationSummaryResult(payload: HybridAssistPayload)
   return {
     overall: typeof result.overall === "string" ? result.overall : undefined,
     summary: typeof result.summary === "string" ? result.summary : undefined
+  };
+}
+
+export function parseHybridChangelogSummaryResult(payload: HybridAssistPayload): HybridChangelogSummaryResult | null {
+  const result = payload.result;
+  if (!isRecord(result)) {
+    return null;
+  }
+  const entries = isStringArray(result.entries) ? result.entries : undefined;
+  if (result.title === undefined && entries === undefined) {
+    return null;
+  }
+  return {
+    title: typeof result.title === "string" ? result.title : undefined,
+    entries
   };
 }
 

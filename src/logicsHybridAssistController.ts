@@ -3,6 +3,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import {
+  parseHybridChangelogSummaryResult,
   describeHybridAssistOutcome,
   parseHybridAssistPayload,
   parseHybridCommitPlanSteps,
@@ -393,6 +394,33 @@ export class LogicsHybridAssistController {
     this.notifyHybridAssistCompletion("Summarize Validation", payload, detail);
   }
 
+  async summarizeChangelogFromTools(): Promise<void> {
+    const root = await this.options.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["summarize-changelog"], {
+      actionLabel: "Generate Changelog Summary"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = parseHybridChangelogSummaryResult(payload);
+    const title = result?.title || "Changelog summary";
+    const entries = result?.entries ?? [];
+    const detail = entries.length > 0 ? `${title}: ${entries.slice(0, 3).join(" | ")}` : `${title}.`;
+    const clipboardText = [title, "", ...entries.map((entry) => `- ${entry}`)].join("\n").trim();
+    const message = this.buildHybridAssistCompletionMessage("Generate Changelog Summary", payload, detail);
+    const choice = payload.degraded
+      ? await vscode.window.showWarningMessage(message, "Copy Changelog")
+      : await vscode.window.showInformationMessage(message, "Copy Changelog");
+    if (choice !== "Copy Changelog") {
+      return;
+    }
+    await vscode.env.clipboard.writeText(clipboardText);
+    void vscode.window.showInformationMessage("Changelog summary copied to clipboard.");
+  }
+
   async buildValidationChecklistFromTools(): Promise<void> {
     const root = await this.options.getActionRoot();
     if (!root) {
@@ -512,6 +540,20 @@ export class LogicsHybridAssistController {
     detail: string
   ): void {
     const outcome = describeHybridAssistOutcome(payload);
+    const message = this.buildHybridAssistCompletionMessage(actionLabel, payload, detail);
+    if (outcome.degraded) {
+      void vscode.window.showWarningMessage(message);
+      return;
+    }
+    void vscode.window.showInformationMessage(message);
+  }
+
+  private buildHybridAssistCompletionMessage(
+    actionLabel: string,
+    payload: HybridAssistPayload,
+    detail: string
+  ): string {
+    const outcome = describeHybridAssistOutcome(payload);
     const backendLabel = outcome.backendUsed
       ? outcome.backendRequested === "auto" && outcome.backendUsed === "codex"
         ? ` via ${outcome.backendUsed} (fallback)`
@@ -520,12 +562,7 @@ export class LogicsHybridAssistController {
     const degradedDetail = outcome.degradedReasons.length > 0
       ? ` Degraded reasons: ${outcome.degradedReasons.join(", ")}.`
       : "";
-    const message = `${actionLabel} completed${backendLabel}. ${detail}${degradedDetail}`.trim();
-    if (outcome.degraded) {
-      void vscode.window.showWarningMessage(message);
-      return;
-    }
-    void vscode.window.showInformationMessage(message);
+    return `${actionLabel} completed${backendLabel}. ${detail}${degradedDetail}`.trim();
   }
 
   private async refreshHybridInsightsPanel(root: string): Promise<void> {

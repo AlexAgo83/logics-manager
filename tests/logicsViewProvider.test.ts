@@ -677,6 +677,55 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("can generate a changelog summary from the shared runtime and copy it to the clipboard", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    mocks.showInformationMessage.mockResolvedValueOnce("Copy Changelog").mockResolvedValueOnce(undefined);
+    mocks.runPythonWithOutput.mockResolvedValue({
+      stdout: JSON.stringify({
+        ok: true,
+        backend_used: "ollama",
+        backend_requested: "auto",
+        result_status: "ok",
+        degraded_reasons: [],
+        result: {
+          title: "Release 1.20.1",
+          entries: [
+            "Fix Hybrid Insights date ordering.",
+            "Improve recent timestamp readability.",
+            "Expose changelog summary in Assist."
+          ]
+        }
+      }),
+      stderr: ""
+    });
+
+    await (provider as any).summarizeChangelogFromTools();
+
+    expect(mocks.withProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Generate Changelog Summary: waiting on hybrid assist backend..."
+      }),
+      expect.any(Function)
+    );
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+      "flow",
+      "assist",
+      "summarize-changelog",
+      "--format",
+      "json"
+    ]);
+    expect(mocks.showInformationMessage).toHaveBeenNthCalledWith(
+      1,
+      "Generate Changelog Summary completed via ollama. Release 1.20.1: Fix Hybrid Insights date ordering. | Improve recent timestamp readability. | Expose changelog summary in Assist.",
+      "Copy Changelog"
+    );
+    expect(mocks.clipboardWriteText).toHaveBeenCalledWith(
+      ["Release 1.20.1", "", "- Fix Hybrid Insights date ordering.", "- Improve recent timestamp readability.", "- Expose changelog summary in Assist."].join("\n")
+    );
+    expect(mocks.showInformationMessage).toHaveBeenNthCalledWith(2, "Changelog summary copied to clipboard.");
+  });
+
   it("can surface the shared diff-risk flow from tools", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");

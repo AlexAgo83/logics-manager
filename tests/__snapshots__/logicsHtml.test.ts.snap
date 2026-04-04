@@ -198,6 +198,11 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
       padding: 8px 0;
       border-bottom: 1px solid var(--line);
     }
+    .hybrid-insights__meta-row {
+      display: grid;
+      gap: 6px;
+      align-items: start;
+    }
     .hybrid-insights__list-row:last-child,
     .hybrid-insights__meta-row:last-child {
       border-bottom: 0;
@@ -209,7 +214,14 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
     .hybrid-insights__list-row strong,
     .hybrid-insights__meta-row strong {
       font-size: 13px;
+    }
+    .hybrid-insights__list-row strong {
       text-align: right;
+    }
+    .hybrid-insights__meta-row strong {
+      text-align: left;
+      overflow-wrap: anywhere;
+      line-height: 1.45;
     }
     .hybrid-insights__empty {
       margin: 0;
@@ -364,8 +376,8 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
     }
     .hybrid-insights__meta-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
     }
     .hybrid-insights__nested-details {
       border: 1px solid var(--line);
@@ -785,6 +797,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
                 <div class="tools-panel__section-body" data-tools-body="assist">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-changelog" title="Generate bounded changelog entries through the shared runtime">Changelog Summary</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Validation Summary</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>

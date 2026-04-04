@@ -1,0 +1,91 @@
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("vscode", () => ({
+  workspace: {
+    workspaceFolders: []
+  },
+  window: {},
+  env: {}
+}));
+
+import { inspectLogicsBootstrapState } from "../src/logicsProviderUtils";
+
+describe("inspectLogicsBootstrapState", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  function makeCanonicalRoot(): string {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-state-"));
+    roots.push(root);
+    for (const rel of [
+      "logics",
+      "logics/skills",
+      "logics/architecture",
+      "logics/product",
+      "logics/request",
+      "logics/backlog",
+      "logics/tasks",
+      "logics/specs",
+      "logics/external"
+    ]) {
+      fs.mkdirSync(path.join(root, rel), { recursive: true });
+    }
+    fs.writeFileSync(
+      path.join(root, ".gitmodules"),
+      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://github.com/AlexAgo83/cdx-logics-kit\n',
+      "utf8"
+    );
+    fs.writeFileSync(path.join(root, "logics", "instructions.md"), "# instructions\n", "utf8");
+    fs.writeFileSync(path.join(root, "logics.yaml"), "version: 1\n", "utf8");
+    fs.writeFileSync(
+      path.join(root, ".gitignore"),
+      [
+        ".env.local",
+        "logics/.cache/",
+        "logics/.cache/hybrid_assist_audit.jsonl",
+        "logics/.cache/hybrid_assist_measurements.jsonl",
+        "logics/hybrid_assist_audit.jsonl",
+        "logics/hybrid_assist_measurements.jsonl",
+        "logics/mutation_audit.jsonl"
+      ].join("\n") + "\n",
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(root, ".env.local"),
+      "OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=gm-test\n",
+      "utf8"
+    );
+    return root;
+  }
+
+  it("marks canonical repos with missing repo-local bootstrap files as convergable", () => {
+    const root = makeCanonicalRoot();
+    fs.rmSync(path.join(root, "logics.yaml"));
+
+    const state = inspectLogicsBootstrapState(root);
+
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(true);
+    expect(state.convergenceNeeded).toBe(true);
+    expect(state.missingPaths).toContain("logics.yaml");
+    expect(state.actionTitle).toContain("Reconcile");
+  });
+
+  it("keeps canonical repos non-bootstrappable once repo-local bootstrap is converged", () => {
+    const root = makeCanonicalRoot();
+
+    const state = inspectLogicsBootstrapState(root);
+
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(false);
+    expect(state.convergenceNeeded).toBeUndefined();
+  });
+});

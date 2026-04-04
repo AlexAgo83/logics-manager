@@ -1,9 +1,9 @@
 ## req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime - Add OpenAI and Gemini provider dispatch to the hybrid assist runtime
 > From version: 1.18.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction, remote API dispatch, and backend policy expansion
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -206,6 +206,7 @@ flowchart TD
 - Validation remains green after the observability and UI update: `npm run test` and `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
 - 2026-04-04: `item_217` completed. The regression suite now covers ordered remote-provider fallback (`openai -> gemini`) and bounded semantic fallback after an invalid remote payload, alongside the existing missing-credential, cooldown, `ollama`, `deterministic`, and `codex-only` cases.
 - Validation remains green after the regression expansion: `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v`.
+- 2026-04-04: `req_120` is now closed. The shared runtime supports direct OpenAI and Gemini dispatch, provider-aware observability, compact `AI Runtime` tools surfaces, persisted readiness gating, and the regression matrix required to keep bounded fallback trustworthy.
 
 # AI Context
 - Summary: Add direct OpenAI and Gemini provider dispatch to the shared hybrid assist runtime through a provider abstraction that preserves strict flow contracts, explicit backend policy, and trustworthy observability.

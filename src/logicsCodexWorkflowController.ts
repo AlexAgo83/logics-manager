@@ -415,6 +415,8 @@ export class LogicsCodexWorkflowController {
     const afterStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
     const updated = beforeStatus.stdout.trim() !== afterStatus.stdout.trim();
     await this.options.refresh();
+
+    const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
     const snapshot = await inspectLogicsEnvironment(root);
 
     if (snapshot.codexOverlay.status === "missing-manager") {
@@ -429,14 +431,15 @@ export class LogicsCodexWorkflowController {
     const message = updated
       ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.`
       : "The Logics kit is already up to date on the tracked submodule revision.";
+    const messageWithConvergence = this.appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"
-        ? await vscode.window.showInformationMessage(message, "Publish Global Codex Kit")
+        ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Kit")
         : undefined;
     if (choice === "Publish Global Codex Kit") {
       await this.syncCodexOverlay(root, "kit update");
     } else {
-      void vscode.window.showInformationMessage(message);
+      void vscode.window.showInformationMessage(messageWithConvergence);
     }
     return true;
   }
@@ -678,5 +681,57 @@ export class LogicsCodexWorkflowController {
       return [];
     }
     return parseGitStatusEntries(result.stdout).map((entry) => entry.path);
+  }
+
+  private async reconcileRepoBootstrapAfterKitUpdate(root: string): Promise<{
+    attempted: boolean;
+    applied: boolean;
+    failureMessage?: string;
+  }> {
+    const bootstrapState = inspectLogicsBootstrapState(root);
+    if (bootstrapState.status !== "canonical" || !bootstrapState.canBootstrap) {
+      return { attempted: false, applied: false };
+    }
+
+    const scriptPath = path.join(root, "logics", "skills", "logics.py");
+    if (!fs.existsSync(scriptPath)) {
+      return {
+        attempted: true,
+        applied: false,
+        failureMessage: "Bootstrap script is missing after the kit update."
+      };
+    }
+
+    const result = await runPythonWithOutput(root, scriptPath, ["bootstrap"]);
+    if (result.error) {
+      return {
+        attempted: true,
+        applied: false,
+        failureMessage: result.stderr || result.error.message
+      };
+    }
+
+    await this.options.refresh();
+    return { attempted: true, applied: true };
+  }
+
+  private appendBootstrapConvergenceNote(
+    message: string,
+    convergence: {
+      attempted: boolean;
+      applied: boolean;
+      failureMessage?: string;
+    }
+  ): string {
+    if (!convergence.attempted) {
+      return message;
+    }
+    if (convergence.applied) {
+      return `${message} Repo-local bootstrap files were reconciled with the current kit.`;
+    }
+    if (convergence.failureMessage) {
+      return `${message} Repo-local bootstrap convergence still needs attention: ${convergence.failureMessage}`;
+    }
+    return message;
   }
 }

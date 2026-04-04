@@ -61,6 +61,36 @@ export type LogicsBootstrapState = {
   actionTitle: string;
   promptMessage?: string;
   reason: string;
+  missingPaths?: string[];
+  convergenceNeeded?: boolean;
+};
+
+const REQUIRED_BOOTSTRAP_DIRS = [
+  "logics/architecture",
+  "logics/product",
+  "logics/request",
+  "logics/backlog",
+  "logics/tasks",
+  "logics/specs",
+  "logics/external"
+] as const;
+
+const REQUIRED_GITIGNORE_ENTRIES = [
+  ".env.local",
+  "logics/.cache/",
+  "logics/.cache/hybrid_assist_audit.jsonl",
+  "logics/.cache/hybrid_assist_measurements.jsonl",
+  "logics/hybrid_assist_audit.jsonl",
+  "logics/hybrid_assist_measurements.jsonl",
+  "logics/mutation_audit.jsonl"
+] as const;
+
+const REQUIRED_ENV_KEYS = ["OPENAI_API_KEY", "GEMINI_API_KEY"] as const;
+
+type BootstrapConvergenceInspection = {
+  needed: boolean;
+  missingPaths: string[];
+  reason: string;
 };
 
 export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspection {
@@ -155,6 +185,19 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
   }
 
   if (inspection.exists && inspection.isCanonical) {
+    const convergence = inspectLogicsBootstrapConvergence(root);
+    if (convergence.needed) {
+      return {
+        status: "canonical",
+        canBootstrap: true,
+        actionTitle: "Reconcile Logics bootstrap on this branch",
+        promptMessage:
+          "This branch already has the canonical Logics kit, but repo-local bootstrap files are incomplete. Run Bootstrap Logics to converge them?",
+        reason: convergence.reason,
+        missingPaths: convergence.missingPaths,
+        convergenceNeeded: true
+      };
+    }
     return {
       status: "canonical",
       canBootstrap: false,
@@ -169,6 +212,102 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
     actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
     reason: inspection.reason
   };
+}
+
+export function inspectLogicsBootstrapConvergence(root: string): BootstrapConvergenceInspection {
+  const missingPaths: string[] = [];
+
+  for (const rel of REQUIRED_BOOTSTRAP_DIRS) {
+    if (!fs.existsSync(path.join(root, rel))) {
+      missingPaths.push(rel);
+    }
+  }
+
+  if (!fs.existsSync(path.join(root, "logics", "instructions.md"))) {
+    missingPaths.push("logics/instructions.md");
+  }
+
+  if (!fs.existsSync(path.join(root, "logics.yaml"))) {
+    missingPaths.push("logics.yaml");
+  }
+
+  const missingGitignoreEntries = getMissingBootstrapGitignoreEntries(root);
+  if (missingGitignoreEntries.length > 0) {
+    missingPaths.push(".gitignore");
+  }
+
+  const missingEnvKeys = getMissingBootstrapEnvKeys(root);
+  if (missingEnvKeys.length > 0) {
+    missingPaths.push(detectBootstrapEnvTarget(root));
+  }
+
+  if (missingPaths.length === 0) {
+    return {
+      needed: false,
+      missingPaths: [],
+      reason: "Repo-local Logics bootstrap is converged."
+    };
+  }
+
+  return {
+    needed: true,
+    missingPaths,
+    reason: `Repo-local Logics bootstrap is missing or stale: ${Array.from(new Set(missingPaths)).join(", ")}.`
+  };
+}
+
+function getMissingBootstrapGitignoreEntries(root: string): string[] {
+  const gitignorePath = path.join(root, ".gitignore");
+  if (!fs.existsSync(gitignorePath)) {
+    return [...REQUIRED_GITIGNORE_ENTRIES];
+  }
+  let content = "";
+  try {
+    content = fs.readFileSync(gitignorePath, "utf-8");
+  } catch {
+    return [...REQUIRED_GITIGNORE_ENTRIES];
+  }
+  const existing = new Set(
+    content
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+  );
+  return REQUIRED_GITIGNORE_ENTRIES.filter((entry) => !existing.has(entry));
+}
+
+function getMissingBootstrapEnvKeys(root: string): string[] {
+  const presentKeys = new Set([
+    ...readBootstrapEnvKeys(path.join(root, ".env")),
+    ...readBootstrapEnvKeys(path.join(root, ".env.local"))
+  ]);
+  return REQUIRED_ENV_KEYS.filter((key) => !presentKeys.has(key));
+}
+
+function detectBootstrapEnvTarget(root: string): string {
+  const envPath = path.join(root, ".env");
+  const envLocalPath = path.join(root, ".env.local");
+  if (fs.existsSync(envLocalPath) || !fs.existsSync(envPath)) {
+    return ".env.local";
+  }
+  return ".env";
+}
+
+function readBootstrapEnvKeys(filePath: string): string[] {
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+  try {
+    return fs
+      .readFileSync(filePath, "utf-8")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith("#") && line.includes("="))
+      .map((line) => line.split("=", 1)[0].trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 export function buildLogicsKitUpdateCommand(): string {

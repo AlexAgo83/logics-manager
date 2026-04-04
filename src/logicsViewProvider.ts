@@ -467,7 +467,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
     const bootstrapState = inspectLogicsBootstrapState(root);
-    if (bootstrapState.status === "canonical") {
+    if (bootstrapState.status === "canonical" && !bootstrapState.canBootstrap) {
       void vscode.window.showInformationMessage("Logics bootstrap already configured.");
       return;
     }
@@ -514,6 +514,19 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
         }
       });
+    }
+
+    if (root) {
+      const bootstrapState = inspectLogicsBootstrapState(root);
+      if (bootstrapState.canBootstrap) {
+        quickPickItems.push({
+          label: `Run: ${bootstrapState.actionTitle}`,
+          description: bootstrapState.reason,
+          action: async () => {
+            await this.codexWorkflowController.bootstrapLogics(root);
+          }
+        });
+      }
     }
 
     if (root) {

@@ -388,6 +388,55 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("runs bootstrap from Tools when the canonical kit still needs repo-local convergence", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical kit needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
+    });
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "available", summary: "Global kit ready." }
+      },
+      codexOverlay: {
+        status: "healthy",
+        summary: "Global kit ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+
+    await (provider as any).bootstrapFromTools();
+
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(root, "logics", "skills", "logics.py"),
+      ["bootstrap"]
+    );
+    expect(mocks.showInformationMessage).not.toHaveBeenCalledWith("Logics bootstrap already configured.");
+  });
+
   it("shows an actionable error when bootstrap is requested without git on PATH", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
@@ -1328,12 +1377,15 @@ describe("LogicsViewProvider", () => {
   });
 
   it("can run the canonical kit update directly from environment diagnostics", async () => {
-    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
@@ -1398,13 +1450,19 @@ describe("LogicsViewProvider", () => {
       .mockResolvedValueOnce({ stdout: " abc123 logics/skills", stderr: "" })
       .mockResolvedValueOnce({ stdout: "Updating", stderr: "" })
       .mockResolvedValueOnce({ stdout: " def456 logics/skills", stderr: "" });
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
     mocks.showInformationMessage.mockResolvedValue(undefined);
 
     await provider.checkEnvironmentFromCommand();
 
     expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(root, "logics", "skills", "logics.py"),
+      ["bootstrap"]
+    );
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics kit updated after environment diagnostics. Review and commit the submodule pointer change in your repository when ready."
+      "Logics kit updated after environment diagnostics. Review and commit the submodule pointer change in your repository when ready. Repo-local bootstrap files were reconciled with the current kit."
     );
   });
 
@@ -1631,6 +1689,22 @@ describe("LogicsViewProvider", () => {
 
       const items = quickPickItems();
       expect(items.some((i) => i.label.includes("missing logics.yaml blocks") && i.label.includes("mutations") && i.label.includes("index"))).toBe(true);
+    });
+
+    it("surfaces a bootstrap reconciliation action when canonical bootstrap still needs convergence", async () => {
+      mocks.inspectLogicsBootstrapState.mockReturnValue({
+        status: "canonical",
+        canBootstrap: true,
+        actionTitle: "Reconcile Logics bootstrap on this branch",
+        reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+        missingPaths: ["logics.yaml"],
+        convergenceNeeded: true
+      });
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Reconcile Logics bootstrap on this branch"))).toBe(true);
     });
 
     it("appends missing blocks to logics.yaml when action is triggered", async () => {

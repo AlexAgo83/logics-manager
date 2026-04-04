@@ -485,8 +485,17 @@ export class LogicsHybridAssistController {
       this.notifyHybridAssistCompletion("Publish Release", payload, `Not ready: ${blocking}`);
       return;
     }
+    const releaseBranchSuggestion =
+      result?.release_branch?.exists && result.release_branch.needs_update
+        ? result.release_branch.suggestion ??
+          (result.release_branch.name && result.release_branch.current_branch
+            ? `Branch '${result.release_branch.name}' is behind '${result.release_branch.current_branch}'. Consider updating it before publishing.`
+            : "The release branch is not up to date. Consider updating it before publishing.")
+        : undefined;
     const choice = await vscode.window.showInformationMessage(
-      `${tag} is ready. Create tag, push, and publish the GitHub release?`,
+      releaseBranchSuggestion
+        ? `${tag} is ready. ${releaseBranchSuggestion} Create tag, push, and publish the GitHub release anyway?`
+        : `${tag} is ready. Create tag, push, and publish the GitHub release?`,
       "Publish"
     );
     if (choice === "Publish") {

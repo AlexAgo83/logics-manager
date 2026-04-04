@@ -90,9 +90,19 @@ export type HybridPublishReleaseResult = {
     version?: string;
     summary?: string;
   };
+  release_branch?: {
+    name?: string;
+    current_branch?: string;
+    exists?: boolean;
+    needs_update?: boolean;
+    can_fast_forward?: boolean;
+    suggestion?: string;
+    command?: string;
+  };
   publish_result?: {
     ok?: boolean;
     blocking?: string[];
+    suggestion?: string;
   };
 };
 
@@ -302,8 +312,9 @@ export function parseHybridPrepareReleaseResult(payload: UnknownRecord): HybridP
 
 export function parseHybridPublishReleaseResult(payload: UnknownRecord): HybridPublishReleaseResult | null {
   const changelog_status = isRecord(payload.changelog_status) ? payload.changelog_status : undefined;
+  const release_branch = isRecord(payload.release_branch) ? payload.release_branch : undefined;
   const publish_result = isRecord(payload.publish_result) ? payload.publish_result : undefined;
-  if (changelog_status === undefined && publish_result === undefined) {
+  if (changelog_status === undefined && release_branch === undefined && publish_result === undefined) {
     return null;
   }
   return {
@@ -316,10 +327,23 @@ export function parseHybridPublishReleaseResult(payload: UnknownRecord): HybridP
           summary: typeof changelog_status.summary === "string" ? changelog_status.summary : undefined
         }
       : undefined,
+    release_branch: release_branch
+      ? {
+          name: typeof release_branch.name === "string" ? release_branch.name : undefined,
+          current_branch: typeof release_branch.current_branch === "string" ? release_branch.current_branch : undefined,
+          exists: typeof release_branch.exists === "boolean" ? release_branch.exists : undefined,
+          needs_update: typeof release_branch.needs_update === "boolean" ? release_branch.needs_update : undefined,
+          can_fast_forward:
+            typeof release_branch.can_fast_forward === "boolean" ? release_branch.can_fast_forward : undefined,
+          suggestion: typeof release_branch.suggestion === "string" ? release_branch.suggestion : undefined,
+          command: typeof release_branch.command === "string" ? release_branch.command : undefined
+        }
+      : undefined,
     publish_result: publish_result
       ? {
           ok: typeof publish_result.ok === "boolean" ? publish_result.ok : undefined,
-          blocking: isStringArray(publish_result.blocking) ? publish_result.blocking : undefined
+          blocking: isStringArray(publish_result.blocking) ? publish_result.blocking : undefined,
+          suggestion: typeof publish_result.suggestion === "string" ? publish_result.suggestion : undefined
         }
       : undefined
   };

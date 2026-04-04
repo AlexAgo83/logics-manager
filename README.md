@@ -53,6 +53,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
 - Tools menu now groups provider management under `AI Runtime`, with `AI Runtime Status`, `AI Provider Insights`, and the shared hybrid-assist workflow actions in one compact system surface.
+- Tools menu also exposes `Prepare Release` and `Publish Release` so kit-backed release prep and publication stay available from the plugin.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
 - Environment diagnostics now show hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
 
@@ -231,6 +232,8 @@ Contract:
 - `Validation Summary` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
 - `Validation Checklist` asks the shared runtime for a bounded validation checklist derived from the current diff surface.
 - `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
+- `Prepare Release` checks release readiness and can run the bounded prep step that generates a missing changelog, refreshes the README version badge, and commits the release-prep changes.
+- `Publish Release` checks readiness, can publish through the shared kit flow, and warns when a local `release` branch exists but is behind the current branch.
 - On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
 - Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.

@@ -1,10 +1,10 @@
 ## item_212_plugin_and_kit_structural_refactors_extract_duplications_add_type_safety_decompose_modules_and_add_html_test_coverage - Plugin and kit structural refactors — extract duplications, add type safety, decompose modules, and add HTML test coverage
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 88%
-> Progress: 0%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -50,9 +50,20 @@ flowchart LR
 - AC2 -> req_121 AC2: type-safe JSON validation. Proof: grep `as {` in `logicsViewProvider.ts` returns zero matches on hybrid assist payloads; type guards exist in `logicsHybridAssistTypes.ts`.
 - AC4 -> req_121 AC4: dependency injection for gitRuntime. Proof: grep `require("vscode")` in `gitRuntime.ts` returns nothing.
 - AC5 -> req_121 AC5: HTML generator tests. Proof: test files exist for all 3 generators; `npm test` passes.
-- AC6 -> req_121 AC6: provider decomposition. Proof: `logicsViewProvider.ts` does not exceed ~1 000 lines; extracted modules each have a single responsibility.
+- AC6 -> req_121 AC6: provider decomposition. Proof: `logicsViewProvider.ts` delegates hybrid-assist and Codex/bootstrap responsibilities to extracted controllers; shared overlay logic and message parsing moved into dedicated modules with tests green.
 - AC13 -> req_121 AC13: hybrid module split. Proof: 3 new modules exist; `logics_flow_hybrid.py` re-exports; all kit tests pass.
 - AC17 -> req_121 AC17: discriminated union. Proof: adding a new message type without a handler causes a TypeScript compile error.
+
+# Delivery report
+- 2026-04-04: Extracted shared overlay handoff and terminal-launch logic into `src/logicsOverlaySupport.ts`, introduced `src/logicsHybridAssistTypes.ts` and `src/logicsViewMessages.ts` for runtime validation and exhaustive message dispatch, and split `src/logicsViewProvider.ts` responsibilities into `src/logicsHybridAssistController.ts` and `src/logicsCodexWorkflowController.ts`.
+- 2026-04-04: Removed dynamic `require("vscode")` from `src/gitRuntime.ts` by injecting the Git config reader from `src/extension.ts`.
+- 2026-04-04: Added snapshot coverage for the three HTML builders and updated the provider and git runtime tests to preserve the existing bootstrap and overlay behavior under the new structure.
+- 2026-04-04: Split `logics_flow_hybrid.py` into `logics_flow_hybrid_core.py`, `logics_flow_hybrid_transport.py`, and `logics_flow_hybrid_observability.py`, while keeping `logics_flow_hybrid.py` as the public compatibility facade used by `logics_flow.py`.
+
+# Validation report
+- `npm run lint`
+- `npm run test`
+- `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v`
 
 # Decision framing
 - Product framing: Not needed

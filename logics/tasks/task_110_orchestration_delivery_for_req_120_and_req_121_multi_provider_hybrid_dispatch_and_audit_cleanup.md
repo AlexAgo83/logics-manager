@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 25%
+> Progress: 37%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -183,3 +183,6 @@ flowchart LR
 - Validation checkpoint for `item_210`: verified `.gitignore` still contains `*.vsix`, confirmed no `logics_flow.py` references remain in `logics/instructions.md`, the three targeted `SKILL.md` files, or `.claude/`, and confirmed the new specs/config files exist with the expected contents.
 - 2026-04-04: `item_211` completed as the second wave-1 checkpoint inside the `logics/skills` submodule. Replaced the remaining 34 hardcoded `python3` launcher examples in `SKILL.md` files, converted `logics_flow.py` to an explicit `logics_flow_support` import list, updated bootstrap assets, and relocated hybrid audit/measurement runtime paths to `logics/.cache/`.
 - Validation checkpoint for `item_211`: confirmed zero `python3 ` launcher matches remain in `SKILL.md`, removed the wildcard support import, verified local runtime state now lives under `logics/.cache/`, and ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully.
+- 2026-04-04: `item_212` completed as the third wave-1 checkpoint. Extracted shared overlay handoff support and focused plugin controllers, added hybrid payload parsing and exhaustive webview message typing, removed the dynamic Git config require, added HTML snapshot coverage, and split `logics_flow_hybrid.py` into dedicated core, transport, and observability modules while keeping the public facade stable.
+- Validation checkpoint for `item_212`: ran `npm run lint`, `npm run test`, and `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v` successfully after the TypeScript and submodule refactors.
+- Wave 1 is now complete: `req_121` is closed and the prerequisite hybrid-runtime seams for `req_120` provider abstraction are in place. Next active delivery subject is `item_213`.

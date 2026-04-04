@@ -15,10 +15,10 @@ hybrid_assist:
   providers:
     readiness_cooldown_seconds: 300
     openai:
-      enabled: false
+      enabled: true
       base_url: https://api.openai.com/v1
       model: gpt-4.1-mini
     gemini:
-      enabled: false
+      enabled: true
       base_url: https://generativelanguage.googleapis.com/v1beta
       model: gemini-2.0-flash

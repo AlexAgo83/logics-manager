@@ -935,10 +935,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private buildMissingEnvLocalQuickPickItem(
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
-    const envLocalPath = path.join(root, ".env.local");
-    if (fs.existsSync(envLocalPath)) {
-      return null;
-    }
     const yamlPath = path.join(root, "logics.yaml");
     if (!fs.existsSync(yamlPath)) {
       return null;
@@ -958,13 +954,53 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!hasEnabledProvider) {
       return null;
     }
+    const envFiles = this.getRepositoryEnvFiles(root);
+    const targetFiles = envFiles.length > 0 ? envFiles : [".env.local"];
+    const missingTargets = targetFiles.filter((fileName) => {
+      const filePath = path.join(root, fileName);
+      if (!fs.existsSync(filePath)) {
+        return true;
+      }
+      try {
+        const fileContent = fs.readFileSync(filePath, "utf-8");
+        return ["OPENAI_API_KEY", "GEMINI_API_KEY"].some(
+          (key) => !new RegExp(`^\\s*${key}\\s*=`, "m").test(fileContent)
+        );
+      } catch {
+        return true;
+      }
+    });
+    if (missingTargets.length === 0) {
+      return null;
+    }
     return {
-      label: "Fix now: Generate .env.local placeholders",
-      description: "Hybrid providers are enabled, but local credential placeholders are missing, so provider health will degrade until the file exists.",
+      label: "Fix now: Update environment credential placeholders",
+      description:
+        envFiles.length > 0
+          ? `Hybrid providers are enabled, but ${missingTargets.join(", ")} is missing API key placeholders. Bootstrap will update every env file found.`
+          : "Hybrid providers are enabled, but no repo env file exists yet. Bootstrap will create .env.local with API key placeholders.",
       action: async () => {
         await this.codexWorkflowController.bootstrapLogics(root);
       }
     };
+  }
+
+  private getRepositoryEnvFiles(root: string): string[] {
+    try {
+      return fs.readdirSync(root, { withFileTypes: true })
+        .filter((entry) => entry.isFile() && entry.name.startsWith(".env"))
+        .map((entry) => entry.name)
+        .sort((left, right) => {
+          const leftPriority = left === ".env.local" ? 0 : left === ".env" ? 1 : 2;
+          const rightPriority = right === ".env.local" ? 0 : right === ".env" ? 1 : 2;
+          if (leftPriority !== rightPriority) {
+            return leftPriority - rightPriority;
+          }
+          return left.localeCompare(right);
+        });
+    } catch {
+      return [];
+    }
   }
 
   private async buildGitignoreArtifactsQuickPickItem(

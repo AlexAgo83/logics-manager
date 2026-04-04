@@ -1787,7 +1787,7 @@ describe("LogicsViewProvider", () => {
       expect(items.some((i) => i.label.includes("Optional: Ignore generated runtime artifacts"))).toBe(false);
     });
 
-    it("surfaces a warning when .env.local is absent and hybrid providers are configured", async () => {
+    it("surfaces an env placeholder action when no repo env file exists and hybrid providers are configured", async () => {
       writeYaml(
         "version: 1\nhybrid_assist:\n  env_file: .env\n  providers:\n    openai:\n      enabled: true\n"
       );
@@ -1795,19 +1795,32 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Fix now: Generate .env.local placeholders"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Fix now: Update environment credential placeholders"))).toBe(true);
     });
 
-    it("does not surface .env.local warning when file already exists", async () => {
+    it("does not surface env placeholder action when an existing env file already carries all provider keys", async () => {
       writeYaml(
         "version: 1\nhybrid_assist:\n  providers:\n    openai:\n      enabled: true\n"
       );
+      fs.writeFileSync(path.join(root, ".env.local"), "OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=gm-test\n", "utf-8");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Fix now: Update environment credential placeholders"))).toBe(false);
+    });
+
+    it("surfaces env placeholder action when one of several env files is missing provider keys", async () => {
+      writeYaml(
+        "version: 1\nhybrid_assist:\n  providers:\n    openai:\n      enabled: true\n"
+      );
+      fs.writeFileSync(path.join(root, ".env"), "OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=gm-test\n", "utf-8");
       fs.writeFileSync(path.join(root, ".env.local"), "OPENAI_API_KEY=sk-test\n", "utf-8");
 
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Fix now: Generate .env.local placeholders"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Fix now: Update environment credential placeholders"))).toBe(true);
     });
 
     it("surfaces a Logics kit repair action when bridge files are missing", async () => {

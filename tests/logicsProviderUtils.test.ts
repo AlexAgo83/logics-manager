@@ -88,4 +88,20 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.canBootstrap).toBe(false);
     expect(state.convergenceNeeded).toBeUndefined();
   });
+
+  it("reports every repo env file missing provider placeholders during convergence", () => {
+    const root = makeCanonicalRoot();
+    fs.writeFileSync(path.join(root, ".env"), "OPENAI_API_KEY=sk-test\n", "utf8");
+    fs.writeFileSync(path.join(root, ".env.production"), "GEMINI_API_KEY=gm-test\n", "utf8");
+    fs.writeFileSync(path.join(root, ".env.local"), "OPENAI_API_KEY=sk-test\n", "utf8");
+
+    const state = inspectLogicsBootstrapState(root);
+
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(true);
+    expect(state.convergenceNeeded).toBe(true);
+    expect(state.missingPaths).toContain(".env");
+    expect(state.missingPaths).toContain(".env.local");
+    expect(state.missingPaths).toContain(".env.production");
+  });
 });

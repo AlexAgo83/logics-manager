@@ -1,6 +1,6 @@
 (() => {
   window.createCdxLogicsToolsPanelLayoutApi = function createCdxLogicsToolsPanelLayoutApi(options) {
-    const { toolsPanel, getCanBootstrapLogics, getBootstrapLogicsTitle } = options;
+    const { toolsPanel, getCanBootstrapLogics, getBootstrapLogicsTitle, getShouldRecommendCheckEnvironment } = options;
     let activeToolsView = "workflow";
     const toolButtons = toolsPanel
       ? new Map(
@@ -129,6 +129,9 @@
       }
       if (bootstrapTitle.includes("repaired")) {
         return ["check-environment", "update-logics-kit", "change-project-root"];
+      }
+      if (getShouldRecommendCheckEnvironment()) {
+        return ["check-environment", "change-project-root"];
       }
       return ["new-request-guided", "assist-next-step", "assist-triage"];
     }

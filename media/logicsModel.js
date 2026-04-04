@@ -714,16 +714,16 @@
       return null;
     }
     if (lastInjectedContext.root && currentRoot && lastInjectedContext.root !== currentRoot) {
-      return "Fresh session recommended: the active repository root changed since the last Codex handoff.";
+      return "Fresh session recommended: the active repository root changed since the last assistant handoff.";
     }
     if (lastInjectedContext.itemId && lastInjectedContext.itemId !== item.id) {
       if (lastInjectedContext.taskKind && lastInjectedContext.taskKind !== taskKind) {
-        return "Fresh session recommended: the active task type changed since the last Codex handoff.";
+        return "Fresh session recommended: the active task type changed since the last assistant handoff.";
       }
-      return "Fresh session recommended: you switched to a different Logics item since the last Codex handoff.";
+      return "Fresh session recommended: you switched to a different Logics item since the last assistant handoff.";
     }
     if (lastInjectedContext.mode && lastInjectedContext.mode !== mode) {
-      return "Fresh session recommended: the handoff mode changed materially since the last Codex handoff.";
+      return "Fresh session recommended: the handoff mode changed materially since the last assistant handoff.";
     }
     return null;
   }
@@ -773,7 +773,7 @@
         : ["No explicit graph-risk question is currently detected for this item."];
 
     const lines = [
-      "# Codex Context Pack",
+      "# Assistant Context Pack",
       "",
       `- Mode: ${modeLabel}`,
       `- Profile: ${profileLabel}`,

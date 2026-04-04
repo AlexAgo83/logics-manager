@@ -131,7 +131,7 @@
         if (!prompt) {
           return;
         }
-        invokeHostOnly("inject-prompt", { prompt, options }, "Copy for Codex");
+        invokeHostOnly("inject-prompt", { prompt, options }, "Copy for Assistant");
       },
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");

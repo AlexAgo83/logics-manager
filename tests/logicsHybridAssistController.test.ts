@@ -8,7 +8,9 @@ const mocks = vi.hoisted(() => ({
   showInformationMessage: vi.fn(),
   showWarningMessage: vi.fn(),
   withProgress: vi.fn(),
-  runPythonWithOutput: vi.fn()
+  runPythonWithOutput: vi.fn(),
+  inspectGitHubReleaseCapability: vi.fn(),
+  runGitCommand: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -25,6 +27,14 @@ vi.mock("vscode", () => ({
 
 vi.mock("../src/logicsProviderUtils", () => ({
   runPythonWithOutput: mocks.runPythonWithOutput
+}));
+
+vi.mock("../src/releasePublishSupport", () => ({
+  inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
+}));
+
+vi.mock("../src/gitRuntime", () => ({
+  runGitCommand: mocks.runGitCommand
 }));
 
 vi.mock("../src/logicsIndexer", () => ({
@@ -66,6 +76,14 @@ describe("LogicsHybridAssistController — provider remediation", () => {
     mocks.showWarningMessage.mockReset();
     mocks.withProgress.mockReset();
     mocks.runPythonWithOutput.mockReset();
+    mocks.inspectGitHubReleaseCapability.mockReset();
+    mocks.runGitCommand.mockReset();
+    mocks.withProgress.mockImplementation(async (_options, task) => task());
+    mocks.inspectGitHubReleaseCapability.mockResolvedValue({
+      available: true,
+      title: "Create the release tag, push, and publish the GitHub release"
+    });
+    mocks.runGitCommand.mockResolvedValue({ stdout: "", stderr: "" });
   });
 
   afterEach(() => {
@@ -82,6 +100,11 @@ describe("LogicsHybridAssistController — provider remediation", () => {
 
   function writeEnvLocal(content: string) {
     fs.writeFileSync(path.join(root, ".env.local"), content, "utf-8");
+  }
+
+  function ensureRuntimeEntry() {
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf-8");
   }
 
   describe("buildProviderRemediationQuickPickItem", () => {
@@ -224,6 +247,109 @@ describe("LogicsHybridAssistController — provider remediation", () => {
 
       const item = await controller.buildProviderRemediationQuickPickItem(root);
       expect(item).toBeNull();
+    });
+  });
+
+  describe("publishReleaseFromTools", () => {
+    it("keeps GitHub publish unavailable when the repository is not compatible", async () => {
+      ensureRuntimeEntry();
+      mocks.inspectGitHubReleaseCapability.mockResolvedValue({
+        available: false,
+        title: "Publish Release requires a GitHub remote."
+      });
+
+      await controller.publishReleaseFromTools();
+
+      expect(mocks.showWarningMessage).toHaveBeenCalledWith("Publish Release requires a GitHub remote.");
+      expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+    });
+
+    it("persists repo-local consent before auto-updating release and publishing", async () => {
+      ensureRuntimeEntry();
+      writeYaml("version: 1\n");
+      mocks.runPythonWithOutput
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: true,
+            changelog_status: { tag: "v1.2.3" },
+            release_branch: {
+              name: "release",
+              current_branch: "main",
+              exists: true,
+              needs_update: true,
+              can_fast_forward: true,
+              suggestion: "Branch 'release' is behind 'main'. Consider updating it before publishing."
+            },
+            publish_result: { ok: true, blocking: [] }
+          }),
+          stderr: ""
+        })
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: true,
+            changelog_status: { tag: "v1.2.3" },
+            publish_result: { ok: true, blocking: [] }
+          }),
+          stderr: ""
+        });
+      mocks.showInformationMessage
+        .mockResolvedValueOnce("Allow and update release branch")
+        .mockResolvedValueOnce(undefined);
+
+      await controller.publishReleaseFromTools();
+
+      const yaml = readYaml();
+      expect(yaml).toContain("allow_fast_forward_local_release_branch: true");
+      expect(mocks.runGitCommand).toHaveBeenNthCalledWith(1, root, ["switch", "release"]);
+      expect(mocks.runGitCommand).toHaveBeenNthCalledWith(2, root, ["merge", "--ff-only", "main"]);
+      expect(mocks.runGitCommand).toHaveBeenNthCalledWith(3, root, ["switch", "main"]);
+      expect(mocks.runGitCommand).toHaveBeenNthCalledWith(4, root, ["push", "origin", "release"]);
+      expect(mocks.runPythonWithOutput).toHaveBeenCalledTimes(2);
+    });
+
+    it("reuses existing repo-local consent for future release-branch updates", async () => {
+      ensureRuntimeEntry();
+      writeYaml(
+        "version: 1\nrelease:\n  maintenance:\n    allow_fast_forward_local_release_branch: true\n"
+      );
+      mocks.runPythonWithOutput
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: true,
+            changelog_status: { tag: "v1.2.4" },
+            release_branch: {
+              name: "release",
+              current_branch: "main",
+              exists: true,
+              needs_update: true,
+              can_fast_forward: true,
+              suggestion: "Branch 'release' is behind 'main'. Consider updating it before publishing."
+            },
+            publish_result: { ok: true, blocking: [] }
+          }),
+          stderr: ""
+        })
+        .mockResolvedValueOnce({
+          stdout: JSON.stringify({
+            ok: true,
+            ready: true,
+            changelog_status: { tag: "v1.2.4" },
+            publish_result: { ok: true, blocking: [] }
+          }),
+          stderr: ""
+        });
+      mocks.showInformationMessage
+        .mockResolvedValueOnce("Update release branch and publish")
+        .mockResolvedValueOnce(undefined);
+
+      await controller.publishReleaseFromTools();
+
+      expect(readYaml()).toContain("allow_fast_forward_local_release_branch: true");
+      expect(mocks.runGitCommand).toHaveBeenCalledWith(root, ["push", "origin", "release"]);
+      expect(mocks.runPythonWithOutput).toHaveBeenCalledTimes(2);
     });
   });
 });

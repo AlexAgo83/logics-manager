@@ -103,7 +103,7 @@ export class LogicsViewDocumentController {
     await this.options.setActiveAgent(agent.id);
     const prompt = buildGuidedRequestPrompt(agent.defaultPrompt);
     await this.options.injectPromptIntoCodexChat(prompt, {
-      codexCopiedMessage: "New-request prompt copied to clipboard for Codex. Paste it into the Codex composer.",
+      codexCopiedMessage: "New-request prompt copied to clipboard for your assistant. Paste it into your assistant session.",
       fallbackCopiedMessage: "Could not copy the new-request prompt to the clipboard."
     });
     void vscode.window.showInformationMessage(`Active Logics agent: ${agent.displayName} (${agent.id})`);

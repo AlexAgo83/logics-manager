@@ -1,7 +1,7 @@
 ## req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools - Make Check Environment explainable, action first, and state promoted in Tools
 > From version: 1.19.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: High
@@ -188,3 +188,4 @@ Out of scope:
 
 # Backlog
 - `item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools`
+- `task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity`

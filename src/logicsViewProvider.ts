@@ -27,6 +27,8 @@ import { LogicsHybridAssistController } from "./logicsHybridAssistController";
 import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
 import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
+import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
+import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
 import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
@@ -48,16 +50,19 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private readonly documentController: LogicsViewDocumentController;
   private readonly hybridAssistController: LogicsHybridAssistController;
   private readonly codexWorkflowController: LogicsCodexWorkflowController;
+  private readonly environmentOutput: vscode.OutputChannel;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly onProjectRootChanged: () => void,
-    private readonly agentsOutput: vscode.OutputChannel
+    private readonly agentsOutput: vscode.OutputChannel,
+    environmentOutput?: vscode.OutputChannel
   ) {
     const storedOverride = this.context.workspaceState.get<string>(ROOT_OVERRIDE_STATE_KEY);
     this.projectRootOverride = storedOverride?.trim() || null;
     const storedAgentId = this.context.workspaceState.get<string>(ACTIVE_AGENT_STATE_KEY);
     this.activeAgentId = storedAgentId?.trim() || null;
+    this.environmentOutput = environmentOutput ?? agentsOutput;
     this.hybridAssistController = new LogicsHybridAssistController({
       context: this.context,
       getActionRoot: () => this.getActionRoot(),
@@ -256,6 +261,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         launchClaudeTitle: "Select a project root first",
         canRepairLogicsKit: false,
         repairLogicsKitTitle: "Select a project root first",
+        canPublishRelease: false,
+        publishReleaseTitle: "Select a project root first",
+        shouldRecommendCheckEnvironment: true,
         error: invalidOverridePath
           ? `Configured project root not found: ${invalidOverridePath}. Use Tools > Change Project Root.`
           : "Open a workspace or set a project root from Tools > Change Project Root."
@@ -276,6 +284,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         launchClaudeTitle: "This branch does not have a logics/ folder yet",
         canRepairLogicsKit: true,
         repairLogicsKitTitle: "Bootstrap or repair Logics in this branch first.",
+        canPublishRelease: false,
+        publishReleaseTitle: "Publish Release requires a bootstrapped Logics project.",
+        shouldRecommendCheckEnvironment: true,
         error: `This branch does not have a logics/ folder in: ${root}.`
       });
       await this.maybeOfferBootstrap(root);
@@ -284,8 +295,17 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     this.items = indexLogics(root);
     await this.refreshAgents("silent", root);
-    const changedPaths = await this.getGitChangedPaths(root);
-    const launchers = await inspectRuntimeLaunchers(root);
+    const [changedPaths, launchers, environmentSnapshot, publishReleaseCapability] = await Promise.all([
+      this.getGitChangedPaths(root),
+      inspectRuntimeLaunchers(root),
+      inspectLogicsEnvironment(root),
+      inspectGitHubReleaseCapability(root)
+    ]);
+    const shouldRecommendCheckEnvironment = await this.shouldRecommendCheckEnvironment(
+      root,
+      environmentSnapshot,
+      bootstrapState
+    );
     this.postData({
       items: this.items,
       root,
@@ -299,6 +319,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       launchClaudeTitle: launchers.claude.title,
       canRepairLogicsKit: true,
       repairLogicsKitTitle: "Check current Logics runtime state and repair the shared kit publication or bridge files.",
+      canPublishRelease: publishReleaseCapability.available,
+      publishReleaseTitle: publishReleaseCapability.title,
+      shouldRecommendCheckEnvironment,
       activeAgentId: this.activeAgentId ?? undefined,
       activeAgent: this.getActiveAgentPayload(),
       changedPaths
@@ -483,6 +506,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async checkEnvironmentFromTools(): Promise<void> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     const snapshot = await inspectLogicsEnvironment(root, invalidOverridePath);
+    const publishReleaseCapability = root
+      ? await inspectGitHubReleaseCapability(root)
+      : {
+          available: false,
+          title: "Select a project root first"
+        };
     const hybridRuntime = snapshot.hybridRuntime ?? {
       state: "unavailable",
       summary: "Hybrid assist runtime status is unavailable.",
@@ -497,19 +526,24 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       status: "unavailable",
       summary: "Hybrid assist capability is unavailable."
     };
-    const quickPickItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
+    const recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
+    const statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
+    const detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
 
     if (root) {
       const kitVersionItem = this.buildKitVersionQuickPickItem(root);
       if (kitVersionItem) {
-        quickPickItems.push(kitVersionItem);
+        recommendedActions.push({
+          ...kitVersionItem,
+          label: kitVersionItem.label.replace(/^Run:\s*/, "Fix now: ")
+        });
       }
     }
 
     if (root && snapshot.codexOverlay.status === "missing-manager") {
-      quickPickItems.push({
-        label: "Run: Update Logics Kit",
-        description: "Try the canonical submodule update flow from inside the plugin.",
+      recommendedActions.push({
+        label: "Fix now: Update Logics Kit",
+        description: "Local kit is missing required manager support, so some plugin workflows cannot repair the repo cleanly yet.",
         action: async () => {
           await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
         }
@@ -519,9 +553,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (root) {
       const bootstrapState = inspectLogicsBootstrapState(root);
       if (bootstrapState.canBootstrap) {
-        quickPickItems.push({
-          label: `Run: ${bootstrapState.actionTitle}`,
-          description: bootstrapState.reason,
+        recommendedActions.push({
+          label: `Fix now: ${bootstrapState.actionTitle}`,
+          description: `${bootstrapState.reason} This is the main repair path for the current repository state.`,
           action: async () => {
             await this.codexWorkflowController.bootstrapLogics(root);
           }
@@ -532,28 +566,28 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (root) {
       const providerItem = await this.hybridAssistController.buildProviderRemediationQuickPickItem(root);
       if (providerItem) {
-        quickPickItems.push(providerItem);
+        recommendedActions.push(providerItem);
       }
     }
 
     if (root) {
       const yamlItem = this.buildLogicsYamlBlocksQuickPickItem(root);
       if (yamlItem) {
-        quickPickItems.push(yamlItem);
+        recommendedActions.push(yamlItem);
       }
     }
 
     if (root) {
       const gitignoreItem = await this.buildGitignoreArtifactsQuickPickItem(root);
       if (gitignoreItem) {
-        quickPickItems.push(gitignoreItem);
+        detailItems.push(gitignoreItem);
       }
     }
 
     if (root) {
       const envLocalItem = this.buildMissingEnvLocalQuickPickItem(root);
       if (envLocalItem) {
-        quickPickItems.push(envLocalItem);
+        recommendedActions.push(envLocalItem);
       }
     }
 
@@ -563,34 +597,40 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       snapshot.codexOverlay.status !== "warning" &&
       snapshot.codexOverlay.status !== "missing-manager"
     ) {
-      quickPickItems.push({
-        label: "Run: Publish Global Codex Kit",
-        description: "Publish or repair the shared global Codex Logics kit from this repository.",
+      recommendedActions.push({
+        label: "Fix now: Publish Global Codex Kit",
+        description: "Codex-specific runtime support needs repair before direct Codex launch can be trusted from this repository.",
         action: async () => {
           await this.codexWorkflowController.syncCodexOverlay(root, "environment diagnostics");
         }
       });
     }
 
-    quickPickItems.push(
+    statusItems.push(
       {
-        label: `Workspace root: ${snapshot.root ?? "(none selected)"}`,
-        description: `Repository state: ${snapshot.repositoryState}`
+        label: `Environment: ${this.getEnvironmentOverallState(snapshot, hybridRuntime, recommendedActions)}`,
+        description: this.getEnvironmentSummaryDescription(snapshot, hybridRuntime, recommendedActions)
+      },
+      {
+        label: `Workspace: ${snapshot.root ? "Selected" : "Missing"}`,
+        description: snapshot.root
+          ? `${snapshot.root} — repository state: ${snapshot.repositoryState}`
+          : "No project root is currently selected."
       },
       {
         label: `Global Codex kit: ${snapshot.codexOverlay.status === "healthy" ? "Ready" : snapshot.codexOverlay.status === "warning" ? "Ready with warnings" : "Needs attention"}`,
         description: snapshot.codexOverlay.summary
       },
       {
-        label: `Read-only browsing: ${snapshot.capabilities.readOnly.status === "available" ? "Available" : "Unavailable"}`,
+        label: `Read-only browsing: ${snapshot.capabilities.readOnly.status === "available" ? "Available" : "Blocked"}`,
         description: snapshot.capabilities.readOnly.summary
       },
       {
-        label: `Workflow actions: ${snapshot.capabilities.workflowMutation.status === "available" ? "Available" : "Unavailable"}`,
+        label: `Workflow editing: ${snapshot.capabilities.workflowMutation.status === "available" ? "Available" : "Blocked"}`,
         description: snapshot.capabilities.workflowMutation.summary
       },
       {
-        label: `Bootstrap or repair: ${snapshot.capabilities.bootstrapRepair.status === "available" ? "Available" : "Unavailable"}`,
+        label: `Bootstrap and repair: ${snapshot.capabilities.bootstrapRepair.status === "available" ? "Available" : "Blocked"}`,
         description: snapshot.capabilities.bootstrapRepair.summary
       },
       {
@@ -598,22 +638,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: snapshot.capabilities.codexRuntime.summary
       },
       {
-        label: `Hybrid assist runtime: ${hybridRuntime.state === "ready" ? "Ready" : hybridRuntime.state === "degraded" ? "Degraded" : "Unavailable"}`,
+        label: `AI assistant runtime: ${hybridRuntime.state === "ready" ? "Ready" : hybridRuntime.state === "degraded" ? "Degraded" : "Blocked"}`,
         description: hybridRuntime.summary
       },
       {
-        label: `Hybrid assist actions: ${hybridCapability.status === "available" ? "Available" : "Unavailable"}`,
+        label: `AI assistant workflows: ${hybridCapability.status === "available" ? "Available" : "Unavailable"}`,
         description: hybridCapability.summary
       },
       {
-        label: `Claude bridge: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
+        label: `Claude launch integration: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
         description: hybridRuntime.claudeBridgeAvailable
           ? "Claude bridge files point to the shared hybrid runtime."
           : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
       },
       {
-        label: "Hybrid runtime entrypoint",
-        description: hybridRuntime.windowsSafeEntrypoint
+        label: `Publish Release: ${publishReleaseCapability.available ? "Available" : "Unavailable"}`,
+        description: publishReleaseCapability.title
       },
       {
         label: `Git: ${snapshot.git.available ? "Detected" : "Missing"}`,
@@ -644,11 +684,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           if (!fs.existsSync(agentFile)) missing.push(path.relative(root, agentFile));
           return missing;
         });
-      quickPickItems.push({
-        label: "Run: Repair Logics Kit",
+      recommendedActions.push({
+        label: "Fix now: Repair Logics Kit",
         description: missingFiles.length > 0
-          ? `Missing: ${missingFiles.join(", ")}`
-          : "Bridge files incomplete — run the repair flow to re-check and restore shared runtime wiring.",
+          ? `Claude bridge files are missing: ${missingFiles.join(", ")}`
+          : "Bridge files are incomplete — run the repair flow to restore shared runtime wiring.",
         action: async () => {
           await this.codexWorkflowController.repairLogicsKit(root);
         }
@@ -656,55 +696,229 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (snapshot.missingWorkflowDirs.length > 0) {
-      quickPickItems.push({
-        label: "Partial bootstrap: workflow directories will self-heal",
+      statusItems.push({
+        label: "Workflow folders: Incomplete but recoverable",
         description: `Missing directories: ${snapshot.missingWorkflowDirs.join(", ")}. Create flows will recreate them automatically.`
       });
     }
 
     if (snapshot.codexOverlay.installedVersion) {
-      quickPickItems.push({
+      detailItems.push({
         label: "Global Logics kit version",
         description: snapshot.codexOverlay.installedVersion
       });
     }
 
     if (snapshot.codexOverlay.sourceRepo) {
-      quickPickItems.push({
+      detailItems.push({
         label: "Global Logics kit source",
         description: snapshot.codexOverlay.sourceRepo
       });
     }
 
     if (snapshot.codexOverlay.runCommand) {
-      quickPickItems.push({
+      detailItems.push({
         label: "Codex launch command",
         description: snapshot.codexOverlay.runCommand
       });
     }
 
+    if (root) {
+      const releaseConsent = inspectReleaseBranchFastForwardConsent(root);
+      detailItems.push({
+        label: `Release branch fast-forward consent: ${releaseConsent.allowed ? "Granted" : releaseConsent.available ? "Not granted" : "Unavailable"}`,
+        description: releaseConsent.title
+      });
+    }
+
+    detailItems.push({
+      label: "Hybrid runtime entrypoint",
+      description: hybridRuntime.windowsSafeEntrypoint
+    });
+
     for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
-      quickPickItems.push({
-        label: "Global kit issue",
+      detailItems.push({
+        label: "Global kit note",
         description: issue
       });
     }
 
     for (const reason of hybridRuntime.degradedReasons.slice(0, 3)) {
-      quickPickItems.push({
-        label: "Hybrid runtime note",
+      detailItems.push({
+        label: "Runtime note",
         description: reason
       });
     }
 
+    detailItems.push({
+      label: "Open detailed diagnostic report",
+      description: "Show the full environment breakdown in the Logics Environment output.",
+      action: async () => {
+        this.writeEnvironmentDiagnosticReport(root, snapshot, recommendedActions, statusItems, detailItems);
+        void vscode.window.showInformationMessage("Detailed environment report written to the Logics Environment output.");
+      }
+    });
+
+    const quickPickItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
+    quickPickItems.push({ label: "Summary", kind: vscode.QuickPickItemKind.Separator });
+    quickPickItems.push(...statusItems.slice(0, 1));
+    if (recommendedActions.length > 0) {
+      quickPickItems.push({ label: "Recommended actions", kind: vscode.QuickPickItemKind.Separator });
+      quickPickItems.push(...recommendedActions);
+    }
+    quickPickItems.push({ label: "Current status", kind: vscode.QuickPickItemKind.Separator });
+    quickPickItems.push(...statusItems.slice(1));
+    if (detailItems.length > 0) {
+      quickPickItems.push({ label: "Technical details", kind: vscode.QuickPickItemKind.Separator });
+      quickPickItems.push(...detailItems);
+    }
+
     const choice = await vscode.window.showQuickPick(quickPickItems, {
       title: "Logics: Check Environment",
-      placeHolder: "Review current prerequisite and repository capability status",
+      placeHolder:
+        recommendedActions.length > 0
+          ? "Select a recommended fix or review current status"
+          : "No immediate fix is required — review current status or open the detailed report",
       ignoreFocusOut: true
     });
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private async shouldRecommendCheckEnvironment(
+    root: string,
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
+  ): Promise<boolean> {
+    if (bootstrapState?.canBootstrap) {
+      return true;
+    }
+    if (snapshot.repositoryState !== "ready" || snapshot.missingWorkflowDirs.length > 0) {
+      return true;
+    }
+    if (!snapshot.git.available || !snapshot.python.available) {
+      return true;
+    }
+    if (snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
+      return true;
+    }
+    if (!snapshot.hybridRuntime || snapshot.hybridRuntime.state !== "ready" || !snapshot.hybridRuntime.claudeBridgeAvailable) {
+      return true;
+    }
+    if (await this.hybridAssistController.buildProviderRemediationQuickPickItem(root)) {
+      return true;
+    }
+    if (this.buildLogicsYamlBlocksQuickPickItem(root) || this.buildMissingEnvLocalQuickPickItem(root)) {
+      return true;
+    }
+    return false;
+  }
+
+  private getEnvironmentOverallState(
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
+    actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>
+  ): "Blocked" | "Degraded" | "Healthy" {
+    const hasBlockingIssue =
+      !snapshot.root ||
+      snapshot.repositoryState === "missing-logics" ||
+      snapshot.repositoryState === "missing-kit" ||
+      snapshot.repositoryState === "missing-flow-manager" ||
+      !snapshot.git.available ||
+      !snapshot.python.available ||
+      hybridRuntime.state === "unavailable";
+    if (hasBlockingIssue) {
+      return "Blocked";
+    }
+    const hasDegradedIssue =
+      snapshot.missingWorkflowDirs.length > 0 ||
+      snapshot.codexOverlay.status !== "healthy" ||
+      hybridRuntime.state === "degraded" ||
+      !hybridRuntime.claudeBridgeAvailable ||
+      actions.length > 0;
+    return hasDegradedIssue ? "Degraded" : "Healthy";
+  }
+
+  private getEnvironmentSummaryDescription(
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
+    actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>
+  ): string {
+    const blockedCount = [
+      !snapshot.root,
+      snapshot.repositoryState === "missing-logics",
+      snapshot.repositoryState === "missing-kit",
+      snapshot.repositoryState === "missing-flow-manager",
+      !snapshot.git.available,
+      !snapshot.python.available,
+      hybridRuntime.state === "unavailable"
+    ].filter(Boolean).length;
+    const degradedCount = [
+      snapshot.missingWorkflowDirs.length > 0,
+      snapshot.codexOverlay.status !== "healthy",
+      hybridRuntime.state === "degraded",
+      !hybridRuntime.claudeBridgeAvailable
+    ].filter(Boolean).length;
+    if (blockedCount === 0 && degradedCount === 0 && actions.length === 0) {
+      return "Environment healthy - no action required.";
+    }
+    const parts = [
+      blockedCount > 0 ? `${blockedCount} blocking issue(s)` : "",
+      degradedCount > 0 ? `${degradedCount} degraded state(s)` : "",
+      actions.length > 0 ? `${actions.length} recommended action(s)` : ""
+    ].filter((value) => value.length > 0);
+    return `${parts.join(", ")}. ${actions.length > 0 ? "Select a fix below or open the detailed report." : "Review current status below."}`;
+  }
+
+  private writeEnvironmentDiagnosticReport(
+    root: string | null,
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
+    statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
+    detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>
+  ): void {
+    this.environmentOutput.clear();
+    this.environmentOutput.appendLine(`Logics environment diagnostics @ ${new Date().toISOString()}`);
+    this.environmentOutput.appendLine(`Root: ${root ?? "(none selected)"}`);
+    this.environmentOutput.appendLine("");
+    this.environmentOutput.appendLine("[Summary]");
+    for (const item of statusItems.slice(0, 1)) {
+      this.environmentOutput.appendLine(`- ${item.label}`);
+      if (item.description) {
+        this.environmentOutput.appendLine(`  ${item.description}`);
+      }
+    }
+    if (recommendedActions.length > 0) {
+      this.environmentOutput.appendLine("");
+      this.environmentOutput.appendLine("[Recommended actions]");
+      for (const item of recommendedActions) {
+        this.environmentOutput.appendLine(`- ${item.label}`);
+        if (item.description) {
+          this.environmentOutput.appendLine(`  ${item.description}`);
+        }
+      }
+    }
+    this.environmentOutput.appendLine("");
+    this.environmentOutput.appendLine("[Current status]");
+    for (const item of statusItems.slice(1)) {
+      this.environmentOutput.appendLine(`- ${item.label}`);
+      if (item.description) {
+        this.environmentOutput.appendLine(`  ${item.description}`);
+      }
+    }
+    this.environmentOutput.appendLine("");
+    this.environmentOutput.appendLine("[Technical details]");
+    for (const item of detailItems.filter((entry) => entry.label !== "Open detailed diagnostic report")) {
+      this.environmentOutput.appendLine(`- ${item.label}`);
+      if (item.description) {
+        this.environmentOutput.appendLine(`  ${item.description}`);
+      }
+    }
+    this.environmentOutput.appendLine("");
+    this.environmentOutput.appendLine("[Snapshot]");
+    this.environmentOutput.appendLine(JSON.stringify(snapshot, null, 2));
+    this.environmentOutput.show(true);
   }
 
   private ensureLogicsCacheDir(root: string): void {
@@ -745,8 +959,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return null;
     }
     return {
-      label: "Warning: .env.local is missing — hybrid providers will degrade (credential-missing)",
-      description: "Run Bootstrap Logics to generate .env.local with API key placeholders (kit 1.7.1+).",
+      label: "Fix now: Generate .env.local placeholders",
+      description: "Hybrid providers are enabled, but local credential placeholders are missing, so provider health will degrade until the file exists.",
       action: async () => {
         await this.codexWorkflowController.bootstrapLogics(root);
       }
@@ -775,8 +989,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return null;
     }
     return {
-      label: `Run: Add hybrid runtime artifacts to .gitignore (${tracked.length} file(s) tracked)`,
-      description: `${tracked.join(", ")} — generated files that should not be committed.`,
+      label: `Optional: Ignore generated runtime artifacts (${tracked.length} tracked file(s))`,
+      description: `${tracked.join(", ")} are generated files that should not stay committed.`,
       action: () => {
         try {
           const gitignorePath = path.join(root, ".gitignore");
@@ -843,8 +1057,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
     const names = missingBlocks.map((b) => b.key).join(", ");
     return {
-      label: `Run: Add missing logics.yaml blocks (${names})`,
-      description: "These blocks enable transactional mutations and the runtime index cache.",
+      label: `Fix now: Complete logics.yaml (${names})`,
+      description: "Required runtime blocks are missing, so mutation safety or index caching is not fully configured yet.",
       action: () => {
         try {
           const separator = content.endsWith("\n") ? "" : "\n";
@@ -1238,8 +1452,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     const codexCopiedMessage =
       options?.codexCopiedMessage ||
       (options?.preferNewThread
-        ? "Prompt copied to clipboard. Open a new Codex thread, then paste it into the composer."
-        : "Prompt copied to clipboard for Codex. Paste it into the Codex composer.");
+        ? "Prompt copied to clipboard. Open a new assistant session, then paste it."
+        : "Prompt copied to clipboard for your assistant. Paste it into your assistant session.");
     const fallbackCopiedMessage = options?.fallbackCopiedMessage || "Could not copy the prompt to the clipboard.";
 
     try {
@@ -1253,7 +1467,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
     await this.injectPromptIntoCodexChat(agent.defaultPrompt, {
-      codexCopiedMessage: "Agent prompt copied to clipboard for Codex. Paste it into the Codex composer.",
+      codexCopiedMessage: "Agent prompt copied to clipboard for your assistant. Paste it into your assistant session.",
       fallbackCopiedMessage: "Could not copy the agent prompt to the clipboard."
     });
   }
@@ -1268,8 +1482,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   ): Promise<void> {
     await this.injectPromptIntoCodexChat(prompt, {
       codexCopiedMessage: options?.codexCopiedMessage ?? (options?.preferNewThread
-        ? "Context pack copied to clipboard. Open a new Codex thread, then paste it into the composer."
-        : "Context pack copied to clipboard for Codex. Paste it into the Codex composer."),
+        ? "Context pack copied to clipboard. Open a new assistant session, then paste it."
+        : "Context pack copied to clipboard for your assistant. Paste it into your assistant session."),
       fallbackCopiedMessage: options?.fallbackCopiedMessage ?? "Could not copy the context pack to the clipboard.",
       preferNewThread: options?.preferNewThread
     });
@@ -1400,6 +1614,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     launchClaudeTitle?: string;
     canRepairLogicsKit?: boolean;
     repairLogicsKitTitle?: string;
+    canPublishRelease?: boolean;
+    publishReleaseTitle?: string;
+    shouldRecommendCheckEnvironment?: boolean;
     activeAgentId?: string;
     changedPaths?: string[];
     activeAgent?: {

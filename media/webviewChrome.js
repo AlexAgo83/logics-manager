@@ -8,6 +8,7 @@
       launchCodexOverlayButton,
       launchClaudeButton,
       repairLogicsKitButton,
+      assistPublishReleaseButton,
       filterPanel,
       filterToggle,
       groupBySelect,
@@ -42,6 +43,9 @@
       getLaunchClaudeTitle,
       getCanRepairLogicsKit,
       getRepairLogicsKitTitle,
+      getCanPublishRelease,
+      getPublishReleaseTitle,
+      getShouldRecommendCheckEnvironment,
       getEffectiveViewMode,
       getGroupMode,
       getHelpBannerMessage,
@@ -67,7 +71,8 @@
         ? toolsPanelLayoutFactory({
             toolsPanel,
             getCanBootstrapLogics,
-            getBootstrapLogicsTitle
+            getBootstrapLogicsTitle,
+            getShouldRecommendCheckEnvironment
           })
         : null;
 
@@ -245,6 +250,10 @@
       if (repairLogicsKitButton) {
         repairLogicsKitButton.disabled = !getCanRepairLogicsKit();
         repairLogicsKitButton.title = getRepairLogicsKitTitle();
+      }
+      if (assistPublishReleaseButton) {
+        assistPublishReleaseButton.disabled = !getCanPublishRelease();
+        assistPublishReleaseButton.title = getPublishReleaseTitle();
       }
       if (toolsPanelLayout && typeof toolsPanelLayout.renderToolsPanelStructure === "function") {
         toolsPanelLayout.renderToolsPanelStructure();

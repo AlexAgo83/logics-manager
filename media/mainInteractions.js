@@ -312,9 +312,9 @@
       setControlDescription(viewModeToggleButton, "Switch display mode");
       setControlDescription(refreshButton, "Refresh");
       setControlDescription(selectAgentButton, "Select active agent");
-      setControlDescription(newRequestToolButton, "Start a guided new request in Codex");
+      setControlDescription(newRequestToolButton, "Start a guided new request");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
-      setControlDescription(checkEnvironmentButton, "Check environment prerequisites");
+      setControlDescription(checkEnvironmentButton, "Review environment health and recommended fixes");
       setControlDescription(launchCodexOverlayButton, "Launch Codex with the globally published Logics kit");
       setControlDescription(launchClaudeButton, "Launch Claude in this repository");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");

@@ -18,7 +18,9 @@ export function activate(context: vscode.ExtensionContext): void {
   let refreshTimer: NodeJS.Timeout | undefined;
   const watchers: vscode.FileSystemWatcher[] = [];
   const agentsOutput = vscode.window.createOutputChannel("Logics Agents");
+  const environmentOutput = vscode.window.createOutputChannel("Logics Environment");
   context.subscriptions.push(agentsOutput);
+  context.subscriptions.push(environmentOutput);
   context.subscriptions.push(
     new vscode.Disposable(() => {
       while (watchers.length > 0) {
@@ -64,7 +66,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
-  provider = new LogicsViewProvider(context, setupWatcher, agentsOutput);
+  provider = new LogicsViewProvider(context, setupWatcher, agentsOutput, environmentOutput);
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(LogicsViewProvider.viewType, provider, {

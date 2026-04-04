@@ -119,6 +119,9 @@
   let launchClaudeTitle = "Launch Claude in this repository";
   let canRepairLogicsKit = false;
   let repairLogicsKitTitle = "Check current Logics runtime state and repair the shared kit publication or bridge files.";
+  let canPublishRelease = false;
+  let publishReleaseTitle = "Publish Release requires a GitHub-compatible repository.";
+  let shouldRecommendCheckEnvironment = false;
   let activeWorkspaceRoot = null;
   let persistedWorkspaceRoot = null;
   const previousState = vscode.getState() || null;
@@ -462,6 +465,7 @@
           launchCodexOverlayButton,
           launchClaudeButton,
           repairLogicsKitButton,
+          assistPublishReleaseButton,
           filterPanel,
           filterToggle,
           groupBySelect,
@@ -497,6 +501,9 @@
           getLaunchClaudeTitle: () => launchClaudeTitle,
           getCanRepairLogicsKit: () => canRepairLogicsKit,
           getRepairLogicsKitTitle: () => repairLogicsKitTitle,
+          getCanPublishRelease: () => canPublishRelease,
+          getPublishReleaseTitle: () => publishReleaseTitle,
+          getShouldRecommendCheckEnvironment: () => shouldRecommendCheckEnvironment,
           getEffectiveViewMode,
           getGroupMode: () => groupMode,
           getHelpBannerMessage,
@@ -893,6 +900,15 @@
       }
       if (payload && typeof payload.repairLogicsKitTitle === "string") {
         repairLogicsKitTitle = payload.repairLogicsKitTitle;
+      }
+      if (payload && typeof payload.canPublishRelease === "boolean") {
+        canPublishRelease = payload.canPublishRelease;
+      }
+      if (payload && typeof payload.publishReleaseTitle === "string") {
+        publishReleaseTitle = payload.publishReleaseTitle;
+      }
+      if (payload && typeof payload.shouldRecommendCheckEnvironment === "boolean") {
+        shouldRecommendCheckEnvironment = payload.shouldRecommendCheckEnvironment;
       }
       changedPaths = Array.isArray(payload && payload.changedPaths) ? payload.changedPaths : [];
       activeAgent = payload && payload.activeAgent ? payload.activeAgent : null;

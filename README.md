@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
-![Version](https://img.shields.io/badge/version-v1.21.0-4C8BF5)
+![Version](https://img.shields.io/badge/version-v1.21.1-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -42,8 +42,8 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
 - `Context pack for AI assistants` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
-- Preview modes for Codex handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
-- Direct `Copy for Codex` and `Copy for new Codex thread` actions from the details panel for faster low-token handoffs.
+- Preview modes for assistant handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
+- Direct handoff-copy actions from the details panel support faster low-token assistant sessions.
 - Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
 - `Hide empty columns` now behaves consistently in board and list mode.
 - Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
@@ -54,14 +54,16 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
 - Tools menu now groups provider management under `AI Runtime`, with `AI Runtime Status`, `AI Provider Insights`, and the shared hybrid-assist workflow actions in one compact system surface.
 - Tools menu also exposes `Prepare Release` and `Publish Release` so kit-backed release prep and publication stay available from the plugin.
+- `Publish Release` is now GitHub-aware, stays visible but disabled with an explicit reason when publication is unavailable, and can honor repo-local consent before helping with a local `release` fast-forward.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
-- Environment diagnostics now show hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
+- Environment diagnostics now show a clearer action-first summary, hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
+- Older canonical repos are now prompted toward `Update Logics Kit` earlier, instead of relying on the operator to discover that step manually.
 
 ## Why This Matters For AI Projects
 
 - AI sessions become cheaper because the project memory already exists in the repo instead of living only in previous chats.
 - Requests, backlog items, tasks, specs, and links become reusable context blocks that survive model changes, thread resets, and handoffs between assistants.
-- The plugin makes that memory operational: you can inspect it, navigate it, and inject a smaller Codex handoff directly from the active item.
+- The plugin makes that memory operational: you can inspect it, navigate it, and inject a smaller assistant handoff directly from the active item.
 - That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing earlier decisions.
 - Because the memory is plain Markdown in git, it stays reviewable by humans, diffable in pull requests, and portable across tools.
 
@@ -158,7 +160,7 @@ npm run dev
 
 ## Deploy / Release (VSIX)
 
-1. Bump the version in `package.json`.
+1. Bump the version in both `package.json` and root `VERSION` when preparing a new plugin release manually.
 2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`.
 3. Validate that the changelog matches the current package version:
 
@@ -181,6 +183,8 @@ npm run install:vsix
 ```
 
 6. Distribute the `.vsix` and use the curated file in `changelogs/` for the GitHub release body when publishing.
+
+If the current plugin version is already published, `python logics/skills/logics.py flow assist prepare-release --execution-mode execute` can now bump the next patch version, update `package.json`, `package-lock.json`, and `VERSION`, then re-check readiness instead of stalling on an already-live tag.
 
 ## Curated Changelogs
 
@@ -211,16 +215,17 @@ Contract:
 ## Tools Menu
 
 - The Tools menu is split into `Workflow` and `System` views, with a `Recommended` section surfaced first for common day-to-day actions.
-- `Select Agent` picks the active Logics agent and prepares Codex chat context.
+- `Select Agent` picks the active Logics agent and prepares assistant chat context.
 - `Getting Started` opens the onboarding guide inside the extension.
 - `Companion Doc` creates a linked product brief or ADR from the current workflow context when the kit supports it.
-- `New Request` opens a guided Codex drafting flow using the request-authoring agent.
+- `New Request` opens a guided request-drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
 - `Update Logics Kit` runs the supported submodule update flow when the repository uses the canonical `logics/skills` kit submodule and Git state is safe for automation.
 - `Publish Global Codex Kit` publishes or repairs the shared global Logics kit in `~/.codex` from the current canonical repo-local source when needed.
 - `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
-- `Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
-- `Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
+- `Environment` can also surface direct remediation actions when the plugin detects a stale kit, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
+- `Environment` now uses a clearer hierarchy with summary, recommended actions, current status, and technical details, plus hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
+- `Check Environment` can be promoted into `Recommended` when the current repo state actually warrants operator attention.
 - repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global-kit state still requires an explicit refresh because it lives outside the workspace.
 - `Launch Codex` starts Codex using the globally published Logics kit when the shared runtime is healthy.
 - `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
@@ -232,8 +237,9 @@ Contract:
 - `Validation Summary` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
 - `Validation Checklist` asks the shared runtime for a bounded validation checklist derived from the current diff surface.
 - `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
-- `Prepare Release` checks release readiness and can run the bounded prep step that generates a missing changelog, refreshes the README version badge, and commits the release-prep changes.
-- `Publish Release` checks readiness, can publish through the shared kit flow, and warns when a local `release` branch exists but is behind the current branch.
+- `Prepare Release` checks release readiness and can run the bounded prep step that generates a missing changelog, refreshes the README version badge, syncs local version artifacts, and commits the release-prep changes.
+- When the current version is already published, `Prepare Release` can now propose the next patch version instead of leaving the operator with a no-op.
+- `Publish Release` checks readiness, can publish through the shared kit flow, stays disabled with an explicit reason outside GitHub-compatible repositories, and warns when a local `release` branch exists but is behind the current branch.
 - On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
 - Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
@@ -250,15 +256,15 @@ The plugin remains a thin client over the shared runtime:
 - backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
 - global Codex kit actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 
-## Codex Handoffs
+## Assistant Handoffs
 
-The plugin now builds a lighter Codex handoff directly from the selected Logics item.
+The plugin now builds a lighter assistant handoff directly from the selected Logics item.
 
 - The details panel shows a `Context pack for AI assistants` summary with docs, lines, characters, approximate token cost, and a coarse budget label.
 - `summary-only` trims the handoff to the current item, compact summary points, acceptance criteria, and response contract.
 - `diff-first` puts relevant changed files first when the repository has recent Git changes tied to the current item.
 - Agent-aware filtering can exclude docs that do not belong to the active agent profile.
-- Session-hygiene hints warn when switching item, task type, workspace root, or handoff mode makes a fresh Codex thread safer.
+- Session-hygiene hints warn when switching item, task type, workspace root, or handoff mode makes a fresh assistant session safer.
 
 These flows are designed to reduce token waste without hiding the underlying Logics docs. The Markdown corpus in `logics/*` remains the source of truth; the plugin only shapes a smaller handoff from it.
 

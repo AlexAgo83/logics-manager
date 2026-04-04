@@ -464,6 +464,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    if (root) {
+      const yamlItem = this.buildLogicsYamlBlocksQuickPickItem(root);
+      if (yamlItem) {
+        quickPickItems.push(yamlItem);
+      }
+    }
+
     if (
       root &&
       snapshot.codexOverlay.status !== "healthy" &&
@@ -584,6 +591,62 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private buildLogicsYamlBlocksQuickPickItem(
+    root: string
+  ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
+    const yamlPath = path.join(root, "logics.yaml");
+    if (!fs.existsSync(yamlPath)) {
+      return null;
+    }
+    let content: string;
+    try {
+      content = fs.readFileSync(yamlPath, "utf-8");
+    } catch {
+      return null;
+    }
+    const missingBlocks: { key: string; block: string }[] = [];
+    if (!content.includes("mutations:")) {
+      missingBlocks.push({
+        key: "mutations",
+        block:
+          "mutations:\n" +
+          "  mode: transactional\n" +
+          "  audit_log: logics/mutation_audit.jsonl\n"
+      });
+    }
+    if (!content.includes("index:")) {
+      missingBlocks.push({
+        key: "index",
+        block:
+          "index:\n" +
+          "  enabled: true\n" +
+          "  path: logics/.cache/runtime_index.json\n"
+      });
+    }
+    if (missingBlocks.length === 0) {
+      return null;
+    }
+    const names = missingBlocks.map((b) => b.key).join(", ");
+    return {
+      label: `Run: Add missing logics.yaml blocks (${names})`,
+      description: "These blocks enable transactional mutations and the runtime index cache.",
+      action: () => {
+        try {
+          const separator = content.endsWith("\n") ? "" : "\n";
+          const appended = missingBlocks.map((b) => b.block).join("");
+          fs.writeFileSync(yamlPath, content + separator + appended, "utf-8");
+          void vscode.window.showInformationMessage(
+            `logics.yaml updated: added ${names} block(s).`
+          );
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          void vscode.window.showErrorMessage(`Failed to update logics.yaml: ${message}`);
+        }
+        return Promise.resolve();
+      }
+    };
   }
 
   private buildKitVersionQuickPickItem(

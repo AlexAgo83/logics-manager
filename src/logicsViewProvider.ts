@@ -11,7 +11,7 @@ import {
 import { parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
-import { inspectLogicsEnvironment } from "./logicsEnvironment";
+import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
   getWorkspaceRoot,
@@ -554,6 +554,30 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           : buildMissingPythonMessage()
       }
     );
+
+    if (root && !hybridRuntime.claudeBridgeAvailable) {
+      const bridgeStatus = detectClaudeBridgeStatus(root);
+      const missingFiles = bridgeStatus.supportedVariants
+        .flatMap((variant) => {
+          const v = ["hybrid-assist", "flow-manager"].find((id) => id === variant);
+          if (!v) return [];
+          const commandFile = path.join(root, ".claude", "commands", v === "hybrid-assist" ? "logics-assist.md" : "logics-flow.md");
+          const agentFile = path.join(root, ".claude", "agents", v === "hybrid-assist" ? "logics-hybrid-delivery-assistant.md" : "logics-flow-manager.md");
+          const missing: string[] = [];
+          if (!fs.existsSync(commandFile)) missing.push(path.relative(root, commandFile));
+          if (!fs.existsSync(agentFile)) missing.push(path.relative(root, agentFile));
+          return missing;
+        });
+      quickPickItems.push({
+        label: "Run: Repair Claude bridge (Publish Global Codex Kit)",
+        description: missingFiles.length > 0
+          ? `Missing: ${missingFiles.join(", ")}`
+          : "Bridge files incomplete — republishing the global kit may restore them.",
+        action: async () => {
+          await this.codexWorkflowController.syncCodexOverlay(root, "environment diagnostics");
+        }
+      });
+    }
 
     if (snapshot.missingWorkflowDirs.length > 0) {
       quickPickItems.push({

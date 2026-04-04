@@ -112,6 +112,9 @@
       assistSummarizeChangelog() {
         invokeHostOnly("assist-summarize-changelog", {}, "Generate Changelog Summary");
       },
+      assistPrepareRelease() {
+        invokeHostOnly("assist-prepare-release", {}, "Prepare Release");
+      },
       assistValidationChecklist() {
         invokeHostOnly("assist-validation-checklist", {}, "Validation Checklist");
       },

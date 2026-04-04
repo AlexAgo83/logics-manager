@@ -9,6 +9,7 @@
       assistTriageButton,
       assistDiffRiskButton,
       assistSummarizeChangelogButton,
+      assistPrepareReleaseButton,
       assistSummarizeValidationButton,
       assistValidationChecklistButton,
       assistDocConsistencyButton,
@@ -52,6 +53,7 @@
       onAssistTriage,
       onAssistDiffRisk,
       onAssistSummarizeChangelog,
+      onAssistPrepareRelease,
       onAssistSummarizeValidation,
       onAssistValidationChecklist,
       onAssistDocConsistency,
@@ -161,6 +163,9 @@
       }
       if (assistSummarizeChangelogButton) {
         assistSummarizeChangelogButton.addEventListener("click", () => onAssistSummarizeChangelog());
+      }
+      if (assistPrepareReleaseButton) {
+        assistPrepareReleaseButton.addEventListener("click", () => onAssistPrepareRelease());
       }
       if (assistSummarizeValidationButton) {
         assistSummarizeValidationButton.addEventListener("click", () => onAssistSummarizeValidation());
@@ -314,6 +319,7 @@
       setControlDescription(assistTriageButton, "Classify a workflow doc through the shared runtime");
       setControlDescription(assistDiffRiskButton, "Assess the current diff risk through the shared runtime");
       setControlDescription(assistSummarizeChangelogButton, "Generate bounded changelog entries through the shared runtime");
+      setControlDescription(assistPrepareReleaseButton, "Check release prerequisites and optionally publish the release");
       setControlDescription(assistSummarizeValidationButton, "Summarize validation status");
       setControlDescription(assistValidationChecklistButton, "Build a bounded validation checklist through the shared runtime");
       setControlDescription(assistDocConsistencyButton, "Review workflow doc consistency through the shared runtime");

@@ -70,6 +70,20 @@ export type HybridDocConsistencyResult = {
   issues?: string[];
 };
 
+export type HybridPrepareReleaseResult = {
+  ready?: boolean;
+  changelog_status?: {
+    exists?: boolean;
+    tag?: string;
+    version?: string;
+    summary?: string;
+  };
+  publish_result?: {
+    ok?: boolean;
+    blocking?: string[];
+  };
+};
+
 export type HybridInsightsSources = {
   audit_log?: string;
   measurement_log?: string;
@@ -253,6 +267,31 @@ export function parseHybridDocConsistencyResult(payload: HybridAssistPayload): H
     overall: typeof result.overall === "string" ? result.overall : undefined,
     summary: typeof result.summary === "string" ? result.summary : undefined,
     issues
+  };
+}
+
+export function parseHybridPrepareReleaseResult(payload: UnknownRecord): HybridPrepareReleaseResult | null {
+  const changelog_status = isRecord(payload.changelog_status) ? payload.changelog_status : undefined;
+  const publish_result = isRecord(payload.publish_result) ? payload.publish_result : undefined;
+  if (changelog_status === undefined && publish_result === undefined) {
+    return null;
+  }
+  return {
+    ready: typeof payload.ready === "boolean" ? payload.ready : undefined,
+    changelog_status: changelog_status
+      ? {
+          exists: typeof changelog_status.exists === "boolean" ? changelog_status.exists : undefined,
+          tag: typeof changelog_status.tag === "string" ? changelog_status.tag : undefined,
+          version: typeof changelog_status.version === "string" ? changelog_status.version : undefined,
+          summary: typeof changelog_status.summary === "string" ? changelog_status.summary : undefined
+        }
+      : undefined,
+    publish_result: publish_result
+      ? {
+          ok: typeof publish_result.ok === "boolean" ? publish_result.ok : undefined,
+          blocking: isStringArray(publish_result.blocking) ? publish_result.blocking : undefined
+        }
+      : undefined
   };
 }
 

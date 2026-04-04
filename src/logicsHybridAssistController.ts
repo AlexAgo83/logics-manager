@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import {
   parseHybridChangelogSummaryResult,
+  parseHybridPrepareReleaseResult,
   describeHybridAssistOutcome,
   parseHybridAssistPayload,
   parseHybridCommitPlanSteps,
@@ -419,6 +420,52 @@ export class LogicsHybridAssistController {
     }
     await vscode.env.clipboard.writeText(clipboardText);
     void vscode.window.showInformationMessage("Changelog summary copied to clipboard.");
+  }
+
+  async prepareReleaseFromTools(): Promise<void> {
+    const root = await this.options.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["prepare-release"], {
+      actionLabel: "Prepare Release"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = parseHybridPrepareReleaseResult(payload);
+    const tag = result?.changelog_status?.tag ?? "release";
+    const summary = result?.changelog_status?.summary ?? "";
+    const ready = result?.ready ?? false;
+    const outcome = describeHybridAssistOutcome(payload);
+    const backendLabel = outcome.backendUsed ? ` via ${outcome.backendUsed}` : "";
+    const detail = ready ? `${tag} is ready to publish. ${summary}`.trim() : `Not ready: ${summary}`.trim();
+    if (!ready) {
+      this.notifyHybridAssistCompletion("Prepare Release", payload, detail);
+      return;
+    }
+    const choice = await vscode.window.showInformationMessage(
+      `Prepare Release completed${backendLabel}. ${detail}`,
+      "Publish Release"
+    );
+    if (choice === "Publish Release") {
+      const executed = await this.runHybridAssistCommandWithOptions(
+        root,
+        ["prepare-release", "--execution-mode", "execute", "--push"],
+        { actionLabel: "Publish Release" }
+      );
+      if (!executed) {
+        return;
+      }
+      const publishedResult = parseHybridPrepareReleaseResult(executed);
+      const publishOk = publishedResult?.publish_result?.ok ?? false;
+      this.notifyHybridAssistCompletion(
+        "Publish Release",
+        executed,
+        publishOk ? `${tag} published successfully.` : "Publish failed — check the output log."
+      );
+      await this.options.refresh();
+    }
   }
 
   async buildValidationChecklistFromTools(): Promise<void> {

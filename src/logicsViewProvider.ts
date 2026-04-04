@@ -191,6 +191,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         case "assist-prepare-release":
           await this.prepareReleaseFromTools();
           return;
+        case "assist-publish-release":
+          await this.publishReleaseFromTools();
+          return;
         case "assist-validation-checklist":
           await this.buildValidationChecklistFromTools();
           return;
@@ -952,6 +955,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private async prepareReleaseFromTools(): Promise<void> {
     await this.hybridAssistController.prepareReleaseFromTools();
+  }
+
+  private async publishReleaseFromTools(): Promise<void> {
+    await this.hybridAssistController.publishReleaseFromTools();
   }
 
   private async buildValidationChecklistFromTools(): Promise<void> {

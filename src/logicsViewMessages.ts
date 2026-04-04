@@ -44,6 +44,7 @@ export type LogicsWebviewMessage =
   | { type: "assist-summarize-validation" }
   | { type: "assist-summarize-changelog" }
   | { type: "assist-prepare-release" }
+  | { type: "assist-publish-release" }
   | { type: "assist-validation-checklist" }
   | { type: "assist-doc-consistency" }
   | { type: "open-hybrid-insights" }
@@ -94,6 +95,7 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "assist-summarize-validation":
     case "assist-summarize-changelog":
     case "assist-prepare-release":
+    case "assist-publish-release":
     case "assist-validation-checklist":
     case "assist-doc-consistency":
     case "open-hybrid-insights":

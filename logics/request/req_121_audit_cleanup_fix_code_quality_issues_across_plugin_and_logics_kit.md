@@ -1,9 +1,9 @@
 ## req_121_audit_cleanup_fix_code_quality_issues_across_plugin_and_logics_kit - Audit cleanup — fix code quality issues across plugin and Logics kit
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
-> Confidence: 95%
+> Confidence: 97%
 > Complexity: High
 > Theme: Quality
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -123,7 +123,12 @@ flowchart TD
 Three backlog items by criticality:
 - **Item A — Quick wins** (AC3, AC7, AC9, AC10, AC11, AC14, AC15): completed on 2026-04-04 in `task_110`; removed the dead export, cleared stale `.vsix` artifacts, switched the documented entrypoints to `logics.py`, aligned `.claude/`, added `logics/specs/README.md`, and seeded `logics.yaml`.
 - **Item B — Kit harmonization** (AC8, AC12, AC16): completed on 2026-04-04 in `task_110`; switched the remaining 34 `SKILL.md` launchers to canonical `python`, replaced the wildcard `logics_flow_support` import with explicit symbols, and moved hybrid runtime state from `logics/skills/logics/` to `logics/.cache/`.
-- **Item C — Plugin and kit refactors** (AC1, AC2, AC4, AC5, AC6, AC13, AC17): structural refactors with regression risk, requiring test-by-test verification. AC13 (hybrid split) is prioritized as a prerequisite for req_120.
+- **Item C — Plugin and kit refactors** (AC1, AC2, AC4, AC5, AC6, AC13, AC17): completed on 2026-04-04 in `task_110`; extracted overlay and controller seams in the plugin, injected the Git config reader, added HTML snapshots and message-dispatch typing, and split `logics_flow_hybrid.py` into core, transport, and observability modules while preserving the public facade.
+
+# Delivery report
+- 2026-04-04: `req_121` closed through `item_210`, `item_211`, and `item_212`. The plugin now validates hybrid-assist payloads before use, routes webview messages through a discriminated union, and delegates overlay/bootstrap/hybrid responsibilities to focused helper modules.
+- 2026-04-04: The Logics kit now uses the canonical `python logics/skills/logics.py ...` entrypoint consistently, keeps runtime cache under `logics/.cache/`, and exposes the decomposed hybrid runtime modules needed before req_120 provider expansion.
+- 2026-04-04: Validation confirmed the TypeScript suite (`npm run lint`, `npm run test`) and the Logics kit Python suite (`python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v`) both pass after the cleanup wave.
 
 # Risks and dependencies
 - AC8/AC10/AC12/AC13/AC16 modify the Logics kit submodule — changes must be contributed upstream to `cdx-logics-kit` and the submodule pointer updated.

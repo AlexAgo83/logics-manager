@@ -440,6 +440,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     };
     const quickPickItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
 
+    if (root) {
+      const kitVersionItem = this.buildKitVersionQuickPickItem(root);
+      if (kitVersionItem) {
+        quickPickItems.push(kitVersionItem);
+      }
+    }
+
     if (root && snapshot.codexOverlay.status === "missing-manager") {
       quickPickItems.push({
         label: "Run: Update Logics Kit",
@@ -577,6 +584,41 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private buildKitVersionQuickPickItem(
+    root: string
+  ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
+    const versionPath = path.join(root, "logics", "skills", "VERSION");
+    if (!fs.existsSync(versionPath)) {
+      return null;
+    }
+    let raw: string;
+    try {
+      raw = fs.readFileSync(versionPath, "utf-8").trim();
+    } catch {
+      return null;
+    }
+    const parts = raw.split(".").map(Number);
+    if (parts.length < 2 || parts.some(isNaN)) {
+      return null;
+    }
+    // Minimum version for full hybrid assist + .env.local merge support
+    const MIN_MAJOR = 1;
+    const MIN_MINOR = 7;
+    const [major, minor] = parts;
+    const isTooOld =
+      major < MIN_MAJOR || (major === MIN_MAJOR && minor < MIN_MINOR);
+    if (!isTooOld) {
+      return null;
+    }
+    return {
+      label: `Run: Update Logics Kit (local kit is v${raw}, minimum recommended v${MIN_MAJOR}.${MIN_MINOR}.x)`,
+      description: "Older kit missing .env.local merge, bootstrap credential scaffolding, and multi-provider dispatch.",
+      action: async () => {
+        await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
+      }
+    };
   }
 
   private async checkHybridRuntimeFromTools(): Promise<void> {

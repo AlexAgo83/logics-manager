@@ -1,9 +1,9 @@
 ## req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime - Add OpenAI and Gemini provider dispatch to the hybrid assist runtime
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 98%
-> Confidence: 93%
+> Confidence: 95%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction, remote API dispatch, and backend policy expansion
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -190,6 +190,12 @@ flowchart TD
 # Companion docs
 - Product brief(s): `prod_001_hybrid_assist_operator_experience_for_repetitive_logics_delivery_flows`
 - Architecture decision(s): `adr_011_keep_hybrid_assist_runtime_contracts_shared_backend_agnostic_and_safely_bounded`
+
+# Delivery report
+- 2026-04-04: `item_213` completed. The hybrid runtime now routes backend selection and execution through shared provider-abstraction helpers instead of direct Ollama-specific branching inside `_run_hybrid_assist(...)`.
+- Per-flow backend policy now exposes ordered provider routing metadata (`provider_order`, `allowed_backends`), which keeps `codex-only`, `deterministic`, and `ollama-first` behavior explicit while preparing `req_120` for direct `openai` and `gemini` transports in the next items.
+- Validation remains green after the refactor: `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v`.
+
 # AI Context
 - Summary: Add direct OpenAI and Gemini provider dispatch to the shared hybrid assist runtime through a provider abstraction that preserves strict flow contracts, explicit backend policy, and trustworthy observability.
 - Keywords: hybrid assist, provider abstraction, openai api, gemini api, ollama, codex, claude, backend policy, fallback, contract validation, runtime status, audit, measurement, hybrid insights, provider readiness, cooldown, env, dot env, logics yaml, tools menu, ai providers

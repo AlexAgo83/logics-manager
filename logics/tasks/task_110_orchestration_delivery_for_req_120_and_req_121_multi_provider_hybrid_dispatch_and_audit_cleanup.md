@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 96%
-> Progress: 37%
+> Progress: 50%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -186,3 +186,6 @@ flowchart LR
 - 2026-04-04: `item_212` completed as the third wave-1 checkpoint. Extracted shared overlay handoff support and focused plugin controllers, added hybrid payload parsing and exhaustive webview message typing, removed the dynamic Git config require, added HTML snapshot coverage, and split `logics_flow_hybrid.py` into dedicated core, transport, and observability modules while keeping the public facade stable.
 - Validation checkpoint for `item_212`: ran `npm run lint`, `npm run test`, and `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v` successfully after the TypeScript and submodule refactors.
 - Wave 1 is now complete: `req_121` is closed and the prerequisite hybrid-runtime seams for `req_120` provider abstraction are in place. Next active delivery subject is `item_213`.
+- 2026-04-04: `item_213` completed as the first wave-2 checkpoint inside the `logics/skills` submodule. Introduced shared provider registry, selection, and execution helpers; moved `_run_hybrid_assist(...)` onto those abstractions; and extended backend-policy metadata to expose ordered provider routing without changing the current `ollama-first`, `codex-only`, or `deterministic` behavior.
+- Validation checkpoint for `item_213`: ran `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v` successfully after adding direct policy-regression coverage for provider order and policy-violation handling.
+- Wave 2 is now in progress. Next active delivery subject is `item_214`.

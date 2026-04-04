@@ -1,10 +1,10 @@
 ## item_213_refactor_hybrid_backend_selection_around_a_provider_abstraction - Refactor hybrid backend selection around a provider abstraction
 > From version: 1.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
-> Confidence: 90%
-> Progress: 0%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid assist provider abstraction
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -68,3 +68,12 @@ flowchart LR
 - Derived from request `req_120_add_openai_and_gemini_provider_dispatch_to_the_hybrid_assist_runtime`.
 - Depends on item_212 AC13 (hybrid module split) landing first — the provider abstraction should go into the split `logics_flow_hybrid_transport.py` module.
 - Default fallback order: `ollama -> openai -> gemini -> codex` (local-first).
+
+# Delivery report
+- 2026-04-04: Introduced a shared provider registry plus `select_hybrid_backend(...)` and `execute_hybrid_backend(...)` helpers in the split hybrid transport/runtime surface so `_run_hybrid_assist(...)` no longer branches directly on concrete backend names.
+- `build_flow_backend_policy(...)` now exposes ordered `provider_order` and `allowed_backends` data, preserving explicit per-flow routing constraints while preparing the runtime for future `openai` and `gemini` providers.
+- Preserved the existing bounded semantics for `ollama-first`, `codex-only`, and `deterministic` flows, including stable degraded reasons, transport shaping, and `selection_reason` values used by runtime status and audit output.
+
+# Validation report
+- `python3 -m unittest tests.test_bootstrapper tests.test_logics_flow -v`
+- Targeted policy regression checks now cover provider-order exposure and explicit policy violations for disallowed backends.

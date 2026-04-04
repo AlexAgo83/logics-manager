@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
@@ -530,7 +531,7 @@ export class LogicsCodexWorkflowController {
   }
 
   async repairLogicsKit(root: string): Promise<boolean> {
-    const snapshot = await inspectLogicsEnvironment(root);
+    let snapshot = await inspectLogicsEnvironment(root);
     const inspection = inspectLogicsKitSubmodule(root);
     if (snapshot.codexOverlay.status === "missing-manager") {
       if (!inspection.exists || !inspection.isCanonical) {
@@ -549,6 +550,30 @@ export class LogicsCodexWorkflowController {
       if (!updated) {
         return false;
       }
+      snapshot = await inspectLogicsEnvironment(root);
+    }
+
+    const bridgeRepair = repairClaudeBridgeFiles(root);
+    if (bridgeRepair.writtenPaths.length > 0) {
+      await this.options.refresh();
+      snapshot = await inspectLogicsEnvironment(root);
+    }
+
+    if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
+      if (bridgeRepair.writtenPaths.length > 0) {
+        void vscode.window.showInformationMessage(
+          `Repair Logics Kit restored Claude bridge files: ${bridgeRepair.writtenPaths.join(", ")}`
+        );
+        return true;
+      }
+      if (bridgeRepair.skippedVariants.length > 0) {
+        void vscode.window.showWarningMessage(
+          `Repair Logics Kit could not restore Claude bridge files because required skill packages are missing for: ${bridgeRepair.skippedVariants.join(", ")}.`
+        );
+        return false;
+      }
+      void vscode.window.showInformationMessage("Logics kit runtime is already healthy for this repository.");
+      return true;
     }
 
     return this.syncCodexOverlay(root, "manual repair", { forceRepublish: true });

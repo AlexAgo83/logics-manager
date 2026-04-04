@@ -10,6 +10,7 @@
       assistDiffRiskButton,
       assistSummarizeChangelogButton,
       assistPrepareReleaseButton,
+      assistPublishReleaseButton,
       assistSummarizeValidationButton,
       assistValidationChecklistButton,
       assistDocConsistencyButton,
@@ -54,6 +55,7 @@
       onAssistDiffRisk,
       onAssistSummarizeChangelog,
       onAssistPrepareRelease,
+      onAssistPublishRelease,
       onAssistSummarizeValidation,
       onAssistValidationChecklist,
       onAssistDocConsistency,
@@ -166,6 +168,9 @@
       }
       if (assistPrepareReleaseButton) {
         assistPrepareReleaseButton.addEventListener("click", () => onAssistPrepareRelease());
+      }
+      if (assistPublishReleaseButton) {
+        assistPublishReleaseButton.addEventListener("click", () => onAssistPublishRelease());
       }
       if (assistSummarizeValidationButton) {
         assistSummarizeValidationButton.addEventListener("click", () => onAssistSummarizeValidation());
@@ -319,7 +324,8 @@
       setControlDescription(assistTriageButton, "Classify a workflow doc through the shared runtime");
       setControlDescription(assistDiffRiskButton, "Assess the current diff risk through the shared runtime");
       setControlDescription(assistSummarizeChangelogButton, "Generate bounded changelog entries through the shared runtime");
-      setControlDescription(assistPrepareReleaseButton, "Check release prerequisites and optionally publish the release");
+      setControlDescription(assistPrepareReleaseButton, "Generate changelog via AI if missing, update README badge, and commit prep changes");
+      setControlDescription(assistPublishReleaseButton, "Create the release tag, push, and publish the GitHub release");
       setControlDescription(assistSummarizeValidationButton, "Summarize validation status");
       setControlDescription(assistValidationChecklistButton, "Build a bounded validation checklist through the shared runtime");
       setControlDescription(assistDocConsistencyButton, "Review workflow doc consistency through the shared runtime");

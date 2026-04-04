@@ -5,6 +5,7 @@ import { buildHybridInsightsHtml } from "./logicsHybridInsightsHtml";
 import {
   parseHybridChangelogSummaryResult,
   parseHybridPrepareReleaseResult,
+  parseHybridPublishReleaseResult,
   describeHybridAssistOutcome,
   parseHybridAssistPayload,
   parseHybridCommitPlanSteps,
@@ -437,27 +438,67 @@ export class LogicsHybridAssistController {
     const tag = result?.changelog_status?.tag ?? "release";
     const summary = result?.changelog_status?.summary ?? "";
     const ready = result?.ready ?? false;
-    const outcome = describeHybridAssistOutcome(payload);
-    const backendLabel = outcome.backendUsed ? ` via ${outcome.backendUsed}` : "";
-    const detail = ready ? `${tag} is ready to publish. ${summary}`.trim() : `Not ready: ${summary}`.trim();
-    if (!ready) {
-      this.notifyHybridAssistCompletion("Prepare Release", payload, detail);
+    if (ready) {
+      this.notifyHybridAssistCompletion("Prepare Release", payload, `${tag} is ready to publish.`);
       return;
     }
     const choice = await vscode.window.showInformationMessage(
-      `Prepare Release completed${backendLabel}. ${detail}`,
-      "Publish Release"
+      `${tag} is not ready: ${summary}`,
+      "Auto-Prepare"
     );
-    if (choice === "Publish Release") {
+    if (choice === "Auto-Prepare") {
       const executed = await this.runHybridAssistCommandWithOptions(
         root,
-        ["prepare-release", "--execution-mode", "execute", "--push"],
+        ["prepare-release", "--execution-mode", "execute"],
+        { actionLabel: "Prepare Release" }
+      );
+      if (!executed) {
+        return;
+      }
+      const execResult = parseHybridPrepareReleaseResult(executed);
+      const nowReady = execResult?.ready ?? false;
+      this.notifyHybridAssistCompletion(
+        "Prepare Release",
+        executed,
+        nowReady ? `${tag} is now ready to publish.` : "Preparation incomplete — check the output log."
+      );
+      await this.options.refresh();
+    }
+  }
+
+  async publishReleaseFromTools(): Promise<void> {
+    const root = await this.options.getActionRoot();
+    if (!root) {
+      return;
+    }
+    const payload = await this.runHybridAssistCommandWithOptions(root, ["publish-release"], {
+      actionLabel: "Publish Release"
+    });
+    if (!payload) {
+      return;
+    }
+    const result = parseHybridPublishReleaseResult(payload);
+    const tag = result?.changelog_status?.tag ?? "release";
+    const ready = result?.ready ?? false;
+    if (!ready) {
+      const blocking = result?.publish_result?.blocking?.join(", ") ?? "Release prerequisites not met.";
+      this.notifyHybridAssistCompletion("Publish Release", payload, `Not ready: ${blocking}`);
+      return;
+    }
+    const choice = await vscode.window.showInformationMessage(
+      `${tag} is ready. Create tag, push, and publish the GitHub release?`,
+      "Publish"
+    );
+    if (choice === "Publish") {
+      const executed = await this.runHybridAssistCommandWithOptions(
+        root,
+        ["publish-release", "--execution-mode", "execute", "--push"],
         { actionLabel: "Publish Release" }
       );
       if (!executed) {
         return;
       }
-      const publishedResult = parseHybridPrepareReleaseResult(executed);
+      const publishedResult = parseHybridPublishReleaseResult(executed);
       const publishOk = publishedResult?.publish_result?.ok ?? false;
       this.notifyHybridAssistCompletion(
         "Publish Release",

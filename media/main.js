@@ -48,6 +48,7 @@
   const assistDiffRiskButton = document.querySelector('[data-action="assist-diff-risk"]');
   const assistSummarizeChangelogButton = document.querySelector('[data-action="assist-summarize-changelog"]');
   const assistPrepareReleaseButton = document.querySelector('[data-action="assist-prepare-release"]');
+  const assistPublishReleaseButton = document.querySelector('[data-action="assist-publish-release"]');
   const assistSummarizeValidationButton = document.querySelector('[data-action="assist-summarize-validation"]');
   const assistValidationChecklistButton = document.querySelector('[data-action="assist-validation-checklist"]');
   const assistDocConsistencyButton = document.querySelector('[data-action="assist-doc-consistency"]');
@@ -1027,6 +1028,7 @@
         assistDiffRiskButton,
         assistSummarizeChangelogButton,
         assistPrepareReleaseButton,
+        assistPublishReleaseButton,
         assistSummarizeValidationButton,
         assistValidationChecklistButton,
         assistDocConsistencyButton,
@@ -1120,6 +1122,10 @@
         },
         onAssistPrepareRelease() {
           hostApi.assistPrepareRelease();
+          setToolsPanelOpen(false);
+        },
+        onAssistPublishRelease() {
+          hostApi.assistPublishRelease();
           setToolsPanelOpen(false);
         },
         onAssistSummarizeValidation() {

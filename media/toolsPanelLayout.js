@@ -45,6 +45,7 @@
         "assist-diff-risk",
         "assist-summarize-changelog",
         "assist-prepare-release",
+        "assist-publish-release",
         "assist-summarize-validation",
         "assist-validation-checklist",
         "assist-doc-consistency"

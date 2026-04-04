@@ -78,6 +78,18 @@ export type HybridPrepareReleaseResult = {
     version?: string;
     summary?: string;
   };
+  prep_steps?: string[];
+  prep_errors?: string[];
+};
+
+export type HybridPublishReleaseResult = {
+  ready?: boolean;
+  changelog_status?: {
+    exists?: boolean;
+    tag?: string;
+    version?: string;
+    summary?: string;
+  };
   publish_result?: {
     ok?: boolean;
     blocking?: string[];
@@ -271,6 +283,24 @@ export function parseHybridDocConsistencyResult(payload: HybridAssistPayload): H
 }
 
 export function parseHybridPrepareReleaseResult(payload: UnknownRecord): HybridPrepareReleaseResult | null {
+  const changelog_status = isRecord(payload.changelog_status) ? payload.changelog_status : undefined;
+  if (changelog_status === undefined) {
+    return null;
+  }
+  return {
+    ready: typeof payload.ready === "boolean" ? payload.ready : undefined,
+    changelog_status: {
+      exists: typeof changelog_status.exists === "boolean" ? changelog_status.exists : undefined,
+      tag: typeof changelog_status.tag === "string" ? changelog_status.tag : undefined,
+      version: typeof changelog_status.version === "string" ? changelog_status.version : undefined,
+      summary: typeof changelog_status.summary === "string" ? changelog_status.summary : undefined
+    },
+    prep_steps: isStringArray(payload.prep_steps) ? payload.prep_steps : undefined,
+    prep_errors: isStringArray(payload.prep_errors) ? payload.prep_errors : undefined
+  };
+}
+
+export function parseHybridPublishReleaseResult(payload: UnknownRecord): HybridPublishReleaseResult | null {
   const changelog_status = isRecord(payload.changelog_status) ? payload.changelog_status : undefined;
   const publish_result = isRecord(payload.publish_result) ? payload.publish_result : undefined;
   if (changelog_status === undefined && publish_result === undefined) {

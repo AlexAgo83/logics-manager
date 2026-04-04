@@ -115,6 +115,9 @@
       assistPrepareRelease() {
         invokeHostOnly("assist-prepare-release", {}, "Prepare Release");
       },
+      assistPublishRelease() {
+        invokeHostOnly("assist-publish-release", {}, "Publish Release");
+      },
       assistValidationChecklist() {
         invokeHostOnly("assist-validation-checklist", {}, "Validation Checklist");
       },

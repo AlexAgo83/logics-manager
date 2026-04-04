@@ -817,6 +817,7 @@ describe("webview harness filters, details, and docs", () => {
         "assist-commit-all",
         "assist-triage",
         "assist-diff-risk",
+        "assist-summarize-changelog",
         "assist-validation-checklist",
         "assist-doc-consistency",
         "refresh"

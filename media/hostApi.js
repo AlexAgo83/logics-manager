@@ -103,6 +103,9 @@
       assistSummarizeValidation() {
         invokeHostOnly("assist-summarize-validation", {}, "Summarize Validation");
       },
+      assistSummarizeChangelog() {
+        invokeHostOnly("assist-summarize-changelog", {}, "Generate Changelog Summary");
+      },
       assistValidationChecklist() {
         invokeHostOnly("assist-validation-checklist", {}, "Validation Checklist");
       },

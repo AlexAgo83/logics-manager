@@ -49,6 +49,7 @@ describe("logics HTML builders", () => {
 
   afterEach(() => {
     randomSpy.mockClear();
+    vi.useRealTimers();
   });
 
   it("renders the hybrid insights report snapshot", () => {
@@ -174,5 +175,82 @@ describe("logics HTML builders", () => {
 
     expect(html).toMatchSnapshot();
     fs.rmSync(extensionPath, { recursive: true, force: true });
+  });
+
+  it("sorts recent hybrid runs newest first and formats recent timestamps relatively", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-04T12:00:00Z"));
+
+    const html = buildHybridInsightsHtml({
+      webview: createWebview() as never,
+      rootLabel: "/workspace/project",
+      report: {
+        generated_at: "2026-04-04T11:45:00.658694+00:00",
+        measured: {
+          totals: {
+            runs: 2,
+            local_runs: 1,
+            fallback_runs: 1,
+            degraded_runs: 0,
+            review_recommended_runs: 0
+          },
+          execution_paths: {
+            local: 1,
+            fallback: 1
+          }
+        },
+        derived: {
+          rates: {
+            local_offload_rate: 0.5,
+            fallback_rate: 0.5,
+            degraded_rate: 0,
+            review_recommended_rate: 0
+          },
+          report_state: {},
+          health_summary: [],
+          dispatch_split: [],
+          execution_path_split: [],
+          top_degraded_reasons: [],
+          top_fallback_reasons: []
+        },
+        recent_runs: [
+          {
+            flow: "older-flow",
+            result_status: "ok",
+            backend_requested: "auto",
+            backend_used: "ollama",
+            execution_path: "local",
+            recorded_at: "2026-04-03T08:00:00Z",
+            validated_summary: "Older run"
+          },
+          {
+            flow: "recent-flow",
+            result_status: "ok",
+            backend_requested: "auto",
+            backend_used: "codex",
+            execution_path: "fallback",
+            recorded_at: "2026-04-04T11:30:00Z",
+            validated_summary: "Recent run"
+          }
+        ],
+        estimated: {
+          assumptions: {},
+          proxies: {}
+        },
+        sources: {},
+        limits: {
+          window_days: 7,
+          recent_limit: 10
+        }
+      }
+    });
+
+    expect(html.indexOf("recent-flow")).toBeGreaterThan(-1);
+    expect(html.indexOf("older-flow")).toBeGreaterThan(-1);
+    expect(html.indexOf("recent-flow")).toBeLessThan(html.indexOf("older-flow"));
+    expect(html).toContain("30 min ago");
+    expect(html).toContain("14 min ago");
+    expect(html).not.toContain("2026-04-04T11:30:00Z");
+    expect(html).not.toContain("2026-04-04T11:45:00.658694+00:00");
   });
 });

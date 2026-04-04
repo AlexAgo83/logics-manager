@@ -471,6 +471,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    if (root) {
+      const gitignoreItem = await this.buildGitignoreArtifactsQuickPickItem(root);
+      if (gitignoreItem) {
+        quickPickItems.push(gitignoreItem);
+      }
+    }
+
     if (
       root &&
       snapshot.codexOverlay.status !== "healthy" &&
@@ -591,6 +598,57 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (choice?.action) {
       await choice.action();
     }
+  }
+
+  private async buildGitignoreArtifactsQuickPickItem(
+    root: string
+  ): Promise<(vscode.QuickPickItem & { action: () => Promise<void> }) | null> {
+    const ARTIFACTS = [
+      "logics/hybrid_audit.jsonl",
+      "logics/hybrid_measurement.jsonl",
+      "logics/mutation_audit.jsonl"
+    ];
+    const result = await runGitWithOutput(root, ["ls-files", "--", ...ARTIFACTS]);
+    if (!result.stdout.trim()) {
+      return null;
+    }
+    const tracked = result.stdout
+      .trim()
+      .split(/\r?\n/)
+      .filter(Boolean);
+    if (tracked.length === 0) {
+      return null;
+    }
+    return {
+      label: `Run: Add hybrid runtime artifacts to .gitignore (${tracked.length} file(s) tracked)`,
+      description: `${tracked.join(", ")} — generated files that should not be committed.`,
+      action: () => {
+        try {
+          const gitignorePath = path.join(root, ".gitignore");
+          const existing = fs.existsSync(gitignorePath)
+            ? fs.readFileSync(gitignorePath, "utf-8")
+            : "";
+          const toAdd = ARTIFACTS.filter((a) => !existing.includes(a));
+          if (toAdd.length === 0) {
+            void vscode.window.showInformationMessage(".gitignore already contains these entries.");
+            return Promise.resolve();
+          }
+          const separator = existing.endsWith("\n") || existing.length === 0 ? "" : "\n";
+          const section =
+            "\n# Logics hybrid runtime generated artifacts\n" +
+            toAdd.join("\n") +
+            "\n";
+          fs.writeFileSync(gitignorePath, existing + separator + section, "utf-8");
+          void vscode.window.showInformationMessage(
+            `.gitignore updated: added ${toAdd.length} artifact pattern(s).`
+          );
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          void vscode.window.showErrorMessage(`Failed to update .gitignore: ${message}`);
+        }
+        return Promise.resolve();
+      }
+    };
   }
 
   private buildLogicsYamlBlocksQuickPickItem(

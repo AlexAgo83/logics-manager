@@ -30,7 +30,8 @@ const mocks = vi.hoisted(() => ({
   isExistingDirectory: vi.fn(),
   areSamePath: vi.fn(),
   publishCodexWorkspaceOverlay: vi.fn(),
-  shouldPublishRepoKit: vi.fn()
+  shouldPublishRepoKit: vi.fn(),
+  detectClaudeBridgeStatus: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -111,6 +112,7 @@ vi.mock("../src/logicsCodexWorkspace", () => ({
 }));
 
 vi.mock("../src/logicsEnvironment", () => ({
+  detectClaudeBridgeStatus: mocks.detectClaudeBridgeStatus,
   inspectLogicsEnvironment: vi.fn(async () => ({
     root: "/workspace/mock",
     repositoryState: "partial-bootstrap",
@@ -169,7 +171,7 @@ vi.mock("../src/logicsEnvironment", () => ({
   }))
 }));
 
-import { inspectLogicsEnvironment } from "../src/logicsEnvironment";
+import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
 import { LogicsViewProvider } from "../src/logicsViewProvider";
 
 describe("LogicsViewProvider", () => {
@@ -261,6 +263,13 @@ describe("LogicsViewProvider", () => {
     mocks.createTerminal.mockReset();
     mocks.publishCodexWorkspaceOverlay.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
+    mocks.detectClaudeBridgeStatus.mockReset();
+    mocks.detectClaudeBridgeStatus.mockReturnValue({
+      available: true,
+      preferredVariant: "hybrid-assist",
+      detectedVariants: ["hybrid-assist"],
+      supportedVariants: ["hybrid-assist", "flow-manager"]
+    });
 
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "missing",
@@ -1295,6 +1304,7 @@ describe("LogicsViewProvider", () => {
       items.find((item: { label: string }) => item.label === "Run: Update Logics Kit")
     );
     mocks.runGitWithOutput
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // ls-files (gitignore check)
       .mockResolvedValueOnce({ stdout: "git version 2.0.0", stderr: "" })
       .mockResolvedValueOnce({ stdout: "true\n", stderr: "" })
       .mockResolvedValueOnce({ stdout: "", stderr: "" })
@@ -1489,5 +1499,182 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
       "Global Codex kit still needs attention. No global Codex Logics kit is published yet. Opening this repository can publish it automatically."
     );
+  });
+
+  describe("migration checks in Check Environment", () => {
+    function writeYaml(content: string) {
+      fs.writeFileSync(path.join(root, "logics.yaml"), content, "utf-8");
+    }
+
+    function readYaml(): string {
+      return fs.readFileSync(path.join(root, "logics.yaml"), "utf-8");
+    }
+
+    function quickPickItems(): Array<{ label: string; action?: () => Promise<void> }> {
+      return mocks.showQuickPick.mock.calls[0][0];
+    }
+
+    it("surfaces an Update Kit action when logics/skills/VERSION is below minimum", async () => {
+      fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+      fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0", "utf-8");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Update Logics Kit") && i.label.includes("v1.5.0"))).toBe(true);
+    });
+
+    it("does not surface kit version item when version meets minimum", async () => {
+      fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+      fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.7.1", "utf-8");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      const kitVersionItems = items.filter(
+        (i) => i.label.includes("Update Logics Kit") && i.label.includes("minimum recommended")
+      );
+      expect(kitVersionItems).toHaveLength(0);
+    });
+
+    it("surfaces a repair action when logics.yaml is missing mutations and index blocks", async () => {
+      writeYaml("version: 1\nworkflow:\n  split:\n    policy: minimal-coherent\n");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("missing logics.yaml blocks") && i.label.includes("mutations") && i.label.includes("index"))).toBe(true);
+    });
+
+    it("appends missing blocks to logics.yaml when action is triggered", async () => {
+      writeYaml("version: 1\n");
+      mocks.showQuickPick.mockImplementationOnce(async (items: Array<{ label: string; action?: () => Promise<void> }>) =>
+        items.find((i) => i.label.includes("missing logics.yaml blocks"))
+      );
+
+      await provider.checkEnvironmentFromCommand();
+
+      const content = readYaml();
+      expect(content).toContain("mutations:");
+      expect(content).toContain("mode: transactional");
+      expect(content).toContain("index:");
+      expect(content).toContain("runtime_index.json");
+    });
+
+    it("does not surface yaml blocks action when both blocks are present", async () => {
+      writeYaml("version: 1\nmutations:\n  mode: transactional\nindex:\n  enabled: true\n");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("missing logics.yaml blocks"))).toBe(false);
+    });
+
+    it("surfaces a gitignore action when hybrid runtime artifacts are tracked", async () => {
+      mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
+        if (args[0] === "ls-files") {
+          return { stdout: "logics/hybrid_assist_audit.jsonl\n", stderr: "" };
+        }
+        return { stdout: "", stderr: "" };
+      });
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))).toBe(true);
+    });
+
+    it("patches .gitignore when gitignore action is triggered", async () => {
+      mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
+        if (args[0] === "ls-files") {
+          return { stdout: "logics/hybrid_assist_audit.jsonl\nlogics/mutation_audit.jsonl\n", stderr: "" };
+        }
+        return { stdout: "", stderr: "" };
+      });
+      mocks.showQuickPick.mockImplementationOnce(async (items: Array<{ label: string; action?: () => Promise<void> }>) =>
+        items.find((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))
+      );
+
+      await provider.checkEnvironmentFromCommand();
+
+      const gitignoreContent = fs.readFileSync(path.join(root, ".gitignore"), "utf-8");
+      expect(gitignoreContent).toContain("hybrid_assist_audit.jsonl");
+      expect(gitignoreContent).toContain("mutation_audit.jsonl");
+    });
+
+    it("does not surface gitignore action when no artifacts are tracked", async () => {
+      mocks.runGitWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Add hybrid runtime artifacts to .gitignore"))).toBe(false);
+    });
+
+    it("surfaces a warning when .env.local is absent and hybrid providers are configured", async () => {
+      writeYaml(
+        "version: 1\nhybrid_assist:\n  env_file: .env\n  providers:\n    openai:\n      enabled: true\n"
+      );
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes(".env.local is missing"))).toBe(true);
+    });
+
+    it("does not surface .env.local warning when file already exists", async () => {
+      writeYaml(
+        "version: 1\nhybrid_assist:\n  providers:\n    openai:\n      enabled: true\n"
+      );
+      fs.writeFileSync(path.join(root, ".env.local"), "OPENAI_API_KEY=sk-test\n", "utf-8");
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes(".env.local is missing"))).toBe(false);
+    });
+
+    it("surfaces a Claude bridge repair action when bridge files are missing", async () => {
+      vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+        ...defaultEnvironmentSnapshot(root),
+        hybridRuntime: {
+          state: "degraded",
+          summary: "Runtime degraded.",
+          backend: "codex",
+          requestedBackend: "auto",
+          degraded: true,
+          degradedReasons: ["ollama-unreachable"],
+          claudeBridgeAvailable: false,
+          windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+        }
+      } as never);
+      mocks.detectClaudeBridgeStatus.mockReturnValue({
+        available: false,
+        preferredVariant: null,
+        detectedVariants: [],
+        supportedVariants: ["hybrid-assist", "flow-manager"]
+      });
+
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Repair Claude bridge"))).toBe(true);
+    });
+
+    it("does not surface Claude bridge repair when bridge is available", async () => {
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Repair Claude bridge"))).toBe(false);
+    });
+
+    it("creates logics/.cache directory when absent during Check Environment", async () => {
+      const cacheDir = path.join(root, "logics", ".cache");
+      expect(fs.existsSync(cacheDir)).toBe(false);
+
+      await provider.checkEnvironmentFromCommand();
+
+      expect(fs.existsSync(cacheDir)).toBe(true);
+    });
   });
 });

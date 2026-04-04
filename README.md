@@ -52,7 +52,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
-- Tools menu now includes shared hybrid-assist actions for `Check Hybrid Runtime`, `Commit All Changes`, `Suggest Next Step`, `Triage Item`, `Assess Diff Risk`, `Summarize Validation`, `Validation Checklist`, and `Doc Consistency`.
+- Tools menu now groups provider management under `AI Runtime`, with `AI Runtime Status`, `AI Provider Insights`, and the shared hybrid-assist workflow actions in one compact system surface.
 - Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
 - Environment diagnostics now show hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
 
@@ -217,8 +217,8 @@ Contract:
 - `Check Environment` can also surface direct remediation actions when the plugin detects a stale kit or a missing global publication.
 - `Check Environment` now includes hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global-kit state still requires an explicit refresh because it lives outside the workspace.
-- `Check Hybrid Runtime` probes the shared `logics.py flow assist runtime-status` surface and reports backend provenance plus degraded-state reasons.
-- `Hybrid Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with measured counters, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
+- `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
+- `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
 - `Triage Item` classifies a selected request, backlog item, or task through the shared hybrid runtime and keeps backend provenance visible in the completion notification.

@@ -1,10 +1,10 @@
 ## task_110_orchestration_delivery_for_req_120_and_req_121_multi_provider_hybrid_dispatch_and_audit_cleanup - Orchestration delivery for req_120 and req_121 across audit cleanup and multi-provider hybrid dispatch
-> From version: 1.18.0
+> From version: 1.18.1
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 97%
-> Confidence: 96%
-> Progress: 95%
+> Status: Done
+> Understanding: 100%
+> Confidence: 99%
+> Progress: 100%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -62,15 +62,15 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Confirm item ordering, cross-request dependencies, and the rule that `item_212` lands before `item_213`.
-- [ ] 2. Wave 1: deliver `item_210`, `item_211`, and `item_212`, ending with the hybrid-module split and related cleanup documented and commit-ready.
-- [ ] 3. Wave 2: deliver `item_213`, `item_214`, and `item_215`, keeping provider abstraction, provider transports, and readiness gating as separate reviewable subjects.
-- [ ] 4. Wave 3: deliver `item_216` and `item_217`, covering provider-aware observability, `Hybrid Insights`, compact `Tools` integration, and regression closure.
-- [ ] 5. Validate the integrated result across docs, plugin runtime behavior, hybrid provider routing, readiness gating, observability, and test surfaces.
-- [ ] 6. Prepare the direct post-task handoff into `task_109`, including updated references, current runtime constraints, and the expectation that onboarding work starts immediately after `task_110`.
-- [ ] 7. At the very end, rerun the full relevant validation suite, update and synchronize the linked Logics docs, update `README.md`, and only then create the final closing commit for this task.
-- [ ] CHECKPOINT: after each item, update linked docs and leave the repo in a commit-ready state scoped to that item only.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Confirm item ordering, cross-request dependencies, and the rule that `item_212` lands before `item_213`.
+- [x] 2. Wave 1: deliver `item_210`, `item_211`, and `item_212`, ending with the hybrid-module split and related cleanup documented and commit-ready.
+- [x] 3. Wave 2: deliver `item_213`, `item_214`, and `item_215`, keeping provider abstraction, provider transports, and readiness gating as separate reviewable subjects.
+- [x] 4. Wave 3: deliver `item_216` and `item_217`, covering provider-aware observability, `Hybrid Insights`, compact `Tools` integration, and regression closure.
+- [x] 5. Validate the integrated result across docs, plugin runtime behavior, hybrid provider routing, readiness gating, observability, and test surfaces.
+- [x] 6. Prepare the direct post-task handoff into `task_109`, including updated references, current runtime constraints, and the expectation that onboarding work starts immediately after `task_110`.
+- [x] 7. At the very end, rerun the full relevant validation suite, update and synchronize the linked Logics docs, update `README.md`, and only then create the final closing commit for this task.
+- [x] CHECKPOINT: after each item, update linked docs and leave the repo in a commit-ready state scoped to that item only.
+- [x] FINAL: Update related Logics docs
 
 # Delivery checkpoints
 - Never batch two backlog items into one implementation commit.
@@ -169,14 +169,14 @@ flowchart LR
 - Manual: confirm the final close-out reran the relevant tests, synchronized the Logics docs, updated `README.md` where needed, and ended with one explicit final commit.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request, backlog, and task docs updated during completed waves and at closure.
-- [ ] Each completed item left a commit-ready checkpoint or an explicit documented exception.
-- [ ] Each wave ended with docs updated and commit discipline preserved.
-- [ ] The close-out explicitly hands off to `task_109` as the next task with current runtime and UI context captured.
-- [ ] The final close-out reran validation, synchronized docs, updated `README.md` where needed, and ended with a final closing commit.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request, backlog, and task docs updated during completed waves and at closure.
+- [x] Each completed item left a commit-ready checkpoint or an explicit documented exception.
+- [x] Each wave ended with docs updated and commit discipline preserved.
+- [x] The close-out explicitly hands off to `task_109` as the next task with current runtime and UI context captured.
+- [x] The final close-out reran validation, synchronized docs, updated `README.md` where needed, and ended with a final closing commit.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - 2026-04-04: `item_210` completed as the first wave-1 checkpoint. Removed the dead `runPython()` export, deleted stale root `.vsix` artifacts, switched the documented and Claude bridge entrypoints to `python logics/skills/logics.py ...`, added `logics/specs/README.md`, and seeded `logics.yaml`.
@@ -199,4 +199,5 @@ flowchart LR
 - Validation checkpoint for `item_216`: ran `npm run test` and `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after updating the view-provider assertions, webview harness fixtures, and HTML snapshots for the provider-aware runtime surfaces.
 - 2026-04-04: `item_217` completed as the second wave-3 checkpoint inside the `logics/skills` submodule. Added explicit regression coverage for ordered remote-provider fallback and bounded fallback after invalid remote payloads, while keeping the existing `ollama`, `deterministic`, `codex-only`, missing-credential, and cooldown cases green.
 - Validation checkpoint for `item_217`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after extending the shared runtime regression matrix.
-- Wave 3 is now complete. Next active delivery subject is final close-out for `task_110`, including README sync and direct handoff into `task_109`.
+- Wave 3 is now complete. Final close-out synchronized the README with the shipped `AI Runtime` / `AI Provider Insights` labels and reran the relevant TypeScript, Logics-doc, and shared-runtime validation suite.
+- Direct handoff: start `task_109_orchestration_delivery_for_req_119_three_step_onboarding` next. Reuse the stabilized `AI Runtime` tools baseline as-is, avoid reopening provider/runtime refactors during onboarding work, and treat the current multi-provider runtime contract as the platform underneath that onboarding slice.

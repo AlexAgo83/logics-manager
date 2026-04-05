@@ -1,10 +1,10 @@
 ## item_227_add_backlog_groom_bounded_authoring_hybrid_flow - Add backlog-groom bounded authoring hybrid flow
-> From version: 1.21.1
+> From version: 1.21.1+item227
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 94%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

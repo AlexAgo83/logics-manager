@@ -951,7 +951,7 @@ describe("LogicsViewProvider", () => {
     );
   });
 
-  it("selects an agent without injecting a prompt or triggering Codex handoff", async () => {
+  it("selects an agent, copies its prompt, and does not trigger Codex handoff", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     const handoffSpy = vi.spyOn(provider as any, "maybeShowCodexOverlayHandoff");
     const injectSpy = vi.spyOn(provider as any, "injectAgentPromptIntoCodexChat");
@@ -979,7 +979,7 @@ describe("LogicsViewProvider", () => {
 
     await provider.selectAgentFromPalette();
 
-    expect(injectSpy).not.toHaveBeenCalled();
+    expect(injectSpy).toHaveBeenCalledWith(agent);
     expect(handoffSpy).not.toHaveBeenCalled();
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(`Active Logics agent: ${agent.displayName} (${agent.id})`);
   });

@@ -402,6 +402,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await this.setActiveAgent(pick.agent.id);
+    await this.injectAgentPromptIntoCodexChat(pick.agent);
     void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
     await this.refresh();
   }

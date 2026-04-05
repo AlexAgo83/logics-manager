@@ -2,7 +2,12 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildCodexOverlayRunCommand, buildCodexOverlaySyncCommand, inspectCodexWorkspaceOverlay } from "../src/logicsCodexWorkspace";
+import {
+  buildCodexOverlayRunCommand,
+  buildCodexOverlaySyncCommand,
+  inspectCodexWorkspaceOverlay,
+  publishCodexWorkspaceOverlay
+} from "../src/logicsCodexWorkspace";
 
 describe("inspectCodexWorkspaceOverlay", () => {
   const roots: string[] = [];
@@ -87,5 +92,51 @@ describe("inspectCodexWorkspaceOverlay", () => {
   it("builds global runtime commands", () => {
     expect(buildCodexOverlaySyncCommand()).toContain("auto-publishes the global Codex kit");
     expect(buildCodexOverlayRunCommand()).toBe("codex");
+  });
+
+  it("publishes only core-tier skills by default", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
+    const globalHome = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
+    roots.push(root, globalHome);
+    process.env.LOGICS_CODEX_GLOBAL_HOME = globalHome;
+
+    const coreSkillDir = path.join(root, "logics", "skills", "core-skill");
+    const optionalSkillDir = path.join(root, "logics", "skills", "optional-skill");
+    fs.mkdirSync(path.join(coreSkillDir, "agents"), { recursive: true });
+    fs.mkdirSync(path.join(optionalSkillDir, "agents"), { recursive: true });
+    fs.writeFileSync(path.join(coreSkillDir, "SKILL.md"), "# core\n", "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "SKILL.md"), "# optional\n", "utf8");
+    fs.writeFileSync(path.join(coreSkillDir, "agents", "openai.yaml"), 'tier: core\ninterface:\n  display_name: "Core"\n', "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "agents", "openai.yaml"), 'tier: optional\ninterface:\n  display_name: "Optional"\n', "utf8");
+
+    const result = publishCodexWorkspaceOverlay(root);
+
+    expect(result.includeOptional).toBe(false);
+    expect(result.publishedSkillNames).toEqual(["core-skill"]);
+    expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
+    expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(false);
+  });
+
+  it("publishes optional-tier skills when includeOptional is enabled", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
+    const globalHome = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
+    roots.push(root, globalHome);
+    process.env.LOGICS_CODEX_GLOBAL_HOME = globalHome;
+
+    const coreSkillDir = path.join(root, "logics", "skills", "core-skill");
+    const optionalSkillDir = path.join(root, "logics", "skills", "optional-skill");
+    fs.mkdirSync(path.join(coreSkillDir, "agents"), { recursive: true });
+    fs.mkdirSync(path.join(optionalSkillDir, "agents"), { recursive: true });
+    fs.writeFileSync(path.join(coreSkillDir, "SKILL.md"), "# core\n", "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "SKILL.md"), "# optional\n", "utf8");
+    fs.writeFileSync(path.join(coreSkillDir, "agents", "openai.yaml"), 'tier: core\ninterface:\n  display_name: "Core"\n', "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "agents", "openai.yaml"), 'tier: optional\ninterface:\n  display_name: "Optional"\n', "utf8");
+
+    const result = publishCodexWorkspaceOverlay(root, { includeOptional: true });
+
+    expect(result.includeOptional).toBe(true);
+    expect(result.publishedSkillNames).toEqual(["core-skill", "optional-skill"]);
+    expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
+    expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(true);
   });
 });

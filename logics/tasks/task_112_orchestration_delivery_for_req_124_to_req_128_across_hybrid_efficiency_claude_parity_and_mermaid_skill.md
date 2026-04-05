@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In Progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 11%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -72,7 +72,7 @@ flowchart LR
   - Integration test: assert `collect_git_snapshot` subprocess called once per invocation on chained flows.
   - Commit: `feat(hybrid): add diff preprocessor and git snapshot reuse (item_220)`.
 
-- [ ] **1.2 — item_221**: Add short-lived result cache in `logics/.cache/flow_results_cache.json` keyed on `sha256(flow_name + diff_fingerprint)` with configurable TTL; log `cache-hit` in measurement log.
+- [x] **1.2 — item_221**: Add short-lived result cache in `logics/.cache/flow_results_cache.json` keyed on `sha256(flow_name + diff_fingerprint)` with configurable TTL; log `cache-hit` in measurement log.
   - Integration test: retry same flow twice within TTL, assert second call produces no AI subprocess and measurement log shows `cache-hit`.
   - Commit: `feat(hybrid): add short-lived result cache for hybrid flows (item_221)`.
 

@@ -1,10 +1,10 @@
 ## item_221_short_lived_result_cache_for_hybrid_assist_flows - Short-lived result cache for hybrid assist flows
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

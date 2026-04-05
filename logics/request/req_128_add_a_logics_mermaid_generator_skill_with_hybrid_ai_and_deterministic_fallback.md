@@ -1,10 +1,10 @@
 ## req_128_add_a_logics_mermaid_generator_skill_with_hybrid_ai_and_deterministic_fallback - Add a logics-mermaid-generator skill with hybrid AI and deterministic fallback
 
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 93%
-> Confidence: 87%
+> Understanding: 94%
+> Confidence: 89%
 > Complexity: Medium
 > Theme: Logics kit skills, Mermaid quality, and hybrid AI integration
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -113,6 +113,15 @@ flowchart TD
 - Keywords: mermaid generator, skill, hybrid ai, deterministic fallback, logics-mermaid-generator, flowchart, mermaid safety rules, flow manager, request mermaid, backlog mermaid, task mermaid, ollama, openai, gemini, bounded flow, tier core
 - Use when: Use when planning the creation of the logics-mermaid-generator skill, wiring hybrid AI into Mermaid generation, or replacing the hardcoded template functions in logics_flow_support.py.
 - Skip when: Skip when the work is about Mermaid signature refresh only (req_068), Mermaid diagram relevance guidance only (req_061), or hybrid assist flows that do not involve Mermaid generation.
+
+# AC Traceability
+
+- AC1 -> `item_236`, `task_112`. Proof: the `logics-mermaid-generator` skill package is created as a standalone callable skill.
+- AC2 -> `item_237`, `task_112`. Proof: hybrid AI generation mode is added with bounded dispatch and validated Mermaid output.
+- AC3 -> `item_236`, `task_112`. Proof: deterministic Mermaid generation remains available as the silent fallback path.
+- AC4 -> `item_238`, `task_112`. Proof: every flow-manager Mermaid call site routes through the skill entry point.
+- AC5 -> `item_237`, `task_112`. Proof: AI output is rejected when it violates Mermaid safety rules and falls back automatically.
+- AC6 -> `item_236`, `task_112`. Proof: the skill manifest declares the bridge-friendly prompt and `tier: core` for default kit publication.
 
 # References
 

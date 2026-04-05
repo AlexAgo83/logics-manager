@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1
+> From version: 1.21.1+wave1-closed
 > Schema version: 1.0
 > Status: In Progress
-> Understanding: 95%
-> Confidence: 90%
-> Progress: 26%
+> Understanding: 97%
+> Confidence: 92%
+> Progress: 32%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -88,7 +88,7 @@ flowchart LR
   - Test: Hybrid Insights HTML renders three new recommendation sections from measurement and audit log data.
   - Commit: `feat(insights): add actionable efficiency recommendations (item_224)`.
 
-- [ ] **GATE Wave 1**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
+- [x] **GATE Wave 1**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
 
 ---
 
@@ -196,6 +196,8 @@ flowchart LR
 - Do not mark a wave complete if any linked test is skipped or failing.
 
 # AC Traceability
+
+- Proof: Each mapped backlog item in this orchestration must ship with its own acceptance proof, and wave gates re-run the linked validation commands before the wave can close.
 
 - req_124-AC1/AC2 → Wave 1, item_220 (diff preprocessor and snapshot reuse).
 - req_124-AC3 → Wave 1, item_221 (result cache).

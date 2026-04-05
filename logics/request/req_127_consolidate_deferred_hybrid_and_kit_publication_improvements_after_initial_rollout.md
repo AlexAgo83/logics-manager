@@ -1,10 +1,10 @@
 ## req_127_consolidate_deferred_hybrid_and_kit_publication_improvements_after_initial_rollout - Consolidate deferred hybrid and kit publication improvements after initial rollout
 
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 88%
-> Confidence: 82%
+> Understanding: 93%
+> Confidence: 87%
 > Complexity: Medium
 > Theme: Hybrid assist and kit publication consolidation post-rollout
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -18,7 +18,7 @@
 
 - Four items were explicitly deferred during the design of req_124–req_126 to keep each request focused and lower its delivery risk. They are collected here so nothing is lost and each can be scheduled once the upstream work is stable in production.
 
-  **From req_124 (AC6 — skill tier):**
+  **From req_124 (skill tier acceptance criterion):**
   A single `tier` field (`core` / `optional`) was chosen to keep the implementation simple for the initial rollout. If operators discover that a skill is useful for one runtime but noise for the other — for example, a Python-heavy skill useful in Codex sessions but irrelevant in Claude sessions — per-runtime tier differentiation (`codex_tier`, `claude_tier`) becomes necessary. This deferral is conditional: it only lands if real usage produces this need.
 
   **From req_125 (AC2 — authoring flow execution mode):**
@@ -47,7 +47,7 @@ flowchart TD
 
 # Acceptance criteria
 
-- AC1 (conditional): If production usage of req_124 AC6 reveals that operators need different tier assignments per runtime, the `agents/openai.yaml` skill contract is extended with `codex_tier` and `claude_tier` fields that override the shared `tier` field for each runtime independently. The shared `tier` field remains the default when neither per-runtime field is set. This AC is skipped entirely if no real usage demand materialises after the initial rollout.
+- AC1 (conditional): If production usage of req_124's skill-tier acceptance criterion reveals that operators need different tier assignments per runtime, the `agents/openai.yaml` skill contract is extended with `codex_tier` and `claude_tier` fields that override the shared `tier` field for each runtime independently. The shared `tier` field remains the default when neither per-runtime field is set. This AC is skipped entirely if no real usage demand materialises after the initial rollout.
 - AC2: The hybrid authoring flows introduced in req_125 AC2 (`request-draft`, `spec-first-pass`, `backlog-groom`) gain a `--execution-mode execute` path that creates the actual logics doc on disk from the validated proposal output, equivalent to the execution mode already available for `commit-all` and `prepare-release`. The proposal-only mode remains the default; execute mode requires an explicit flag.
 - AC3: The `logics.yaml` configuration supports a `next_step_auto_backend` key (for example `next_step_auto_backend: openai`) that changes the `auto` policy for `next-step` from `codex-first` to the specified provider for teams that have validated explicit `--backend` dispatch in production. The key is ignored if the specified provider is not configured or not healthy, falling back to `codex` with a logged warning.
 - AC4: The publication lifecycle for the Codex global kit (`~/.codex`) and the Claude global kit (`~/.claude`) is refactored into a shared internal abstraction (inspect → publish → manifest → report) that eliminates the temporary duplication introduced in req_126. The abstraction accepts a runtime-specific adapter for the file format (skill directories for Codex, agent and command markdown files for Claude) so neither path is forced into the other's format. Existing behaviour for both runtimes must be covered by regression tests before the refactor ships.
@@ -66,7 +66,7 @@ flowchart TD
 
 # Dependencies and risks
 
-- Dependency: req_124 AC6 must ship and reach production before AC1 can be evaluated.
+- Dependency: req_124 skill-tier acceptance criterion must ship and reach production before AC1 can be evaluated.
 - Dependency: req_125 AC2 flows must reach production and be validated with real operator input before AC2 (execute mode) ships.
 - Dependency: req_125 AC1 explicit dispatch must be validated in production before AC3 (auto routing opt-in) ships.
 - Dependency: req_126 AC1–AC3 must ship and be stable before AC4 (shared abstraction) begins, to avoid refactoring code that is still changing.
@@ -93,6 +93,13 @@ flowchart TD
 - Keywords: deferred, consolidation, skill tier, codex tier, claude tier, authoring flow, execute mode, next-step auto backend, logics.yaml, publication lifecycle, shared abstraction, kit publication, codex overlay, claude kit
 - Use when: Use when scheduling follow-up work after req_124, req_125, and req_126 have shipped and stabilised, specifically to close the four deferred items listed in those requests.
 - Skip when: Skip when upstream requests have not yet shipped, when the work targets new features not already designed in req_124–req_126, or when AC1 is being considered speculatively without real usage evidence.
+
+# AC Traceability
+
+- AC1 -> `item_232`, `task_112`. Proof: per-runtime tier fields remain explicitly conditional on production demand and are gated in Wave 5.
+- AC2 -> `item_233`, `task_112`. Proof: execute mode for bounded authoring flows is deferred until the proposal-only contracts are validated in production.
+- AC3 -> `item_234`, `task_112`. Proof: `next_step_auto_backend` is deferred behind production validation of explicit backend dispatch.
+- AC4 -> `item_235`, `task_112`. Proof: the shared Codex and Claude publication lifecycle abstraction is deferred until both initial publication paths are live and stable.
 
 # References
 

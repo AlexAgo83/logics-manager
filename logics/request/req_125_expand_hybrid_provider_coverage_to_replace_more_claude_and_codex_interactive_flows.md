@@ -1,10 +1,10 @@
 ## req_125_expand_hybrid_provider_coverage_to_replace_more_claude_and_codex_interactive_flows - Expand hybrid provider coverage to replace more Claude and Codex interactive flows
 
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 92%
-> Confidence: 88%
+> Understanding: 96%
+> Confidence: 91%
 > Complexity: High
 > Theme: Hybrid assist provider coverage and Claude or Codex cost reduction
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -102,6 +102,13 @@ flowchart TD
 - Keywords: hybrid assist, provider coverage, next-step, openai, gemini, ollama, codex reduction, claude bridge, request draft, spec first-pass, backlog groom, interactive session, bounded flow, cost reduction, authoring
 - Use when: Use when planning work to route more Claude or Codex interactive tasks through the hybrid provider pipeline, expand the hybrid flow inventory with new authoring flows, or extend the Claude bridge to additional skills.
 - Skip when: Skip when the work is about efficiency of existing hybrid calls (req_124), provider transport wiring (req_120), or interactive session management that is not reducible to a bounded hybrid contract.
+
+# AC Traceability
+
+- AC1 -> `item_225`, `task_112`. Proof: `next-step` accepts explicit OpenAI and Gemini backend dispatch while keeping `auto` on the existing policy.
+- AC2 -> `item_226`, `item_227`, `task_112`. Proof: `request-draft`, `spec-first-pass`, and `backlog-groom` land as bounded proposal-only hybrid flows with no file writes.
+- AC3 -> `item_228`, `task_112`. Proof: Claude bridge variants are extended so the new bounded authoring flows can be delegated through the bridge.
+- AC4 -> `item_228`, `task_112`. Proof: operator guidance is added alongside the new bridge coverage to clarify hybrid versus interactive usage.
 
 # References
 

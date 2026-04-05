@@ -1,10 +1,10 @@
 ## req_126_achieve_claude_runtime_parity_with_the_codex_overlay_and_launcher_model - Achieve Claude runtime parity with the Codex overlay and launcher model
 
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 89%
 > Complexity: High
 > Theme: Claude and Codex runtime parity, global kit publication, assistant-agnostic plugin surfaces
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -110,6 +110,14 @@ flowchart TD
 - Use when: Use when planning work to give Claude the same system-wide Logics skill availability as Codex, make the plugin treat both runtimes symmetrically, or refactor the publication lifecycle shared between ~/.codex and ~/.claude.
 - Skip when: Skip when the work is about hybrid assist routing (req_124, req_125), repo-local bridge files only (req_125), or Codex-specific overlay format changes.
 
+# AC Traceability
+
+- AC1 -> `item_229`, `task_112`. Proof: the Claude global kit publisher targets `~/.claude/agents/` and `~/.claude/commands/` with a manifest.
+- AC2 -> `item_230`, `task_112`. Proof: launcher readiness depends on Claude global-kit health rather than repo-local bridge files alone.
+- AC3 -> `item_230`, `task_112`. Proof: Claude health reporting adopts the same status model as the Codex global kit.
+- AC4 -> `item_235`, `task_112`. Proof: the shared inspect -> publish -> manifest -> report lifecycle remains deferred to the gated consolidation wave.
+- AC5 -> `item_231`, `task_112`. Proof: plugin UI surfaces Claude and Codex launch and health states symmetrically.
+
 # References
 
 - `logics/request/req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration.md`
@@ -122,9 +130,11 @@ flowchart TD
 - `src/logicsOverlaySupport.ts`
 - `src/logicsCodexWorkflowController.ts`
 - `logics/request/req_127_consolidate_deferred_hybrid_and_kit_publication_improvements_after_initial_rollout.md`
+- `logics/backlog/item_235_shared_publication_lifecycle_abstraction_for_codex_and_claude_global_kit.md`
 
 # Backlog
 
 - `logics/backlog/item_229_publish_global_claude_kit_to_claude_agents_and_commands_directories.md`
 - `logics/backlog/item_230_claude_global_kit_health_status_model_and_aligned_launcher_readiness_check.md`
 - `logics/backlog/item_231_symmetric_plugin_ui_for_claude_and_codex_launchers_and_health_reporting.md`
+- `logics/backlog/item_235_shared_publication_lifecycle_abstraction_for_codex_and_claude_global_kit.md`

@@ -1,10 +1,10 @@
 ## item_235_shared_publication_lifecycle_abstraction_for_codex_and_claude_global_kit - Shared publication lifecycle abstraction for Codex and Claude global kit
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 88%
-> Confidence: 82%
-> Progress: 0%
+> Understanding: 89%
+> Confidence: 83%
+> Progress: 1%
 > Complexity: High
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,6 +36,7 @@ flowchart LR
 - AC1: The publication lifecycle for the Codex global kit (`~/.codex`) and the Claude global kit (`~/.claude`) is refactored into a shared internal abstraction (inspect → publish → manifest → report) that eliminates the temporary duplication introduced in item_229. The abstraction accepts a runtime-specific adapter for the file format (skill directories for Codex, agent and command markdown files for Claude) so neither path is forced into the other's format. Existing behaviour for both runtimes must be covered by regression tests before the refactor ships.
 
 # AC Traceability
+- AC4 -> Maps to req_126 AC4 and req_127 AC4. Proof: the shared abstraction module replaces duplicated publication lifecycle code only after the initial Claude delivery is stable.
 - AC1 -> Maps to req_127 AC4. Proof: the shared abstraction module replaces duplicated publication code; regression tests for both `~/.codex` and `~/.claude` publication pass after the refactor; no behavioural change for either runtime.
 
 # Decision framing

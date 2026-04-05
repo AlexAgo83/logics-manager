@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 11%
+> Progress: 16%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -76,7 +76,7 @@ flowchart LR
   - Integration test: retry same flow twice within TTL, assert second call produces no AI subprocess and measurement log shows `cache-hit`.
   - Commit: `feat(hybrid): add short-lived result cache for hybrid flows (item_221)`.
 
-- [ ] **1.3 — item_222**: Cap `handoff-packet` profile at `normal` on paid remote or Codex providers with `--profile deep` override; add deterministic pre-classifier for `diff-risk` and `windows-compat-risk`.
+- [x] **1.3 — item_222**: Cap `handoff-packet` profile at `normal` on paid remote or Codex providers with `--profile deep` override; add deterministic pre-classifier for `diff-risk` and `windows-compat-risk`.
   - Unit tests: lock-file-only diff → `low` without AI; migration diff → `high` without AI; downgrade logged in audit.
   - Commit: `feat(hybrid): add profile downgrade and deterministic pre-classifier (item_222)`.
 

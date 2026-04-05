@@ -1,10 +1,10 @@
 ## item_222_profile_downgrade_and_deterministic_pre_classification_for_bounded_flows - Profile downgrade and deterministic pre-classification for bounded flows
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 93%
-> Confidence: 88%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

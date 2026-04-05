@@ -138,7 +138,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             <div class="tools-panel__section" data-tools-section="recommended">
               <div class="tools-panel__section-label">Recommended</div>
               <div class="tools-panel__section-body" data-tools-body="recommended">
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request-guided" title="Start a guided new request">New Request</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request" title="Create a new request document">New Request</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>

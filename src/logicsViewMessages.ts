@@ -39,7 +39,7 @@ export type LogicsWebviewMessage =
   | { type: "repair-logics-kit" }
   | { type: "assist-commit-all" }
   | { type: "assist-next-step" }
-  | { type: "assist-triage" }
+  | { type: "assist-triage"; id?: string }
   | { type: "assist-diff-risk" }
   | { type: "assist-summarize-validation" }
   | { type: "assist-summarize-changelog" }
@@ -90,7 +90,6 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "repair-logics-kit":
     case "assist-commit-all":
     case "assist-next-step":
-    case "assist-triage":
     case "assist-diff-risk":
     case "assist-summarize-validation":
     case "assist-summarize-changelog":
@@ -104,6 +103,11 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "change-project-root":
     case "reset-project-root":
       return { type } as LogicsWebviewMessage;
+    case "assist-triage":
+      return {
+        type,
+        id: readString(value.id)
+      };
     case "tool-action": {
       const action = readString(value.action);
       return action ? { type, action } : null;

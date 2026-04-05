@@ -338,8 +338,8 @@ export class LogicsHybridAssistController {
     this.notifyHybridAssistCompletion("Suggest Next Step", payload, detail);
   }
 
-  async triageWorkflowDocFromTools(): Promise<void> {
-    const pick = await this.pickWorkflowItem("Triage workflow doc");
+  async triageWorkflowDocFromTools(preferredId?: string): Promise<void> {
+    const pick = await this.pickWorkflowItem("Triage workflow doc", preferredId);
     if (!pick) {
       return;
     }
@@ -699,13 +699,20 @@ export class LogicsHybridAssistController {
     await this.refreshHybridInsightsPanel(root);
   }
 
-  private async pickWorkflowItem(placeHolder: string): Promise<LogicsItem | undefined> {
+  private async pickWorkflowItem(placeHolder: string, preferredId?: string): Promise<LogicsItem | undefined> {
     let items = this.options.getItems();
     if (!items.length) {
       await this.options.refresh();
       items = this.options.getItems();
     }
-    return this.options.pickItem(items.filter((item) => ["request", "backlog", "task"].includes(item.stage)), placeHolder);
+    const workflowItems = items.filter((item) => ["request", "backlog", "task"].includes(item.stage));
+    if (preferredId) {
+      const matched = workflowItems.find((item) => item.id === preferredId);
+      if (matched) {
+        return matched;
+      }
+    }
+    return this.options.pickItem(workflowItems, placeHolder);
   }
 
   private async runHybridAssistCommand(root: string, args: string[]): Promise<HybridAssistPayload | null> {

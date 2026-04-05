@@ -215,13 +215,13 @@ describe("webview harness core behaviors", () => {
     expect(openedUrls.length).toBe(0);
   });
 
-  it("posts guided new-request action in non-harness mode", () => {
+  it("posts new-request action in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 
-    const guidedButton = dom.window.document.querySelector('[data-action="new-request-guided"]');
+    const guidedButton = dom.window.document.querySelector('[data-action="new-request"]');
     guidedButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "new-request")).toBe(true);
   });
 
   it("posts check-environment action in non-harness mode", () => {
@@ -231,6 +231,21 @@ describe("webview harness core behaviors", () => {
     button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "check-environment")).toBe(true);
+  });
+
+  it("posts triage action with the selected item in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const button = dom.window.document.querySelector('[data-action="assist-triage"]');
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "assist-triage" && message.id === "req_000_kickoff")).toBe(true);
   });
 
   it("posts open-onboarding action in non-harness mode", () => {
@@ -249,12 +264,12 @@ describe("webview harness core behaviors", () => {
       new dom.window.MessageEvent("message", {
         data: {
           type: "trigger-tool-action",
-          action: "new-request-guided"
+          action: "new-request"
         }
       })
     );
 
-    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "new-request")).toBe(true);
   });
 
   it("posts runtime launcher and repair actions in non-harness mode", () => {

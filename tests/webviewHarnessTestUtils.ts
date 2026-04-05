@@ -51,7 +51,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
               <div data-tools-section="recommended">
                 <div>Recommended</div>
                 <div data-tools-body="recommended">
-                  <button class="tools-panel__item" data-action="new-request-guided" title="Start a guided new request"></button>
+                  <button class="tools-panel__item" data-action="new-request" title="Create a new request document"></button>
                   <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next step"></button>
                   <button class="tools-panel__item" data-action="assist-triage" title="Turn a rough idea into a structured request"></button>
                   <button class="tools-panel__item" data-action="bootstrap-logics" title="Bootstrap Logics in this repository"></button>

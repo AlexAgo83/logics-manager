@@ -1,10 +1,10 @@
 ## item_225_enable_next_step_dispatch_to_openai_and_gemini_via_explicit_backend_flag - Enable next-step dispatch to OpenAI and Gemini via explicit backend flag
-> From version: 1.21.1
+> From version: 1.21.1+item225
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 88%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

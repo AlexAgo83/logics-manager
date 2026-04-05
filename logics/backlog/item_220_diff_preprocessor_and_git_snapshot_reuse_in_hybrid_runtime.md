@@ -1,10 +1,10 @@
 ## item_220_diff_preprocessor_and_git_snapshot_reuse_in_hybrid_runtime - Diff preprocessor and git snapshot reuse in hybrid runtime
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 93%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

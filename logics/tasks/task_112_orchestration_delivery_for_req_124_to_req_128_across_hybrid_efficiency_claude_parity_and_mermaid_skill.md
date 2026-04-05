@@ -67,7 +67,7 @@ flowchart LR
 
 ## Wave 1 — req_124: Hybrid runtime efficiency (items 220–224)
 
-- [ ] **1.1 — item_220**: Add diff preprocessor to `build_hybrid_messages_impl` in `logics_flow_hybrid_transport.py` and make `collect_git_snapshot` reuse its result within a single CLI invocation in `logics_flow.py`.
+- [x] **1.1 — item_220**: Add diff preprocessor to `build_hybrid_messages_impl` in `logics_flow_hybrid_transport.py` and make `collect_git_snapshot` reuse its result within a single CLI invocation in `logics_flow.py`.
   - Unit test: assert lock file diff lines are stripped before prompt build.
   - Integration test: assert `collect_git_snapshot` subprocess called once per invocation on chained flows.
   - Commit: `feat(hybrid): add diff preprocessor and git snapshot reuse (item_220)`.

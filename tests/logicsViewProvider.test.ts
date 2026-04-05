@@ -477,6 +477,15 @@ describe("LogicsViewProvider", () => {
         runCommand: "codex"
       }
     } as never);
+    mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+      if (args[0] === "status" && args[1] === "--porcelain") {
+        return { stdout: "", stderr: "" };
+      }
+      if (args[0] === "rev-parse") {
+        return { stdout: "true\n", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
 
     await (provider as any).bootstrapFromTools();
@@ -530,6 +539,91 @@ describe("LogicsViewProvider", () => {
       "Bootstrap Logics requires Git. Git not found. Install Git and ensure `git` is available on PATH or configure VS Code `git.path`, then retry. The extension can repair repository state but cannot install system tools automatically. Use `Logics: Check Environment` for details. Read-only Logics browsing remains available until bootstrap completes."
     );
     expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+  });
+
+  it("adds the canonical kit submodule on first bootstrap before running logics.py", async () => {
+    mocks.inspectLogicsKitSubmodule.mockReturnValue({
+      exists: false,
+      isCanonical: false,
+      reason: "logics/skills is missing from the selected repository."
+    });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "missing",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics on this branch",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      reason: "No logics/ folder found on the active branch."
+    });
+    mocks.showInformationMessage.mockImplementation(async (message: string) => {
+      if (message.includes("Run `git init`")) {
+        return "Initialize Git";
+      }
+      return undefined;
+    });
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "missing-logics",
+      hasLogicsDir: false,
+      hasSkillsDir: false,
+      hasFlowManagerScript: false,
+      hasBootstrapScript: false,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "unavailable", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+    mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+      if (args[0] === "status" && args[1] === "--porcelain") {
+        return { stdout: "", stderr: "" };
+      }
+      if (args[0] === "rev-parse") {
+        return { stdout: "", stderr: "fatal: not a git repository (or any of the parent directories): .git", error: new Error("not a git repository") };
+      }
+      if (args[0] === "init") {
+        return { stdout: "Initialized empty Git repository\n", stderr: "" };
+      }
+      if (args[0] === "submodule" && args[1] === "add") {
+        fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+        fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+        return { stdout: "", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+    mocks.shouldPublishRepoKit.mockReturnValue(false);
+    (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
+
+    await (provider as any).bootstrapLogics(root);
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Bootstrap Logics requires a Git repository. This folder is not initialized yet. Run `git init` and continue bootstrap?",
+      "Initialize Git",
+      "Not now"
+    );
+    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["init"]);
+    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(
+      root,
+      ["submodule", "add", "-b", "main", "https://github.com/AlexAgo83/cdx-logics-kit.git", "logics/skills"]
+    );
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(root, "logics", "skills", "logics.py"),
+      ["bootstrap"]
+    );
   });
 
   it("auto-publishes the global kit during bootstrap before reporting full completion", async () => {

@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 21%
+> Progress: 26%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -84,7 +84,7 @@ flowchart LR
   - Test: publication script outputs only `core`-tier skills by default; `--include-optional` restores full list.
   - Commit: `feat(kit): add tier-based selective skill overlay publishing (item_223)`.
 
-- [ ] **1.5 — item_224**: Add efficiency recommendation sections to the Hybrid Insights panel: cache effectiveness and repeat-call opportunities, pre-classification savings, and profile downgrade events.
+- [x] **1.5 — item_224**: Add efficiency recommendation sections to the Hybrid Insights panel: cache effectiveness and repeat-call opportunities, pre-classification savings, and profile downgrade events.
   - Test: Hybrid Insights HTML renders three new recommendation sections from measurement and audit log data.
   - Commit: `feat(insights): add actionable efficiency recommendations (item_224)`.
 

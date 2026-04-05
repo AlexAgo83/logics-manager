@@ -221,6 +221,135 @@ function renderFlowBreakdown(value: unknown): string {
   `;
 }
 
+function getRecentRuns(report: Record<string, unknown>, derived: Record<string, unknown>): Record<string, unknown>[] {
+  const topLevelRuns = asArray<Record<string, unknown>>(report.recent_runs);
+  if (topLevelRuns.length > 0) {
+    return topLevelRuns;
+  }
+  return asArray<Record<string, unknown>>(derived.recent_runs);
+}
+
+function renderRecommendationCard(title: string, summary: string, details: string[], emptyLabel: string): string {
+  return `
+    <div class="hybrid-insights__panel">
+      <h3>${escapeHtml(title)}</h3>
+      <p class="hybrid-insights__section-intro">${escapeHtml(summary)}</p>
+      ${
+        details.length
+          ? `<div class="hybrid-insights__stack">${details
+              .map((detail) => `<div class="hybrid-insights__note">${escapeHtml(detail)}</div>`)
+              .join("")}</div>`
+          : `<p class="hybrid-insights__empty">${escapeHtml(emptyLabel)}</p>`
+      }
+    </div>
+  `;
+}
+
+function buildCacheRecommendation(recentRuns: Record<string, unknown>[], executionPaths: CountMap): string {
+  const cacheHitsByFlow: CountMap = {};
+  const liveRunsByFlow: CountMap = {};
+  for (const run of recentRuns) {
+    const flow = asString(run.flow, "unknown-flow");
+    const executionPath = asString(run.execution_path, "unknown");
+    if (executionPath === "cache-hit") {
+      cacheHitsByFlow[flow] = (cacheHitsByFlow[flow] ?? 0) + 1;
+      continue;
+    }
+    if (executionPath !== "deterministic-preclassified") {
+      liveRunsByFlow[flow] = (liveRunsByFlow[flow] ?? 0) + 1;
+    }
+  }
+
+  const details = Array.from(new Set([...Object.keys(cacheHitsByFlow), ...Object.keys(liveRunsByFlow)]))
+    .map((flow) => {
+      const cacheHits = cacheHitsByFlow[flow] ?? 0;
+      const repeatOpportunities = Math.max(0, (liveRunsByFlow[flow] ?? 0) - 1);
+      return { flow, cacheHits, repeatOpportunities };
+    })
+    .filter((entry) => entry.cacheHits > 0 || entry.repeatOpportunities > 0)
+    .sort((left, right) => (right.cacheHits + right.repeatOpportunities) - (left.cacheHits + left.repeatOpportunities))
+    .slice(0, 4)
+    .map(
+      (entry) =>
+        `${entry.flow}: ${entry.cacheHits} cache hit(s), ${entry.repeatOpportunities} recent repeat call(s) still ran live.`
+    );
+
+  const totalCacheHits = executionPaths["cache-hit"] ?? 0;
+  const totalRepeatOpportunities = Object.values(liveRunsByFlow).reduce(
+    (sum, count) => sum + Math.max(0, count - 1),
+    0
+  );
+  const summary =
+    totalCacheHits > 0 || totalRepeatOpportunities > 0
+      ? `${totalCacheHits} cache hit(s) already served repeat work. ${totalRepeatOpportunities} recent repeat call(s) still look cacheable.`
+      : "No cache hits or repeat-call opportunities are visible in the recent window yet.";
+
+  return renderRecommendationCard(
+    "Cache Effectiveness",
+    summary,
+    details,
+    "Run the same bounded proposal flow twice on an unchanged diff to see cache savings appear here."
+  );
+}
+
+function buildPreclassificationRecommendation(recentRuns: Record<string, unknown>[], executionPaths: CountMap): string {
+  const countsByFlow: CountMap = {};
+  for (const run of recentRuns) {
+    if (asString(run.execution_path, "unknown") !== "deterministic-preclassified") {
+      continue;
+    }
+    const flow = asString(run.flow, "unknown-flow");
+    countsByFlow[flow] = (countsByFlow[flow] ?? 0) + 1;
+  }
+  const details = Object.entries(countsByFlow)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
+    .map(([flow, count]) => `${flow}: ${count} deterministic pre-classification(s) skipped an AI dispatch.`);
+  const totalPreclassified = executionPaths["deterministic-preclassified"] ?? 0;
+  const summary =
+    totalPreclassified > 0
+      ? `${totalPreclassified} recent run(s) were resolved deterministically before any AI backend call.`
+      : "No deterministic pre-classification events have been observed yet.";
+
+  return renderRecommendationCard(
+    "Deterministic Pre-Classification",
+    summary,
+    details,
+    "Lock-file-only, empty, or schema-heavy diffs will surface here once the bounded risk flows exercise the pre-classifier."
+  );
+}
+
+function buildProfileDowngradeRecommendation(recentRuns: Record<string, unknown>[]): string {
+  const countsByProvider: CountMap = {};
+  let totalDowngrades = 0;
+  for (const run of recentRuns) {
+    const degradedReasons = asArray<string>(run.degraded_reasons);
+    if (!degradedReasons.includes("profile-downgrade")) {
+      continue;
+    }
+    totalDowngrades += 1;
+    const flow = asString(run.flow, "unknown-flow");
+    const backend = asString(run.backend_used, "unknown");
+    const label = `${flow} via ${backend}`;
+    countsByProvider[label] = (countsByProvider[label] ?? 0) + 1;
+  }
+  const details = Object.entries(countsByProvider)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
+    .map(([label, count]) => `${label}: ${count} deep-profile downgrade event(s) were recorded.`);
+  const summary =
+    totalDowngrades > 0
+      ? `${totalDowngrades} deep-profile downgrade event(s) were observed on remote or Codex paths.`
+      : "No automatic deep-profile downgrade has been recorded yet.";
+
+  return renderRecommendationCard(
+    "Profile Downgrade Events",
+    summary,
+    details,
+    "Remote or Codex handoff runs without an explicit --profile deep override will appear here once they are exercised."
+  );
+}
+
 function renderRecentRuns(value: unknown): string {
   const runs = asArray<Record<string, unknown>>(value)
     .map((run, index) => ({ run, index }))
@@ -331,6 +460,7 @@ export function buildHybridInsightsHtml(params: {
   const limits = asRecord(report.limits);
   const reportState = asRecord(derived.report_state);
   const executionPaths = asCountMap(measured.execution_paths);
+  const recentRuns = getRecentRuns(report, derived);
   const remoteRuns = executionPaths.remote ?? 0;
   const deterministicRuns = executionPaths.deterministic ?? 0;
   const directCodexRuns = executionPaths["codex-direct"] ?? 0;
@@ -871,6 +1001,16 @@ export function buildHybridInsightsHtml(params: {
       </section>
 
       <section class="hybrid-insights__section">
+        <h2>Efficiency Recommendations</h2>
+        <p class="hybrid-insights__section-intro">These panels translate the raw audit and measurement logs into immediate cost and efficiency signals tied to the new runtime behaviors.</p>
+        <div class="hybrid-insights__columns">
+          ${buildCacheRecommendation(recentRuns, executionPaths)}
+          ${buildPreclassificationRecommendation(recentRuns, executionPaths)}
+          ${buildProfileDowngradeRecommendation(recentRuns)}
+        </div>
+      </section>
+
+      <section class="hybrid-insights__section">
         <h2>Where It Breaks Down</h2>
         <p class="hybrid-insights__section-intro">These deterministic summaries explain what is driving pressure now, without giving estimates the same weight as measured outcomes.</p>
         <div class="hybrid-insights__columns">
@@ -908,7 +1048,7 @@ export function buildHybridInsightsHtml(params: {
       <section class="hybrid-insights__section">
         <h2>Recent Runs</h2>
         <p class="hybrid-insights__section-intro">Start here when something looks wrong. Each entry keeps status, backend path, and validated summary visible before any raw excerpt.</p>
-        ${renderRecentRuns(report.recent_runs)}
+        ${renderRecentRuns(recentRuns)}
       </section>
 
       <section class="hybrid-insights__section">

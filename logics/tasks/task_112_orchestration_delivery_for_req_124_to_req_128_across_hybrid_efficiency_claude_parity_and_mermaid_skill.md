@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+wave3
+> From version: 1.21.1+item236
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
 > Confidence: 97%
-> Progress: 70%
+> Progress: 74%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -134,7 +134,7 @@ flowchart LR
 
 ## Wave 4 — req_128: Mermaid generator skill (items 236–238)
 
-- [ ] **4.1 — item_236**: Create `logics/skills/logics-mermaid-generator/` with `SKILL.md`, `agents/openai.yaml` (`tier: core`, `default_prompt`), and `scripts/generate_mermaid.py`; extract `_render_request_mermaid`, `_render_backlog_mermaid`, `_render_task_mermaid`, `_render_workflow_mermaid` from `logics_flow_support.py` as backward-compatible fallback.
+- [x] **4.1 — item_236**: Create `logics/skills/logics-mermaid-generator/` with `SKILL.md`, `agents/openai.yaml` (`tier: core`, `default_prompt`), and `scripts/generate_mermaid.py`; extract `_render_request_mermaid`, `_render_backlog_mermaid`, `_render_task_mermaid`, `_render_workflow_mermaid` from `logics_flow_support.py` as backward-compatible fallback.
   - Test: standalone script invocation returns a valid Mermaid block; existing flow manager tests for Mermaid generation still pass without modification.
   - Commit: `feat(skill): create logics-mermaid-generator skill package with deterministic fallback (item_236)`.
 

@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item238
+> From version: 1.21.1+wave4
 > Schema version: 1.0
-> Status: In Progress
+> Status: Blocked
 > Understanding: 99%
 > Confidence: 97%
-> Progress: 84%
+> Progress: 88%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -146,7 +146,7 @@ flowchart LR
   - Test: `new request` with healthy Ollama routes through skill; with no provider, deterministic fallback is used transparently; no operator-visible error in either case.
   - Commit: `feat(flow): wire logics-mermaid-generator into all flow manager Mermaid call sites (item_238)`.
 
-- [ ] **GATE Wave 4**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
+- [x] **GATE Wave 4**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
 
 ---
 

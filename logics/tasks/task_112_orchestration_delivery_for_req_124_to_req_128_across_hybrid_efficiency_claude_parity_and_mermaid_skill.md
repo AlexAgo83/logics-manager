@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item228
+> From version: 1.21.1+wave2-closed
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
-> Confidence: 95%
-> Progress: 48%
+> Confidence: 96%
+> Progress: 53%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -110,7 +110,7 @@ flowchart LR
   - Test: after `repairClaudeBridgeFiles`, `.claude/commands/` contains entries for all three new flows with reviewer nudges.
   - Commit: `feat(claude): extend bridge for authoring flows and add operator guidance (item_228)`.
 
-- [ ] **GATE Wave 2**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
+- [x] **GATE Wave 2**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
 
 ---
 

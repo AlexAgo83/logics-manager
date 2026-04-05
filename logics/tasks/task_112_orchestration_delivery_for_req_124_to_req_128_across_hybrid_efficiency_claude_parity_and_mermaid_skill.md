@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item226
+> From version: 1.21.1+item227
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 40%
+> Progress: 44%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -102,7 +102,7 @@ flowchart LR
   - Test: each flow returns validated JSON; no file written to disk; measurement log contains the run.
   - Commit: `feat(hybrid): add request-draft and spec-first-pass authoring flows (item_226)`.
 
-- [ ] **2.3 — item_227**: Add `backlog-groom` as a `proposal-only` bounded hybrid flow returning `title`, `complexity`, and `acceptance_criteria` candidates; no file writing.
+- [x] **2.3 — item_227**: Add `backlog-groom` as a `proposal-only` bounded hybrid flow returning `title`, `complexity`, and `acceptance_criteria` candidates; no file writing.
   - Test: flow returns validated JSON; no file written; measurement log contains the run.
   - Commit: `feat(hybrid): add backlog-groom authoring flow (item_227)`.
 

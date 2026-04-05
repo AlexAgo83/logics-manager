@@ -2,12 +2,14 @@ import * as fs from "fs";
 import * as path from "path";
 
 type ClaudeBridgeVariantSpec = {
-  id: "hybrid-assist" | "flow-manager";
+  id: "hybrid-assist" | "flow-manager" | "request-draft" | "spec-first-pass" | "backlog-groom";
   title: string;
   commandFile: string;
   agentFile: string;
   skillDir: string;
   fallbackPrompt: string;
+  promptOverride?: string;
+  reviewerNudge?: string;
 };
 
 export type ClaudeBridgeRepairOutcome = {
@@ -32,6 +34,42 @@ const CLAUDE_BRIDGE_VARIANTS: ClaudeBridgeVariantSpec[] = [
     skillDir: "logics/skills/logics-flow-manager",
     fallbackPrompt:
       "Use $logics-flow-manager to manage this repository's Logics workflow: create new request/backlog/task docs, promote between stages, keep From version/Understanding/Confidence/Progress indicators consistent."
+  },
+  {
+    id: "request-draft",
+    title: "Logics Request Draft",
+    commandFile: ".claude/commands/logics-request-draft.md",
+    agentFile: ".claude/agents/logics-request-draft.md",
+    skillDir: "logics/skills/logics-hybrid-delivery-assistant",
+    fallbackPrompt:
+      "Use $logics-hybrid-delivery-assistant for bounded request-draft proposals from a short intent; keep the output proposal-only and do not create files directly.",
+    promptOverride:
+      "Use $logics-hybrid-delivery-assistant for bounded request-draft proposals from a short intent; keep the output proposal-only and do not create files directly.",
+    reviewerNudge: "Validate the generated Needs and Context blocks before promoting them into a real request doc or committing follow-up work."
+  },
+  {
+    id: "spec-first-pass",
+    title: "Logics Spec First Pass",
+    commandFile: ".claude/commands/logics-spec-first-pass.md",
+    agentFile: ".claude/agents/logics-spec-first-pass.md",
+    skillDir: "logics/skills/logics-hybrid-delivery-assistant",
+    fallbackPrompt:
+      "Use $logics-hybrid-delivery-assistant for bounded spec-first-pass outlines from a backlog item; keep the output proposal-only and operator-reviewed.",
+    promptOverride:
+      "Use $logics-hybrid-delivery-assistant for bounded spec-first-pass outlines from a backlog item; keep the output proposal-only and operator-reviewed.",
+    reviewerNudge: "Validate the proposed spec sections, constraints, and open questions before turning them into a real spec file."
+  },
+  {
+    id: "backlog-groom",
+    title: "Logics Backlog Groom",
+    commandFile: ".claude/commands/logics-backlog-groom.md",
+    agentFile: ".claude/agents/logics-backlog-groom.md",
+    skillDir: "logics/skills/logics-hybrid-delivery-assistant",
+    fallbackPrompt:
+      "Use $logics-hybrid-delivery-assistant for bounded backlog-groom proposals from a request doc; keep the output proposal-only and reviewable.",
+    promptOverride:
+      "Use $logics-hybrid-delivery-assistant for bounded backlog-groom proposals from a request doc; keep the output proposal-only and reviewable.",
+    reviewerNudge: "Validate the scoped title, complexity, and acceptance-criteria proposal before creating or committing a backlog item."
   }
 ];
 
@@ -48,7 +86,7 @@ export function repairClaudeBridgeFiles(root: string): ClaudeBridgeRepairOutcome
       continue;
     }
 
-    const prompt = readDefaultPrompt(agentYaml) || variant.fallbackPrompt;
+    const prompt = variant.promptOverride || readDefaultPrompt(agentYaml) || variant.fallbackPrompt;
     const commandPath = path.join(root, variant.commandFile);
     const agentPath = path.join(root, variant.agentFile);
     const commandContent = renderCommandBridge(variant, prompt);
@@ -82,35 +120,37 @@ function readDefaultPrompt(agentYamlPath: string): string | null {
 }
 
 function renderCommandBridge(variant: ClaudeBridgeVariantSpec, prompt: string): string {
-  return [
+  const lines = [
     `# ${variant.title}`,
     "",
     `Use the repository-local ${variant.title.toLowerCase()} bridge for this project.`,
     "",
     "Primary prompt:",
     prompt,
-    "",
-    "References:",
-    `- \`${variant.skillDir}/SKILL.md\``,
-    `- \`${variant.agentFile}\``,
     ""
-  ].join("\n");
+  ];
+  if (variant.reviewerNudge) {
+    lines.push("Reviewer nudge:", variant.reviewerNudge, "");
+  }
+  lines.push("References:", `- \`${variant.skillDir}/SKILL.md\``, `- \`${variant.agentFile}\``, "");
+  return lines.join("\n");
 }
 
 function renderAgentBridge(variant: ClaudeBridgeVariantSpec, prompt: string): string {
-  return [
+  const lines = [
     `# ${variant.title} Agent`,
     "",
     `Use the repository-local ${variant.title.toLowerCase()} agent for this project.`,
     "",
     "Default prompt:",
     prompt,
-    "",
-    "References:",
-    `- \`${variant.skillDir}/SKILL.md\``,
-    `- \`${variant.skillDir}/agents/openai.yaml\``,
     ""
-  ].join("\n");
+  ];
+  if (variant.reviewerNudge) {
+    lines.push("Reviewer nudge:", variant.reviewerNudge, "");
+  }
+  lines.push("References:", `- \`${variant.skillDir}/SKILL.md\``, `- \`${variant.skillDir}/agents/openai.yaml\``, "");
+  return lines.join("\n");
 }
 
 function writeFileIfChanged(targetPath: string, content: string): boolean {

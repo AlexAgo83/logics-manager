@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item227
+> From version: 1.21.1+item228
 > Schema version: 1.0
 > Status: In Progress
-> Understanding: 98%
-> Confidence: 94%
-> Progress: 44%
+> Understanding: 99%
+> Confidence: 95%
+> Progress: 48%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -106,7 +106,7 @@ flowchart LR
   - Test: flow returns validated JSON; no file written; measurement log contains the run.
   - Commit: `feat(hybrid): add backlog-groom authoring flow (item_227)`.
 
-- [ ] **2.4 — item_228**: Extend `CLAUDE_BRIDGE_VARIANTS` in `src/claudeBridgeSupport.ts` for `request-draft`, `spec-first-pass`, and `backlog-groom`; add reviewer nudge to each bridge entry; add hybrid-vs-interactive decision rule in `logics.yaml` or `logics/instructions.md`.
+- [x] **2.4 — item_228**: Extend `CLAUDE_BRIDGE_VARIANTS` in `src/claudeBridgeSupport.ts` for `request-draft`, `spec-first-pass`, and `backlog-groom`; add reviewer nudge to each bridge entry; add hybrid-vs-interactive decision rule in `logics.yaml` or `logics/instructions.md`.
   - Test: after `repairClaudeBridgeFiles`, `.claude/commands/` contains entries for all three new flows with reviewer nudges.
   - Commit: `feat(claude): extend bridge for authoring flows and add operator guidance (item_228)`.
 

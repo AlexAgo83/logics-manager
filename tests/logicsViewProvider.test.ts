@@ -174,6 +174,15 @@ vi.mock("../src/logicsEnvironment", () => ({
       claudeBridgeAvailable: true,
       windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
     },
+    claudeGlobalKit: {
+      status: "missing-overlay",
+      summary: "No global Claude Logics kit is published yet.",
+      issues: ["Global Claude kit manifest is missing."],
+      warnings: [],
+      sourceRepo: "/workspace/mock",
+      publishedSkillNames: [],
+      needsPublish: true
+    },
     codexOverlay: {
       status: "missing-overlay",
       summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
@@ -239,6 +248,15 @@ describe("LogicsViewProvider", () => {
         degradedReasons: ["ollama-unreachable"],
         claudeBridgeAvailable: true,
         windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      },
+      claudeGlobalKit: {
+        status: "missing-overlay",
+        summary: "No global Claude Logics kit is published yet.",
+        issues: ["Global Claude kit manifest is missing."],
+        warnings: [],
+        sourceRepo: currentRoot,
+        publishedSkillNames: [],
+        needsPublish: true
       },
       codexOverlay: {
         status: "missing-overlay",
@@ -697,6 +715,7 @@ describe("LogicsViewProvider", () => {
     expect(items.some((item: { label: string }) => item.label.includes("Workflow editing: Blocked"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Workflow folders: Incomplete but recoverable"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Global Codex kit: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Global Claude kit: Needs attention"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("AI assistant runtime: Degraded"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex launch command"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Open detailed diagnostic report"))).toBe(true);

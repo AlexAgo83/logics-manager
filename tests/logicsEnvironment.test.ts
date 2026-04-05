@@ -112,6 +112,7 @@ describe("inspectLogicsEnvironment", () => {
     });
 
     expect(snapshot.hybridRuntime?.state).toBe("ready");
+    expect(snapshot.claudeGlobalKit?.status).toBe("missing-manager");
     expect(snapshot.capabilities.hybridAssist?.status).toBe("available");
     expect(snapshot.capabilities.hybridAssist?.summary).toContain("Hybrid assist runtime ready");
   });

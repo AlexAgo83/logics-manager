@@ -1,10 +1,10 @@
 ## item_230_claude_global_kit_health_status_model_and_aligned_launcher_readiness_check - Claude global kit health status model and aligned launcher readiness check
-> From version: 1.21.1
+> From version: 1.21.1+item230
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 87%
-> Progress: 0%
+> Status: Done
+> Understanding: 97%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

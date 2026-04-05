@@ -1,5 +1,6 @@
 import { execFile } from "child_process";
 import { detectClaudeBridgeStatus } from "./logicsEnvironment";
+import { inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 
 export type RuntimeLauncherState = {
@@ -24,6 +25,7 @@ export async function inspectRuntimeLaunchers(
   const detectCommand = options.detectCommand ?? detectCommandOnPath;
   const [hasCodex, hasClaude] = await Promise.all([detectCommand("codex"), detectCommand("claude")]);
   const codexOverlay = inspectCodexWorkspaceOverlay(root);
+  const claudeGlobalKit = inspectClaudeGlobalKit(root);
   const claudeBridge = root ? detectClaudeBridgeStatus(root) : null;
 
   return {
@@ -39,14 +41,17 @@ export async function inspectRuntimeLaunchers(
       command: "codex"
     },
     claude: {
-      available: Boolean(root) && hasClaude && Boolean(claudeBridge?.available),
+      available: Boolean(root) && hasClaude && claudeGlobalKit.status === "healthy",
       title: !root
         ? "Select a project root first"
         : !hasClaude
           ? "Claude CLI not found on PATH"
-          : claudeBridge?.available
-            ? "Launch Claude in this repository"
-            : "Claude bridge files are missing. Run Repair Logics Kit to restore the bridge.",
+          : claudeGlobalKit.status === "healthy"
+            ? "Launch Claude with the globally published Logics kit"
+            : claudeGlobalKit.summary ||
+              (claudeBridge?.available
+                ? "Global Claude Logics kit needs re-publication before it is reliable."
+                : "Claude bridge files are missing. Run Repair Logics Kit to restore the bridge."),
       command: "claude"
     }
   };

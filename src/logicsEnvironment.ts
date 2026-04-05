@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { detectGitCommand } from "./gitRuntime";
+import { ClaudeKitSnapshot, inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { CodexOverlaySnapshot, inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 import { detectPythonRuntime, PythonCommand, runPythonCommand } from "./pythonRuntime";
 
@@ -75,6 +76,7 @@ export type LogicsEnvironmentSnapshot = {
     command: PythonCommand | null;
   };
   codexOverlay: CodexOverlaySnapshot;
+  claudeGlobalKit?: ClaudeKitSnapshot;
   hybridRuntime?: HybridRuntimeSnapshot;
   capabilities: {
     readOnly: Capability;
@@ -115,6 +117,7 @@ export async function inspectLogicsEnvironment(
   const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
   const pythonAvailable = Boolean(pythonCommand);
   const codexOverlay = inspectOverlay(root, pythonCommand);
+  const claudeGlobalKit = inspectClaudeGlobalKit(root);
   const hybridRuntime = await inspectHybridRuntime(root, pythonCommand);
   const repositoryState = computeRepositoryState({
     root,
@@ -141,6 +144,7 @@ export async function inspectLogicsEnvironment(
       command: pythonCommand
     },
     codexOverlay,
+    claudeGlobalKit,
     hybridRuntime,
     capabilities: {
       readOnly: buildReadOnlyCapability(repositoryState, root, invalidOverridePath),

@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 16%
+> Progress: 21%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -80,7 +80,7 @@ flowchart LR
   - Unit tests: lock-file-only diff → `low` without AI; migration diff → `high` without AI; downgrade logged in audit.
   - Commit: `feat(hybrid): add profile downgrade and deterministic pre-classifier (item_222)`.
 
-- [ ] **1.4 — item_223**: Add `tier: core | optional` field to each skill's `agents/openai.yaml`; filter global kit publication to `core`-only by default; add `--include-optional` flag.
+- [x] **1.4 — item_223**: Add `tier: core | optional` field to each skill's `agents/openai.yaml`; filter global kit publication to `core`-only by default; add `--include-optional` flag.
   - Test: publication script outputs only `core`-tier skills by default; `--include-optional` restores full list.
   - Commit: `feat(kit): add tier-based selective skill overlay publishing (item_223)`.
 

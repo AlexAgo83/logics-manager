@@ -1,10 +1,10 @@
 ## item_223_tier_based_selective_skill_overlay_publishing_for_global_kit - Tier-based selective skill overlay publishing for global kit
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 87%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

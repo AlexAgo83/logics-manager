@@ -1,11 +1,14 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { parseDocument } from "yaml";
 
 export type CodexOverlayStatus = "unavailable" | "missing-manager" | "missing-overlay" | "stale" | "warning" | "healthy";
+type SkillTier = "core" | "optional";
 
 type PublishedSkillEntry = {
   name: string;
+  tier: SkillTier;
   source_path: string;
   destination_path: string;
   mode: "symlink" | "copy";
@@ -20,6 +23,7 @@ type GlobalKitManifest = {
   source_revision?: string;
   published_at?: string;
   publication_mode?: "symlink" | "copy";
+  include_optional?: boolean;
   published_skill_entries?: PublishedSkillEntry[];
 };
 
@@ -49,6 +53,7 @@ export type CodexGlobalPublishResult = {
   installedVersion?: string;
   sourceRevision?: string;
   publishedSkillNames: string[];
+  includeOptional: boolean;
 };
 
 const MANIFEST_NAME = "logics-global-kit.json";
@@ -196,13 +201,16 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
   };
 }
 
-export function publishCodexWorkspaceOverlay(root: string): CodexGlobalPublishResult {
+export function publishCodexWorkspaceOverlay(root: string, options?: { includeOptional?: boolean }): CodexGlobalPublishResult {
   const resolvedRoot = path.resolve(root);
   const repoSkillsRoot = path.join(resolvedRoot, "logics", "skills");
-  const repoSkillNames = discoverRepoSkillNames(resolvedRoot);
-  if (repoSkillNames.length === 0) {
+  const allRepoSkills = discoverRepoSkills(resolvedRoot, { includeOptional: true });
+  if (allRepoSkills.length === 0) {
     throw new Error("No repo-local Logics skills found under logics/skills.");
   }
+  const includeOptional = Boolean(options?.includeOptional);
+  const publishedRepoSkills = discoverRepoSkills(resolvedRoot, { includeOptional });
+  const repoSkillNames = publishedRepoSkills.map((entry) => entry.name);
 
   const globalHome = getGlobalCodexHome();
   const globalSkillsRoot = path.join(globalHome, "skills");
@@ -215,16 +223,17 @@ export function publishCodexWorkspaceOverlay(root: string): CodexGlobalPublishRe
   let publicationMode: "symlink" | "copy" = "symlink";
   const publishedEntries: PublishedSkillEntry[] = [];
 
-  for (const skillName of repoSkillNames) {
-    const sourcePath = path.join(repoSkillsRoot, skillName);
-    const destinationPath = path.join(globalSkillsRoot, skillName);
+  for (const skill of publishedRepoSkills) {
+    const sourcePath = path.join(repoSkillsRoot, skill.name);
+    const destinationPath = path.join(globalSkillsRoot, skill.name);
     removePath(destinationPath);
     const mode = publishSkill(sourcePath, destinationPath);
     if (mode === "copy") {
       publicationMode = "copy";
     }
     publishedEntries.push({
-      name: skillName,
+      name: skill.name,
+      tier: skill.tier,
       source_path: sourcePath,
       destination_path: destinationPath,
       mode,
@@ -246,6 +255,7 @@ export function publishCodexWorkspaceOverlay(root: string): CodexGlobalPublishRe
     source_revision: readGitRevision(repoSkillsRoot),
     published_at: new Date().toISOString(),
     publication_mode: publicationMode,
+    include_optional: includeOptional,
     published_skill_entries: publishedEntries
   };
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n", "utf8");
@@ -255,7 +265,8 @@ export function publishCodexWorkspaceOverlay(root: string): CodexGlobalPublishRe
     manifestPath,
     installedVersion: manifest.installed_version,
     sourceRevision: manifest.source_revision,
-    publishedSkillNames: repoSkillNames
+    publishedSkillNames: repoSkillNames,
+    includeOptional
   };
 }
 
@@ -288,18 +299,27 @@ function getGlobalCodexHome(): string {
   return path.resolve(process.env.LOGICS_CODEX_GLOBAL_HOME || path.join(os.homedir(), ".codex"));
 }
 
-function discoverRepoSkillNames(root: string): string[] {
+function discoverRepoSkills(root: string, options?: { includeOptional?: boolean }): Array<{ name: string; tier: SkillTier }> {
   const skillsRoot = path.join(root, "logics", "skills");
   if (!fs.existsSync(skillsRoot)) {
     return [];
   }
+  const includeOptional = Boolean(options?.includeOptional);
   return fs
     .readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .filter((entry) => !entry.name.startsWith("."))
     .filter((entry) => fs.existsSync(path.join(skillsRoot, entry.name, "SKILL.md")))
-    .map((entry) => entry.name)
-    .sort();
+    .map((entry) => ({
+      name: entry.name,
+      tier: readSkillTier(path.join(skillsRoot, entry.name))
+    }))
+    .filter((entry) => includeOptional || entry.tier === "core")
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function discoverRepoSkillNames(root: string): string[] {
+  return discoverRepoSkills(root, { includeOptional: true }).map((entry) => entry.name);
 }
 
 function readRepoKitVersion(root: string): string | undefined {
@@ -460,4 +480,24 @@ function readSkillMtime(target: string): number | null {
     return Math.trunc(fs.statSync(target).mtimeMs * 1_000_000);
   }
   return null;
+}
+
+function readSkillTier(skillRoot: string): SkillTier {
+  const agentYamlPath = path.join(skillRoot, "agents", "openai.yaml");
+  if (!fs.existsSync(agentYamlPath) || !fs.statSync(agentYamlPath).isFile()) {
+    return "core";
+  }
+  try {
+    const document = parseDocument(fs.readFileSync(agentYamlPath, "utf8"), { prettyErrors: false });
+    if (Array.isArray(document.errors) && document.errors.length > 0) {
+      return "core";
+    }
+    const parsed = document.toJSON();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return "core";
+    }
+    return (parsed as Record<string, unknown>).tier === "optional" ? "optional" : "core";
+  } catch {
+    return "core";
+  }
 }

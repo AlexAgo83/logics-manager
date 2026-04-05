@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item231
+> From version: 1.21.1+wave3
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
 > Confidence: 97%
-> Progress: 67%
+> Progress: 70%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -128,7 +128,7 @@ flowchart LR
   - Test: visual review and HTML snapshot confirm symmetric UI; no Codex-only wording on shared surfaces.
   - Commit: `feat(plugin): make Claude and Codex plugin UI symmetric (item_231)`.
 
-- [ ] **GATE Wave 3**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
+- [x] **GATE Wave 3**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test`, `npm run test:smoke` before closing.
 
 ---
 

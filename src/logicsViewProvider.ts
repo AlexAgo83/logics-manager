@@ -538,6 +538,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       status: "unavailable",
       summary: "Hybrid assist capability is unavailable."
     };
+    const claudeGlobalKitNeedsAttention = claudeGlobalKit.status !== "healthy";
     const recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
     const statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
     const detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
@@ -552,10 +553,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
-    if (root && snapshot.codexOverlay.status === "missing-manager") {
+    if (root && (snapshot.codexOverlay.status === "missing-manager" || claudeGlobalKit.status === "missing-manager")) {
       recommendedActions.push({
         label: "Fix now: Update Logics Kit",
-        description: "Local kit is missing required manager support, so some plugin workflows cannot repair the repo cleanly yet.",
+        description: "Local kit is missing required manager support, so runtime publication and repair cannot complete cleanly yet.",
         action: async () => {
           await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
         }
@@ -618,6 +619,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
+    if (root && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager") {
+      recommendedActions.push({
+        label: "Fix now: Publish Global Claude Kit",
+        description: "Claude launch readiness depends on a healthy global Claude Logics kit, not only repo-local bridge files.",
+        action: async () => {
+          await this.codexWorkflowController.syncClaudeGlobalKit(root, "environment diagnostics");
+        }
+      });
+    }
+
     statusItems.push(
       {
         label: `Environment: ${this.getEnvironmentOverallState(snapshot, hybridRuntime, recommendedActions)}`,
@@ -662,7 +673,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: hybridCapability.summary
       },
       {
-        label: `Claude launch integration: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
+        label: `Claude repo bridge: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
         description: hybridRuntime.claudeBridgeAvailable
           ? "Claude bridge files point to the shared hybrid runtime."
           : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
@@ -720,15 +731,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (snapshot.codexOverlay.installedVersion) {
       detailItems.push({
-        label: "Global Logics kit version",
+        label: "Global Codex kit version",
         description: snapshot.codexOverlay.installedVersion
       });
     }
 
     if (snapshot.codexOverlay.sourceRepo) {
       detailItems.push({
-        label: "Global Logics kit source",
+        label: "Global Codex kit source",
         description: snapshot.codexOverlay.sourceRepo
+      });
+    }
+
+    if (claudeGlobalKit.installedVersion) {
+      detailItems.push({
+        label: "Global Claude kit version",
+        description: claudeGlobalKit.installedVersion
       });
     }
 
@@ -761,7 +779,14 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
       detailItems.push({
-        label: "Global kit note",
+        label: "Global Codex kit note",
+        description: issue
+      });
+    }
+
+    for (const issue of claudeGlobalKit.issues.slice(0, 3)) {
+      detailItems.push({
+        label: "Global Claude kit note",
         description: issue
       });
     }

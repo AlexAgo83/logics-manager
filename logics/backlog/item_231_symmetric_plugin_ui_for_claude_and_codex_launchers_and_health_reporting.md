@@ -1,10 +1,10 @@
 ## item_231_symmetric_plugin_ui_for_claude_and_codex_launchers_and_health_reporting - Symmetric plugin UI for Claude and Codex launchers and health reporting
-> From version: 1.21.1
+> From version: 1.21.1+item231
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 87%
-> Confidence: 83%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

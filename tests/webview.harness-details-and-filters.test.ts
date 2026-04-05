@@ -806,7 +806,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with the globally published Logics kit");
-    expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude in this repository");
+    expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude with the globally published Logics kit");
     expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(

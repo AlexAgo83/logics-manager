@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item230
+> From version: 1.21.1+item231
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
-> Confidence: 96%
-> Progress: 61%
+> Confidence: 97%
+> Progress: 67%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -124,7 +124,7 @@ flowchart LR
   - Test: stale manifest → `stale`; missing manifest → `missing-overlay`; launcher disabled when not healthy.
   - Commit: `feat(claude): add global kit health status model and align launcher (item_230)`.
 
-- [ ] **3.3 — item_231**: Update tools panel, environment check, and launcher buttons so Claude and Codex show identical readiness conditions, repair actions, and assistant-agnostic labels where behavior is identical.
+- [x] **3.3 — item_231**: Update tools panel, environment check, and launcher buttons so Claude and Codex show identical readiness conditions, repair actions, and assistant-agnostic labels where behavior is identical.
   - Test: visual review and HTML snapshot confirm symmetric UI; no Codex-only wording on shared surfaces.
   - Commit: `feat(plugin): make Claude and Codex plugin UI symmetric (item_231)`.
 

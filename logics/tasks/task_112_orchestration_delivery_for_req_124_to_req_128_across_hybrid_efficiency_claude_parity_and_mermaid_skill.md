@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+wave2-closed
+> From version: 1.21.1+item229
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 53%
+> Progress: 56%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -116,7 +116,7 @@ flowchart LR
 
 ## Wave 3 — req_126: Claude runtime parity (items 229–231)
 
-- [ ] **3.1 — item_229**: Implement global Claude kit publication to `~/.claude/agents/` and `~/.claude/commands/` using the existing bridge file format; write `~/.claude/logics-global-kit-claude.json` manifest; require explicit operator opt-in before first publication.
+- [x] **3.1 — item_229**: Implement global Claude kit publication to `~/.claude/agents/` and `~/.claude/commands/` using the existing bridge file format; write `~/.claude/logics-global-kit-claude.json` manifest; require explicit operator opt-in before first publication.
   - Test: after opt-in and publication, `~/.claude/agents/` and manifest exist with correct fields; second publication without changes is idempotent.
   - Commit: `feat(claude): publish global Claude kit to ~/.claude (item_229)`.
 

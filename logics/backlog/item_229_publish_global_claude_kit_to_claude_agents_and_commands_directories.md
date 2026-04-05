@@ -1,10 +1,10 @@
 ## item_229_publish_global_claude_kit_to_claude_agents_and_commands_directories - Publish global Claude kit to ~/.claude agents and commands directories
-> From version: 1.21.1
+> From version: 1.21.1+item229
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 98%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: High
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

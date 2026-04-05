@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+wave1-closed
+> From version: 1.21.1+item225
 > Schema version: 1.0
 > Status: In Progress
-> Understanding: 97%
-> Confidence: 92%
-> Progress: 32%
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 36%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -94,7 +94,7 @@ flowchart LR
 
 ## Wave 2 — req_125: Hybrid coverage expansion (items 225–228)
 
-- [ ] **2.1 — item_225**: Allow `--backend openai` and `--backend gemini` for `next-step` with the same contract validation as other hybrid flows; keep `auto` policy as `codex-first`.
+- [x] **2.1 — item_225**: Allow `--backend openai` and `--backend gemini` for `next-step` with the same contract validation as other hybrid flows; keep `auto` policy as `codex-first`.
   - Test: `next-step --backend openai` dispatches to OpenAI and returns a validated proposal; invalid provider output triggers bounded Codex fallback.
   - Commit: `feat(hybrid): enable next-step explicit dispatch to OpenAI and Gemini (item_225)`.
 

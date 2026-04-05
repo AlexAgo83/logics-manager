@@ -899,19 +899,27 @@ export class LogicsCodexWorkflowController {
     if (bootstrapPaths.length === 0) {
       return;
     }
+    const hadPreExistingBootstrapChanges = beforeBootstrapStatus.some((filePath) => isBootstrapScopedPath(filePath));
     const commitMessage = buildBootstrapCommitMessage(
       beforeBootstrapStatus.length > 0 ? [...beforeBootstrapStatus, ...bootstrapPaths] : bootstrapPaths
     );
+    const message = hadPreExistingBootstrapChanges
+      ? `Bootstrap updated Logics files in this repository. Suggested commit message: ${commitMessage}`
+      : `Bootstrap updated Logics files in this repository. Commit the bootstrap changes now with message: ${commitMessage}`;
     const choice = await vscode.window.showInformationMessage(
-      `Bootstrap updated Logics files in this repository. Suggested commit message: ${commitMessage}`,
-      "Copy Commit Message"
+      message,
+      ...(hadPreExistingBootstrapChanges ? ["Copy Commit Message"] : ["Commit Bootstrap Changes", "Copy Commit Message"])
     );
+    if (choice === "Commit Bootstrap Changes") {
+      await this.commitBootstrapChanges(root, bootstrapPaths, commitMessage);
+      return;
+    }
     if (choice !== "Copy Commit Message") {
       return;
     }
 
     await vscode.env.clipboard.writeText(commitMessage);
-    void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
+    void vscode.window.showInformationMessage(`Bootstrap commit message copied: ${commitMessage}`);
   }
 
   async notifyBootstrapCompletion(
@@ -959,6 +967,41 @@ export class LogicsCodexWorkflowController {
       return [];
     }
     return parseGitStatusEntries(result.stdout).map((entry) => entry.path);
+  }
+
+  private async commitBootstrapChanges(root: string, changedPaths: string[], commitMessage: string): Promise<void> {
+    const uniquePaths = [...new Set(changedPaths)];
+    const addResult = await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Commit Bootstrap Changes",
+        cancellable: false
+      },
+      async () => runGitWithOutput(root, ["add", "-A", "--", ...uniquePaths])
+    );
+    if (addResult.error) {
+      void vscode.window.showErrorMessage(
+        `Failed to stage bootstrap changes: ${addResult.stderr || addResult.error.message}`
+      );
+      return;
+    }
+
+    const commitResult = await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Commit Bootstrap Changes",
+        cancellable: false
+      },
+      async () => runGitWithOutput(root, ["commit", "-m", commitMessage, "--only", "--", ...uniquePaths])
+    );
+    if (commitResult.error) {
+      void vscode.window.showErrorMessage(
+        `Failed to create bootstrap commit: ${commitResult.stderr || commitResult.error.message}`
+      );
+      return;
+    }
+
+    void vscode.window.showInformationMessage(`Created bootstrap commit: ${commitMessage}`);
   }
 
   private async reconcileRepoBootstrapAfterKitUpdate(root: string): Promise<{

@@ -197,6 +197,7 @@ vi.mock("../src/logicsEnvironment", () => ({
 
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
 import { LogicsViewProvider } from "../src/logicsViewProvider";
+import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "../src/workflowSupport";
 
 describe("LogicsViewProvider", () => {
   let root: string;
@@ -833,6 +834,79 @@ describe("LogicsViewProvider", () => {
     await provider.refresh();
 
     expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
+  });
+
+  it("offers a direct bootstrap commit when the bootstrap change set is isolated", async () => {
+    mocks.runGitWithOutput
+      .mockResolvedValueOnce({
+        stdout: "A  .gitmodules\nA  logics/skills\n?? logics/request/req_001_demo.md\n",
+        stderr: ""
+      })
+      .mockResolvedValueOnce({
+        stdout: "",
+        stderr: ""
+      })
+      .mockResolvedValueOnce({
+        stdout: "[main 1234567] Bootstrap Logics kit and initialize workflow docs\n",
+        stderr: ""
+      });
+    vi.mocked(parseGitStatusEntries).mockReturnValue([
+      { indexStatus: "A", workTreeStatus: " ", path: ".gitmodules" },
+      { indexStatus: "A", workTreeStatus: " ", path: "logics/skills" },
+      { indexStatus: "?", workTreeStatus: "?", path: "logics/request/req_001_demo.md" }
+    ]);
+    vi.mocked(isBootstrapScopedPath).mockImplementation((filePath: string) => filePath === ".gitmodules" || filePath.startsWith("logics/"));
+    vi.mocked(buildBootstrapCommitMessage).mockReturnValue("Bootstrap Logics kit and initialize workflow docs");
+    mocks.showInformationMessage.mockResolvedValueOnce("Commit Bootstrap Changes").mockResolvedValueOnce(undefined);
+
+    const controller = (provider as any).codexWorkflowController;
+    await controller.maybeOfferBootstrapCommit(root, []);
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Bootstrap updated Logics files in this repository. Commit the bootstrap changes now with message: Bootstrap Logics kit and initialize workflow docs",
+      "Commit Bootstrap Changes",
+      "Copy Commit Message"
+    );
+    expect(mocks.runGitWithOutput).toHaveBeenNthCalledWith(2, root, [
+      "add",
+      "-A",
+      "--",
+      ".gitmodules",
+      "logics/skills",
+      "logics/request/req_001_demo.md"
+    ]);
+    expect(mocks.runGitWithOutput).toHaveBeenNthCalledWith(3, root, [
+      "commit",
+      "-m",
+      "Bootstrap Logics kit and initialize workflow docs",
+      "--only",
+      "--",
+      ".gitmodules",
+      "logics/skills",
+      "logics/request/req_001_demo.md"
+    ]);
+  });
+
+  it("falls back to copying the bootstrap commit message when bootstrap-scoped changes already existed", async () => {
+    mocks.runGitWithOutput.mockResolvedValueOnce({
+      stdout: "M  logics/request/req_001_demo.md\n",
+      stderr: ""
+    });
+    vi.mocked(parseGitStatusEntries).mockReturnValue([
+      { indexStatus: "M", workTreeStatus: " ", path: "logics/request/req_001_demo.md" }
+    ]);
+    vi.mocked(isBootstrapScopedPath).mockImplementation((filePath: string) => filePath.startsWith("logics/"));
+    vi.mocked(buildBootstrapCommitMessage).mockReturnValue("Initialize Logics workflow docs");
+    mocks.showInformationMessage.mockResolvedValueOnce("Copy Commit Message").mockResolvedValueOnce(undefined);
+
+    const controller = (provider as any).codexWorkflowController;
+    await controller.maybeOfferBootstrapCommit(root, ["logics/request/req_001_demo.md"]);
+
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Bootstrap updated Logics files in this repository. Suggested commit message: Initialize Logics workflow docs",
+      "Copy Commit Message"
+    );
+    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("Initialize Logics workflow docs");
   });
 
   it("reports a partial bootstrap outcome when automatic global publication fails", async () => {

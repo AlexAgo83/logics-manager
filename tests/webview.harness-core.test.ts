@@ -242,6 +242,21 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "open-onboarding")).toBe(true);
   });
 
+  it("routes trigger-tool-action messages through the existing tool buttons", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    dom.window.dispatchEvent(
+      new dom.window.MessageEvent("message", {
+        data: {
+          type: "trigger-tool-action",
+          action: "new-request-guided"
+        }
+      })
+    );
+
+    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
+  });
+
   it("posts runtime launcher and repair actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 

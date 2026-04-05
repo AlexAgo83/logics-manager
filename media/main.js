@@ -856,7 +856,14 @@
     : null;
 
   function handleHostMessage(event) {
-    const { type, payload } = event.data || {};
+    const { type, payload, action } = event.data || {};
+    if (type === "trigger-tool-action" && typeof action === "string") {
+      const toolButton = document.querySelector(`[data-action="${action}"]`);
+      if (toolButton instanceof HTMLElement) {
+        toolButton.click();
+      }
+      return;
+    }
     if (type === "data") {
       debugLog("host:data", {
         hasError: Boolean(payload && payload.error),

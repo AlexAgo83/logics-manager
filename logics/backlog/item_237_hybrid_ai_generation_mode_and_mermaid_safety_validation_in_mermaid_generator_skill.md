@@ -1,10 +1,10 @@
 ## item_237_hybrid_ai_generation_mode_and_mermaid_safety_validation_in_mermaid_generator_skill - Hybrid AI generation mode and Mermaid safety validation in mermaid-generator skill
-> From version: 1.21.1
+> From version: 1.21.1+item237
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Logics kit skills and Mermaid quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

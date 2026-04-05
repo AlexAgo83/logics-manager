@@ -39,6 +39,11 @@ Canonical examples use `python ...`; if your environment only exposes `python3` 
 
 When a task is completed, run `finish task` first so backlog/request parents are synchronized automatically, then run broader audit/lint commands when needed.
 
+## Hybrid Vs Interactive
+
+Use a hybrid assist flow when the task has a well-defined input, a bounded structured output, and does not require multi-turn reasoning or repo-wide code understanding.
+Use an interactive Claude or Codex session when the task needs exploratory back-and-forth, broad codebase reasoning, or open-ended implementation work.
+
 ## Validation
 
 Project validation commands are project-specific.

@@ -49,10 +49,22 @@ describe("repairClaudeBridgeFiles", () => {
       ".claude/commands/logics-assist.md",
       ".claude/agents/logics-hybrid-delivery-assistant.md",
       ".claude/commands/logics-flow.md",
-      ".claude/agents/logics-flow-manager.md"
+      ".claude/agents/logics-flow-manager.md",
+      ".claude/commands/logics-request-draft.md",
+      ".claude/agents/logics-request-draft.md",
+      ".claude/commands/logics-spec-first-pass.md",
+      ".claude/agents/logics-spec-first-pass.md",
+      ".claude/commands/logics-backlog-groom.md",
+      ".claude/agents/logics-backlog-groom.md"
     ]);
     expect(fs.readFileSync(path.join(root, ".claude", "commands", "logics-assist.md"), "utf8")).toContain(
       "Use $logics-hybrid-delivery-assistant for delivery work."
+    );
+    expect(fs.readFileSync(path.join(root, ".claude", "commands", "logics-request-draft.md"), "utf8")).toContain(
+      "Reviewer nudge:"
+    );
+    expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-spec-first-pass.md"), "utf8")).toContain(
+      "Validate the proposed spec sections, constraints, and open questions before turning them into a real spec file."
     );
     expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "utf8")).toContain(
       "Use $logics-flow-manager for workflow docs."
@@ -69,7 +81,7 @@ describe("repairClaudeBridgeFiles", () => {
 
     const result = repairClaudeBridgeFiles(root);
 
-    expect(result.skippedVariants).toEqual(["hybrid-assist"]);
+    expect(result.skippedVariants).toEqual(["hybrid-assist", "request-draft", "spec-first-pass", "backlog-groom"]);
     expect(result.writtenPaths).toEqual([
       ".claude/commands/logics-flow.md",
       ".claude/agents/logics-flow-manager.md"

@@ -1,10 +1,10 @@
 ## item_238_wire_logics_mermaid_generator_into_flow_manager_at_all_mermaid_call_sites - Wire logics-mermaid-generator into flow manager at all Mermaid call sites
-> From version: 1.21.1
+> From version: 1.21.1+item238
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 88%
-> Progress: 0%
+> Status: Done
+> Understanding: 97%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit skills and Mermaid quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

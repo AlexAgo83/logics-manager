@@ -273,7 +273,10 @@ export function publishCodexWorkspaceOverlay(root: string, options?: { includeOp
 export function shouldPublishRepoKit(root: string, snapshot?: CodexOverlaySnapshot): boolean {
   const resolvedRoot = path.resolve(root);
   const current = snapshot ?? inspectCodexWorkspaceOverlay(resolvedRoot);
-  if (current.status === "missing-manager" || current.status === "missing-overlay" || current.status === "stale") {
+  if (current.status === "missing-manager") {
+    return false;
+  }
+  if (current.status === "missing-overlay" || current.status === "stale") {
     return true;
   }
   const repoVersion = readRepoKitVersion(resolvedRoot);

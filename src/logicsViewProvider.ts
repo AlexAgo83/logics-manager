@@ -331,7 +331,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
     const startupKitPromptShown = await this.maybeOfferStartupKitUpdate(root, bootstrapState);
     if (!startupKitPromptShown) {
-      await this.maybeOfferBootstrap(root);
+      const bootstrapTriggered = await this.maybeOfferBootstrap(root);
+      if (bootstrapTriggered || this.codexWorkflowController.isBootstrapInProgress(root)) {
+        this.maybeShowOnboarding();
+        return;
+      }
       await this.codexWorkflowController.ensureGlobalCodexKit(root);
       await this.maybeOfferCodexStartupRemediation(root);
     }
@@ -1657,8 +1661,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     return panel;
   }
 
-  private async maybeOfferBootstrap(root: string): Promise<void> {
-    await this.codexWorkflowController.maybeOfferBootstrap(root);
+  private async maybeOfferBootstrap(root: string): Promise<boolean> {
+    return this.codexWorkflowController.maybeOfferBootstrap(root);
   }
 
   private async maybeOfferStartupKitUpdate(

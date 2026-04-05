@@ -763,6 +763,78 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("skips startup auto-publish and remediation while bootstrap is already running", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    const controller = (provider as any).codexWorkflowController;
+    controller.bootstrapInProgressRoots.add(path.resolve(root));
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+
+    await provider.refresh();
+
+    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
+    controller.bootstrapInProgressRoots.delete(path.resolve(root));
+  });
+
+  it("stops the startup convergence pass after triggering bootstrap from refresh", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      root,
+      repositoryState: "ready",
+      hasLogicsDir: true,
+      hasSkillsDir: true,
+      hasFlowManagerScript: true,
+      hasBootstrapScript: true,
+      missingWorkflowDirs: [],
+      git: { available: true },
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      capabilities: {
+        readOnly: { status: "available", summary: "ok" },
+        workflowMutation: { status: "available", summary: "ok" },
+        bootstrapRepair: { status: "available", summary: "ok" },
+        diagnostics: { status: "available", summary: "ok" },
+        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+      },
+      codexOverlay: {
+        status: "missing-overlay",
+        summary: "Global kit pending publication.",
+        issues: ["Global Logics kit manifest is missing."],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+
+    const controller = (provider as any).codexWorkflowController;
+    vi.spyOn(controller, "maybeOfferBootstrap").mockResolvedValue(true);
+
+    await provider.refresh();
+
+    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
+  });
+
   it("reports a partial bootstrap outcome when automatic global publication fails", async () => {
     mocks.showInformationMessage.mockResolvedValue(undefined);
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");

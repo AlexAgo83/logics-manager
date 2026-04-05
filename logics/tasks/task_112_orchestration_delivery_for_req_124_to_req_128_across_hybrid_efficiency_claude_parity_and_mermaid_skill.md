@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item229
+> From version: 1.21.1+item230
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
 > Confidence: 96%
-> Progress: 56%
+> Progress: 61%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -120,7 +120,7 @@ flowchart LR
   - Test: after opt-in and publication, `~/.claude/agents/` and manifest exist with correct fields; second publication without changes is idempotent.
   - Commit: `feat(claude): publish global Claude kit to ~/.claude (item_229)`.
 
-- [ ] **3.2 — item_230**: Add `ClaudeKitSnapshot` type with `healthy`, `stale`, `missing-overlay`, `missing-manager`, `unavailable` states; implement `inspectClaudeGlobalKit()`; update Claude launcher in `src/runtimeLaunchers.ts` to require global kit healthy.
+- [x] **3.2 — item_230**: Add `ClaudeKitSnapshot` type with `healthy`, `stale`, `missing-overlay`, `missing-manager`, `unavailable` states; implement `inspectClaudeGlobalKit()`; update Claude launcher in `src/runtimeLaunchers.ts` to require global kit healthy.
   - Test: stale manifest → `stale`; missing manifest → `missing-overlay`; launcher disabled when not healthy.
   - Commit: `feat(claude): add global kit health status model and align launcher (item_230)`.
 

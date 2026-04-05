@@ -528,6 +528,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       claudeBridgeAvailable: false,
       windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
     };
+    const claudeGlobalKit = snapshot.claudeGlobalKit ?? {
+      status: "missing-overlay",
+      summary: "Global Claude Logics kit has not been published yet.",
+      issues: [],
+      warnings: []
+    };
     const hybridCapability = snapshot.capabilities.hybridAssist ?? {
       status: "unavailable",
       summary: "Hybrid assist capability is unavailable."
@@ -628,6 +634,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: snapshot.codexOverlay.summary
       },
       {
+        label: `Global Claude kit: ${claudeGlobalKit.status === "healthy" ? "Ready" : "Needs attention"}`,
+        description: claudeGlobalKit.summary
+      },
+      {
         label: `Read-only browsing: ${snapshot.capabilities.readOnly.status === "available" ? "Available" : "Blocked"}`,
         description: snapshot.capabilities.readOnly.summary
       },
@@ -722,6 +732,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
+    if (claudeGlobalKit.sourceRepo) {
+      detailItems.push({
+        label: "Global Claude kit source",
+        description: claudeGlobalKit.sourceRepo
+      });
+    }
+
     if (snapshot.codexOverlay.runCommand) {
       detailItems.push({
         label: "Codex launch command",
@@ -809,6 +826,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
       return true;
     }
+    if (snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
+      return true;
+    }
     if (!snapshot.hybridRuntime || snapshot.hybridRuntime.state !== "ready" || !snapshot.hybridRuntime.claudeBridgeAvailable) {
       return true;
     }
@@ -840,6 +860,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     const hasDegradedIssue =
       snapshot.missingWorkflowDirs.length > 0 ||
       snapshot.codexOverlay.status !== "healthy" ||
+      snapshot.claudeGlobalKit?.status === "stale" ||
+      snapshot.claudeGlobalKit?.status === "missing-overlay" ||
+      snapshot.claudeGlobalKit?.status === "missing-manager" ||
       hybridRuntime.state === "degraded" ||
       !hybridRuntime.claudeBridgeAvailable ||
       actions.length > 0;
@@ -863,6 +886,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     const degradedCount = [
       snapshot.missingWorkflowDirs.length > 0,
       snapshot.codexOverlay.status !== "healthy",
+      snapshot.claudeGlobalKit?.status === "stale" ||
+        snapshot.claudeGlobalKit?.status === "missing-overlay" ||
+        snapshot.claudeGlobalKit?.status === "missing-manager",
       hybridRuntime.state === "degraded",
       !hybridRuntime.claudeBridgeAvailable
     ].filter(Boolean).length;

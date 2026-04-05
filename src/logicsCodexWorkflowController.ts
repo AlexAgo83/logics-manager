@@ -11,6 +11,7 @@ import {
   runGitWithOutput,
   runPythonWithOutput
 } from "./logicsProviderUtils";
+import { publishClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
 import { maybeShowReadyCodexOverlayHandoff, launchClaudeTerminal, launchCodexOverlayTerminal } from "./logicsOverlaySupport";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
@@ -191,19 +192,40 @@ export class LogicsCodexWorkflowController {
 
   async launchClaudeFromTools(root: string): Promise<void> {
     const launchers = await inspectRuntimeLaunchers(root);
-    if (!launchers.claude.available) {
-      const actions =
-        launchers.claude.title.includes("Repair Logics Kit")
-          ? ["Repair Logics Kit"]
-          : [];
-      const choice = await vscode.window.showWarningMessage(launchers.claude.title, ...actions);
-      if (choice === "Repair Logics Kit") {
-        await this.repairLogicsKit(root);
+    if (!launchers.claude.available && launchers.claude.title === "Claude CLI not found on PATH") {
+      void vscode.window.showWarningMessage(launchers.claude.title);
+      return;
+    }
+
+    const snapshot = await inspectLogicsEnvironment(root);
+    const globalKit = snapshot.claudeGlobalKit;
+    if (globalKit?.status === "healthy") {
+      launchClaudeTerminal(root, launchers.claude.command);
+      return;
+    }
+
+    if (globalKit?.status === "missing-manager") {
+      const inspection = inspectLogicsKitSubmodule(root);
+      const actions: string[] = [];
+      if (inspection.exists && inspection.isCanonical) {
+        actions.push("Update Logics Kit");
+      }
+      actions.push("Copy Update Command");
+      const choice = await vscode.window.showWarningMessage(
+        `Global Claude kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${globalKit.summary}`,
+        ...actions
+      );
+      if (choice === "Update Logics Kit") {
+        await this.updateLogicsKit(root, "launch request");
+      }
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
       }
       return;
     }
 
-    launchClaudeTerminal(root, launchers.claude.command);
+    await this.syncClaudeGlobalKit(root, "tools launch", { autoLaunchOnSuccess: true });
   }
 
   async bootstrapLogics(root: string): Promise<void> {
@@ -530,10 +552,89 @@ export class LogicsCodexWorkflowController {
     return false;
   }
 
+  async syncClaudeGlobalKit(
+    root: string,
+    trigger: string,
+    options?: {
+      autoLaunchOnSuccess?: boolean;
+      forceRepublish?: boolean;
+    }
+  ): Promise<boolean> {
+    const snapshot = await inspectLogicsEnvironment(root);
+    const globalKit = snapshot.claudeGlobalKit;
+    if (!globalKit) {
+      void vscode.window.showWarningMessage("Global Claude kit state is unavailable for this repository.");
+      return false;
+    }
+
+    if (globalKit.status === "healthy" && !options?.forceRepublish) {
+      if (options?.autoLaunchOnSuccess) {
+        launchClaudeTerminal(root, "claude");
+        return true;
+      }
+      void vscode.window.showInformationMessage("Global Claude kit is already ready for this repository.");
+      return true;
+    }
+
+    if (globalKit.status === "missing-manager") {
+      const inspection = inspectLogicsKitSubmodule(root);
+      const actions: string[] = [];
+      if (inspection.exists && inspection.isCanonical) {
+        actions.push("Update Logics Kit");
+      }
+      actions.push("Copy Update Command");
+      const choice = await vscode.window.showWarningMessage(
+        `Global Claude kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${globalKit.summary}`,
+        ...actions
+      );
+      if (choice === "Update Logics Kit") {
+        await this.updateLogicsKit(root, trigger);
+      }
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      }
+      return false;
+    }
+
+    try {
+      publishClaudeGlobalKit(root);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Global Claude kit publish failed: ${message}`);
+      return false;
+    }
+
+    await this.options.refresh();
+    const refreshed = await inspectLogicsEnvironment(root);
+    if (refreshed.claudeGlobalKit?.status === "healthy") {
+      if (options?.autoLaunchOnSuccess) {
+        launchClaudeTerminal(root, "claude");
+        void vscode.window.showInformationMessage(`Global Claude kit published after ${trigger}. Launching Claude in Terminal.`);
+        return true;
+      }
+      const choice = await vscode.window.showInformationMessage(
+        `Global Claude kit published after ${trigger}. ${refreshed.claudeGlobalKit.summary}`,
+        "Launch Claude in Terminal"
+      );
+      if (choice === "Launch Claude in Terminal") {
+        launchClaudeTerminal(root, "claude");
+        return true;
+      }
+      void vscode.window.showInformationMessage(`Global Claude kit published. ${refreshed.claudeGlobalKit.summary}`);
+      return true;
+    }
+
+    void vscode.window.showWarningMessage(
+      `Global Claude kit publish completed, but the runtime still needs attention. ${refreshed.claudeGlobalKit?.summary || "Unknown state."}`
+    );
+    return false;
+  }
+
   async repairLogicsKit(root: string): Promise<boolean> {
     let snapshot = await inspectLogicsEnvironment(root);
     const inspection = inspectLogicsKitSubmodule(root);
-    if (snapshot.codexOverlay.status === "missing-manager") {
+    if (snapshot.codexOverlay.status === "missing-manager" || snapshot.claudeGlobalKit?.status === "missing-manager") {
       if (!inspection.exists || !inspection.isCanonical) {
         const choice = await vscode.window.showWarningMessage(
           `Repair Logics Kit requires the canonical logics/skills submodule. ${inspection.reason}`,
@@ -559,11 +660,45 @@ export class LogicsCodexWorkflowController {
       snapshot = await inspectLogicsEnvironment(root);
     }
 
-    if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
+    let changed = bridgeRepair.writtenPaths.length > 0;
+
+    if (snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
+      try {
+        publishCodexWorkspaceOverlay(root);
+        changed = true;
+        await this.options.refresh();
+        snapshot = await inspectLogicsEnvironment(root);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        void vscode.window.showErrorMessage(`Global Codex kit publish failed: ${message}`);
+        return false;
+      }
+    }
+
+    if (snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
+      try {
+        publishClaudeGlobalKit(root);
+        changed = true;
+        await this.options.refresh();
+        snapshot = await inspectLogicsEnvironment(root);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        void vscode.window.showErrorMessage(`Global Claude kit publish failed: ${message}`);
+        return false;
+      }
+    }
+
+    const codexReady = snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning";
+    const claudeReady = snapshot.claudeGlobalKit?.status === "healthy";
+    if (codexReady && claudeReady) {
       if (bridgeRepair.writtenPaths.length > 0) {
         void vscode.window.showInformationMessage(
           `Repair Logics Kit restored Claude bridge files: ${bridgeRepair.writtenPaths.join(", ")}`
         );
+        return true;
+      }
+      if (changed) {
+        void vscode.window.showInformationMessage("Logics kit runtime repair completed for Codex and Claude.");
         return true;
       }
       if (bridgeRepair.skippedVariants.length > 0) {
@@ -576,7 +711,10 @@ export class LogicsCodexWorkflowController {
       return true;
     }
 
-    return this.syncCodexOverlay(root, "manual repair", { forceRepublish: true });
+    if (!codexReady) {
+      return this.syncCodexOverlay(root, "manual repair", { forceRepublish: true });
+    }
+    return this.syncClaudeGlobalKit(root, "manual repair", { forceRepublish: true });
   }
 
   private async inspectGlobalCodexKitPublishability(root: string): Promise<{

@@ -116,7 +116,7 @@
   let canLaunchCodex = false;
   let launchCodexTitle = "Launch Codex with the globally published Logics kit";
   let canLaunchClaude = false;
-  let launchClaudeTitle = "Launch Claude in this repository";
+  let launchClaudeTitle = "Launch Claude with the globally published Logics kit";
   let canRepairLogicsKit = false;
   let repairLogicsKitTitle = "Check current Logics runtime state and repair the shared kit publication or bridge files.";
   let canPublishRelease = false;

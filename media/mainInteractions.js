@@ -316,7 +316,7 @@
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Review environment health and recommended fixes");
       setControlDescription(launchCodexOverlayButton, "Launch Codex with the globally published Logics kit");
-      setControlDescription(launchClaudeButton, "Launch Claude in this repository");
+      setControlDescription(launchClaudeButton, "Launch Claude with the globally published Logics kit");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
       setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
       setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");

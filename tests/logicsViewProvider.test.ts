@@ -201,6 +201,7 @@ import { LogicsViewProvider } from "../src/logicsViewProvider";
 describe("LogicsViewProvider", () => {
   let root: string;
   let provider: LogicsViewProvider;
+  const originalClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
 
   function defaultEnvironmentSnapshot(currentRoot: string) {
     return {
@@ -357,7 +358,7 @@ describe("LogicsViewProvider", () => {
       },
       claude: {
         available: true,
-        title: "Launch Claude in this repository",
+        title: "Launch Claude with the globally published Logics kit",
         command: "claude"
       }
     });
@@ -396,6 +397,11 @@ describe("LogicsViewProvider", () => {
   });
 
   afterEach(() => {
+    if (typeof originalClaudeHome === "string") {
+      process.env.LOGICS_CLAUDE_GLOBAL_HOME = originalClaudeHome;
+    } else {
+      delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+    }
     fs.rmSync(root, { recursive: true, force: true });
   });
 
@@ -1325,6 +1331,28 @@ describe("LogicsViewProvider", () => {
     const show = vi.fn();
     const sendText = vi.fn();
     mocks.createTerminal.mockReturnValue({ show, sendText });
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      ...defaultEnvironmentSnapshot(root),
+      repositoryState: "ready",
+      missingWorkflowDirs: [],
+      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+      claudeGlobalKit: {
+        status: "healthy",
+        summary: "Global Claude kit ready.",
+        issues: [],
+        warnings: [],
+        sourceRepo: root,
+        publishedSkillNames: ["logics-flow-manager"]
+      },
+      codexOverlay: {
+        status: "healthy",
+        summary: "Global kit ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
 
     await (provider as any).launchClaudeFromTools();
 
@@ -1339,31 +1367,61 @@ describe("LogicsViewProvider", () => {
   it("repairs missing Claude bridge files from Tools when the Logics kit is already healthy", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "agents"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
     fs.writeFileSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "SKILL.md"), "# skill\n", "utf8");
     fs.writeFileSync(
       path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents", "openai.yaml"),
-      "interface:\n  default_prompt: \"Use $logics-hybrid-delivery-assistant for delivery work.\"\n",
+      "tier: core\ninterface:\n  default_prompt: \"Use $logics-hybrid-delivery-assistant for delivery work.\"\n",
       "utf8"
     );
     fs.writeFileSync(path.join(root, "logics", "skills", "logics-flow-manager", "SKILL.md"), "# skill\n", "utf8");
     fs.writeFileSync(
       path.join(root, "logics", "skills", "logics-flow-manager", "agents", "openai.yaml"),
-      "interface:\n  default_prompt: \"Use $logics-flow-manager for workflow docs.\"\n",
+      "tier: core\ninterface:\n  default_prompt: \"Use $logics-flow-manager for workflow docs.\"\n",
       "utf8"
     );
-    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
-      ...defaultEnvironmentSnapshot(root),
-      repositoryState: "ready",
-      missingWorkflowDirs: [],
-      python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
-      codexOverlay: {
-        status: "healthy",
-        summary: "Global kit ready.",
-        issues: [],
-        warnings: [],
-        runCommand: "codex"
-      }
-    } as never);
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = path.join(root, ".claude-global");
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+        ...defaultEnvironmentSnapshot(root),
+        repositoryState: "ready",
+        missingWorkflowDirs: [],
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never)
+      .mockResolvedValue({
+        ...defaultEnvironmentSnapshot(root),
+        repositoryState: "ready",
+        missingWorkflowDirs: [],
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        claudeGlobalKit: {
+          status: "healthy",
+          summary: "Global Claude kit ready.",
+          issues: [],
+          warnings: [],
+          sourceRepo: root,
+          publishedSkillNames: ["logics-flow-manager", "logics-hybrid-delivery-assistant"]
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never);
 
     await (provider as any).repairLogicsKitFromTools();
 
@@ -1960,6 +2018,13 @@ describe("LogicsViewProvider", () => {
 
       const items = quickPickItems();
       expect(items.some((i) => i.label.includes("Repair Logics Kit"))).toBe(true);
+    });
+
+    it("surfaces a Claude global kit publish action when the Claude kit is missing", async () => {
+      await provider.checkEnvironmentFromCommand();
+
+      const items = quickPickItems();
+      expect(items.some((i) => i.label.includes("Publish Global Claude Kit"))).toBe(true);
     });
 
     it("does not surface Claude bridge repair when bridge is available", async () => {

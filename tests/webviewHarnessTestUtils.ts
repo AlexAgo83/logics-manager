@@ -62,6 +62,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                 <div data-tools-section="workflow">
                   <div>Workflow</div>
                   <div data-tools-body="workflow">
+                    <button class="tools-panel__item" data-action="open-onboarding" title="Open the getting started guide"></button>
                     <button class="tools-panel__item" data-action="select-agent" title="Select the active agent profile"></button>
                     <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc"></button>
                     <button class="tools-panel__item" data-action="refresh" title="Refresh"></button>

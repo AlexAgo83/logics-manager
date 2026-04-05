@@ -1,10 +1,10 @@
 ## req_124_harden_hybrid_assist_runtime_efficiency_with_diff_preprocessing_result_caching_and_profile_aware_fallback - Harden hybrid assist runtime efficiency with diff preprocessing, result caching, and profile-aware fallback
 
-> From version: 1.21.1
+> From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Understanding: 100%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency and runtime hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -125,6 +125,16 @@ flowchart TD
 - Keywords: hybrid assist, token reduction, diff preprocessor, lock file, result cache, git snapshot, profile downgrade, handoff-packet, diff-risk, deterministic pre-classification, skill overlay, tier, hybrid insights, ROI recommendations, codex, ollama, openai, gemini, provider-agnostic
 - Use when: Use when planning runtime-layer token efficiency improvements that do not change flow contracts or handoff model but reduce cost through smarter prompt construction, caching, and profile selection.
 - Skip when: Skip when the work is about context-pack structure (req_080), diff-first handoff posture (req_081), provider dispatch wiring (req_120), or flow contract redesign.
+
+# AC Traceability
+
+- AC1 -> `item_220`, `task_112`. Proof: diff preprocessor strips lock files and binary diff stubs before prompt construction.
+- AC2 -> `item_220`, `task_112`. Proof: git snapshot reuse is cached within a single CLI invocation and refreshed only after explicit mutation points.
+- AC3 -> `item_221`, `task_112`. Proof: repeated bounded runs on the same diff hit `logics/.cache/flow_results_cache.json` and log `cache-hit`.
+- AC4 -> `item_222`, `task_112`. Proof: `handoff-packet` auto-caps the default deep profile on remote or Codex paths and records `profile-downgrade`.
+- AC5 -> `item_222`, `task_112`. Proof: `diff-risk` and `windows-compat-risk` short-circuit obvious cases with `deterministic-preclassified`.
+- AC6 -> `item_223`, `task_112`. Proof: skill manifests declare `tier`, and global Codex kit publication filters to `core` by default with an opt-in for optional skills.
+- AC7 -> `item_224`, `task_112`. Proof: Hybrid Insights renders dedicated recommendation sections for cache, pre-classification, and profile downgrade signals.
 
 # References
 

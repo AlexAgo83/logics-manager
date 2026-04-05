@@ -277,6 +277,7 @@ describe("LogicsViewProvider", () => {
     const globalStateStore = new Map<string, unknown>([
       ["logics.onboardingLastVersion", "1.19.1"]
     ]);
+    const workspaceStateStore = new Map<string, unknown>();
     mocks.showErrorMessage.mockReset();
     mocks.showInformationMessage.mockReset();
     mocks.showWarningMessage.mockReset();
@@ -338,6 +339,17 @@ describe("LogicsViewProvider", () => {
       stderr: ""
     });
     mocks.withProgress.mockImplementation(async (_options, task) => task({ report: vi.fn() }, {} as never));
+    mocks.createWebviewPanel.mockReturnValue({
+      title: "",
+      reveal: vi.fn(),
+      onDidDispose: vi.fn(),
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage: vi.fn(),
+        postMessage: vi.fn()
+      }
+    } as never);
     mocks.createTerminal.mockReturnValue({
       show: vi.fn(),
       sendText: vi.fn()
@@ -373,6 +385,14 @@ describe("LogicsViewProvider", () => {
         globalStateStore.delete(key);
       } else {
         globalStateStore.set(key, value);
+      }
+    });
+    mocks.workspaceStateGet.mockImplementation((key: string) => workspaceStateStore.get(key));
+    mocks.workspaceStateUpdate.mockImplementation(async (key: string, value: unknown) => {
+      if (typeof value === "undefined") {
+        workspaceStateStore.delete(key);
+      } else {
+        workspaceStateStore.set(key, value);
       }
     });
     vi.mocked(inspectLogicsEnvironment).mockReset();
@@ -424,6 +444,59 @@ describe("LogicsViewProvider", () => {
       "Bootstrap Logics",
       "Not now"
     );
+  });
+
+  it("opens onboarding on first refresh for a new project even when the extension version was seen elsewhere", async () => {
+    const onDidDispose = vi.fn();
+    const onDidReceiveMessage = vi.fn();
+    const panel = {
+      title: "",
+      reveal: vi.fn(),
+      onDidDispose,
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage,
+        postMessage: vi.fn()
+      }
+    };
+    mocks.createWebviewPanel.mockReturnValue(panel as never);
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    await provider.refresh();
+
+    expect(mocks.createWebviewPanel).toHaveBeenCalledWith(
+      "logics.onboarding",
+      "Logics: Getting Started",
+      2,
+      expect.objectContaining({
+        enableScripts: true,
+        retainContextWhenHidden: false
+      })
+    );
+  });
+
+  it("does not reopen onboarding on later refreshes for the same project and version", async () => {
+    const onDidDispose = vi.fn();
+    const onDidReceiveMessage = vi.fn();
+    const panel = {
+      title: "",
+      reveal: vi.fn(),
+      onDidDispose,
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage,
+        postMessage: vi.fn()
+      }
+    };
+    mocks.createWebviewPanel.mockReturnValue(panel as never);
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    await provider.refresh();
+    await provider.refresh();
+
+    expect(mocks.createWebviewPanel).toHaveBeenCalledTimes(1);
   });
 
   it("surfaces non-canonical bootstrap state instead of claiming bootstrap is complete", async () => {

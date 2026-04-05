@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item225
+> From version: 1.21.1+item226
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 98%
-> Confidence: 93%
-> Progress: 36%
+> Confidence: 94%
+> Progress: 40%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -98,7 +98,7 @@ flowchart LR
   - Test: `next-step --backend openai` dispatches to OpenAI and returns a validated proposal; invalid provider output triggers bounded Codex fallback.
   - Commit: `feat(hybrid): enable next-step explicit dispatch to OpenAI and Gemini (item_225)`.
 
-- [ ] **2.2 — item_226**: Add `request-draft` and `spec-first-pass` as `proposal-only` bounded hybrid flows conforming to the shared contract; no file writing.
+- [x] **2.2 — item_226**: Add `request-draft` and `spec-first-pass` as `proposal-only` bounded hybrid flows conforming to the shared contract; no file writing.
   - Test: each flow returns validated JSON; no file written to disk; measurement log contains the run.
   - Commit: `feat(hybrid): add request-draft and spec-first-pass authoring flows (item_226)`.
 

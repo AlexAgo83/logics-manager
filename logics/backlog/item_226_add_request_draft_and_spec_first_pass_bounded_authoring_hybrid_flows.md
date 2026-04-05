@@ -1,10 +1,10 @@
 ## item_226_add_request_draft_and_spec_first_pass_bounded_authoring_hybrid_flows - Add request-draft and spec-first-pass bounded authoring hybrid flows
-> From version: 1.21.1
+> From version: 1.21.1+item226
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 94%
+> Progress: 100%
 > Complexity: High
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

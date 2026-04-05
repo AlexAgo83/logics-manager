@@ -274,6 +274,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
+    this.maybeShowOnboarding(root);
+
     if (!fs.existsSync(path.join(root, "logics"))) {
       this.items = [];
       await this.clearAgentRegistry();
@@ -333,13 +335,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!startupKitPromptShown) {
       const bootstrapTriggered = await this.maybeOfferBootstrap(root);
       if (bootstrapTriggered || this.codexWorkflowController.isBootstrapInProgress(root)) {
-        this.maybeShowOnboarding();
         return;
       }
       await this.codexWorkflowController.ensureGlobalCodexKit(root);
       await this.maybeOfferCodexStartupRemediation(root);
     }
-    this.maybeShowOnboarding();
   }
 
   async openFromPalette(): Promise<void> {
@@ -1173,14 +1173,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     };
   }
 
-  private maybeShowOnboarding(): void {
+  private maybeShowOnboarding(root: string): void {
     const extensionVersion =
       (this.context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
-    const lastSeen = this.context.globalState.get<string>(ONBOARDING_LAST_VERSION_KEY) ?? null;
+    const normalizedRoot = path.resolve(root);
+    const workspaceKey = `${ONBOARDING_LAST_VERSION_KEY}:${normalizedRoot}`;
+    const lastSeen = this.context.workspaceState.get<string>(workspaceKey) ?? null;
     if (lastSeen === extensionVersion) {
       return;
     }
-    void this.context.globalState.update(ONBOARDING_LAST_VERSION_KEY, extensionVersion);
+    void this.context.workspaceState.update(workspaceKey, extensionVersion);
     this.openOnboardingPanel();
   }
 

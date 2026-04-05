@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+item237
+> From version: 1.21.1+item238
 > Schema version: 1.0
 > Status: In Progress
 > Understanding: 99%
 > Confidence: 97%
-> Progress: 79%
+> Progress: 84%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -142,7 +142,7 @@ flowchart LR
   - Test: with Ollama healthy, skill dispatches and returns a validated Mermaid block; AI output with Unicode label is rejected silently and deterministic block returned; measurement log captures both paths.
   - Commit: `feat(skill): add hybrid AI generation and Mermaid safety validation (item_237)`.
 
-- [ ] **4.3 — item_238**: Update all Mermaid generation call sites in `logics_flow.py` and `logics_flow_support.py` (`new request`, `new backlog`, `new task`, `sync refresh-mermaid-signatures`) to route through the skill entry point.
+- [x] **4.3 — item_238**: Update all Mermaid generation call sites in `logics_flow.py` and `logics_flow_support.py` (`new request`, `new backlog`, `new task`, `sync refresh-mermaid-signatures`) to route through the skill entry point.
   - Test: `new request` with healthy Ollama routes through skill; with no provider, deterministic fallback is used transparently; no operator-visible error in either case.
   - Commit: `feat(flow): wire logics-mermaid-generator into all flow manager Mermaid call sites (item_238)`.
 

@@ -37,7 +37,7 @@
         )
       : new Map();
     const toolSectionLayout = {
-      workflow: ["open-onboarding", "select-agent", "new-request-guided", "create-companion-doc", "bootstrap-logics", "refresh"],
+      workflow: ["open-onboarding", "select-agent", "new-request", "create-companion-doc", "bootstrap-logics", "refresh"],
       assist: [
         "assist-next-step",
         "assist-triage",
@@ -133,7 +133,7 @@
       if (getShouldRecommendCheckEnvironment()) {
         return ["check-environment", "change-project-root"];
       }
-      return ["new-request-guided", "assist-next-step", "assist-triage"];
+      return ["new-request", "assist-next-step", "assist-triage"];
     }
 
     function renderToolsPanelStructure() {

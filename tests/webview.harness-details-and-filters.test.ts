@@ -797,7 +797,7 @@ describe("webview harness filters, details, and docs", () => {
     const toolsToggle = document.getElementById("tools-toggle");
     const launchCodexButton = document.querySelector('[data-action="launch-codex-overlay"]');
     const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
-    const newRequestButton = document.querySelector('[data-action="new-request-guided"]');
+    const newRequestButton = document.querySelector('[data-action="new-request"]');
     const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
     const card = document.querySelector(".card") as HTMLDivElement | null;
@@ -807,7 +807,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(toolsToggle?.getAttribute("title")).toBe("Tools");
     expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with the globally published Logics kit");
     expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude with the globally published Logics kit");
-    expect(newRequestButton?.getAttribute("title")).toBe("Start a guided new request");
+    expect(newRequestButton?.getAttribute("title")).toBe("Create a new request document");
     expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
     expect(
       Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))
@@ -827,7 +827,7 @@ describe("webview harness filters, details, and docs", () => {
         "refresh"
       ])
     );
-    expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("new-request-guided");
+    expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("new-request");
     expect(addButton?.getAttribute("title")).toBe("Add Logics item");
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);

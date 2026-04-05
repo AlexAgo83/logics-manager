@@ -34,7 +34,7 @@
   const launchCodexOverlayButton = document.querySelector('[data-action="launch-codex-overlay"]');
   const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
-  const newRequestToolButton = document.querySelector('[data-action="new-request-guided"]');
+  const newRequestToolButton = document.querySelector('[data-action="new-request"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
   const bootstrapLogicsButton = document.querySelector('[data-action="bootstrap-logics"]');
   const updateLogicsKitButton = document.querySelector('[data-action="update-logics-kit"]');
@@ -1078,6 +1078,10 @@
         markDoneButton,
         markObsoleteButton,
         newRequestToolButton,
+        onNewRequest() {
+          hostApi.newRequest();
+          setToolsPanelOpen(false);
+        },
         onAbout() {
           handleAbout();
           setToolsPanelOpen(false);
@@ -1138,7 +1142,7 @@
           setToolsPanelOpen(false);
         },
         onAssistTriage() {
-          hostApi.assistTriage();
+          hostApi.assistTriage(selectedId || undefined);
           setToolsPanelOpen(false);
         },
         onAssistDiffRisk() {

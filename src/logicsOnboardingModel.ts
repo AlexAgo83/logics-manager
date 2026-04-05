@@ -36,8 +36,8 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
     primaryActions: [
       {
         label: "New Request",
-        toolAction: "new-request-guided",
-        description: "Open the guided request form to capture a need in the right format."
+        toolAction: "new-request",
+        description: "Create a new request document and capture the need directly in the workflow."
       }
     ],
     workflowMapping: "Maps to a Logics request document in logics/request/."

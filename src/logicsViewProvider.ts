@@ -185,7 +185,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.suggestNextStepFromTools();
           return;
         case "assist-triage":
-          await this.triageWorkflowDocFromTools();
+          await this.triageWorkflowDocFromTools(message.id);
           return;
         case "assist-diff-risk":
           await this.assessDiffRiskFromTools();
@@ -402,9 +402,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await this.setActiveAgent(pick.agent.id);
-    await this.injectAgentPromptIntoCodexChat(pick.agent);
     void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
-    await this.maybeShowCodexOverlayHandoff(root, "agent selection");
+    await this.refresh();
   }
 
   async checkEnvironmentFromCommand(): Promise<void> {
@@ -1271,8 +1270,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.hybridAssistController.suggestNextStepFromTools();
   }
 
-  private async triageWorkflowDocFromTools(): Promise<void> {
-    await this.hybridAssistController.triageWorkflowDocFromTools();
+  private async triageWorkflowDocFromTools(preferredId?: string): Promise<void> {
+    await this.hybridAssistController.triageWorkflowDocFromTools(preferredId);
   }
 
   private async assessDiffRiskFromTools(): Promise<void> {

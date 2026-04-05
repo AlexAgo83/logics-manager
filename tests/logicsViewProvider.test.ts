@@ -951,6 +951,39 @@ describe("LogicsViewProvider", () => {
     );
   });
 
+  it("selects an agent without injecting a prompt or triggering Codex handoff", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    const handoffSpy = vi.spyOn(provider as any, "maybeShowCodexOverlayHandoff");
+    const injectSpy = vi.spyOn(provider as any, "injectAgentPromptIntoCodexChat");
+    const agent = {
+      id: "$demo-agent",
+      displayName: "Demo Agent",
+      shortDescription: "Does demo work",
+      defaultPrompt: "demo prompt",
+      preferredContextProfile: "normal",
+      allowedDocStages: ["request", "backlog", "task"],
+      blockedDocStages: [],
+      responseStyle: "balanced"
+    };
+    mocks.loadAgentRegistry.mockReturnValue({
+      agents: [agent],
+      issues: [],
+      scannedFiles: 1
+    });
+    mocks.showQuickPick.mockResolvedValue({
+      label: agent.displayName,
+      description: agent.shortDescription,
+      detail: agent.id,
+      agent
+    });
+
+    await provider.selectAgentFromPalette();
+
+    expect(injectSpy).not.toHaveBeenCalled();
+    expect(handoffSpy).not.toHaveBeenCalled();
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(`Active Logics agent: ${agent.displayName} (${agent.id})`);
+  });
+
   it("surfaces the environment capability snapshot through the diagnostic quick pick", async () => {
     await provider.checkEnvironmentFromCommand();
 

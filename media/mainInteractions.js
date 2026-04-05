@@ -42,6 +42,7 @@
       markDoneButton,
       markObsoleteButton,
       newRequestToolButton,
+      onNewRequest,
       onAbout,
       onActivityToggle,
       onBoardScroll,
@@ -187,7 +188,7 @@
         assistDocConsistencyButton.addEventListener("click", () => onAssistDocConsistency());
       }
       if (newRequestToolButton) {
-        newRequestToolButton.addEventListener("click", () => onCreateCompanionDoc("new-request-guided"));
+        newRequestToolButton.addEventListener("click", () => onNewRequest());
       }
       if (launchCodexOverlayButton) {
         launchCodexOverlayButton.addEventListener("click", () => onLaunchCodexOverlay());
@@ -317,7 +318,7 @@
       setControlDescription(viewModeToggleButton, "Switch display mode");
       setControlDescription(refreshButton, "Refresh");
       setControlDescription(selectAgentButton, "Select active agent");
-      setControlDescription(newRequestToolButton, "Start a guided new request");
+      setControlDescription(newRequestToolButton, "Create a new request document");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Review environment health and recommended fixes");
       setControlDescription(launchCodexOverlayButton, "Launch Codex with the globally published Logics kit");

@@ -49,6 +49,9 @@
       createItem(kind) {
         invokeHostOnly("create-item", { kind }, "Create item");
       },
+      newRequest() {
+        invokeHostOnly("new-request", {}, "New Request");
+      },
       createCompanionDoc(id, preferredKind) {
         invokeHostOnly("create-companion-doc", { id, preferredKind }, "Create companion doc");
       },
@@ -100,8 +103,8 @@
       assistNextStep() {
         invokeHostOnly("assist-next-step", {}, "Suggest Next Step");
       },
-      assistTriage() {
-        invokeHostOnly("assist-triage", {}, "Triage Item");
+      assistTriage(id) {
+        invokeHostOnly("assist-triage", id ? { id } : {}, "Triage Item");
       },
       assistDiffRisk() {
         invokeHostOnly("assist-diff-risk", {}, "Assess Diff Risk");

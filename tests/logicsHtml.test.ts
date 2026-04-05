@@ -101,26 +101,26 @@ describe("logics HTML builders", () => {
               backend_used: { ollama: 2, codex: 1 },
               execution_paths: { local: 2, fallback: 1 }
             }
-          },
-          recent_runs: [
-            {
-              flow: "commit-all",
-              result_status: "degraded",
-              backend_requested: "auto",
-              backend_used: "codex",
-              execution_path: "fallback",
-              recorded_at: "2026-04-04T10:00:00Z",
-              validated_summary: "Fallback completed with review recommendation.",
-              safety_class: "review",
-              seed_ref: "task_110",
-              review_recommended: true,
-              degraded_reasons: ["ollama-timeout"],
-              validated_excerpt: {
-                summary: "Fallback completed."
-              }
-            }
-          ]
+          }
         },
+        recent_runs: [
+          {
+            flow: "commit-all",
+            result_status: "degraded",
+            backend_requested: "auto",
+            backend_used: "codex",
+            execution_path: "fallback",
+            recorded_at: "2026-04-04T10:00:00Z",
+            validated_summary: "Fallback completed with review recommendation.",
+            safety_class: "review",
+            seed_ref: "task_110",
+            review_recommended: true,
+            degraded_reasons: ["ollama-timeout"],
+            validated_excerpt: {
+              summary: "Fallback completed."
+            }
+          }
+        ],
         estimated: {
           assumptions: {
             hourly_rate_usd: 120
@@ -140,6 +140,110 @@ describe("logics HTML builders", () => {
     });
 
     expect(html).toMatchSnapshot();
+  });
+
+  it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {
+    const html = buildHybridInsightsHtml({
+      webview: createWebview() as never,
+      rootLabel: "/workspace/project",
+      report: {
+        measured: {
+          totals: {
+            runs: 6,
+            local_runs: 1,
+            fallback_runs: 1,
+            degraded_runs: 1,
+            review_recommended_runs: 1
+          },
+          execution_paths: {
+            remote: 3,
+            "cache-hit": 1,
+            "deterministic-preclassified": 1,
+            fallback: 1
+          }
+        },
+        derived: {
+          rates: {
+            local_offload_rate: 0.16,
+            fallback_rate: 0.16,
+            degraded_rate: 0.16,
+            review_recommended_rate: 0.16
+          },
+          report_state: {},
+          health_summary: [],
+          dispatch_split: [],
+          execution_path_split: [],
+          top_degraded_reasons: [],
+          top_fallback_reasons: [],
+          flow_breakdown: {}
+        },
+        recent_runs: [
+          {
+            flow: "commit-plan",
+            result_status: "ok",
+            backend_requested: "openai",
+            backend_used: "openai",
+            execution_path: "remote",
+            recorded_at: "2026-04-04T08:00:00Z",
+            validated_summary: "Live remote run."
+          },
+          {
+            flow: "commit-plan",
+            result_status: "ok",
+            backend_requested: "openai",
+            backend_used: "openai",
+            execution_path: "remote",
+            recorded_at: "2026-04-04T08:10:00Z",
+            validated_summary: "Repeat live remote run."
+          },
+          {
+            flow: "commit-plan",
+            result_status: "ok",
+            backend_requested: "openai",
+            backend_used: "openai",
+            execution_path: "cache-hit",
+            recorded_at: "2026-04-04T08:11:00Z",
+            validated_summary: "Cache served the repeat."
+          },
+          {
+            flow: "diff-risk",
+            result_status: "ok",
+            backend_requested: "auto",
+            backend_used: "deterministic",
+            execution_path: "deterministic-preclassified",
+            recorded_at: "2026-04-04T08:20:00Z",
+            validated_summary: "Pre-classifier skipped AI."
+          },
+          {
+            flow: "handoff-packet",
+            result_status: "degraded",
+            backend_requested: "openai",
+            backend_used: "openai",
+            execution_path: "remote",
+            recorded_at: "2026-04-04T08:30:00Z",
+            degraded_reasons: ["profile-downgrade"],
+            validated_summary: "Remote handoff packet with capped profile."
+          }
+        ],
+        estimated: {
+          assumptions: {},
+          proxies: {}
+        },
+        sources: {},
+        limits: {
+          window_days: 7,
+          recent_limit: 10
+        }
+      }
+    });
+
+    expect(html).toContain("Efficiency Recommendations");
+    expect(html).toContain("Cache Effectiveness");
+    expect(html).toContain("Deterministic Pre-Classification");
+    expect(html).toContain("Profile Downgrade Events");
+    expect(html).toContain("commit-plan: 1 cache hit(s), 1 recent repeat call(s) still ran live.");
+    expect(html).toContain("diff-risk: 1 deterministic pre-classification(s) skipped an AI dispatch.");
+    expect(html).toContain("handoff-packet via openai: 1 deep-profile downgrade event(s) were recorded.");
   });
 
   it("renders the orchestrator webview snapshot", () => {

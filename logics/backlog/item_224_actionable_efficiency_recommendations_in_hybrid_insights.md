@@ -1,10 +1,10 @@
 ## item_224_actionable_efficiency_recommendations_in_hybrid_insights - Actionable efficiency recommendations in Hybrid Insights
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 88%
-> Confidence: 83%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

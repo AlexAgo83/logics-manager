@@ -446,37 +446,37 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
         </div>
       </div>
       <div class="hybrid-insights__signal-grid">
-        
+
         <section class="hybrid-insights__signal-card ">
           <span>Local offload</span>
           <strong>70.0%</strong>
           <em>7 local completion(s)</em>
         </section>
-      
+
         <section class="hybrid-insights__signal-card ">
           <span>Fallback</span>
           <strong>20.0%</strong>
           <em>2 fallback run(s)</em>
         </section>
-      
+
         <section class="hybrid-insights__signal-card ">
           <span>Remote share</span>
           <strong>10.0%</strong>
           <em>1 remote provider run(s)</em>
         </section>
-      
+
         <section class="hybrid-insights__signal-card is-bad">
           <span>Degraded</span>
           <strong>10.0%</strong>
           <em>1 degraded run(s)</em>
         </section>
-      
+
         <section class="hybrid-insights__signal-card ">
           <span>Review</span>
           <strong>30.0%</strong>
           <em>3 run(s) still need attention</em>
         </section>
-      
+
       </div>
       <details class="hybrid-insights__secondary-details">
         <summary>Report source and window</summary>
@@ -500,65 +500,93 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
         <div class="hybrid-insights__overview-grid">
           <div class="hybrid-insights__panel">
             <h3>Current posture</h3>
-            
+
     <div class="hybrid-insights__stack">
       <div class="hybrid-insights__note">Ollama healthy on most runs.</div><div class="hybrid-insights__note">Codex fallback only triggered twice.</div>
     </div>
-  
+
             <div class="hybrid-insights__status-row"><span class="hybrid-insights__status is-warn">Degraded outcomes need review.</span></div>
           </div>
           <div class="hybrid-insights__panel">
             <h3>Measured totals</h3>
-            
+
     <div class="hybrid-insights__list">
-      
+
             <div class="hybrid-insights__list-row">
               <span>Total runs</span>
               <strong>10</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Local runs</span>
               <strong>7</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Remote runs</span>
               <strong>1</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Deterministic runs</span>
               <strong>0</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Fallback runs</span>
               <strong>2</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Direct codex runs</span>
               <strong>0</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Degraded runs</span>
               <strong>1</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Review recommended</span>
               <strong>3</strong>
             </div>
-          
+
     </div>
-  
+
           </div>
           <div class="hybrid-insights__panel">
             <h3>Recent result distribution</h3>
             <p class="hybrid-insights__empty">No recent results inside the bounded window.</p>
           </div>
+        </div>
+      </section>
+
+      <section class="hybrid-insights__section">
+        <h2>Efficiency Recommendations</h2>
+        <p class="hybrid-insights__section-intro">These panels translate the raw audit and measurement logs into immediate cost and efficiency signals tied to the new runtime behaviors.</p>
+        <div class="hybrid-insights__columns">
+
+    <div class="hybrid-insights__panel">
+      <h3>Cache Effectiveness</h3>
+      <p class="hybrid-insights__section-intro">No cache hits or repeat-call opportunities are visible in the recent window yet.</p>
+      <p class="hybrid-insights__empty">Run the same bounded proposal flow twice on an unchanged diff to see cache savings appear here.</p>
+    </div>
+
+
+    <div class="hybrid-insights__panel">
+      <h3>Deterministic Pre-Classification</h3>
+      <p class="hybrid-insights__section-intro">No deterministic pre-classification events have been observed yet.</p>
+      <p class="hybrid-insights__empty">Lock-file-only, empty, or schema-heavy diffs will surface here once the bounded risk flows exercise the pre-classifier.</p>
+    </div>
+
+
+    <div class="hybrid-insights__panel">
+      <h3>Profile Downgrade Events</h3>
+      <p class="hybrid-insights__section-intro">No automatic deep-profile downgrade has been recorded yet.</p>
+      <p class="hybrid-insights__empty">Remote or Codex handoff runs without an explicit --profile deep override will appear here once they are exercised.</p>
+    </div>
+
         </div>
       </section>
 
@@ -576,26 +604,26 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
           </div>
           <div class="hybrid-insights__panel">
             <h3>Execution paths</h3>
-            
+
     <div class="hybrid-insights__list">
-      
+
             <div class="hybrid-insights__list-row">
               <span>local</span>
               <strong>7</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>fallback</span>
               <strong>2</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>remote</span>
               <strong>1</strong>
             </div>
-          
+
     </div>
-  
+
           </div>
           <div class="hybrid-insights__panel">
             <h3>Providers requested</h3>
@@ -607,16 +635,16 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
           </div>
           <div class="hybrid-insights__panel">
             <h3>Top degraded reasons</h3>
-            
+
     <div class="hybrid-insights__list">
-      
+
             <div class="hybrid-insights__list-row">
               <span>ollama-timeout</span>
               <strong>1</strong>
             </div>
-          
+
     </div>
-  
+
           </div>
           <div class="hybrid-insights__panel">
             <h3>Top fallback reasons</h3>
@@ -628,7 +656,42 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
       <section class="hybrid-insights__section">
         <h2>Recent Runs</h2>
         <p class="hybrid-insights__section-intro">Start here when something looks wrong. Each entry keeps status, backend path, and validated summary visible before any raw excerpt.</p>
-        <p class="hybrid-insights__empty">No recent hybrid assist audit entries available yet.</p>
+
+    <div class="hybrid-insights__recent">
+
+            <details class="hybrid-insights__recent-item">
+              <summary>
+                <div class="hybrid-insights__recent-summary-row">
+                  <div class="hybrid-insights__recent-primary">
+                    <strong>commit-all</strong>
+                    <span class="hybrid-insights__status is-bad">degraded</span>
+                  </div>
+                  <div class="hybrid-insights__recent-secondary">
+                    <span>auto -> codex</span>
+                    <span title="Apr 4, 2026, 12:00 PM">Apr 4, 2026, 12:00 PM</span>
+                  </div>
+                </div>
+              </summary>
+              <div class="hybrid-insights__recent-body">
+                <p class="hybrid-insights__recent-summary">Fallback completed with review recommendation.</p>
+                <div class="hybrid-insights__meta-grid">
+                  <div class="hybrid-insights__meta-row"><span>Safety class</span><strong>review</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Seed ref</span><strong>task_110</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Execution path</span><strong>fallback</strong></div>
+                  <div class="hybrid-insights__meta-row"><span>Review</span><strong>recommended</strong></div>
+                </div>
+                <div class="hybrid-insights__chips"><span class="hybrid-insights__chip">ollama-timeout</span></div>
+                <details class="hybrid-insights__nested-details">
+                        <summary>Validated excerpt</summary>
+                        <pre class="hybrid-insights__code">{
+  &quot;summary&quot;: &quot;Fallback completed.&quot;
+}</pre>
+                      </details>
+              </div>
+            </details>
+
+    </div>
+
       </section>
 
       <section class="hybrid-insights__section">
@@ -645,34 +708,34 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
             <div class="hybrid-insights__columns">
               <div class="hybrid-insights__panel">
                 <h3>Estimated proxies</h3>
-                
+
     <div class="hybrid-insights__list">
-      
+
             <div class="hybrid-insights__list-row">
               <span>Remote dispatches avoided</span>
               <strong>0</strong>
             </div>
-          
+
             <div class="hybrid-insights__list-row">
               <span>Remote token avoidance</span>
               <strong>0</strong>
             </div>
-          
+
     </div>
-  
+
               </div>
               <div class="hybrid-insights__panel">
                 <h3>Assumptions</h3>
-                
+
     <div class="hybrid-insights__list">
-      
+
             <div class="hybrid-insights__list-row">
               <span>Remote tokens per local run</span>
               <strong>0</strong>
             </div>
-          
+
     </div>
-  
+
                 <p class="hybrid-insights__section-intro">No token avoidance note recorded.</p>
                 <p class="hybrid-insights__section-intro">No interpretation note recorded.</p>
               </div>
@@ -849,7 +912,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
           aria-label="Show recent activity"
           title="Show recent activity"
         >
-          
+
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
         d="M4 12h4l2.2-5 3.6 10 2.2-5H20"
@@ -860,7 +923,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
         stroke-linejoin="round"
       />
     </svg>
-  
+
         </button>
         <button
           class="btn btn--secondary btn--icon"
@@ -869,7 +932,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
           aria-label="Show blocked, orphaned, unprocessed, or inconsistent items"
           title="Show blocked, orphaned, unprocessed, or inconsistent items"
         >
-          
+
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
         d="M12 4l8 14H4z"
@@ -882,7 +945,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
       <path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       <circle cx="12" cy="17" r="1" fill="currentColor" />
     </svg>
-  
+
         </button>
         <button
           class="btn btn--icon"
@@ -890,14 +953,14 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
           aria-label="Switch display mode"
           title="Switch display mode"
         >
-          
+
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
       <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
       <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
       <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
     </svg>
-  
+
         </button>
       </div>
     </div>
@@ -1158,7 +1221,7 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
 <section class="markdown-preview__diagram"><pre class="mermaid">graph TD
   A --&gt; B</pre><div class="markdown-preview__mermaid-fallback" hidden>Mermaid preview unavailable. Raw diagram source shown below.</div></section></main>
   </div>
-  
+
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH">
     (() => {
       const fallbackNodes = Array.from(document.querySelectorAll(".markdown-preview__mermaid-fallback"));

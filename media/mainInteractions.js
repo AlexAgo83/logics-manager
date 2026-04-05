@@ -19,6 +19,7 @@
       checkEnvironmentButton,
       launchClaudeButton,
       openHybridInsightsButton,
+      openOnboardingButton,
       changeProjectRootButton,
       compactListQuery,
       createCompanionDocToolButton,
@@ -48,6 +49,7 @@
       onCheckHybridRuntime,
       onCheckEnvironment,
       onOpenHybridInsights,
+      onOpenOnboarding,
       onChangeProjectRoot,
       onAssistCommitAll,
       onAssistNextStep,
@@ -150,6 +152,9 @@
       }
       if (openHybridInsightsButton) {
         openHybridInsightsButton.addEventListener("click", () => onOpenHybridInsights());
+      }
+      if (openOnboardingButton) {
+        openOnboardingButton.addEventListener("click", () => onOpenOnboarding());
       }
       if (assistCommitAllButton) {
         assistCommitAllButton.addEventListener("click", () => onAssistCommitAll());

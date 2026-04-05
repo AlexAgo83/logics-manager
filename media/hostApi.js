@@ -124,6 +124,9 @@
       assistDocConsistency() {
         invokeHostOnly("assist-doc-consistency", {}, "Doc Consistency");
       },
+      openOnboarding() {
+        invokeHostOnly("open-onboarding", {}, "Getting Started");
+      },
       selectAgent() {
         invokeHostOnly("select-agent", {}, "Select Agent");
       },

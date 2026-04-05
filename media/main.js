@@ -42,6 +42,7 @@
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const checkHybridRuntimeButton = document.querySelector('[data-action="check-hybrid-runtime"]');
   const openHybridInsightsButton = document.querySelector('[data-action="open-hybrid-insights"]');
+  const openOnboardingButton = document.querySelector('[data-action="open-onboarding"]');
   const assistCommitAllButton = document.querySelector('[data-action="assist-commit-all"]');
   const assistNextStepButton = document.querySelector('[data-action="assist-next-step"]');
   const assistTriageButton = document.querySelector('[data-action="assist-triage"]');
@@ -1037,6 +1038,7 @@
         checkEnvironmentButton,
         launchClaudeButton,
         openHybridInsightsButton,
+        openOnboardingButton,
         changeProjectRootButton,
         assistCommitAllButton,
         assistNextStepButton,
@@ -1114,6 +1116,10 @@
         },
         onOpenHybridInsights() {
           hostApi.openHybridInsights();
+          setToolsPanelOpen(false);
+        },
+        onOpenOnboarding() {
+          hostApi.openOnboarding();
           setToolsPanelOpen(false);
         },
         onAssistCommitAll() {

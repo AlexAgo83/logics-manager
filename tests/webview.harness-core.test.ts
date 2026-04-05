@@ -233,6 +233,15 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "check-environment")).toBe(true);
   });
 
+  it("posts open-onboarding action in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const button = dom.window.document.querySelector('[data-action="open-onboarding"]');
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open-onboarding")).toBe(true);
+  });
+
   it("posts runtime launcher and repair actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 

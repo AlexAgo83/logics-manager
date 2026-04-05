@@ -50,6 +50,10 @@ export class LogicsCodexWorkflowController {
 
   constructor(private readonly options: CodexWorkflowControllerOptions) {}
 
+  isBootstrapInProgress(root: string): boolean {
+    return this.bootstrapInProgressRoots.has(path.resolve(root));
+  }
+
   private clearBootstrapPromptState(root: string): void {
     const normalized = path.resolve(root);
     this.bootstrapPromptedRoots.forEach((key) => {
@@ -68,19 +72,19 @@ export class LogicsCodexWorkflowController {
     });
   }
 
-  async maybeOfferBootstrap(root: string): Promise<void> {
+  async maybeOfferBootstrap(root: string): Promise<boolean> {
     const normalizedRoot = path.resolve(root);
     if (this.bootstrapInProgressRoots.has(normalizedRoot)) {
-      return;
+      return false;
     }
     const bootstrapState = inspectLogicsBootstrapState(root);
     if (bootstrapState.status === "canonical") {
-      return;
+      return false;
     }
 
     const promptKey = `${normalizedRoot}::${bootstrapState.status}`;
     if (this.bootstrapPromptedRoots.has(promptKey)) {
-      return;
+      return false;
     }
     this.bootstrapPromptedRoots.add(promptKey);
 
@@ -88,7 +92,7 @@ export class LogicsCodexWorkflowController {
       void vscode.window.showWarningMessage(
         `This repository already has a non-canonical or malformed logics/skills setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
       );
-      return;
+      return false;
     }
 
     const action = "Bootstrap Logics";
@@ -102,10 +106,11 @@ export class LogicsCodexWorkflowController {
       "Not now"
     );
     if (choice !== action) {
-      return;
+      return false;
     }
 
     await this.bootstrapLogics(root);
+    return true;
   }
 
   async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
@@ -261,159 +266,157 @@ export class LogicsCodexWorkflowController {
     this.bootstrapInProgressRoots.add(normalizedRoot);
     this.clearBootstrapPromptState(root);
     try {
-    const scriptPath = path.join(root, "logics", "skills", "logics.py");
-    const scriptArgs = ["bootstrap"];
-    const bootstrapState = inspectLogicsBootstrapState(root);
-    const beforeBootstrapStatus = await this.inspectGlobalCodexKitPublishability(root);
-    if (beforeBootstrapStatus.snapshot.git.available) {
-      const gitStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
-      if (!gitStatus.error) {
-        beforeBootstrapStatus.changedPaths = parseGitStatusEntries(gitStatus.stdout).map((entry) => entry.path);
+      const scriptPath = path.join(root, "logics", "skills", "logics.py");
+      const scriptArgs = ["bootstrap"];
+      const bootstrapState = inspectLogicsBootstrapState(root);
+      const beforeBootstrapStatus = await this.inspectGlobalCodexKitPublishability(root);
+      if (beforeBootstrapStatus.snapshot.git.available) {
+        const gitStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
+        if (!gitStatus.error) {
+          beforeBootstrapStatus.changedPaths = parseGitStatusEntries(gitStatus.stdout).map((entry) => entry.path);
+        }
       }
-    }
 
-    if (!beforeBootstrapStatus.snapshot.git.available) {
-      void vscode.window.showErrorMessage(
-        `Bootstrap Logics requires Git. ${buildMissingGitMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
-      );
-      return;
-    }
-
-    if (!beforeBootstrapStatus.snapshot.python.available) {
-      void vscode.window.showErrorMessage(
-        `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
-      );
-      return;
-    }
-
-    const result = await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: "Bootstrap Logics",
-        cancellable: false
-      },
-      async () => runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"])
-    );
-    const repoCheckDetail = `${result.stderr}\n${result.stdout}\n${result.error?.message || ""}`.trim();
-    if (result.error || result.stdout.trim() !== "true") {
-      if (isNotGitRepositoryDetail(repoCheckDetail) || result.stdout.trim() !== "true") {
-        const choice = await vscode.window.showInformationMessage(
-          "Bootstrap Logics requires a Git repository. This folder is not initialized yet. Run `git init` and continue bootstrap?",
-          "Initialize Git",
-          "Not now"
+      if (!beforeBootstrapStatus.snapshot.git.available) {
+        void vscode.window.showErrorMessage(
+          `Bootstrap Logics requires Git. ${buildMissingGitMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
         );
-        if (choice !== "Initialize Git") {
-          return;
-        }
-        const initResult = await vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: "Bootstrap Logics",
-            cancellable: false
-          },
-          async () => runGitWithOutput(root, ["init"])
-        );
-        if (initResult.error) {
-          void vscode.window.showErrorMessage(`Bootstrap Logics failed while initializing Git: ${initResult.stderr || initResult.error.message}`);
-          return;
-        }
-      } else {
-        void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error?.message || result.stdout}`);
-        return;
-      }
-    }
-
-    if (result.error && !isNotGitRepositoryDetail(repoCheckDetail)) {
-      void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error.message}`);
-      return;
-    }
-
-    if (!fs.existsSync(scriptPath)) {
-      const submoduleInspection = inspectLogicsKitSubmodule(root);
-      const bootstrapCommand =
-        submoduleInspection.exists && submoduleInspection.isCanonical
-          ? "git submodule update --init --recursive -- logics/skills"
-          : `git submodule add -b ${CANONICAL_LOGICS_KIT_BRANCH} ${CANONICAL_LOGICS_KIT_URL} ${LOGICS_SKILLS_SUBMODULE_PATH}`;
-      const gitArgs =
-        submoduleInspection.exists && submoduleInspection.isCanonical
-          ? ["submodule", "update", "--init", "--recursive", "--", LOGICS_SKILLS_SUBMODULE_PATH]
-          : ["submodule", "add", "-b", CANONICAL_LOGICS_KIT_BRANCH, CANONICAL_LOGICS_KIT_URL, LOGICS_SKILLS_SUBMODULE_PATH];
-
-      if (bootstrapState.status === "noncanonical") {
-        const choice = await vscode.window.showWarningMessage(
-          `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`,
-          "Copy Bootstrap Command"
-        );
-        if (choice === "Copy Bootstrap Command") {
-          await vscode.env.clipboard.writeText(bootstrapCommand);
-          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
-        }
         return;
       }
 
-      fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-      const installResult = await vscode.window.withProgress(
+      if (!beforeBootstrapStatus.snapshot.python.available) {
+        void vscode.window.showErrorMessage(
+          `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
+        );
+        return;
+      }
+
+      const result = await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: "Bootstrap Logics",
           cancellable: false
         },
-        async () => runGitWithOutput(root, gitArgs)
+        async () => runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"])
       );
-      if (installResult.error) {
-        const detail = `${installResult.stderr}\n${installResult.stdout}\n${installResult.error.message}`.trim();
-        const choice = await vscode.window.showErrorMessage(
-          `Bootstrap Logics failed while preparing the Logics kit. ${detail || installResult.error.message}`,
-          "Copy Bootstrap Command"
-        );
-        if (choice === "Copy Bootstrap Command") {
-          await vscode.env.clipboard.writeText(bootstrapCommand);
-          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+      const repoCheckDetail = `${result.stderr}\n${result.stdout}\n${result.error?.message || ""}`.trim();
+      if (result.error || result.stdout.trim() !== "true") {
+        if (isNotGitRepositoryDetail(repoCheckDetail) || result.stdout.trim() !== "true") {
+          const choice = await vscode.window.showInformationMessage(
+            "Bootstrap Logics requires a Git repository. This folder is not initialized yet. Run `git init` and continue bootstrap?",
+            "Initialize Git",
+            "Not now"
+          );
+          if (choice !== "Initialize Git") {
+            return;
+          }
+          const initResult = await vscode.window.withProgress(
+            {
+              location: vscode.ProgressLocation.Notification,
+              title: "Bootstrap Logics",
+              cancellable: false
+            },
+            async () => runGitWithOutput(root, ["init"])
+          );
+          if (initResult.error) {
+            void vscode.window.showErrorMessage(`Bootstrap Logics failed while initializing Git: ${initResult.stderr || initResult.error.message}`);
+            return;
+          }
+        } else {
+          void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error?.message || result.stdout}`);
+          return;
         }
+      }
+
+      if (result.error && !isNotGitRepositoryDetail(repoCheckDetail)) {
+        void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error.message}`);
         return;
       }
 
       if (!fs.existsSync(scriptPath)) {
-        const choice = await vscode.window.showErrorMessage(
-          `Bootstrap prepared logics/skills, but logics/skills/logics.py is still missing in: ${root}.`,
-          "Copy Bootstrap Command"
+        const submoduleInspection = inspectLogicsKitSubmodule(root);
+        const bootstrapCommand =
+          submoduleInspection.exists && submoduleInspection.isCanonical
+            ? "git submodule update --init --recursive -- logics/skills"
+            : `git submodule add -b ${CANONICAL_LOGICS_KIT_BRANCH} ${CANONICAL_LOGICS_KIT_URL} ${LOGICS_SKILLS_SUBMODULE_PATH}`;
+        const gitArgs =
+          submoduleInspection.exists && submoduleInspection.isCanonical
+            ? ["submodule", "update", "--init", "--recursive", "--", LOGICS_SKILLS_SUBMODULE_PATH]
+            : ["submodule", "add", "-b", CANONICAL_LOGICS_KIT_BRANCH, CANONICAL_LOGICS_KIT_URL, LOGICS_SKILLS_SUBMODULE_PATH];
+
+        if (bootstrapState.status === "noncanonical") {
+          const choice = await vscode.window.showWarningMessage(
+            `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`,
+            "Copy Bootstrap Command"
+          );
+          if (choice === "Copy Bootstrap Command") {
+            await vscode.env.clipboard.writeText(bootstrapCommand);
+            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+          }
+          return;
+        }
+
+        fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+        const installResult = await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: "Bootstrap Logics",
+            cancellable: false
+          },
+          async () => runGitWithOutput(root, gitArgs)
         );
-        if (choice === "Copy Bootstrap Command") {
-          await vscode.env.clipboard.writeText(bootstrapCommand);
-          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+        if (installResult.error) {
+          const detail = `${installResult.stderr}\n${installResult.stdout}\n${installResult.error.message}`.trim();
+          const choice = await vscode.window.showErrorMessage(
+            `Bootstrap Logics failed while preparing the Logics kit. ${detail || installResult.error.message}`,
+            "Copy Bootstrap Command"
+          );
+          if (choice === "Copy Bootstrap Command") {
+            await vscode.env.clipboard.writeText(bootstrapCommand);
+            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+          }
+          return;
+        }
+
+        if (!fs.existsSync(scriptPath)) {
+          const choice = await vscode.window.showErrorMessage(
+            `Bootstrap prepared logics/skills, but logics/skills/logics.py is still missing in: ${root}.`,
+            "Copy Bootstrap Command"
+          );
+          if (choice === "Copy Bootstrap Command") {
+            await vscode.env.clipboard.writeText(bootstrapCommand);
+            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+          }
+          return;
+        }
+      }
+
+      const bootstrapResult = await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Bootstrap Logics",
+          cancellable: false
+        },
+        async () => runPythonWithOutput(root, scriptPath, scriptArgs)
+      );
+
+      if (bootstrapResult.error) {
+        const detail = `${bootstrapResult.stderr}\n${bootstrapResult.stdout}\n${bootstrapResult.error.message}`.trim();
+        if (isMissingPythonFailureDetail(detail)) {
+          void vscode.window.showErrorMessage(
+            `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
+          );
+        } else {
+          void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${bootstrapResult.stderr || bootstrapResult.error.message}`);
         }
         return;
       }
-    }
 
-    const bootstrapResult = await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: "Bootstrap Logics",
-        cancellable: false
-      },
-      async () => {
-        return runPythonWithOutput(root, scriptPath, scriptArgs);
-      }
-    );
+      await this.options.refresh();
 
-    if (bootstrapResult.error) {
-      const detail = `${bootstrapResult.stderr}\n${bootstrapResult.stdout}\n${bootstrapResult.error.message}`.trim();
-      if (isMissingPythonFailureDetail(detail)) {
-        void vscode.window.showErrorMessage(
-          `Bootstrap Logics requires Python 3. ${buildMissingPythonMessage()} The extension can repair repository state but cannot install system tools automatically. Use \`Logics: Check Environment\` for details. Read-only Logics browsing remains available until bootstrap completes.`
-        );
-      } else {
-        void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${bootstrapResult.stderr || bootstrapResult.error.message}`);
-      }
-      return;
-    }
-
-    await this.options.refresh();
-
-    const globalKitOutcome = await this.attemptBootstrapGlobalKitConvergence(root);
-    await this.notifyBootstrapCompletion(root, globalKitOutcome);
-    await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus.changedPaths);
+      const globalKitOutcome = await this.attemptBootstrapGlobalKitConvergence(root);
+      await this.notifyBootstrapCompletion(root, globalKitOutcome);
+      await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus.changedPaths);
     } finally {
       this.bootstrapInProgressRoots.delete(normalizedRoot);
       this.clearBootstrapPromptState(root);

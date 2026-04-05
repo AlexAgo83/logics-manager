@@ -29,11 +29,35 @@ type CodexWorkflowControllerOptions = {
   refresh: () => Promise<void>;
 };
 
+const CANONICAL_LOGICS_KIT_URL = "https://github.com/AlexAgo83/cdx-logics-kit.git";
+const CANONICAL_LOGICS_KIT_BRANCH = "main";
+const LOGICS_SKILLS_SUBMODULE_PATH = "logics/skills";
+
+function isNotGitRepositoryDetail(detail: string): boolean {
+  const normalized = detail.toLowerCase();
+  return (
+    normalized.includes("not a git repository") ||
+    normalized.includes("not an empty git repository") ||
+    normalized.includes("must be run in a work tree") ||
+    normalized.includes("outside repository")
+  );
+}
+
 export class LogicsCodexWorkflowController {
   private readonly bootstrapPromptedRoots = new Set<string>();
   private readonly codexRemediationPromptedKeys = new Set<string>();
+  private readonly bootstrapInProgressRoots = new Set<string>();
 
   constructor(private readonly options: CodexWorkflowControllerOptions) {}
+
+  private clearBootstrapPromptState(root: string): void {
+    const normalized = path.resolve(root);
+    this.bootstrapPromptedRoots.forEach((key) => {
+      if (key === normalized || key.startsWith(`${normalized}::`)) {
+        this.bootstrapPromptedRoots.delete(key);
+      }
+    });
+  }
 
   clearCodexRemediationPromptState(root: string): void {
     const normalized = path.resolve(root);
@@ -45,12 +69,16 @@ export class LogicsCodexWorkflowController {
   }
 
   async maybeOfferBootstrap(root: string): Promise<void> {
+    const normalizedRoot = path.resolve(root);
+    if (this.bootstrapInProgressRoots.has(normalizedRoot)) {
+      return;
+    }
     const bootstrapState = inspectLogicsBootstrapState(root);
     if (bootstrapState.status === "canonical") {
       return;
     }
 
-    const promptKey = `${root}::${bootstrapState.status}`;
+    const promptKey = `${normalizedRoot}::${bootstrapState.status}`;
     if (this.bootstrapPromptedRoots.has(promptKey)) {
       return;
     }
@@ -229,26 +257,19 @@ export class LogicsCodexWorkflowController {
   }
 
   async bootstrapLogics(root: string): Promise<void> {
+    const normalizedRoot = path.resolve(root);
+    this.bootstrapInProgressRoots.add(normalizedRoot);
+    this.clearBootstrapPromptState(root);
+    try {
     const scriptPath = path.join(root, "logics", "skills", "logics.py");
     const scriptArgs = ["bootstrap"];
+    const bootstrapState = inspectLogicsBootstrapState(root);
     const beforeBootstrapStatus = await this.inspectGlobalCodexKitPublishability(root);
     if (beforeBootstrapStatus.snapshot.git.available) {
       const gitStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
       if (!gitStatus.error) {
         beforeBootstrapStatus.changedPaths = parseGitStatusEntries(gitStatus.stdout).map((entry) => entry.path);
       }
-    }
-
-    if (!fs.existsSync(scriptPath)) {
-      const choice = await vscode.window.showInformationMessage(
-        `Bootstrap script not found at logics/skills/logics.py. Ensure the Logics kit submodule is initialized in: ${root}.`,
-        "Copy Bootstrap Command"
-      );
-      if (choice === "Copy Bootstrap Command") {
-        await vscode.env.clipboard.writeText("git submodule update --init --recursive -- logics/skills");
-        void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
-      }
-      return;
     }
 
     if (!beforeBootstrapStatus.snapshot.git.available) {
@@ -273,9 +294,96 @@ export class LogicsCodexWorkflowController {
       },
       async () => runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"])
     );
-    if (result.error) {
+    const repoCheckDetail = `${result.stderr}\n${result.stdout}\n${result.error?.message || ""}`.trim();
+    if (result.error || result.stdout.trim() !== "true") {
+      if (isNotGitRepositoryDetail(repoCheckDetail) || result.stdout.trim() !== "true") {
+        const choice = await vscode.window.showInformationMessage(
+          "Bootstrap Logics requires a Git repository. This folder is not initialized yet. Run `git init` and continue bootstrap?",
+          "Initialize Git",
+          "Not now"
+        );
+        if (choice !== "Initialize Git") {
+          return;
+        }
+        const initResult = await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: "Bootstrap Logics",
+            cancellable: false
+          },
+          async () => runGitWithOutput(root, ["init"])
+        );
+        if (initResult.error) {
+          void vscode.window.showErrorMessage(`Bootstrap Logics failed while initializing Git: ${initResult.stderr || initResult.error.message}`);
+          return;
+        }
+      } else {
+        void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error?.message || result.stdout}`);
+        return;
+      }
+    }
+
+    if (result.error && !isNotGitRepositoryDetail(repoCheckDetail)) {
       void vscode.window.showErrorMessage(`Bootstrap Logics failed: ${result.stderr || result.error.message}`);
       return;
+    }
+
+    if (!fs.existsSync(scriptPath)) {
+      const submoduleInspection = inspectLogicsKitSubmodule(root);
+      const bootstrapCommand =
+        submoduleInspection.exists && submoduleInspection.isCanonical
+          ? "git submodule update --init --recursive -- logics/skills"
+          : `git submodule add -b ${CANONICAL_LOGICS_KIT_BRANCH} ${CANONICAL_LOGICS_KIT_URL} ${LOGICS_SKILLS_SUBMODULE_PATH}`;
+      const gitArgs =
+        submoduleInspection.exists && submoduleInspection.isCanonical
+          ? ["submodule", "update", "--init", "--recursive", "--", LOGICS_SKILLS_SUBMODULE_PATH]
+          : ["submodule", "add", "-b", CANONICAL_LOGICS_KIT_BRANCH, CANONICAL_LOGICS_KIT_URL, LOGICS_SKILLS_SUBMODULE_PATH];
+
+      if (bootstrapState.status === "noncanonical") {
+        const choice = await vscode.window.showWarningMessage(
+          `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`,
+          "Copy Bootstrap Command"
+        );
+        if (choice === "Copy Bootstrap Command") {
+          await vscode.env.clipboard.writeText(bootstrapCommand);
+          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+        }
+        return;
+      }
+
+      fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+      const installResult = await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Bootstrap Logics",
+          cancellable: false
+        },
+        async () => runGitWithOutput(root, gitArgs)
+      );
+      if (installResult.error) {
+        const detail = `${installResult.stderr}\n${installResult.stdout}\n${installResult.error.message}`.trim();
+        const choice = await vscode.window.showErrorMessage(
+          `Bootstrap Logics failed while preparing the Logics kit. ${detail || installResult.error.message}`,
+          "Copy Bootstrap Command"
+        );
+        if (choice === "Copy Bootstrap Command") {
+          await vscode.env.clipboard.writeText(bootstrapCommand);
+          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+        }
+        return;
+      }
+
+      if (!fs.existsSync(scriptPath)) {
+        const choice = await vscode.window.showErrorMessage(
+          `Bootstrap prepared logics/skills, but logics/skills/logics.py is still missing in: ${root}.`,
+          "Copy Bootstrap Command"
+        );
+        if (choice === "Copy Bootstrap Command") {
+          await vscode.env.clipboard.writeText(bootstrapCommand);
+          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
+        }
+        return;
+      }
     }
 
     const bootstrapResult = await vscode.window.withProgress(
@@ -306,6 +414,10 @@ export class LogicsCodexWorkflowController {
     const globalKitOutcome = await this.attemptBootstrapGlobalKitConvergence(root);
     await this.notifyBootstrapCompletion(root, globalKitOutcome);
     await this.maybeOfferBootstrapCommit(root, beforeBootstrapStatus.changedPaths);
+    } finally {
+      this.bootstrapInProgressRoots.delete(normalizedRoot);
+      this.clearBootstrapPromptState(root);
+    }
   }
 
   async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {

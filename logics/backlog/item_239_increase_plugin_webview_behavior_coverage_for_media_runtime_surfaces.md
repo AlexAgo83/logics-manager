@@ -68,9 +68,9 @@ flowchart LR
 - Product framing: Consider
 - Product signals: conversion journey
 - Product follow-up: Review whether a product brief is needed before scope becomes harder to change.
-- Architecture framing: Required
-- Architecture signals: data model and persistence, contracts and integration, runtime and boundaries, security and identity
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture framing: Not required
+- Architecture signals: none
+- Architecture follow-up: none
 
 # Links
 - Product brief(s): (none yet)

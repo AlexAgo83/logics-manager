@@ -723,7 +723,7 @@ describe("LogicsViewProvider", () => {
       return { stdout: "", stderr: "" };
     });
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
-    mocks.shouldPublishRepoKit.mockReturnValue(true);
+    mocks.shouldPublishRepoKit.mockReturnValueOnce(true).mockReturnValue(false);
     (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
 
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
@@ -835,6 +835,105 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       "Logics bootstrapped. Repo-local kit and the global Codex kit are ready. Global Codex kit publication completed during bootstrap. Refreshing."
     );
+  });
+
+  it("re-publishes the global Codex kit when the current repo is newer than a warning-state publication", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    mocks.shouldPublishRepoKit.mockReturnValueOnce(true).mockReturnValue(false);
+    (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
+    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    vi.mocked(inspectLogicsEnvironment)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Global kit older than repo-local source." }
+        },
+        codexOverlay: {
+          status: "warning",
+          summary: "Global Codex Logics kit is usable, but a newer or different repo-local source is available.",
+          issues: [],
+          warnings: ["Repo-local kit version 1.9.1 is newer than the published global version 1.9.0."],
+          runCommand: "codex",
+          installedVersion: "1.9.0",
+          sourceRepo: "/Users/alexandreagostini/Documents/emberwake"
+        }
+      } as never)
+      .mockResolvedValueOnce({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Global kit ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex",
+          installedVersion: "1.9.1",
+          sourceRepo: root
+        }
+      } as never)
+      .mockResolvedValue({
+        root,
+        repositoryState: "ready",
+        hasLogicsDir: true,
+        hasSkillsDir: true,
+        hasFlowManagerScript: true,
+        hasBootstrapScript: true,
+        missingWorkflowDirs: [],
+        git: { available: true },
+        python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
+        capabilities: {
+          readOnly: { status: "available", summary: "ok" },
+          workflowMutation: { status: "available", summary: "ok" },
+          bootstrapRepair: { status: "available", summary: "ok" },
+          diagnostics: { status: "available", summary: "ok" },
+          codexRuntime: { status: "available", summary: "Global kit ready." }
+        },
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex",
+          installedVersion: "1.9.1",
+          sourceRepo: root
+        }
+      } as never);
+
+    await (provider as any).codexWorkflowController.ensureGlobalCodexKit(root);
+
+    expect(mocks.publishCodexWorkspaceOverlay).toHaveBeenCalledWith(root);
   });
 
   it("skips startup auto-publish and remediation while bootstrap is already running", async () => {

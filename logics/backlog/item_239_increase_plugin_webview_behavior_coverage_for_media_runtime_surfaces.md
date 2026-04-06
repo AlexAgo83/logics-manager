@@ -1,10 +1,10 @@
 ## item_239_increase_plugin_webview_behavior_coverage_for_media_runtime_surfaces - Increase plugin webview behavior coverage for media runtime surfaces
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: In Progress
-> Understanding: 96%
-> Confidence: 91%
-> Progress: 70%
+> Status: Done
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

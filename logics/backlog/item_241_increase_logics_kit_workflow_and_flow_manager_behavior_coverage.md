@@ -1,10 +1,10 @@
 ## item_241_increase_logics_kit_workflow_and_flow_manager_behavior_coverage - Increase Logics kit workflow and flow-manager behavior coverage
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: In Progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 93%
-> Progress: 75%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

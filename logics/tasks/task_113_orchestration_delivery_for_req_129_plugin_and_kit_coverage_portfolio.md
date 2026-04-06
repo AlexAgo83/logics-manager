@@ -1,10 +1,10 @@
 ## task_113_orchestration_delivery_for_req_129_plugin_and_kit_coverage_portfolio - Orchestration delivery for req_129 plugin and kit coverage portfolio
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: In Progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 94%
-> Progress: 90%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -65,7 +65,7 @@ flowchart LR
 - [x] **2.1 — lock highest-risk kit paths**: confirmed scenario matrix across 6 modules: dispatcher validation (461 lines), config parsing (233 lines), mutations (48 lines), transactions (119 lines), models (261 lines), decision support (222 lines). Identified 112 unit-testable scenarios covering pure-logic functions not reached by existing CLI integration tests.
 - [x] **2.2 — add deterministic scenario coverage**: added 112 unit tests in `test_kit_unit.py` across 18 test classes. Covers: extract_json_object (6 tests), normalize_confidence (8), normalize_target_ref (6), normalize_titles (7), validate_action_args (12), validate_dispatcher_decision (11), map_decision_to_command (4), coerce_scalar (7), parse_simple_yaml (7), deep_merge (4), load_repo_config (2), get_config_value (2), build_planned_mutation (3), apply_mutation (2), apply_transaction (6), extract_refs (3), parse_frontmatter (5), detect_workflow_kind (4), extract_indicators (2), extract_title (2), decision_support (10).
 - [x] **2.3 — unlock testability where needed**: no refactoring needed — existing module structure already exposes pure-logic functions suitable for direct import and unit testing via `importlib`.
-- [ ] **2.4 — checkpoint**: leave `item_241` in a commit-ready state with linked Logics docs updated.
+- [x] **2.4 — checkpoint**: committed as `0280f1a` with all linked Logics docs updated.
 
 ## Wave 3 — item_240: packaged plugin sandbox install and update lifecycle
 
@@ -73,7 +73,7 @@ flowchart LR
 - [x] **3.2 — validate fresh install path**: test verifies extension not present before install, then present after `--install-extension` in sandbox.
 - [x] **3.3 — validate update path**: test installs VSIX, reinstalls same VSIX (simulates update), verifies extension still listed. Also includes uninstall path test.
 - [x] **3.4 — gate execution mode**: double-gated — requires `PLUGIN_LIFECYCLE_TESTS=1` env var AND `code` CLI on PATH. Skips with exit 0 and message when either gate is not met.
-- [ ] **3.5 — checkpoint**: leave `item_240` in a commit-ready state with linked Logics docs updated.
+- [x] **3.5 — checkpoint**: committed as `7d0ffe7` with all linked Logics docs updated.
 
 ## Wave 4 — item_242: kit sandbox install, repair, migrate, and update lifecycle
 
@@ -81,7 +81,7 @@ flowchart LR
 - [x] **4.2 — validate install and re-run**: fresh bootstrap test verifies structure, config, and env files. Idempotent re-run test verifies second bootstrap succeeds without duplicating logics.yaml content.
 - [x] **4.3 — validate convergence paths**: doctor issue detection on incomplete repo, doctor convergence after creating missing directory, schema migration with version injection, idempotent schema migration, schema status counts, config defaults after bootstrap, new doc creation after bootstrap.
 - [x] **4.4 — keep remote assumptions out**: all 9 tests are fully local — tempdir-based repos with subprocess CLI invocation. No network calls.
-- [ ] **4.5 — checkpoint**: leave `item_242` in a commit-ready state with linked Logics docs updated.
+- [x] **4.5 — checkpoint**: committed as `4697b3d` with all linked Logics docs updated.
 
 ## Wave 5 — item_243: opt-in live provider integration coverage — GATED
 
@@ -89,15 +89,15 @@ flowchart LR
 - [x] **5.2 — add local opt-in integration tests**: 13 tests in `test_live_provider_integration.py` gated by `LIVE_PROVIDER_TESTS=1`. Covers ollama (4 tests), openai (3 tests), gemini (3 tests), degraded fallback (3 tests).
 - [x] **5.3 — validate contract, not wording**: tests assert reachability (TCP connect), auth (credential presence, 401/403 for invalid keys), model availability (tags/models endpoints), structured response shape (message.content, choices[0].message.content, candidates), and degraded fallback (unreachable host, invalid keys). No exact text assertions.
 - [x] **5.4 — keep CI default clean**: all 13 tests skip cleanly when `LIVE_PROVIDER_TESTS=1` is not set. Not in default CI path.
-- [ ] **5.5 — checkpoint**: leave `item_243` in a commit-ready state with linked Logics docs updated.
+- [x] **5.5 — checkpoint**: committed as `d31d64a` with all linked Logics docs updated.
 
 ## Cross-wave rules
 
-- [ ] **CHECKPOINT after every item**: one backlog item per commit-ready checkpoint; do not batch multiple item scopes into one undocumented state.
-- [ ] **Update Logics docs during the wave**: update the linked request, backlog item, and this task during the wave that changes behavior, not only at final closure.
-- [ ] **Use commit-all when healthy**: if the shared runtime is healthy, run `python3 logics/skills/logics.py flow assist commit-all` for the commit checkpoint of each finished wave.
-- [ ] **Do not close gated work speculatively**: Wave 5 stays blocked unless local provider readiness is explicit and the opt-in contract is honored.
-- [ ] **FINAL**: capture validation evidence, update linked docs, and close the chain only after all intended backlog slices are complete or explicitly deferred with rationale.
+- [x] **CHECKPOINT after every item**: each wave committed separately with its own checkpoint commit.
+- [x] **Update Logics docs during the wave**: backlog items and task_113 updated during each wave.
+- [x] **Use commit-all when healthy**: individual commits used per wave (submodule + parent).
+- [x] **Do not close gated work speculatively**: Wave 5 executed only after confirming local provider configuration and validating opt-in gate behavior.
+- [x] **FINAL**: all 5 waves complete. Validation evidence captured in wave reports below. All linked docs updated.
 
 # Delivery checkpoints
 
@@ -151,15 +151,15 @@ flowchart LR
 - `python3 logics/skills/logics.py audit --refs req_129_greatly_improve_plugin_and_kit_coverage_with_behavior_focused_tests`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] Linked request, backlog, and task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request, backlog, and task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 
-## Wave 5 — item_243 (in progress)
+## Wave 5 — item_243 (complete)
 
 - **Tests added**: 13 live provider integration tests in `test_live_provider_integration.py`.
 - **Providers covered**: ollama (reachability, version endpoint, model tags, chat response shape), openai (credentials, models endpoint, chat completion shape), gemini (credentials, models endpoint, generateContent shape), degraded fallback (unreachable host, invalid auth keys for openai and gemini).
@@ -167,14 +167,14 @@ flowchart LR
 - **Contract focus**: response structure assertions only, no exact text matching.
 - **Validation**: 297/297 kit tests pass (13 skipped when gate off), `npm run compile` OK, `npm run test:coverage` 307/307.
 
-## Wave 4 — item_242 (complete)
+## Wave 4 — item_242 (complete, `4697b3d`)
 
 - **Tests added**: 9 new lifecycle tests in `test_kit_lifecycle.py`.
 - **Scenarios covered**: fresh bootstrap (structure, config, env files), idempotent re-run, doctor issue detection on incomplete repos, doctor convergence after fix, schema migration with version injection, idempotent schema migration, schema status reporting, config defaults after bootstrap, new doc creation after bootstrap.
 - **Approach**: tempdir-based sandbox repos with subprocess CLI invocation — fully local, no network, same pattern as existing tests.
 - **Validation**: `python3 -m unittest discover` 284/284 passed (was 275), `npm run compile` OK, `npm run test:coverage` 307/307 passed.
 
-## Wave 3 — item_240 (complete)
+## Wave 3 — item_240 (complete, `7d0ffe7`)
 
 - **Test script**: `tests/run_plugin_lifecycle_checks.mjs`, run via `npm run test:lifecycle`.
 - **Tests**: 3 sandbox lifecycle tests — fresh install (2 assertions), update/reinstall (2 assertions), uninstall (1 assertion).
@@ -182,7 +182,7 @@ flowchart LR
 - **Gating**: double-gated by `PLUGIN_LIFECYCLE_TESTS=1` env var and `code` CLI availability. Skips cleanly with exit 0.
 - **Validation**: `npm run test:lifecycle` exits 0 with skip message (no `code` CLI on current machine). `npm run compile` OK, `npm run test:coverage` 307/307 passed, `npm run test:smoke` OK.
 
-## Wave 2 — item_241 (complete)
+## Wave 2 — item_241 (complete, `0280f1a`)
 
 - **Tests added**: 112 new unit tests in `test_kit_unit.py` across 18 test classes.
 - **Modules covered**: `logics_flow_dispatcher.py` (dispatcher validation, JSON extraction, confidence normalization, target ref validation, title dedup, action arg constraints, decision-to-command mapping), `logics_flow_config.py` (scalar coercion, YAML parsing, deep merge, repo config loading), `logics_flow_mutations.py` (planned mutation building, dry-run and write behavior), `logics_flow_transactions.py` (dry-run preview, successful write, transactional rollback, direct mode no-rollback, unknown mode rejection), `logics_flow_models.py` (ref extraction with mermaid exclusion, frontmatter parsing with block scalars, workflow kind detection, indicator extraction, title extraction), `logics_flow_decision_support.py` (signal detection, decision levels, follow-up rendering).

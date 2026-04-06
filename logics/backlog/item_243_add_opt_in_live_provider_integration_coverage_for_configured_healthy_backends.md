@@ -1,10 +1,10 @@
 ## item_243_add_opt_in_live_provider_integration_coverage_for_configured_healthy_backends - Add opt-in live provider integration coverage for configured healthy backends
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: In Progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 93%
-> Progress: 80%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

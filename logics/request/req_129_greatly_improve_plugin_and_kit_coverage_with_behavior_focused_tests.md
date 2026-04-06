@@ -1,7 +1,7 @@
 ## req_129_greatly_improve_plugin_and_kit_coverage_with_behavior_focused_tests - Greatly improve plugin and kit coverage with behavior-focused tests
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 91%
 > Complexity: High

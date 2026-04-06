@@ -2,6 +2,12 @@ import * as fs from "fs";
 import * as path from "path";
 import { JSDOM } from "jsdom";
 
+function loadMediaScript(dom: JSDOM, relPath: string) {
+  const absPath = path.resolve(process.cwd(), relPath);
+  const source = fs.readFileSync(absPath, "utf8");
+  dom.window.eval(`${source}\n//# sourceURL=${absPath}\n`);
+}
+
 export type BootstrapOptions = {
   stacked?: boolean;
   narrow?: boolean;
@@ -284,34 +290,25 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
     })
   });
 
-  const modelScript = fs.readFileSync(path.resolve(process.cwd(), "media/logicsModel.js"), "utf8");
-  const uiStatusScript = fs.readFileSync(path.resolve(process.cwd(), "media/uiStatus.js"), "utf8");
-  const harnessApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/harnessApi.js"), "utf8");
-  const layoutControllerScript = fs.readFileSync(path.resolve(process.cwd(), "media/layoutController.js"), "utf8");
-  const hostApiScript = fs.readFileSync(path.resolve(process.cwd(), "media/hostApi.js"), "utf8");
-  const toolsPanelLayoutScript = fs.readFileSync(path.resolve(process.cwd(), "media/toolsPanelLayout.js"), "utf8");
-  const webviewSelectorsScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewSelectors.js"), "utf8");
-  const webviewPersistenceScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewPersistence.js"), "utf8");
-  const webviewChromeScript = fs.readFileSync(path.resolve(process.cwd(), "media/webviewChrome.js"), "utf8");
-  const renderBoardScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderBoard.js"), "utf8");
-  const renderDetailsScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderDetails.js"), "utf8");
-  const renderMarkdownScript = fs.readFileSync(path.resolve(process.cwd(), "media/renderMarkdown.js"), "utf8");
-  const mainInteractionsScript = fs.readFileSync(path.resolve(process.cwd(), "media/mainInteractions.js"), "utf8");
-  const mainScript = fs.readFileSync(path.resolve(process.cwd(), "media/main.js"), "utf8");
-  dom.window.eval(modelScript);
-  dom.window.eval(uiStatusScript);
-  dom.window.eval(harnessApiScript);
-  dom.window.eval(layoutControllerScript);
-  dom.window.eval(hostApiScript);
-  dom.window.eval(toolsPanelLayoutScript);
-  dom.window.eval(webviewSelectorsScript);
-  dom.window.eval(webviewPersistenceScript);
-  dom.window.eval(webviewChromeScript);
-  dom.window.eval(renderBoardScript);
-  dom.window.eval(renderDetailsScript);
-  dom.window.eval(renderMarkdownScript);
-  dom.window.eval(mainInteractionsScript);
-  dom.window.eval(mainScript);
+  const mediaFiles = [
+    "media/logicsModel.js",
+    "media/uiStatus.js",
+    "media/harnessApi.js",
+    "media/layoutController.js",
+    "media/hostApi.js",
+    "media/toolsPanelLayout.js",
+    "media/webviewSelectors.js",
+    "media/webviewPersistence.js",
+    "media/webviewChrome.js",
+    "media/renderBoard.js",
+    "media/renderDetails.js",
+    "media/renderMarkdown.js",
+    "media/mainInteractions.js",
+    "media/main.js"
+  ];
+  for (const relPath of mediaFiles) {
+    loadMediaScript(dom, relPath);
+  }
 
   const emitMediaChange = (query: string) => {
     (listeners.get(query) || []).forEach((callback) => callback({ matches: getMatches(query) }));

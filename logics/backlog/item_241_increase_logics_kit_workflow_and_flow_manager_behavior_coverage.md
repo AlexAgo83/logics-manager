@@ -1,10 +1,10 @@
 ## item_241_increase_logics_kit_workflow_and_flow_manager_behavior_coverage - Increase Logics kit workflow and flow-manager behavior coverage
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 91%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 75%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -53,9 +53,9 @@ flowchart LR
 - AC1 -> Scope: The request clearly separates plugin coverage and Logics kit coverage as two related but distinct workstreams, with explicit scope for each so backlog grooming can split them into bounded delivery slices.. Proof: capture validation evidence in this doc.
 - AC2 -> Scope: Plugin coverage work is framed around behavior-focused validation of the webview runtime, not just HTML snapshots or package smoke checks. The request explicitly targets critical browser-side flows such as initial render and hydration, board and detail rendering, filtering and selection behavior, layout state, and persistence and restore behavior across the `media/*.js` runtime.. Proof: capture validation evidence in this doc.
 - AC3 -> Scope: Plugin coverage governance is part of scope. The request requires coverage reporting and CI strategy that make plugin core coverage and plugin webview coverage separately visible and ratchetable, so improvement is measurable without masking major gaps in either surface.. Proof: capture validation evidence in this doc.
-- AC4 -> Scope: Logics kit coverage work is framed around scenario-driven tests for the highest-risk workflow paths, especially the flow manager CLI, workflow mutations, hybrid provider transport, dispatcher validation, and release-oriented guarded actions. The request explicitly avoids treating low-risk utility files as the main coverage target.. Proof: capture validation evidence in this doc.
-- AC5 -> Scope: The request requires a strategy to make the lowest-covered kit modules more testable, including extraction or isolation of pure decision logic where current command handlers are too monolithic to validate efficiently. The goal is not refactoring for its own sake; the goal is to unlock durable coverage on business-critical paths.. Proof: capture validation evidence in this doc.
-- AC6 -> Scope: The request defines coverage quality as both metric improvement and regression resistance. Success is not only a higher percentage, but also new tests that would fail on realistic regressions in plugin webview behavior or kit workflow logic.. Proof: capture validation evidence in this doc.
+- AC4 -> Scope: Logics kit coverage work is framed around scenario-driven tests for the highest-risk workflow paths, especially the flow manager CLI, workflow mutations, hybrid provider transport, dispatcher validation, and release-oriented guarded actions. The request explicitly avoids treating low-risk utility files as the main coverage target.. Proof: 112 new unit tests in `test_kit_unit.py` covering dispatcher validation (extract_json, normalize_confidence, target_ref, titles, action_args, validate_decision, map_decision_to_command), config parsing (coerce_scalar, parse_simple_yaml, deep_merge, load_repo_config, get_config_value), mutations (build_planned_mutation, apply_mutation), transactions (dry_run, successful write, rollback, direct mode, unknown mode), models (extract_refs with mermaid exclusion, parse_frontmatter with block scalars, detect_workflow_kind, extract_indicators, extract_title), and decision support (signal detection, decision levels, follow-up rendering). Total kit tests: 275 (was 163).
+- AC5 -> Scope: The request requires a strategy to make the lowest-covered kit modules more testable, including extraction or isolation of pure decision logic where current command handlers are too monolithic to validate efficiently. The goal is not refactoring for its own sake; the goal is to unlock durable coverage on business-critical paths.. Proof: Pure-logic functions in dispatcher, config, mutations, transactions, models, and decision support modules are now directly unit-tested without requiring CLI subprocess invocation. No refactoring was needed; the existing module structure already exposed testable functions.
+- AC6 -> Scope: The request defines coverage quality as both metric improvement and regression resistance. Success is not only a higher percentage, but also new tests that would fail on realistic regressions in plugin webview behavior or kit workflow logic.. Proof: Tests cover realistic regression scenarios: malformed JSON from model output, out-of-range confidence, missing required fields, invalid action types, transactional rollback on failure, mermaid block exclusion from ref extraction, frontmatter parsing edge cases, and decision signal detection accuracy.
 - AC7 -> Scope: The request includes CI and validation expectations for both ecosystems:. Proof: capture validation evidence in this doc.
 - AC8 -> Scope: plugin validation should continue to use the Node and VS Code extension checks already present in the repository;. Proof: capture validation evidence in this doc.
 - AC9 -> Scope: kit validation should continue to use the Python coverage and CLI smoke flows already present in the repository;. Proof: capture validation evidence in this doc.

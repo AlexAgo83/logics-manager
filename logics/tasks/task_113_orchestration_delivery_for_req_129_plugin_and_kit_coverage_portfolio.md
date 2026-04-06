@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 20%
+> Progress: 40%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -58,13 +58,13 @@ flowchart LR
 - [x] **1.1 — lock runtime targets**: confirmed first-pass browser runtime targets across all 14 `media/*.js` files. Existing harness already loaded them; refactored loading to use a shared `loadMediaScript` helper with `//# sourceURL` annotations.
 - [x] **1.2 — expand behavior suites**: added 72 behavior-focused tests across 5 new test files: `webview.persistence.test.ts` (8 tests), `webview.selectors.test.ts` (14 tests), `webview.chrome.test.ts` (18 tests), `webview.board-renderer.test.ts` (16 tests), `webview.hydration.test.ts` (16 tests). Covers hydration, board and detail rendering, filters and selection behavior, layout state, persistence and restore, keyboard navigation, card previews, toolbar controls, empty states, and data message handling.
 - [x] **1.3 — protect reporting intent**: tests validate user-visible behavior and regression resistance (AC6). Known gap: V8 coverage provider cannot instrument eval'd JSDOM code, so the media coverage metric stays at 0% despite behavioral coverage. Fixing this requires a vitest coverage plugin or switching media files to an importable module format — tracked as a separate infrastructure concern.
-- [ ] **1.4 — checkpoint**: leave `item_239` in a commit-ready state with linked Logics docs updated.
+- [x] **1.4 — checkpoint**: committed as `b7e45a1` with all linked Logics docs updated.
 
 ## Wave 2 — item_241: kit workflow and flow-manager behavior coverage
 
-- [ ] **2.1 — lock highest-risk kit paths**: confirm the first-pass scenario matrix around `logics_flow.py`, dispatcher validation, hybrid transport, and guarded release-oriented behavior.
-- [ ] **2.2 — add deterministic scenario coverage**: extend kit tests for the highest-risk workflow paths before touching sandbox lifecycle coverage.
-- [ ] **2.3 — unlock testability where needed**: extract or isolate narrowly scoped pure logic only where the current command structure blocks durable tests.
+- [x] **2.1 — lock highest-risk kit paths**: confirmed scenario matrix across 6 modules: dispatcher validation (461 lines), config parsing (233 lines), mutations (48 lines), transactions (119 lines), models (261 lines), decision support (222 lines). Identified 112 unit-testable scenarios covering pure-logic functions not reached by existing CLI integration tests.
+- [x] **2.2 — add deterministic scenario coverage**: added 112 unit tests in `test_kit_unit.py` across 18 test classes. Covers: extract_json_object (6 tests), normalize_confidence (8), normalize_target_ref (6), normalize_titles (7), validate_action_args (12), validate_dispatcher_decision (11), map_decision_to_command (4), coerce_scalar (7), parse_simple_yaml (7), deep_merge (4), load_repo_config (2), get_config_value (2), build_planned_mutation (3), apply_mutation (2), apply_transaction (6), extract_refs (3), parse_frontmatter (5), detect_workflow_kind (4), extract_indicators (2), extract_title (2), decision_support (10).
+- [x] **2.3 — unlock testability where needed**: no refactoring needed — existing module structure already exposes pure-logic functions suitable for direct import and unit testing via `importlib`.
 - [ ] **2.4 — checkpoint**: leave `item_241` in a commit-ready state with linked Logics docs updated.
 
 ## Wave 3 — item_240: packaged plugin sandbox install and update lifecycle
@@ -159,7 +159,14 @@ flowchart LR
 
 # Report
 
-## Wave 1 — item_239 (in progress)
+## Wave 2 — item_241 (in progress)
+
+- **Tests added**: 112 new unit tests in `test_kit_unit.py` across 18 test classes.
+- **Modules covered**: `logics_flow_dispatcher.py` (dispatcher validation, JSON extraction, confidence normalization, target ref validation, title dedup, action arg constraints, decision-to-command mapping), `logics_flow_config.py` (scalar coercion, YAML parsing, deep merge, repo config loading), `logics_flow_mutations.py` (planned mutation building, dry-run and write behavior), `logics_flow_transactions.py` (dry-run preview, successful write, transactional rollback, direct mode no-rollback, unknown mode rejection), `logics_flow_models.py` (ref extraction with mermaid exclusion, frontmatter parsing with block scalars, workflow kind detection, indicator extraction, title extraction), `logics_flow_decision_support.py` (signal detection, decision levels, follow-up rendering).
+- **Validation**: `python3 -m unittest discover` 275/275 passed (was 163), `npm run compile` OK, `npm run test:coverage` 307/307 passed.
+- **Approach**: direct `importlib` import of module functions (same pattern as existing `test_logics_flow.py`). No production code refactoring needed.
+
+## Wave 1 — item_239 (complete)
 
 - **Tests added**: 72 new behavior-focused tests across 5 files.
 - **Test files**: `webview.persistence.test.ts`, `webview.selectors.test.ts`, `webview.chrome.test.ts`, `webview.board-renderer.test.ts`, `webview.hydration.test.ts`.

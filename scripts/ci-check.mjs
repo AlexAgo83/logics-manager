@@ -28,9 +28,9 @@ const steps = [
     args: [...pythonInvocation.argsPrefix, "logics/skills/logics-flow-manager/scripts/workflow_audit.py", "--format", "json"]
   },
   {
-    label: "Logics kit Python tests",
+    label: "Logics kit Python coverage",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "-m", "unittest", "discover", "-s", "logics/skills/tests", "-p", "test_*.py", "-v"]
+    args: [...pythonInvocation.argsPrefix, "logics/skills/tests/run_test_coverage.py"]
   },
   {
     label: "Logics kit CLI smoke checks",
@@ -39,7 +39,7 @@ const steps = [
   },
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },
-  { label: "Unit tests", command: npmCommand(), args: ["run", "test"] },
+  { label: "Unit tests + coverage", command: npmCommand(), args: ["run", "test:coverage"] },
   { label: "Extension smoke checks", command: npmCommand(), args: ["run", "test:smoke"] },
   { label: "Logics docs lint", command: npmCommand(), args: ["run", "lint:logics"] },
   { label: "VSIX package validation", command: npmCommand(), args: ["run", "package:ci"] }

@@ -7,6 +7,9 @@
 **/.pytest_cache/**
 **/__pycache__/**
 **/.claude/**
+coverage/**
+.coverage
+.coverage.*
 src/**
 tests/**
 debug/**

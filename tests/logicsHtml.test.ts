@@ -46,13 +46,25 @@ function createWebview(): WebviewLike {
 
 describe("logics HTML builders", () => {
   const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0.123456789);
+  const realDateTimeFormat = Intl.DateTimeFormat;
+  let dateTimeFormatSpy: ReturnType<typeof vi.spyOn<typeof Intl, "DateTimeFormat">> | null = null;
 
   afterEach(() => {
+    dateTimeFormatSpy?.mockRestore();
+    dateTimeFormatSpy = null;
     randomSpy.mockClear();
     vi.useRealTimers();
   });
 
   it("renders the hybrid insights report snapshot", () => {
+    dateTimeFormatSpy = vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
+      ((_: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions) =>
+        new realDateTimeFormat("en-US", {
+          ...options,
+          timeZone: "Europe/Paris"
+        })) as typeof Intl.DateTimeFormat
+    );
+
     const html = buildHybridInsightsHtml({
       webview: createWebview() as never,
       rootLabel: "/workspace/project",

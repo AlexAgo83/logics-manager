@@ -1,10 +1,10 @@
 ## item_233_execute_mode_for_hybrid_authoring_flows_request_draft_spec_first_pass_backlog_groom - Execute mode for hybrid authoring flows request-draft spec-first-pass backlog-groom
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 88%
-> Confidence: 82%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

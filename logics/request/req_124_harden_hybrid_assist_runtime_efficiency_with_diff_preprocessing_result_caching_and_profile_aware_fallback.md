@@ -2,7 +2,7 @@
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 100%
 > Confidence: 96%
 > Complexity: Medium

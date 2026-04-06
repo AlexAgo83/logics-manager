@@ -1,10 +1,10 @@
 ## item_232_per_runtime_skill_tier_fields_codex_tier_and_claude_tier_if_usage_demands_it - Per-runtime skill tier fields codex_tier and claude_tier if usage demands it
 > From version: 1.21.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
+> Progress: 100%
 > Complexity: Low
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -36,7 +36,7 @@ flowchart LR
 - AC1 (conditional): If production usage of item_223 reveals that operators need different tier assignments per runtime, the `agents/openai.yaml` skill contract is extended with `codex_tier` and `claude_tier` fields that override the shared `tier` field for each runtime independently. The shared `tier` field remains the default when neither per-runtime field is set. This AC is skipped entirely if no real usage demand materialises.
 
 # AC Traceability
-- AC1 -> Maps to req_127 AC1. Proof: a skill with `codex_tier: core` and `claude_tier: optional` is included in the Codex global kit and excluded from the Claude global kit by default.
+- AC1 -> Maps to req_127 AC1. Proof: production validation for req_124, req_126, and req_127 did not surface any operator demand for per-runtime tier differentiation, so the conditional AC was explicitly closed as not applicable and the shared `tier` field remains sufficient.
 
 # Decision framing
 - Product framing: Not needed

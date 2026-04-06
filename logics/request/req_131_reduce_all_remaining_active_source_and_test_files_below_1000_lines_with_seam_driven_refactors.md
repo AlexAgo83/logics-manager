@@ -62,7 +62,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|reduce-all-remaining-active-source-and|reduce-the-maintenance-cost-of-the|ac1-the-request-defines-an-explicit-repo
+%% logics-signature: request|reduce-all-remaining-active-source-and-t|reduce-the-maintenance-cost-of-the|ac1-the-request-defines-an-explicit
 flowchart TD
     Inventory[Several active files still exceed 1000 lines] --> Cost[High review and change cost]
     Cost --> Seams[Find stable responsibility seams]

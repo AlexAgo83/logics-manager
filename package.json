@@ -101,6 +101,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:smoke": "node tests/run_extension_smoke_checks.mjs",
+    "test:lifecycle": "node tests/run_plugin_lifecycle_checks.mjs",
     "test:watch": "vitest",
     "lint": "npm run lint:ts",
     "lint:ts": "tsc -p ./ --noEmit",

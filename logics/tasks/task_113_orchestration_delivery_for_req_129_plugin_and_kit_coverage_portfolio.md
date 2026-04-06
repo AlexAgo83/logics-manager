@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 55%
+> Progress: 75%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -77,10 +77,10 @@ flowchart LR
 
 ## Wave 4 — item_242: kit sandbox install, repair, migrate, and update lifecycle
 
-- [ ] **4.1 — define deterministic repo fixtures**: create or refine sandbox repository fixtures for fresh bootstrap, idempotent re-run, repair or doctor convergence, migration, and canonical update-path validation.
-- [ ] **4.2 — validate install and re-run**: cover fresh bootstrap and idempotent repeat execution.
-- [ ] **4.3 — validate convergence paths**: cover repair, doctor, migrate-schema, and post-update convergence behavior in bounded fixtures.
-- [ ] **4.4 — keep remote assumptions out**: prefer deterministic local fixtures over remote-network update paths when the same convergence contract can be validated locally.
+- [x] **4.1 — define deterministic repo fixtures**: tests use `tempfile.TemporaryDirectory` with CLI subprocess invocation — same pattern as existing `test_logics_flow.py`. No network or remote dependencies.
+- [x] **4.2 — validate install and re-run**: fresh bootstrap test verifies structure, config, and env files. Idempotent re-run test verifies second bootstrap succeeds without duplicating logics.yaml content.
+- [x] **4.3 — validate convergence paths**: doctor issue detection on incomplete repo, doctor convergence after creating missing directory, schema migration with version injection, idempotent schema migration, schema status counts, config defaults after bootstrap, new doc creation after bootstrap.
+- [x] **4.4 — keep remote assumptions out**: all 9 tests are fully local — tempdir-based repos with subprocess CLI invocation. No network calls.
 - [ ] **4.5 — checkpoint**: leave `item_242` in a commit-ready state with linked Logics docs updated.
 
 ## Wave 5 — item_243: opt-in live provider integration coverage — GATED
@@ -159,7 +159,14 @@ flowchart LR
 
 # Report
 
-## Wave 3 — item_240 (in progress)
+## Wave 4 — item_242 (in progress)
+
+- **Tests added**: 9 new lifecycle tests in `test_kit_lifecycle.py`.
+- **Scenarios covered**: fresh bootstrap (structure, config, env files), idempotent re-run, doctor issue detection on incomplete repos, doctor convergence after fix, schema migration with version injection, idempotent schema migration, schema status reporting, config defaults after bootstrap, new doc creation after bootstrap.
+- **Approach**: tempdir-based sandbox repos with subprocess CLI invocation — fully local, no network, same pattern as existing tests.
+- **Validation**: `python3 -m unittest discover` 284/284 passed (was 275), `npm run compile` OK, `npm run test:coverage` 307/307 passed.
+
+## Wave 3 — item_240 (complete)
 
 - **Test script**: `tests/run_plugin_lifecycle_checks.mjs`, run via `npm run test:lifecycle`.
 - **Tests**: 3 sandbox lifecycle tests — fresh install (2 assertions), update/reinstall (2 assertions), uninstall (1 assertion).

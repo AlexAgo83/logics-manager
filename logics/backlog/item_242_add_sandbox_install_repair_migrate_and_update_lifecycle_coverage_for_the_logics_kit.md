@@ -1,10 +1,10 @@
 ## item_242_add_sandbox_install_repair_migrate_and_update_lifecycle_coverage_for_the_logics_kit - Add sandbox install repair migrate and update lifecycle coverage for the Logics kit
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 91%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 80%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -63,7 +63,7 @@ flowchart LR
 - AC10 -> Scope: any new thresholds or ratchets must be introduced in a way that is incremental and maintainable rather than brittle.. Proof: capture validation evidence in this doc.
 - AC8 -> Scope: The request includes an opt-in strategy for live API integration tests against configured hybrid providers. These tests must run only when provider configuration is present locally and an explicit enable flag is set, must skip cleanly otherwise, and must validate stable contract behavior such as reachability, authentication, model availability, structured response shape, and degraded fallback handling rather than brittle exact model text.. Proof: capture validation evidence in this doc.
 - AC9 -> Scope: The request includes plugin lifecycle integration tests for packaged VSIX installs in a demo or sandbox workspace. These tests must cover at least fresh install and upgrade behavior for the plugin in a realistic local VS Code environment, must verify stable outcomes such as successful installation, activation, basic command or webview availability, and safe update behavior, and must remain opt-in or separately gated until their runtime cost and platform stability are well understood.. Proof: capture validation evidence in this doc.
-- AC10 -> Scope: The request includes Logics kit lifecycle integration tests in sandbox repositories. These tests must cover at least fresh install, idempotent re-run, repair or doctor-assisted convergence, schema or metadata migration where applicable, and update behavior for the canonical kit integration path. They must verify repository convergence and stable operator-facing outcomes rather than only command exit codes.. Proof: capture validation evidence in this doc.
+- AC10 -> Scope: The request includes Logics kit lifecycle integration tests in sandbox repositories. These tests must cover at least fresh install, idempotent re-run, repair or doctor-assisted convergence, schema or metadata migration where applicable, and update behavior for the canonical kit integration path. They must verify repository convergence and stable operator-facing outcomes rather than only command exit codes.. Proof: 9 new lifecycle tests in `test_kit_lifecycle.py` covering fresh bootstrap (structure, config, env files), idempotent re-run, doctor issue detection on incomplete repos, doctor convergence after fix, schema migration with version injection, idempotent schema migration, schema status reporting, config defaults after bootstrap, and new doc creation after bootstrap. Total kit tests: 284 (was 275).
 
 # Decision framing
 - Product framing: Consider

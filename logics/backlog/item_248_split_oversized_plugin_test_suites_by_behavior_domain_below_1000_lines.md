@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|split-oversized-plugin-test-suites-by|req-131-reduce-all-remaining-active|reduce-the-maintenance-cost-of-the|ac4-the-known-oversized-plugin-test
+%% logics-signature: backlog|split-oversized-plugin-test-suites-by-be|req-131-reduce-all-remaining-active-sour|reduce-the-maintenance-cost-and-failure|ac1-tests-logicsviewprovider-test-ts-is-
 flowchart LR
     A[req 131] --> B[Oversized plugin tests]
     B --> C[Group by behavior]

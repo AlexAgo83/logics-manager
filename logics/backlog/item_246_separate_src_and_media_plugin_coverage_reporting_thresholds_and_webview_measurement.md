@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|separate-src-and-media-plugin-coverag|req-130-make-plugin-coverage-action|make-plugin-coverage-actionable|ac1-plugin-coverage-reporting-separ
+%% logics-signature: backlog|separate-src-and-media-plugin-coverage-r|req-130-make-plugin-coverage-actionable-|make-plugin-coverage-reporting-honest-en|ac1-coverage-reporting-distinguishes-src
 flowchart LR
     A[req 130] --> B[Separate src and media signal]
     B --> C[Gate src first]

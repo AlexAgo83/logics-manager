@@ -49,7 +49,7 @@ Constraints:
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|orchestration-delivery-for-req-130-and-r|item-244-raise-plugin-src-coverage-on-hi|wave-1-item-244-quick-win-src-cover|npm-run-lint
+%% logics-signature: task|orchestration-delivery-for-req-130-and-r|item-244-raise-plugin-src-coverage-on-hi|wave-1-item-244-quick-win-plugin|python3-logics-skills-logics-py-audit-re
 flowchart LR
     Start[req 130 and req 131] --> W1[Wave 1 item 244 src quick wins]
     W1 --> W2[Wave 2 item 247 plugin source modularization]

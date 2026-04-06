@@ -61,7 +61,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|make-plugin-coverage-actionable-with-t|improve-plugin-coverage-in-a-way|ac1-plugin-coverage-reporting-separates-s
+%% logics-signature: request|make-plugin-coverage-actionable-with-tar|improve-plugin-coverage-in-a-way|ac1-plugin-coverage-reporting-separates-
 flowchart TD
     Signal[Coverage signal is blended and misleading] --> Src[Raise src coverage on high return modules]
     Signal --> Media[Separate or fix media webview measurement]

@@ -27,7 +27,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-scenario-driven-coverage-for-plugi|req-130-make-plugin-coverage-action|make-plugin-coverage-actionable|ac3-a-follow-up-slice-is-explicitly
+%% logics-signature: backlog|add-scenario-driven-coverage-for-plugin-|req-130-make-plugin-coverage-actionable-|improve-branch-confidence-on-the-plugin|ac1-scenario-driven-tests-are-added-for
 flowchart LR
     A[req 130] --> B[Large decision modules]
     B --> C[Provider utils scenarios]

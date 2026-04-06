@@ -1,10 +1,10 @@
 ## task_113_orchestration_delivery_for_req_129_plugin_and_kit_coverage_portfolio - Orchestration delivery for req_129 plugin and kit coverage portfolio
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 20%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -55,9 +55,9 @@ flowchart LR
 
 ## Wave 1 — item_239: plugin webview behavior coverage
 
-- [ ] **1.1 — lock runtime targets**: confirm the first-pass browser runtime targets and expected user-visible flows for `media/main.js`, `media/renderBoard.js`, `media/renderDetails.js`, `media/webviewChrome.js`, `media/webviewPersistence.js`, `media/webviewSelectors.js`, and `media/layoutController.js`.
-- [ ] **1.2 — expand behavior suites**: add or extend behavior-focused tests for hydration, board and detail rendering, filters and selection behavior, layout state, and persistence or restore behavior.
-- [ ] **1.3 — protect reporting intent**: keep plugin coverage readable by surface so the new webview tests improve signal, not just the top-line percentage.
+- [x] **1.1 — lock runtime targets**: confirmed first-pass browser runtime targets across all 14 `media/*.js` files. Existing harness already loaded them; refactored loading to use a shared `loadMediaScript` helper with `//# sourceURL` annotations.
+- [x] **1.2 — expand behavior suites**: added 72 behavior-focused tests across 5 new test files: `webview.persistence.test.ts` (8 tests), `webview.selectors.test.ts` (14 tests), `webview.chrome.test.ts` (18 tests), `webview.board-renderer.test.ts` (16 tests), `webview.hydration.test.ts` (16 tests). Covers hydration, board and detail rendering, filters and selection behavior, layout state, persistence and restore, keyboard navigation, card previews, toolbar controls, empty states, and data message handling.
+- [x] **1.3 — protect reporting intent**: tests validate user-visible behavior and regression resistance (AC6). Known gap: V8 coverage provider cannot instrument eval'd JSDOM code, so the media coverage metric stays at 0% despite behavioral coverage. Fixing this requires a vitest coverage plugin or switching media files to an importable module format — tracked as a separate infrastructure concern.
 - [ ] **1.4 — checkpoint**: leave `item_239` in a commit-ready state with linked Logics docs updated.
 
 ## Wave 2 — item_241: kit workflow and flow-manager behavior coverage
@@ -159,4 +159,11 @@ flowchart LR
 
 # Report
 
-- Pending. Fill per wave with commit checkpoints, validation evidence, and any explicit gating decisions or deferrals.
+## Wave 1 — item_239 (in progress)
+
+- **Tests added**: 72 new behavior-focused tests across 5 files.
+- **Test files**: `webview.persistence.test.ts`, `webview.selectors.test.ts`, `webview.chrome.test.ts`, `webview.board-renderer.test.ts`, `webview.hydration.test.ts`.
+- **Surfaces covered**: persistence (hydration, scroll capture, reset, legacy field migration), selectors (progress states, filtering, sorting, search, visibility, empty states), chrome (toolbar, filter indicators, tools panel, help banner, activity panel, view mode toggle), board renderer (columns, cards, keyboard nav, previews, list view, add menu), hydration (data messages, layout mode, details panel, payload fields).
+- **Harness improvement**: refactored `webviewHarnessTestUtils.ts` and `webview.layout-collapse.test.ts` to use shared `loadMediaScript` helper with `//# sourceURL` annotations.
+- **Validation**: `npm run compile` OK, `npm run test:coverage` 307/307 passed, `npm run test:smoke` OK.
+- **Known gap**: V8 coverage provider reports 0% for `media/*.js` because eval'd JSDOM code is not instrumented by V8. The behavioral tests catch regressions regardless. Addressing the metric requires infrastructure work (vitest plugin or module format migration).

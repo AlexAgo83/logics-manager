@@ -1,10 +1,10 @@
 ## item_239_increase_plugin_webview_behavior_coverage_for_media_runtime_surfaces - Increase plugin webview behavior coverage for media runtime surfaces
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In Progress
 > Understanding: 96%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 70%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -51,7 +51,7 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Scope: The request clearly separates plugin coverage and Logics kit coverage as two related but distinct workstreams, with explicit scope for each so backlog grooming can split them into bounded delivery slices.. Proof: capture validation evidence in this doc.
-- AC2 -> Scope: Plugin coverage work is framed around behavior-focused validation of the webview runtime, not just HTML snapshots or package smoke checks. The request explicitly targets critical browser-side flows such as initial render and hydration, board and detail rendering, filtering and selection behavior, layout state, and persistence and restore behavior across the `media/*.js` runtime.. Proof: capture validation evidence in this doc.
+- AC2 -> Scope: Plugin coverage work is framed around behavior-focused validation of the webview runtime, not just HTML snapshots or package smoke checks. The request explicitly targets critical browser-side flows such as initial render and hydration, board and detail rendering, filtering and selection behavior, layout state, and persistence and restore behavior across the `media/*.js` runtime.. Proof: 72 new behavior tests in 5 files covering hydration, board rendering, chrome/toolbar, selectors, and persistence. Total test count: 307 (was 235).
 - AC3 -> Scope: Plugin coverage governance is part of scope. The request requires coverage reporting and CI strategy that make plugin core coverage and plugin webview coverage separately visible and ratchetable, so improvement is measurable without masking major gaps in either surface.. Proof: capture validation evidence in this doc.
 - AC4 -> Scope: Logics kit coverage work is framed around scenario-driven tests for the highest-risk workflow paths, especially the flow manager CLI, workflow mutations, hybrid provider transport, dispatcher validation, and release-oriented guarded actions. The request explicitly avoids treating low-risk utility files as the main coverage target.. Proof: capture validation evidence in this doc.
 - AC5 -> Scope: The request requires a strategy to make the lowest-covered kit modules more testable, including extraction or isolation of pure decision logic where current command handlers are too monolithic to validate efficiently. The goal is not refactoring for its own sake; the goal is to unlock durable coverage on business-critical paths.. Proof: capture validation evidence in this doc.

@@ -116,7 +116,8 @@ export class LogicsCodexWorkflowController {
   async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning" || overlay.status === "unavailable") {
+    const needsRepublish = this.codexKitNeedsRepublish(root, overlay);
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !needsRepublish || overlay.status === "unavailable") {
       this.clearCodexRemediationPromptState(root);
       return;
     }
@@ -150,7 +151,7 @@ export class LogicsCodexWorkflowController {
       return;
     }
 
-    if (overlay.status === "missing-overlay" || overlay.status === "stale") {
+    if (overlay.status === "missing-overlay" || overlay.status === "stale" || needsRepublish) {
       const published = await this.ensureGlobalCodexKit(root);
       if (published) {
         this.clearCodexRemediationPromptState(root);
@@ -190,7 +191,7 @@ export class LogicsCodexWorkflowController {
 
     const snapshot = await inspectLogicsEnvironment(root);
     const globalKit = snapshot.codexOverlay;
-    if (globalKit.status === "healthy" || globalKit.status === "warning") {
+    if ((globalKit.status === "healthy" || globalKit.status === "warning") && !this.codexKitNeedsRepublish(root, globalKit)) {
       if (!globalKit.runCommand) {
         void vscode.window.showWarningMessage("Codex launch command is unavailable for the published global kit.");
         return;
@@ -426,7 +427,7 @@ export class LogicsCodexWorkflowController {
   async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !this.codexKitNeedsRepublish(root, overlay)) {
       await maybeShowReadyCodexOverlayHandoff(root, trigger, overlay);
       return;
     }
@@ -592,7 +593,8 @@ export class LogicsCodexWorkflowController {
   ): Promise<boolean> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if ((overlay.status === "healthy" || overlay.status === "warning") && !options?.forceRepublish) {
+    const needsRepublish = this.codexKitNeedsRepublish(root, overlay);
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !options?.forceRepublish && !needsRepublish) {
       if (options?.autoLaunchOnSuccess && overlay.runCommand) {
         launchCodexOverlayTerminal(root, overlay.runCommand);
         return true;
@@ -844,10 +846,11 @@ export class LogicsCodexWorkflowController {
 
   async ensureGlobalCodexKit(root: string): Promise<boolean> {
     const snapshot = await inspectLogicsEnvironment(root);
-    if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
+    const needsRepublish = this.codexKitNeedsRepublish(root, snapshot.codexOverlay);
+    if ((snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") && !needsRepublish) {
       return true;
     }
-    if (!shouldPublishRepoKit(root, snapshot.codexOverlay)) {
+    if (!needsRepublish) {
       return false;
     }
     try {
@@ -867,10 +870,11 @@ export class LogicsCodexWorkflowController {
 
   private async attemptBootstrapGlobalKitConvergence(root: string): Promise<BootstrapConvergenceOutcome> {
     const snapshot = await inspectLogicsEnvironment(root);
-    if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
+    const needsRepublish = this.codexKitNeedsRepublish(root, snapshot.codexOverlay);
+    if ((snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") && !needsRepublish) {
       return { attempted: false, published: false, failed: false };
     }
-    if (!shouldPublishRepoKit(root, snapshot.codexOverlay)) {
+    if (!needsRepublish) {
       return { attempted: false, published: false, failed: false };
     }
     try {
@@ -928,7 +932,7 @@ export class LogicsCodexWorkflowController {
   ): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if (overlay.status === "healthy" || overlay.status === "warning") {
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !this.codexKitNeedsRepublish(root, overlay)) {
       const detail = globalKitOutcome?.published ? " Global Codex kit publication completed during bootstrap." : "";
       void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local kit and the global Codex kit are ready.${detail} Refreshing.`);
       return;
@@ -1054,5 +1058,9 @@ export class LogicsCodexWorkflowController {
       return `${message} Repo-local bootstrap convergence still needs attention: ${convergence.failureMessage}`;
     }
     return message;
+  }
+
+  private codexKitNeedsRepublish(root: string, overlay: Awaited<ReturnType<typeof inspectLogicsEnvironment>>["codexOverlay"]): boolean {
+    return shouldPublishRepoKit(root, overlay);
   }
 }

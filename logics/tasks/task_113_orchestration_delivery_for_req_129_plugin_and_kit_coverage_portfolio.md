@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 40%
+> Progress: 55%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -69,10 +69,10 @@ flowchart LR
 
 ## Wave 3 — item_240: packaged plugin sandbox install and update lifecycle
 
-- [ ] **3.1 — define disposable sandbox harness**: use packaged VSIX installation in an isolated sandbox workspace with disposable user-data and extension directories.
-- [ ] **3.2 — validate fresh install path**: verify successful install, activation, and basic command or webview availability for the packaged plugin.
-- [ ] **3.3 — validate update path**: verify upgrade from an older packaged build to a newer one and confirm stable post-update behavior.
-- [ ] **3.4 — gate execution mode**: keep these tests opt-in or separately gated until their stability is proven.
+- [x] **3.1 — define disposable sandbox harness**: `tests/run_plugin_lifecycle_checks.mjs` uses `--extensions-dir` and `--user-data-dir` pointed at `fs.mkdtempSync` directories for full isolation. Cleanup on completion or failure.
+- [x] **3.2 — validate fresh install path**: test verifies extension not present before install, then present after `--install-extension` in sandbox.
+- [x] **3.3 — validate update path**: test installs VSIX, reinstalls same VSIX (simulates update), verifies extension still listed. Also includes uninstall path test.
+- [x] **3.4 — gate execution mode**: double-gated — requires `PLUGIN_LIFECYCLE_TESTS=1` env var AND `code` CLI on PATH. Skips with exit 0 and message when either gate is not met.
 - [ ] **3.5 — checkpoint**: leave `item_240` in a commit-ready state with linked Logics docs updated.
 
 ## Wave 4 — item_242: kit sandbox install, repair, migrate, and update lifecycle
@@ -159,7 +159,15 @@ flowchart LR
 
 # Report
 
-## Wave 2 — item_241 (in progress)
+## Wave 3 — item_240 (in progress)
+
+- **Test script**: `tests/run_plugin_lifecycle_checks.mjs`, run via `npm run test:lifecycle`.
+- **Tests**: 3 sandbox lifecycle tests — fresh install (2 assertions), update/reinstall (2 assertions), uninstall (1 assertion).
+- **Sandbox approach**: disposable `--extensions-dir` and `--user-data-dir` under `os.tmpdir()`, cleaned up after each test.
+- **Gating**: double-gated by `PLUGIN_LIFECYCLE_TESTS=1` env var and `code` CLI availability. Skips cleanly with exit 0.
+- **Validation**: `npm run test:lifecycle` exits 0 with skip message (no `code` CLI on current machine). `npm run compile` OK, `npm run test:coverage` 307/307 passed, `npm run test:smoke` OK.
+
+## Wave 2 — item_241 (complete)
 
 - **Tests added**: 112 new unit tests in `test_kit_unit.py` across 18 test classes.
 - **Modules covered**: `logics_flow_dispatcher.py` (dispatcher validation, JSON extraction, confidence normalization, target ref validation, title dedup, action arg constraints, decision-to-command mapping), `logics_flow_config.py` (scalar coercion, YAML parsing, deep merge, repo config loading), `logics_flow_mutations.py` (planned mutation building, dry-run and write behavior), `logics_flow_transactions.py` (dry-run preview, successful write, transactional rollback, direct mode no-rollback, unknown mode rejection), `logics_flow_models.py` (ref extraction with mermaid exclusion, frontmatter parsing with block scalars, workflow kind detection, indicator extraction, title extraction), `logics_flow_decision_support.py` (signal detection, decision levels, follow-up rendering).

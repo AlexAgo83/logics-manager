@@ -5,6 +5,11 @@ dist/
 *.vsix
 .DS_Store
 .env
+coverage/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 
 # Python bytecode caches
 __pycache__/

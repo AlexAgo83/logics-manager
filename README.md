@@ -306,6 +306,8 @@ Legacy compatibility:
 - Compile: `npm run compile`
 - Lint TS: `npm run lint`
 - Unit tests: `npm run test`
+- Plugin coverage: `npm run test:coverage`
+- Kit coverage: `npm run coverage:kit`
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
 - Fast extension-focused local check: `npm run ci:fast`

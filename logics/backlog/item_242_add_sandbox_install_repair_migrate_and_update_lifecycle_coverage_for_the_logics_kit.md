@@ -1,10 +1,10 @@
 ## item_242_add_sandbox_install_repair_migrate_and_update_lifecycle_coverage_for_the_logics_kit - Add sandbox install repair migrate and update lifecycle coverage for the Logics kit
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: In Progress
+> Status: Done
 > Understanding: 98%
-> Confidence: 93%
-> Progress: 80%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

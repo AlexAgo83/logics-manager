@@ -120,14 +120,14 @@
     "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current --require-curated"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.8",
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.86.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "esbuild": "^0.25.10",
     "jsdom": "^25.0.1",
-    "mermaid": "^11.12.3",
+    "mermaid": "^10.9.5",
     "typescript": "^5.3.3",
-    "vitest": "^2.1.8",
+    "vitest": "^4.1.2",
     "yaml": "^2.8.3",
     "yauzl": "^3.2.0"
   }

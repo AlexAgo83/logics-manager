@@ -58,11 +58,15 @@ describe("logics HTML builders", () => {
 
   it("renders the hybrid insights report snapshot", () => {
     dateTimeFormatSpy = vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
-      ((_: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions) =>
-        new realDateTimeFormat("en-US", {
+      (function mockDateTimeFormat(
+        _: Intl.LocalesArgument,
+        options?: Intl.DateTimeFormatOptions
+      ) {
+        return new realDateTimeFormat("en-US", {
           ...options,
           timeZone: "Europe/Paris"
-        })) as typeof Intl.DateTimeFormat
+        });
+      }) as typeof Intl.DateTimeFormat
     );
 
     const html = buildHybridInsightsHtml({

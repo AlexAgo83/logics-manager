@@ -4,7 +4,7 @@
 > Status: In Progress
 > Understanding: 98%
 > Confidence: 94%
-> Progress: 75%
+> Progress: 90%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -85,10 +85,10 @@ flowchart LR
 
 ## Wave 5 — item_243: opt-in live provider integration coverage — GATED
 
-- [ ] **5.1 — gate readiness**: start only when lower-level deterministic coverage is in place and at least one provider is configured locally, non-empty, and healthy.
-- [ ] **5.2 — add local opt-in integration tests**: add provider integration tests behind an explicit environment gate such as `LIVE_PROVIDER_TESTS=1`.
-- [ ] **5.3 — validate contract, not wording**: assert reachability, auth, model availability, structured output shape, and degraded fallback behavior rather than exact model text.
-- [ ] **5.4 — keep CI default clean**: do not move these tests into the default CI path until cost and flakiness are understood.
+- [x] **5.1 — gate readiness**: waves 1–4 deterministic coverage in place (307 plugin tests, 284 kit tests). OpenAI and Gemini configured locally with valid credentials; Ollama not running but tests degrade gracefully.
+- [x] **5.2 — add local opt-in integration tests**: 13 tests in `test_live_provider_integration.py` gated by `LIVE_PROVIDER_TESTS=1`. Covers ollama (4 tests), openai (3 tests), gemini (3 tests), degraded fallback (3 tests).
+- [x] **5.3 — validate contract, not wording**: tests assert reachability (TCP connect), auth (credential presence, 401/403 for invalid keys), model availability (tags/models endpoints), structured response shape (message.content, choices[0].message.content, candidates), and degraded fallback (unreachable host, invalid keys). No exact text assertions.
+- [x] **5.4 — keep CI default clean**: all 13 tests skip cleanly when `LIVE_PROVIDER_TESTS=1` is not set. Not in default CI path.
 - [ ] **5.5 — checkpoint**: leave `item_243` in a commit-ready state with linked Logics docs updated.
 
 ## Cross-wave rules
@@ -159,7 +159,15 @@ flowchart LR
 
 # Report
 
-## Wave 4 — item_242 (in progress)
+## Wave 5 — item_243 (in progress)
+
+- **Tests added**: 13 live provider integration tests in `test_live_provider_integration.py`.
+- **Providers covered**: ollama (reachability, version endpoint, model tags, chat response shape), openai (credentials, models endpoint, chat completion shape), gemini (credentials, models endpoint, generateContent shape), degraded fallback (unreachable host, invalid auth keys for openai and gemini).
+- **Gating**: `LIVE_PROVIDER_TESTS=1` env var. All 13 skip when gate is off. With gate on: 8 pass, 5 skip gracefully (ollama not running, gemini rate-limited).
+- **Contract focus**: response structure assertions only, no exact text matching.
+- **Validation**: 297/297 kit tests pass (13 skipped when gate off), `npm run compile` OK, `npm run test:coverage` 307/307.
+
+## Wave 4 — item_242 (complete)
 
 - **Tests added**: 9 new lifecycle tests in `test_kit_lifecycle.py`.
 - **Scenarios covered**: fresh bootstrap (structure, config, env files), idempotent re-run, doctor issue detection on incomplete repos, doctor convergence after fix, schema migration with version injection, idempotent schema migration, schema status reporting, config defaults after bootstrap, new doc creation after bootstrap.

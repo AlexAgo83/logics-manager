@@ -1,10 +1,10 @@
 ## item_243_add_opt_in_live_provider_integration_coverage_for_configured_healthy_backends - Add opt-in live provider integration coverage for configured healthy backends
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 91%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 80%
 > Complexity: High
 > Theme: Testing, coverage, plugin webview, and Logics kit reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -60,7 +60,7 @@ flowchart LR
 - AC8 -> Scope: plugin validation should continue to use the Node and VS Code extension checks already present in the repository;. Proof: capture validation evidence in this doc.
 - AC9 -> Scope: kit validation should continue to use the Python coverage and CLI smoke flows already present in the repository;. Proof: capture validation evidence in this doc.
 - AC10 -> Scope: any new thresholds or ratchets must be introduced in a way that is incremental and maintainable rather than brittle.. Proof: capture validation evidence in this doc.
-- AC8 -> Scope: The request includes an opt-in strategy for live API integration tests against configured hybrid providers. These tests must run only when provider configuration is present locally and an explicit enable flag is set, must skip cleanly otherwise, and must validate stable contract behavior such as reachability, authentication, model availability, structured response shape, and degraded fallback handling rather than brittle exact model text.. Proof: capture validation evidence in this doc.
+- AC8 -> Scope: The request includes an opt-in strategy for live API integration tests against configured hybrid providers. These tests must run only when provider configuration is present locally and an explicit enable flag is set, must skip cleanly otherwise, and must validate stable contract behavior such as reachability, authentication, model availability, structured response shape, and degraded fallback handling rather than brittle exact model text.. Proof: 13 live provider integration tests in `test_live_provider_integration.py` gated by `LIVE_PROVIDER_TESTS=1`. Covers ollama (reachability, version, model tags, chat response shape), openai (credentials, models endpoint, chat response shape), gemini (credentials, models endpoint, generateContent response shape), and degraded fallback (unreachable host, invalid auth keys). All 13 skip cleanly when gate is off; with gate on, 8 pass and 5 skip gracefully (ollama not running, gemini rate-limited).
 - AC9 -> Scope: The request includes plugin lifecycle integration tests for packaged VSIX installs in a demo or sandbox workspace. These tests must cover at least fresh install and upgrade behavior for the plugin in a realistic local VS Code environment, must verify stable outcomes such as successful installation, activation, basic command or webview availability, and safe update behavior, and must remain opt-in or separately gated until their runtime cost and platform stability are well understood.. Proof: capture validation evidence in this doc.
 - AC10 -> Scope: The request includes Logics kit lifecycle integration tests in sandbox repositories. These tests must cover at least fresh install, idempotent re-run, repair or doctor-assisted convergence, schema or metadata migration where applicable, and update behavior for the canonical kit integration path. They must verify repository convergence and stable operator-facing outcomes rather than only command exit codes.. Proof: capture validation evidence in this doc.
 

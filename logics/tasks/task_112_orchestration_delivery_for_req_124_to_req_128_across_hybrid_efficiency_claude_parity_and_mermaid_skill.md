@@ -1,10 +1,10 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+wave4
+> From version: 1.21.1+wave4-doc-review
 > Schema version: 1.0
-> Status: Blocked
-> Understanding: 99%
-> Confidence: 97%
-> Progress: 88%
+> Status: Done
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100%
 > Complexity: High
 > Theme: Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -154,17 +154,17 @@ flowchart LR
 
 **Do not start any Wave 5 item until its gate condition is explicitly met.**
 
-- [ ] **5.1 — item_235** *(gate: items 229–231 live and stable in production)*: Refactor Codex and Claude kit publication into a shared `inspect → publish → manifest → report` abstraction with runtime-specific adapters; regression test coverage for both paths before shipping.
+- [x] **5.1 — item_235** *(gate: items 229–231 live and stable in production)*: Refactor Codex and Claude kit publication into a shared `inspect → publish → manifest → report` abstraction with runtime-specific adapters; regression test coverage for both paths before shipping.
   - Gate check: both `~/.codex` and `~/.claude` publication are live and no active regressions in production.
   - Test: regression suite for both publication paths passes after refactor; no behavioural change for either runtime.
   - Commit: `refactor(kit): shared publication lifecycle abstraction for Codex and Claude (item_235)`.
 
-- [ ] **5.2 — item_234** *(gate: item_225 live and validated in production)*: Add `next_step_auto_backend` key to `logics.yaml`; read in provider dispatch; fall back to Codex with a logged warning if specified provider is unavailable.
+- [x] **5.2 — item_234** *(gate: item_225 live and validated in production)*: Add `next_step_auto_backend` key to `logics.yaml`; read in provider dispatch; fall back to Codex with a logged warning if specified provider is unavailable.
   - Gate check: item_225 has shipped and operators have validated explicit `--backend` dispatch.
   - Test: `next_step_auto_backend: openai` in `logics.yaml` → auto dispatch to OpenAI; unhealthy provider → Codex fallback + warning logged.
   - Commit: `feat(config): add next_step_auto_backend opt-in to logics.yaml (item_234)`.
 
-- [ ] **5.3 — item_233** *(gate: items 226–227 live and contracts validated in production)*: Add `--execution-mode execute` to `request-draft`, `spec-first-pass`, and `backlog-groom`; explicit operator confirmation before file write; proposal-only remains default.
+- [x] **5.3 — item_233** *(gate: items 226–227 live and contracts validated in production)*: Add `--execution-mode execute` to `request-draft`, `spec-first-pass`, and `backlog-groom`; explicit operator confirmation before file write; proposal-only remains default.
   - Gate check: items 226–227 have shipped and at least one production use of each flow has been validated.
   - Test: execute mode prompts for confirmation and writes the doc; proposal-only default returns JSON without writing.
   - Commit: `feat(hybrid): add --execution-mode execute for authoring flows (item_233)`.
@@ -174,7 +174,7 @@ flowchart LR
   - Test: skill with `codex_tier: core` and `claude_tier: optional` is included in Codex kit and excluded from Claude kit by default.
   - Commit: `feat(kit): add per-runtime tier fields codex_tier and claude_tier (item_232)`.
 
-- [ ] **GATE Wave 5**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test` before closing.
+- [x] **GATE Wave 5**: run `python3 logics/skills/logics.py lint --require-status`, `python3 logics/skills/logics.py audit --group-by-doc`, `npm run lint:ts`, `npm run test` before closing.
 
 ---
 
@@ -276,12 +276,19 @@ Wave-specific manual validations:
 - **Wave 5**: regression test both `~/.codex` and `~/.claude` publication after shared abstraction refactor; verify `next_step_auto_backend: openai` changes dispatch and logs warning on unhealthy provider.
 
 # Definition of Done (DoD)
-- [ ] All 19 items implemented across Waves 1–4 (and Wave 5 items where gate conditions are met).
-- [ ] One commit per item — no item is batched with another item's scope.
-- [ ] Each wave closed only after `npm run test` and `python3 logics/skills/logics.py lint --require-status` passed.
-- [ ] Wave 5 items only started after their explicit gate conditions are confirmed.
-- [ ] Linked request `# Backlog` sections and backlog item statuses updated during the wave that delivers the behaviour.
-- [ ] Repository is in a clean commit-ready state at final closure.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] All 19 items implemented across Waves 1–4 (and Wave 5 items where gate conditions are met).
+- [x] One commit per item — no item is batched with another item's scope.
+- [x] Each wave closed only after `npm run test` and `python3 logics/skills/logics.py lint --require-status` passed.
+- [x] Wave 5 items only started after their explicit gate conditions are confirmed.
+- [x] Linked request `# Backlog` sections and backlog item statuses updated during the wave that delivers the behaviour.
+- [x] Repository is in a clean commit-ready state at final closure.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+
+- Waves 1 to 4 remain delivered, committed, and validated. The shipped requests are `req_124`, `req_125`, `req_126`, and `req_128`.
+- Wave 5 is now delivered for all gated items whose production conditions were explicitly validated: `item_233`, `item_234`, and `item_235`.
+- `item_233` is shipped in `logics/skills@fa91738` with explicit operator confirmation and doc creation for `request-draft`, `spec-first-pass`, and `backlog-groom`.
+- `item_234` is shipped in `logics/skills@66230a7` with `next_step_auto_backend` opt-in routing and safe Codex fallback when the configured remote provider is unavailable.
+- `item_235` is shipped in `678c1a2` via a shared publication lifecycle abstraction serving both the Codex and Claude global kits without changing their file formats.
+- `item_232` remains intentionally unstarted because no production demand for per-runtime tier differentiation materialised. The conditional AC in `req_127` is therefore satisfied by explicit non-applicability rather than speculative delivery.

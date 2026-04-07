@@ -1,10 +1,10 @@
 ## task_116_orchestrate_kit_update_fallback_for_gitignored_logics - Orchestrate kit update fallback for gitignored logics
-> From version: 1.22.1
+> From version: 1.22.1 (doc sync)
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 95%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 96%
+> Confidence: 88%
+> Progress: 5%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -64,9 +64,15 @@ flowchart TD
 - Do not mark a wave or step complete until the relevant automated tests and quality checks have been run successfully.
 
 # AC Traceability
-- Wave 1 -> item_254 AC1-AC3: detect patterns, surface warning, non-blocking.
-- Wave 2 -> item_255 AC1-AC5: fallback offered, global kit first, clone second, convergence runs, submodule unchanged.
-- Wave 3 -> item_256 AC1-AC5: detect install type, git pull for standalone, re-copy for plain, submodule unchanged, un-ignore guard.
+- AC1 -> Wave 2 steps 5-7 and final validation. Proof: fallback handling must replace the dead-end submodule-only path when `logics/skills` is missing because `logics/` is gitignored.
+- AC2 -> Wave 2 steps 5-6 and validation step 16. Proof: the delivery requires copy-from-global-kit before direct clone, with validation covering both branches of the cascade.
+- AC3 -> Wave 2 step 7 and validation step 16. Proof: bootstrap convergence is part of the fallback wave and must be exercised after a successful install path.
+- AC4 -> Waves 1-3 and validation step 16. Proof: the existing canonical submodule path remains in scope as a non-regression check throughout the orchestration task.
+- AC5 -> Wave 1 steps 1-3 and validation step 16. Proof: proactive `.gitignore` detection and the non-blocking warning are delivered before the fallback path and verified during environment diagnostics.
+- AC6 -> Wave 3 steps 10-13 and validation step 16. Proof: adaptive routing across submodule, standalone clone, and plain copy remains a dedicated validation target for the final wave.
+- Wave 1 -> item_254 AC1-AC3. Proof: this wave owns detection of broad `.gitignore` patterns, the Check Environment warning surface, and the non-blocking behavior contract.
+- Wave 2 -> item_255 AC1-AC5. Proof: this wave owns the fallback offer, copy-first then clone cascade, bootstrap convergence, and submodule-path non-regression checks.
+- Wave 3 -> item_256 AC1-AC5. Proof: this wave owns install-type detection, standalone-clone pull behavior, plain-copy refresh behavior, and the guard against unsafe submodule operations.
 
 # Decision framing
 - Product framing: Not needed

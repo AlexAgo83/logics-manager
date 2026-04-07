@@ -1,0 +1,95 @@
+# Changelog
+
+## 2026-04-07
+
+- Build Flow Board UI and details panel
+- Orchestration delivery for req_010 and req_011 details panel collapse UX
+- Orchestration delivery for req_012 and req_013 harness controls and accessibility
+- Orchestration delivery for req_014 bootstrap resilience, status actions, and list mode
+- Orchestration delivery for req_015 README badges
+- Orchestration delivery for req_016 reliability hardening
+- Orchestration delivery for req_017 Hide SPEC filter default
+- Orchestration delivery for req_018 agent selection from openai.yaml
+- Align VS Code plugin with companion docs workflow
+- Refactor webview frontend structure without introducing a full framework
+- Add reset action to restore default filter options
+- Default secondary detail sections to collapsed in the plugin detail panel
+- Add confirmation before Done and Obsolete lifecycle actions
+- Remove the eye toggle from board columns
+- Enable horizontal scrolling for board columns
+- Allow collapsing and expanding groups in list mode
+- Remove the Vite CJS Node API deprecation warning from test runs
+- Add full keyboard navigation to the plugin
+- Add instant local search to the plugin
+- Add sorting and grouping options to the plugin
+- Add compact preview for items in the plugin
+- Improve UI state persistence in the plugin
+- Add an attention-required view to the plugin
+- Add an activity timeline to the plugin
+- Add suggested-action badges to the plugin
+- Improve plugin onboarding and empty states
+- Add stronger item health signals to the plugin
+- Move secondary view controls into a toggleable second toolbar row
+- Align plugin indexer and managed doc model for companion docs
+- Extend plugin rename and reference maintenance to companion docs
+- Add companion docs section and navigation in plugin details panel
+- Add supporting doc visibility controls to plugin board and list views
+- Add companion doc creation flows and regression coverage in plugin
+- Apply hide empty columns consistently in list mode
+- Prevent disposed file watchers from accumulating in extension subscriptions
+- Strengthen webview regression tests for list filters and layout CSS
+- Keep detail panel actions fixed at the bottom while content scrolls
+- Split extension host entrypoint into focused modules
+- Split webview entrypoint into state, selector, and orchestration modules
+- Split monolithic webview harness tests by behavior domain
+- Split logics flow manager script into CLI and workflow modules
+- Split react render bootstrap script into bootstrap phase modules
+- Move Refresh from the toolbar to the Tools menu
+- Reduce extension package size and file count for release quality
+- Preserve readable board columns by preventing column compression
+- Reduce remaining oversized files after the first modularization pass
+- Add a minimal Claude Code bridge for Logics agents
+- Orchestration delivery for req 056 context pack attention explain and dependency map
+- Orchestration delivery for internal UI steering skill and agent
+- Double click should read items from list board and activity
+- Orchestration delivery for req_059 UI steering guidance in Logics kit
+- Orchestration delivery for req_061 context aware Mermaid in Logics docs
+- Orchestration delivery for req_060 flow manager generation and doc linter calibration
+- Harden Windows support for extension workflow actions and runtime detection
+- Normalize npm scripts VSIX flows and repository text-file handling for Windows
+- Add automated Windows CI and release gating for supported workflows
+- Make missing workflow directories an explicit self-healing Logics contract
+- Make supported Logics kit command entrypoints cross-platform
+- Add environment capability detection for read-only workflow and bootstrap modes
+- Guard bootstrap and workflow actions with prerequisite-aware recovery messaging
+- Clarify Windows install and CLI guidance in the main plugin README
+- Rewrite Logics kit README and skill examples for Windows-safe operator paths
+- Clean contributor and release guidance for Windows-friendly shell and temp-path usage
+- Label platform-specific helpers and shell-specific command variants explicitly
+- Define a real Windows VM smoke checklist for macOS maintainers
+- Orchestration delivery for req_067 to req_075 Codex overlays and workflow maintenance
+- Orchestration delivery for req_076 and req_077 plugin overlay awareness and bootstrap readiness
+- Migrate GitHub Actions off Node 20 before runner deprecation
+- Orchestration delivery for req_080 token-efficient Codex context shaping
+- Orchestration delivery for req_081 observable and lightweight Codex handoffs
+- Orchestration delivery for req_082 compact AI context and reusable handoff generation
+- Orchestration delivery for req_083 kit governance migration and machine-readable tooling primitives
+- Orchestration delivery for req_084 diagnostics safety and internal runtime contracts
+- Orchestration delivery for req_085 repo config runtime entrypoints and transactional scaling primitives
+- Orchestration delivery for req_086 and req_087 local Ollama coding workflows
+- Orchestration delivery for req_088 local LLM dispatcher for deterministic Logics flow orchestration
+- Orchestration delivery for req_089 to req_095 hybrid assist runtime portfolio governance portability and plugin exposure
+- Orchestration delivery for req_096 and req_097 plugin polish and hybrid local model profile flexibility
+- Orchestration delivery for req_098 hybrid assist ROI dispatch reporting and plugin insights
+- Orchestration delivery for req_099 global Logics kit publication and overlay migration
+- Orchestration delivery for req_100, req_101, and req_102 across plugin feedback, bootstrap global kit convergence, and hybrid runtime contract hardening
+- Orchestration delivery for req_103 across hybrid runtime status semantics, dispatch expansion, and Windows global-kit validation
+- Orchestration delivery for req_104 to req_106 across repository guardrails, Hybrid Insights refinement, and local-first assist expansion
+- Orchestration delivery for req_107 to req_117 across maintenance hardening, UI refinement, and modularization
+- Governance follow-up
+- Orchestration delivery for req 119 three step onboarding
+- Orchestration delivery for req_120 and req_121 across audit cleanup and multi-provider hybrid dispatch
+- Orchestration delivery for req_122 and req_123 across release guardrails assistant wording and environment diagnostics clarity
+- wave rules
+- Wave 1 — item_239 (complete)
+- Closure

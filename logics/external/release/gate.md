@@ -1,0 +1,156 @@
+# Release Gate Report
+
+## Outcome: FAIL
+
+- Completed tasks checked: 109
+- Completed backlog items checked: 247
+- Failures: 145
+- Warnings: 0
+
+## Failures
+
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_000_define_ux_and_ia_for_logics_orchestrator.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_001_implement_logics_indexer_and_data_model.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_002_scaffold_vs_code_extension_and_view_containers.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_003_build_flow_board_ui_and_details_panel.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_004_wire_actions_open_refresh_promote.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_005_add_column_add_button.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_006_add_read_button.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_007_filter_panel_options.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_008_add_references_and_used_by_links.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_009_rename_entry_name_suffix.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_010_update_extension_for_flow_manager_changes.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_011_orchestration_delivery_for_req_007_and_req_008.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_012_orchestration_delivery_for_req_009_tests_and_github_ci.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_013_orchestration_delivery_for_req_010_and_req_011_details_panel_collapse_ux.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_014_orchestration_delivery_for_req_012_and_req_013_harness_controls_and_accessibility.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_015_orchestration_delivery_for_req_014_bootstrap_resilience_status_actions_and_list_mode.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_016_orchestration_delivery_for_req_015_readme_badges.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_017_orchestration_delivery_for_req_016_reliability_hardening.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_018_orchestration_delivery_for_req_017_hide_spec_filter_default.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_019_orchestration_delivery_for_req_018_agent_selection_from_openai_yaml.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_021_align_vs_code_plugin_with_companion_docs_workflow.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_022_replace_hide_used_requests_with_hide_processed_requests_semantics.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_023_refine_plugin_detail_panel_identity_and_action_hierarchy.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_027_add_reset_action_for_filter_defaults.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_027_add_reset_action_for_filter_defaults.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_028_default_collapsed_secondary_sections_in_detail_panel.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_028_default_collapsed_secondary_sections_in_detail_panel.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_029_add_confirmation_for_done_and_obsolete_actions.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_029_add_confirmation_for_done_and_obsolete_actions.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_030_remove_column_eye_toggle_from_board.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_030_remove_column_eye_toggle_from_board.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_031_enable_horizontal_scrolling_for_board_columns.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_031_enable_horizontal_scrolling_for_board_columns.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_032_allow_collapsing_and_expanding_groups_in_list_mode.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_032_allow_collapsing_and_expanding_groups_in_list_mode.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_033_remove_vite_cjs_node_api_deprecation_warning_from_test_runs.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_033_remove_vite_cjs_node_api_deprecation_warning_from_test_runs.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_034_add_full_keyboard_navigation_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_034_add_full_keyboard_navigation_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_035_add_instant_local_search_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_035_add_instant_local_search_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_036_add_sorting_and_grouping_options_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_036_add_sorting_and_grouping_options_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_037_add_compact_preview_for_items_in_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_037_add_compact_preview_for_items_in_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_038_improve_ui_state_persistence_in_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_038_improve_ui_state_persistence_in_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_039_add_attention_required_view_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_039_add_attention_required_view_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_040_add_activity_timeline_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_040_add_activity_timeline_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_041_add_suggested_action_badges_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_041_add_suggested_action_badges_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_042_improve_plugin_onboarding_and_empty_states.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_042_improve_plugin_onboarding_and_empty_states.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_043_add_stronger_item_health_signals_to_the_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_043_add_stronger_item_health_signals_to_the_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_045_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_045_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_046_extend_plugin_rename_and_reference_maintenance_to_companion_docs.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_046_extend_plugin_rename_and_reference_maintenance_to_companion_docs.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_047_add_companion_docs_section_and_navigation_in_plugin_details_panel.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_047_add_companion_docs_section_and_navigation_in_plugin_details_panel.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_048_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_048_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_049_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_049_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_056_apply_hide_empty_columns_consistently_in_list_mode.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_056_apply_hide_empty_columns_consistently_in_list_mode.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_057_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_057_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_060_split_extension_host_entrypoint_into_focused_modules.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_060_split_extension_host_entrypoint_into_focused_modules.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_061_split_webview_entrypoint_into_state_selector_and_orchestration_modules.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_061_split_webview_entrypoint_into_state_selector_and_orchestration_modules.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_062_split_monolithic_webview_harness_tests_by_behavior_domain.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_062_split_monolithic_webview_harness_tests_by_behavior_domain.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_063_split_logics_flow_manager_script_into_cli_and_workflow_modules.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_063_split_logics_flow_manager_script_into_cli_and_workflow_modules.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_064_split_react_render_bootstrap_script_into_bootstrap_phase_modules.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_064_split_react_render_bootstrap_script_into_bootstrap_phase_modules.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_065_move_refresh_from_the_toolbar_to_the_tools_menu.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_065_move_refresh_from_the_toolbar_to_the_tools_menu.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_066_reduce_extension_package_size_and_file_count_for_release_quality.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_066_reduce_extension_package_size_and_file_count_for_release_quality.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_067_preserve_readable_board_columns_by_preventing_column_compression.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_067_preserve_readable_board_columns_by_preventing_column_compression.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_068_reduce_remaining_oversized_files_after_the_first_modularization_pass.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_069_add_a_minimal_claude_code_bridge_for_logics_agents.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_071_orchestration_delivery_for_internal_ui_steering_skill_and_agent.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_072_double_click_should_read_items_from_list_board_and_activity.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_073_orchestration_delivery_for_req_059_ui_steering_guidance_in_logics_kit.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_076_harden_windows_support_for_extension_workflow_actions_and_runtime_detection.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_077_normalize_npm_scripts_vsix_flows_and_repository_text_file_handling_for_windows.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_078_add_automated_windows_ci_and_release_gating_for_supported_workflows.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_079_make_missing_workflow_directories_an_explicit_self_healing_logics_contract.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_080_make_supported_logics_kit_command_entrypoints_cross_platform.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_081_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_082_guard_bootstrap_and_workflow_actions_with_prerequisite_aware_recovery_messaging.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_083_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_084_rewrite_logics_kit_readme_and_skill_examples_for_windows_safe_operator_paths.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_085_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_086_label_platform_specific_helpers_and_shell_specific_command_variants_explicitly.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_087_define_a_real_windows_vm_smoke_checklist_for_macos_maintainers.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_091_migrate_github_actions_off_node_20_before_runner_deprecation.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_092_orchestration_delivery_for_req_080_token_efficient_codex_context_shaping.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_093_orchestration_delivery_for_req_081_observable_and_lightweight_codex_handoffs.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_094_orchestration_delivery_for_req_082_compact_ai_context_and_reusable_handoff_generation.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_095_orchestration_delivery_for_req_083_kit_governance_migration_and_machine_readable_tooling_primitives.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_096_orchestration_delivery_for_req_084_diagnostics_safety_and_internal_runtime_contracts.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_099_orchestration_delivery_for_req_088_local_llm_dispatcher_for_deterministic_logics_flow_orchestration.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_101_orchestration_delivery_for_req_096_and_req_097_plugin_polish_and_hybrid_local_model_profile_flexibility.md: completed task missing `# Report`.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_101_orchestration_delivery_for_req_096_and_req_097_plugin_polish_and_hybrid_local_model_profile_flexibility.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_102_orchestration_delivery_for_req_098_hybrid_assist_roi_dispatch_reporting_and_plugin_insights.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_103_orchestration_delivery_for_req_099_global_logics_kit_publication_and_overlay_migration.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_104_orchestration_delivery_for_req_100_and_req_101_plugin_feedback_and_bootstrap_global_kit_convergence.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_105_orchestration_delivery_for_req_103_hybrid_runtime_status_semantics_dispatch_expansion_and_windows_global_kit_validation.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_109_orchestration_delivery_for_req_119_three_step_onboarding.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill.md: risky completed task missing rollback coverage.
+- /Users/alexandreagostini/Documents/cdx-logics-vscode/logics/tasks/task_115_fix_windows_empty_board_orchestration.md: risky completed task missing rollback coverage.
+- logics/CHANGELOG.md is missing.
+- logics/RELEASE_NOTES.md is missing (--require-release-notes enabled).

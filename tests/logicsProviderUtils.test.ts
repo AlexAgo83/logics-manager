@@ -11,7 +11,7 @@ vi.mock("vscode", () => ({
   env: {}
 }));
 
-import { inspectLogicsBootstrapState } from "../src/logicsProviderUtils";
+import { areSamePath, inspectLogicsBootstrapState } from "../src/logicsProviderUtils";
 
 describe("inspectLogicsBootstrapState", () => {
   const roots: string[] = [];
@@ -103,5 +103,37 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.missingPaths).toContain(".env");
     expect(state.missingPaths).toContain(".env.local");
     expect(state.missingPaths).toContain(".env.production");
+  });
+});
+
+describe("areSamePath", () => {
+  function withPlatform<T>(platform: NodeJS.Platform, callback: () => T): T {
+    const descriptor = Object.getOwnPropertyDescriptor(process, "platform");
+    Object.defineProperty(process, "platform", {
+      value: platform
+    });
+    try {
+      return callback();
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(process, "platform", descriptor);
+      }
+    }
+  }
+
+  it("matches Windows paths across case, slash direction, trailing slashes, and UNC roots", () => {
+    withPlatform("win32", () => {
+      expect(areSamePath("C:\\Users\\project", "c:\\users\\project")).toBe(true);
+      expect(areSamePath("C:/Users/project", "C:\\Users\\project")).toBe(true);
+      expect(areSamePath("C:\\Users\\project\\", "C:\\Users\\project")).toBe(true);
+      expect(areSamePath("\\\\server\\share\\repo", "\\\\SERVER\\share\\repo\\")).toBe(true);
+    });
+  });
+
+  it("keeps identical POSIX paths equal without introducing false positives", () => {
+    withPlatform("darwin", () => {
+      expect(areSamePath("/workspace/mock/logics", "/workspace/mock/logics")).toBe(true);
+      expect(areSamePath("/workspace/mock/logics", "/workspace/mock/other")).toBe(false);
+    });
   });
 });

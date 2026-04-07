@@ -29,7 +29,9 @@ import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
-import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
+import { inspectRuntimeLaunchers, RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
+import { ReleasePublishCapability } from "./releasePublishSupport";
+import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
 const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
@@ -38,6 +40,23 @@ const STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX = "logics.startupKitUpdatePrompt";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 const MIN_LOGICS_KIT_MAJOR = 1;
 const MIN_LOGICS_KIT_MINOR = 7;
+const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
+  codex: {
+    available: false,
+    title: "Unavailable",
+    command: "codex"
+  },
+  claude: {
+    available: false,
+    title: "Unavailable",
+    command: "claude"
+  }
+};
+const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
+  available: false,
+  title: "Unavailable",
+  reason: "Unavailable"
+};
 
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
@@ -298,14 +317,51 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    this.items = indexLogics(root);
-    await this.refreshAgents("silent", root);
-    const [changedPaths, launchers, environmentSnapshot, publishReleaseCapability] = await Promise.all([
+    let indexedItems: LogicsItem[] = [];
+    try {
+      indexedItems = indexLogics(root);
+    } catch (error) {
+      this.items = [];
+      await this.clearAgentRegistry();
+      this.postData({
+        root,
+        canBootstrapLogics,
+        bootstrapLogicsTitle: bootstrapState?.actionTitle,
+        canResetProjectRoot,
+        canLaunchCodex: false,
+        launchCodexTitle: "Unavailable",
+        canLaunchClaude: false,
+        launchClaudeTitle: "Unavailable",
+        canRepairLogicsKit: true,
+        repairLogicsKitTitle: "Check current Logics runtime state and repair the shared kit publication or bridge files.",
+        canPublishRelease: false,
+        publishReleaseTitle: "Unavailable",
+        shouldRecommendCheckEnvironment: true,
+        error: `Could not index Logics docs in ${root}: ${error instanceof Error ? error.message : String(error)}`
+      });
+      return;
+    }
+    this.items = indexedItems;
+
+    try {
+      await this.refreshAgents("silent", root);
+    } catch {
+      // Agent discovery is non-blocking for board hydration.
+    }
+
+    const [changedPathsResult, launchersResult, environmentSnapshotResult, publishReleaseCapabilityResult] = await Promise.allSettled([
       this.getGitChangedPaths(root),
       inspectRuntimeLaunchers(root),
       inspectLogicsEnvironment(root),
       inspectGitHubReleaseCapability(root)
     ]);
+    const changedPaths = changedPathsResult.status === "fulfilled" ? changedPathsResult.value : [];
+    const launchers = launchersResult.status === "fulfilled" ? launchersResult.value : UNAVAILABLE_LAUNCHER_STATE;
+    const environmentSnapshot = environmentSnapshotResult.status === "fulfilled" ? environmentSnapshotResult.value : null;
+    const publishReleaseCapability =
+      publishReleaseCapabilityResult.status === "fulfilled"
+        ? publishReleaseCapabilityResult.value
+        : UNAVAILABLE_RELEASE_CAPABILITY;
     const shouldRecommendCheckEnvironment = await this.shouldRecommendCheckEnvironment(
       root,
       environmentSnapshot,
@@ -840,10 +896,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   private async shouldRecommendCheckEnvironment(
     root: string,
-    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    snapshot: LogicsEnvironmentSnapshot | null,
     bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
   ): Promise<boolean> {
     if (bootstrapState?.canBootstrap) {
+      return true;
+    }
+    if (!snapshot) {
       return true;
     }
     if (snapshot.repositoryState !== "ready" || snapshot.missingWorkflowDirs.length > 0) {

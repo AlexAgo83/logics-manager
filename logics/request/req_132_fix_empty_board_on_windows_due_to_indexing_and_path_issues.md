@@ -1,9 +1,9 @@
 ## req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues - Fix empty board on Windows due to indexing and path issues
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 75%
+> Status: Ready
+> Understanding: 100%
+> Confidence: 90%
 > Complexity: High
 > Theme: Runtime
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -76,6 +76,11 @@ flowchart TD
 # Validation strategy
 - Unit tests with mocked Windows paths (`C:\Users\project`, `c:\users\project`, mixed slashes) to cover `areSamePath` and root comparison logic.
 - Build a pre-release VSIX and ask the issue reporter to validate on Windows before closing.
+
+# Delivery status
+- 2026-04-07: Implemented the local code changes for async refresh resilience, Windows-aware workspace-root comparison, and Windows-path regression coverage.
+- Local validation passed with `npm run compile`, `npm run test`, and `npx vsce package --pre-release`.
+- Remaining closure step: share the pre-release VSIX/build result with the GitHub issue #1 reporter and wait for Windows confirmation before closing this request.
 
 # Companion docs
 - Product brief(s): (none yet)

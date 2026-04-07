@@ -2,9 +2,9 @@
 > From version: 1.22.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 80%
-> Progress: 0%
+> Understanding: 100%
+> Confidence: 85%
+> Progress: 80%
 > Complexity: Low
 > Theme: Runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -70,3 +70,15 @@ flowchart LR
 - Derived from request `req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues`.
 - Source file: `logics/request/req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues.md`.
 - This item depends on item_251 and item_252 being at least in progress so the tests validate actual fixes.
+
+# Delivery report
+- 2026-04-07: Added Windows-path regression coverage in `tests/logicsProviderUtils.test.ts`, `tests/logicsViewProvider.test.ts`, and `tests/webview.harness-core.test.ts`.
+- Built the pre-release VSIX artifact `cdx-logics-vscode-1.22.0.vsix`.
+- Prepared a concrete reporter checklist covering install, initial board render, filter toggling, and watcher-driven refresh verification.
+
+# Validation report
+- `npx vitest run tests/logicsProviderUtils.test.ts tests/logicsViewProvider.test.ts tests/webview.harness-core.test.ts`
+- `npm run compile`
+- `npm run test`
+- `npx vsce package --pre-release`
+- Pending external step: share the VSIX/build result with GitHub issue #1 and collect Windows confirmation before marking this item fully done.

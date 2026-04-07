@@ -35,12 +35,22 @@ export function isExistingDirectory(value: string): boolean {
 }
 
 export function areSamePath(left: string, right: string): boolean {
-  const normalizedLeft = path.resolve(left);
-  const normalizedRight = path.resolve(right);
+  const normalizedLeft = normalizeComparablePath(left);
+  const normalizedRight = normalizeComparablePath(right);
   if (process.platform === "win32") {
     return normalizedLeft.toLowerCase() === normalizedRight.toLowerCase();
   }
   return normalizedLeft === normalizedRight;
+}
+
+function normalizeComparablePath(value: string): string {
+  const pathApi = process.platform === "win32" ? path.win32 : path.posix;
+  const resolved = pathApi.resolve(value);
+  const normalized = pathApi.normalize(resolved);
+  if (normalized.length <= 1) {
+    return normalized;
+  }
+  return normalized.replace(/[\\/]+$/, "");
 }
 
 export function hasLogicsSubmodule(root: string): boolean {

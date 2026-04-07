@@ -2,9 +2,9 @@
 > From version: 1.22.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 95%
-> Confidence: 80%
-> Progress: 0%
+> Understanding: 100%
+> Confidence: 90%
+> Progress: 85%
 > Complexity: High
 > Theme: Runtime
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -37,50 +37,50 @@ flowchart TD
 ## Wave 1 - Harden async refresh pipeline (item_251)
 > Covers: item_251 AC1, AC2, AC3
 
-- [ ] 1.1. In `src/logicsViewProvider.ts`, replace the `Promise.all` at line 303 with `Promise.allSettled` (or wrap with try/catch). Extract fulfilled values and fall back to safe defaults for rejected results.
-- [ ] 1.2. Wrap `indexLogics(root)` at line 301 in a try/catch so that if it throws, `postData` is called with an error message instead of the board staying silently empty.
-- [ ] 1.3. Wrap `this.refreshAgents("silent", root)` at line 302 in a try/catch so agent refresh failures do not block `postData`.
-- [ ] 1.4. Define safe defaults for each diagnostic result:
+- [x] 1.1. In `src/logicsViewProvider.ts`, replace the `Promise.all` at line 303 with `Promise.allSettled` (or wrap with try/catch). Extract fulfilled values and fall back to safe defaults for rejected results.
+- [x] 1.2. Wrap `indexLogics(root)` at line 301 in a try/catch so that if it throws, `postData` is called with an error message instead of the board staying silently empty.
+- [x] 1.3. Wrap `this.refreshAgents("silent", root)` at line 302 in a try/catch so agent refresh failures do not block `postData`.
+- [x] 1.4. Define safe defaults for each diagnostic result:
   - `changedPaths`: `[]`
   - `launchers`: `{ codex: { available: false, title: "Unavailable" }, claude: { available: false, title: "Unavailable" } }`
   - `environmentSnapshot`: `null`
   - `publishReleaseCapability`: `{ available: false, title: "Unavailable" }`
-- [ ] 1.5. Ensure `shouldRecommendCheckEnvironment` also handles a null `environmentSnapshot` gracefully.
-- [ ] GATE: `npm run compile` passes.
-- [ ] GATE: `npm run test` passes.
-- [ ] CHECKPOINT: commit wave 1.
+- [x] 1.5. Ensure `shouldRecommendCheckEnvironment` also handles a null `environmentSnapshot` gracefully.
+- [x] GATE: `npm run compile` passes.
+- [x] GATE: `npm run test` passes.
+- [x] CHECKPOINT: commit wave 1.
 
 ## Wave 2 - Normalize workspace root comparison (item_252)
 > Covers: item_252 AC1, AC2, AC3
 
-- [ ] 2.1. In `media/main.js` around line 878, replace `persistedWorkspaceRoot !== payload.root` with an inline Windows-aware comparison function (case-insensitive, slash-normalized). The webview is sandboxed so it cannot import `areSamePath` directly; implement a lightweight inline equivalent.
-- [ ] 2.2. Audit `media/main.js` for any other raw string comparisons on paths (`activeWorkspaceRoot`, `payload.root`, etc.) and normalize them with the same helper.
-- [ ] 2.3. In `src/extension.ts`, review `createFileSystemWatcher(new RelativePattern(root, ...))` patterns. Document whether VS Code's `RelativePattern` normalizes paths on Windows or whether explicit normalization is needed. If needed, normalize the root before passing to `RelativePattern`.
-- [ ] 2.4. Verify that `areSamePath` in `src/logicsProviderUtils.ts` handles edge cases: trailing slashes, mixed slashes, UNC paths.
-- [ ] GATE: `npm run compile` passes.
-- [ ] GATE: `npm run test` passes.
-- [ ] CHECKPOINT: commit wave 2.
+- [x] 2.1. In `media/main.js` around line 878, replace `persistedWorkspaceRoot !== payload.root` with an inline Windows-aware comparison function (case-insensitive, slash-normalized). The webview is sandboxed so it cannot import `areSamePath` directly; implement a lightweight inline equivalent.
+- [x] 2.2. Audit `media/main.js` for any other raw string comparisons on paths (`activeWorkspaceRoot`, `payload.root`, etc.) and normalize them with the same helper.
+- [x] 2.3. In `src/extension.ts`, review `createFileSystemWatcher(new RelativePattern(root, ...))` patterns. Document whether VS Code's `RelativePattern` normalizes paths on Windows or whether explicit normalization is needed. If needed, normalize the root before passing to `RelativePattern`.
+- [x] 2.4. Verify that `areSamePath` in `src/logicsProviderUtils.ts` handles edge cases: trailing slashes, mixed slashes, UNC paths.
+- [x] GATE: `npm run compile` passes.
+- [x] GATE: `npm run test` passes.
+- [x] CHECKPOINT: commit wave 2.
 
 ## Wave 3 - Unit tests and pre-release validation (item_253)
 > Covers: item_253 AC1, AC2, AC3, AC4
 
-- [ ] 3.1. Add unit tests for `areSamePath` in a new or existing test file covering:
+- [x] 3.1. Add unit tests for `areSamePath` in a new or existing test file covering:
   - `C:\Users\project` vs `c:\users\project` (case)
   - `C:/Users/project` vs `C:\Users\project` (slash direction)
   - `C:\Users\project\` vs `C:\Users\project` (trailing slash)
   - `\\server\share\repo` vs `\\SERVER\share\repo` (UNC paths)
   - Identical POSIX paths (no false positives on non-Windows)
-- [ ] 3.2. Add unit tests for the `refresh()` resilience from wave 1: mock one or more diagnostics rejecting and verify `postData` is still called with items.
-- [ ] 3.3. Add unit tests for the webview root comparison logic from wave 2: verify no spurious `resetPersistedUiState` with Windows path variants.
-- [ ] 3.4. Write a validation checklist for the issue reporter in the Report section:
+- [x] 3.2. Add unit tests for the `refresh()` resilience from wave 1: mock one or more diagnostics rejecting and verify `postData` is still called with items.
+- [x] 3.3. Add unit tests for the webview root comparison logic from wave 2: verify no spurious `resetPersistedUiState` with Windows path variants.
+- [x] 3.4. Write a validation checklist for the issue reporter in the Report section:
   - Install the pre-release VSIX
   - Open a repo that contains a `logics/` folder
   - Verify the board displays items
   - Toggle filters on/off, verify items appear/disappear
   - Modify a logics doc, verify the board refreshes
-- [ ] 3.5. Build a pre-release VSIX: `npx vsce package --pre-release`
-- [ ] GATE: `npm run compile` passes.
-- [ ] GATE: `npm run test` passes (including new tests).
+- [x] 3.5. Build a pre-release VSIX: `npx vsce package --pre-release`
+- [x] GATE: `npm run compile` passes.
+- [x] GATE: `npm run test` passes (including new tests).
 - [ ] CHECKPOINT: commit wave 3.
 
 ## Closure
@@ -130,11 +130,23 @@ flowchart TD
 
 # Definition of Done (DoD)
 - [ ] All three waves implemented and committed.
-- [ ] All wave gates passed (compile + test).
-- [ ] No wave or step closed before automated tests passed.
+- [x] All wave gates passed (compile + test).
+- [x] No wave or step closed before automated tests passed.
 - [ ] item_251, item_252, item_253 updated to Done.
 - [ ] req_132 updated to Done.
 - [ ] Pre-release VSIX shared with reporter for Windows validation.
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Delivered waves 1 to 3 locally on 2026-04-07 across `src/logicsViewProvider.ts`, `media/main.js`, `src/logicsProviderUtils.ts`, `src/extension.ts`, and the targeted Vitest suites.
+- Wave 1 now catches `indexLogics(root)` failures, tolerates `refreshAgents("silent", root)` failures, and uses `Promise.allSettled(...)` with safe defaults so non-critical diagnostics can no longer block `postData(...)`.
+- Wave 2 introduced an inline Windows-aware workspace-root comparator in the webview, hardened `areSamePath(...)` for mixed slashes, trailing separators, and UNC-style inputs, and documented why `RelativePattern` can keep the native workspace fsPath.
+- Wave 3 added regression coverage for Windows path normalization, refresh resilience, and webview persisted-state preservation, then passed `npm run compile`, `npm run test`, and `npx vsce package --pre-release`.
+- Pre-release artifact built locally: `cdx-logics-vscode-1.22.0.vsix`.
+- Reporter checklist for GitHub issue #1:
+  - Install the pre-release VSIX.
+  - Open a repository that contains a `logics/` folder.
+  - Verify the board displays items with filters inactive.
+  - Toggle filters on and off and verify items appear/disappear as expected.
+  - Modify a Logics doc and verify the board refreshes.
+- Remaining closure item: share the VSIX/build result with the issue reporter and wait for Windows confirmation before marking `item_253`, `req_132`, and this orchestration task fully done.

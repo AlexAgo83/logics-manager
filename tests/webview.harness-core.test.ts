@@ -1039,4 +1039,32 @@ describe("webview harness core behaviors", () => {
     expect(document.querySelector(".card--selected")).toBeNull();
     expect(details?.classList.contains("details--collapsed")).toBe(false);
   });
+
+  it("keeps persisted UI state when Windows roots differ only by case or slash direction", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        workspaceRoot: "c:\\Users\\alex\\repo\\",
+        selectedId: "prod_000_plugin_ux",
+        searchQuery: "plugin",
+        viewMode: "list",
+        detailsCollapsed: true
+      }
+    });
+
+    pushData(dom, {
+      root: "C:/Users/alex/repo",
+      items: [baseItem, productItem]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+    const details = document.getElementById("details");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+
+    expect(searchInput?.value).toBe("plugin");
+    expect(board?.classList.contains("board--list")).toBe(true);
+    expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("prod_000_plugin_ux");
+    expect(details?.classList.contains("details--collapsed")).toBe(true);
+  });
 });

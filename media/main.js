@@ -394,6 +394,27 @@
       ? (state) => persistence.hydrate(state)
       : () => undefined;
 
+  function normalizeWorkspacePath(value) {
+    if (typeof value !== "string") {
+      return "";
+    }
+    const normalized = value.replace(/\\/g, "/").replace(/\/+$/, "");
+    return normalized.length > 1 ? normalized : value.replace(/\\/g, "/");
+  }
+
+  function areSameWorkspacePath(left, right) {
+    if (typeof left !== "string" || typeof right !== "string") {
+      return false;
+    }
+    const normalizedLeft = normalizeWorkspacePath(left);
+    const normalizedRight = normalizeWorkspacePath(right);
+    const hasWindowsDrive = /^[a-z]:/i.test(normalizedLeft) || /^[a-z]:/i.test(normalizedRight);
+    if (hasWindowsDrive || normalizedLeft.startsWith("//") || normalizedRight.startsWith("//")) {
+      return normalizedLeft.toLowerCase() === normalizedRight.toLowerCase();
+    }
+    return normalizedLeft === normalizedRight;
+  }
+
   function buildColumnMenu() {
     const menu = document.createElement("div");
     menu.className = "column__menu";
@@ -875,7 +896,7 @@
         if (harnessApi && typeof harnessApi.setCurrentRoot === "function") {
           harnessApi.setCurrentRoot(payload.root);
         }
-        if (persistedWorkspaceRoot && persistedWorkspaceRoot !== payload.root) {
+        if (persistedWorkspaceRoot && !areSameWorkspacePath(persistedWorkspaceRoot, payload.root)) {
           resetPersistedUiState();
         }
       }

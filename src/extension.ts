@@ -57,6 +57,8 @@ export function activate(context: vscode.ExtensionContext): void {
       ".git/HEAD"
     ];
     for (const rawPattern of patterns) {
+      // RelativePattern already resolves the workspace root through VS Code's URI
+      // layer, so we keep the native fsPath here instead of pre-normalizing it.
       const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(root, rawPattern));
       watcher.onDidChange(scheduleRefresh);
       watcher.onDidCreate(scheduleRefresh);

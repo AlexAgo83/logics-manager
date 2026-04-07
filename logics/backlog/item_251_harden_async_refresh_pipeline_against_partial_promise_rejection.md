@@ -1,10 +1,10 @@
 ## item_251_harden_async_refresh_pipeline_against_partial_promise_rejection - Harden async refresh pipeline against partial Promise rejection
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -67,3 +67,13 @@ flowchart LR
 - Derived from request `req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues`.
 - Source file: `logics/request/req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues.md`.
 - This is the highest priority item of the three: fixing this alone may resolve the reported issue.
+
+# Delivery report
+- 2026-04-07: Hardened `refresh()` in `src/logicsViewProvider.ts` so `indexLogics(root)` failures render an explicit board error instead of leaving the webview empty.
+- Replaced the blocking `Promise.all(...)` diagnostics fan-out with `Promise.allSettled(...)` and safe defaults for changed paths, launcher availability, environment snapshot, and release capability.
+- Guarded `refreshAgents("silent", root)` so agent discovery failures no longer block item hydration.
+
+# Validation report
+- `npx vitest run tests/logicsViewProvider.test.ts`
+- `npm run compile`
+- `npm run test`

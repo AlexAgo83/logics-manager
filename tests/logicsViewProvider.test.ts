@@ -499,6 +499,78 @@ describe("LogicsViewProvider", () => {
     expect(mocks.createWebviewPanel).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps rendering items when non-critical refresh diagnostics reject", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    const postMessage = vi.fn();
+    (provider as any).view = {
+      webview: {
+        postMessage
+      }
+    };
+    mocks.indexLogics.mockReturnValue([
+      {
+        id: "req_132_windows_fix",
+        title: "Windows fix",
+        stage: "request",
+        path: path.join(root, "logics", "request", "req_132_windows_fix.md"),
+        relPath: "logics/request/req_132_windows_fix.md",
+        indicators: {},
+        references: [],
+        usedBy: []
+      }
+    ]);
+    mocks.inspectRuntimeLaunchers.mockRejectedValueOnce(new Error("launchers unavailable"));
+    mocks.inspectGitHubReleaseCapability.mockRejectedValueOnce(new Error("release capability unavailable"));
+
+    await provider.refresh();
+
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "data",
+        payload: expect.objectContaining({
+          items: expect.arrayContaining([
+            expect.objectContaining({
+              id: "req_132_windows_fix"
+            })
+          ]),
+          changedPaths: [],
+          canLaunchCodex: false,
+          canLaunchClaude: false,
+          canPublishRelease: false,
+          shouldRecommendCheckEnvironment: true
+        })
+      })
+    );
+  });
+
+  it("surfaces an explicit board error when indexLogics throws", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    const postMessage = vi.fn();
+    (provider as any).view = {
+      webview: {
+        postMessage
+      }
+    };
+    mocks.indexLogics.mockImplementation(() => {
+      throw new Error("simulated indexing failure");
+    });
+
+    await provider.refresh();
+
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "data",
+        payload: expect.objectContaining({
+          error: expect.stringContaining("simulated indexing failure"),
+          canLaunchCodex: false,
+          canLaunchClaude: false,
+          canPublishRelease: false,
+          shouldRecommendCheckEnvironment: true
+        })
+      })
+    );
+  });
+
   it("surfaces non-canonical bootstrap state instead of claiming bootstrap is complete", async () => {
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "noncanonical",

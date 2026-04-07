@@ -1,10 +1,10 @@
 ## item_252_normalize_workspace_root_comparison_with_windows_aware_path_logic - Normalize workspace root comparison with Windows-aware path logic
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 80%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -71,3 +71,13 @@ flowchart LR
 - Derived from request `req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues`.
 - Source file: `logics/request/req_132_fix_empty_board_on_windows_due_to_indexing_and_path_issues.md`.
 - The `areSamePath` helper is already imported in `src/logicsViewProvider.ts`; the webview side needs an equivalent inline or injected function since it runs in a sandboxed context.
+
+# Delivery report
+- 2026-04-07: Replaced strict root string equality in `media/main.js` with an inline Windows-aware comparator that normalizes slash direction, trailing separators, and drive-letter casing.
+- Updated `src/logicsProviderUtils.ts` so `areSamePath(...)` uses `path.win32` semantics on Windows comparisons, covering mixed slashes, trailing slashes, and UNC-style paths consistently even under cross-platform test execution.
+- Documented in `src/extension.ts` why `RelativePattern(root, pattern)` can keep the native workspace fsPath without additional normalization.
+
+# Validation report
+- `npx vitest run tests/logicsProviderUtils.test.ts tests/webview.harness-core.test.ts`
+- `npm run compile`
+- `npm run test`

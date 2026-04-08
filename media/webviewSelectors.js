@@ -346,12 +346,12 @@
         const grouped = visibleItems.reduce((acc, item) => {
           const heading = item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status";
           const key = `status:${normalizeSearchValue(heading) || "no-status"}`;
-          acc[key] = acc[key] || { key, heading, items: [] };
+          acc[key] = acc[key] || { key, heading, items: [], totalCount: visibleItems.length };
           acc[key].items.push(item);
           return acc;
         }, {});
         return Object.values(grouped)
-          .map((group) => ({ ...group, items: sortItems(group.items) }))
+          .map((group) => ({ ...group, items: sortItems(group.items), totalCount: visibleItems.length }))
           .sort((left, right) => normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading)));
       }
 
@@ -362,6 +362,7 @@
           stage,
           heading: getStageHeading(stage),
           items: grouped[stage] || [],
+          totalCount: visibleItems.length,
           emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
         }))
         .filter((group) => !getHideEmptyColumns() || group.items.length > 0);

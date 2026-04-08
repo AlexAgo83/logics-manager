@@ -30,6 +30,7 @@ describe("webview selectors behavior", () => {
       ...baseItem,
       id: "req_done",
       title: "Complete",
+      stage: "backlog",
       indicators: { Status: "Done", Progress: "100%" }
     };
 

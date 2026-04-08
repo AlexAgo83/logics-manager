@@ -36,3 +36,6 @@ CRG-README.md
 .opencode.json
 .windsurfrules
 GEMINI.md
+
+# Claude Code local settings
+.claude/settings.local.json

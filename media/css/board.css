@@ -202,6 +202,10 @@
   margin-top: 2px;
 }
 
+.card__badges--metrics {
+  margin-top: 2px;
+}
+
 .card__preview {
   margin-top: 4px;
   padding-top: 6px;
@@ -239,6 +243,15 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid transparent;
+}
+
+.card__badge--metric {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .card__badge--product {

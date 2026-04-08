@@ -2,8 +2,8 @@
 > From version: 1.22.2
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 96%
-> Confidence: 92%
+> Understanding: 97%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -61,4 +61,4 @@ flowchart TD
 - Use when: Use when grooming a repository-level navigation layer for a large Logics corpus.
 - Skip when: Skip when the work targets a different workflow surface or a broader product redesign.
 # Backlog
-- (none yet)
+- `item_257_generated_corpus_index_and_relationship_views`

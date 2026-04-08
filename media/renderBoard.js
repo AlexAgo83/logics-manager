@@ -474,14 +474,66 @@
       return row;
     }
 
+    function normalizeComplexityLabel(value) {
+      const raw = String(value || "").trim();
+      if (!raw) {
+        return "";
+      }
+      const normalized = raw.toLowerCase();
+      if (normalized === "very low") {
+        return "VL";
+      }
+      if (normalized === "low") {
+        return "L";
+      }
+      if (normalized === "medium") {
+        return "M";
+      }
+      if (normalized === "high") {
+        return "H";
+      }
+      if (normalized === "very high") {
+        return "VH";
+      }
+      if (raw.length <= 3) {
+        return raw.toUpperCase();
+      }
+      return raw.slice(0, 1).toUpperCase();
+    }
+
+    function createProgressComplexityBadge(item) {
+      const progressValue = getProgressValue(item);
+      const complexityValue = String(item?.indicators?.Complexity || "").trim();
+      if (typeof progressValue !== "number" && !complexityValue) {
+        return null;
+      }
+
+      const badge = document.createElement("div");
+      badge.className = "card__badges card__badges--metrics";
+
+      const pill = document.createElement("span");
+      pill.className = "card__badge card__badge--metric";
+      const progressText = typeof progressValue === "number" ? `${Math.max(0, Math.min(100, Math.round(progressValue)))}%` : "—";
+      const complexityText = complexityValue ? normalizeComplexityLabel(complexityValue) : "—";
+      pill.textContent = `${progressText} / ${complexityText}`;
+      const titleParts = [];
+      if (typeof progressValue === "number") {
+        titleParts.push(`Progress: ${Math.max(0, Math.min(100, Math.round(progressValue)))}%`);
+      }
+      if (complexityValue) {
+        titleParts.push(`Complexity: ${complexityValue}`);
+      }
+      pill.title = titleParts.join(" • ");
+      badge.appendChild(pill);
+      return badge;
+    }
+
     function createCardPreview(item) {
       const preview = document.createElement("div");
       preview.className = "card__preview";
       preview.hidden = true;
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
-      preview.appendChild(createPreviewRow("References", String((item.references || []).length)));
-      preview.appendChild(createPreviewRow("Used by", String((item.usedBy || []).length)));
 
       const linkage = createPrimaryFlowSummary(item);
       if (linkage) {
@@ -538,6 +590,11 @@
       const healthBadges = createHealthBadges(item);
       if (healthBadges) {
         card.appendChild(healthBadges);
+      }
+
+      const progressComplexityBadge = createProgressComplexityBadge(item);
+      if (progressComplexityBadge) {
+        card.appendChild(progressComplexityBadge);
       }
 
       const suggestedBadges = createSuggestedBadges(item);

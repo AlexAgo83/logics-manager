@@ -1,9 +1,9 @@
 ## req_136_replace_references_and_used_by_counters_with_a_discreet_progress_complexity_badge - Replace references and used by counters with a discreet progress complexity badge
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 96%
-> Confidence: 93%
+> Status: Done
+> Understanding: 97%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -39,10 +39,10 @@ flowchart TD
 - AC5: The change does not make request/task cells harder to scan in dense board or list views.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

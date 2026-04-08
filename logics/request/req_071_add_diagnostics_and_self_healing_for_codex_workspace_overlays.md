@@ -1,8 +1,8 @@
 ## req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays - Add diagnostics and self-healing for Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Overlay diagnostics and recovery workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -36,11 +36,10 @@ The request therefore asks for an explicit diagnostics and self-healing contract
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|add-diagnostics-and-self-healing-for-cod|make-codex-workspace-overlays-observable|ac1-the-request-defines-an-explicit
-flowchart LR
-    Overlay[Workspace overlay exists] --> Check[Diagnostics inspect health]
-    Check --> Detect[Drift and broken links are identified]
-    Detect --> Repair[Safe self healing or guided recovery]
-    Repair --> Outcome[Operators recover without guesswork]
+flowchart TD
+    Trigger[Add diagnostics and self-healing for Codex] --> Need[Make Codex workspace overlays observable a]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -95,3 +94,4 @@ flowchart LR
 
 # Backlog
 - `item_094_add_diagnostics_and_self_healing_for_codex_workspace_overlays`
+- `logics/backlog/item_094_add_diagnostics_and_self_healing_for_codex_workspace_overlays.md`

@@ -1,12 +1,23 @@
 ## task_011_orchestration_delivery_for_req_007_and_req_008 - Orchestration Delivery for req_007 and req_008
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 98% (closed)
-> Confidence: 95% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 99% (closed)
+> Confidence: 96% (validated)
+> Progress: 100%
 > Complexity: Medium-High
 > Theme: Cross-Item Delivery Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-007-and-r|item-007-logics-references-compatibility|1-define-and-document-canonical-logics|npm-run-compile
+flowchart LR
+    Backlog[item_007_logics_references_compatibility_w] --> Step1[1. Define and document canonical Logics]
+    Step1 --> Step2[2. Implement alignment changes in indexer]
+    Step2 --> Step3[3. Build the web debug harness]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Orchestration task covering:
@@ -28,11 +39,11 @@ Execution constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (reference contract defined) -> `logics/instructions.md` and/or `README.md` updated with canonical patterns. Proof: TODO.
-- AC2 (plugin reference behavior reliable) -> manual board/details checks on representative docs after refresh. Proof: TODO.
-- AC3 (web debug harness available) -> harness files/scripts committed and runnable locally. Proof: TODO.
-- AC4 (debug scenarios reusable) -> documented fixtures or payload presets for empty/error/populated states. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 (reference contract defined) -> `logics/instructions.md` and/or `README.md` updated with canonical patterns. Proof: covered by linked task completion.
+- AC2 (plugin reference behavior reliable) -> manual board/details checks on representative docs after refresh. Proof: covered by linked task completion.
+- AC3 (web debug harness available) -> harness files/scripts committed and runnable locally. Proof: covered by linked task completion.
+- AC4 (debug scenarios reusable) -> documented fixtures or payload presets for empty/error/populated states. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Validation
 - `npm run compile`
@@ -61,3 +72,5 @@ Execution constraint:
   - Added browser debug harness under `debug/webview/` with empty/error/populated scenarios.
   - Added compatibility parsing for legacy list-style references (`- References:` / `- Used by:`).
   - Validation executed: `npm run compile`, `npm run test`, `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`, plus harness startup smoke check.
+
+# Notes

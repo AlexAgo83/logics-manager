@@ -29,14 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|split-oversized-plugin-test-suites-by-be|req-131-reduce-all-remaining-active-sour|reduce-the-maintenance-cost-and-failure|ac1-tests-logicsviewprovider-test-ts-is-
 flowchart LR
-    A[req 131] --> B[Oversized plugin tests]
-    B --> C[Group by behavior]
-    C --> D[Provider suites]
-    C --> E[Harness core suites]
-    C --> F[Details and filter suites]
-    D --> G[Tests below 1000]
-    E --> G
-    F --> G
+    Request[req_131_reduce_all_remaining_active_source] --> Problem[Reduce the maintenance cost and failure]
+    Problem --> Scope[Split oversized plugin test suites by]
+    Scope --> Acceptance[AC1: tests logicsViewProvider.test.ts is r]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

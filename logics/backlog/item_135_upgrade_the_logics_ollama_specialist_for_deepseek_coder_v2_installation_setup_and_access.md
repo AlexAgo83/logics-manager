@@ -1,10 +1,10 @@
 ## item_135_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access - Upgrade the Logics Ollama specialist for deepseek-coder-v2 installation setup and access
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 94%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Local Ollama coding workflows
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,13 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|upgrade-the-logics-ollama-specialist-for|req-086-upgrade-the-logics-ollama-specia|the-repository-s-logics-ollama-specialis|ac1-the-skill-documents-the-preferred
 flowchart LR
-    Request[req_086] --> Problem[DeepSeek Coder workflow is missing from the repo skill]
-    Problem --> Scope[Update skill docs scripts and references]
-    Scope --> AC1[AC1: Preferred DeepSeek path is documented]
-    AC1 --> AC2[AC2: Install and validation flow is actionable]
-    AC2 --> AC3[AC3: Continue access path is covered]
-    AC3 --> AC4[AC4: Helper assets support repeatable checks]
-    AC4 --> Task[Execution task]
+    Request[req_086_upgrade_the_logics_ollama_speciali] --> Problem[The repository s logics-ollama-specialist]
+    Problem --> Scope[Upgrade the Logics Ollama specialist for]
+    Scope --> Acceptance[AC1: The skill documents the preferred]
+    Acceptance --> Tasks[task_098_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria
@@ -85,3 +82,4 @@ flowchart LR
 - Source file: `logics/request/req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`.
 - Request context seeded into this backlog item from `logics/request/req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`.
 - Task `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows` was finished via `logics_flow.py finish task` on 2026-03-24.
+- Derived from `logics/request/req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`.

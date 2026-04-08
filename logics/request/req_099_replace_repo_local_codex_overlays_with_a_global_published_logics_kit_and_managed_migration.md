@@ -46,11 +46,9 @@
 %% logics-kind: request
 %% logics-signature: request|replace-repo-local-codex-overlays-with-a|replace-the-current-repo-local-codex-ove|ac1-the-request-defines-a-new
 flowchart TD
-    Repos[Many repos already import the Logics kit] --> Pain[Overlay ready does not guarantee session visibility]
-    Pain --> Shift[Adopt one global published kit runtime]
-    Shift --> Plugin[Plugin publishes and auto upgrades the shared kit]
-    Plugin --> Migration[Existing overlay aware repos migrate without manual rewiring]
-    Migration --> Outcome[Codex sessions see shared Logics skills more directly]
+    Trigger[Replace repo-local Codex overlays with a] --> Need[Replace the current repo-local Codex overl]
+    Need --> Outcome[AC1: The request defines a new]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

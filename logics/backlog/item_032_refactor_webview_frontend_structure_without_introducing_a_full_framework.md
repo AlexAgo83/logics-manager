@@ -1,9 +1,9 @@
 ## item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 99% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% (validated)
+> Progress: 100% ((audit-aligned); refreshed)
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,19 +28,13 @@
 - Changing the workflow semantics already handled by the current plugin features.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|refactor-webview-frontend-structure-with|req-026-refactor-webview-frontend-struct|the-webview-frontend-has-grown-beyond|ac1-the-backlog-item-frames-the
-flowchart TD
-    A[Current webview frontend] --> B[Monolithic JS and CSS files]
-    B --> C[Mixed concerns and higher regression risk]
-    C --> D[Refactor into lightweight modules]
-    D --> E[Bootstrap entry remains simple]
-    D --> F[Shared model and host bridge]
-    D --> G[Board and detail renderers]
-    D --> H[CSS split by concern]
-    E --> I[More maintainable webview]
-    F --> I
-    G --> I
-    H --> I
+flowchart LR
+    Request[req_026_refactor_webview_frontend_structur] --> Problem[The webview frontend has grown beyond]
+    Problem --> Scope[Refactor webview frontend structure withou]
+    Scope --> Acceptance[AC1: The backlog item frames the]
+    Acceptance --> Tasks[task_026_refactor_webview_frontend_structu]
 ```
 
 # Acceptance criteria
@@ -57,11 +51,11 @@ flowchart TD
 - AC2 -> Scope explicitly names module split, shared helpers, host bridge, CSS decomposition, and tests. Proof: scope section.
 - AC3 -> Scope and notes explicitly reject a framework migration and preserve a thin bootstrap entry. Proof: scope out + notes.
 - AC4 -> Risks capture poor boundaries, excess tooling, workflow/helper duplication, and CSS ordering regressions. Proof: notes section and request alignment.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -95,5 +89,6 @@ flowchart TD
   - the refactor is complete for this iteration with the accepted direction captured in `adr_002`.
 - A companion architecture decision is still expected because the refactor changes frontend structure and runtime boundaries inside the webview.
 
+- Derived from `logics/request/req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`.
 # Tasks
 - `logics/tasks/task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`

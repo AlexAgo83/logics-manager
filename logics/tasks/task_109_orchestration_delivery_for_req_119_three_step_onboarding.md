@@ -1,9 +1,9 @@
 ## task_109_orchestration_delivery_for_req_119_three_step_onboarding - Orchestration delivery for req 119 three step onboarding
-> From version: 1.18.1
+> From version: 1.18.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
@@ -29,10 +29,10 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-119-three|item-208-define-the-three-step-onboardin|1-lock-the-split-execution-order|npm-run-compile
 flowchart LR
-    Umbrella[Req 119 onboarding] --> Step1[Item 208 model and copy]
-    Step1 --> Step2[Item 209 entry surfaces and validation]
-    Step2 --> Step3[Update linked docs and close gaps]
-    Step3 --> Validation[npm run compile and npm run test]
+    Backlog[item_208_define_the_three_step_onboarding_] --> Step1[1. Lock the split execution order]
+    Step1 --> Step2[2. Deliver item_208 first so the]
+    Step2 --> Step3[3. Deliver item_209 on top of]
+    Step3 --> Validation[npm run compile]
     Validation --> Report[Done report]
 ```
 
@@ -101,3 +101,5 @@ Wave 3 (CHECKPOINT): Linked Logics docs (task_109, item_208, item_209, req_119) 
 - Finished on 2026-04-04.
 - Linked backlog item(s): `item_208_define_the_three_step_onboarding_model_and_operator_copy`, `item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment`
 - Related request(s): `req_119_three_step_onboarding_for_need_framing_and_execution`
+
+# Notes

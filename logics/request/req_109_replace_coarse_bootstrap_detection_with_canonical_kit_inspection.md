@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 90%
+> Understanding: 93%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -28,11 +28,9 @@
 %% logics-kind: request
 %% logics-signature: request|replace-coarse-bootstrap-detection-with-|stop-treating-any-logics-skills-presence|ac1-bootstrap-and-repair-actions-are
 flowchart TD
-    Repo[Repository state] --> Heuristic[Current coarse bootstrap heuristic]
-    Repo --> Inspect[Canonical kit inspection]
-    Heuristic --> Drift[Misleading availability state]
-    Inspect --> Truth[Truthful bootstrap decisions]
-    Truth --> Backlog[Backlog slice]
+    Trigger[Replace coarse bootstrap detection with ca] --> Need[Stop treating any logics skills presence]
+    Need --> Outcome[AC1: Bootstrap and repair actions are]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -91,3 +89,4 @@ flowchart TD
 
 # Backlog
 - `item_196_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`
+- `logics/backlog/item_196_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`

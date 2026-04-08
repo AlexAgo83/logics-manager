@@ -1,9 +1,9 @@
 ## item_099_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays - Adapt the VS Code Logics plugin to Codex workspace overlays
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: VS Code plugin integration and Codex overlay awareness
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|adapt-the-vs-code-logics-plugin-to-codex|req-067-add-multi-project-codex-workspac|adapt-the-vs-code-logics-plugin|ac1-the-request-defines-plugin-level-ada
 flowchart LR
-    Request[req_076_adapt_the_vs_code_logics_plugin_to] --> Problem[Adapt the VS Code Logics plugin]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Adapt the VS Code Logics plugin]
     Problem --> Scope[Adapt the VS Code Logics plugin]
     Scope --> Acceptance[AC1: The request defines plugin-level adap]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_089_orchestration_delivery_for_req_07]
 ```
 
 # Acceptance criteria
@@ -48,22 +48,22 @@ flowchart LR
 - or fuller overlay action surfaces in the tools menu.
 
 # AC Traceability
-- AC1 -> Scope: The request defines plugin-level adaptation for the Codex workspace-overlay model without redefining the underlying overlay architecture itself.. Proof: TODO.
-- AC2 -> Scope: The request explicitly preserves the current plugin responsibility for repo-local Logics workflow browsing and script-backed actions under `logics/skills/`.. Proof: TODO.
-- AC3 -> Scope: The request defines which overlay-aware plugin surfaces need to exist, covering at least:. Proof: TODO.
-- AC4 -> Scope: environment or status visibility;. Proof: TODO.
-- AC5 -> Scope: Codex launch or handoff guidance;. Proof: TODO.
-- AC6 -> Scope: operator-facing recovery messaging when overlay state is missing or unhealthy.. Proof: TODO.
-- AC4 -> Scope: The request makes clear that the plugin should be able to distinguish between:. Proof: TODO.
-- AC7 -> Scope: healthy repo-local Logics state;. Proof: TODO.
-- AC8 -> Scope: and unhealthy overlay-backed Codex runtime state.. Proof: TODO.
-- AC5 -> Scope: The request is concrete enough that future implementation can decide whether overlay actions are invoked through a CLI or wrapper layer while still giving the plugin a coherent integration path.. Proof: TODO.
-- AC6 -> Scope: The request keeps bootstrap and repo-local kit checks compatible with existing repositories even before overlays are fully adopted everywhere.. Proof: TODO.
-- AC7 -> Scope: The request defines the plugin adaptation as additive and backward-aware rather than as a breaking replacement of current Logics browsing and workflow actions.. Proof: TODO.
-- AC8 -> Scope: The request is implementation-ready enough that a follow-up backlog item can choose whether the first plugin pass should include:. Proof: TODO.
-- AC9 -> Scope: read-only overlay diagnostics first;. Proof: TODO.
-- AC10 -> Scope: guided launch integration;. Proof: TODO.
-- AC11 -> Scope: or fuller overlay action surfaces in the tools menu.. Proof: TODO.
+- AC1 -> Scope: The request defines plugin-level adaptation for the Codex workspace-overlay model without redefining the underlying overlay architecture itself.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly preserves the current plugin responsibility for repo-local Logics workflow browsing and script-backed actions under `logics/skills/`.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request defines which overlay-aware plugin surfaces need to exist, covering at least:. Proof: covered by linked task completion.
+- AC4 -> Scope: environment or status visibility;. Proof: covered by linked task completion.
+- AC5 -> Scope: Codex launch or handoff guidance;. Proof: covered by linked task completion.
+- AC6 -> Scope: operator-facing recovery messaging when overlay state is missing or unhealthy.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request makes clear that the plugin should be able to distinguish between:. Proof: covered by linked task completion.
+- AC7 -> Scope: healthy repo-local Logics state;. Proof: covered by linked task completion.
+- AC8 -> Scope: and unhealthy overlay-backed Codex runtime state.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request is concrete enough that future implementation can decide whether overlay actions are invoked through a CLI or wrapper layer while still giving the plugin a coherent integration path.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request keeps bootstrap and repo-local kit checks compatible with existing repositories even before overlays are fully adopted everywhere.. Proof: covered by linked task completion.
+- AC7 -> Scope: The request defines the plugin adaptation as additive and backward-aware rather than as a breaking replacement of current Logics browsing and workflow actions.. Proof: covered by linked task completion.
+- AC8 -> Scope: The request is implementation-ready enough that a follow-up backlog item can choose whether the first plugin pass should include:. Proof: covered by linked task completion.
+- AC9 -> Scope: read-only overlay diagnostics first;. Proof: covered by linked task completion.
+- AC10 -> Scope: guided launch integration;. Proof: covered by linked task completion.
+- AC11 -> Scope: or fuller overlay action surfaces in the tools menu.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -96,3 +96,4 @@ flowchart LR
 - Derived from request `req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays`.
 - Source file: `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`.
 - Request context seeded into this backlog item from `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`.
+- Derived from `logics/request/req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`.

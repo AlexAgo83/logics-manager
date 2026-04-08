@@ -1,5 +1,5 @@
 ## adr_014_keep_plugin_safety_and_repository_governance_explicit_bounded_and_modular - Keep plugin safety and repository governance explicit, bounded, and modular
-> Date: 2026-03-28
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: deterministic safety boundaries for untrusted repo inputs, truthful local and CI validation, explicit temporary audit exceptions, canonical repository-state inspection, and bounded webview modularization
 > Related request: `req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests`, `req_108_align_the_local_ci_check_with_the_full_repository_ci_contract`, `req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`, `req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities`, `req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs`, `req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh`, `req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html`, `req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain`, `req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules`
@@ -82,7 +82,6 @@ flowchart LR
 - Use this ADR as the architecture reference for later bounded modularization work under `item_204`.
 
 # References
-- `logics/architecture/adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend.md`
 - `logics/request/req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`
 - `logics/request/req_108_align_the_local_ci_check_with_the_full_repository_ci_contract.md`
 - `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`
@@ -92,13 +91,16 @@ flowchart LR
 - `logics/request/req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`
 - `logics/request/req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`
 - `logics/request/req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`
-- `src/agentRegistry.ts`
-- `src/logicsProviderUtils.ts`
-- `src/logicsViewProvider.ts`
-- `media/main.js`
-- `scripts/check-npm-audit.mjs`
-- `scripts/ci-check.mjs`
-
+- `logics/backlog/item_194_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`
+- `logics/backlog/item_195_align_the_local_ci_check_with_the_full_repository_ci_contract.md`
+- `logics/backlog/item_196_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`
+- `logics/backlog/item_197_make_the_security_audit_workflow_block_on_actionable_vulnerabilities.md`
+- `logics/backlog/item_198_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs.md`
+- `logics/backlog/item_201_fix_false_positive_mermaid_signature_warnings_after_signature_refresh.md`
+- `logics/backlog/item_202_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`
+- `logics/backlog/item_203_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`
+- `logics/backlog/item_204_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`
+- `logics/tasks/task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization.md`
 # Follow-up work
 - Keep the allowlist in `audit:ci` narrow and remove the temporary Vite/Vitest exception when the toolchain can move cleanly.
 - Reuse the canonical bootstrap inspection model rather than adding new coarse path-presence checks elsewhere.

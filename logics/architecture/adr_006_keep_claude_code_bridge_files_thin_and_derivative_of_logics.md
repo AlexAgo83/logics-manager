@@ -1,5 +1,5 @@
 ## adr_006_keep_claude_code_bridge_files_thin_and_derivative_of_logics - Keep Claude Code bridge files thin and derivative of Logics
-> Date: 2026-03-16
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: Keep `logics/` as the canonical workflow source, avoid duplicated agent definitions across assistant formats, preserve current plugin contracts, and enable Claude Code adoption with a minimal repo-level bridge.
 > Related request: `req_055_add_a_minimal_claude_code_bridge_for_logics_agents`
@@ -78,9 +78,6 @@ Adopt the following repository contract for Claude Code integration.
 - `logics/request/req_055_add_a_minimal_claude_code_bridge_for_logics_agents.md`
 - `logics/backlog/item_064_add_a_minimal_claude_code_bridge_for_logics_agents.md`
 - `logics/tasks/task_069_add_a_minimal_claude_code_bridge_for_logics_agents.md`
-- `logics/instructions.md`
-- `logics/skills/logics-flow-manager/SKILL.md`
-
 # Follow-up work
 - Use this ADR as the required architecture reference for `item_064` and `task_069`.
 - Keep any first-pass `.claude/` implementation scoped to thin wrappers around request and flow management.

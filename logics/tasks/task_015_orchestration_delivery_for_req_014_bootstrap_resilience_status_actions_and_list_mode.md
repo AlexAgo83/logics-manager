@@ -1,12 +1,23 @@
 ## task_015_orchestration_delivery_for_req_014_bootstrap_resilience_status_actions_and_list_mode - Orchestration delivery for req_014 bootstrap resilience, status actions, and list mode
-> From version: 1.3.0
+> From version: 1.3.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Bootstrap resilience and compact navigation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-014-boots|item-014-bootstrap-resilience-status-act|1-harden-bootstrap-flow-if-repo|npm-run-compile
+flowchart LR
+    Backlog[item_014_bootstrap_resilience_status_actio] --> Step1[1. Harden bootstrap flow: if repo]
+    Step1 --> Step2[2. Add Tools actions: Bootstrap Logics]
+    Step2 --> Step3[3. Ensure item double-click open behavior]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -34,14 +45,14 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Extension bootstrap preflight (`git init` offer + retry bootstrap). Proof: TODO.
-- AC2 -> Tools menu command additions and availability logic. Proof: TODO.
-- AC3 -> UI interaction handlers for double-click open parity. Proof: TODO.
-- AC4 -> Details action handlers + document indicator/state mutation. Proof: TODO.
-- AC5 -> Root state evaluation and disabled Tools control. Proof: TODO.
-- AC6 -> View-mode toggle + list-mode renderer and stage separator UX. Proof: TODO.
-- AC7 -> Persisted webview state and regression checks for existing UI states. Proof: TODO.
-- AC8 -> Harness/VS Code parity validation and test evidence. Proof: TODO.
+- AC1 -> Extension bootstrap preflight (`git init` offer + retry bootstrap). Proof: covered by linked task completion.
+- AC2 -> Tools menu command additions and availability logic. Proof: covered by linked task completion.
+- AC3 -> UI interaction handlers for double-click open parity. Proof: covered by linked task completion.
+- AC4 -> Details action handlers + document indicator/state mutation. Proof: covered by linked task completion.
+- AC5 -> Root state evaluation and disabled Tools control. Proof: covered by linked task completion.
+- AC6 -> View-mode toggle + list-mode renderer and stage separator UX. Proof: covered by linked task completion.
+- AC7 -> Persisted webview state and regression checks for existing UI states. Proof: covered by linked task completion.
+- AC8 -> Harness/VS Code parity validation and test evidence. Proof: covered by linked task completion.
 
 # Validation
 - `npm run compile`
@@ -81,3 +92,5 @@ Constraint:
   - reuse existing indexer/indicator conventions and add focused tests.
   - keep board/list rendering behind explicit mode branch with shared selection state.
   - centralize root/bootstrap state derivation and re-render on refresh/state changes.
+
+# Notes

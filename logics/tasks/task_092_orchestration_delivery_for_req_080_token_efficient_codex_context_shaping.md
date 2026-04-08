@@ -1,8 +1,8 @@
 ## task_092_orchestration_delivery_for_req_080_token_efficient_codex_context_shaping - Orchestration delivery for req_080 token-efficient Codex context shaping
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -37,11 +37,10 @@ Delivery shape:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-080-token|item-103-define-budgeted-context-pack-pr|1-confirm-portfolio-scope-dependencies-a|npm-run-lint
 flowchart LR
-    Backlog[Items 103 to 107] --> Step1[Confirm portfolio scope and delivery order]
-    Step1 --> Step2[Implement budget and summary foundations]
-    Step2 --> Step3[Implement agent routing and delta packs]
-    Step3 --> Step4[Implement hygiene guidance and final alignment]
-    Step4 --> Validation[Run the relevant automated tests for the changed surfaces]
+    Backlog[item_103_define_budgeted_context_pack_prof] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement the shared]
+    Step2 --> Step3[3. Wave 2: implement agent-aware routing]
+    Step3 --> Validation[npm run lint]
     Validation --> Report[Done report]
 ```
 
@@ -129,3 +128,5 @@ flowchart LR
 - Finished on 2026-03-23.
 - Linked backlog item(s): `item_103_define_budgeted_context_pack_profiles_and_deterministic_trimming_for_codex`, `item_104_add_ai_facing_summaries_and_compact_metadata_to_managed_logics_docs`, `item_105_make_agent_manifests_declare_context_budgets_and_allowed_doc_families`, `item_106_build_delta_oriented_codex_context_packs_from_direct_dependencies_and_recent_changes`, `item_107_detect_redundant_or_oversized_logics_context_and_guide_token_hygiene`
 - Related request(s): `req_080_reduce_codex_token_consumption_with_budgeted_context_packs_and_agent_aware_prompt_shaping`
+
+# Notes

@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|replace-textual-activity-attention-and-v|req-096-refine-plugin-responsive-activit|the-plugin-toolbar-still-mixes-icon|ac1-the-plugin-toolbar-uses-icon-led
 flowchart LR
-    Request[req_096] --> Problem[Toolbar still mixes text and icon controls]
-    Problem --> Icons[Replace Activity Attention and mode labels with icons]
-    Icons --> A11y[Preserve accessibility and selected state]
-    A11y --> Test[Regression coverage]
+    Request[req_096_refine_plugin_responsive_activity_] --> Problem[The plugin toolbar still mixes icon]
+    Problem --> Scope[Replace textual Activity Attention and vie]
+    Scope --> Acceptance[AC1: The plugin toolbar uses icon-led]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

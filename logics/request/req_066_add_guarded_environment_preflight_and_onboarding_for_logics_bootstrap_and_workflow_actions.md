@@ -49,14 +49,9 @@ The preferred outcome is a user experience where:
 %% logics-kind: request
 %% logics-signature: request|add-guarded-environment-preflight-and-on|add-an-explicit-environment-preflight-so|ac1-the-request-defines-an-explicit
 flowchart TD
-    Start[User opens plugin] --> Preflight[Environment capability check]
-    Preflight --> ReadOnly[Read and browse available]
-    Preflight --> Workflow[Create promote fix guarded by prerequisites]
-    Preflight --> Bootstrap[Bootstrap guided by git and python availability]
-    ReadOnly --> Clarity[Explain what works now]
-    Workflow --> Clarity
-    Bootstrap --> Clarity
-    Clarity --> Outcome[Less surprise and better onboarding]
+    Trigger[Add guarded environment preflight and onbo] --> Need[Add an explicit environment preflight so]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

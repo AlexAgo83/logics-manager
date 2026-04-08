@@ -1,8 +1,8 @@
 ## req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs - Auto-refresh stale Mermaid signatures in Logics workflow docs
 > From version: 1.10.8
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: Logics doc maintenance and Mermaid signature integrity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -40,11 +40,10 @@ The preferred direction is to keep the current signature mechanism, but add a su
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|auto-refresh-stale-mermaid-signatures-in|reduce-friction-when-workflow-docs-are|ac1-the-request-defines-a-supported
-flowchart LR
-    Edit[Workflow doc is edited manually] --> Drift[Mermaid signature becomes stale]
-    Drift --> Tooling[Tooling recomputes the expected signature]
-    Tooling --> Refresh[Signature is refreshed without manual bookkeeping]
-    Refresh --> Outcome[Lint warnings stay focused on real issues]
+flowchart TD
+    Trigger[Auto-refresh stale Mermaid signatures in L] --> Need[Reduce friction when workflow docs are]
+    Need --> Outcome[AC1: The request defines a supported]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -112,3 +111,4 @@ flowchart LR
 
 # Backlog
 - `item_091_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs`
+- `logics/backlog/item_091_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs.md`

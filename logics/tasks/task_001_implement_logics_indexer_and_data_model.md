@@ -1,9 +1,20 @@
 ## task_001_implement_logics_indexer_and_data_model - Implement Logics indexer and data model
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 85% (audit-aligned)
-> Confidence: 80% (governed)
-> Progress: 100% (governed)
+> Understanding: 86% (audit-aligned)
+> Confidence: 81% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|implement-logics-indexer-and-data-model|item-000-kickoff|1-define-discovery-rules-for-logics|manual-run-the-indexer-and-verify
+flowchart LR
+    Backlog[item_000_kickoff] --> Step1[1. Define discovery rules for logics]
+    Step1 --> Step2[2. Define parsing rules for headers]
+    Step2 --> Step3[3. Implement the indexer data model]
+    Step3 --> Validation[Manual: run the indexer and verify]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.

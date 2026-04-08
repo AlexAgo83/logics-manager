@@ -1,8 +1,8 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.1
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 100% (validated)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: Logics kit workflow quality, generation, and governance hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -53,23 +53,12 @@ It is about making the existing workflow:
 - and more effective as a day-to-day acceleration layer for the agent itself.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|harden-logics-kit-workflow-generation-an|improve-the-logics-kit-so-real|ac1-promotion-from-request-backlog
 flowchart TD
-    A[Real project usage of Logics kit] --> B[Promotion still leaves generic placeholders]
-    A --> C[Split remains manual]
-    A --> D[ID allocation shows collision risk]
-    A --> E[Audit is useful but too broad]
-    A --> F[Traceability and close-out still need manual synchronization]
-    B --> G[Need richer generation]
-    C --> H[Need first-class split workflow]
-    D --> I[Need safer ID allocation]
-    E --> J[Need scoped governance tools]
-    F --> K[Need stronger traceability seeding and closure automation]
-    G --> L[More reliable Logics workflow]
-    H --> L
-    I --> L
-    J --> L
-    K --> L
+    Trigger[Harden Logics kit workflow generation and] --> Need[Improve the Logics kit so real]
+    Need --> Outcome[AC1: Promotion from request - backlog]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -161,5 +150,6 @@ flowchart TD
 # Backlog
 - `item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 
+- `logics/backlog/item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`
 # Task
 - `task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage`

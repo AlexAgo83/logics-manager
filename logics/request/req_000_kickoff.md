@@ -1,8 +1,17 @@
 ## req_000_kickoff - Kickoff
 > From version: 1.9.1
-> Understanding: 90% (audit-aligned)
-> Confidence: 85% (governed)
+> Understanding: 93% (audit-aligned)
+> Confidence: 88% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|kickoff|build-a-vs-code-extension-that|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Kickoff] --> Need[Build a VS Code extension that]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Build a VS Code extension that provides a visual workspace to orchestrate everything in `logics` (requests, backlog, tasks, specs, etc.).
@@ -27,3 +36,7 @@
 
 # Backlog
 - `logics/backlog/item_000_kickoff.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -22,12 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-async-refresh-pipeline-against-pa|req-132-fix-empty-board-on-windows-due-t|in-src-logicsviewprovider-ts-refresh-cal|ac1-postdata-items-is-always-called
 flowchart LR
-    Request[req 132 - Windows empty board] --> Problem[Promise.all rejects silently]
-    Problem --> Scope[Wrap refresh pipeline with error resilience]
-    Scope --> AC1[postData always called with items]
-    Scope --> AC2[Non-critical diagnostics degrade gracefully]
-    AC1 --> Task[Implementation task]
-    AC2 --> Task
+    Request[req_132_fix_empty_board_on_windows_due_to_] --> Problem[In src logicsViewProvider.ts refresh calls]
+    Problem --> Scope[Harden async refresh pipeline against part]
+    Scope --> Acceptance[AC1: postData items is always called]
+    Acceptance --> Tasks[task_115_fix_windows_empty_board_orchestra]
 ```
 
 # Acceptance criteria

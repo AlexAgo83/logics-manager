@@ -30,10 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-branch-local-bootstrap-recovery-and|req-065-harden-partial-logics-bootstrap-|once-branch-aware-detection-exists-the-p|ac1-when-the-active-branch-is
 flowchart LR
-    Request[req_118_handle_branch_switches_to_branches] --> Problem[Once branch-aware detection exists the]
+    Request[req_065_harden_partial_logics_bootstrap_re] --> Problem[Once branch-aware detection exists the plu]
     Problem --> Scope[Make branch-local bootstrap recovery and s]
-    Scope --> Acceptance[AC1: When the active branch is missing Lo]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: When the active branch is]
+    Acceptance --> Tasks[task_108_orchestration_delivery_for_req_11]
 ```
 
 # Acceptance criteria

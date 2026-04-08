@@ -1,11 +1,20 @@
 ## req_014_bootstrap_resilience_status_actions_and_list_mode - Bootstrap resilience, status actions, and compact list mode
 > From version: 1.3.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Complexity: High
 > Theme: UX and workflow resilience
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|bootstrap-resilience-status-actions-and-|improve-bootstrap-robustness-when-the-cu|ac1-when-bootstrap-is-requested-in
+flowchart TD
+    Trigger[Bootstrap resilience status actions and co] --> Need[Improve bootstrap robustness when the curr]
+    Need --> Outcome[AC1: When bootstrap is requested in]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Improve bootstrap robustness when the current project is not yet a git repository.
@@ -64,3 +73,7 @@ Desired direction:
 
 # Backlog
 - `logics/backlog/item_014_bootstrap_resilience_status_actions_and_list_mode.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

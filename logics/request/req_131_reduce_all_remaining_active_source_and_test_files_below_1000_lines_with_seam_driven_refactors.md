@@ -1,10 +1,13 @@
 ## req_131_reduce_all_remaining_active_source_and_test_files_below_1000_lines_with_seam_driven_refactors - Reduce all remaining active source and test files below 1000 lines with seam-driven refactors
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.22.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 91%
+> Understanding: 97%
+> Confidence: 92%
 > Complexity: High
 > Theme: Architecture, modularity, maintainability, and testability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -64,12 +67,9 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-all-remaining-active-source-and-t|reduce-the-maintenance-cost-of-the|ac1-the-request-defines-an-explicit
 flowchart TD
-    Inventory[Several active files still exceed 1000 lines] --> Cost[High review and change cost]
-    Cost --> Seams[Find stable responsibility seams]
-    Seams --> Split[Bounded seam driven refactors]
-    Split --> Threshold[Files fall below 1000 lines]
-    Threshold --> Confidence[Ownership and tests improve]
-    Confidence --> Backlog[Implementation slices]
+    Trigger[Reduce all remaining active source and] --> Need[Reduce the maintenance cost of the]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

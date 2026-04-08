@@ -1,5 +1,5 @@
 ## adr_004_scale_the_plugin_around_a_derived_model_and_explicit_ui_state - Scale the plugin around a derived model and explicit UI state
-> Date: 2026-03-15
+> Date: 2026-04-09
 > Status: Proposed
 > Drivers: Keep the next wave of plugin UX work coherent, avoid feature-by-feature state sprawl, centralize workflow heuristics, and preserve the modular vanilla-webview direction.
 > Related request: `req_039_improve_ui_state_persistence_in_the_plugin`
@@ -163,3 +163,6 @@ The proposed portfolio should be tackled in this order:
 - If accepted, use this ADR as the architecture reference for the `req_028` to `req_044` portfolio.
 - Consider creating one explicit technical task for extracting UI-state and selector boundaries before landing the more intelligence-heavy features.
 - Revisit whether `media/logicsModel.js` should remain a single module or split into `selectors`, `signals`, and `relations` once the next feature wave starts landing.
+
+# References
+- `logics/request/req_039_improve_ui_state_persistence_in_the_plugin.md`

@@ -1,8 +1,8 @@
 ## req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback - Harden cross-platform overlay publication for symlink junction and copy fallback
 > From version: 1.10.8
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 99%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Cross-platform overlay publication and filesystem compatibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -33,11 +33,10 @@ This request is intentionally narrower than the broader overlay architecture:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|harden-cross-platform-overlay-publicatio|define-a-supported-cross-platform-public|ac1-the-request-defines-an-explicit
-flowchart LR
-    Platforms[Mac Linux and Windows differ] --> Publication[Overlay publication strategy]
-    Publication --> Mode[Link junction or copy fallback]
-    Mode --> Cleanup[Lifecycle and drift remain manageable]
-    Cleanup --> Outcome[Overlay behavior stays portable]
+flowchart TD
+    Trigger[Harden cross-platform overlay publication] --> Need[Define a supported cross-platform publicat]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -91,3 +90,4 @@ flowchart LR
 
 # Backlog
 - `item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback`
+- `logics/backlog/item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback.md`

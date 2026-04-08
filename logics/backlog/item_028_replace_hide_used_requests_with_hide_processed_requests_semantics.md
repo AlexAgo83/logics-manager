@@ -1,9 +1,9 @@
 ## item_028_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 99% (closed)
-> Confidence: 98% (validated)
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,12 +25,13 @@
   - Bundling this behavior change with unrelated companion-doc UX work.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|replace-hide-used-requests-with-hide-pro|req-023-replace-hide-used-requests-with-|the-plugin-used-a-technical-hide|ac1-the-plugin-no-longer-exposes
 flowchart LR
-    Req[req_023 hide processed requests] --> Problem[Used wording and behavior diverged]
-    Problem --> Scope[Rename filter and redefine processed rule]
-    Scope --> AC[Hide only meaningfully processed requests]
-    AC --> Tasks[task_022 delivery]
+    Request[req_023_replace_hide_used_requests_with_hi] --> Problem[The plugin used a technical Hide]
+    Problem --> Scope[Replace hide used requests with hide]
+    Scope --> Acceptance[AC1: The plugin no longer exposes]
+    Acceptance --> Tasks[task_022_replace_hide_used_requests_with_h]
 ```
 
 # Acceptance criteria
@@ -74,3 +75,4 @@ flowchart LR
 # Notes
 - Derived from request `req_023_replace_hide_used_requests_with_hide_processed_requests_semantics`.
 - Source file: `logics/request/req_023_replace_hide_used_requests_with_hide_processed_requests_semantics.md`.
+- Derived from `logics/request/req_023_replace_hide_used_requests_with_hide_processed_requests_semantics.md`.

@@ -1,10 +1,10 @@
 ## item_231_symmetric_plugin_ui_for_claude_and_codex_launchers_and_health_reporting - Symmetric plugin UI for Claude and Codex launchers and health reporting
-> From version: 1.21.1+item231
+> From version: 1.21.1+item231 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ The plugin tools panel, environment check output, and launcher buttons treat Cla
 %% logics-kind: backlog
 %% logics-signature: backlog|symmetric-plugin-ui-for-claude-and-codex|req-126-achieve-claude-runtime-parity-wi|the-plugin-tools-panel-environment-check|ac1-the-plugin-ui-tools-panel
 flowchart LR
-    Request[req_126 Claude runtime parity] --> Problem[Plugin UI treats Claude and Codex differently in launchers and health reporting]
-    Problem --> Scope[UI updates for symmetric readiness conditions and repair actions]
-    Scope --> AC1[AC1: Tools panel and launchers show same conditions and repair actions for both runtimes]
-    AC1 --> Tasks[Execution task]
+    Request[req_126_achieve_claude_runtime_parity_with] --> Problem[The plugin tools panel environment check]
+    Problem --> Scope[Symmetric plugin UI for Claude and]
+    Scope --> Acceptance[AC1: The plugin UI tools panel]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: Medium — improves operator experience and removes confusing asymmetry
 - Urgency: Low — depends on items 229 and 230 being implemented first
+
+# Notes

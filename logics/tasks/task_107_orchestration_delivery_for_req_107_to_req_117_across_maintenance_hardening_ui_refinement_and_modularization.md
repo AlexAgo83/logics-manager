@@ -1,9 +1,9 @@
 ## task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization - Orchestration delivery for req_107 to req_117 across maintenance hardening, UI refinement, and modularization
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 93%
+> Confidence: 91%
 > Progress: 100%
 > Complexity: High
 > Theme: Orchestration
@@ -50,11 +50,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-107-to-re|item-019-render-mermaid-diagrams-in-read|1-confirm-all-item-links-wave|python3-logics-skills-logics-py-audit-re
 flowchart LR
-    Start[item 194 to item 204] --> Wave1[Wave 1 governance and safety subjects]
-    Wave1 --> Wave2[Wave 2 menu and activity UI subjects]
-    Wave2 --> Wave3[Wave 3 toolchain and modularization subjects]
-    Wave3 --> Validate[Validate docs tests packaging and audit state]
-    Validate --> Report[Commit-ready orchestration report]
+    Backlog[item_019_render_mermaid_diagrams_in_read_m] --> Step1[1. Confirm all item links wave]
+    Step1 --> Step2[2. Wave 1: deliver governance and]
+    Step2 --> Step3[3. Wave 2: deliver UI subjects]
+    Step3 --> Validation[python3 logics skills logics.py audit --re]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -198,3 +198,5 @@ flowchart LR
   - `python3 -m unittest logics.skills.tests.test_logics_lint logics.skills.tests.test_global_reviewer -v`
   - `npm run audit:ci`
   - `npm run ci:check`
+
+# Notes

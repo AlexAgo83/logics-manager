@@ -1,11 +1,20 @@
 ## req_047_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
 > From version: 1.10.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: Low
 > Theme: Extension runtime lifecycle hygiene
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|prevent-disposed-file-watchers-from-accu|keep-the-extension-runtime-clean-when|ac1-rebuilding-the-watcher-does-not
+flowchart TD
+    Trigger[Prevent disposed file watchers from accumu] --> Need[Keep the extension runtime clean when]
+    Need --> Outcome[AC1: Rebuilding the watcher does not]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Keep the extension runtime clean when watcher roots are reinitialized.
@@ -60,3 +69,7 @@ In a long-lived VS Code session, especially one with workspace or root changes, 
 
 # Backlog
 - `logics/backlog/item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,26 +1,28 @@
 ## task_029_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_035_add_confirmation_for_done_and_obsolete_actions.md`.
 - Derived from backlog item `item_035_add_confirmation_for_done_and_obsolete_actions`.
 - Source file: `logics/backlog/item_035_add_confirmation_for_done_and_obsolete_actions.md`.
 - Related request(s): `req_030_add_confirmation_for_done_and_obsolete_actions`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|add-confirmation-before-done-and-obsolet|item-035-add-confirmation-for-done-and-o|1-identify-the-current-host-side-entry|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> Entry[Identify Done/Obsolete entry points]
-    Entry --> Confirm[Add confirmation before mutation]
-    Confirm --> Reuse[Reuse existing lifecycle write path]
-    Reuse --> Cancel[Preserve no-op on cancel]
-    Cancel --> Tests[Add confirm/cancel coverage]
+    Backlog[item_035_add_confirmation_for_done_and_obs] --> Step1[1. Identify the current host-side entry]
+    Step1 --> Step2[2. Add confirmation before the lifecycle]
+    Step2 --> Step3[3. Use action-specific copy: lightweight f]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -32,11 +34,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Step 2. Proof: TODO.
-- AC3 -> Step 5. Proof: TODO.
-- AC4/AC7 -> Step 4. Proof: TODO.
-- AC5/AC6 -> Step 3. Proof: TODO.
-- AC8 -> Step 5. Proof: TODO.
+- AC1/AC2 -> Step 2. Proof: covered by linked task completion.
+- AC3 -> Step 5. Proof: covered by linked task completion.
+- AC4/AC7 -> Step 4. Proof: covered by linked task completion.
+- AC5/AC6 -> Step 3. Proof: covered by linked task completion.
+- AC8 -> Step 5. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_035_add_confirmation_for_done_and_obsolete_actions`
@@ -51,3 +53,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

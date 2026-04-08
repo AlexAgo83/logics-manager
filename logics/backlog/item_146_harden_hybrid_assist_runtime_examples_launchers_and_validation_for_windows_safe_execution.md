@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-hybrid-assist-runtime-examples-la|req-062-harden-windows-compatibility-acr|hybrid-assist-flows-will-fail-the|ac1-hybrid-assist-command-examples-and
 flowchart LR
-    Request[req_091] --> Problem[Hybrid assist surfaces need Windows safe execution]
-    Problem --> Launchers[Use cross platform launchers and examples]
-    Launchers --> Validate[Add Windows safe validation]
-    Validate --> Done[Execution task]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Hybrid assist flows will fail the]
+    Problem --> Scope[Harden hybrid assist runtime examples laun]
+    Scope --> Acceptance[AC1: Hybrid assist command examples and]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

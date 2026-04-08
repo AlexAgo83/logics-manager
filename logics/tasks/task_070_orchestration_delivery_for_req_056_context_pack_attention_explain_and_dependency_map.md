@@ -1,8 +1,8 @@
 ## task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map - Orchestration delivery for req 056 context pack attention explain and dependency map
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
+> Understanding: 99%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -24,14 +24,14 @@ Constraint:
 - release can be phased across multiple versions, but the orchestration task is only considered complete when all three backlog slices are delivered.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-056-conte|item-065-build-codex-context-pack-for-re|1-define-or-extract-the-shared|npm-run-compile
 flowchart LR
-    Backlog[Items 065 066 067] --> Step1[Build shared relationship reasoning]
-    Step1 --> Step2[Implement Codex context pack]
-    Step2 --> Step3[Implement attention explain]
-    Step3 --> Step4[Implement dependency map]
-    Step4 --> Validation[Validation and docs]
-    Validation --> Report[Report and Done]
+    Backlog[item_065_build_codex_context_pack_for_rela] --> Step1[1. Define or extract the shared]
+    Step1 --> Step2[2. Implement the Context Pack for]
+    Step2 --> Step3[3. Implement Attention Explain so explicit]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -106,3 +106,5 @@ flowchart LR
 - Validation passed on compile, TypeScript no-emit lint, full Vitest suite, and Logics doc lint.
 - Linked backlog item(s): `item_065_build_codex_context_pack_for_related_logics_docs`, `item_066_explain_attention_reasons_and_suggested_remediation`, `item_067_add_dependency_map_for_logics_workflow_relationships`
 - Related request(s): `req_056_add_codex_context_pack_attention_explain_and_dependency_map`
+
+# Notes

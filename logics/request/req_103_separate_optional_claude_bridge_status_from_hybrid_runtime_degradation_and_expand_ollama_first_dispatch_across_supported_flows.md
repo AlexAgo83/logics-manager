@@ -57,15 +57,9 @@
 %% logics-kind: request
 %% logics-signature: request|separate-optional-claude-bridge-status-f|stop-treating-the-absence-of-claude-spec|ac1-runtime-status-treats-claude-bridge
 flowchart TD
-    Status[Runtime status is inspected] --> Bridge[Optional Claude bridge is checked]
-    Bridge --> WrongState[Bridge absence currently marks runtime degraded]
-    WrongState --> Noise[Operators see degraded state without a real runtime fault]
-    Status --> Dispatch[Healthy Ollama backend is selected in auto mode]
-    Dispatch --> NarrowUsage[Only a narrow subset of supported flows is commonly delegated]
-    NarrowUsage --> Opportunity[More bounded flows could stay local with explicit policy]
-    Noise --> Fix[Separate adapter availability from runtime degradation]
-    Opportunity --> Fix
-    Fix --> Backlog[Backlog slice]
+    Trigger[Separate optional Claude bridge status fro] --> Need[Stop treating the absence of Claude-specif]
+    Need --> Outcome[AC1: Runtime status treats Claude bridge]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

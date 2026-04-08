@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|preserve-invalid-local-payload-diagnosti|req-098-add-a-hybrid-assist-roi-dispatch|when-the-local-ollama-response-is|ac1-if-the-local-model-returns
 flowchart LR
-    Request[req_102_harden_ollama_hybrid_assist_prompt] --> Problem[Invalid local payloads lose root cause detail]
+    Request[req_098_add_a_hybrid_assist_roi_dispatch_r] --> Problem[When the local Ollama response is]
     Problem --> Scope[Preserve invalid local payload diagnostics]
-    Scope --> Acceptance[AC1 semantic failures stay inspectable]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: If the local model returns]
+    Acceptance --> Tasks[task_104_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

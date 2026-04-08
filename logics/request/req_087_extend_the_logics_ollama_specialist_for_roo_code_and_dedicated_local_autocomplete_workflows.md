@@ -2,8 +2,8 @@
 > From version: 1.12.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Editor integrations for local coding models
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -22,12 +22,9 @@
 %% logics-kind: request
 %% logics-signature: request|extend-the-logics-ollama-specialist-for-|extend-the-repository-s-logics-ollama-sp|ac1-the-repository-skill-documents-how
 flowchart TD
-    Baseline[Baseline DeepSeek workflow exists] --> Need[Add Roo Code and dedicated autocomplete guidance]
-    Need --> Roo[AC1: Roo Code path is documented]
-    Roo --> Auto[AC2: Dedicated autocomplete path is documented]
-    Auto --> Decision[AC3: Model selection and tool choice rules are clear]
-    Decision --> Validation[AC4: Validation and troubleshooting stay actionable]
-    Validation --> Backlog[Backlog slice]
+    Trigger[Extend the Logics Ollama specialist for] --> Need[Extend the repository s logics-ollama-spec]
+    Need --> Outcome[AC1: The repository skill documents how]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -78,3 +75,4 @@ flowchart TD
 # Backlog
 - `item_136_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows`
 - Task: `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows`
+- `logics/backlog/item_136_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`

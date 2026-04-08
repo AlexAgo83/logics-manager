@@ -1,9 +1,9 @@
 ## task_097_orchestration_delivery_for_req_085_repo_config_runtime_entrypoints_and_transactional_scaling_primitives - Orchestration delivery for req_085 repo config runtime entrypoints and transactional scaling primitives
-> From version: 1.12.0
+> From version: 1.12.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -27,11 +27,11 @@ This orchestration task delivered the req_085 runtime portfolio in three waves:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-085-repo-|item-129-introduce-repo-native-logics-co|1-confirm-portfolio-scope-dependencies-a|python3-m-py-compile-logics-skills-logic
 flowchart LR
-    Start[req_085 runtime portfolio] --> Wave1[Wave 1 config cli and json]
-    Wave1 --> Wave2[Wave 2 index and transactions]
-    Wave2 --> Wave3[Wave 3 split policy and docs]
-    Wave3 --> Validate[Validate tests lint audit and smoke]
-    Validate --> Done[Done]
+    Backlog[item_129_introduce_repo_native_logics_conf] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement repo-native configura]
+    Step2 --> Step3[3. Wave 2: implement incremental indexing]
+    Step3 --> Validation[python3 -m py_compile logics skills logics]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -120,3 +120,5 @@ flowchart LR
 - Added an incremental runtime index reused by repeated workflow and skill scans.
 - Added transactional apply-or-rollback semantics with mutation audit logging for multi-file bulk updates.
 - Enforced and documented the minimal-coherent split policy, including the explicit `--allow-extra-slices` override path.
+
+# Notes

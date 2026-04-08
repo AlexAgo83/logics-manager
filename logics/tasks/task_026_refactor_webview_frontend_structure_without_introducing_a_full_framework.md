@@ -1,14 +1,15 @@
 ## task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Webview frontend refactor orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`.
 - Derived from backlog item `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`.
 - Source file: `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`.
 - Related request(s): `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`.
@@ -17,14 +18,14 @@ This is an orchestration task for the frontend-structure refactor of the webview
 It should improve maintainability without changing the plugin into a framework-heavy frontend or destabilizing current behavior.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|refactor-webview-frontend-structure-with|item-032-refactor-webview-frontend-struc|1-extract-shared-workflow-model-helpers|npm-run-compile
 flowchart LR
-    Backlog[Umbrella backlog item] --> Model[Shared model helpers]
-    Model --> Host[Host bridge extraction]
-    Host --> Details[Detail renderer split]
-    Details --> Board[Board and list renderer split]
-    Board --> CSS[CSS decomposition]
-    CSS --> Validation[Regression validation]
+    Backlog[item_032_refactor_webview_frontend_structu] --> Step1[1. Extract shared workflow model helpers]
+    Step1 --> Step2[2. Isolate the host communication layer]
+    Step2 --> Step3[3. Split detail-panel and board list]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -93,3 +94,5 @@ flowchart LR
 - Close-out:
   - the accepted architectural direction is now recorded in `adr_002`.
   - related request/backlog/task docs were synchronized at close-out.
+
+# Notes

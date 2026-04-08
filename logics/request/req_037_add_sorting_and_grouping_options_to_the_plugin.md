@@ -1,11 +1,20 @@
 ## req_037_add_sorting_and_grouping_options_to_the_plugin - Add sorting and grouping options to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Information ordering and workspace navigation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-sorting-and-grouping-options-to-the-|add-richer-ways-to-order-and|ac1-the-plugin-exposes-at-least
+flowchart TD
+    Trigger[Add sorting and grouping options to] --> Need[Add richer ways to order and]
+    Need --> Outcome[AC1: The plugin exposes at least]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add richer ways to order and group items beyond the current stage-based defaults.
@@ -70,3 +79,7 @@ Adding sort/group controls would turn the plugin from a fixed visual board into 
 
 # Backlog
 - `logics/backlog/item_042_add_sorting_and_grouping_options_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

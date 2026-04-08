@@ -69,12 +69,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-openai-and-gemini-provider-dispatch-|let-the-shared-hybrid-assist-runtime|ac1-the-shared-hybrid-assist-runtime
 flowchart TD
-    Need[Hybrid assist needs more than local ollama routing] --> Abstraction[Introduce provider abstraction]
-    Abstraction --> Providers[Support ollama openai and gemini providers]
-    Providers --> Policy[Keep explicit auto and per flow backend policy]
-    Policy --> Validation[Preserve strict contract validation and bounded fallback]
-    Validation --> Observability[Keep audit measurement and backend provenance trustworthy]
-    Observability --> Backlog[Backlog slice]
+    Trigger[Add OpenAI and Gemini provider dispatch] --> Need[Let the shared hybrid assist runtime]
+    Need --> Outcome[AC1: The shared hybrid assist runtime]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

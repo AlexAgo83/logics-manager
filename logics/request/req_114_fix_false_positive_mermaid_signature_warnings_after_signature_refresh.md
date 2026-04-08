@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Governance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -29,12 +29,9 @@
 %% logics-kind: request
 %% logics-signature: request|fix-false-positive-mermaid-signature-war|stop-the-logics-doc-linter-from|ac1-refreshing-mermaid-signatures-and-li
 flowchart TD
-    Refresh[Refresh Mermaid signatures] --> Compare[Compare expected and actual signature]
-    Lint[Lint workflow docs] --> Compare
-    Compare --> Mismatch[False positive warning path]
-    Mismatch --> Fix[Unify signature contract]
-    Fix --> Trust[Trustworthy governance warnings]
-    Trust --> Backlog[Backlog slice]
+    Trigger[Fix false positive Mermaid signature warni] --> Need[Stop the Logics doc linter from]
+    Need --> Outcome[AC1: Refreshing Mermaid signatures and lin]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -92,3 +89,4 @@ flowchart TD
 
 # Backlog
 - `item_201_fix_false_positive_mermaid_signature_warnings_after_signature_refresh`
+- `logics/backlog/item_201_fix_false_positive_mermaid_signature_warnings_after_signature_refresh.md`

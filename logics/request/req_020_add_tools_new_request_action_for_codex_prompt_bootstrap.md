@@ -1,8 +1,8 @@
 ## req_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -37,14 +37,12 @@ The desired UX is:
 This action should be clearly distinguished from the existing request-generation command, which creates a markdown request file directly from templates.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|add-tools-new-request-action-for-codex-p|add-a-new-request-action-in|ac1-the-tools-menu-exposes-a
 flowchart TD
-    Need[User has a new need] --> Tools[Open Tools menu]
-    Tools --> Action[Click New Request]
-    Action --> Agent[Select Flow Manager agent]
-    Agent --> Prompt[Open Codex with request-drafting prompt]
-    Prompt --> UserInput[User describes the need quickly]
-    UserInput --> Outcome[Codex helps draft the Logics request]
+    Trigger[Add Tools New Request action for] --> Need[Add a New Request action in]
+    Need --> Outcome[AC1: The Tools menu exposes a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -93,3 +91,7 @@ flowchart TD
 
 # Backlog
 - `logics/backlog/item_020_add_tools_new_request_action_for_codex_prompt_bootstrap.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

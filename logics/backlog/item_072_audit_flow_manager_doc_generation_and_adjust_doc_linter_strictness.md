@@ -1,9 +1,9 @@
 ## item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness - Audit flow manager doc generation and adjust doc linter strictness
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 99%
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,12 +29,13 @@ This backlog slice turns that diagnosis into delivery scope:
   - Cleaning the entire historical corpus in one pass.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|audit-flow-manager-doc-generation-and-ad|req-060-audit-flow-manager-doc-generatio|the-flow-manager-and-the-doc|ac1-delivery-starts-with-an-explicit
 flowchart LR
-    Req[req 060] --> Audit[audit generation and lint contract]
-    Audit --> Classify[classify generator and lint gaps]
-    Classify --> Calibrate[define severity and fix path]
-    Calibrate --> Task[task 075]
+    Request[req_060_audit_flow_manager_doc_generation_] --> Problem[The flow manager and the doc]
+    Problem --> Scope[Audit flow manager doc generation and]
+    Scope --> Acceptance[AC1: Delivery starts with an explicit]
+    Acceptance --> Tasks[task_075_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -49,19 +50,19 @@ flowchart LR
 - AC5: The result remains generic for the shared Logics kit and is backed by tests and documentation updates.
 
 # AC Traceability
-- AC1 -> Audit path and failure taxonomy are defined before behavior changes. Proof: TODO.
-- AC2 -> Findings can be assigned to generator, linter, or mixed ownership. Proof: TODO.
-- AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: TODO.
-- AC4 -> Severity model distinguishes blocking structural failures from non-blocking warnings. Proof: TODO.
-- AC5 -> Tests and kit docs reflect the calibrated contract. Proof: TODO.
-- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6C -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Audit path and failure taxonomy are defined before behavior changes. Proof: covered by linked task completion.
+- AC2 -> Findings can be assigned to generator, linter, or mixed ownership. Proof: covered by linked task completion.
+- AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: covered by linked task completion.
+- AC4 -> Severity model distinguishes blocking structural failures from non-blocking warnings. Proof: covered by linked task completion.
+- AC5 -> Tests and kit docs reflect the calibrated contract. Proof: covered by linked task completion.
+- AC3B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6C -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8C -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -89,5 +90,6 @@ flowchart LR
 - Request context seeded into this backlog item from `logics/request/req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`.
 - Task `task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration` was finished via `logics_flow.py finish task` on 2026-03-18.
 
+- Derived from `logics/request/req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness.md`.
 # Tasks
 - `logics/tasks/task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration.md`

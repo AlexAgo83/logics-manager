@@ -23,12 +23,13 @@ The extension supports agent selection and Codex prompt bootstrapping, but start
   - General redesign of the Tools menu beyond this guided entrypoint.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|add-tools-new-request-action-for-codex-p|req-020-add-tools-new-request-action-for|the-extension-supports-agent-selection-a|ac1-the-tools-menu-exposes-new
 flowchart LR
-    Req[Request req_020] --> Problem[Request drafting via Codex is still manual]
-    Problem --> Scope[Add guided Tools New Request action]
-    Scope --> AC[Agent selection, prompt bootstrap, no regression]
-    AC --> Tasks[Task task_020 orchestration]
+    Request[req_020_add_tools_new_request_action_for_c] --> Problem[The extension supports agent selection and]
+    Problem --> Scope[Add Tools New Request action for]
+    Scope --> Acceptance[AC1: The Tools menu exposes New]
+    Acceptance --> Tasks[task_020_orchestration_delivery_for_req_01]
 ```
 
 # Acceptance criteria

@@ -1,9 +1,9 @@
 ## task_115_fix_windows_empty_board_orchestration - Fix Windows empty board - orchestration
-> From version: 1.22.0
+> From version: 1.22.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Runtime
@@ -17,19 +17,12 @@
 ```mermaid
 %% logics-kind: task
 %% logics-signature: task|fix-windows-empty-board-orchestration|item-251-harden-async-refresh-pipeline-a|wave-1-harden-async-refresh|npm-run-compile
-flowchart TD
-    Source[req 132 - Windows empty board] --> W1[Wave 1 - item 251 - Harden refresh pipeline]
-    Source --> W2[Wave 2 - item 252 - Normalize path comparison]
-    Source --> W3[Wave 3 - item 253 - Unit tests and VSIX validation]
-    W1 --> V1[Validate: compile + test]
-    V1 --> C1[Commit checkpoint]
-    C1 --> W2
-    W2 --> V2[Validate: compile + test]
-    V2 --> C2[Commit checkpoint]
-    C2 --> W3
-    W3 --> V3[Validate: compile + test + VSIX build]
-    V3 --> C3[Commit checkpoint]
-    C3 --> Close[Close item 251 + 252 + 253 + req 132]
+flowchart LR
+    Backlog[item_251_harden_async_refresh_pipeline_aga] --> Step1[Wave 1 - Harden async refresh]
+    Step1 --> Step2[Covers: item_251 AC1 AC2 AC3]
+    Step2 --> Step3[1.1. In src logicsViewProvider.ts replace]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -150,3 +143,5 @@ flowchart TD
   - Toggle filters on and off and verify items appear/disappear as expected.
   - Modify a Logics doc and verify the board refreshes.
 - Repository-side workflow closure has been synchronized so the request, backlog items, and orchestration task now all reflect completion.
+
+# Notes

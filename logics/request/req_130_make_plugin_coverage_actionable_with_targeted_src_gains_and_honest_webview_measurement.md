@@ -1,10 +1,13 @@
 ## req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement - Make plugin coverage actionable with targeted src gains and honest webview measurement
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.22.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 90%
+> Understanding: 97%
+> Confidence: 91%
 > Complexity: Medium
 > Theme: Testing, coverage governance, plugin runtime, and webview reliability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -63,14 +66,9 @@
 %% logics-kind: request
 %% logics-signature: request|make-plugin-coverage-actionable-with-tar|improve-plugin-coverage-in-a-way|ac1-plugin-coverage-reporting-separates-
 flowchart TD
-    Signal[Coverage signal is blended and misleading] --> Src[Raise src coverage on high return modules]
-    Signal --> Media[Separate or fix media webview measurement]
-    Src --> QuickWins[Small uncovered modules get fast tests]
-    QuickWins --> Core[Large workflow modules get targeted branch tests]
-    Media --> Honest[Coverage reporting reflects actual webview risk]
-    Core --> Gates[Progressive thresholds become meaningful]
-    Honest --> Gates
-    Gates --> Backlog[Bounded implementation slices]
+    Trigger[Make plugin coverage actionable with targe] --> Need[Improve plugin coverage in a way]
+    Need --> Outcome[AC1: Plugin coverage reporting separates s]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

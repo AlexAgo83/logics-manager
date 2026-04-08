@@ -29,12 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-an-ollama-first-local-dispatcher-ada|req-088-add-a-local-llm-dispatcher-for-d|req-088-is-meant-to-be-local-model|ac1-the-backlog-slice-introduces-an
 flowchart LR
-    Request[req_088] --> Problem[The local dispatcher needs a practical runtime and audit path]
-    Problem --> Scope[Add Ollama-first adapter audit trail and entrypoints]
-    Scope --> AC1[AC1: Ollama-first adapter requests strict decisions]
-    AC1 --> AC2[AC2: Audit trail captures decisions and outcomes]
-    AC2 --> AC3[AC3: Operator entrypoints preserve safe defaults]
-    AC3 --> Task[Execution task]
+    Request[req_088_add_a_local_llm_dispatcher_for_det] --> Problem[req_088 is meant to be local-model]
+    Problem --> Scope[Add an Ollama-first local dispatcher adapt]
+    Scope --> Acceptance[AC1: The backlog slice introduces an]
+    Acceptance --> Tasks[task_099_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -1,10 +1,10 @@
 ## item_197_make_the_security_audit_workflow_block_on_actionable_vulnerabilities - Make the security audit workflow block on actionable vulnerabilities
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-the-security-audit-workflow-block-o|req-104-harden-repository-maintenance-gu|turn-the-repository-security-audit-workf|ac1-the-security-audit-workflow-enforces
 flowchart LR
-    Request[req_110_make_the_security_audit_workflow_b] --> Problem[Turn the repository security-audit workflo]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Turn the repository security-audit workflo]
     Problem --> Scope[Make the security audit workflow block]
     Scope --> Acceptance[AC1: The security-audit workflow enforces]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities`.
 - Source file: `logics/request/req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities.md`.
 - Request context seeded into this backlog item from `logics/request/req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities.md`.
+- Derived from `logics/request/req_110_make_the_security_audit_workflow_block_on_actionable_vulnerabilities.md`.

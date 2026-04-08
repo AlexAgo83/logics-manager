@@ -1,8 +1,8 @@
 ## req_069_add_an_operator_facing_logics_codex_workspace_manager_cli - Add an operator-facing Logics Codex workspace manager CLI
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Codex operator workflow and workspace tooling
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -40,11 +40,10 @@ The exact verbs can still change, but the request requires an explicit operator 
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|add-an-operator-facing-logics-codex-work|provide-a-small-operator-facing-command-|ac1-the-request-defines-a-minimal
-flowchart LR
-    Overlay[Workspace overlay architecture exists] --> CLI[Operator facing workspace CLI]
-    CLI --> Sync[Register sync run and status are explicit]
-    Sync --> Usage[Codex launches against the right workspace]
-    Usage --> Outcome[Operational use becomes repeatable]
+flowchart TD
+    Trigger[Add an operator-facing Logics Codex worksp] --> Need[Provide a small operator-facing command su]
+    Need --> Outcome[AC1: The request defines a minimal]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -100,3 +99,4 @@ flowchart LR
 
 # Backlog
 - `item_092_add_an_operator_facing_logics_codex_workspace_manager_cli`
+- `logics/backlog/item_092_add_an_operator_facing_logics_codex_workspace_manager_cli.md`

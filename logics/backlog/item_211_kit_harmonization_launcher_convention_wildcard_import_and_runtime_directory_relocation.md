@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|kit-harmonization-launcher-convention-wi|req-121-audit-cleanup-fix-code-quality-i|34-of-47-skill-md-files-in|ac8-all-47-skill-md-files-use
 flowchart LR
-    Request[req_121 audit cleanup] --> Problem[Kit conventions inconsistent]
-    Problem --> Scope[3 submodule changes]
-    Scope --> AC[AC8 launcher AC12 wildcard AC16 runtime dir]
-    AC --> PR[Upstream PR to cdx-logics-kit]
+    Request[req_121_audit_cleanup_fix_code_quality_iss] --> Problem[34 of 47 SKILL.md files in]
+    Problem --> Scope[Kit harmonization launcher convention wild]
+    Scope --> Acceptance[AC8: All 47 SKILL.md files use]
+    Acceptance --> Tasks[task_110_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria

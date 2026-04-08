@@ -25,13 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-opt-in-live-provider-integration-cov|req-129-greatly-improve-plugin-and-kit-c|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart LR
-    A[Start] --> B[Separate plugin and kit coverage]
-    B --> C[Focus plugin on behavior tests]
-    C --> D[Focus kit on high-risk paths]
-    D --> E[Add opt-in live provider tests]
-    E --> F[Ensure CI and coverage governance]
-    F --> G[Add lifecycle integration tests]
-    G --> H[End]
+    Request[req_129_greatly_improve_plugin_and_kit_cov] --> Problem[Raise plugin coverage in a way]
+    Problem --> Scope[Add opt-in live provider integration cover]
+    Scope --> Acceptance[AC1: The request clearly separates plugin]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

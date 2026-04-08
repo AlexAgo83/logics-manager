@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-environment-capability-detection-for|req-062-harden-windows-compatibility-acr|add-an-explicit-environment-preflight-so|ac1-the-request-defines-an-explicit
 flowchart LR
-    Request[req_066_add_guarded_environment_preflight_] --> Problem[Add an explicit environment preflight so]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Add an explicit environment preflight so]
     Problem --> Scope[Add environment capability detection for r]
     Scope --> Acceptance[AC1: The request defines an explicit]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_081_add_environment_capability_detect]
 ```
 
 # Acceptance criteria

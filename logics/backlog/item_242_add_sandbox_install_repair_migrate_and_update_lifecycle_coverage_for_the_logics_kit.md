@@ -25,14 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-sandbox-install-repair-migrate-and-u|req-129-greatly-improve-plugin-and-kit-c|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart LR
-    A[Start] --> B[Separate plugin and kit coverage]
-    B --> C[Plugin: behavior-focused validation]
-    B --> D[Kit: scenario-driven tests]
-    C --> E[Coverage reporting & CI strategy]
-    D --> F[Make low-covered modules testable]
-    F --> G[Add lifecycle integration tests]
-    E --> G
-    G --> H[Verify stable outcomes]
+    Request[req_129_greatly_improve_plugin_and_kit_cov] --> Problem[Raise plugin coverage in a way]
+    Problem --> Scope[Add sandbox install repair migrate and]
+    Scope --> Acceptance[AC1: The request clearly separates plugin]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

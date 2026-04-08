@@ -1,9 +1,9 @@
 ## task_104_orchestration_delivery_for_req_100_and_req_101_plugin_feedback_and_bootstrap_global_kit_convergence - Orchestration delivery for req_100, req_101, and req_102 across plugin feedback, bootstrap global kit convergence, and hybrid runtime contract hardening
-> From version: 1.14.0
+> From version: 1.14.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Coordinated hybrid runtime trust, plugin feedback UX, and bootstrap global kit readiness
@@ -44,12 +44,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-100-req-1|item-170-add-plugin-in-progress-feedback|1-confirm-the-shared-plugin-surfaces|python3-logics-skills-logics-flow-manage
 flowchart LR
-    Start[req_100 req_101 req_102] --> Wave1[Wave 1 bootstrap global convergence and completion semantics]
-    Wave1 --> Wave2[Wave 2 local hybrid prompt hardening and failure diagnostics]
-    Wave2 --> Wave3[Wave 3 hybrid assist progress and result notifications]
-    Wave3 --> Wave4[Wave 4 regression coverage across runtime bootstrap and plugin UX]
-    Wave4 --> Validate[Validate docs and targeted tests]
-    Validate --> Report[Done report]
+    Backlog[item_170_add_plugin_in_progress_feedback_f] --> Step1[1. Confirm the shared plugin surfaces]
+    Step1 --> Step2[2. Wave 1: deliver bootstrap-triggered glo]
+    Step2 --> Step3[3. Wave 2: harden Ollama prompt]
+    Step3 --> Validation[python3 logics skills logics-flow-manager]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -170,3 +169,5 @@ flowchart LR
   - `npm run lint:ts`
   - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py --require-status`
   - `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`
+
+# Notes

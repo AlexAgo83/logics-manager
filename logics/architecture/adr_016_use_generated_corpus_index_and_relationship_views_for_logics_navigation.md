@@ -5,7 +5,7 @@
 > Related request: `req_134_generated_corpus_index_and_relationship_views`
 > Related backlog: `item_257_generated_corpus_index_and_relationship_views`
 > Related task: `task_117_generated_corpus_index_and_relationship_views`
-> Reminder: Update status, linked refs, decision rationale, consequences, migration plan, and follow-up work when you edit this doc.
+> Reminder: Update status, linked refs, decision rationale, consequences, migration plan, and follow-up work when you edit this doc. Refreshed for the generated navigation sync.
 
 # Overview
 The Logics corpus should expose generated navigation views as the canonical way to browse the repository at scale.
@@ -53,10 +53,6 @@ Use the relationship report as a guardrail for unresolved refs and orphan docs r
 - `logics/request/req_134_generated_corpus_index_and_relationship_views.md`
 - `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`
 - `logics/tasks/task_117_generated_corpus_index_and_relationship_views.md`
-- `logics/product/prod_005_logics_corpus_navigation_views.md`
-- `logics/skills/logics-indexer/scripts/generate_index.py`
-- `logics/skills/logics-relationship-linker/scripts/link_relations.py`
-
 # Follow-up work
 - Keep the generated views refreshed when the corpus changes.
 - Evaluate whether additional summaries or filters should join the repo-level navigation surface later.

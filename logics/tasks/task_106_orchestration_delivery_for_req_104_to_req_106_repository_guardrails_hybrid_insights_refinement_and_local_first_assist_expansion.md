@@ -1,9 +1,9 @@
 ## task_106_orchestration_delivery_for_req_104_to_req_106_repository_guardrails_hybrid_insights_refinement_and_local_first_assist_expansion - Orchestration delivery for req_104 to req_106 across repository guardrails, Hybrid Insights refinement, and local-first assist expansion
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
+> Understanding: 99%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Repository governance hardening, Hybrid Insights UX refinement, and deterministic plus Ollama-first delivery expansion
@@ -43,11 +43,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-104-to-re|item-184-harden-workflow-doc-proof-and-p|1-confirm-traceability-current-repositor|python3-logics-skills-logics-py-flow-syn
 flowchart LR
-    Start[req_104 to req_106] --> Wave1[Wave 1 repository guardrails and maintainer contracts]
-    Wave1 --> Wave2[Wave 2 Hybrid Insights hierarchy and responsive drill downs]
-    Wave2 --> Wave3[Wave 3 deterministic and bounded local first helper expansion]
-    Wave3 --> Validate[Validate docs runtime UI and command contracts]
-    Validate --> Report[Ready for delivery closure]
+    Backlog[item_184_harden_workflow_doc_proof_and_pla] --> Step1[1. Confirm traceability current repository]
+    Step1 --> Step2[2. Wave 1: deliver repository guardrail]
+    Step2 --> Step3[3. Wave 2: refine Hybrid Insights]
+    Step3 --> Validation[python3 logics skills logics.py flow sync]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -163,3 +163,5 @@ flowchart LR
 - Validation executed: `python3 logics/skills/logics.py flow assist roi-report --format json`
 - Finished on 2026-03-27.
 - Linked backlog and request synchronization verified after the update.
+
+# Notes

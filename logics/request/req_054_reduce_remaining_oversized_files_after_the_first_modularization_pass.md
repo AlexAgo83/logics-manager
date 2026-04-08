@@ -1,11 +1,20 @@
 ## req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
 > From version: 1.10.2
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Complexity: Medium
 > Theme: Codebase modularity and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|reduce-remaining-oversized-files-after-t|finish-the-modularization-effort-by-redu|ac1-each-targeted-file-is-reduced
+flowchart TD
+    Trigger[Reduce remaining oversized files after the] --> Need[Finish the modularization effort by reduci]
+    Need --> Outcome[AC1: Each targeted file is reduced]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Finish the modularization effort by reducing the few source files that still sit above the intended comfort zone after the first refactor pass.
@@ -76,3 +85,7 @@ It is a second, more surgical pass that removes the remaining oversized responsi
 
 # Backlog
 - `logics/backlog/item_063_reduce_remaining_oversized_files_after_the_first_modularization_pass.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

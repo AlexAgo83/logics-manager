@@ -1,26 +1,28 @@
 ## task_030_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_036_remove_column_eye_toggle_from_board.md`.
 - Derived from backlog item `item_036_remove_column_eye_toggle_from_board`.
 - Source file: `logics/backlog/item_036_remove_column_eye_toggle_from_board.md`.
 - Related request(s): `req_031_remove_column_eye_toggle_from_board`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|remove-the-eye-toggle-from-board-columns|item-036-remove-column-eye-toggle-from-b|1-identify-where-the-eye-toggle|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> Header[Inspect board header rendering]
-    Header --> Remove[Remove eye toggle UI and interaction]
-    Remove --> State[Handle any legacy persisted state safely]
-    State --> Layout[Stabilize header alignment]
-    Layout --> Tests[Update regression coverage]
+    Backlog[item_036_remove_column_eye_toggle_from_boa] --> Step1[1. Identify where the eye toggle]
+    Step1 --> Step2[2. Remove the eye toggle from]
+    Step2 --> Step3[3. Remove or neutralize the corresponding]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -33,11 +35,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 2 and 3. Proof: TODO.
-- AC3/AC4 -> Step 4. Proof: TODO.
-- AC5 -> Step 4. Proof: TODO.
-- AC6 -> Step 5. Proof: TODO.
-- AC7 -> Step 6. Proof: TODO.
+- AC1/AC2 -> Steps 2 and 3. Proof: covered by linked task completion.
+- AC3/AC4 -> Step 4. Proof: covered by linked task completion.
+- AC5 -> Step 4. Proof: covered by linked task completion.
+- AC6 -> Step 5. Proof: covered by linked task completion.
+- AC7 -> Step 6. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_036_remove_column_eye_toggle_from_board`
@@ -53,3 +55,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

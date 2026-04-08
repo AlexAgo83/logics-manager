@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-hybrid-assist-measurement-review-loo|req-093-add-shared-hybrid-assist-contrac|req-094-also-requires-a-disciplined-way|ac1-shared-measurement-signals-exist-for
 flowchart LR
-    Request[req_094] --> Problem[Hybrid assist needs measurable review loops]
-    Problem --> Measure[Define quality and ROI signals]
-    Measure --> Degraded[Define degraded result states]
-    Degraded --> Decide[Define keep tighten or remove rules]
-    Decide --> Done[Execution task]
+    Request[req_093_add_shared_hybrid_assist_contracts] --> Problem[req_094 also requires a disciplined way]
+    Problem --> Scope[Add hybrid assist measurement review loops]
+    Scope --> Acceptance[AC1: Shared measurement signals exist for]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

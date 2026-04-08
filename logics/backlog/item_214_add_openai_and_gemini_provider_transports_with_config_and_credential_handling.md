@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-openai-and-gemini-provider-transport|req-120-add-openai-and-gemini-provider-d|the-hybrid-assist-runtime-currently-only|ac1-the-shared-hybrid-assist-runtime
 flowchart LR
-    Request[req_120 provider dispatch] --> Problem[No remote provider access]
-    Problem --> Scope[OpenAI and Gemini transports plus config]
-    Scope --> AC[AC1 dispatch AC3 selection AC4 config AC4a secrets]
-    AC --> Remote[Remote providers available]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[The hybrid assist runtime currently only]
+    Problem --> Scope[Add OpenAI and Gemini provider transports]
+    Scope --> Acceptance[AC1: The shared hybrid assist runtime]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

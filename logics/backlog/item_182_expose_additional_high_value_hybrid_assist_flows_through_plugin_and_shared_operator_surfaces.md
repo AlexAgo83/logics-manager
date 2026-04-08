@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|expose-additional-high-value-hybrid-assi|req-092-add-a-second-wave-of-hybrid-olla|the-shared-runtime-already-supports-more|ac1-at-least-one-additional-bounded
 flowchart LR
-    Request[req_103_separate_optional_claude_bridge_status] --> Problem[Supported runtime flows remain under-exposed]
-    Problem --> Scope[Expose additional high-value hybrid flows]
-    Scope --> Acceptance[AC1 additional bounded flow reaches operators]
-    Acceptance --> Tasks[Execution task]
+    Request[req_092_add_a_second_wave_of_hybrid_ollama] --> Problem[The shared runtime already supports more]
+    Problem --> Scope[Expose additional high-value hybrid assist]
+    Scope --> Acceptance[AC1: At least one additional bounded]
+    Acceptance --> Tasks[task_105_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

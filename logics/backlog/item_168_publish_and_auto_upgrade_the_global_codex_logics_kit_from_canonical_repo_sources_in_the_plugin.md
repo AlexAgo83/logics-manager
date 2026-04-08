@@ -31,12 +31,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|publish-and-auto-upgrade-the-global-code|req-076-adapt-the-vs-code-logics-plugin-|req-099-only-improves-the-operator-exper|ac1-the-plugin-detects-compatible-repo-l
 flowchart LR
-    Request[req_099] --> Problem[Repository open should converge runtime automatically]
-    Problem --> Detect[Detect canonical repo local kit]
-    Detect --> Compare[Compare source revision against global install]
-    Compare --> Publish[Publish or auto upgrade without normal prompts]
-    Publish --> Diagnose[Record and expose result state]
-    Diagnose --> Done[Execution task]
+    Request[req_076_adapt_the_vs_code_logics_plugin_to] --> Problem[req_099 only improves the operator experie]
+    Problem --> Scope[Publish and auto-upgrade the global Codex]
+    Scope --> Acceptance[AC1: The plugin detects compatible repo-lo]
+    Acceptance --> Tasks[task_103_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

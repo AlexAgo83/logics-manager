@@ -28,10 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|unify-claude-bridge-detection-contracts-|req-091-ensure-hybrid-logics-delivery-au|the-python-runtime-and-the-vs|ac1-the-python-runtime-and-the
 flowchart LR
-    Request[req_103_separate_optional_claude_bridge_status] --> Problem[Runtime and extension inspect different Claude bridge files]
-    Problem --> Scope[Unify bridge detection contract]
-    Scope --> Acceptance[AC1 status layers agree on bridge availability]
-    Acceptance --> Tasks[Execution task]
+    Request[req_091_ensure_hybrid_logics_delivery_auto] --> Problem[The Python runtime and the VS]
+    Problem --> Scope[Unify Claude bridge detection contracts ac]
+    Scope --> Acceptance[AC1: The Python runtime and the]
+    Acceptance --> Tasks[task_105_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

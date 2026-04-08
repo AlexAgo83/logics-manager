@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-hybrid-handoff-packet-and-bounded-sp|req-085-add-repo-config-runtime-entrypoi|req-090-calls-out-handoff-packets-and|ac1-bounded-handoff-packet-generation-ex
 flowchart LR
-    Request[req_090] --> Problem[Medium fit planning flows need guardrails]
-    Problem --> Handoff[Generate compact handoff packets]
-    Handoff --> Split[Suggest bounded split options]
-    Split --> Done[Execution task]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[req_090 calls out handoff packets and]
+    Problem --> Scope[Add hybrid handoff-packet and bounded spli]
+    Scope --> Acceptance[AC1: Bounded handoff-packet generation exi]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

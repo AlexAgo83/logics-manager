@@ -22,12 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-windows-path-normalization-unit-test|req-132-fix-empty-board-on-windows-due-t|the-codebase-has-no-unit-tests|ac1-unit-tests-cover-aresamepath-with
 flowchart LR
-    Request[req 132 - Windows empty board] --> Problem[No Windows path test coverage]
-    Problem --> Scope[Unit tests and pre-release validation]
-    Scope --> AC1[Unit tests with Windows paths]
-    Scope --> AC2[Pre-release VSIX validation plan]
-    AC1 --> Task[Implementation task]
-    AC2 --> Task
+    Request[req_132_fix_empty_board_on_windows_due_to_] --> Problem[The codebase has no unit tests]
+    Problem --> Scope[Add Windows path normalization unit tests]
+    Scope --> Acceptance[AC1: Unit tests cover areSamePath with]
+    Acceptance --> Tasks[task_115_fix_windows_empty_board_orchestra]
 ```
 
 # Acceptance criteria

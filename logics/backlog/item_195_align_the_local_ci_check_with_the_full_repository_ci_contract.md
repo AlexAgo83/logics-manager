@@ -1,10 +1,10 @@
 ## item_195_align_the_local_ci_check_with_the_full_repository_ci_contract - Align the local ci check with the full repository CI contract
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|align-the-local-ci-check-with-the-full-r|req-104-harden-repository-maintenance-gu|remove-the-false-sense-of-safety|ac1-the-repository-exposes-a-single
 flowchart LR
-    Request[req_108_align_the_local_ci_check_with_the_] --> Problem[Remove the false sense of safety]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Remove the false sense of safety]
     Problem --> Scope[Align the local ci check with]
     Scope --> Acceptance[AC1: The repository exposes a single]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_108_align_the_local_ci_check_with_the_full_repository_ci_contract`.
 - Source file: `logics/request/req_108_align_the_local_ci_check_with_the_full_repository_ci_contract.md`.
 - Request context seeded into this backlog item from `logics/request/req_108_align_the_local_ci_check_with_the_full_repository_ci_contract.md`.
+- Derived from `logics/request/req_108_align_the_local_ci_check_with_the_full_repository_ci_contract.md`.

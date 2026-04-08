@@ -38,14 +38,9 @@
 %% logics-kind: request
 %% logics-signature: request|ensure-hybrid-logics-delivery-automation|ensure-the-hybrid-delivery-automation-in|ac1-the-hybrid-delivery-runtime-for
 flowchart TD
-    Trigger[Hybrid delivery automation expands] --> Neutrality[Keep runtime contracts agent neutral]
-    Neutrality --> Claude[Claude bridge can invoke same flows]
-    Claude --> Windows[Windows safe command surface remains supported]
-    Windows --> AC1[AC1: Shared runtime commands stay agent agnostic]
-    AC1 --> AC2[AC2: Claude integration remains thin and derivative]
-    AC2 --> AC3[AC3: Windows safe execution rules are explicit]
-    AC3 --> AC4[AC4: Validation covers agent and platform variants]
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Ensure hybrid Logics delivery automation s] --> Need[Ensure the hybrid delivery automation intr]
+    Need --> Outcome[AC1: The hybrid delivery runtime for]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

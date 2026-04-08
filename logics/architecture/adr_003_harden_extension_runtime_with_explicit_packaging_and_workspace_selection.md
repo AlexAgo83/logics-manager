@@ -1,5 +1,5 @@
 ## adr_003_harden_extension_runtime_with_explicit_packaging_and_workspace_selection - Harden extension runtime with explicit packaging and workspace selection
-> Date: 2026-03-14
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: Ship a cleaner VSIX, support richer agent definitions safely, reduce brittle prompt injection, and remove ambiguous multi-root behavior.
 > Related request: `req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
@@ -64,3 +64,8 @@ Adopt a more explicit runtime contract:
 # Follow-up work
 - Revisit whether deeper extension-host integration tests are needed beyond the current smoke level.
 - Keep runtime hardening separate from the broader webview-structure refactor.
+
+# References
+- `logics/request/req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`
+- `logics/backlog/item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`
+- `logics/tasks/task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`

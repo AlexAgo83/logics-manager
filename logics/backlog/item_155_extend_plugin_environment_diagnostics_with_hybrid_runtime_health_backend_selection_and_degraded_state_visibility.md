@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|extend-plugin-environment-diagnostics-wi|req-095-adapt-the-vs-code-logics-plugin-|req-095-needs-the-plugin-to-expose|ac1-plugin-environment-views-expose-hybr
 flowchart LR
-    Request[req_095] --> Problem[Plugin needs hybrid runtime diagnostics]
-    Problem --> Health[Show backend health and auto selection]
-    Health --> Degraded[Show degraded state visibility]
-    Degraded --> Done[Execution task]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[req_095 needs the plugin to expose]
+    Problem --> Scope[Extend plugin environment diagnostics with]
+    Scope --> Acceptance[AC1: Plugin environment views expose hybri]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

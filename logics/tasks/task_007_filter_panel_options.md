@@ -1,9 +1,20 @@
 ## task_007_filter_panel_options - Regroup options into filter panel
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 90% (audit-aligned)
-> Confidence: 90% (governed)
-> Progress: 100% (governed)
+> Understanding: 91% (audit-aligned)
+> Confidence: 91% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|regroup-options-into-filter-panel|item-003-filter-panel-options|1-add-a-filter-icon-button|manual-not-run-yet-needs-verification
+flowchart LR
+    Backlog[item_003_filter_panel_options] --> Step1[1. Add a filter icon button]
+    Step1 --> Step2[2. Implement an anchored popover panel]
+    Step2 --> Step3[3. Preserve option behavior and state]
+    Step3 --> Validation[Manual: not run yet needs verification]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_003_filter_panel_options.md`.

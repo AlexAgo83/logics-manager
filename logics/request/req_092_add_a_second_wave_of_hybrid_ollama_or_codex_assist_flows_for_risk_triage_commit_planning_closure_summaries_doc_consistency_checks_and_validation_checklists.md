@@ -40,13 +40,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-a-second-wave-of-hybrid-ollama-or-co|extend-the-hybrid-ollama-when-available|ac1-the-kit-defines-a-second
 flowchart TD
-    Trigger[Need more bounded hybrid assist flows] --> Focus[Keep second wave review oriented and structured]
-    Focus --> AC1[AC1: Second-wave flows are defined and prioritized]
-    AC1 --> AC2[AC2: Each flow uses strict compact contracts]
-    AC2 --> AC3[AC3: Execution remains deterministic and safe]
-    AC3 --> AC4[AC4: Findings remain assistive and verifiable]
-    AC4 --> AC5[AC5: Runtime integration stays portable and discoverable]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add a second wave of hybrid] --> Need[Extend the hybrid Ollama when available]
+    Need --> Outcome[AC1: The kit defines a second]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

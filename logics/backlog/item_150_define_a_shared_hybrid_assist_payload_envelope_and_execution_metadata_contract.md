@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-a-shared-hybrid-assist-payload-en|req-089-add-a-hybrid-ollama-or-codex-loc|req-093-exists-because-each-hybrid-assis|ac1-a-shared-machine-readable-payload-en
 flowchart LR
-    Request[req_093] --> Problem[Hybrid flows need one payload envelope]
-    Problem --> Envelope[Define shared output and metadata fields]
-    Envelope --> Reuse[Enable CLI plugin and audit reuse]
-    Reuse --> Done[Execution task]
+    Request[req_089_add_a_hybrid_ollama_or_codex_local] --> Problem[req_093 exists because each hybrid assist]
+    Problem --> Scope[Define a shared hybrid assist payload]
+    Scope --> Acceptance[AC1: A shared machine-readable payload env]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

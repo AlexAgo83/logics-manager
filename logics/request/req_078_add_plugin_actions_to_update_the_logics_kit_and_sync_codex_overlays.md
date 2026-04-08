@@ -1,8 +1,8 @@
 ## req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 97%
-> Confidence: 95%
+> Understanding: 100%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -36,12 +36,10 @@ The goal is to close the gap between "the plugin knows what is wrong" and "the p
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|add-plugin-actions-to-update-the-logics-|add-explicit-plugin-actions-to-remediate|ac1-the-request-defines-a-plugin-owned
-flowchart LR
-    Detect[Plugin detects stale kit or missing overlay] --> Remediate[Plugin offers supported remediation actions]
-    Remediate --> Update[Update kit when the submodule contract is present]
-    Remediate --> Sync[Sync overlay when the manager exists]
-    Update --> Outcome[Operators stay inside VS Code for the common path]
-    Sync --> Outcome
+flowchart TD
+    Trigger[Add plugin actions to update the] --> Need[Add explicit plugin actions to remediate]
+    Need --> Outcome[AC1: The request defines a plugin-owned]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -111,3 +109,4 @@ flowchart LR
 
 # Backlog
 - `item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`
+- `logics/backlog/item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`

@@ -1,8 +1,17 @@
 ## req_002_add_read_button - Add Read button for rendered Markdown
 > From version: 1.9.1
-> Understanding: 80% (audit-aligned)
-> Confidence: 90% (governed)
+> Understanding: 83% (audit-aligned)
+> Confidence: 93% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-read-button-for-rendered-markdown|add-a-new-read-button-next|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Add Read button for rendered Markdown] --> Need[Add a new Read button next]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a new “Read” button next to the “Edit” button in the details actions.
@@ -25,3 +34,7 @@
 
 # Backlog
 - `logics/backlog/item_002_add_read_button.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

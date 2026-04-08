@@ -1,10 +1,10 @@
 ## item_226_add_request_draft_and_spec_first_pass_bounded_authoring_hybrid_flows - Add request-draft and spec-first-pass bounded authoring hybrid flows
-> From version: 1.21.1+item226
+> From version: 1.21.1+item226 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,12 +23,10 @@ Creating a request doc or drafting a first-pass spec currently requires a full i
 %% logics-kind: backlog
 %% logics-signature: backlog|add-request-draft-and-spec-first-pass-bo|req-125-expand-hybrid-provider-coverage-|creating-a-request-doc-or-drafting|ac1-the-hybrid-runtime-adds-a
 flowchart LR
-    Request[req_125 expand hybrid coverage] --> Problem[Request drafts and spec outlines require full interactive sessions]
-    Problem --> Scope[Two proposal-only hybrid flows with bounded structured output]
-    Scope --> AC1[AC1: request-draft flow returns validated Needs and Context draft]
-    Scope --> AC2[AC2: spec-first-pass flow returns validated spec outline]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_125_expand_hybrid_provider_coverage_to] --> Problem[Creating a request doc or drafting]
+    Problem --> Scope[Add request-draft and spec-first-pass boun]
+    Scope --> Acceptance[AC1: The hybrid runtime adds a]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -58,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: High — replaces the most common interactive authoring operations with cheaper bounded calls
 - Urgency: Normal — gated on shared hybrid contract being stable (req_093 / req_120)
+
+# Notes

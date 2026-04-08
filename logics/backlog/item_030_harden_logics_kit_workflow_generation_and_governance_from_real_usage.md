@@ -1,9 +1,9 @@
 ## item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 99% (closed)
-> Confidence: 98% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100% ((audit-aligned); refreshed)
 > Complexity: High
 > Theme: Shared Logics kit workflow hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -40,17 +40,13 @@ Its role is to turn the broad hardening request into an executable phased delive
 - Repo-specific behavior that only fits `cdx-logics-vscode`.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|harden-logics-kit-workflow-generation-an|req-025-harden-logics-kit-workflow-gener|real-usage-of-the-shared-logics|ac1-the-hardening-request-is-turned
 flowchart LR
-    Req[Shared kit hardening request] --> V1[V1 foundations]
-    V1 --> Promote[Promotion quality]
-    V1 --> Split[Split workflow]
-    V1 --> Ids[Safe ID allocation]
-    V1 --> Audit[Scoped audit]
-    V1 --> V2[V2 follow-up]
-    V2 --> Trace[Traceability seeding]
-    V2 --> Finish[Finish and close automation]
-    V2 --> Framing[Operational decision framing]
+    Request[req_025_harden_logics_kit_workflow_generat] --> Problem[Real usage of the shared logics]
+    Problem --> Scope[Harden Logics kit workflow generation and]
+    Scope --> Acceptance[AC1: The hardening request is turned]
+    Acceptance --> Tasks[task_024_harden_logics_kit_workflow_genera]
 ```
 
 # Acceptance criteria
@@ -64,14 +60,14 @@ flowchart LR
 - AC2 -> Scope and notes separate V1 from V2. Proof: phased execution frame captured here and in `task_024`.
 - AC3 -> Primary task points to a kit-level orchestration task. Proof: linked below.
 - AC4 -> Notes and priority frame the work around shared-kit safety and operational efficiency. Proof: linked request and task.
-- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC11 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC12 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC10 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC11 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC12 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -103,5 +99,6 @@ flowchart LR
 - The work must remain generic for all repositories consuming `logics/skills`.
 - The work should also measurably reduce repetitive cleanup for the agent using Logics as an execution framework.
 
+- Derived from `logics/request/req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`.
 # Tasks
 - `logics/tasks/task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`

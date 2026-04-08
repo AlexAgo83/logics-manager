@@ -1,14 +1,15 @@
 ## task_069_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
-> From version: 1.10.3
+> From version: 1.10.3 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_064_add_a_minimal_claude_code_bridge_for_logics_agents.md`.
 - Derived from backlog item `item_064_add_a_minimal_claude_code_bridge_for_logics_agents`.
 - Source file: `logics/backlog/item_064_add_a_minimal_claude_code_bridge_for_logics_agents.md`.
 - Related request(s): `req_055_add_a_minimal_claude_code_bridge_for_logics_agents`.
@@ -17,14 +18,14 @@
 - The first pass should cover the workflow-oriented entrypoints needed to discover and run the Logics request flow from Claude Code.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|add-a-minimal-claude-code-bridge-for-log|item-064-add-a-minimal-claude-code-bridg|1-define-the-minimal-claude-agents|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Backlog item] --> Contract[Define ownership contract]
-    Contract --> Agent[Add thin Claude agent bridge]
-    Contract --> Command[Add thin Claude command bridge]
-    Agent --> Validation[Validate docs and workflow]
-    Command --> Validation
-    Validation --> Done[Ready for implementation closeout]
+    Backlog[item_064_add_a_minimal_claude_code_bridge_] --> Step1[1. Define the minimal .claude agents]
+    Step1 --> Step2[2. Add thin Claude bridge files]
+    Step2 --> Step3[3. Ensure the bridge does not]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -80,3 +81,5 @@ flowchart LR
 - Finished on 2026-03-17.
 - Linked backlog item(s): `item_064_add_a_minimal_claude_code_bridge_for_logics_agents`
 - Related request(s): `req_055_add_a_minimal_claude_code_bridge_for_logics_agents`
+
+# Notes

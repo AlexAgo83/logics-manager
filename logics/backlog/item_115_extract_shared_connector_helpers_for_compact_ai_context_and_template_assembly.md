@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|extract-shared-connector-helpers-for-com|req-080-reduce-codex-token-consumption-w|reduce-token-waste-at-the-source|ac1-the-logics-kit-can-backfill
 flowchart LR
-    Request[req_082_strengthen_logics_kit_primitives_f] --> Problem[Reduce token waste at the source]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce token waste at the source]
     Problem --> Scope[Extract shared connector helpers for compa]
     Scope --> Acceptance[AC1: The Logics kit can backfill]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_094_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

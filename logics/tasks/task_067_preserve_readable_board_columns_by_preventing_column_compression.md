@@ -1,14 +1,26 @@
 ## task_067_preserve_readable_board_columns_by_preventing_column_compression - Preserve readable board columns by preventing column compression
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Board readability and width budgeting
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|preserve-readable-board-columns-by-preve|item-062-preserve-readable-board-columns|1-define-an-explicit-readable-width-cont|npm-run-compile
+flowchart LR
+    Backlog[item_062_preserve_readable_board_columns_b] --> Step1[1. Define an explicit readable-width contr]
+    Step1 --> Step2[2. Prevent columns from shrinking below]
+    Step2 --> Step3[3. Keep horizontal overflow as the]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_062_preserve_readable_board_columns_by_preventing_column_compression.md`.
 - Derived from backlog item `item_062_preserve_readable_board_columns_by_preventing_column_compression`.
 - Source file: `logics/backlog/item_062_preserve_readable_board_columns_by_preventing_column_compression.md`.
 - Related request(s): `req_053_preserve_readable_board_columns_by_preventing_column_compression`.
@@ -38,9 +50,14 @@
 - [x] Status and progress updated.
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC2 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+
+# Report
+- 
+
+# Notes

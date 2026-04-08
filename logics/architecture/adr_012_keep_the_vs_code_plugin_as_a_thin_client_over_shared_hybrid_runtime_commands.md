@@ -1,5 +1,5 @@
 ## adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands - Keep the VS Code plugin as a thin client over shared hybrid runtime commands
-> Date: 2026-03-25
+> Date: 2026-04-09
 > Status: Proposed
 > Drivers: plugin/runtime coherence, cross-agent messaging clarity, maintainability, audit visibility
 > Related request: `req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging`
@@ -55,17 +55,9 @@ Rejected because it would erode the source-of-truth model and complicate auditab
 - Expand the plugin surface only when the shared runtime contracts and review loops are established.
 
 # References
-- `logics/request/req_091_ensure_hybrid_logics_delivery_automation_stays_compatible_with_claude_environments_and_windows_runtimes.md`
 - `logics/request/req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging.md`
-- `logics/backlog/item_155_extend_plugin_environment_diagnostics_with_hybrid_runtime_health_backend_selection_and_degraded_state_visibility.md`
 - `logics/backlog/item_156_add_plugin_tool_actions_for_high_value_hybrid_assist_flows_through_shared_runtime_commands.md`
-- `logics/backlog/item_157_add_plugin_audit_visibility_result_panels_and_cross_agent_runtime_messaging_cleanup.md`
 - `logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md`
-- `src/logicsEnvironment.ts`
-- `src/logicsViewProvider.ts`
-- `src/logicsWebviewHtml.ts`
-
 # Follow-up work
 - Deliver plugin diagnostics, actions, and audit surfaces through `item_155`, `item_156`, and `item_157`.
 - Keep future plugin affordances gated on structured runtime outputs rather than TypeScript-only logic.
-

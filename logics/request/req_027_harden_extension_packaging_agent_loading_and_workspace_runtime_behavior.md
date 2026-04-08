@@ -1,8 +1,8 @@
 ## req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.1
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 99% (validated)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: Extension runtime robustness, packaging hygiene, and integration safety
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -41,22 +41,12 @@ Related but separate topics already exist:
 - `req_026` for refactoring the webview frontend structure.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|harden-extension-packaging-agent-loading|harden-the-main-vs-code-extension|ac1-the-packaged-vsix-excludes-developme
 flowchart TD
-    A[Project audit] --> B[Package includes too much]
-    A --> C[Agent YAML parser too narrow]
-    A --> D[Prompt injection still brittle]
-    A --> E[Multi-root behavior too implicit]
-    A --> F[No extension-host smoke test]
-    B --> G[Release hygiene]
-    C --> H[Safer agent ecosystem]
-    D --> H
-    E --> I[Clearer runtime behavior]
-    F --> J[Higher integration confidence]
-    G --> K[More robust extension project]
-    H --> K
-    I --> K
-    J --> K
+    Trigger[Harden extension packaging agent loading a] --> Need[Harden the main VS Code extension]
+    Need --> Outcome[AC1: The packaged VSIX excludes developmen]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -129,3 +119,4 @@ flowchart TD
 
 # Backlog
 - `item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
+- `logics/backlog/item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`

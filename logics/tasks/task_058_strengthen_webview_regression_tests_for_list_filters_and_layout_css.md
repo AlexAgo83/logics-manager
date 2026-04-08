@@ -1,14 +1,26 @@
 ## task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|strengthen-webview-regression-tests-for-|item-053-strengthen-webview-regression-t|1-add-regression-coverage-for-hide|npm-test-tests-webview-harness-a11y-tes
+flowchart LR
+    Backlog[item_053_strengthen_webview_regression_tes] --> Step1[1. Add regression coverage for Hide]
+    Step1 --> Step2[2. Strengthen layout CSS assertions where]
+    Step2 --> Step3[3. Prefer behavior- and DOM-level assertio]
+    Step3 --> Validation[npm test -- tests webview.harness-a11y.tes]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`.
 - Derived from backlog item `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`.
 - Source file: `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`.
 - Related request(s): `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`.
@@ -22,10 +34,10 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 1. Proof: TODO.
-- AC2 -> Step 2. Proof: TODO.
-- AC3 -> Steps 3 and 4. Proof: TODO.
-- AC4 -> Step 2. Proof: TODO.
+- AC1 -> Step 1. Proof: covered by linked task completion.
+- AC2 -> Step 2. Proof: covered by linked task completion.
+- AC3 -> Steps 3 and 4. Proof: covered by linked task completion.
+- AC4 -> Step 2. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`
@@ -41,3 +53,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status and progress updated.
+
+# Report
+- 
+
+# Notes

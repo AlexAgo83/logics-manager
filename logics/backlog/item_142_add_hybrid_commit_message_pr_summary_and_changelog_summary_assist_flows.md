@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-hybrid-commit-message-pr-summary-and|req-089-add-a-hybrid-ollama-or-codex-loc|req-090-prioritizes-short-structured-sum|ac1-bounded-hybrid-summary-flows-exist
 flowchart LR
-    Request[req_090] --> Problem[High ROI summary flows need one bounded slice]
-    Problem --> Inputs[Define compact git and workflow inputs]
-    Inputs --> Outputs[Emit bounded commit and summary artifacts]
-    Outputs --> Done[Execution task]
+    Request[req_089_add_a_hybrid_ollama_or_codex_local] --> Problem[req_090 prioritizes short structured summa]
+    Problem --> Scope[Add hybrid commit-message PR-summary and c]
+    Scope --> Acceptance[AC1: Bounded hybrid summary flows exist]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

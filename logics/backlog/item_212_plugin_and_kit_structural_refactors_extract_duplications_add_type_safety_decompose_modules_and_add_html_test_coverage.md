@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|plugin-and-kit-structural-refactors-extr|req-120-add-openai-and-gemini-provider-d|maybeshowcodexoverlayhandoff-and-launchc|ac1-no-duplicated-maybeshowcodexoverlayh
 flowchart LR
-    Request[req_121 audit cleanup] --> Problem[Structural quality issues]
-    Problem --> Scope[7 refactors with regression risk]
-    Scope --> AC[AC1 AC2 AC4 AC5 AC6 AC13 AC17]
-    AC --> Safe[All tests pass after refactor]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[maybeShowCodexOverlayHandoff and launchCod]
+    Problem --> Scope[Plugin and kit structural refactors extrac]
+    Scope --> Acceptance[AC1: No duplicated maybeShowCodexOverlayHa]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

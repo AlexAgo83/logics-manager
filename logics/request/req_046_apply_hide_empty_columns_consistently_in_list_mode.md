@@ -1,11 +1,20 @@
 ## req_046_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|apply-hide-empty-columns-consistently-in|make-the-hide-empty-columns-option|ac1-when-hide-empty-columns-is
+flowchart TD
+    Trigger[Apply hide empty columns consistently in] --> Need[Make the Hide empty columns option]
+    Need --> Outcome[AC1: When Hide empty columns is]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make the `Hide empty columns` option behave consistently across board and list views.
@@ -62,3 +71,7 @@ The result is extra visual noise and the impression that the filter is only part
 
 # Backlog
 - `logics/backlog/item_051_apply_hide_empty_columns_consistently_in_list_mode.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

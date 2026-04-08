@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-ai-facing-summaries-and-compact-meta|req-080-reduce-codex-token-consumption-w|the-current-logics-corpus-stores-durable|ac1-managed-logics-docs-can-expose
 flowchart LR
-    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce unnecessary Codex token consumption]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[The current Logics corpus stores durable]
     Problem --> Scope[Add AI-facing summaries and compact metada]
-    Scope --> Acceptance[AC1: The Logics kit defines a]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Managed Logics docs can expose]
+    Acceptance --> Tasks[task_092_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

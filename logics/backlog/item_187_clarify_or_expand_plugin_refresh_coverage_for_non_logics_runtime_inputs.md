@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|clarify-or-expand-plugin-refresh-coverag|req-104-harden-repository-maintenance-gu|the-plugin-refresh-surface-currently-foc|ac1-the-repository-identifies-the-non-lo
 flowchart LR
-    Request[req_104_repository_guardrails] --> Problem[Plugin status can go stale on non logics inputs]
-    Problem --> Scope[Clarify or expand status refresh coverage]
-    Scope --> Acceptance[AC1 runtime affecting inputs are watched or explicitly manual]
-    Acceptance --> Tasks[Execution task]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[The plugin refresh surface currently focus]
+    Problem --> Scope[Clarify or expand plugin refresh coverage]
+    Scope --> Acceptance[AC1: The repository identifies the non-log]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

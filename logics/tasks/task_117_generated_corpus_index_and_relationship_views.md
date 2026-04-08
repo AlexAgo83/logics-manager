@@ -1,15 +1,16 @@
 ## task_117_generated_corpus_index_and_relationship_views - Generated corpus index and relationship views
-> From version: 1.22.2
+> From version: 1.22.2 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`.
 - Derived from backlog item `item_257_generated_corpus_index_and_relationship_views`.
 - Source file: `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`.
 - Related request(s): `req_134_generated_corpus_index_and_relationship_views`.
@@ -21,13 +22,11 @@
 %% logics-kind: task
 %% logics-signature: task|generated-corpus-index-and-relationship-|item-257-generated-corpus-index-and-rela|1-confirm-scope-dependencies-and-linked|run-the-relevant-automated-tests-for
 flowchart LR
-    A[Confirm scope & deps] --> B[Implement delivery wave]
-    B --> C[Checkpoint commit-ready]
-    C --> D[Update Logics docs]
-    D --> E[Run AI runtime commit-all]
-    E --> F[Run tests & quality checks]
-    F --> G[Close wave/step gate]
-    G --> H[Update related docs]
+    Backlog[item_257_generated_corpus_index_and_relati] --> Step1[1. Confirm scope dependencies and linked]
+    Step1 --> Step2[2. Implement the next coherent delivery]
+    Step2 --> Step3[3. Checkpoint the wave in a]
+    Step3 --> Validation[Run the relevant automated tests for]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -99,3 +98,5 @@ flowchart LR
 - Delivery checkpoints committed in:
   - `cad20eb` - generated navigation views and ADR in the main repo
   - `c75e339` - guardrails in the `logics/skills` sub-repo
+
+# Notes

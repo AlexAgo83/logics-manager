@@ -1,10 +1,10 @@
 ## item_225_enable_next_step_dispatch_to_openai_and_gemini_via_explicit_backend_flag - Enable next-step dispatch to OpenAI and Gemini via explicit backend flag
-> From version: 1.21.1+item225
+> From version: 1.21.1+item225 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ Derived from `logics/request/req_125_expand_hybrid_provider_coverage_to_replace_
 %% logics-kind: backlog
 %% logics-signature: backlog|enable-next-step-dispatch-to-openai-and-|req-125-expand-hybrid-provider-coverage-|next-step-is-the-last-hybrid-flow|ac1-next-step-is-made-eligible-for
 flowchart LR
-    Request[req_125 expand hybrid coverage] --> Problem[next-step locked to codex-only, cannot use OpenAI or Gemini even when configured]
-    Problem --> Scope[Explicit backend flag support for next-step with contract validation]
-    Scope --> AC1[AC1: next-step accepts explicit backend openai and gemini with full validation]
-    AC1 --> Tasks[Execution task]
+    Request[req_125_expand_hybrid_provider_coverage_to] --> Problem[next-step is the last hybrid flow]
+    Problem --> Scope[Enable next-step dispatch to OpenAI and]
+    Scope --> Acceptance[AC1: next-step is made eligible for]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: Medium — unlocks cost saving for teams with OpenAI/Gemini as primary
 - Urgency: Normal
+
+# Notes

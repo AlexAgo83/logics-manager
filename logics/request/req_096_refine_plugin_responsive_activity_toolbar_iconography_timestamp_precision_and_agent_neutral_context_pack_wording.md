@@ -37,11 +37,9 @@
 %% logics-kind: request
 %% logics-signature: request|refine-plugin-responsive-activity-behavi|refine-several-plugin-ux-details-that|ac1-when-the-plugin-is-in
 flowchart TD
-    Trigger[Plugin UX still has post hybrid rollout rough edges] --> Layout[Refine vertical layout and activity behavior]
-    Layout --> Icons[Reduce toolbar text noise with iconography]
-    Icons --> Time[Make recent Updated values more precise]
-    Time --> Wording[Generalize context-pack wording beyond Codex only]
-    Wording --> Backlog[Backlog slice]
+    Trigger[Refine plugin responsive activity behavior] --> Need[Refine several plugin UX details that]
+    Need --> Outcome[AC1: When the plugin is in]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

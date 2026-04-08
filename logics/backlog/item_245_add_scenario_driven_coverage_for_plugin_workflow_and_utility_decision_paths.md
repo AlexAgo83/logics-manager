@@ -29,12 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-scenario-driven-coverage-for-plugin-|req-130-make-plugin-coverage-actionable-|improve-branch-confidence-on-the-plugin|ac1-scenario-driven-tests-are-added-for
 flowchart LR
-    A[req 130] --> B[Large decision modules]
-    B --> C[Provider utils scenarios]
-    B --> D[Workflow controller scenarios]
-    C --> E[Fallback and repo state]
-    D --> E
-    E --> F[Higher branch confidence]
+    Request[req_130_make_plugin_coverage_actionable_wi] --> Problem[Improve branch confidence on the plugin]
+    Problem --> Scope[Add scenario-driven coverage for plugin wo]
+    Scope --> Acceptance[AC1: Scenario-driven tests are added for]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

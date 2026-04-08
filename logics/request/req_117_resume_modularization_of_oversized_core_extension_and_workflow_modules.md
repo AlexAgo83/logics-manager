@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Architecture
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -27,11 +27,9 @@
 %% logics-kind: request
 %% logics-signature: request|resume-modularization-of-oversized-core-|reduce-the-maintenance-cost-of-the|ac1-the-next-modularization-pass-identif
 flowchart TD
-    Large[Oversized core modules] --> Costs[High review and change cost]
-    Costs --> Seams[Identify stable domain seams]
-    Seams --> Split[Incremental modularization pass]
-    Split --> Maintainable[Lower maintenance and safer changes]
-    Maintainable --> Backlog[Backlog slice]
+    Trigger[Resume modularization of oversized core ex] --> Need[Reduce the maintenance cost of the]
+    Need --> Outcome[AC1: The next modularization pass identifi]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -91,3 +89,4 @@ flowchart TD
 
 # Backlog
 - `item_204_resume_modularization_of_oversized_core_extension_and_workflow_modules`
+- `logics/backlog/item_204_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`

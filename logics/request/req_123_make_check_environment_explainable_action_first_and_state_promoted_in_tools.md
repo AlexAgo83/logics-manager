@@ -2,8 +2,8 @@
 > From version: 1.21.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -62,15 +62,9 @@ Out of scope for this request:
 %% logics-kind: request
 %% logics-signature: request|make-check-environment-explainable-actio|make-check-environment-understandable-on|ac1-the-check-environment-surface-starts
 flowchart TD
-    Trigger[User opens environment diagnostics] --> Summary[Show clear overall health summary]
-    Trigger --> Actions[Show recommended fixes first]
-    Trigger --> Status[Show current status separately]
-    Trigger --> Details[Keep optional technical details secondary]
-    Summary --> Outcome[Environment surface becomes understandable]
-    Actions --> Outcome
-    Status --> Outcome
-    Details --> Outcome
-    Outcome --> Tools[Promote Check Environment in Recommended when needed]
+    Trigger[Make Check Environment explainable action] --> Need[Make Check Environment understandable on f]
+    Need --> Outcome[AC1: The Check Environment surface starts]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -193,3 +187,4 @@ Out of scope:
 # Backlog
 - `item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools`
 - `task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity`
+- `logics/backlog/item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools.md`

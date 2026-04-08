@@ -30,13 +30,13 @@ A first `Dependency Map` should turn the existing indexed graph into a navigable
   - Replacing the current board and list as the primary workflow surface.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|add-dependency-map-for-logics-workflow-r|req-056-add-codex-context-pack-attention|the-extension-already-computes-a-useful|ac1-the-plugin-exposes-a-dependency
 flowchart LR
-    Request[Request req 056] --> Problem[Workflow graph is hidden in text and lists]
-    Problem --> Graph[Index requests backlog tasks and companions]
-    Graph --> Map[Render dependency map view]
-    Map --> Sync[Sync node selection with details and actions]
-    Sync --> Task[Task 070 orchestration]
+    Request[req_056_add_codex_context_pack_attention_e] --> Problem[The extension already computes a useful]
+    Problem --> Scope[Add dependency map for Logics workflow]
+    Scope --> Acceptance[AC1: The plugin exposes a dependency]
+    Acceptance --> Tasks[task_070_orchestration_delivery_for_req_05]
 ```
 
 # Acceptance criteria

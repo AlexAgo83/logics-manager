@@ -21,12 +21,13 @@ Without an explicit details-panel affordance, companion docs would remain techni
 - Full redesign of the board itself.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|add-companion-docs-section-and-navigatio|req-022-align-vs-code-plugin-with-compan|even-after-indexing-companion-docs-users|ac1-the-details-panel-exposes-a
 flowchart LR
-    Req[Request source] --> Problem[Problem to solve]
-    Problem --> Scope[Scoped delivery]
-    Scope --> AC[Acceptance criteria]
-    AC --> Tasks[Implementation task s]
+    Request[req_022_align_vs_code_plugin_with_companio] --> Problem[Even after indexing companion docs users]
+    Problem --> Scope[Add companion docs section and navigation]
+    Scope --> Acceptance[AC1: The details panel exposes a]
+    Acceptance --> Tasks[task_021_align_vs_code_plugin_with_compani]
 ```
 
 # Acceptance criteria

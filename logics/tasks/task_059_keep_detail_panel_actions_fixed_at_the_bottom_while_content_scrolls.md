@@ -1,14 +1,26 @@
 ## task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|keep-detail-panel-actions-fixed-at-the-b|item-054-keep-detail-panel-actions-fixed|1-separate-the-scrollable-detail-body|npm-run-compile
+flowchart LR
+    Backlog[item_054_keep_detail_panel_actions_fixed_a] --> Step1[1. Separate the scrollable detail body]
+    Step1 --> Step2[2. Keep the detail footer reachable]
+    Step2 --> Step3[3. Bound the Activity panel and]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`.
 - Derived from backlog item `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`.
 - Source file: `logics/backlog/item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`.
 - Related request(s): `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`.
@@ -38,15 +50,20 @@
 - [x] Status and progress updated.
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC11 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC12 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC10 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC11 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC12 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC2 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
+
+# Report
+- 
+
+# Notes

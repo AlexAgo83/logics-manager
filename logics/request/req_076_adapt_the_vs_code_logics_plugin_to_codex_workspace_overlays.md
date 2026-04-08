@@ -1,8 +1,8 @@
 ## req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays - Adapt the VS Code Logics plugin to Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: VS Code plugin integration and Codex overlay awareness
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -40,11 +40,10 @@ Instead:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|adapt-the-vs-code-logics-plugin-to-codex|adapt-the-vs-code-logics-plugin|ac1-the-request-defines-plugin-level-ada
-flowchart LR
-    Plugin[Plugin understands repo local Logics] --> Overlay[Codex runtime moves to workspace overlays]
-    Overlay --> Awareness[Plugin becomes overlay aware]
-    Awareness --> Diagnostics[Status recovery and launch stay coherent]
-    Diagnostics --> Outcome[Plugin UX matches the new system]
+flowchart TD
+    Trigger[Adapt the VS Code Logics plugin] --> Need[Adapt the VS Code Logics plugin]
+    Need --> Outcome[AC1: The request defines plugin-level adap]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -107,3 +106,4 @@ flowchart LR
 - Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable`
 # Backlog
 - `item_099_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays`
+- `logics/backlog/item_099_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays.md`

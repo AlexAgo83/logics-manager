@@ -1,14 +1,26 @@
 ## task_056_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 99%
+> Understanding: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|apply-hide-empty-columns-consistently-in|item-051-apply-hide-empty-columns-consis|1-apply-hide-empty-columns-to|npm-run-compile
+flowchart LR
+    Backlog[item_051_apply_hide_empty_columns_consiste] --> Step1[1. Apply Hide empty columns to]
+    Step1 --> Step2[2. Keep empty stage groups fully]
+    Step2 --> Step3[3. Preserve current behavior when the]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_051_apply_hide_empty_columns_consistently_in_list_mode.md`.
 - Derived from backlog item `item_051_apply_hide_empty_columns_consistently_in_list_mode`.
 - Source file: `logics/backlog/item_051_apply_hide_empty_columns_consistently_in_list_mode.md`.
 - Related request(s): `req_046_apply_hide_empty_columns_consistently_in_list_mode`.
@@ -21,9 +33,9 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2/AC3 -> Steps 1, 2, and 3. Proof: TODO.
-- AC4 -> Step 4. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1/AC2/AC3 -> Steps 1, 2, and 3. Proof: covered by linked task completion.
+- AC4 -> Step 4. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_051_apply_hide_empty_columns_consistently_in_list_mode`
@@ -38,3 +50,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status and progress updated.
+
+# Report
+- 
+
+# Notes

@@ -1,9 +1,9 @@
 ## task_113_orchestration_delivery_for_req_129_plugin_and_kit_coverage_portfolio - Orchestration delivery for req_129 plugin and kit coverage portfolio
-> From version: 1.22.0
+> From version: 1.22.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -42,13 +42,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-129-plugi|item-239-increase-plugin-webview-behavio|wave-1-item-239-plugin-webview-behavior|npm-run-compile
 flowchart LR
-    Req[Req 129 coverage portfolio] --> W1[Wave 1 item 239 plugin webview behavior]
-    W1 --> W2[Wave 2 item 241 kit workflow behavior]
-    W2 --> W3[Wave 3 item 240 plugin sandbox lifecycle]
-    W3 --> W4[Wave 4 item 242 kit sandbox lifecycle]
-    W4 --> Gate[Gate local providers configured and healthy]
-    Gate --> W5[Wave 5 item 243 live provider integration]
-    W5 --> Final[Update docs and close report]
+    Backlog[item_239_increase_plugin_webview_behavior_] --> Step1[Wave 1 item_239: plugin webview behavior]
+    Step1 --> Step2[1.1 lock runtime targets : confirmed]
+    Step2 --> Step3[1.2 expand behavior suites : added]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -197,3 +195,5 @@ flowchart LR
 - **Harness improvement**: refactored `webviewHarnessTestUtils.ts` and `webview.layout-collapse.test.ts` to use shared `loadMediaScript` helper with `//# sourceURL` annotations.
 - **Validation**: `npm run compile` OK, `npm run test:coverage` 307/307 passed, `npm run test:smoke` OK.
 - **Known gap**: V8 coverage provider reports 0% for `media/*.js` because eval'd JSDOM code is not instrumented by V8. The behavioral tests catch regressions regardless. Addressing the metric requires infrastructure work (vitest plugin or module format migration).
+
+# Notes

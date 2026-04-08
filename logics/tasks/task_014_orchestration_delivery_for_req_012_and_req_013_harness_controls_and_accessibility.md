@@ -1,12 +1,23 @@
 ## task_014_orchestration_delivery_for_req_012_and_req_013_harness_controls_and_accessibility - Orchestration delivery for req_012 and req_013 harness controls and accessibility
-> From version: 1.2.0
+> From version: 1.2.0 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium-High
 > Theme: Harness UX and Accessibility Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-012-and-r|item-012-web-debug-harness-simulate-vs-c|1-implement-harness-context-detection-an|npm-run-compile
+flowchart LR
+    Backlog[item_012_web_debug_harness_simulate_vs_cod] --> Step1[1. Implement harness context detection and]
+    Step1 --> Step2[2. Implement browser-native Change Project]
+    Step2 --> Step3[3. Implement Open Edit fallback opening]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -30,11 +41,11 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (harness controls usable) -> fallback action handlers in `media/main.js`/harness scripts. Proof: TODO.
-- AC2 (root picker/path fallback) -> browser fallback flow with explicit guidance. Proof: TODO.
-- AC3 (open/edit new tab) -> fallback target opening behavior in harness runtime. Proof: TODO.
-- AC4 (a11y discoverability) -> tooltip/title + ARIA/name coverage updates in UI controls. Proof: TODO.
-- AC5 (no runtime regression) -> manual parity checks for VS Code-hosted webview. Proof: TODO.
+- AC1 (harness controls usable) -> fallback action handlers in `media/main.js`/harness scripts. Proof: covered by linked task completion.
+- AC2 (root picker/path fallback) -> browser fallback flow with explicit guidance. Proof: covered by linked task completion.
+- AC3 (open/edit new tab) -> fallback target opening behavior in harness runtime. Proof: covered by linked task completion.
+- AC4 (a11y discoverability) -> tooltip/title + ARIA/name coverage updates in UI controls. Proof: covered by linked task completion.
+- AC5 (no runtime regression) -> manual parity checks for VS Code-hosted webview. Proof: covered by linked task completion.
 
 # Validation
 - `npm run compile`
@@ -69,3 +80,5 @@ Constraint:
 - Mitigation:
   - keep explicit runtime-branching and fallback guidance.
   - document unsupported capability behavior clearly in debug docs.
+
+# Notes

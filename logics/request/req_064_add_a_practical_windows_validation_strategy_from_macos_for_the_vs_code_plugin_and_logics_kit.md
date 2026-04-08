@@ -48,13 +48,9 @@ It is asking for a maintainable validation strategy from a macOS maintainer pers
 %% logics-kind: request
 %% logics-signature: request|add-a-practical-windows-validation-strat|define-a-practical-way-for-a|ac1-the-request-defines-a-two-layer
 flowchart TD
-    Maintainer[Maintainer works on macOS] --> CI[Automated Windows CI lane]
-    Maintainer --> VM[Real Windows VM smoke path]
-    CI --> Coverage[Fast regression coverage]
-    VM --> Reality[Real shell CLI filesystem and VS Code host checks]
-    Coverage --> Strategy[Practical Windows validation strategy]
-    Reality --> Strategy
-    Strategy --> Outcome[Higher confidence before release]
+    Trigger[Add a practical Windows validation strateg] --> Need[Define a practical way for a]
+    Need --> Outcome[AC1: The request defines a two-layer]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

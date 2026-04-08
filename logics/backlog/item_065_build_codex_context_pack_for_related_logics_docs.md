@@ -31,13 +31,13 @@ The missing capability is a compact, deliberate `Context Pack for Codex` that tu
   - Replacing the current agent-selection flow.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|build-codex-context-pack-for-related-log|req-056-add-codex-context-pack-attention|the-plugin-can-already-inject-an|ac1-the-plugin-can-assemble-a
 flowchart LR
-    Request[Request req 056] --> Problem[Codex launch lacks assembled graph context]
-    Problem --> Resolver[Resolve related workflow and companion docs]
-    Resolver --> Trim[Prioritize and trim useful context]
-    Trim --> Launch[Launch or preview Codex context pack]
-    Launch --> Task[Task 070 orchestration]
+    Request[req_056_add_codex_context_pack_attention_e] --> Problem[The plugin can already inject an]
+    Problem --> Scope[Build Codex context pack for related]
+    Scope --> Acceptance[AC1: The plugin can assemble a]
+    Acceptance --> Tasks[task_070_orchestration_delivery_for_req_05]
 ```
 
 # Acceptance criteria

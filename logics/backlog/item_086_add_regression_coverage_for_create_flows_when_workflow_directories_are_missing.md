@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-regression-coverage-for-create-flows|req-062-harden-windows-compatibility-acr|guarantee-that-logics-workflow-creation-|ac1-the-request-explicitly-covers-partia
 flowchart LR
-    Request[req_065_harden_partial_logics_bootstrap_re] --> Problem[Guarantee that Logics workflow creation re]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Guarantee that Logics workflow creation re]
     Problem --> Scope[Add regression coverage for create flows]
     Scope --> Acceptance[AC1: The request explicitly covers partial]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_079_make_missing_workflow_directories]
 ```
 
 # Acceptance criteria

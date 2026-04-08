@@ -1,8 +1,8 @@
 ## task_071_orchestration_delivery_for_internal_ui_steering_skill_and_agent - Orchestration delivery for internal UI steering skill and agent
-> From version: 1.10.4
+> From version: 1.10.4 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Cross-item delivery orchestration
@@ -25,14 +25,14 @@ Constraint:
 - the Logics kit documentation should be updated in the same delivery slice so the new skill is discoverable in `logics/skills/README.md`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-internal-ui-s|item-068-create-an-internal-ui-steering-|1-create-the-internal-ui-steering|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 068 069] --> Step1[Build internal skill corpus]
-    Step1 --> Step2[Add agent manifest and activation contract]
-    Step2 --> Step3[Verify explicit activation and auto trigger]
-    Step3 --> Step4[Update kit README and linked docs]
-    Step4 --> Validation[Validation]
-    Validation --> Report[Report and Done]
+    Backlog[item_068_create_an_internal_ui_steering_sk] --> Step1[1. Create the internal UI steering]
+    Step1 --> Step2[2. Add the paired agents openai.yaml]
+    Step2 --> Step3[3. Ensure the skill metadata and]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -100,3 +100,5 @@ flowchart LR
 - Finished on 2026-03-17.
 - Linked backlog item(s): `item_068_create_an_internal_ui_steering_skill_corpus_and_reference_pack`, `item_069_add_an_internal_ui_steering_agent_manifest_and_usage_contract`
 - Related request(s): `req_057_add_an_internal_ui_steering_skill_and_agent_for_grounded_interface_generation`
+
+# Notes

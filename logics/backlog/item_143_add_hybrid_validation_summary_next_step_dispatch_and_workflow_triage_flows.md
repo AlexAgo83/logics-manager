@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-hybrid-validation-summary-next-step-|req-088-add-a-local-llm-dispatcher-for-d|validation-recap-next-step-dispatch-and-|ac1-hybrid-validation-summary-next-step-
 flowchart LR
-    Request[req_090] --> Problem[Triage and next-step flows need a bounded slice]
-    Problem --> Summary[Summarize validation outputs]
-    Summary --> Dispatch[Suggest next workflow action]
-    Dispatch --> Triage[Classify workflow state safely]
-    Triage --> Done[Execution task]
+    Request[req_088_add_a_local_llm_dispatcher_for_det] --> Problem[Validation recap next-step dispatch and wo]
+    Problem --> Scope[Add hybrid validation-summary next-step di]
+    Scope --> Acceptance[AC1: Hybrid validation-summary next-step s]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

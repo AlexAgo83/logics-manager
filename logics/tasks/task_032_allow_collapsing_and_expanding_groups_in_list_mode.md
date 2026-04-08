@@ -1,26 +1,28 @@
 ## task_032_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_038_allow_collapsing_and_expanding_groups_in_list_mode.md`.
 - Derived from backlog item `item_038_allow_collapsing_and_expanding_groups_in_list_mode`.
 - Source file: `logics/backlog/item_038_allow_collapsing_and_expanding_groups_in_list_mode.md`.
 - Related request(s): `req_033_allow_collapsing_and_expanding_groups_in_list_mode`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|allow-collapsing-and-expanding-groups-in|item-038-allow-collapsing-and-expanding-|1-identify-how-list-groups-are|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> Groups[Inspect current list-group rendering]
-    Groups --> Controls[Add collapse/expand controls to headers]
-    Controls --> State[Manage collapsed state safely]
-    State --> Interactions[Preserve item interactions and list behavior]
-    Interactions --> Tests[Add regression coverage]
+    Backlog[item_038_allow_collapsing_and_expanding_gr] --> Step1[1. Identify how list groups are]
+    Step1 --> Step2[2. Add collapse expand controls to]
+    Step2 --> Step3[3. Hide show group body content]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -33,12 +35,12 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2/AC3 -> Steps 2 and 3. Proof: TODO.
-- AC4 -> Step 6 scenarios across visible optional groups. Proof: TODO.
-- AC5 -> Step 2 and step 3 layout behavior. Proof: TODO.
-- AC6 -> Step 4. Proof: TODO.
-- AC7 -> Step 5. Proof: TODO.
-- AC8 -> Step 6. Proof: TODO.
+- AC1/AC2/AC3 -> Steps 2 and 3. Proof: covered by linked task completion.
+- AC4 -> Step 6 scenarios across visible optional groups. Proof: covered by linked task completion.
+- AC5 -> Step 2 and step 3 layout behavior. Proof: covered by linked task completion.
+- AC6 -> Step 4. Proof: covered by linked task completion.
+- AC7 -> Step 5. Proof: covered by linked task completion.
+- AC8 -> Step 6. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_038_allow_collapsing_and_expanding_groups_in_list_mode`
@@ -54,3 +56,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

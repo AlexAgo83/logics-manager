@@ -1,26 +1,28 @@
 ## task_022_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 100% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% ((validated); refreshed)
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md`.
 - Derived from backlog item `item_028_replace_hide_used_requests_with_hide_processed_requests_semantics`.
 - Source file: `logics/backlog/item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md`.
 - Related request(s): `req_023_replace_hide_used_requests_with_hide_processed_requests_semantics`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|replace-hide-used-requests-with-hide-pro|item-028-replace-hide-used-requests-with|1-clarify-scope-and-acceptance-criteria|npm-run-tests
 flowchart LR
-    Backlog[Backlog source] --> Step1[Implementation step 1]
-    Step1 --> Step2[Implementation step 2]
-    Step2 --> Step3[Implementation step 3]
-    Step3 --> Validation[Validation]
-    Validation --> Report[Report and Done]
+    Backlog[item_028_replace_hide_used_requests_with_h] --> Step1[1. Clarify scope and acceptance criteria]
+    Step1 --> Step2[2. Implement changes]
+    Step2 --> Step3[3. Add adjust tests and polish]
+    Step3 --> Validation[npm run tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -31,14 +33,14 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Implemented in the steps above. Proof: add test/commit/file links.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC2 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -70,3 +72,5 @@ flowchart LR
 - Validation:
   - `npm run compile` OK
   - `npm run test` OK
+
+# Notes

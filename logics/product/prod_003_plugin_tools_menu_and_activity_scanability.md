@@ -1,5 +1,5 @@
 ## prod_003_plugin_tools_menu_and_activity_scanability - Plugin tools menu and activity scanability
-> Date: 2026-03-28
+> Date: 2026-04-09
 > Status: Validated
 > Related request: `req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`, `req_113_show_updated_timestamps_in_activity_cells`
 > Related backlog: `item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`, `item_200_show_updated_timestamps_in_activity_cells`
@@ -61,16 +61,12 @@ flowchart LR
 - Regression tests protect grouped menu structure, recommendation behavior, and the `Updated` rendering contract.
 
 # References
-- `logics/product/prod_000_companion_docs_ux_for_the_vs_code_plugin.md`
+- `logics/request/req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`
+- `logics/request/req_113_show_updated_timestamps_in_activity_cells.md`
 - `logics/backlog/item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`
 - `logics/backlog/item_200_show_updated_timestamps_in_activity_cells.md`
-- `src/logicsWebviewHtml.ts`
-- `media/toolsPanelLayout.js`
-- `media/webviewChrome.js`
-- `media/webviewSelectors.js`
-- `media/css/toolbar.css`
-- `tests/webview.harness-core.test.ts`
-
+- `logics/tasks/task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization.md`
+- `logics/architecture/adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend.md`
 # Open questions
 - Should the `Recommended` section later become user-configurable, or is repository-state-only prioritization sufficient?
 - Should activity timestamps stay absolute only, or would a compact relative-time treatment improve scanability without adding noise?

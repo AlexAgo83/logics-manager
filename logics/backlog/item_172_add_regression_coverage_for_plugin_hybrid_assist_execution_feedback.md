@@ -25,10 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-regression-coverage-for-plugin-hybri|req-095-adapt-the-vs-code-logics-plugin-|give-the-operator-immediate-visible-feed|ac1-when-a-plugin-tool-action
 flowchart LR
-    Request[req_100_add_user_feedback_and_vs_code_noti] --> Problem[Give the operator immediate visible feedba]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[Give the operator immediate visible feedba]
     Problem --> Scope[Add regression coverage for plugin hybrid]
     Scope --> Acceptance[AC1: When a plugin tool action]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_104_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

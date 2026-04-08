@@ -1,12 +1,23 @@
 ## task_013_orchestration_delivery_for_req_010_and_req_011_details_panel_collapse_ux - Orchestration delivery for req_010 and req_011 details panel collapse UX
-> From version: 1.1.0
+> From version: 1.1.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium-High
 > Theme: Split Layout Interaction Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-010-and-r|item-010-stacked-layout-disable-splitter|1-implement-stacked-mode-guards-ignore-s|npm-run-compile
+flowchart LR
+    Backlog[item_010_stacked_layout_disable_splitter_a] --> Step1[1. Implement stacked-mode guards: ignore s]
+    Step1 --> Step2[2. Implement compact collapsed details lay]
+    Step2 --> Step3[3. Implement horizontal collapsed layout a]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -26,11 +37,11 @@ This orchestration task coordinates details-panel collapse behavior across both 
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (stacked splitter disabled on collapse) -> interaction guards in `media/main.js`. Proof: TODO.
-- AC2 (stacked compact bottom details) -> collapsed/staked CSS + render logic in `media/main.css` and `media/main.js`. Proof: TODO.
-- AC3 (horizontal actions pinned bottom) -> horizontal collapsed CSS behavior in `media/main.css`. Proof: TODO.
-- AC4 (no regression across modes) -> harness scenarios + manual VS Code validation evidence. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 (stacked splitter disabled on collapse) -> interaction guards in `media/main.js`. Proof: covered by linked task completion.
+- AC2 (stacked compact bottom details) -> collapsed/staked CSS + render logic in `media/main.css` and `media/main.js`. Proof: covered by linked task completion.
+- AC3 (horizontal actions pinned bottom) -> horizontal collapsed CSS behavior in `media/main.css`. Proof: covered by linked task completion.
+- AC4 (no regression across modes) -> harness scenarios + manual VS Code validation evidence. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Validation
 - `npm run compile`
@@ -56,3 +67,5 @@ This orchestration task coordinates details-panel collapse behavior across both 
   - `media/main.css`: splitter hidden when split disabled, stacked collapsed compact rules, horizontal collapsed action bar pinned to bottom, and stacked layering guard to keep Details above board content during scroll.
   - Added tests: `tests/webview.layout-collapse.test.ts` (stacked disabled splitter + horizontal non-disabled splitter + CSS rule assertions, including split-layering guard).
   - Validation executed: `npm run compile`, `npm run test`, `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`, harness startup smoke, and manual harness + VS Code runtime collapse checks completed on 2026-03-01.
+
+# Notes

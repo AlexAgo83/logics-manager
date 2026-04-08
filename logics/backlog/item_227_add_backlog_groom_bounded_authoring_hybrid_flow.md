@@ -1,10 +1,10 @@
 ## item_227_add_backlog_groom_bounded_authoring_hybrid_flow - Add backlog-groom bounded authoring hybrid flow
-> From version: 1.21.1+item227
+> From version: 1.21.1+item227 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ Grooming a backlog item from a request doc — proposing a scoped title, complex
 %% logics-kind: backlog
 %% logics-signature: backlog|add-backlog-groom-bounded-authoring-hybr|req-125-expand-hybrid-provider-coverage-|grooming-a-backlog-item-from-a|ac1-the-hybrid-runtime-adds-a
 flowchart LR
-    Request[req_125 expand hybrid coverage] --> Problem[Backlog grooming from request requires full interactive session]
-    Problem --> Scope[Proposal-only backlog-groom hybrid flow with bounded JSON output]
-    Scope --> AC1[AC1: backlog-groom returns validated title, complexity, and AC proposals]
-    AC1 --> Tasks[Execution task]
+    Request[req_125_expand_hybrid_provider_coverage_to] --> Problem[Grooming a backlog item from a]
+    Problem --> Scope[Add backlog-groom bounded authoring hybrid]
+    Scope --> Acceptance[AC1: The hybrid runtime adds a]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: Medium — useful for teams that groom backlog frequently from request docs
 - Urgency: Normal — can ship after item_226 to validate the authoring flow pattern first
+
+# Notes

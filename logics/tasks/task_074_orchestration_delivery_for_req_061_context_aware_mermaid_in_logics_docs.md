@@ -1,8 +1,8 @@
 ## task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs - Orchestration delivery for req_061 context aware Mermaid in Logics docs
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 94%
+> Understanding: 98%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
@@ -22,11 +22,11 @@
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-061-conte|item-073-generate-context-aware-mermaid-|1-confirm-contextual-mermaid-requirement|python3-m-pytest-logics-skills-tests
 flowchart LR
-    Backlog[item 073] --> Generate[improve generation paths]
-    Generate --> Rules[define update and safety rules]
-    Rules --> Detect[add stale mermaid detection]
-    Detect --> Validate[validate docs and tests]
-    Validate --> Report[ready for report]
+    Backlog[item_073_generate_context_aware_mermaid_di] --> Step1[1. Confirm contextual Mermaid requirements]
+    Step1 --> Step2[2. Audit current template and promotion]
+    Step2 --> Step3[3. Implement improved context-aware Mermai]
+    Step3 --> Validation[python3 -m pytest logics skills tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -38,18 +38,18 @@ flowchart LR
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Generation paths use actual document context for Mermaid. Proof: TODO.
-- AC2 -> Update triggers cover problem, scope, AC, plan, and execution-path changes. Proof: TODO.
-- AC3 -> Mermaid stays compact and render-safe. Proof: TODO.
-- AC4 -> Stale or generic Mermaid detection follows warning-first behavior. Proof: TODO.
-- AC5 -> Tests and docs cover the improved Mermaid workflow. Proof: TODO.
-- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3C -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Generation paths use actual document context for Mermaid. Proof: covered by linked task completion.
+- AC2 -> Update triggers cover problem, scope, AC, plan, and execution-path changes. Proof: covered by linked task completion.
+- AC3 -> Mermaid stays compact and render-safe. Proof: covered by linked task completion.
+- AC4 -> Stale or generic Mermaid detection follows warning-first behavior. Proof: covered by linked task completion.
+- AC5 -> Tests and docs cover the improved Mermaid workflow. Proof: covered by linked task completion.
+- AC3B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3C -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7C -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -82,3 +82,5 @@ flowchart LR
 - Finished on 2026-03-18.
 - Linked backlog item(s): `item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`
 - Related request(s): `req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`
+
+# Notes

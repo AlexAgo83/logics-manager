@@ -1,8 +1,8 @@
 ## req_067_add_multi_project_codex_workspace_overlays_for_logics_skills - Add multi-project Codex workspace overlays for Logics skills
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: High
 > Theme: Agent orchestration and Codex workspace isolation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -39,11 +39,10 @@ The implementation should explicitly account for platform differences:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|add-multi-project-codex-workspace-overla|make-logics-skills-usable-from-codex|ac1-the-solution-defines-a-per-workspace
-flowchart LR
-    Repos[Several repos import logics skills] --> Problem[Global codex skills collide]
-    Problem --> Overlay[Per workspace codex home overlay]
-    Overlay --> Isolation[Each codex process sees one repo skill set]
-    Isolation --> Outcome[Concurrent multi project usage stays clean]
+flowchart TD
+    Trigger[Add multi-project Codex workspace overlays] --> Need[Make Logics skills usable from Codex]
+    Need --> Outcome[AC1: The solution defines a per-workspace]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -110,3 +109,4 @@ flowchart LR
 
 # Backlog
 - `item_090_add_multi_project_codex_workspace_overlays_for_logics_skills`
+- `logics/backlog/item_090_add_multi_project_codex_workspace_overlays_for_logics_skills.md`

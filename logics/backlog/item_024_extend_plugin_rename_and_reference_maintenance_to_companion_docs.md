@@ -21,12 +21,13 @@ Without that, a user could rename a request/backlog/task/product/architecture do
 - Unrelated workflow actions such as promotion or lifecycle state changes.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|extend-plugin-rename-and-reference-maint|req-022-align-vs-code-plugin-with-compan|once-companion-docs-became-visible-to|ac1-rename-reference-maintenance-flows-c
 flowchart LR
-    Req[Request source] --> Problem[Problem to solve]
-    Problem --> Scope[Scoped delivery]
-    Scope --> AC[Acceptance criteria]
-    AC --> Tasks[Implementation task s]
+    Request[req_022_align_vs_code_plugin_with_companio] --> Problem[Once companion docs became visible to]
+    Problem --> Scope[Extend plugin rename and reference mainten]
+    Scope --> Acceptance[AC1: Rename reference maintenance flows co]
+    Acceptance --> Tasks[task_021_align_vs_code_plugin_with_compani]
 ```
 
 # Acceptance criteria

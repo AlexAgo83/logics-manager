@@ -30,10 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|detect-and-refresh-logics-bootstrap-stat|req-065-harden-partial-logics-bootstrap-|the-extension-currently-reacts-well-to|ac1-the-extension-detects-git-state-chan
 flowchart LR
-    Request[req_118_handle_branch_switches_to_branches] --> Problem[The extension currently reacts well to]
+    Request[req_065_harden_partial_logics_bootstrap_re] --> Problem[The extension currently reacts well to]
     Problem --> Scope[Detect and refresh Logics bootstrap state]
-    Scope --> Acceptance[AC1: The extension detects git state cha]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The extension detects git-state chang]
+    Acceptance --> Tasks[task_108_orchestration_delivery_for_req_11]
 ```
 
 # Acceptance criteria

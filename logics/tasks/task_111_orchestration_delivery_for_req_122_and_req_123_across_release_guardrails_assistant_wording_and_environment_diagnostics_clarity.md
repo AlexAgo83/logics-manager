@@ -1,9 +1,9 @@
 ## task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity - Orchestration delivery for req_122 and req_123 across release guardrails assistant wording and environment diagnostics clarity
-> From version: 1.21.0
+> From version: 1.21.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Progress: 100%
 > Complexity: High
 > Theme: Orchestration
@@ -34,11 +34,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-122-and-r|item-218-harden-release-publish-guards-a|1-confirm-cross-item-ordering-request-co|python3-logics-skills-logics-py-audit-re
 flowchart LR
-    Start[item 218 and item 219] --> Wave1[Wave 1 release guards and assistant wording]
-    Wave1 --> Wave2[Wave 2 environment diagnostics clarity]
-    Wave2 --> Wave3[Wave 3 integration docs and regression closure]
-    Wave3 --> Validate[Validate tools diagnostics and tests]
-    Validate --> Report[Commit ready orchestration report]
+    Backlog[item_218_harden_release_publish_guards_and] --> Step1[1. Confirm cross-item ordering request cov]
+    Step1 --> Step2[2. Wave 1: deliver item_218 covering]
+    Step2 --> Step3[3. Wave 2: deliver item_219 covering]
+    Step3 --> Validation[python3 logics skills logics.py audit --re]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -117,3 +117,5 @@ flowchart LR
 - Validation checkpoint for `item_219`: expanded `LogicsViewProvider`, webview harness, and HTML snapshot coverage for action-first diagnostics ordering, disabled publish-release behavior, and `Recommended` promotion rules.
 - 2026-04-04: Wave 3 integration closure finished the remaining cross-surface follow-through. Added a dedicated `Logics Environment` output channel, kept the Tools surface and diagnostics labels aligned, and tightened `.vscodeignore` so smoke packaging no longer leaks `.env*` files into the VSIX.
 - Final validation rerun completed successfully with `npm run lint:ts`, `npm test`, and `npm run test:smoke`. The repository is in a commit-ready state with linked request, backlog, and task docs synchronized to the delivered behavior.
+
+# Notes

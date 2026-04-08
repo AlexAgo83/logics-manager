@@ -1,9 +1,9 @@
 ## item_091_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs - Auto-refresh stale Mermaid signatures in Logics workflow docs
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics doc maintenance and Mermaid signature integrity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|auto-refresh-stale-mermaid-signatures-in|req-061-generate-context-aware-mermaid-d|reduce-friction-when-workflow-docs-are|ac1-the-request-defines-a-supported
 flowchart LR
-    Request[req_068_auto_refresh_stale_mermaid_signatu] --> Problem[Reduce friction when workflow docs are]
+    Request[req_061_generate_context_aware_mermaid_dia] --> Problem[Reduce friction when workflow docs are]
     Problem --> Scope[Auto-refresh stale Mermaid signatures in L]
     Scope --> Acceptance[AC1: The request defines a supported]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -53,27 +53,27 @@ flowchart LR
 - lint output should stay focused on meaningful document problems.
 
 # AC Traceability
-- AC1 -> Scope: The request defines a supported maintenance path for stale Mermaid signatures so operators do not need to hand-edit `%% logics-signature` comments during normal Logics doc maintenance.. Proof: TODO.
-- AC2 -> Scope: The request explicitly covers request, backlog, and task workflow docs that use the current generated Mermaid metadata contract.. Proof: TODO.
-- AC3 -> Scope: The request preserves the existing signature mechanism and validation intent:. Proof: TODO.
-- AC4 -> Scope: stale signatures should still be detectable;. Proof: TODO.
-- AC5 -> Scope: the solution should improve refresh behavior rather than removing the signature check.. Proof: TODO.
-- AC4 -> Scope: The request allows the future implementation to choose one or more safe remediation paths, such as:. Proof: TODO.
-- AC6 -> Scope: auto-refresh during managed flow operations;. Proof: TODO.
-- AC7 -> Scope: a dedicated fixer command;. Proof: TODO.
-- AC8 -> Scope: lint or audit autofix support for signature-only drift.. Proof: TODO.
-- AC5 -> Scope: The request distinguishes signature-only drift from broader Mermaid quality issues:. Proof: TODO.
-- AC9 -> Scope: this work targets stale metadata synchronization;. Proof: TODO.
-- AC10 -> Scope: broader diagram relevance or redesign concerns may stay in separate backlog slices.. Proof: TODO.
-- AC6 -> Scope: The request defines that signature refresh must be derived from the current document content using the same or equivalent logic already used by generation or lint validation, so the system has one canonical way to compute the expected signature.. Proof: TODO.
-- AC7 -> Scope: The request is concrete enough that a follow-up backlog item can decide where the refresh belongs operationally:. Proof: TODO.
-- AC11 -> Scope: flow manager generation/update path;. Proof: TODO.
-- AC12 -> Scope: doc fixer or linter autofix path;. Proof: TODO.
-- AC13 -> Scope: audit or maintenance command path.. Proof: TODO.
-- AC8 -> Scope: The request keeps operator expectations explicit:. Proof: TODO.
-- AC14 -> Scope: manual content edits are normal;. Proof: TODO.
-- AC15 -> Scope: the tooling should absorb safe signature maintenance where possible;. Proof: TODO.
-- AC16 -> Scope: lint output should stay focused on meaningful document problems.. Proof: TODO.
+- AC1 -> Scope: The request defines a supported maintenance path for stale Mermaid signatures so operators do not need to hand-edit `%% logics-signature` comments during normal Logics doc maintenance.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly covers request, backlog, and task workflow docs that use the current generated Mermaid metadata contract.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request preserves the existing signature mechanism and validation intent:. Proof: covered by linked task completion.
+- AC4 -> Scope: stale signatures should still be detectable;. Proof: covered by linked task completion.
+- AC5 -> Scope: the solution should improve refresh behavior rather than removing the signature check.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request allows the future implementation to choose one or more safe remediation paths, such as:. Proof: covered by linked task completion.
+- AC6 -> Scope: auto-refresh during managed flow operations;. Proof: covered by linked task completion.
+- AC7 -> Scope: a dedicated fixer command;. Proof: covered by linked task completion.
+- AC8 -> Scope: lint or audit autofix support for signature-only drift.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request distinguishes signature-only drift from broader Mermaid quality issues:. Proof: covered by linked task completion.
+- AC9 -> Scope: this work targets stale metadata synchronization;. Proof: covered by linked task completion.
+- AC10 -> Scope: broader diagram relevance or redesign concerns may stay in separate backlog slices.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request defines that signature refresh must be derived from the current document content using the same or equivalent logic already used by generation or lint validation, so the system has one canonical way to compute the expected signature.. Proof: covered by linked task completion.
+- AC7 -> Scope: The request is concrete enough that a follow-up backlog item can decide where the refresh belongs operationally:. Proof: covered by linked task completion.
+- AC11 -> Scope: flow manager generation/update path;. Proof: covered by linked task completion.
+- AC12 -> Scope: doc fixer or linter autofix path;. Proof: covered by linked task completion.
+- AC13 -> Scope: audit or maintenance command path.. Proof: covered by linked task completion.
+- AC8 -> Scope: The request keeps operator expectations explicit:. Proof: covered by linked task completion.
+- AC14 -> Scope: manual content edits are normal;. Proof: covered by linked task completion.
+- AC15 -> Scope: the tooling should absorb safe signature maintenance where possible;. Proof: covered by linked task completion.
+- AC16 -> Scope: lint output should stay focused on meaningful document problems.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -103,3 +103,4 @@ flowchart LR
 - Derived from request `req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs`.
 - Source file: `logics/request/req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs.md`.
 - Request context seeded into this backlog item from `logics/request/req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs.md`.
+- Derived from `logics/request/req_068_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs.md`.

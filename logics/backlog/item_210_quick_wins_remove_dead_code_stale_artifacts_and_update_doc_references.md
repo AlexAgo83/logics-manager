@@ -21,10 +21,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|quick-wins-remove-dead-code-stale-artifa|req-121-audit-cleanup-fix-code-quality-i|several-mechanical-code-quality-issues-w|ac3-the-dead-runpython-export-in
 flowchart LR
-    Request[req_121 audit cleanup] --> Problem[Mechanical hygiene issues]
-    Problem --> Scope[7 low-risk fixes]
-    Scope --> AC[AC3 AC7 AC9 AC10 AC11 AC14 AC15]
-    AC --> Done[Noise reduced]
+    Request[req_121_audit_cleanup_fix_code_quality_iss] --> Problem[Several mechanical code quality issues wer]
+    Problem --> Scope[Quick wins remove dead code stale]
+    Scope --> Acceptance[AC3: The dead runPython export in]
+    Acceptance --> Tasks[task_110_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria

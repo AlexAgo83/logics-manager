@@ -1,11 +1,20 @@
 ## req_043_improve_plugin_onboarding_and_empty_states - Improve plugin onboarding and empty states
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Discoverability and first-use clarity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|improve-plugin-onboarding-and-empty-stat|make-the-plugin-easier-to-understand|ac1-empty-states-provide-actionable-guid
+flowchart TD
+    Trigger[Improve plugin onboarding and empty states] --> Need[Make the plugin easier to understand]
+    Need --> Outcome[AC1: Empty states provide actionable guida]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make the plugin easier to understand for first-time or occasional users.
@@ -69,3 +78,7 @@ It is about making the plugin self-explanatory enough to reduce confusion and de
 
 # Backlog
 - `logics/backlog/item_048_improve_plugin_onboarding_and_empty_states.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

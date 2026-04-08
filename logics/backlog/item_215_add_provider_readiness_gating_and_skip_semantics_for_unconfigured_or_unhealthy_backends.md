@@ -21,10 +21,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-provider-readiness-gating-and-skip-s|req-120-add-openai-and-gemini-provider-d|python-cli-processes-are-ephemeral-witho|ac4b-the-runtime-maintains-a-provider-re
 flowchart LR
-    Request[req_120 provider dispatch] --> Problem[Ephemeral CLI reprobes dead providers]
-    Problem --> Scope[Readiness gate with persistence]
-    Scope --> AC[AC4b readiness cooldown skip]
-    AC --> Fast[Fast fallback to safe path]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[Python CLI processes are ephemeral without]
+    Problem --> Scope[Add provider readiness gating and skip]
+    Scope --> Acceptance[AC4b: The runtime maintains a provider-rea]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

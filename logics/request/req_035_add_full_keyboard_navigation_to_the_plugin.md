@@ -1,11 +1,20 @@
 ## req_035_add_full_keyboard_navigation_to_the_plugin - Add full keyboard navigation to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Accessibility and operator productivity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-full-keyboard-navigation-to-the-plug|make-the-plugin-fully-usable-without|ac1-users-can-move-between-visible
+flowchart TD
+    Trigger[Add full keyboard navigation to the] --> Need[Make the plugin fully usable without]
+    Need --> Outcome[AC1: Users can move between visible]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make the plugin fully usable without relying on the mouse.
@@ -78,3 +87,7 @@ It is about making the plugin operational from the keyboard in a way that feels 
 
 # Backlog
 - `logics/backlog/item_040_add_full_keyboard_navigation_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

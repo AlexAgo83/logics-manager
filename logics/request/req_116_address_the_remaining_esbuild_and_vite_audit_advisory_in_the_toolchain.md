@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -29,11 +29,9 @@
 %% logics-kind: request
 %% logics-signature: request|address-the-remaining-esbuild-and-vite-a|resolve-or-explicitly-contain-the-remain|ac1-the-repository-has-a-chosen
 flowchart TD
-    Audit[Audit advisory remains] --> Toolchain[Vite and Vitest toolchain]
-    Toolchain --> Options[Upgrade or governed exception]
-    Options --> Fix[Chosen remediation path]
-    Fix --> Safer[Safer validated toolchain state]
-    Safer --> Backlog[Backlog slice]
+    Trigger[Address the remaining esbuild and vite] --> Need[Resolve or explicitly contain the remainin]
+    Need --> Outcome[AC1: The repository has a chosen]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -92,3 +90,4 @@ flowchart TD
 
 # Backlog
 - `item_203_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain`
+- `logics/backlog/item_203_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`

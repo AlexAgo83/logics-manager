@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-ollama-hybrid-prompt-messages-for|req-097-expand-hybrid-local-model-suppor|the-local-ollama-path-currently-reaches|ac1-for-supported-local-hybrid-flows
 flowchart LR
-    Request[req_102_harden_ollama_hybrid_assist_prompt] --> Problem[Local prompt shape can cause contract echo]
-    Problem --> Scope[Harden Ollama hybrid prompt messages]
-    Scope --> Acceptance[AC1 valid local payloads replace contract echo]
-    Acceptance --> Tasks[Execution task]
+    Request[req_097_expand_hybrid_local_model_support_] --> Problem[The local Ollama path currently reaches]
+    Problem --> Scope[Harden Ollama hybrid prompt messages for]
+    Scope --> Acceptance[AC1: For supported local hybrid flows]
+    Acceptance --> Tasks[task_104_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

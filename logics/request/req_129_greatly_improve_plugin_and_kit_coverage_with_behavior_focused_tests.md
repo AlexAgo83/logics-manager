@@ -61,13 +61,9 @@
 %% logics-kind: request
 %% logics-signature: request|greatly-improve-plugin-and-kit-coverage-|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart TD
-    Gap[Coverage is blended and misses risky behavior] --> Plugin[Plugin webview flows need deeper tests]
-    Gap --> Kit[Kit command and transport paths need deeper tests]
-    Plugin --> Split[Separate plugin core and webview reporting]
-    Kit --> Matrix[Add scenario matrix for cli and hybrid flows]
-    Split --> Ratchet[Define ratcheted thresholds by surface]
-    Matrix --> Ratchet
-    Ratchet --> Backlog[Backlog slices for plugin and kit coverage]
+    Trigger[Greatly improve plugin and kit coverage] --> Need[Raise plugin coverage in a way]
+    Need --> Outcome[AC1: The request clearly separates plugin]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

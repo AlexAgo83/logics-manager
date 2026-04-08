@@ -1,9 +1,9 @@
 ## task_020_orchestration_delivery_for_req_019_req_020_and_req_021 - Orchestration delivery for req_019 req_020 and req_021
-> From version: 1.7.0
+> From version: 1.7.0 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
-> Progress: 100% complete
+> Understanding: 100% (refreshed)
+> Confidence: 99%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -23,13 +23,14 @@ Constraint:
 - preserve current direct create flows, bootstrap safety, and existing markdown rendering behavior while extending these workflows.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-019-req-0|item-019-render-mermaid-diagrams-in-read|1-implement-mermaid-aware-read-preview-p|npm-run-compile
 flowchart LR
-    Backlog[Items 019 020 021] --> Step1[Implement Mermaid-aware Read preview]
-    Step1 --> Step2[Add guided Tools New Request flow]
-    Step2 --> Step3[Add post-bootstrap commit proposal]
-    Step3 --> Validation[Validation]
-    Validation --> Report[Report and Done]
+    Backlog[item_019_render_mermaid_diagrams_in_read_m] --> Step1[1. Implement Mermaid-aware Read preview pa]
+    Step1 --> Step2[2. Add Tools New Request action]
+    Step2 --> Step3[3. Extend bootstrap completion flow to]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -93,3 +94,5 @@ flowchart LR
   - `npm run lint`
   - `npm run test`
   - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+
+# Notes

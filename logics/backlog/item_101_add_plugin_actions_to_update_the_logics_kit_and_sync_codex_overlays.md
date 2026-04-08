@@ -1,9 +1,9 @@
 ## item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -34,10 +34,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-plugin-actions-to-update-the-logics-|req-067-add-multi-project-codex-workspac|the-plugin-can-now-diagnose-stale-kit|ac1-a-plugin-action-exists-to
 flowchart LR
-    Request[req_078_add_plugin_actions_to_update_the_lo] --> Problem[The plugin can now diagnose stale kit an]
-    Problem --> Scope[Add plugin actions to update the Logics ]
-    Scope --> Acceptance[AC1: A plugin action exists to update the]
-    Acceptance --> Tasks[Execution task]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[The plugin can now diagnose stale-kit]
+    Problem --> Scope[Add plugin actions to update the]
+    Scope --> Acceptance[AC1: A plugin action exists to]
+    Acceptance --> Tasks[task_090_add_plugin_actions_to_update_the_]
 ```
 
 # Acceptance criteria
@@ -51,13 +51,13 @@ flowchart LR
 - AC8: The first implementation pass can expose the remediation flow from both the Tools menu and actionable environment diagnostics without expanding beyond the current wrapper role.
 
 # AC Traceability
-- AC1 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: TODO.
-- AC2 -> Scope: Add a plugin action to sync or repair the Codex workspace overlay when the manager script is available.. Proof: TODO.
-- AC3 -> Scope: Gate those actions behind explicit Git, Python, and repository-layout checks so unsafe or unsupported cases fall back to guidance instead of silent failure.. Proof: TODO.
-- AC4 -> Scope: Gate those actions behind explicit Git, Python, and repository-layout checks so unsafe or unsupported cases fall back to guidance instead of silent failure.. Proof: TODO.
+- AC1 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: covered by linked task completion.
+- AC2 -> Scope: Add a plugin action to sync or repair the Codex workspace overlay when the manager script is available.. Proof: covered by linked task completion.
+- AC3 -> Scope: Gate those actions behind explicit Git, Python, and repository-layout checks so unsafe or unsupported cases fall back to guidance instead of silent failure.. Proof: covered by linked task completion.
+- AC4 -> Scope: Gate those actions behind explicit Git, Python, and repository-layout checks so unsafe or unsupported cases fall back to guidance instead of silent failure.. Proof: covered by linked task completion.
 - AC5 -> Scope: Supporting arbitrary copied, vendored, or forked kit layouts as fully automated update targets in the first pass.. Proof: Excluded to preserve delegation to the existing kit and script contract.
-- AC6 -> Scope: Surface the actions from the plugin surfaces where the missing state is already detected, such as the tools menu or environment diagnostics.. Proof: TODO.
-- AC7 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: TODO.
+- AC6 -> Scope: Surface the actions from the plugin surfaces where the missing state is already detected, such as the tools menu or environment diagnostics.. Proof: covered by linked task completion.
+- AC7 -> Scope: Add a plugin action to update the Logics kit when the repository uses the canonical `logics/skills` Git submodule.. Proof: covered by linked task completion.
 - AC8 -> Scope: Surface the actions from the plugin surfaces where the missing state is already detected, such as the tools menu or environment diagnostics.. Proof: Implemented through `Update Logics Kit` and `Sync Codex Overlay` actions in the Tools menu plus remediation actions inside `Logics: Check Environment`.
 
 # Decision framing
@@ -92,3 +92,4 @@ flowchart LR
 - Derived from request `req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`.
 - Source file: `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`.
 - Request context seeded into this backlog item from `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`.
+- Derived from `logics/request/req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`.

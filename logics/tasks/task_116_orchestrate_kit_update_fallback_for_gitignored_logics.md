@@ -1,9 +1,9 @@
 ## task_116_orchestrate_kit_update_fallback_for_gitignored_logics - Orchestrate kit update fallback for gitignored logics
-> From version: 1.22.1 (doc sync)
+> From version: 1.22.1 (doc sync) (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 97%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: Medium
 > Theme: General
@@ -17,17 +17,12 @@
 ```mermaid
 %% logics-kind: task
 %% logics-signature: task|orchestrate-kit-update-fallback-for-giti|item-254-detect-dangerous-gitignore-patt|wave-1-detect-dangerous-gitignore|npm-run-compile
-flowchart TD
-    Start[Start: confirm scope and deps] --> W1[Wave 1: gitignore pattern detection]
-    W1 --> W1V[Validate: lint + tests + check environment]
-    W1V --> W1C[Commit checkpoint]
-    W1C --> W2[Wave 2: fallback install cascade]
-    W2 --> W2V[Validate: lint + tests + fallback scenarios]
-    W2V --> W2C[Commit checkpoint]
-    W2C --> W3[Wave 3: adaptive update routing]
-    W3 --> W3V[Validate: lint + tests + update scenarios]
-    W3V --> W3C[Commit checkpoint]
-    W3C --> Final[Update logics docs and close]
+flowchart LR
+    Backlog[item_254_detect_dangerous_gitignore_patter] --> Step1[Wave 1 - Detect dangerous gitignore]
+    Step1 --> Step2[1. Add detectDangerousGitignorePatterns ro]
+    Step2 --> Step3[2. Surface the warning in Check]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -119,3 +114,5 @@ flowchart TD
 # Report
 - Implemented the three-wave kit fallback flow for gitignored `logics/`: proactive `.gitignore` warnings, copy-first fallback installation, direct clone fallback, and adaptive routing for standalone clones.
 - Validation passed: `npm run compile`, `npm test`, and targeted Vitest coverage for `logicsProviderUtils.test.ts` and `logicsViewProvider.test.ts`.
+
+# Notes

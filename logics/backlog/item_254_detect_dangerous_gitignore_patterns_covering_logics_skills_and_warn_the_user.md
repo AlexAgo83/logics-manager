@@ -22,11 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|detect-dangerous-gitignore-patterns-cove|req-133-add-kit-update-fallback-when-log|the-plugin-has-no-detection-for|ac1-a-new-function-detects-broad
 flowchart LR
-    Request[req 133 kit update fallback] --> Problem[No detection of broad gitignore patterns]
-    Problem --> Scope[Scan gitignore and warn user]
-    Scope --> AC1[Detect broad patterns]
-    AC1 --> AC2[Warning in Check Environment]
-    AC2 --> AC3[Explain trade-off and fallback]
+    Request[req_133_add_kit_update_fallback_when_logic] --> Problem[The plugin has no detection for]
+    Problem --> Scope[Detect dangerous gitignore patterns coveri]
+    Scope --> Acceptance[AC1: A new function detects broad]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

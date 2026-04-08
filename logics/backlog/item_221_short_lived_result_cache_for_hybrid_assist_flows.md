@@ -1,10 +1,10 @@
 ## item_221_short_lived_result_cache_for_hybrid_assist_flows - Short-lived result cache for hybrid assist flows
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ When an operator retries a flow or chains multiple flows back-to-back on an unch
 %% logics-kind: backlog
 %% logics-signature: backlog|short-lived-result-cache-for-hybrid-assi|req-124-harden-hybrid-assist-runtime-eff|when-an-operator-retries-a-flow|ac1-the-runtime-caches-validated-flow
 flowchart LR
-    Request[req_124 hybrid runtime efficiency] --> Problem[Repeated flows on same diff re-dispatch AI calls wasting paid provider budget]
-    Problem --> Scope[Short-lived cache keyed on diff fingerprint in logics cache dir]
-    Scope --> AC1[AC1: Cache stores and returns validated flow results within TTL]
-    AC1 --> Tasks[Execution task]
+    Request[req_124_harden_hybrid_assist_runtime_effic] --> Problem[When an operator retries a flow]
+    Problem --> Scope[Short-lived result cache for hybrid assist]
+    Scope --> Acceptance[AC1: The runtime caches validated flow]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: High — direct cost saving on paid providers for teams that retry or chain flows
 - Urgency: Normal
+
+# Notes

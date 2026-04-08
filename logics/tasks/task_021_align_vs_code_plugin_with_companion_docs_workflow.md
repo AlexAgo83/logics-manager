@@ -1,14 +1,15 @@
 ## task_021_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
-> From version: 1.8.1
+> From version: 1.8.1 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Companion docs workflow orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`.
 - Derived from backlog item `item_022_align_vs_code_plugin_with_companion_docs_workflow`.
 - Source file: `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`.
 - Related request(s): `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
@@ -31,15 +32,14 @@ Constraint:
 - do not reintroduce hardcoded stage assumptions while adding companion-doc support.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|align-vs-code-plugin-with-companion-docs|item-022-align-vs-code-plugin-with-compa|1-lock-the-execution-order-and|npm-run-compile
 flowchart LR
-    Umbrella[Umbrella item 022] --> Step1[Item 023 indexer and model]
-    Step1 --> Step2[Item 024 maintenance coverage]
-    Step2 --> Step3[Item 025 details and navigation]
-    Step3 --> Step4[Item 026 visibility controls]
-    Step4 --> Step5[Item 027 creation flows and regression coverage]
-    Step5 --> Validation[Validation]
-    Validation --> Report[Report and Done]
+    Backlog[item_022_align_vs_code_plugin_with_compani] --> Step1[1. Lock the execution order and]
+    Step1 --> Step2[2. Deliver item_023 and item_024 first]
+    Step2 --> Step3[3. Deliver item_025 and item_026 on]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -104,3 +104,5 @@ flowchart LR
   - `npm run lint`: OK
   - `npm run test`: OK (`48` tests green at close-out)
   - `npm run audit:logics`: global audit still fails on pre-existing older Logics debt outside this task scope.
+
+# Notes

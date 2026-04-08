@@ -1,10 +1,10 @@
 ## item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity - Harden release publish guards and generalize Codex specific plugin surfaces for Claude parity
-> From version: 1.21.0
+> From version: 1.21.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: AI Runtime
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -32,10 +32,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-release-publish-guards-and-genera|req-092-add-a-second-wave-of-hybrid-olla|publish-release-still-relies-on-a|ac1-publish-release-is-guarded-by
 flowchart LR
-    Request[req_122 release guards and wording parity] --> Guard[Gate GitHub publish action]
-    Guard --> Consent[Define repository local release consent]
-    Consent --> Wording[Generalize shared assistant wording]
-    Wording --> Delivery[One bounded plugin delivery slice]
+    Request[req_092_add_a_second_wave_of_hybrid_ollama] --> Problem[Publish Release still relies on a]
+    Problem --> Scope[Harden release publish guards and generali]
+    Scope --> Acceptance[AC1: Publish Release is guarded by]
+    Acceptance --> Tasks[task_111_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -99,6 +99,7 @@ flowchart LR
 - Source file: `logics/request/req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity.md`.
 - Keep this backlog item as one bounded delivery slice. The environment-diagnostics UX follow-on is intentionally tracked separately by `item_219`.
 
+- Derived from `logics/request/req_122_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity.md`.
 # Delivery report
 - 2026-04-04: Added explicit GitHub release capability inspection in the plugin so `Publish Release` stays visible but becomes disabled with a precise reason when the repository is not a valid GitHub + `gh` execution target.
 - Added a repository-local consent contract for future non-destructive `release` fast-forward automation through `logics.yaml` (`release.maintenance.allow_fast_forward_local_release_branch: true`) and wired `Publish Release` so the plugin only auto-updates `release` after that consent is granted.

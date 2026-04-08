@@ -1,11 +1,20 @@
 ## req_015_add_project_badges_to_readme - Add project badges to README
 > From version: 1.4.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Low-Medium
 > Theme: Repository metadata and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-project-badges-to-readme|add-a-badge-section-in-the|ac1-readme-includes-a-dedicated-badge
+flowchart TD
+    Trigger[Add project badges to README] --> Need[Add a badge section in the]
+    Need --> Outcome[AC1: README includes a dedicated badge]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a badge section in the project README for quick repository health/discoverability.
@@ -49,3 +58,7 @@ For `cdx-logics-vscode`, we need a tailored set:
 
 # Backlog
 - `logics/backlog/item_015_add_project_badges_to_readme.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

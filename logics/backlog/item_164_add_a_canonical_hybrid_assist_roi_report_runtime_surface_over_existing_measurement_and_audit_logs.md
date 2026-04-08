@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-canonical-hybrid-assist-roi-report|req-098-add-a-hybrid-assist-roi-dispatch|the-kit-already-collects-hybrid-assist|ac1-a-shared-runtime-report-command
 flowchart LR
-    Request[req_098] --> Problem[Raw hybrid logs are too manual to consume]
-    Problem --> Command[Add canonical roi-report runtime command]
-    Command --> Aggregate[Aggregate measurements and audits]
-    Aggregate --> Output[Emit stable structured report]
-    Output --> Done[Execution task]
+    Request[req_098_add_a_hybrid_assist_roi_dispatch_r] --> Problem[The kit already collects hybrid assist]
+    Problem --> Scope[Add a canonical hybrid assist ROI]
+    Scope --> Acceptance[AC1: A shared runtime report command]
+    Acceptance --> Tasks[task_102_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

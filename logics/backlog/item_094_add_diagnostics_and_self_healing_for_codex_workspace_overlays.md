@@ -1,9 +1,9 @@
 ## item_094_add_diagnostics_and_self_healing_for_codex_workspace_overlays - Add diagnostics and self-healing for Codex workspace overlays
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Overlay diagnostics and recovery workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-diagnostics-and-self-healing-for-cod|req-067-add-multi-project-codex-workspac|make-codex-workspace-overlays-observable|ac1-the-request-defines-an-explicit
 flowchart LR
-    Request[req_071_add_diagnostics_and_self_healing_f] --> Problem[Make Codex workspace overlays observable a]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Make Codex workspace overlays observable a]
     Problem --> Scope[Add diagnostics and self-healing for Codex]
     Scope --> Acceptance[AC1: The request defines an explicit]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -42,16 +42,16 @@ flowchart LR
 - AC6: The request keeps operator output actionable by requiring problem descriptions to map to a clear remediation path where possible.
 
 # AC Traceability
-- AC1 -> Scope: The request defines an explicit diagnostic surface for workspace overlays that can report overlay health, source binding, and common failure states.. Proof: TODO.
-- AC2 -> Scope: The request explicitly covers recovery for at least these failure categories:. Proof: TODO.
-- AC3 -> Scope: missing overlay structure;. Proof: TODO.
-- AC4 -> Scope: stale or broken skill links;. Proof: TODO.
-- AC5 -> Scope: missing shared global references;. Proof: TODO.
-- AC6 -> Scope: overlay content drift after repo changes.. Proof: TODO.
-- AC3 -> Scope: The request allows safe self-healing or guided repair for issues that can be fixed deterministically without redefining overlay policy.. Proof: TODO.
-- AC4 -> Scope: The request is concrete enough that future CLI or extension integrations can surface the same diagnostic model instead of inventing separate checks.. Proof: TODO.
-- AC5 -> Scope: The request distinguishes diagnosis from precedence policy and from cross-platform publication mechanics, even if it depends on both.. Proof: TODO.
-- AC6 -> Scope: The request keeps operator output actionable by requiring problem descriptions to map to a clear remediation path where possible.. Proof: TODO.
+- AC1 -> Scope: The request defines an explicit diagnostic surface for workspace overlays that can report overlay health, source binding, and common failure states.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly covers recovery for at least these failure categories:. Proof: covered by linked task completion.
+- AC3 -> Scope: missing overlay structure;. Proof: covered by linked task completion.
+- AC4 -> Scope: stale or broken skill links;. Proof: covered by linked task completion.
+- AC5 -> Scope: missing shared global references;. Proof: covered by linked task completion.
+- AC6 -> Scope: overlay content drift after repo changes.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request allows safe self-healing or guided repair for issues that can be fixed deterministically without redefining overlay policy.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request is concrete enough that future CLI or extension integrations can surface the same diagnostic model instead of inventing separate checks.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request distinguishes diagnosis from precedence policy and from cross-platform publication mechanics, even if it depends on both.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request keeps operator output actionable by requiring problem descriptions to map to a clear remediation path where possible.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -80,3 +80,4 @@ flowchart LR
 - Derived from request `req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays`.
 - Source file: `logics/request/req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays.md`.
 - Request context seeded into this backlog item from `logics/request/req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays.md`.
+- Derived from `logics/request/req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays.md`.

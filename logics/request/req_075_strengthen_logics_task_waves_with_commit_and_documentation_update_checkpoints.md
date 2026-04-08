@@ -1,8 +1,8 @@
 ## req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints - Strengthen Logics task waves with commit and documentation update checkpoints
 > From version: 1.10.8
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: Task execution hygiene and delivery checkpoints
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -43,11 +43,10 @@ The expected implementation may touch more than one layer:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|strengthen-logics-task-waves-with-commit|make-logics-tasks-encourage-coherent-imp|ac1-the-request-defines-wave-level-expec
-flowchart LR
-    Task[Task guides implementation work] --> Wave[Each wave reaches a coherent checkpoint]
-    Wave --> Docs[Linked docs are updated during the wave]
-    Docs --> Commit[Wave ends with a commit checkpoint]
-    Commit --> Outcome[Execution stays clean and traceable]
+flowchart TD
+    Trigger[Strengthen Logics task waves with commit] --> Need[Make Logics tasks encourage coherent imple]
+    Need --> Outcome[AC1: The request defines wave-level expect]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -107,3 +106,4 @@ flowchart LR
 
 # Backlog
 - `item_098_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints`
+- `logics/backlog/item_098_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints.md`

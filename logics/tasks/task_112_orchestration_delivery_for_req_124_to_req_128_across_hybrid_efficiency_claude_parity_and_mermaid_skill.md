@@ -1,9 +1,9 @@
 ## task_112_orchestration_delivery_for_req_124_to_req_128_across_hybrid_efficiency_claude_parity_and_mermaid_skill - Orchestration delivery for req_124 to req_128 across hybrid efficiency Claude parity and Mermaid skill
-> From version: 1.21.1+wave4-doc-review
+> From version: 1.21.1+wave4-doc-review (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Orchestration
@@ -47,20 +47,11 @@ This orchestration task coordinates the full delivery program for req_124–req_
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-124-to-re|item-220-diff-preprocessor-and-git-snaps|wave-1-req-124-hybrid-runtime-efficiency|per-wave-and-per-item-before
 flowchart LR
-    Start[19 backlog items req_124 to req_128] --> W1[Wave 1 req_124 hybrid efficiency items 220-224]
-    Start --> W2[Wave 2 req_125 hybrid coverage items 225-228]
-    Start --> W3[Wave 3 req_126 Claude parity items 229-231]
-    Start --> W4[Wave 4 req_128 Mermaid skill items 236-238]
-    W1 --> Gates[Wave 5 item-specific gates satisfied from waves 1-3]
-    W2 --> Gates
-    W3 --> Gates
-    Gates --> W5[Wave 5 req_127 gated follow-ups items 232-235]
-    W1 --> Base[Waves 1-4 delivered and validated]
-    W2 --> Base
-    W3 --> Base
-    W4 --> Base
-    W5 --> Done[All eligible items committed tested and docs updated]
-    Base --> Done
+    Backlog[item_220_diff_preprocessor_and_git_snapsho] --> Step1[Wave 1 req_124: Hybrid runtime efficiency]
+    Step1 --> Step2[1.1 item_220 : Add diff preprocessor]
+    Step2 --> Step3[Unit test: assert lock file diff]
+    Step3 --> Validation[Per wave and per item before]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -292,3 +283,5 @@ Wave-specific manual validations:
 - `item_234` is shipped in `logics/skills@66230a7` with `next_step_auto_backend` opt-in routing and safe Codex fallback when the configured remote provider is unavailable.
 - `item_235` is shipped in `678c1a2` via a shared publication lifecycle abstraction serving both the Codex and Claude global kits without changing their file formats.
 - `item_232` remains intentionally unstarted because no production demand for per-runtime tier differentiation materialised. The conditional AC in `req_127` is therefore satisfied by explicit non-applicability rather than speculative delivery.
+
+# Notes

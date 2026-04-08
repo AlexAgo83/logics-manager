@@ -1,9 +1,9 @@
 ## item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays - Add concurrent multi-repo validation for Codex workspace overlays
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Overlay validation and concurrent repository isolation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-concurrent-multi-repo-validation-for|req-067-add-multi-project-codex-workspac|validate-the-overlay-architecture-under-|ac1-the-request-defines-validation-speci
 flowchart LR
-    Request[req_073_add_concurrent_multi_repo_validati] --> Problem[Validate the overlay architecture under th]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Validate the overlay architecture under th]
     Problem --> Scope[Add concurrent multi-repo validation for C]
     Scope --> Acceptance[AC1: The request defines validation specif]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -41,15 +41,15 @@ flowchart LR
 - AC6: The request makes clear that multi-project support is not considered complete without this validation surface.
 
 # AC Traceability
-- AC1 -> Scope: The request defines validation specifically for concurrent or effectively parallel multi-repo usage, not just single-workspace smoke checks.. Proof: TODO.
-- AC2 -> Scope: The validation scope explicitly covers same-named skills coming from different repositories with different projected content or versions.. Proof: TODO.
-- AC3 -> Scope: The request defines success in terms of isolation outcomes:. Proof: TODO.
-- AC4 -> Scope: each workspace sees its own repo-local skills;. Proof: TODO.
-- AC5 -> Scope: foreign repo-local skills do not leak across sessions;. Proof: TODO.
-- AC6 -> Scope: the global Codex home is not corrupted by concurrent workspace usage.. Proof: TODO.
-- AC4 -> Scope: The request is concrete enough that a future implementation can choose automated, fixture-based, or wrapper-level tests while still validating the real isolation claim.. Proof: TODO.
-- AC5 -> Scope: The request keeps validation separate from the underlying overlay architecture and precedence policy, while still depending on both.. Proof: TODO.
-- AC6 -> Scope: The request makes clear that multi-project support is not considered complete without this validation surface.. Proof: TODO.
+- AC1 -> Scope: The request defines validation specifically for concurrent or effectively parallel multi-repo usage, not just single-workspace smoke checks.. Proof: covered by linked task completion.
+- AC2 -> Scope: The validation scope explicitly covers same-named skills coming from different repositories with different projected content or versions.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request defines success in terms of isolation outcomes:. Proof: covered by linked task completion.
+- AC4 -> Scope: each workspace sees its own repo-local skills;. Proof: covered by linked task completion.
+- AC5 -> Scope: foreign repo-local skills do not leak across sessions;. Proof: covered by linked task completion.
+- AC6 -> Scope: the global Codex home is not corrupted by concurrent workspace usage.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request is concrete enough that a future implementation can choose automated, fixture-based, or wrapper-level tests while still validating the real isolation claim.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request keeps validation separate from the underlying overlay architecture and precedence policy, while still depending on both.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request makes clear that multi-project support is not considered complete without this validation surface.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -78,3 +78,4 @@ flowchart LR
 - Derived from request `req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays`.
 - Source file: `logics/request/req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays.md`.
 - Request context seeded into this backlog item from `logics/request/req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays.md`.
+- Derived from `logics/request/req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays.md`.

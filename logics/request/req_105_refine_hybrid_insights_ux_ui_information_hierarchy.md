@@ -42,16 +42,9 @@
 %% logics-kind: request
 %% logics-signature: request|refine-hybrid-insights-ux-ui-and-informa|make-the-hybrid-insights-screen-feel|ac1-the-screen-s-top-area
 flowchart TD
-    Current[Current Hybrid Insights screen shipped] --> Review[UX review finds hierarchy and readability issues]
-    Review --> Top[Top area is too report-like and metadata-heavy]
-    Review --> Redundant[Sections repeat the same story]
-    Review --> Priority[Risk signals are not prioritized enough]
-    Review --> Mobile[Mobile view collapses into repetitive cards]
-    Top --> Target[Refine screen hierarchy and interaction model]
-    Redundant --> Target
-    Priority --> Target
-    Mobile --> Target
-    Target --> Backlog[Backlog slice]
+    Trigger[Refine Hybrid Insights UX UI and] --> Need[Make the Hybrid Insights screen feel]
+    Need --> Outcome[AC1: The screen s top area]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

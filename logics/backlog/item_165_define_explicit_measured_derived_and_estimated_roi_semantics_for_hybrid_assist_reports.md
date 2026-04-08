@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-explicit-measured-derived-and-est|req-093-add-shared-hybrid-assist-contrac|a-hybrid-dispatch-report-is-only|ac1-report-fields-clearly-separate-measu
 flowchart LR
-    Request[req_098] --> Problem[ROI values need trustworthy semantics]
-    Problem --> Measured[Define measured facts]
-    Measured --> Derived[Define derived summaries]
-    Derived --> Estimated[Define estimated ROI proxies and assumptions]
-    Estimated --> Done[Execution task]
+    Request[req_093_add_shared_hybrid_assist_contracts] --> Problem[A hybrid dispatch report is only]
+    Problem --> Scope[Define explicit measured derived and estim]
+    Scope --> Acceptance[AC1: Report fields clearly separate measur]
+    Acceptance --> Tasks[task_102_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

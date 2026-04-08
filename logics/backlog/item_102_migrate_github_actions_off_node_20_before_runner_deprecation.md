@@ -1,9 +1,9 @@
 ## item_102_migrate_github_actions_off_node_20_before_runner_deprecation - Migrate GitHub Actions off Node 20 before runner deprecation
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: CI and release maintenance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,7 +25,7 @@ flowchart LR
     Request[req_079_migrate_github_actions_off_node_20] --> Problem[Remove the current GitHub Actions dependen]
     Problem --> Scope[Migrate GitHub Actions off Node 20]
     Scope --> Acceptance[AC1: ci.yml release.yml and any other]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_091_migrate_github_actions_off_node_2]
 ```
 
 # Acceptance criteria
@@ -34,9 +34,9 @@ flowchart LR
 - AC3: Workflow documentation or maintainer guidance is updated if the migration changes version expectations, action pinning, or release maintenance steps.
 
 # AC Traceability
-- AC1 -> Scope: `ci.yml`, `release.yml`, and any other repository workflow files that currently rely on Node 20 based GitHub-hosted JavaScript actions are updated to maintained versions that are compatible with the post-Node-20 runner contract.. Proof: TODO.
-- AC2 -> Scope: Repository validation confirms that CI and release workflows still pass on Ubuntu and Windows after the action upgrade, without regressing the existing Logics kit, VSIX packaging, or release-changelog gates.. Proof: TODO.
-- AC3 -> Scope: Workflow documentation or maintainer guidance is updated if the migration changes version expectations, action pinning, or release maintenance steps.. Proof: TODO.
+- AC1 -> Scope: `ci.yml`, `release.yml`, and any other repository workflow files that currently rely on Node 20 based GitHub-hosted JavaScript actions are updated to maintained versions that are compatible with the post-Node-20 runner contract.. Proof: covered by linked task completion.
+- AC2 -> Scope: Repository validation confirms that CI and release workflows still pass on Ubuntu and Windows after the action upgrade, without regressing the existing Logics kit, VSIX packaging, or release-changelog gates.. Proof: covered by linked task completion.
+- AC3 -> Scope: Workflow documentation or maintainer guidance is updated if the migration changes version expectations, action pinning, or release maintenance steps.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -63,3 +63,4 @@ flowchart LR
 - Source file: `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`.
 - Request context seeded into this backlog item from `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`.
 - Task `task_091_migrate_github_actions_off_node_20_before_runner_deprecation` was finished via `logics_flow.py finish task` on 2026-03-23.
+- Derived from `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`.

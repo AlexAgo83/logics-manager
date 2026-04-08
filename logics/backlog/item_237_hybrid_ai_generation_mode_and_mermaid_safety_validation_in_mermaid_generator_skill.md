@@ -1,10 +1,10 @@
 ## item_237_hybrid_ai_generation_mode_and_mermaid_safety_validation_in_mermaid_generator_skill - Hybrid AI generation mode and Mermaid safety validation in mermaid-generator skill
-> From version: 1.21.1+item237
+> From version: 1.21.1+item237 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Logics kit skills and Mermaid quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,13 +25,10 @@ The deterministic Mermaid templates (extracted in item_236) produce syntacticall
 %% logics-kind: backlog
 %% logics-signature: backlog|hybrid-ai-generation-mode-and-mermaid-sa|req-128-add-a-logics-mermaid-generator-s|the-deterministic-mermaid-templates-extr|ac1-the-skill-supports-a-hybrid
 flowchart LR
-    Request[req_128 logics-mermaid-generator skill] --> Prerequisite[item_236 skill package complete]
-    Prerequisite --> Problem[Deterministic templates are semantically thin, no hybrid AI path]
-    Problem --> Scope[Hybrid dispatch with safety validation and silent deterministic fallback]
-    Scope --> AC1[AC1: Hybrid AI generation with ollama-first policy and proposal-only output]
-    Scope --> AC2[AC2: Mermaid safety validation rejects invalid AI output and falls back silently]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_128_add_a_logics_mermaid_generator_ski] --> Problem[The deterministic Mermaid templates extrac]
+    Problem --> Scope[Hybrid AI generation mode and Mermaid]
+    Scope --> Acceptance[AC1: The skill supports a hybrid]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -61,3 +58,5 @@ flowchart LR
 # Priority
 - Impact: High — enables semantically richer Mermaid diagrams across all workflow docs
 - Urgency: Normal — depends on item_236 being complete first
+
+# Notes

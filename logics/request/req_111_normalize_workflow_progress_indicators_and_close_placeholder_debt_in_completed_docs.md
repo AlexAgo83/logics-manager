@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Governance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -30,11 +30,9 @@
 %% logics-kind: request
 %% logics-signature: request|normalize-workflow-progress-indicators-a|make-workflow-progress-metrics-trustwort|ac1-progress-indicators-follow-a-single
 flowchart TD
-    Docs[Completed workflow docs] --> Metrics[Progress and placeholder metrics]
-    Review[Audit and global review] --> Metrics
-    Metrics --> Contract[Normalize governance contract]
-    Contract --> Trust[Trustworthy reporting and closure state]
-    Trust --> Backlog[Backlog slice]
+    Trigger[Normalize workflow progress indicators and] --> Need[Make workflow progress metrics trustworthy]
+    Need --> Outcome[AC1: Progress indicators follow a single]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -96,3 +94,4 @@ flowchart TD
 
 # Backlog
 - `item_198_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs`
+- `logics/backlog/item_198_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs.md`

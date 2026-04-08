@@ -22,12 +22,13 @@ Without a shared managed-doc model, later UI and maintenance work would have bee
 - UI affordances beyond what is needed to validate the shared model.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|align-plugin-indexer-and-managed-doc-mod|req-022-align-vs-code-plugin-with-compan|the-plugin-originally-treated-only-reque|ac1-the-plugin-indexer-and-shared
 flowchart LR
-    Req[Request source] --> Problem[Problem to solve]
-    Problem --> Scope[Scoped delivery]
-    Scope --> AC[Acceptance criteria]
-    AC --> Tasks[Implementation task s]
+    Request[req_022_align_vs_code_plugin_with_companio] --> Problem[The plugin originally treated only request]
+    Problem --> Scope[Align plugin indexer and managed doc]
+    Scope --> Acceptance[AC1: The plugin indexer and shared]
+    Acceptance --> Tasks[task_021_align_vs_code_plugin_with_compani]
 ```
 
 # Acceptance criteria

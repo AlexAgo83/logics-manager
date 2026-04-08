@@ -1,9 +1,9 @@
 ## task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair - Orchestration delivery for req_118 branch-aware bootstrap recovery and setup repair
-> From version: 1.18.0
+> From version: 1.18.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 96%
+> Understanding: 97%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Branch-aware bootstrap recovery
@@ -35,11 +35,10 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-118-branc|item-205-detect-and-refresh-logics-boots|1-confirm-scope-dependencies-and-linked|python3-logics-skills-logics-py-flow-syn
 flowchart LR
-    Backlog[item_205 item_206 item_207] --> Step1[1. Confirm scope dependencies and linked]
-    Step1 --> Wave1[2. Wave 1 branch-aware refresh and state invalidation]
-    Wave1 --> Wave2[3. Wave 2 degraded-state UX and current-branch repair]
-    Wave2 --> Wave3[4. Wave 3 targeted regression coverage and doc sync]
-    Wave3 --> Validation[python3 logics skills logics flow manage]
+    Backlog[item_205_detect_and_refresh_logics_bootstr] --> Step1[1. Confirm scope dependencies and linked]
+    Step1 --> Step2[2. Wave 1: implement branch-aware refresh]
+    Step2 --> Step3[3. Wave 2: implement degraded-state UX]
+    Step3 --> Validation[python3 logics skills logics.py flow sync]
     Validation --> Report[Done report]
 ```
 
@@ -131,3 +130,5 @@ flowchart LR
 - Finished on 2026-04-03.
 - Linked backlog item(s): `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`, `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`
 - Related request(s): `req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing`, `req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`, `req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`, `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
+
+# Notes

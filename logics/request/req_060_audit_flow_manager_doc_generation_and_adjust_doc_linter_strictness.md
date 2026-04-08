@@ -33,12 +33,12 @@ This request should let a future implementation investigate both sides instead o
 - introduce softer severity for issues that are real but not workflow-breaking.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|audit-flow-manager-doc-generation-and-ad|verify-whether-the-current-flow-manager|ac1-the-request-defines-an-explicit
 flowchart TD
-    A[Flow manager generates or promotes docs] --> B[Doc linter reports repeated incoherences]
-    B --> C[Audit generator rules against lint expectations]
-    C --> D[Adjust generation linter severity or both]
-    D --> E[Docs pass governance with less unnecessary friction]
+    Trigger[Audit flow manager doc generation and] --> Need[Verify whether the current flow manager]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

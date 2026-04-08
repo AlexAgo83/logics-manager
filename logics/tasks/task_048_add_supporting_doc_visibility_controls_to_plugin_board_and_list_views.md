@@ -1,14 +1,26 @@
 ## task_048_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views - Add supporting doc visibility controls to plugin board and list views
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Board/list visibility control model
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-supporting-doc-visibility-controls-t|item-026-add-supporting-doc-visibility-c|1-add-supporting-doc-visibility-controls|npm-run-compile
+flowchart LR
+    Backlog[item_026_add_supporting_doc_visibility_con] --> Step1[1. Add supporting-doc visibility controls]
+    Step1 --> Step2[2. Keep supporting docs discoverable witho]
+    Step2 --> Step3[3. Refine supporting-doc stage labels and]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md`.
 - Derived from backlog item `item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views`.
 - Source file: `logics/backlog/item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views.md`.
 - Related request(s): `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
@@ -33,3 +45,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

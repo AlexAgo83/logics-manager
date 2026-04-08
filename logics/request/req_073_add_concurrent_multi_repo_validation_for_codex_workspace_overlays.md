@@ -1,8 +1,8 @@
 ## req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays - Add concurrent multi-repo validation for Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Overlay validation and concurrent repository isolation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -31,11 +31,10 @@ This request therefore asks for validation shaped around the real problem statem
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|add-concurrent-multi-repo-validation-for|validate-the-overlay-architecture-under-|ac1-the-request-defines-validation-speci
-flowchart LR
-    Repos[Two repositories are active] --> Overlays[Each uses its own workspace overlay]
-    Overlays --> Sessions[Codex sessions run concurrently]
-    Sessions --> Isolation[Same named skills stay isolated]
-    Isolation --> Outcome[The core promise is validated]
+flowchart TD
+    Trigger[Add concurrent multi-repo validation for C] --> Need[Validate the overlay architecture under th]
+    Need --> Outcome[AC1: The request defines validation specif]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -89,3 +88,4 @@ flowchart LR
 
 # Backlog
 - `item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays`
+- `logics/backlog/item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays.md`

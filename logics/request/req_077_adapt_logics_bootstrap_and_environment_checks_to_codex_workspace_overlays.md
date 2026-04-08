@@ -1,8 +1,8 @@
 ## req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays - Adapt Logics bootstrap and environment checks to Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: VS Code bootstrap and environment diagnostics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -36,11 +36,10 @@ Its focus is specifically:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|adapt-logics-bootstrap-and-environment-c|adapt-the-plugin-bootstrap-and-environme|ac1-the-request-distinguishes-between-re
-flowchart LR
-    Bootstrap[Repo local Logics bootstrap] --> Split[Separate kit readiness and overlay readiness]
-    Split --> Check[Environment check reports both layers]
-    Check --> Recovery[Recovery guidance targets the right layer]
-    Recovery --> Outcome[Bootstrap UX stays accurate]
+flowchart TD
+    Trigger[Adapt Logics bootstrap and environment che] --> Need[Adapt the plugin bootstrap and environment]
+    Need --> Outcome[AC1: The request distinguishes between rep]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -97,3 +96,4 @@ flowchart LR
 - Architecture decision(s): `adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable`
 # Backlog
 - `item_100_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`
+- `logics/backlog/item_100_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays.md`

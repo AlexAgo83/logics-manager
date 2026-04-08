@@ -1,9 +1,20 @@
 ## task_006_add_read_button - Add Read button for rendered Markdown
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 80% (audit-aligned)
-> Confidence: 85% (governed)
-> Progress: 100% (governed)
+> Understanding: 81% (audit-aligned)
+> Confidence: 86% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-read-button-for-rendered-markdown|item-002-add-read-button|1-add-a-read-button-next|manual-not-run-yet-needs-verification
+flowchart LR
+    Backlog[item_002_add_read_button] --> Step1[1. Add a Read button next]
+    Step1 --> Step2[2. Wire the Read action to]
+    Step2 --> Step3[3. Handle preview errors with a]
+    Step3 --> Validation[Manual: not run yet needs verification]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_002_add_read_button.md`.

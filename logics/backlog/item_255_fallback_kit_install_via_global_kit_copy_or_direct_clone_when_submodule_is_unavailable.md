@@ -21,13 +21,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|fallback-kit-install-via-global-kit-copy|req-133-add-kit-update-fallback-when-log|when-the-git-submodule-mechanism-is|ac1-when-logics-skills-is-missing
 flowchart LR
-    Request[req 133 kit update fallback] --> Problem[Submodule deadlock when logics gitignored]
-    Problem --> Scope[Fallback install cascade]
-    Scope --> AC1[Offer fallback with confirmation]
-    AC1 --> AC2[Try global kit copy first]
-    AC2 --> AC3[Clone from canonical URL if no global kit]
-    AC3 --> AC4[Bootstrap convergence runs]
-    AC4 --> AC5[Existing submodule path unchanged]
+    Request[req_133_add_kit_update_fallback_when_logic] --> Problem[When the git submodule mechanism is]
+    Problem --> Scope[Fallback kit install via global kit]
+    Scope --> Acceptance[AC1: When logics skills is missing]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

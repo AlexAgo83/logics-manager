@@ -1,10 +1,10 @@
 ## item_229_publish_global_claude_kit_to_claude_agents_and_commands_directories - Publish global Claude kit to ~/.claude agents and commands directories
-> From version: 1.21.1+item229
+> From version: 1.21.1+item229 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 91%
-> Progress: 100%
+> Understanding: 99%
+> Confidence: 92%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ There is no global Claude kit equivalent to the Codex global kit published to `~
 %% logics-kind: backlog
 %% logics-signature: backlog|publish-global-claude-kit-to-claude-agen|req-126-achieve-claude-runtime-parity-wi|there-is-no-global-claude-kit|ac1-the-plugin-can-publish-a
 flowchart LR
-    Request[req_126 Claude runtime parity] --> Problem[No global Claude kit, operators must be in correct repo to use any skill]
-    Problem --> Scope[Publication to ~/.claude/agents and ~/.claude/commands with manifest]
-    Scope --> AC1[AC1: Plugin publishes global Claude kit with manifest and operator opt-in]
-    AC1 --> Tasks[Execution task]
+    Request[req_126_achieve_claude_runtime_parity_with] --> Problem[There is no global Claude kit]
+    Problem --> Scope[Publish global Claude kit to .claude]
+    Scope --> Acceptance[AC1: The plugin can publish a]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: High — removes the biggest asymmetry between Claude and Codex operator experience
 - Urgency: Normal — prerequisite for items 230 and 231
+
+# Notes

@@ -1,9 +1,20 @@
 ## task_009_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 90% (audit-aligned)
-> Confidence: 85% (governed)
-> Progress: 100% (governed)
+> Understanding: 91% (audit-aligned)
+> Confidence: 86% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|allow-renaming-request-backlog-task-entr|item-005-rename-entry-name-suffix|1-define-rename-constraints-and-normaliz|manual-not-run-yet-needs-verification
+flowchart LR
+    Backlog[item_005_rename_entry_name_suffix] --> Step1[1. Define rename constraints and normaliza]
+    Step1 --> Step2[2. Add details-panel CTA edit pencil]
+    Step2 --> Step3[3. Implement extension handler to rename]
+    Step3 --> Validation[Manual: not run yet needs verification]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_005_rename_entry_name_suffix.md`.

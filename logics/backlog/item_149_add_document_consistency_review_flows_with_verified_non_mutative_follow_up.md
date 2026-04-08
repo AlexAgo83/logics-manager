@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-document-consistency-review-flows-wi|req-092-add-a-second-wave-of-hybrid-olla|req-092-calls-out-document-consistency-c|ac1-document-consistency-review-emits-bo
 flowchart LR
-    Request[req_092] --> Problem[Document review signals must stay bounded]
-    Problem --> Findings[Emit candidate anomalies with short rationale]
-    Findings --> Verify[Require deterministic or human verification]
-    Verify --> Done[Execution task]
+    Request[req_092_add_a_second_wave_of_hybrid_ollama] --> Problem[req_092 calls out document-consistency che]
+    Problem --> Scope[Add document-consistency review flows with]
+    Scope --> Acceptance[AC1: Document-consistency review emits bou]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

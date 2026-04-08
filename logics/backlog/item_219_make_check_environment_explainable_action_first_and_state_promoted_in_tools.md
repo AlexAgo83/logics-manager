@@ -1,10 +1,10 @@
 ## item_219_make_check_environment_explainable_action_first_and_state_promoted_in_tools - Make Check Environment explainable, action first, and state promoted in Tools
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -32,10 +32,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-check-environment-explainable-actio|req-112-restructure-the-tools-menu-infor|check-environment-already-exposes-useful|ac1-the-first-implementation-wave-stays
 flowchart LR
-    Request[req_123 environment diagnostics clarity] --> Summary[Add clear summary and severity model]
-    Summary --> Actions[Prioritize recommended actions]
-    Actions --> Recommended[Promote Check Environment when state warrants]
-    Recommended --> Delivery[One bounded diagnostics UX slice]
+    Request[req_112_restructure_the_tools_menu_informa] --> Problem[Check Environment already exposes useful s]
+    Problem --> Scope[Make Check Environment explainable action]
+    Scope --> Acceptance[AC1: The first implementation wave stays]
+    Acceptance --> Tasks[task_111_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -95,6 +95,7 @@ flowchart LR
 - Source file: `logics/request/req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools.md`.
 - This item intentionally stays focused on environment diagnostics and recommendation behavior. Release guardrails and assistant wording parity are tracked separately by `item_218`.
 
+- Derived from `logics/request/req_123_make_check_environment_explainable_action_first_and_state_promoted_in_tools.md`.
 # Delivery report
 - 2026-04-04: Reworked `Check Environment` into an action-first QuickPick with explicit `Summary`, `Recommended actions`, `Current status`, and `Technical details` sections, plus a calm healthy-state summary and an `Open detailed diagnostic report` affordance.
 - Reworded remediation and status rows into operator-readable language, separated clickable fixes from passive diagnostics, and surfaced runtime, bootstrap, provider, Claude bridge, publish-release, and repo-local `release` consent states more clearly.

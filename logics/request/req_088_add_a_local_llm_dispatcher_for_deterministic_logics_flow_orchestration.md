@@ -27,12 +27,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-a-local-llm-dispatcher-for-determini|add-a-local-llm-orchestration-layer-that|ac1-the-logics-kit-can-provide
 flowchart TD
-    Trigger[Need local LLM help for workflow dispatch] --> Guardrail[Keep mutations deterministic and tool-backed]
-    Guardrail --> AC1[AC1: Structured workflow state can feed the dispatcher]
-    AC1 --> AC2[AC2: The LLM returns a strict machine-readable decision]
-    AC2 --> AC3[AC3: A deterministic runner validates and maps allowed actions]
-    AC3 --> AC4[AC4: Safe-mode and auditability remain explicit]
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Add a local LLM dispatcher for] --> Need[Add a local-LLM orchestration layer that]
+    Need --> Outcome[AC1: The Logics kit can provide]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

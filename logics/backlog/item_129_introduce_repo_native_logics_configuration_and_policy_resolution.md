@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|introduce-repo-native-logics-configurati|req-085-add-repo-config-runtime-entrypoi|the-kit-still-encoded-runtime-defaults|ac1-bootstrapping-the-kit-creates-a
 flowchart LR
-    Need[Repo runtime defaults must be visible and overridable] --> Config[Ship logics yaml and config loader]
-    Config --> Loader[Merge repo overrides with kit defaults]
-    Loader --> Inspect[Expose effective config to operators]
-    Inspect --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[The kit still encoded runtime defaults]
+    Problem --> Scope[Introduce repo-native Logics configuration]
+    Scope --> Acceptance[AC1: Bootstrapping the kit creates a]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

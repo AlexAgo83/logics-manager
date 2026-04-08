@@ -1,10 +1,13 @@
 ## req_126_achieve_claude_runtime_parity_with_the_codex_overlay_and_launcher_model - Achieve Claude runtime parity with the Codex overlay and launcher model
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 89%
+> Understanding: 96%
+> Confidence: 90%
 > Complexity: High
 > Theme: Claude and Codex runtime parity, global kit publication, assistant-agnostic plugin surfaces
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -39,17 +42,9 @@
 %% logics-kind: request
 %% logics-signature: request|achieve-claude-runtime-parity-with-the-c|give-claude-the-same-system-wide-logics|ac1-the-plugin-can-publish-a
 flowchart TD
-    Gap[Claude has no global kit, Codex does] --> G1[No global claude skills in ~/.claude]
-    Gap --> G2[Claude launcher checks only repo-local bridge files]
-    Gap --> G3[Plugin health reporting is asymmetric]
-    G1 --> AC1[AC1: Publish global Claude kit to ~/.claude]
-    G2 --> AC2[AC2: Claude launcher checks global kit health]
-    G3 --> AC3[AC3: Symmetric health reporting for both runtimes]
-    AC1 --> AC4[AC4: Shared publication lifecycle abstraction]
-    AC2 --> AC4
-    AC3 --> AC4
-    AC4 --> AC5[AC5: Plugin UI treats Claude and Codex symmetrically]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Achieve Claude runtime parity with the] --> Need[Give Claude the same system-wide Logics]
+    Need --> Outcome[AC1: The plugin can publish a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

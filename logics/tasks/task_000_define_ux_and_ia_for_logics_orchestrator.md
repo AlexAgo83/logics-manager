@@ -1,9 +1,20 @@
 ## task_000_define_ux_and_ia_for_logics_orchestrator - Define UX and IA for Logics Orchestrator
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 90% (audit-aligned)
-> Confidence: 85% (governed)
-> Progress: 100% (governed)
+> Understanding: 91% (audit-aligned)
+> Confidence: 86% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|define-ux-and-ia-for-logics-orchestrator|item-000-kickoff|1-review-kickoff-and-mockup-list|manual-review-ux-ia-doc-matches
+flowchart LR
+    Backlog[item_000_kickoff] --> Step1[1. Review kickoff and mockup list]
+    Step1 --> Step2[2. Define core interactions: select open]
+    Step2 --> Step3[3. Specify empty error states and]
+    Step3 --> Validation[Manual review: UX IA doc matches]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.

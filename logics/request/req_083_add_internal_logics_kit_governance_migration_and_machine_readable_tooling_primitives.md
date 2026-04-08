@@ -28,13 +28,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-internal-logics-kit-governance-migra|give-the-logics-kit-stronger-internal|ac1-core-flow-manager-commands-such-as
 flowchart TD
-    Trigger[The kit still lacks explicit automation and governance primitives] --> Need[Make schema, audit, and skill contracts machine-readable and evolvable]
-    Need --> AC1[AC1: Core flow-manager commands expose machine-readable outputs]
-    AC1 --> AC2[AC2: Docs have versioned schema and migrations]
-    AC2 --> AC3[AC3: Audit and autofix repair more structural issues]
-    AC3 --> AC4[AC4: Skills and workflow graph are validated and exportable]
-    AC4 --> AC5[AC5: Governance strictness and reusable APIs are formalized]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add internal Logics kit governance migrati] --> Need[Give the Logics kit stronger internal]
+    Need --> Outcome[AC1: Core flow-manager commands such as]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

@@ -27,12 +27,12 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|prioritize-operational-signals-and-compa|req-105-hybrid-insights-refinement|the-current-screen-distributes-attention|ac1-the-page-reads-as-a
+%% logics-signature: backlog|prioritize-operational-signals-and-compa|req-105-refine-hybrid-insights-ux-ui-inf|the-current-screen-distributes-attention|ac1-the-page-reads-as-a
 flowchart LR
-    Request[req_105_hybrid_insights_refinement] --> Problem[Signals and sections are too evenly weighted]
-    Problem --> Scope[Prioritize risk signals and compact flow diagnostics]
-    Scope --> Acceptance[AC1 the page reads as one coherent operator scan path]
-    Acceptance --> Tasks[Execution task]
+    Request[req_105_refine_hybrid_insights_ux_ui_infor] --> Problem[The current screen distributes attention t]
+    Problem --> Scope[Prioritize operational signals and compact]
+    Scope --> Acceptance[AC1: The page reads as a]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

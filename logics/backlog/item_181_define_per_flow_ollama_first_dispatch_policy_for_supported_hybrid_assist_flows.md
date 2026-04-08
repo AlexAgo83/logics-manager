@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-per-flow-ollama-first-dispatch-po|req-097-expand-hybrid-local-model-suppor|the-current-auto-backend-policy-is|ac1-the-shared-hybrid-runtime-exposes
 flowchart LR
-    Request[req_103_separate_optional_claude_bridge_status] --> Problem[Auto backend policy is too implicit for broader delegation]
-    Problem --> Scope[Define explicit per-flow Ollama-first policy]
-    Scope --> Acceptance[AC1 runtime exposes clear per-flow backend policy]
-    Acceptance --> Tasks[Execution task]
+    Request[req_097_expand_hybrid_local_model_support_] --> Problem[The current auto backend policy is]
+    Problem --> Scope[Define per-flow Ollama-first dispatch poli]
+    Scope --> Acceptance[AC1: The shared hybrid runtime exposes]
+    Acceptance --> Tasks[task_105_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

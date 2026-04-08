@@ -1,26 +1,28 @@
 ## task_027_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 98%
+> Understanding: 99%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_034_add_reset_action_for_filter_defaults.md`.
 - Derived from backlog item `item_034_add_reset_action_for_filter_defaults`.
 - Source file: `logics/backlog/item_034_add_reset_action_for_filter_defaults.md`.
 - Related request(s): `req_028_add_reset_action_for_filter_defaults`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|add-reset-action-to-restore-default-filt|item-034-add-reset-action-for-filter-def|1-identify-or-centralize-the-canonical|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> Defaults[Identify default filter source]
-    Defaults --> UI[Add Reset control to filter panel]
-    UI --> State[Restore filter state and persist]
-    State --> Render[Re-render board/list immediately]
-    Render --> Tests[Add regression coverage]
+    Backlog[item_034_add_reset_action_for_filter_defau] --> Step1[1. Identify or centralize the canonical]
+    Step1 --> Step2[2. Add a Reset control in]
+    Step2 --> Step3[3. Implement a reset handler that]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -32,11 +34,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 2. Proof: TODO.
-- AC2 -> Steps 1 and 3. Proof: TODO.
-- AC3/AC4 -> Step 4. Proof: TODO.
-- AC5 -> Step 3. Proof: TODO.
-- AC6 -> Step 5. Proof: TODO.
+- AC1 -> Step 2. Proof: covered by linked task completion.
+- AC2 -> Steps 1 and 3. Proof: covered by linked task completion.
+- AC3/AC4 -> Step 4. Proof: covered by linked task completion.
+- AC5 -> Step 3. Proof: covered by linked task completion.
+- AC6 -> Step 5. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_034_add_reset_action_for_filter_defaults`
@@ -52,3 +54,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

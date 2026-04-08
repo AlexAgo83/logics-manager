@@ -21,12 +21,12 @@ The plugin already exposes both `Open/Edit` and `Read`, but the current double-c
 The request is to make double-click mean `Read` everywhere an item is presented as a primary clickable surface, while keeping explicit `Open/Edit` available as a separate action.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|double-click-should-read-items-from-list|align-the-primary-double-click-gesture-o|ac1-double-click-on-an-item-card
 flowchart TD
-    A[Double click on board list or activity item] --> B[Current routing is open or select only]
-    B --> C[Route gesture to read action]
-    C --> D[Rendered preview opens for the targeted item]
-    D --> E[User inspects content before editing]
+    Trigger[Double click should read items from] --> Need[Align the primary double-click gesture on]
+    Need --> Outcome[AC1: Double-click on an item card]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

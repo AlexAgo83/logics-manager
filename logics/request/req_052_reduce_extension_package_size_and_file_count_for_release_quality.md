@@ -1,11 +1,20 @@
 ## req_052_reduce_extension_package_size_and_file_count_for_release_quality - Reduce extension package size and file count for release quality
 > From version: 1.10.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Extension packaging hygiene and runtime performance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|reduce-extension-package-size-and-file-c|reduce-the-number-of-files-and|ac1-the-packaged-vsix-includes-fewer
+flowchart TD
+    Trigger[Reduce extension package size and file] --> Need[Reduce the number of files and]
+    Need --> Outcome[AC1: The packaged VSIX includes fewer]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Reduce the number of files and unnecessary payload shipped in the VSIX.
@@ -57,3 +66,7 @@ If left untreated, it keeps packaging noisier than necessary and makes the shipp
 
 # Backlog
 - `logics/backlog/item_061_reduce_extension_package_size_and_file_count_for_release_quality.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

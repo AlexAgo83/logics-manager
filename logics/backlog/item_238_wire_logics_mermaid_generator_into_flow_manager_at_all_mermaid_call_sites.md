@@ -1,10 +1,10 @@
 ## item_238_wire_logics_mermaid_generator_into_flow_manager_at_all_mermaid_call_sites - Wire logics-mermaid-generator into flow manager at all Mermaid call sites
-> From version: 1.21.1+item238
+> From version: 1.21.1+item238 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 97%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics kit skills and Mermaid quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,11 +25,10 @@ The flow manager (`logics_flow_support.py` and `logics_flow.py`) calls the deter
 %% logics-kind: backlog
 %% logics-signature: backlog|wire-logics-mermaid-generator-into-flow-|req-128-add-a-logics-mermaid-generator-s|the-flow-manager-logics-flow-support-py-|ac1-the-flow-manager-logics-flow-support
 flowchart LR
-    Request[req_128 logics-mermaid-generator skill] --> Prerequisite[items 236 and 237 complete]
-    Prerequisite --> Problem[Flow manager calls deterministic functions directly bypassing the new skill]
-    Problem --> Scope[Update all four Mermaid generation call sites to route through the skill]
-    Scope --> AC1[AC1: Flow manager uses skill at new request, backlog, task, and sync refresh]
-    AC1 --> Tasks[Execution task]
+    Request[req_128_add_a_logics_mermaid_generator_ski] --> Problem[The flow manager logics_flow_support.py an]
+    Problem --> Scope[Wire logics-mermaid-generator into flow ma]
+    Scope --> Acceptance[AC1: The flow manager logics_flow_support]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -57,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: High — completes the skill integration and makes hybrid Mermaid the default path
 - Urgency: Normal — depends on items 236 and 237 being complete
+
+# Notes

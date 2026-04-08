@@ -1,11 +1,20 @@
 ## req_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls - Accessibility hardening: improve discoverability and descriptions for controls
 > From version: 1.2.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Accessibility and UX
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|accessibility-hardening-improve-discover|improve-accessibility-and-discoverabilit|ac1-interactive-icon-controls-expose-dis
+flowchart TD
+    Trigger[Accessibility hardening: improve discovera] --> Need[Improve accessibility and discoverability]
+    Need --> Outcome[AC1: Interactive icon controls expose disc]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Improve accessibility and discoverability of controls across toolbar, board, details, and menus.
@@ -50,3 +59,7 @@ Goal:
 
 # Backlog
 - `logics/backlog/item_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

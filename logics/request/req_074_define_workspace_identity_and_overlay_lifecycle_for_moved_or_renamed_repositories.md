@@ -1,8 +1,8 @@
 ## req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories - Define workspace identity and overlay lifecycle for moved or renamed repositories
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 91%
+> Understanding: 98%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: Workspace identity, overlay lifecycle, and repository movement
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -31,11 +31,10 @@ This request is therefore about the persistent identity model and lifecycle boun
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|define-workspace-identity-and-overlay-li|define-how-workspace-overlays-are-identi|ac1-the-request-defines-a-stable
-flowchart LR
-    Workspace[Workspace overlay exists outside repo] --> Identity[Stable workspace identity model]
-    Identity --> Move[Moves clones and renames are handled]
-    Move --> Lifecycle[Cleanup and rebinding are explicit]
-    Lifecycle --> Outcome[Overlay state stays durable]
+flowchart TD
+    Trigger[Define workspace identity and overlay life] --> Need[Define how workspace overlays are identifi]
+    Need --> Outcome[AC1: The request defines a stable]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -90,3 +89,4 @@ flowchart LR
 
 # Backlog
 - `item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories`
+- `logics/backlog/item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories.md`

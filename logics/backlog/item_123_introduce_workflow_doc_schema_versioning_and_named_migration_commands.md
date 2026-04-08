@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|introduce-workflow-doc-schema-versioning|req-082-strengthen-logics-kit-primitives|give-the-logics-kit-stronger-internal|ac1-core-flow-manager-commands-such-as
 flowchart LR
-    Request[req_083_add_internal_logics_kit_governance] --> Problem[Give the Logics kit stronger internal]
+    Request[req_082_strengthen_logics_kit_primitives_f] --> Problem[Give the Logics kit stronger internal]
     Problem --> Scope[Introduce workflow doc schema versioning a]
     Scope --> Acceptance[AC1: Core flow-manager commands such as]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_095_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -1,11 +1,20 @@
 ## req_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
 > From version: 1.9.1
 > Status: Done
-> Understanding: 99% (audit-aligned)
-> Confidence: 97% (governed)
+> Understanding: 100% ((audit-aligned); refreshed)
+> Confidence: 100% (governed)
 > Complexity: Medium-High
 > Theme: Logics Workflow Indexing
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|logics-references-compatibility-with-cdx|make-logics-references-consistently-pars|ac1-a-documented-reference-contract-is
+flowchart TD
+    Trigger[Logics References Compatibility with cdx-l] --> Need[Make Logics references consistently parsab]
+    Need --> Outcome[AC1: A documented reference contract is]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make Logics references consistently parsable and visible in the plugin details panel.
@@ -51,3 +60,7 @@ A clear reference contract is needed so markdown remains source-of-truth and plu
 
 # Backlog
 - `logics/backlog/item_007_logics_references_compatibility_with_cdx_logics_vscode.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,11 +1,20 @@
 ## req_040_add_attention_required_view_to_the_plugin - Add an attention-required view to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Operational focus and workflow triage
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-an-attention-required-view-to-the-pl|add-a-focused-way-to-surface|ac1-the-plugin-exposes-an-explicit
+flowchart TD
+    Trigger[Add an attention-required view to the] --> Need[Add a focused way to surface]
+    Need --> Outcome[AC1: The plugin exposes an explicit]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a focused way to surface items that likely need action or review.
@@ -67,3 +76,7 @@ It is about giving users a practical triage view that reduces manual scanning an
 
 # Backlog
 - `logics/backlog/item_045_add_attention_required_view_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

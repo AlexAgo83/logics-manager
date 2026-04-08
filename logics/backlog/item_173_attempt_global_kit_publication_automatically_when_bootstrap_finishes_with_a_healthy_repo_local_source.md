@@ -25,10 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|attempt-global-kit-publication-automatic|req-099-replace-repo-local-codex-overlay|ensure-the-logics-bootstrap-flow-is|ac1-when-bootstrap-runs-on-a
 flowchart LR
-    Request[req_101_make_logics_bootstrap_converge_to_] --> Problem[Ensure the Logics bootstrap flow is]
+    Request[req_099_replace_repo_local_codex_overlays_] --> Problem[Ensure the Logics bootstrap flow is]
     Problem --> Scope[Attempt global kit publication automatical]
     Scope --> Acceptance[AC1: When bootstrap runs on a]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_104_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

@@ -1,9 +1,9 @@
 ## item_100_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays - Adapt Logics bootstrap and environment checks to Codex workspace overlays
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 93%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: VS Code bootstrap and environment diagnostics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|adapt-logics-bootstrap-and-environment-c|req-067-add-multi-project-codex-workspac|adapt-the-plugin-bootstrap-and-environme|ac1-the-request-distinguishes-between-re
 flowchart LR
-    Request[req_077_adapt_logics_bootstrap_and_environ] --> Problem[Adapt the plugin bootstrap and environment]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Adapt the plugin bootstrap and environment]
     Problem --> Scope[Adapt Logics bootstrap and environment che]
     Scope --> Acceptance[AC1: The request distinguishes between rep]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_089_orchestration_delivery_for_req_07]
 ```
 
 # Acceptance criteria
@@ -44,18 +44,18 @@ flowchart LR
 - AC7: The request makes clear that a successful repo-local bootstrap must not automatically imply full Codex readiness once workspace overlays are part of the supported model.
 
 # AC Traceability
-- AC1 -> Scope: The request distinguishes between repo-local Logics kit readiness and overlay-backed Codex runtime readiness as separate states that the plugin must represent.. Proof: TODO.
-- AC2 -> Scope: The request explicitly preserves the current repo-local bootstrap responsibilities, including creating or repairing `logics/skills` and running the Logics bootstrap script where applicable.. Proof: TODO.
-- AC3 -> Scope: The request defines that `Check Environment` must be able to surface overlay state separately from repository-local kit state once overlays are supported.. Proof: TODO.
-- AC4 -> Scope: The request defines recovery guidance for at least these cases:. Proof: TODO.
-- AC5 -> Scope: repo-local kit missing or broken;. Proof: TODO.
-- AC6 -> Scope: overlay missing or stale while repo-local kit is healthy;. Proof: TODO.
-- AC7 -> Scope: both layers unhealthy.. Proof: TODO.
-- AC5 -> Scope: The request leaves implementation room for the first overlay-aware bootstrap pass to either:. Proof: TODO.
-- AC8 -> Scope: report the missing overlay follow-up explicitly;. Proof: TODO.
-- AC9 -> Scope: or optionally offer an overlay init or sync handoff after repo-local bootstrap completes.. Proof: TODO.
-- AC6 -> Scope: The request remains backward-aware for repositories still using only the current repo-local Logics workflow before overlay support is adopted.. Proof: TODO.
-- AC7 -> Scope: The request makes clear that a successful repo-local bootstrap must not automatically imply full Codex readiness once workspace overlays are part of the supported model.. Proof: TODO.
+- AC1 -> Scope: The request distinguishes between repo-local Logics kit readiness and overlay-backed Codex runtime readiness as separate states that the plugin must represent.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly preserves the current repo-local bootstrap responsibilities, including creating or repairing `logics/skills` and running the Logics bootstrap script where applicable.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request defines that `Check Environment` must be able to surface overlay state separately from repository-local kit state once overlays are supported.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request defines recovery guidance for at least these cases:. Proof: covered by linked task completion.
+- AC5 -> Scope: repo-local kit missing or broken;. Proof: covered by linked task completion.
+- AC6 -> Scope: overlay missing or stale while repo-local kit is healthy;. Proof: covered by linked task completion.
+- AC7 -> Scope: both layers unhealthy.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request leaves implementation room for the first overlay-aware bootstrap pass to either:. Proof: covered by linked task completion.
+- AC8 -> Scope: report the missing overlay follow-up explicitly;. Proof: covered by linked task completion.
+- AC9 -> Scope: or optionally offer an overlay init or sync handoff after repo-local bootstrap completes.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request remains backward-aware for repositories still using only the current repo-local Logics workflow before overlay support is adopted.. Proof: covered by linked task completion.
+- AC7 -> Scope: The request makes clear that a successful repo-local bootstrap must not automatically imply full Codex readiness once workspace overlays are part of the supported model.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -86,3 +86,4 @@ flowchart LR
 - Derived from request `req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`.
 - Source file: `logics/request/req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays.md`.
 - Request context seeded into this backlog item from `logics/request/req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays.md`.
+- Derived from `logics/request/req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays.md`.

@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -25,11 +25,9 @@
 %% logics-kind: request
 %% logics-signature: request|make-the-security-audit-workflow-block-o|turn-the-repository-security-audit-workf|ac1-the-security-audit-workflow-enforces
 flowchart TD
-    Audit[Security audit workflow] --> Policy[Define actionable vulnerability policy]
-    Local[Current audit findings] --> Policy
-    Policy --> Gate[Enforce through automation]
-    Gate --> Trust[Trustworthy security signal]
-    Trust --> Backlog[Backlog slice]
+    Trigger[Make the security audit workflow block] --> Need[Turn the repository security-audit workflo]
+    Need --> Outcome[AC1: The security-audit workflow enforces]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -88,3 +86,4 @@ flowchart TD
 
 # Backlog
 - `item_197_make_the_security_audit_workflow_block_on_actionable_vulnerabilities`
+- `logics/backlog/item_197_make_the_security_audit_workflow_block_on_actionable_vulnerabilities.md`

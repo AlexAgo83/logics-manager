@@ -1,11 +1,20 @@
 ## req_038_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-compact-preview-for-items-in-the-plu|let-users-inspect-a-compact-summary|ac1-users-can-trigger-a-compact
+flowchart TD
+    Trigger[Add compact preview for items in] --> Need[Let users inspect a compact summary]
+    Need --> Outcome[AC1: Users can trigger a compact]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Let users inspect a compact summary of an item without fully opening or reading it.
@@ -66,3 +75,7 @@ It is about adding a quicker inspection layer before those heavier actions.
 
 # Backlog
 - `logics/backlog/item_043_add_compact_preview_for_items_in_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

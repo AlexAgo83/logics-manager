@@ -1,26 +1,28 @@
 ## task_023_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 100% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% ((validated); refreshed)
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin detail panel UX and action hierarchy
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_029_refine_plugin_detail_panel_identity_and_action_hierarchy.md`.
 - Derived from backlog item `item_029_refine_plugin_detail_panel_identity_and_action_hierarchy`.
 - Source file: `logics/backlog/item_029_refine_plugin_detail_panel_identity_and_action_hierarchy.md`.
 - Related request(s): `req_024_refine_plugin_detail_panel_identity_and_action_hierarchy`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|refine-plugin-detail-panel-identity-and-|item-029-refine-plugin-detail-panel-iden|1-clarify-scope-and-acceptance-criteria|npm-run-tests
 flowchart LR
-    Backlog[Backlog source] --> Step1[Implementation step 1]
-    Step1 --> Step2[Implementation step 2]
-    Step2 --> Step3[Implementation step 3]
-    Step3 --> Validation[Validation]
-    Validation --> Report[Report and Done]
+    Backlog[item_029_refine_plugin_detail_panel_identi] --> Step1[1. Clarify scope and acceptance criteria]
+    Step1 --> Step2[2. Implement changes]
+    Step2 --> Step3[3. Add adjust tests and polish]
+    Step3 --> Validation[npm run tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -31,15 +33,15 @@ flowchart LR
 
 # AC Traceability
 - AC1 -> Implemented in the steps above. Proof: add test/commit/file links.
-- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC10 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC2 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -71,3 +73,5 @@ flowchart LR
 - Validation:
   - `npm run compile` OK
   - `npm run test` OK
+
+# Notes

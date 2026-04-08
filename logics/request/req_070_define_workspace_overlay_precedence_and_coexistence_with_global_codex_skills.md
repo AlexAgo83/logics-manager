@@ -1,8 +1,8 @@
 ## req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills - Define workspace overlay precedence and coexistence with global Codex skills
 > From version: 1.10.8
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Skill resolution policy and overlay coexistence
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -37,11 +37,10 @@ The request is therefore about policy, not mechanics:
 ```mermaid
 %% logics-kind: request
 %% logics-signature: request|define-workspace-overlay-precedence-and-|define-how-workspace-overlays-coexist-wi|ac1-the-request-defines-an-explicit
-flowchart LR
-    Sources[Repo global and system skills exist] --> Policy[Overlay precedence policy]
-    Policy --> Resolution[Collisions resolve deterministically]
-    Resolution --> Visibility[Expected skills stay visible]
-    Visibility --> Outcome[Operators get predictable behavior]
+flowchart TD
+    Trigger[Define workspace overlay precedence and co] --> Need[Define how workspace overlays coexist with]
+    Need --> Outcome[AC1: The request defines an explicit]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -95,3 +94,4 @@ flowchart LR
 
 # Backlog
 - `item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills`
+- `logics/backlog/item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills.md`

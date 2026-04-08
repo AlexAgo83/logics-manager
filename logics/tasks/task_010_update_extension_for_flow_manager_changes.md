@@ -1,12 +1,23 @@
 ## task_010_update_extension_for_flow_manager_changes - Update extension for flow manager changes
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 99% (audit-aligned)
-> Confidence: 96% (governed)
-> Progress: 100% (governed)
+> Understanding: 100% (audit-aligned)
+> Confidence: 97% (governed)
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|update-extension-for-flow-manager-change|item-006-update-extension-for-flow-manag|1-inspect-flow-manager-changes-scripts|automated-npm-run-compile
+flowchart LR
+    Backlog[item_006_update_extension_for_flow_manager] --> Step1[1. Inspect flow manager changes scripts]
+    Step1 --> Step2[2. Review extension invocations for New]
+    Step2 --> Step3[3. Update script-path checks and error]
+    Step3 --> Validation[Automated: npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_006_update_extension_for_flow_manager_changes.md`.
@@ -37,3 +48,5 @@ Align extension flow-manager invocations and UX with the latest Logics skills ki
 
 # Report
 Updated the extension to use the flow manager script for all create actions (request/backlog/task), added consistent script-path checks and clearer error messaging, and kept indicator parsing compatible with new templates (Complexity/Theme/Reminder). Manual smoke checks were validated end-to-end (new request, request->backlog promotion, backlog->task promotion, board/details refresh), and README now documents flow-manager compatibility baseline plus a smoke checklist. Validation passes via `npm run compile`, `npm run test`, and `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`.
+
+# Notes

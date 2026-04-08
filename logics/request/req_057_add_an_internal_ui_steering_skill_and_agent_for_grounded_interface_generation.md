@@ -51,12 +51,12 @@ To make the request self-sufficient, the future skill should cover guidance for 
 The expected implementation should preserve breadth, not just intent. If the resulting `SKILL.md` would become too dense, the implementation may split the corpus into internal reference files, but the combination of `SKILL.md` plus references must still encode the full guidance set rather than a compressed paraphrase.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|add-an-internal-ui-steering-skill-and-ag|add-a-dedicated-internal-logics-skill|ac1-the-request-defines-a-new
 flowchart TD
-    A[User asks for UI generation or refinement] --> B[Internal UI steering skill or agent is invoked]
-    B --> C[Agent applies grounded layout and styling guardrails]
-    C --> D[Generated UI aligns better with product context]
-    D --> E[Less prompt cleanup and fewer generic AI UI patterns]
+    Trigger[Add an internal UI steering skill] --> Need[Add a dedicated internal Logics skill]
+    Need --> Outcome[AC1: The request defines a new]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

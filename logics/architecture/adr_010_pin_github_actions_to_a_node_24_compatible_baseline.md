@@ -1,5 +1,5 @@
 ## adr_010_pin_github_actions_to_a_node_24_compatible_baseline - Pin GitHub Actions to a Node 24 compatible baseline
-> Date: 2026-03-23
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: GitHub runner compatibility, CI stability on Ubuntu and Windows, predictable release automation
 > Related request: `req_079_migrate_github_actions_off_node_20_before_runner_deprecation`
@@ -51,8 +51,5 @@ This was rejected for now because the current issue is action-runtime compatibil
 - `logics/request/req_079_migrate_github_actions_off_node_20_before_runner_deprecation.md`
 - `logics/backlog/item_102_migrate_github_actions_off_node_20_before_runner_deprecation.md`
 - `logics/tasks/task_091_migrate_github_actions_off_node_20_before_runner_deprecation.md`
-- `.github/workflows/ci.yml`
-- `.github/workflows/release.yml`
-
 # Follow-up work
 - Implemented in `task_091_migrate_github_actions_off_node_20_before_runner_deprecation`.

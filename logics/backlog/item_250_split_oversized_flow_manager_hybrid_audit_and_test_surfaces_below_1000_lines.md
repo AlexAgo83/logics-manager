@@ -30,13 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|split-oversized-flow-manager-hybrid-audi|req-131-reduce-all-remaining-active-sour|reduce-the-maintenance-cost-of-the|ac1-logics-flow-hybrid-py-logics-flow-hy
 flowchart LR
-    A[req 131] --> B[Hybrid and audit surfaces]
-    B --> C[Runtime seams]
-    B --> D[Audit seams]
-    B --> E[Test command families]
-    C --> F[Files below 1000]
-    D --> F
-    E --> F
+    Request[req_131_reduce_all_remaining_active_source] --> Problem[Reduce the maintenance cost of the]
+    Problem --> Scope[Split oversized flow manager hybrid audit]
+    Scope --> Acceptance[AC1: logics_flow_hybrid.py logics_flow_hyb]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

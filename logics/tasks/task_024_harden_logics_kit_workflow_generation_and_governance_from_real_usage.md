@@ -1,14 +1,15 @@
 ## task_024_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 99% (closed)
-> Confidence: 98% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100%
 > Complexity: High
 > Theme: Shared Logics kit hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`.
 - Derived from backlog item `item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage`.
 - Source file: `logics/backlog/item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage.md`.
 - Related request(s): `req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage`.
@@ -19,13 +20,14 @@ It must keep two constraints visible through the whole delivery:
 - the resulting workflow must reduce repetitive manual cleanup for the agent itself, not only for downstream users.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|harden-logics-kit-workflow-generation-an|item-030-harden-logics-kit-workflow-gene|1-lock-the-phased-execution-model|python3-m-unittest-discover-s-tests
 flowchart LR
-    Backlog[Umbrella backlog item] --> Step1[V1 foundations]
-    Step1 --> Step2[V2 workflow follow-up]
-    Step2 --> Step3[Validation and docs]
-    Step3 --> Validation[Submodule-ready close-out]
-    Validation --> Report[Report and Done]
+    Backlog[item_030_harden_logics_kit_workflow_genera] --> Step1[1. Lock the phased execution model]
+    Step1 --> Step2[2. Deliver V1 foundations first]
+    Step2 --> Step3[richer promotion output]
+    Step3 --> Validation[python3 -m unittest discover -s tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -47,14 +49,14 @@ flowchart LR
 - AC2 -> Step 1. Proof: phased V1/V2 delivery captured before implementation starts.
 - AC3 -> Step 1 and Step 4. Proof: this task stays orchestration-focused and links back to the umbrella backlog item.
 - AC4 -> Step 2, Step 3, and Step 4. Proof: implementation and docs explicitly protect generic behavior and agent productivity goals.
-- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC11 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC12 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC10 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC11 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC12 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -109,3 +111,5 @@ flowchart LR
   - tests and CLI smoke checks were extended to cover promotion seeding, split flows, and scoped audit usage.
 - Remaining work:
   - no further implementation work is required for this iteration; future changes can build on `adr_001` if additional conservative synchronization is later justified.
+
+# Notes

@@ -1,11 +1,20 @@
 ## req_036_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Navigation speed and findability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-instant-local-search-to-the-plugin|add-a-fast-local-search-input|ac1-the-plugin-exposes-a-search
+flowchart TD
+    Trigger[Add instant local search to the] --> Need[Add a fast local search input]
+    Need --> Outcome[AC1: The plugin exposes a search]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a fast local search input to filter visible Logics items instantly.
@@ -75,3 +84,7 @@ It is about fast local UI-level search over the already indexed Logics data so t
 
 # Backlog
 - `logics/backlog/item_041_add_instant_local_search_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

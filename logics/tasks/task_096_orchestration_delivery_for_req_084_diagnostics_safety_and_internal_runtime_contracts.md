@@ -1,8 +1,8 @@
 ## task_096_orchestration_delivery_for_req_084_diagnostics_safety_and_internal_runtime_contracts - Orchestration delivery for req_084 diagnostics safety and internal runtime contracts
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -32,11 +32,10 @@ Constraint:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-084-diagn|item-124-add-a-logics-kit-doctor-command|1-confirm-portfolio-scope-dependencies-a|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 124 125 126 127 and 128] --> Step1[Confirm portfolio scope and delivery order]
-    Step1 --> Step2[Implement diagnostics and canonical models]
-    Step2 --> Step3[Implement registries and safe write controls]
-    Step3 --> Step4[Implement fixtures benchmarks and extension contract]
-    Step4 --> Validation[python3 logics skills logics doc linter]
+    Backlog[item_124_add_a_logics_kit_doctor_command_a] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement doctor diagnostics]
+    Step2 --> Step3[3. Wave 2: implement conventions or]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -108,3 +107,5 @@ flowchart LR
 - Finished on 2026-03-24.
 - Linked backlog item(s): `item_124_add_a_logics_kit_doctor_command_and_explainable_diagnostics`, `item_125_add_canonical_parse_and_normalize_models_for_workflow_docs_and_skill_metadata`, `item_126_centralize_logics_kit_conventions_capability_registry_and_machine_readable_release_metadata`, `item_127_add_safe_write_preview_and_patch_planning_for_bulk_logics_kit_operations`, `item_128_add_skill_fixtures_benchmarks_and_extension_contracts_for_kit_regression_coverage`
 - Related request(s): `req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts`
+
+# Notes

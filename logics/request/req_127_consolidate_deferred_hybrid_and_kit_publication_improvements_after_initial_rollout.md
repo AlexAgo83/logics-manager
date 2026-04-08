@@ -1,10 +1,13 @@
 ## req_127_consolidate_deferred_hybrid_and_kit_publication_improvements_after_initial_rollout - Consolidate deferred hybrid and kit publication improvements after initial rollout
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Hybrid assist and kit publication consolidation post-rollout
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -34,15 +37,9 @@
 %% logics-kind: request
 %% logics-signature: request|consolidate-deferred-hybrid-and-kit-publ|after-req-124-req-125-and-req-126-ship|ac1-conditional-if-production-usage
 flowchart TD
-    Upstream[req_124 + req_125 + req_126 ship and stabilize] --> D1[Deferred: per-runtime skill tier if needed]
-    Upstream --> D2[Deferred: authoring flow execute mode]
-    Upstream --> D3[Deferred: next-step auto routing opt-in in logics.yaml]
-    Upstream --> D4[Deferred: shared kit publication abstraction]
-    D1 --> AC1[AC1: Per-runtime tier fields if usage demands it]
-    D2 --> AC2[AC2: Execute mode for authoring flows]
-    D3 --> AC3[AC3: next-step auto backend opt-in in logics.yaml]
-    D4 --> AC4[AC4: Shared publication lifecycle abstraction]
-    AC1 --> Backlog[Backlog slice]
+    Trigger[Consolidate deferred hybrid and kit public] --> Need[After req_124 req_125 and req_126 ship]
+    Need --> Outcome[AC1 conditional : If production usage]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

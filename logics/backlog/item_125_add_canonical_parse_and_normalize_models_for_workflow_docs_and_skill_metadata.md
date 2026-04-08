@@ -27,10 +27,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-canonical-parse-and-normalize-models|req-084-improve-logics-kit-diagnostics-s|workflow-doc-parsing-section-extraction-|ac1-workflow-docs-can-be-parsed
 flowchart LR
-    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[Workflow doc parsing and metadata handling]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[Workflow-doc parsing section extraction an]
     Problem --> Scope[Add canonical parse and normalize models]
-    Scope --> Acceptance[AC1: Workflow docs can be parsed into a c]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Workflow docs can be parsed]
+    Acceptance --> Tasks[task_096_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

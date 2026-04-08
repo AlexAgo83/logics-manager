@@ -29,12 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|separate-src-and-media-plugin-coverage-r|req-130-make-plugin-coverage-actionable-|make-plugin-coverage-reporting-honest-en|ac1-coverage-reporting-distinguishes-src
 flowchart LR
-    A[req 130] --> B[Separate src and media signal]
-    B --> C[Gate src first]
-    B --> D[Keep media visible]
-    D --> E[Trustworthy measurement or separate governance]
-    C --> F[Progressive thresholds]
-    E --> F
+    Request[req_130_make_plugin_coverage_actionable_wi] --> Problem[Make plugin coverage reporting honest enou]
+    Problem --> Scope[Separate src and media plugin coverage]
+    Scope --> Acceptance[AC1: Coverage reporting distinguishes src]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

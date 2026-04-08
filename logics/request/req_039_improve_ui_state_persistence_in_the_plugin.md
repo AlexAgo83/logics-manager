@@ -1,11 +1,20 @@
 ## req_039_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: UI continuity and workflow stability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|improve-ui-state-persistence-in-the-plug|preserve-more-of-the-users-working|ac1-the-plugin-preserves-a-broader
+flowchart TD
+    Trigger[Improve UI state persistence in the] --> Need[Preserve more of the users working]
+    Need --> Outcome[AC1: The plugin preserves a broader]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Preserve more of the user’s working context across refreshes and view changes.
@@ -70,3 +79,7 @@ Better persistence would make the surface feel more intentional and reduce repet
 
 # Backlog
 - `logics/backlog/item_044_improve_ui_state_persistence_in_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

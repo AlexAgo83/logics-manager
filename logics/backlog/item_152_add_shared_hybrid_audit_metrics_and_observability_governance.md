@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-shared-hybrid-audit-metrics-and-obse|req-093-add-shared-hybrid-assist-contrac|req-093-needs-one-observability-contract|ac1-shared-audit-fields-and-emitted
 flowchart LR
-    Request[req_093] --> Problem[Hybrid platform needs one observability contract]
-    Problem --> Audit[Define shared audit fields]
-    Audit --> Metrics[Define minimum metrics and outcomes]
-    Metrics --> Done[Execution task]
+    Request[req_093_add_shared_hybrid_assist_contracts] --> Problem[req_093 needs one observability contract s]
+    Problem --> Scope[Add shared hybrid audit metrics and]
+    Scope --> Acceptance[AC1: Shared audit fields and emitted]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

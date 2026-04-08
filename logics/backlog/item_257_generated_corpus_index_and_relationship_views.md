@@ -1,10 +1,10 @@
 ## item_257_generated_corpus_index_and_relationship_views - Generated corpus index and relationship views
-> From version: 1.22.2
+> From version: 1.22.2 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,16 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|generated-corpus-index-and-relationship-|req-134-generated-corpus-index-and-relat|provide-a-generated-entry-point-for|ac1-a-generated-logics-index-md-or
 flowchart LR
-  INDEX[INDEX.md: core families list]
-  REL[RELATIONSHIPS.md: links overview]
-  REFRESH[Refresh cmd/script]
-  NAV[Navigation surface]
-  VALIDATE[Validation/guardrails]
-  INDEX --> REL
-  REL --> NAV
-  NAV --> REFRESH
-  REFRESH --> VALIDATE
-  VALIDATE --> INDEX
+    Request[req_134_generated_corpus_index_and_relatio] --> Problem[Provide a generated entry point for]
+    Problem --> Scope[Generated corpus index and relationship vi]
+    Scope --> Acceptance[AC1: A generated logics INDEX.md or]
+    Acceptance --> Tasks[task_117_generated_corpus_index_and_relati]
 ```
 
 # Acceptance criteria
@@ -82,3 +76,4 @@ flowchart LR
 - Source file: `logics/request/req_134_generated_corpus_index_and_relationship_views.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_134_generated_corpus_index_and_relationship_views.md`.
+- Derived from `logics/request/req_134_generated_corpus_index_and_relationship_views.md`.

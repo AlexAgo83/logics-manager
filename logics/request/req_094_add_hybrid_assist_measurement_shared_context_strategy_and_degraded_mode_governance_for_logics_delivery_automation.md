@@ -41,14 +41,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-hybrid-assist-measurement-shared-con|add-a-shared-way-to-measure|ac1-the-hybrid-platform-defines-a
 flowchart TD
-    Trigger[Hybrid assist flows start to multiply] --> Measure[Measure real ROI and quality]
-    Measure --> Context[Define one shared context strategy]
-    Context --> Degraded[Define predictable degraded modes]
-    Degraded --> AC1[AC1: Measurement signals are standardized]
-    AC1 --> AC2[AC2: Context packs are structured and reusable]
-    AC2 --> AC3[AC3: Degraded behavior is explicit and visible]
-    AC3 --> AC4[AC4: Review loops can tighten or retire weak flows]
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Add hybrid assist measurement shared conte] --> Need[Add a shared way to measure]
+    Need --> Outcome[AC1: The hybrid platform defines a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

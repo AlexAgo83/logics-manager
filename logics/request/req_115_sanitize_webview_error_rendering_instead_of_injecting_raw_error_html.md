@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -26,11 +26,9 @@
 %% logics-kind: request
 %% logics-signature: request|sanitize-webview-error-rendering-instead|remove-direct-html-injection-from-the|ac1-webview-error-states-render-message
 flowchart TD
-    Host[Extension error message] --> Webview[Webview error rendering]
-    Webview --> Unsafe[Unsafe innerHTML path]
-    Unsafe --> Fix[Render as safe text content]
-    Fix --> Safer[Safer error state contract]
-    Safer --> Backlog[Backlog slice]
+    Trigger[Sanitize webview error rendering instead o] --> Need[Remove direct HTML injection from the]
+    Need --> Outcome[AC1: Webview error states render message]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -88,3 +86,4 @@ flowchart TD
 
 # Backlog
 - `item_202_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html`
+- `logics/backlog/item_202_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`

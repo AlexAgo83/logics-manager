@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-task-type-default-budgets-and-con|req-080-reduce-codex-token-consumption-w|different-task-classes-do-not-need|ac1-task-type-guidance-or-equivalent-rou
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Different task classes do not need]
     Problem --> Scope[Define task-type default budgets and conci]
-    Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Task-type guidance or equivalent rout]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

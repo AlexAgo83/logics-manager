@@ -1,11 +1,20 @@
 ## req_009_add_automated_tests_and_github_ci_workflow_script - Add automated tests and GitHub CI workflow script
 > From version: 1.9.1
 > Status: Done
-> Understanding: 99% (audit-aligned)
-> Confidence: 97% (governed)
+> Understanding: 100% ((audit-aligned); refreshed)
+> Confidence: 100% (governed)
 > Complexity: Medium
 > Theme: Quality and CI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-automated-tests-and-github-ci-workfl|add-a-reliable-automated-test-layer|ac1-a-test-runner-setup-exists
+flowchart TD
+    Trigger[Add automated tests and GitHub CI] --> Need[Add a reliable automated test layer]
+    Need --> Outcome[AC1: A test runner setup exists]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a reliable automated test layer for core extension behavior.
@@ -51,3 +60,7 @@ The request focuses on a practical baseline:
 
 # Backlog
 - `logics/backlog/item_009_add_automated_tests_and_github_ci_workflow_script.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

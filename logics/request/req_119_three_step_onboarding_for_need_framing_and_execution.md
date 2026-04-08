@@ -31,14 +31,9 @@
 %% logics-kind: request
 %% logics-signature: request|three-step-onboarding-for-need-framing-a|make-the-logics-workflow-understandable-|ac1-the-product-exposes-a-dedicated
 flowchart TD
-    Launch[First run or relevant update] --> Onboarding[One shot onboarding webview]
-    Onboarding --> Need[Need]
-    Need --> Framing[Framing]
-    Framing --> Execution[Execution]
-    Execution --> Internal[Request backlog task flow]
-    Onboarding --> Actions[Key actions visible]
-    Internal --> Outcome[Clearer next step]
-    Actions --> Outcome
+    Trigger[Three step onboarding for need framing] --> Need[Make the Logics workflow understandable th]
+    Need --> Outcome[AC1: The product exposes a dedicated]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

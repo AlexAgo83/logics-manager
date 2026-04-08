@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-budgeted-context-pack-profiles-an|req-080-reduce-codex-token-consumption-w|the-current-logics-context-pack-flow-foc|ac1-the-logics-kit-defines-supported
 flowchart LR
-    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce unnecessary Codex token consumption]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[The current Logics context-pack flow focus]
     Problem --> Scope[Define budgeted context pack profiles and]
-    Scope --> Acceptance[AC1: The Logics kit defines a]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The Logics kit defines supported]
+    Acceptance --> Tasks[task_092_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

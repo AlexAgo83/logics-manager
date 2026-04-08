@@ -1,10 +1,10 @@
 ## item_136_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows - Extend the Logics Ollama specialist for Roo Code and dedicated local autocomplete workflows
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Editor integrations for local coding models
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -28,13 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|extend-the-logics-ollama-specialist-for-|req-086-upgrade-the-logics-ollama-specia|the-baseline-deepseek-workflow-alone-doe|ac1-the-skill-documents-roo-code
 flowchart LR
-    Request[req_087] --> Problem[Editor integration follow-up is missing]
-    Problem --> Scope[Extend the skill with Roo and autocomplete guidance]
-    Scope --> AC1[AC1: Roo Code path is documented]
-    AC1 --> AC2[AC2: Dedicated autocomplete path is documented]
-    AC2 --> AC3[AC3: Decision guidance is explicit]
-    AC3 --> AC4[AC4: Validation and troubleshooting stay actionable]
-    AC4 --> Task[Execution task]
+    Request[req_086_upgrade_the_logics_ollama_speciali] --> Problem[The baseline DeepSeek workflow alone does]
+    Problem --> Scope[Extend the Logics Ollama specialist for]
+    Scope --> Acceptance[AC1: The skill documents Roo Code]
+    Acceptance --> Tasks[task_098_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria
@@ -85,3 +82,4 @@ flowchart LR
 - Source file: `logics/request/req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`.
 - Request context seeded into this backlog item from `logics/request/req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`.
 - Task `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows` was finished via `logics_flow.py finish task` on 2026-03-24.
+- Derived from `logics/request/req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows.md`.

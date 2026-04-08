@@ -1,10 +1,10 @@
 ## item_198_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs - Normalize workflow progress indicators and close placeholder debt in completed docs
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Governance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|normalize-workflow-progress-indicators-a|req-104-harden-repository-maintenance-gu|make-workflow-progress-metrics-trustwort|ac1-progress-indicators-follow-a-single
 flowchart LR
-    Request[req_111_normalize_workflow_progress_indica] --> Problem[Make workflow progress metrics trustworthy]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Make workflow progress metrics trustworthy]
     Problem --> Scope[Normalize workflow progress indicators and]
     Scope --> Acceptance[AC1: Progress indicators follow a single]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_003_build_flow_board_ui_and_details_p]
 ```
 
 # Acceptance criteria
@@ -83,3 +83,4 @@ flowchart LR
 - Derived from request `req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs`.
 - Source file: `logics/request/req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs.md`.
 - Request context seeded into this backlog item from `logics/request/req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs.md`.
+- Derived from `logics/request/req_111_normalize_workflow_progress_indicators_and_close_placeholder_debt_in_completed_docs.md`.

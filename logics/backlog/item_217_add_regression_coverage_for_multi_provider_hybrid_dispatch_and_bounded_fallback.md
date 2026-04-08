@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-regression-coverage-for-multi-provid|req-120-add-openai-and-gemini-provider-d|adding-openai-and-gemini-providers-intro|ac8-validation-covers-at-minimum
 flowchart LR
-    Request[req_120 provider dispatch] --> Problem[New paths need coverage]
-    Problem --> Scope[Regression and failure-path tests]
-    Scope --> AC[AC8 provider selection credentials fallback regression]
-    AC --> Safe[All paths verified]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[Adding OpenAI and Gemini providers introdu]
+    Problem --> Scope[Add regression coverage for multi-provider]
+    Scope --> Acceptance[AC8: Validation covers at minimum]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

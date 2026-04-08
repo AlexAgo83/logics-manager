@@ -1,9 +1,9 @@
 ## req_134_generated_corpus_index_and_relationship_views - Generated corpus index and relationship views
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 98%
-> Confidence: 95%
+> Status: Done
+> Understanding: 100%
+> Confidence: 97%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -28,13 +28,9 @@
 %% logics-kind: request
 %% logics-signature: request|generated-corpus-index-and-relationship-|provide-a-generated-entry-point-for|ac1-a-generated-logics-index-md-or
 flowchart TD
-    A[Large logics corpus] --> B[Generated index]
-    A --> C[Relationship view]
-    B --> D[Fast entry points]
-    C --> D
-    D --> E[Less manual scanning]
-    E --> F[Better backlog grooming]
-    F --> G[Ready for delivery]
+    Trigger[Generated corpus index and relationship vi] --> Need[Provide a generated entry point for]
+    Need --> Outcome[AC1: A generated logics INDEX.md or]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -45,11 +41,11 @@ flowchart TD
 - AC5: The generated output includes validation or guardrails for stale links, missing refs, or docs that are not yet represented in the views.
 
 # Definition of Ready (DoR)
-- [ ] The problem statement explicitly describes the navigation pain and why manual discovery no longer scales.
-- [ ] Scope boundaries are clear: generated navigation views are in scope, a full UI redesign is not.
-- [ ] Acceptance criteria are testable and map to concrete generated artifacts.
-- [ ] Dependencies on existing index/relationship data are listed.
-- [ ] Known risks and fallback behavior are documented.
+- [x] The problem statement explicitly describes the navigation pain and why manual discovery no longer scales.
+- [x] Scope boundaries are clear: generated navigation views are in scope, a full UI redesign is not.
+- [x] Acceptance criteria are testable and map to concrete generated artifacts.
+- [x] Dependencies on existing index/relationship data are listed.
+- [x] Known risks and fallback behavior are documented.
 
 # Companion docs
 - Product brief(s): `prod_005_logics_corpus_navigation_views`
@@ -62,3 +58,4 @@ flowchart TD
 - Skip when: Skip when the work targets a different workflow surface or a broader product redesign.
 # Backlog
 - `item_257_generated_corpus_index_and_relationship_views`
+- `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`

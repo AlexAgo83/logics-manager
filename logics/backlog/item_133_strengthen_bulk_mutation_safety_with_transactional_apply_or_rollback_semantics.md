@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|strengthen-bulk-mutation-safety-with-tra|req-085-add-repo-config-runtime-entrypoi|preview-only-bulk-mutations-reduced-risk|ac1-bulk-mutation-flows-support-a-config
 flowchart LR
-    Need[Bulk kit mutations need coherent apply or rollback] --> Helper[Add transaction helper and audit log]
-    Helper --> Flow[Wire refresh-ai-context and migrate-schema]
-    Flow --> Test[Verify rollback on simulated failure]
-    Test --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Preview-only bulk mutations reduced risk b]
+    Problem --> Scope[Strengthen bulk mutation safety with trans]
+    Scope --> Acceptance[AC1: Bulk-mutation flows support a configu]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

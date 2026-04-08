@@ -29,12 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|build-a-deterministic-dispatcher-runner-|req-084-improve-logics-kit-diagnostics-s|req-088-is-explicitly-guardrail-first-th|ac1-a-deterministic-runner-can-map
 flowchart LR
-    Request[req_088] --> Problem[The dispatcher needs a deterministic execution gate]
-    Problem --> Scope[Validate payloads and map only allowed actions]
-    Scope --> AC1[AC1: Allowed actions map onto bounded Logics flows]
-    AC1 --> AC2[AC2: Invalid or ambiguous payloads fail closed]
-    AC2 --> AC3[AC3: Suggestion-only remains the default mode]
-    AC3 --> Task[Execution task]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[req_088 is explicitly guardrail-first: the]
+    Problem --> Scope[Build a deterministic dispatcher runner wi]
+    Scope --> Acceptance[AC1: A deterministic runner can map]
+    Acceptance --> Tasks[task_099_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

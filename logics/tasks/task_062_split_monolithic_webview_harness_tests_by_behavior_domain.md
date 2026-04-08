@@ -1,14 +1,26 @@
 ## task_062_split_monolithic_webview_harness_tests_by_behavior_domain - Split monolithic webview harness tests by behavior domain
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 99%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Test modularity and suite maintainability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|split-monolithic-webview-harness-tests-b|item-057-split-monolithic-webview-harnes|1-split-the-monolithic-harness-suite|npm-test
+flowchart LR
+    Backlog[item_057_split_monolithic_webview_harness_] --> Step1[1. Split the monolithic harness suite]
+    Step1 --> Step2[2. Preserve shared setup without recreatin]
+    Step2 --> Step3[3. Keep coverage equivalent while improvin]
+    Step3 --> Validation[npm test]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_057_split_monolithic_webview_harness_tests_by_behavior_domain.md`.
 - Derived from backlog item `item_057_split_monolithic_webview_harness_tests_by_behavior_domain`.
 - Source file: `logics/backlog/item_057_split_monolithic_webview_harness_tests_by_behavior_domain.md`.
 - Related request(s): `req_050_split_oversized_source_files_into_coherent_modules`.
@@ -32,3 +44,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status and progress updated.
+
+# Report
+- 
+
+# Notes

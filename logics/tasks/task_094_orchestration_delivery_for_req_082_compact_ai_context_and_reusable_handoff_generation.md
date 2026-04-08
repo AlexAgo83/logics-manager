@@ -1,8 +1,8 @@
 ## task_094_orchestration_delivery_for_req_082_compact_ai_context_and_reusable_handoff_generation - Orchestration delivery for req_082 compact AI context and reusable handoff generation
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -37,11 +37,10 @@ Delivery shape:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-082-compa|item-114-backfill-and-refresh-ai-context|1-confirm-portfolio-scope-dependencies-a|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 114 115 117 119 and 121] --> Step1[Confirm portfolio scope and delivery order]
-    Step1 --> Step2[Implement AI Context backfill and shared helpers]
-    Step2 --> Step3[Implement kit native context pack artifacts]
-    Step3 --> Step4[Implement maintenance and capability alignment]
-    Step4 --> Validation[python3 logics skills logics doc linter]
+    Backlog[item_114_backfill_and_refresh_ai_context_f] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement AI Context]
+    Step2 --> Step3[3. Wave 2: implement kit-native compact]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -113,3 +112,5 @@ flowchart LR
 - Finished on 2026-03-24.
 - Linked backlog item(s): `item_114_backfill_and_refresh_ai_context_for_existing_workflow_docs`, `item_115_extract_shared_connector_helpers_for_compact_ai_context_and_template_assembly`, `item_117_generate_kit_native_compact_context_pack_artifacts_from_workflow_docs`, `item_119_add_corpus_compaction_and_token_hygiene_maintenance_flows_for_workflow_docs`, `item_121_audit_generated_assets_and_add_skill_capability_metadata_for_compact_ai_handoffs`
 - Related request(s): `req_080_reduce_codex_token_consumption_with_budgeted_context_packs_and_agent_aware_prompt_shaping`, `req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption`, `req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation`
+
+# Notes

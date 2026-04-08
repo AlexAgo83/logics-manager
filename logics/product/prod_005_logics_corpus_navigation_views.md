@@ -5,7 +5,7 @@
 > Related backlog: `item_257_generated_corpus_index_and_relationship_views`
 > Related task: `task_117_generated_corpus_index_and_relationship_views`
 > Related architecture: `adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation`
-> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc. Refreshed for the generated navigation sync.
 
 # Overview
 The Logics corpus has outgrown ad hoc directory browsing.
@@ -62,7 +62,7 @@ The product needs a lightweight navigation surface that keeps discovery cheap wi
 # References
 - `logics/request/req_134_generated_corpus_index_and_relationship_views.md`
 - `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`
+- `logics/tasks/task_117_generated_corpus_index_and_relationship_views.md`
 - `logics/architecture/adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation.md`
-
 # Open questions
 - Should the generated views live as plain markdown files only, or also be surfaced inside the extension as a dedicated insight view?

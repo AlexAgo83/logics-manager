@@ -1,11 +1,20 @@
 ## req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row - Move secondary view controls into a toggleable second toolbar row
 > From version: 1.10.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|move-secondary-view-controls-into-a-togg|reduce-the-visual-clutter-and-interactio|ac1-the-plugin-exposes-a-primary
+flowchart TD
+    Trigger[Move secondary view controls into a] --> Need[Reduce the visual clutter and interaction]
+    Need --> Outcome[AC1: The plugin exposes a primary]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Reduce the visual clutter and interaction friction created by the current filter/tools panel model.
@@ -73,3 +82,7 @@ This second row would host the denser view controls without permanently occupyin
 
 # Backlog
 - `logics/backlog/item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

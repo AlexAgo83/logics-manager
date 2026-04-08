@@ -1,9 +1,9 @@
 ## task_101_orchestration_delivery_for_req_096_and_req_097_plugin_polish_and_hybrid_local_model_profile_flexibility - Orchestration delivery for req_096 and req_097 plugin polish and hybrid local model profile flexibility
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 99%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Coordinated plugin polish and kit-side model profile flexibility
@@ -36,10 +36,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-096-and-r|item-158-collapse-bottom-details-when-ac|1-confirm-the-scope-split-between|python3-logics-skills-logics-flow-manage
 flowchart LR
-    Start[req_096 and req_097] --> Wave1[Wave 1 kit side local model profiles and docs]
-    Wave1 --> Wave2[Wave 2 plugin responsive polish wording and timestamps]
-    Wave2 --> Validate[Validate runtime docs plugin and webview coverage]
-    Validate --> Report[Done report]
+    Backlog[item_158_collapse_bottom_details_when_acti] --> Step1[1. Confirm the scope split between]
+    Step1 --> Step2[2. Wave 1: deliver hybrid runtime]
+    Step2 --> Step3[3. Wave 2: deliver plugin responsive]
+    Step3 --> Validation[python3 logics skills logics-flow-manager]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -125,3 +126,8 @@ flowchart LR
 - [x] Linked request/backlog/task docs updated during completed waves and at closure.
 - [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

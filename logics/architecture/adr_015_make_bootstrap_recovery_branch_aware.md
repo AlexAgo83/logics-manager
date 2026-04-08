@@ -1,5 +1,5 @@
 ## adr_015_make_bootstrap_recovery_branch_aware - Make bootstrap recovery branch-aware
-> Date: 2026-04-03
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: truthful repository-state recomputation after branch switches, explicit branch-local recovery UX, reuse of the canonical bootstrap contract, and regression protection across branch-state transitions
 > Related request: `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
@@ -67,15 +67,11 @@ flowchart LR
 - Use this ADR as the architecture reference for future bootstrap-recovery work that touches branch transitions or prompt-state behavior.
 
 # References
-- `logics/architecture/adr_014_keep_plugin_safety_and_repository_governance_explicit_bounded_and_modular.md`
-- `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`
-- `src/extension.ts`
-- `src/logicsEnvironment.ts`
-- `src/logicsProviderUtils.ts`
-- `src/logicsViewProvider.ts`
-- `tests/logicsEnvironment.test.ts`
-- `tests/logicsViewProvider.test.ts`
-
+- `logics/request/req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair.md`
+- `logics/backlog/item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches.md`
+- `logics/backlog/item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux.md`
+- `logics/backlog/item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair.md`
+- `logics/tasks/task_108_orchestration_delivery_for_req_118_branch_aware_bootstrap_recovery_and_setup_repair.md`
 # Follow-up work
 - Reuse the branch-aware repository-state path for future bootstrap diagnostics instead of adding new branch-specific side channels.
 - Keep bootstrap prompt keys and degraded-state routing under test when the provider refresh lifecycle changes again.

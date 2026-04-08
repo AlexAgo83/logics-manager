@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-regression-and-windows-post-global-k|req-099-replace-repo-local-codex-overlay|the-request-changes-runtime-semantics-br|ac1-automated-coverage-proves-that-a
 flowchart LR
-    Request[req_103_separate_optional_claude_bridge_status] --> Problem[Status and dispatch changes need stronger regression safety]
-    Problem --> Scope[Add regression and Windows post-global-kit validation]
-    Scope --> Acceptance[AC1 regression and Windows evidence are captured]
-    Acceptance --> Tasks[Execution task]
+    Request[req_099_replace_repo_local_codex_overlays_] --> Problem[The request changes runtime semantics brid]
+    Problem --> Scope[Add regression and Windows post-global-kit]
+    Scope --> Acceptance[AC1: Automated coverage proves that a]
+    Acceptance --> Tasks[task_105_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

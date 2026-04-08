@@ -113,9 +113,10 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   </div>
                 </div>
                 <div data-tools-section="maintenance">
-                  <div>Maintenance</div>
+                <div>Maintenance</div>
                   <div data-tools-body="maintenance">
                     <button class="tools-panel__item" data-action="fix-docs"></button>
+                    <button class="tools-panel__item" data-action="open-logics-insights" title="Open corpus stats and relationship signals">Logics Insights</button>
                     <button class="tools-panel__item" data-action="about"></button>
                   </div>
                 </div>

@@ -199,6 +199,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
                 <div class="tools-panel__section-label">Maintenance</div>
                 <div class="tools-panel__section-body" data-tools-body="maintenance">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="open-logics-insights" title="Open corpus stats and relationship signals">Logics Insights</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
                 </div>
               </div>

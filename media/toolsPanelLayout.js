@@ -53,7 +53,7 @@
       runtime: ["launch-codex-overlay", "launch-claude", "check-environment", "check-hybrid-runtime", "open-hybrid-insights"],
       kit: ["update-logics-kit", "repair-logics-kit"],
       workspace: ["change-project-root", "reset-project-root", "refresh"],
-      maintenance: ["fix-docs", "about"]
+      maintenance: ["fix-docs", "open-logics-insights", "about"]
     };
 
     function getOrderedViewNames() {

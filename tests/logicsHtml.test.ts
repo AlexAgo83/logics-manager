@@ -26,6 +26,7 @@ vi.mock("vscode", () => ({
 }));
 
 import * as vscode from "vscode";
+import { buildLogicsCorpusInsightsHtml } from "../src/logicsCorpusInsightsHtml";
 import { buildHybridInsightsHtml } from "../src/logicsHybridInsightsHtml";
 import { buildReadPreviewHtml } from "../src/logicsReadPreviewHtml";
 import { buildLogicsWebviewHtml } from "../src/logicsWebviewHtml";
@@ -156,6 +157,54 @@ describe("logics HTML builders", () => {
     });
 
     expect(html).toMatchSnapshot();
+  });
+
+  it("renders the logics corpus insights summary", () => {
+    const html = buildLogicsCorpusInsightsHtml({
+      webview: createWebview() as never,
+      root: "/workspace/project",
+      items: [
+        {
+          id: "req_001_example",
+          title: "Example request",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_001_example.md",
+          relPath: "logics/request/req_001_example.md",
+          filename: "req_001_example.md",
+          updatedAt: "2026-04-08T10:00:00Z",
+          indicators: {},
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 48,
+          charCount: 1200,
+          isPromoted: false,
+          references: [{ kind: "manual", label: "Reference", path: "logics/backlog/item_001_example.md" }],
+          usedBy: []
+        },
+        {
+          id: "item_001_example",
+          title: "Example backlog item",
+          stage: "backlog",
+          path: "/workspace/project/logics/backlog/item_001_example.md",
+          relPath: "logics/backlog/item_001_example.md",
+          filename: "item_001_example.md",
+          updatedAt: "2026-04-08T09:00:00Z",
+          indicators: { Progress: "100%" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 72,
+          charCount: 1600,
+          isPromoted: false,
+          references: [],
+          usedBy: [{ id: "req_001_example", title: "Example request", stage: "request", relPath: "logics/request/req_001_example.md" }]
+        }
+      ]
+    });
+
+    expect(html).toContain("Logics Insights");
+    expect(html).toContain("Managed docs");
+    expect(html).toContain("Generated INDEX.md");
+    expect(html).toContain("missing");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

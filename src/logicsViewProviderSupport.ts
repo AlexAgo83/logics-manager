@@ -472,6 +472,9 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   export async function openHybridInsightsFromTools(this: any): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
   }
+  export async function openLogicsInsightsFromTools(this: any): Promise<void> {
+    await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
+  }
   export async function openAbout(this: any): Promise<void> {
     await vscode.env.openExternal(vscode.Uri.parse(PROJECT_GITHUB_URL));
   }
@@ -938,6 +941,9 @@ export async function refreshAgentsFromCommand(this: any): Promise<void> {
   }
 export async function openHybridInsightsFromCommand(this: any): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
+  }
+export async function openLogicsInsightsFromCommand(this: any): Promise<void> {
+    await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
   }
 export function openOnboardingFromCommand(this: any): void {
     this.openOnboardingPanel();

@@ -48,6 +48,7 @@ export type LogicsWebviewMessage =
   | { type: "assist-validation-checklist" }
   | { type: "assist-doc-consistency" }
   | { type: "open-hybrid-insights" }
+  | { type: "open-logics-insights" }
   | { type: "open-onboarding" }
   | { type: "tool-action"; action: string }
   | { type: "about" }
@@ -98,6 +99,7 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "assist-validation-checklist":
     case "assist-doc-consistency":
     case "open-hybrid-insights":
+    case "open-logics-insights":
     case "open-onboarding":
     case "about":
     case "change-project-root":

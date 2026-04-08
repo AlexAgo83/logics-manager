@@ -97,6 +97,9 @@
       openHybridInsights() {
         invokeHostOnly("open-hybrid-insights", {}, "Hybrid Insights");
       },
+      openLogicsInsights() {
+        invokeHostOnly("open-logics-insights", {}, "Logics Insights");
+      },
       assistCommitAll() {
         invokeHostOnly("assist-commit-all", {}, "Commit All Changes");
       },

@@ -207,6 +207,7 @@ Contract:
 - `Logics: Create Companion Doc`
 - `Logics: Check Environment`
 - `Logics: Open Hybrid Insights`
+- `Logics: Open Logics Insights`
 - `Logics: Triage Item`
 - `Logics: Assess Diff Risk`
 - `Logics: Build Validation Checklist`
@@ -230,6 +231,7 @@ Contract:
 - `Launch Codex` starts Codex using the globally published Logics kit when the shared runtime is healthy.
 - `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
 - `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
+- `Logics Insights` opens a repository-level corpus stats panel with stage counts, progress buckets, relationship hot spots, large docs, and recent updates.
 - `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
 - `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
 - `Triage Item` classifies a selected request, backlog item, or task through the shared hybrid runtime and keeps backend provenance visible in the completion notification.

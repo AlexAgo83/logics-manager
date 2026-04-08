@@ -74,6 +74,10 @@
         "title": "Logics: Open Hybrid Insights"
       },
       {
+        "command": "logics.openLogicsInsights",
+        "title": "Logics: Open Logics Insights"
+      },
+      {
         "command": "logics.assistTriage",
         "title": "Logics: Triage Item"
       },

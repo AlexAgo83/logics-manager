@@ -25,6 +25,7 @@ import {
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import { LogicsHybridAssistController } from "./logicsHybridAssistController";
+import { LogicsCorpusInsightsController } from "./logicsCorpusInsightsController";
 import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
 import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
@@ -73,6 +74,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private onboardingPanel?: vscode.WebviewPanel;
   private readonly documentController: LogicsViewDocumentController;
   private readonly hybridAssistController: LogicsHybridAssistController;
+  private readonly logicsCorpusInsightsController: LogicsCorpusInsightsController;
   private readonly codexWorkflowController: LogicsCodexWorkflowController;
   private readonly environmentOutput: vscode.OutputChannel;
 
@@ -92,6 +94,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       getActionRoot: () => viewProviderSupport.getActionRoot.call(this),
       getItems: () => this.items,
       pickItem: (items, placeHolder) => viewProviderSupport.pickItem.call(this, items, placeHolder),
+      refresh: () => this.refresh()
+    });
+    this.logicsCorpusInsightsController = new LogicsCorpusInsightsController({
+      context: this.context,
+      getActionRoot: () => viewProviderSupport.getActionRoot.call(this),
+      getItems: () => this.items,
       refresh: () => this.refresh()
     });
     this.codexWorkflowController = new LogicsCodexWorkflowController({
@@ -149,6 +157,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         viewProviderSupport.notifyInvalidRootOverride.call(this, invalidOverridePath, hasValidRoot),
       openOnboardingPanel: () => viewProviderSupport.openOnboardingPanel.call(this),
       openHybridInsightsFromTools: () => viewProviderSupport.openHybridInsightsFromTools.call(this),
+      openLogicsInsightsFromTools: () => viewProviderSupport.openLogicsInsightsFromTools.call(this),
       notifyBootstrapCompletion: (
         root: string,
         globalKitOutcome?: {
@@ -303,6 +312,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           return;
         case "open-hybrid-insights":
           await viewProviderSupport.openHybridInsightsFromTools.call(this);
+          return;
+        case "open-logics-insights":
+          await viewProviderSupport.openLogicsInsightsFromTools.call(this);
           return;
         case "open-onboarding":
           viewProviderSupport.openOnboardingPanel.call(this);
@@ -552,6 +564,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async openHybridInsightsFromCommand(): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
+  }
+
+  async openLogicsInsightsFromCommand(): Promise<void> {
+    await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
   }
 
   openOnboardingFromCommand(): void {

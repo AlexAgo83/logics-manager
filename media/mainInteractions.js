@@ -19,6 +19,7 @@
       checkEnvironmentButton,
       launchClaudeButton,
       openHybridInsightsButton,
+      openLogicsInsightsButton,
       openOnboardingButton,
       changeProjectRootButton,
       compactListQuery,
@@ -50,6 +51,7 @@
       onCheckHybridRuntime,
       onCheckEnvironment,
       onOpenHybridInsights,
+      onOpenLogicsInsights,
       onOpenOnboarding,
       onChangeProjectRoot,
       onAssistCommitAll,
@@ -153,6 +155,9 @@
       }
       if (openHybridInsightsButton) {
         openHybridInsightsButton.addEventListener("click", () => onOpenHybridInsights());
+      }
+      if (openLogicsInsightsButton) {
+        openLogicsInsightsButton.addEventListener("click", () => onOpenLogicsInsights());
       }
       if (openOnboardingButton) {
         openOnboardingButton.addEventListener("click", () => onOpenOnboarding());
@@ -325,6 +330,7 @@
       setControlDescription(launchClaudeButton, "Launch Claude with the globally published Logics kit");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
       setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
+      setControlDescription(openLogicsInsightsButton, "Open repository-level Logics stats and relationship signals");
       setControlDescription(assistCommitAllButton, "Suggest or execute a bounded commit plan");
       setControlDescription(assistNextStepButton, "Suggest the next bounded workflow step");
       setControlDescription(assistTriageButton, "Classify a workflow doc through the shared runtime");

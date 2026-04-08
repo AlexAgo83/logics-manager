@@ -20,6 +20,7 @@ const provider = {
   createCompanionDocFromPalette: vi.fn(),
   checkEnvironmentFromCommand: vi.fn(),
   openHybridInsightsFromCommand: vi.fn(),
+  openLogicsInsightsFromCommand: vi.fn(),
   openOnboardingFromCommand: vi.fn(),
   triageWorkflowDocFromCommand: vi.fn(),
   assessDiffRiskFromCommand: vi.fn(),
@@ -91,6 +92,7 @@ describe("extension.activate", () => {
     provider.createCompanionDocFromPalette.mockReset();
     provider.checkEnvironmentFromCommand.mockReset();
     provider.openHybridInsightsFromCommand.mockReset();
+    provider.openLogicsInsightsFromCommand.mockReset();
     provider.openOnboardingFromCommand.mockReset();
     provider.triageWorkflowDocFromCommand.mockReset();
     provider.assessDiffRiskFromCommand.mockReset();
@@ -175,9 +177,11 @@ describe("extension.activate", () => {
 
     commandHandlers.get("logics.refresh")?.();
     commandHandlers.get("logics.checkEnvironment")?.();
+    commandHandlers.get("logics.openLogicsInsights")?.();
     commandHandlers.get("logics.openOnboarding")?.();
     expect(provider.refresh).toHaveBeenCalledTimes(2);
     expect(provider.checkEnvironmentFromCommand).toHaveBeenCalledTimes(1);
+    expect(provider.openLogicsInsightsFromCommand).toHaveBeenCalledTimes(1);
     expect(provider.openOnboardingFromCommand).toHaveBeenCalledTimes(1);
 
     watchers[0]?.didChange?.();

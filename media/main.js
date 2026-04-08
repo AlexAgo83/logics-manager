@@ -42,6 +42,7 @@
   const checkEnvironmentButton = document.querySelector('[data-action="check-environment"]');
   const checkHybridRuntimeButton = document.querySelector('[data-action="check-hybrid-runtime"]');
   const openHybridInsightsButton = document.querySelector('[data-action="open-hybrid-insights"]');
+  const openLogicsInsightsButton = document.querySelector('[data-action="open-logics-insights"]');
   const openOnboardingButton = document.querySelector('[data-action="open-onboarding"]');
   const assistCommitAllButton = document.querySelector('[data-action="assist-commit-all"]');
   const assistNextStepButton = document.querySelector('[data-action="assist-next-step"]');
@@ -932,6 +933,7 @@
           checkEnvironmentButton,
           launchClaudeButton,
           openHybridInsightsButton,
+          openLogicsInsightsButton,
           openOnboardingButton,
           changeProjectRootButton,
           compactListQuery,

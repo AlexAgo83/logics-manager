@@ -57,6 +57,8 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderBoard.js"));
   const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderDetails.js"));
   const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderMarkdown.js"));
+  const mainCoreScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainCore.js"));
+  const mainInteractionHandlersScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractionHandlers.js"));
   const mainInteractionsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractions.js"));
   const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "main.js"));
   const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "main.css"));
@@ -339,6 +341,8 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   <script nonce="${nonce}" src="${renderBoardScriptUri}"></script>
   <script nonce="${nonce}" src="${renderDetailsScriptUri}"></script>
   <script nonce="${nonce}" src="${renderMarkdownScriptUri}"></script>
+  <script nonce="${nonce}" src="${mainCoreScriptUri}"></script>
+  <script nonce="${nonce}" src="${mainInteractionHandlersScriptUri}"></script>
   <script nonce="${nonce}" src="${mainInteractionsScriptUri}"></script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>

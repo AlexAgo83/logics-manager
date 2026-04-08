@@ -1,10 +1,10 @@
 ## item_247_split_oversized_plugin_source_entry_and_orchestration_surfaces_below_1000_lines - Split oversized plugin source entry and orchestration surfaces below 1000 lines
 > From version: 1.22.0+docs
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Architecture, modularity, maintainability, and testability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -65,7 +65,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): `adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend`, `adr_014_keep_plugin_safety_and_repository_governance_explicit_bounded_and_modular`
 - Request: `req_131_reduce_all_remaining_active_source_and_test_files_below_1000_lines_with_seam_driven_refactors`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `logics/tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md`
 
 # AI Context
 - Summary: Reduce the largest remaining plugin source entry and orchestration files below 1000 lines through seam-driven extraction while preserving readable entry surfaces.

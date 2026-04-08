@@ -228,6 +228,8 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
     "media/renderBoard.js",
     "media/renderDetails.js",
     "media/renderMarkdown.js",
+    "media/mainCore.js",
+    "media/mainInteractionHandlers.js",
     "media/mainInteractions.js",
     "media/main.js"
   ];

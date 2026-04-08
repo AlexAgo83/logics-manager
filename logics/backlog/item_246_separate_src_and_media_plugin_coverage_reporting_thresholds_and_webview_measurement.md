@@ -1,10 +1,10 @@
 ## item_246_separate_src_and_media_plugin_coverage_reporting_thresholds_and_webview_measurement - Separate src and media plugin coverage reporting thresholds and webview measurement
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 89%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Testing, coverage governance, plugin runtime, and webview reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -61,7 +61,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization`
 
 # AI Context
 - Summary: Separate plugin `src` and `media` coverage governance so coverage becomes an honest signal, with progressive thresholds and explicit visibility for the under-measured webview runtime.

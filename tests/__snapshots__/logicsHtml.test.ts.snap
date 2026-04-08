@@ -667,7 +667,6 @@ exports[`logics HTML builders > renders the hybrid insights report snapshot 1`] 
                     <span class="hybrid-insights__status is-bad">degraded</span>
                   </div>
                   <div class="hybrid-insights__recent-secondary">
-                    <span>auto -> codex</span>
                     <span title="Apr 4, 2026, 12:00 PM">Apr 4, 2026, 12:00 PM</span>
                   </div>
                 </div>
@@ -1070,6 +1069,8 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderBoard.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderDetails.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderMarkdown.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainCore.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractionHandlers.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractions.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/main.js"></script>
 </body>

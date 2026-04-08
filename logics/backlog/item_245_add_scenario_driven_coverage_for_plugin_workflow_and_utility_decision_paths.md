@@ -1,10 +1,10 @@
 ## item_245_add_scenario_driven_coverage_for_plugin_workflow_and_utility_decision_paths - Add scenario-driven coverage for plugin workflow and utility decision paths
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 89%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Testing, coverage governance, plugin runtime, and webview reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -60,7 +60,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization`
 
 # AI Context
 - Summary: Add scenario-driven coverage on the larger plugin decision modules so req 130 improves branch confidence where fallback and remediation logic matter most.

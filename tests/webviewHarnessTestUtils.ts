@@ -303,6 +303,8 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
     "media/renderBoard.js",
     "media/renderDetails.js",
     "media/renderMarkdown.js",
+    "media/mainCore.js",
+    "media/mainInteractionHandlers.js",
     "media/mainInteractions.js",
     "media/main.js"
   ];

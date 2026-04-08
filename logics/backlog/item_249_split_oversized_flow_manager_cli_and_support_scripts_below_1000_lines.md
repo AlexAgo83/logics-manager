@@ -1,10 +1,10 @@
 ## item_249_split_oversized_flow_manager_cli_and_support_scripts_below_1000_lines - Split oversized flow manager CLI and support scripts below 1000 lines
 > From version: 1.22.0+docs
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Architecture, modularity, maintainability, and testability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -62,7 +62,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): `adr_011_keep_hybrid_assist_runtime_contracts_shared_backend_agnostic_and_safely_bounded`, `adr_014_keep_plugin_safety_and_repository_governance_explicit_bounded_and_modular`
 - Request: `req_131_reduce_all_remaining_active_source_and_test_files_below_1000_lines_with_seam_driven_refactors`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `logics/tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md`
 
 # AI Context
 - Summary: Split the oversized flow-manager CLI and support scripts below 1000 lines while preserving the discoverable Python workflow entrypoint and current command behavior.

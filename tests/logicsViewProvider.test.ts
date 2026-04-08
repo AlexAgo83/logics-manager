@@ -20,6 +20,8 @@ const mocks = vi.hoisted(() => ({
   workspaceStateGet: vi.fn(),
   workspaceStateUpdate: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
+  detectDangerousGitignorePatterns: vi.fn(),
+  detectKitInstallType: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
   inspectLogicsBootstrapState: vi.fn(),
   runGitWithOutput: vi.fn(),
@@ -33,6 +35,8 @@ const mocks = vi.hoisted(() => ({
   areSamePath: vi.fn(),
   publishCodexWorkspaceOverlay: vi.fn(),
   shouldPublishRepoKit: vi.fn(),
+  inspectCodexWorkspaceOverlay: vi.fn(),
+  inspectClaudeGlobalKit: vi.fn(),
   detectClaudeBridgeStatus: vi.fn(),
   inspectRuntimeLaunchers: vi.fn(),
   inspectGitHubReleaseCapability: vi.fn()
@@ -80,6 +84,8 @@ vi.mock("vscode", () => ({
 vi.mock("../src/logicsProviderUtils", () => ({
   areSamePath: mocks.areSamePath,
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
+  detectDangerousGitignorePatterns: mocks.detectDangerousGitignorePatterns,
+  detectKitInstallType: mocks.detectKitInstallType,
   getWorkspaceRoot: mocks.getWorkspaceRoot,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
   inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
@@ -114,8 +120,13 @@ vi.mock("../src/logicsWebviewHtml", () => ({
 }));
 
 vi.mock("../src/logicsCodexWorkspace", () => ({
+  inspectCodexWorkspaceOverlay: mocks.inspectCodexWorkspaceOverlay,
   publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
   shouldPublishRepoKit: mocks.shouldPublishRepoKit
+}));
+
+vi.mock("../src/logicsClaudeGlobalKit", () => ({
+  inspectClaudeGlobalKit: mocks.inspectClaudeGlobalKit
 }));
 
 vi.mock("../src/runtimeLaunchers", () => ({
@@ -304,6 +315,10 @@ describe("LogicsViewProvider", () => {
     mocks.createTerminal.mockReset();
     mocks.publishCodexWorkspaceOverlay.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
+    mocks.inspectCodexWorkspaceOverlay.mockReset();
+    mocks.inspectClaudeGlobalKit.mockReset();
+    mocks.detectDangerousGitignorePatterns.mockReset();
+    mocks.detectKitInstallType.mockReset();
     mocks.detectClaudeBridgeStatus.mockReset();
     mocks.inspectRuntimeLaunchers.mockReset();
     mocks.inspectGitHubReleaseCapability.mockReset();
@@ -329,6 +344,12 @@ describe("LogicsViewProvider", () => {
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
     mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.detectDangerousGitignorePatterns.mockReturnValue({
+      hasDangerousPatterns: false,
+      matchedPatterns: [],
+      reason: "No broad .gitignore pattern covering logics/skills was detected."
+    });
+    mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
@@ -356,6 +377,25 @@ describe("LogicsViewProvider", () => {
     });
     mocks.getCommands.mockResolvedValue([]);
     mocks.shouldPublishRepoKit.mockReturnValue(false);
+    mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
+      status: "missing-overlay",
+      summary: "No global Codex Logics kit is published yet.",
+      issues: [],
+      warnings: [],
+      overlayRoot: path.join(root, ".codex", "skills"),
+      codexHome: path.join(root, ".codex"),
+      publishedSkillNames: [],
+      needsPublish: true
+    });
+    mocks.inspectClaudeGlobalKit.mockReturnValue({
+      status: "missing-overlay",
+      summary: "No global Claude Logics kit is published yet.",
+      issues: [],
+      warnings: [],
+      claudeHome: path.join(root, ".claude"),
+      publishedSkillNames: [],
+      needsPublish: true
+    });
     mocks.publishCodexWorkspaceOverlay.mockReturnValue({
       publicationMode: "symlink",
       manifestPath: "/tmp/logics-global-kit.json",
@@ -443,6 +483,29 @@ describe("LogicsViewProvider", () => {
       "Logics bootstrap is incomplete. Bootstrap or repair Logics by adding the cdx-logics-kit submodule?",
       "Bootstrap Logics",
       "Not now"
+    );
+  });
+
+  it("warns once at startup when a broad gitignore pattern hides logics/skills", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Repair Logics setup on this branch",
+      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      reason: "The active branch has logics/ but logics/skills is still missing."
+    });
+    mocks.detectDangerousGitignorePatterns.mockReturnValueOnce({
+      hasDangerousPatterns: true,
+      matchedPatterns: ["logics/"],
+      reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+    });
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+
+    await (provider as any).maybeOfferBootstrap(root);
+
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      "Broad .gitignore pattern(s) detected for logics/skills: logics/. This can break the submodule update path, but the extension can fall back to a copy or direct clone if you confirm."
     );
   });
 
@@ -1242,6 +1305,19 @@ describe("LogicsViewProvider", () => {
     expect(items.some((item: { label: string }) => item.label.includes("AI assistant runtime: Degraded"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex launch command"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Open detailed diagnostic report"))).toBe(true);
+  });
+
+  it("surfaces a gitignore warning in Check Environment when broad logics patterns are present", async () => {
+    mocks.detectDangerousGitignorePatterns.mockReturnValueOnce({
+      hasDangerousPatterns: true,
+      matchedPatterns: ["logics/"],
+      reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+    });
+
+    await provider.checkEnvironmentFromCommand();
+
+    const items = mocks.showQuickPick.mock.calls[0][0] as Array<{ label: string }>;
+    expect(items.some((item) => item.label.includes("Gitignore warning"))).toBe(true);
   });
 
   it("can surface hybrid runtime status through the shared assist command", async () => {
@@ -2346,6 +2422,250 @@ describe("LogicsViewProvider", () => {
     await provider.refresh();
 
     expect(updateSpy).toHaveBeenCalledWith(root, "startup kit remediation");
+  });
+
+  it("routes standalone clone updates through git pull instead of submodule update", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
+    mocks.detectKitInstallType.mockReturnValue("standalone-clone");
+    (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      ...defaultEnvironmentSnapshot(root),
+      codexOverlay: {
+        status: "healthy",
+        summary: "Global kit ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "codex"
+      }
+    } as never);
+    mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+      if (args[0] === "--version") {
+        return { stdout: "git version 2.0.0\n", stderr: "" };
+      }
+      if (args[0] === "rev-parse") {
+        return { stdout: "true\n", stderr: "" };
+      }
+      if (args[0] === "status" && args[1] === "--porcelain") {
+        return { stdout: "", stderr: "" };
+      }
+      if (args[0] === "-C" && args[1] === "logics/skills" && args[2] === "pull") {
+        return { stdout: "Updating...\n", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+
+    const updated = await (provider as any).codexWorkflowController.updateLogicsKit(root, "manual update");
+
+    expect(updated).toBe(true);
+    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["-C", "logics/skills", "pull", "origin", "main"]);
+    expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(
+      root,
+      ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]
+    );
+  });
+
+  it("blocks standalone clone update when the kit clone has uncommitted changes", async () => {
+    fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
+    mocks.detectKitInstallType.mockReturnValue("standalone-clone");
+    mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+      if (args[0] === "--version") {
+        return { stdout: "git version 2.0.0\n", stderr: "" };
+      }
+      if (args[0] === "rev-parse") {
+        return { stdout: "true\n", stderr: "" };
+      }
+      if (args[0] === "status" && args[1] === "--porcelain") {
+        return { stdout: "", stderr: "" };
+      }
+      if (args[0] === "-C" && args[1] === "logics/skills" && args[2] === "status") {
+        return { stdout: " M logics.py\n", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+
+    const updated = await (provider as any).codexWorkflowController.updateLogicsKit(root, "manual update");
+
+    expect(updated).toBe(false);
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      expect.stringContaining("uncommitted changes")
+    );
+    expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(root, ["-C", "logics/skills", "pull", "origin", "main"]);
+  });
+
+  it("offers fallback copy installation when logics/ is gitignored and the submodule is unavailable", async () => {
+    const previousCodexHome = process.env.LOGICS_CODEX_GLOBAL_HOME;
+    const previousClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+    const globalHome = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
+    const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "claude-global-"));
+    process.env.LOGICS_CODEX_GLOBAL_HOME = globalHome;
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = claudeHome;
+    try {
+      fs.mkdirSync(path.join(globalHome, "skills"), { recursive: true });
+      fs.writeFileSync(path.join(globalHome, "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+      fs.writeFileSync(path.join(globalHome, "skills", "SKILL.md"), "# logics\n", "utf8");
+      mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
+        status: "healthy",
+        summary: "Global Codex Logics kit is ready.",
+        issues: [],
+        warnings: [],
+        codexHome: globalHome,
+        overlayRoot: path.join(globalHome, "skills"),
+        publishedSkillNames: ["logics"],
+        publishedAt: "2026-04-08T00:00:00.000Z",
+        needsPublish: false,
+        runCommand: "codex"
+      });
+      mocks.inspectLogicsBootstrapState.mockReturnValue({
+        status: "canonical",
+        canBootstrap: true,
+        actionTitle: "Reconcile Logics bootstrap on this branch",
+        reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+        missingPaths: ["logics.yaml"],
+        convergenceNeeded: true
+      });
+      mocks.inspectClaudeGlobalKit.mockReturnValue({
+        status: "missing-overlay",
+        summary: "No global Claude Logics kit is published yet.",
+        issues: [],
+        warnings: [],
+        claudeHome: claudeHome,
+        publishedSkillNames: [],
+        needsPublish: true
+      });
+      mocks.detectKitInstallType.mockReturnValue("plain-copy");
+      mocks.detectDangerousGitignorePatterns.mockReturnValue({
+        hasDangerousPatterns: true,
+        matchedPatterns: ["logics/"],
+        reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+      });
+      mocks.showWarningMessage.mockResolvedValue("Install Fallback");
+      (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+        ...defaultEnvironmentSnapshot(root),
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never);
+      mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+        if (args[0] === "--version") {
+          return { stdout: "git version 2.0.0\n", stderr: "" };
+        }
+        if (args[0] === "rev-parse") {
+          return { stdout: "true\n", stderr: "" };
+        }
+        if (args[0] === "status" && args[1] === "--porcelain") {
+          return { stdout: "", stderr: "" };
+        }
+        return { stdout: "", stderr: "" };
+      });
+      mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+
+      const updated = await (provider as any).codexWorkflowController.updateLogicsKit(root, "manual update");
+
+      expect(updated).toBe(true);
+      expect(fs.existsSync(path.join(root, "logics", "skills", "logics.py"))).toBe(true);
+      expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(root, [
+        "clone",
+        "--branch",
+        "main",
+        "https://github.com/AlexAgo83/cdx-logics-kit.git",
+        "logics/skills"
+      ]);
+      expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+        root,
+        path.join(root, "logics", "skills", "logics.py"),
+        ["bootstrap"]
+      );
+    } finally {
+      if (typeof previousCodexHome === "string") {
+        process.env.LOGICS_CODEX_GLOBAL_HOME = previousCodexHome;
+      } else {
+        delete process.env.LOGICS_CODEX_GLOBAL_HOME;
+      }
+      if (typeof previousClaudeHome === "string") {
+        process.env.LOGICS_CLAUDE_GLOBAL_HOME = previousClaudeHome;
+      } else {
+        delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+      }
+    }
+  });
+
+  it("falls back to a direct clone when no global kit copy is available", async () => {
+    const previousClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+    const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "claude-global-"));
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = claudeHome;
+    try {
+      mocks.detectKitInstallType.mockReturnValue("plain-copy");
+      mocks.detectDangerousGitignorePatterns.mockReturnValue({
+        hasDangerousPatterns: true,
+        matchedPatterns: ["logics/"],
+        reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+      });
+      mocks.showWarningMessage.mockResolvedValue("Install Fallback");
+      (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
+      mocks.inspectLogicsBootstrapState.mockReturnValue({
+        status: "canonical",
+        canBootstrap: true,
+        actionTitle: "Reconcile Logics bootstrap on this branch",
+        reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+        missingPaths: ["logics.yaml"],
+        convergenceNeeded: true
+      });
+      vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+        ...defaultEnvironmentSnapshot(root),
+        codexOverlay: {
+          status: "healthy",
+          summary: "Global kit ready.",
+          issues: [],
+          warnings: [],
+          runCommand: "codex"
+        }
+      } as never);
+      mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
+        if (args[0] === "--version") {
+          return { stdout: "git version 2.0.0\n", stderr: "" };
+        }
+        if (args[0] === "rev-parse") {
+          return { stdout: "true\n", stderr: "" };
+        }
+        if (args[0] === "status" && args[1] === "--porcelain") {
+          return { stdout: "", stderr: "" };
+        }
+        if (args[0] === "clone") {
+          fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+          fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+          return { stdout: "Cloning into 'logics/skills'...\n", stderr: "" };
+        }
+        return { stdout: "", stderr: "" };
+      });
+      mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+
+      const updated = await (provider as any).codexWorkflowController.updateLogicsKit(root, "manual update");
+
+      expect(updated).toBe(true);
+      expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, [
+        "clone",
+        "--branch",
+        "main",
+        "https://github.com/AlexAgo83/cdx-logics-kit.git",
+        "logics/skills"
+      ]);
+      expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+        root,
+        path.join(root, "logics", "skills", "logics.py"),
+        ["bootstrap"]
+      );
+    } finally {
+      if (typeof previousClaudeHome === "string") {
+        process.env.LOGICS_CLAUDE_GLOBAL_HOME = previousClaudeHome;
+      } else {
+        delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+      }
+    }
   });
 
   describe("migration checks in Check Environment", () => {

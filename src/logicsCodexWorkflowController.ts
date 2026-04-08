@@ -4,8 +4,12 @@ import * as vscode from "vscode";
 import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
+import { inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
+import { inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 import {
   buildLogicsKitUpdateCommand,
+  detectDangerousGitignorePatterns,
+  detectKitInstallType,
   inspectLogicsBootstrapState,
   inspectLogicsKitSubmodule,
   runGitWithOutput,
@@ -32,6 +36,11 @@ type CodexWorkflowControllerOptions = {
 const CANONICAL_LOGICS_KIT_URL = "https://github.com/AlexAgo83/cdx-logics-kit.git";
 const CANONICAL_LOGICS_KIT_BRANCH = "main";
 const LOGICS_SKILLS_SUBMODULE_PATH = "logics/skills";
+const CANONICAL_LOGICS_GITMODULES = [
+  '[submodule "logics/skills"]',
+  "\tpath = logics/skills",
+  `\turl = ${CANONICAL_LOGICS_KIT_URL}`
+].join("\n") + "\n";
 
 function isNotGitRepositoryDetail(detail: string): boolean {
   const normalized = detail.toLowerCase();
@@ -47,6 +56,7 @@ export class LogicsCodexWorkflowController {
   private readonly bootstrapPromptedRoots = new Set<string>();
   private readonly codexRemediationPromptedKeys = new Set<string>();
   private readonly bootstrapInProgressRoots = new Set<string>();
+  private readonly gitignoreWarningPromptedKeys = new Set<string>();
 
   constructor(private readonly options: CodexWorkflowControllerOptions) {}
 
@@ -72,6 +82,148 @@ export class LogicsCodexWorkflowController {
     });
   }
 
+  private maybeShowDangerousGitignoreWarning(root: string): void {
+    const inspection = detectDangerousGitignorePatterns(root);
+    if (!inspection.hasDangerousPatterns) {
+      return;
+    }
+    const key = `${path.resolve(root)}::${inspection.matchedPatterns.join(",")}`;
+    if (this.gitignoreWarningPromptedKeys.has(key)) {
+      return;
+    }
+    this.gitignoreWarningPromptedKeys.add(key);
+    void vscode.window.showWarningMessage(
+      `Broad .gitignore pattern(s) detected for logics/skills: ${inspection.matchedPatterns.join(", ")}. ` +
+        "This can break the submodule update path, but the extension can fall back to a copy or direct clone if you confirm."
+    );
+  }
+
+  private ensureCanonicalGitmodules(root: string): void {
+    const gitmodulesPath = path.join(root, ".gitmodules");
+    if (!fs.existsSync(gitmodulesPath)) {
+      fs.writeFileSync(gitmodulesPath, CANONICAL_LOGICS_GITMODULES, "utf8");
+      return;
+    }
+
+    let content = "";
+    try {
+      content = fs.readFileSync(gitmodulesPath, "utf8");
+    } catch {
+      fs.writeFileSync(gitmodulesPath, CANONICAL_LOGICS_GITMODULES, "utf8");
+      return;
+    }
+
+    if (content.includes("path = logics/skills")) {
+      return;
+    }
+
+    const separator = content.endsWith("\n") || content.length === 0 ? "" : "\n";
+    fs.writeFileSync(gitmodulesPath, `${content}${separator}${CANONICAL_LOGICS_GITMODULES}`, "utf8");
+  }
+
+  private getFallbackKitSource(root: string): { sourcePath: string; label: string } | null {
+    const codexSnapshot = inspectCodexWorkspaceOverlay(root);
+    const claudeSnapshot = inspectClaudeGlobalKit(root);
+    const candidates: Array<{ sourcePath: string; label: string; publishedAt?: string }> = [];
+
+    if (codexSnapshot.overlayRoot && fs.existsSync(codexSnapshot.overlayRoot)) {
+      candidates.push({
+        sourcePath: codexSnapshot.overlayRoot,
+        label: "Codex",
+        publishedAt: codexSnapshot.publishedAt
+      });
+    }
+
+    if (claudeSnapshot.claudeHome) {
+      const claudeSkillsRoot = path.join(claudeSnapshot.claudeHome, "skills");
+      if (fs.existsSync(claudeSkillsRoot)) {
+        candidates.push({
+          sourcePath: claudeSkillsRoot,
+          label: "Claude",
+          publishedAt: claudeSnapshot.publishedAt
+        });
+      }
+    }
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    candidates.sort((left, right) => {
+      const leftTime = left.publishedAt ? Date.parse(left.publishedAt) : 0;
+      const rightTime = right.publishedAt ? Date.parse(right.publishedAt) : 0;
+      if (leftTime !== rightTime) {
+        return rightTime - leftTime;
+      }
+      return left.label.localeCompare(right.label);
+    });
+
+    return candidates[0];
+  }
+
+  private copyFallbackKitSource(root: string, sourcePath: string, label: string): void {
+    const skillsDir = path.join(root, LOGICS_SKILLS_SUBMODULE_PATH);
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+    fs.mkdirSync(path.dirname(skillsDir), { recursive: true });
+    fs.cpSync(sourcePath, skillsDir, { recursive: true, force: true, dereference: false });
+    this.ensureCanonicalGitmodules(root);
+    void vscode.window.showInformationMessage(`Logics kit restored from the ${label} global kit.`);
+  }
+
+  private async fallbackInstallKit(root: string): Promise<{
+    installed: boolean;
+    sourceLabel?: string;
+    method?: "copy" | "clone";
+    failureMessage?: string;
+  }> {
+    const source = this.getFallbackKitSource(root);
+    if (source) {
+      try {
+        this.copyFallbackKitSource(root, source.sourcePath, source.label);
+        return {
+          installed: true,
+          sourceLabel: source.label,
+          method: "copy"
+        };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const choice = await vscode.window.showWarningMessage(
+          `Copying the Logics kit from the ${source.label} global kit failed: ${message}. Try a direct clone instead?`,
+          "Clone"
+        );
+        if (choice !== "Clone") {
+          return {
+            installed: false,
+            failureMessage: message
+          };
+        }
+      }
+    }
+
+    fs.rmSync(path.join(root, LOGICS_SKILLS_SUBMODULE_PATH), { recursive: true, force: true });
+    const cloneResult = await runGitWithOutput(root, [
+      "clone",
+      "--branch",
+      CANONICAL_LOGICS_KIT_BRANCH,
+      CANONICAL_LOGICS_KIT_URL,
+      LOGICS_SKILLS_SUBMODULE_PATH
+    ]);
+    if (cloneResult.error) {
+      const detail = `${cloneResult.stderr}\n${cloneResult.stdout}\n${cloneResult.error.message}`.trim();
+      return {
+        installed: false,
+        failureMessage: detail || cloneResult.error.message
+      };
+    }
+
+    this.ensureCanonicalGitmodules(root);
+    void vscode.window.showInformationMessage("Logics kit restored by cloning the canonical kit repository.");
+    return {
+      installed: true,
+      method: "clone"
+    };
+  }
+
   async maybeOfferBootstrap(root: string): Promise<boolean> {
     const normalizedRoot = path.resolve(root);
     if (this.bootstrapInProgressRoots.has(normalizedRoot)) {
@@ -81,6 +233,8 @@ export class LogicsCodexWorkflowController {
     if (bootstrapState.status === "canonical") {
       return false;
     }
+
+    this.maybeShowDangerousGitignoreWarning(root);
 
     const promptKey = `${normalizedRoot}::${bootstrapState.status}`;
     if (this.bootstrapPromptedRoots.has(promptKey)) {
@@ -115,6 +269,7 @@ export class LogicsCodexWorkflowController {
 
   async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
+    this.maybeShowDangerousGitignoreWarning(root);
     const overlay = snapshot.codexOverlay;
     const needsRepublish = this.codexKitNeedsRepublish(root, overlay);
     if ((overlay.status === "healthy" || overlay.status === "warning") && !needsRepublish || overlay.status === "unavailable") {
@@ -480,17 +635,7 @@ export class LogicsCodexWorkflowController {
 
     const inspection = inspectLogicsKitSubmodule(root);
     const updateCommand = buildLogicsKitUpdateCommand();
-    if (!inspection.exists || !inspection.isCanonical) {
-      const choice = await vscode.window.showWarningMessage(
-        `Automatic Logics kit update is only supported for the canonical logics/skills submodule. ${inspection.reason}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
-      }
-      return false;
-    }
+    const installType = detectKitInstallType(root);
 
     const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
@@ -522,6 +667,101 @@ export class LogicsCodexWorkflowController {
         void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
       }
       return false;
+    }
+
+    if (installType === "standalone-clone") {
+      const skillsStatus = await runGitWithOutput(root, ["-C", LOGICS_SKILLS_SUBMODULE_PATH, "status", "--porcelain"]);
+      if (!skillsStatus.error && skillsStatus.stdout.trim()) {
+        void vscode.window.showWarningMessage(
+          "Automatic Logics kit update is blocked: the standalone kit clone has uncommitted changes. Commit or stash them first."
+        );
+        return false;
+      }
+
+      const pullResult = await runGitWithOutput(root, [
+        "-C",
+        LOGICS_SKILLS_SUBMODULE_PATH,
+        "pull",
+        "origin",
+        CANONICAL_LOGICS_KIT_BRANCH
+      ]);
+      if (pullResult.error) {
+        const detail = `${pullResult.stderr}\n${pullResult.stdout}\n${pullResult.error.message}`.trim();
+        const choice = await vscode.window.showErrorMessage(
+          `Failed to update the standalone Logics kit clone. ${detail || pullResult.error.message}`,
+          "Copy Update Command"
+        );
+        if (choice === "Copy Update Command") {
+          await vscode.env.clipboard.writeText(updateCommand);
+          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        }
+        return false;
+      }
+
+      if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
+        this.ensureCanonicalGitmodules(root);
+      }
+      await this.options.refresh();
+      const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
+      const messageWithConvergence = this.appendBootstrapConvergenceNote(
+        `Logics kit updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.`,
+        bootstrapConvergence
+      );
+      void vscode.window.showInformationMessage(messageWithConvergence);
+      return true;
+    }
+
+    if (installType === "plain-copy" || !inspection.exists || !inspection.isCanonical) {
+      if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
+        const choice = await vscode.window.showWarningMessage(
+          `Automatic Logics kit update is only supported for the canonical logics/skills submodule. ${inspection.reason}`,
+          "Copy Update Command"
+        );
+        if (choice === "Copy Update Command") {
+          await vscode.env.clipboard.writeText(updateCommand);
+          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        }
+        return false;
+      }
+
+      const choice = await vscode.window.showWarningMessage(
+        `logics/ appears to be gitignored and the canonical submodule is not functional. ${inspection.reason} Install or refresh the kit via fallback copy or clone?`,
+        "Install Fallback",
+        "Copy Update Command"
+      );
+      if (choice === "Copy Update Command") {
+        await vscode.env.clipboard.writeText(updateCommand);
+        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        return false;
+      }
+      if (choice !== "Install Fallback") {
+        return false;
+      }
+
+      const fallbackResult = await this.fallbackInstallKit(root);
+      if (!fallbackResult.installed) {
+        const failureMessage = fallbackResult.failureMessage || "The fallback install could not complete.";
+        void vscode.window.showErrorMessage(`Failed to install the fallback Logics kit. ${failureMessage}`);
+        return false;
+      }
+
+      await this.options.refresh();
+      const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
+      const snapshot = await inspectLogicsEnvironment(root);
+      const message =
+        fallbackResult.method === "copy"
+          ? `Logics kit updated after ${trigger} from the ${fallbackResult.sourceLabel || "global"} kit.`
+          : `Logics kit updated after ${trigger} by cloning the canonical kit repository.`;
+      const messageWithConvergence = this.appendBootstrapConvergenceNote(message, bootstrapConvergence);
+      if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
+        void vscode.window.showInformationMessage(messageWithConvergence);
+      } else {
+        const choice = await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Kit");
+        if (choice === "Publish Global Codex Kit") {
+          await this.syncCodexOverlay(root, "kit update");
+        }
+      }
+      return true;
     }
 
     const beforeStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);

@@ -1,9 +1,9 @@
 ## req_135_hide_processed_requests_should_only_hide_done_requests - Hide processed requests should only hide done requests
-> From version: 1.22.2 (refreshed)
+> From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 96% (refreshed)
-> Confidence: 94% (refreshed)
+> Status: Done
+> Understanding: 96%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -38,10 +38,10 @@ flowchart TD
 - AC4: The behavior is covered by regression tests or equivalent validation.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -11,8 +11,8 @@ if (target !== "src" && target !== "media") {
 }
 
 const result = spawnSync(
-  process.platform === "win32" ? "npx.cmd" : "npx",
-  ["vitest", "run", "--coverage"],
+  process.platform === "win32" ? "cmd.exe" : "npx",
+  process.platform === "win32" ? ["/d", "/s", "/c", "npx", "vitest", "run", "--coverage"] : ["vitest", "run", "--coverage"],
   {
     env: {
       ...process.env,

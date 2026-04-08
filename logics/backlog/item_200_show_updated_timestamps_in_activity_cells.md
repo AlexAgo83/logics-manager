@@ -1,10 +1,10 @@
 ## item_200_show_updated_timestamps_in_activity_cells - Show updated timestamps in activity cells
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|show-updated-timestamps-in-activity-cell|req-112-restructure-the-tools-menu-infor|make-recent-activity-cells-more-informat|ac1-each-activity-cell-shows-an
 flowchart LR
-    Request[req_113_show_updated_timestamps_in_activit] --> Problem[Make recent-activity cells more informativ]
+    Request[req_112_restructure_the_tools_menu_informa] --> Problem[Make recent-activity cells more informativ]
     Problem --> Scope[Show updated timestamps in activity cells]
     Scope --> Acceptance[AC1: Each activity cell shows an]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -81,3 +81,4 @@ flowchart LR
 - Derived from request `req_113_show_updated_timestamps_in_activity_cells`.
 - Source file: `logics/request/req_113_show_updated_timestamps_in_activity_cells.md`.
 - Request context seeded into this backlog item from `logics/request/req_113_show_updated_timestamps_in_activity_cells.md`.
+- Derived from `logics/request/req_113_show_updated_timestamps_in_activity_cells.md`.

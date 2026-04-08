@@ -28,12 +28,12 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|improve-hybrid-insights-recent-run-drill|req-105-hybrid-insights-refinement|recent-audit-drill-down-is-one-of|ac1-the-recent-run-drill-down-becomes-ea
+%% logics-signature: backlog|improve-hybrid-insights-recent-run-drill|req-105-refine-hybrid-insights-ux-ui-inf|recent-audit-drill-down-is-one-of|ac1-the-recent-run-drill-down-becomes-ea
 flowchart LR
-    Request[req_105_hybrid_insights_refinement] --> Problem[Recent runs and narrow widths remain too dense]
-    Problem --> Scope[Improve drill down usability and responsive behavior]
-    Scope --> Acceptance[AC1 recent runs become easier to find and parse]
-    Acceptance --> Tasks[Execution task]
+    Request[req_105_refine_hybrid_insights_ux_ui_infor] --> Problem[Recent Audit Drill-Down is one of]
+    Problem --> Scope[Improve Hybrid Insights recent-run drill-d]
+    Scope --> Acceptance[AC1: The recent-run drill-down becomes eas]
+    Acceptance --> Tasks[task_102_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

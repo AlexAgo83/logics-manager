@@ -22,13 +22,9 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-codex-token-consumption-with-budg|reduce-unnecessary-codex-token-consumpti|ac1-the-logics-kit-defines-a
 flowchart TD
-    Trigger[Codex sessions still consume avoidable context] --> Need[Make Logics context selection budgeted and task-aware]
-    Need --> AC1[AC1: Define strict context pack profiles and trimming rules]
-    AC1 --> AC2[AC2: Add AI facing doc summaries and compact metadata]
-    AC2 --> AC3[AC3: Route context by agent role and task type]
-    AC3 --> AC4[AC4: Prefer delta context over full graph injection]
-    AC4 --> AC5[AC5: Detect redundant or oversized context sources]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Reduce Codex token consumption with budget] --> Need[Reduce unnecessary Codex token consumption]
+    Need --> Outcome[AC1: The Logics kit defines a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

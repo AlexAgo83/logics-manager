@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-bounded-ollama-first-suggestion-flow|req-090-add-high-roi-hybrid-ollama-or-co|after-the-first-hybrid-waves-there|ac1-a-second-wave-portfolio-of-bounded
 flowchart LR
-    Request[req_106_local_first_portfolio_expansion] --> Problem[High frequency tasks still need bounded local suggestions]
-    Problem --> Scope[Add second wave Ollama first suggestion flows]
-    Scope --> Acceptance[AC1 strict contracts govern each new local flow]
-    Acceptance --> Tasks[Execution task]
+    Request[req_090_add_high_roi_hybrid_ollama_or_code] --> Problem[After the first hybrid waves there]
+    Problem --> Scope[Add bounded Ollama-first suggestion flows]
+    Scope --> Acceptance[AC1: A second-wave portfolio of bounded]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

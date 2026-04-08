@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-diff-risk-triage-and-commit-plan-sug|req-090-add-high-roi-hybrid-ollama-or-co|req-092-identifies-diff-risk-triage-and-|ac1-bounded-diff-risk-triage-exists-with
 flowchart LR
-    Request[req_092] --> Problem[Bounded review signals need their own slice]
-    Problem --> Risk[Classify diff risk]
-    Risk --> Plan[Suggest bounded commit plans]
-    Plan --> Done[Execution task]
+    Request[req_090_add_high_roi_hybrid_ollama_or_code] --> Problem[req_092 identifies diff-risk triage and co]
+    Problem --> Scope[Add diff-risk triage and commit-plan sugge]
+    Scope --> Acceptance[AC1: Bounded diff-risk triage exists with]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

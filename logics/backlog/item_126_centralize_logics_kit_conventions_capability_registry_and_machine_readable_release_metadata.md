@@ -27,10 +27,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|centralize-logics-kit-conventions-capabi|req-084-improve-logics-kit-diagnostics-s|the-kit-still-spreads-conventions-suppor|ac1-the-kit-exposes-a-centralized
 flowchart LR
-    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit still spreads conventions and sup]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit still spreads conventions supporte]
     Problem --> Scope[Centralize Logics kit conventions capabili]
-    Scope --> Acceptance[AC1: The kit exposes a centralized convent]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The kit exposes a centralized]
+    Acceptance --> Tasks[task_096_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

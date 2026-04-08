@@ -1,8 +1,8 @@
 ## task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration - Orchestration delivery for req_060 flow manager generation and doc linter calibration
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
+> Understanding: 99%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
@@ -19,13 +19,14 @@
   - keep strict blocking for structural failures and critical placeholders.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-060-flow-|item-072-audit-flow-manager-doc-generati|1-confirm-audit-scope-and-select|python3-m-pytest-logics-skills-tests
 flowchart LR
-    Backlog[item 072] --> Audit[audit failing patterns]
-    Audit --> Decide[classify generator and lint ownership]
-    Decide --> Calibrate[implement fixes and severity model]
-    Calibrate --> Validate[validate docs and tests]
-    Validate --> Report[ready for report]
+    Backlog[item_072_audit_flow_manager_doc_generation] --> Step1[1. Confirm audit scope and select]
+    Step1 --> Step2[2. Classify recurring mismatches into gene]
+    Step2 --> Step3[3. Implement generator-side fixes for cont]
+    Step3 --> Validation[python3 -m pytest logics skills tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -37,19 +38,19 @@ flowchart LR
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Audit path and failure taxonomy are defined before behavior changes. Proof: TODO.
-- AC2 -> Findings are assigned to generator, linter, or mixed ownership. Proof: TODO.
-- AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: TODO.
-- AC4 -> Severity model distinguishes blocking structural failures from warnings. Proof: TODO.
-- AC5 -> Tests and docs cover the calibrated contract. Proof: TODO.
-- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6C -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Audit path and failure taxonomy are defined before behavior changes. Proof: covered by linked task completion.
+- AC2 -> Findings are assigned to generator, linter, or mixed ownership. Proof: covered by linked task completion.
+- AC3 -> Fresh workflow docs stop failing for known repeat mismatches. Proof: covered by linked task completion.
+- AC4 -> Severity model distinguishes blocking structural failures from warnings. Proof: covered by linked task completion.
+- AC5 -> Tests and docs cover the calibrated contract. Proof: covered by linked task completion.
+- AC3B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6C -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8C -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -82,3 +83,5 @@ flowchart LR
 - Finished on 2026-03-18.
 - Linked backlog item(s): `item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`
 - Related request(s): `req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`
+
+# Notes

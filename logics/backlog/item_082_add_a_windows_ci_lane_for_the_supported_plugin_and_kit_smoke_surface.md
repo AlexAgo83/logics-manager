@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-windows-ci-lane-for-the-supported-|req-062-harden-windows-compatibility-acr|define-a-practical-way-for-a|ac1-the-request-defines-a-two-layer
 flowchart LR
-    Request[req_064_add_a_practical_windows_validation] --> Problem[Define a practical way for a]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Define a practical way for a]
     Problem --> Scope[Add a Windows CI lane for]
     Scope --> Acceptance[AC1: The request defines a two-layer]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_078_add_automated_windows_ci_and_rele]
 ```
 
 # Acceptance criteria

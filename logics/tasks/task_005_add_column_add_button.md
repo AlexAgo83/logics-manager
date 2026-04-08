@@ -1,9 +1,20 @@
 ## task_005_add_column_add_button - Add “+” action in column headers
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 85% (audit-aligned)
-> Confidence: 85% (governed)
-> Progress: 100% (governed)
+> Understanding: 86% (audit-aligned)
+> Confidence: 86% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-action-in-column-headers|item-001-add-column-add-button|1-update-the-column-header-ui|manual-not-run-yet-needs-verification
+flowchart LR
+    Backlog[item_001_add_column_add_button] --> Step1[1. Update the column header UI]
+    Step1 --> Step2[2. Add a popover menu under]
+    Step2 --> Step3[3. Wire create actions to the]
+    Step3 --> Validation[Manual: not run yet needs verification]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_001_add_column_add_button.md`.

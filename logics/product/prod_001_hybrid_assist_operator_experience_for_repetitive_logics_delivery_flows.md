@@ -1,5 +1,5 @@
 ## prod_001_hybrid_assist_operator_experience_for_repetitive_logics_delivery_flows - Hybrid assist operator experience for repetitive Logics delivery flows
-> Date: 2026-03-25
+> Date: 2026-04-09
 > Status: Proposed
 > Related request: `req_089_add_a_hybrid_ollama_or_codex_local_orchestration_backend_for_repetitive_logics_delivery_tasks`
 > Related backlog: `item_142_add_hybrid_commit_message_pr_summary_and_changelog_summary_assist_flows`
@@ -64,3 +64,8 @@ The hybrid runtime can reduce that friction, but only if the operator experience
 - How much context can the runtime afford to gather before latency erodes the local-backend benefit?
 - Which plugin surfaces should become default versus optional once the terminal flows stabilize?
 
+# References
+- `logics/request/req_089_add_a_hybrid_ollama_or_codex_local_orchestration_backend_for_repetitive_logics_delivery_tasks.md`
+- `logics/backlog/item_142_add_hybrid_commit_message_pr_summary_and_changelog_summary_assist_flows.md`
+- `logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md`
+- `logics/architecture/adr_011_keep_hybrid_assist_runtime_contracts_shared_backend_agnostic_and_safely_bounded.md`

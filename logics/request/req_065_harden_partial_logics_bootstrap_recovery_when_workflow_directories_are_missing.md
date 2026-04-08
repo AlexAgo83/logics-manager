@@ -44,10 +44,9 @@ The preferred outcome is to make this case deliberately supported:
 %% logics-kind: request
 %% logics-signature: request|harden-partial-logics-bootstrap-recovery|guarantee-that-logics-workflow-creation-|ac1-the-request-explicitly-covers-partia
 flowchart TD
-    State[Kit present but workflow directories missing] --> Flow[Create or promote action]
-    Flow --> Recovery[Recreate missing directories where safe]
-    Recovery --> Test[Test coverage proves recovery behavior]
-    Test --> Outcome[Partial bootstrap state stays recoverable]
+    Trigger[Harden partial Logics bootstrap recovery w] --> Need[Guarantee that Logics workflow creation re]
+    Need --> Outcome[AC1: The request explicitly covers partial]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

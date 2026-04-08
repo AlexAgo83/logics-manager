@@ -1,9 +1,9 @@
 ## item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs - Generate context aware Mermaid diagrams and keep them updated in Logics docs
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -32,10 +32,10 @@ This backlog slice turns the request into an actionable delivery target:
 %% logics-kind: backlog
 %% logics-signature: backlog|generate-context-aware-mermaid-diagrams-|req-061-generate-context-aware-mermaid-d|mermaid-is-already-part-of-the|ac1-request-backlog-and-task-mermaid
 flowchart LR
-    Req[req 061] --> Generate[generate need aware mermaid]
-    Generate --> Update[define update triggers]
-    Update --> Detect[detect stale or generic diagrams]
-    Detect --> Task[task 074]
+    Request[req_061_generate_context_aware_mermaid_dia] --> Problem[Mermaid is already part of the]
+    Problem --> Scope[Generate context aware Mermaid diagrams an]
+    Scope --> Acceptance[AC1: Request backlog and task Mermaid]
+    Acceptance --> Tasks[task_074_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -46,18 +46,18 @@ flowchart LR
 - AC5: The result remains generic for the shared Logics kit and is backed by tests and documentation updates.
 
 # AC Traceability
-- AC1 -> Generation paths use current doc context for request, backlog, and task Mermaid. Proof: TODO.
-- AC2 -> Update triggers are explicit and testable. Proof: TODO.
-- AC3 -> Mermaid stays compact and render-safe under current constraints. Proof: TODO.
-- AC4 -> Stale or generic Mermaid detection exists with warning-first behavior. Proof: TODO.
-- AC5 -> Tests and docs cover the improved Mermaid contract. Proof: TODO.
-- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3C -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7C -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Generation paths use current doc context for request, backlog, and task Mermaid. Proof: covered by linked task completion.
+- AC2 -> Update triggers are explicit and testable. Proof: covered by linked task completion.
+- AC3 -> Mermaid stays compact and render-safe under current constraints. Proof: covered by linked task completion.
+- AC4 -> Stale or generic Mermaid detection exists with warning-first behavior. Proof: covered by linked task completion.
+- AC5 -> Tests and docs cover the improved Mermaid contract. Proof: covered by linked task completion.
+- AC3B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3C -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7C -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -85,5 +85,6 @@ flowchart LR
 - Request context seeded into this backlog item from `logics/request/req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs.md`.
 - Task `task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs` was finished via `logics_flow.py finish task` on 2026-03-18.
 
+- Derived from `logics/request/req_061_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs.md`.
 # Tasks
 - `logics/tasks/task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs.md`

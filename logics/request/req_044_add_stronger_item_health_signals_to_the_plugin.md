@@ -1,11 +1,20 @@
 ## req_044_add_stronger_item_health_signals_to_the_plugin - Add stronger item health signals to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Workflow health visibility and issue detection
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-stronger-item-health-signals-to-the-|make-problematic-or-fragile-items-visual|ac1-the-plugin-surfaces-a-clear
+flowchart TD
+    Trigger[Add stronger item health signals to] --> Need[Make problematic or fragile items visually]
+    Need --> Outcome[AC1: The plugin surfaces a clear]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make problematic or fragile items visually obvious faster.
@@ -69,3 +78,7 @@ It is about promoting already-meaningful workflow health signals into stronger, 
 
 # Backlog
 - `logics/backlog/item_049_add_stronger_item_health_signals_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

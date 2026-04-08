@@ -1,8 +1,8 @@
 ## task_093_orchestration_delivery_for_req_081_observable_and_lightweight_codex_handoffs - Orchestration delivery for req_081 observable and lightweight Codex handoffs
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -38,11 +38,10 @@ Delivery shape:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-081-obser|item-108-add-pre-injection-context-size-|1-confirm-portfolio-scope-dependencies-a|npm-run-lint
 flowchart LR
-    Backlog[Items 108 to 113] --> Step1[Confirm portfolio scope and delivery order]
-    Step1 --> Step2[Implement measurement and summary-only foundations]
-    Step2 --> Step3[Implement diff-first and stale-context defaults]
-    Step3 --> Step4[Implement session hygiene and task-type defaults]
-    Step4 --> Validation[Run the relevant automated tests for the changed surfaces]
+    Backlog[item_108_add_pre_injection_context_size_es] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement pre-injection measure]
+    Step2 --> Step3[3. Wave 2: implement diff-first code]
+    Step3 --> Validation[npm run lint]
     Validation --> Report[Done report]
 ```
 
@@ -133,3 +132,5 @@ flowchart LR
 - Finished on 2026-03-23.
 - Linked backlog item(s): `item_108_add_pre_injection_context_size_estimation_and_budget_visibility_for_codex_handoffs`, `item_109_add_a_summary_only_first_pass_mode_for_codex_context_injection`, `item_110_add_diff_first_codex_context_flows_for_implementation_and_review_work`, `item_111_exclude_or_deprioritize_stale_completed_and_weakly_linked_context_by_default`, `item_112_add_session_hygiene_guidance_when_topic_or_root_changes_materially`, `item_113_define_task_type_default_budgets_and_concise_response_contracts_for_codex_handoffs`
 - Related request(s): `req_080_reduce_codex_token_consumption_with_budgeted_context_packs_and_agent_aware_prompt_shaping`, `req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption`
+
+# Notes

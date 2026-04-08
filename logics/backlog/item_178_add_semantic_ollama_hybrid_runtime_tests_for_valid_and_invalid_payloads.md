@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-semantic-ollama-hybrid-runtime-tests|req-098-add-a-hybrid-assist-roi-dispatch|the-current-test-surface-proves-runtime|ac1-automated-tests-cover-a-successful
 flowchart LR
-    Request[req_102_harden_ollama_hybrid_assist_prompt] --> Problem[Semantic local path is under tested]
+    Request[req_098_add_a_hybrid_assist_roi_dispatch_r] --> Problem[The current test surface proves runtime]
     Problem --> Scope[Add semantic Ollama hybrid runtime tests]
-    Scope --> Acceptance[AC1 valid and invalid local paths are covered]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Automated tests cover a successful]
+    Acceptance --> Tasks[task_104_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

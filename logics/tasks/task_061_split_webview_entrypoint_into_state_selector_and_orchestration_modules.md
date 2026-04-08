@@ -1,14 +1,26 @@
 ## task_061_split_webview_entrypoint_into_state_selector_and_orchestration_modules - Split webview entrypoint into state, selector, and orchestration modules
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Webview modularity and UI-state architecture
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|split-webview-entrypoint-into-state-sele|item-056-split-webview-entrypoint-into-s|1-keep-main-js-as-the-webview|npm-run-compile
+flowchart LR
+    Backlog[item_056_split_webview_entrypoint_into_sta] --> Step1[1. Keep main.js as the webview]
+    Step1 --> Step2[2. Extract modules for UI state]
+    Step2 --> Step3[3. Preserve shared behavioral rules across]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_056_split_webview_entrypoint_into_state_selector_and_orchestration_modules.md`.
 - Derived from backlog item `item_056_split_webview_entrypoint_into_state_selector_and_orchestration_modules`.
 - Source file: `logics/backlog/item_056_split_webview_entrypoint_into_state_selector_and_orchestration_modules.md`.
 - Related request(s): `req_050_split_oversized_source_files_into_coherent_modules`.
@@ -35,3 +47,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status and progress updated.
+
+# Report
+- 
+
+# Notes

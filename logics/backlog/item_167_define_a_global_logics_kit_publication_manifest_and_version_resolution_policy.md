@@ -30,11 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-a-global-logics-kit-publication-m|req-067-add-multi-project-codex-workspac|req-099-changes-the-runtime-model-from|ac1-a-global-publication-manifest-schema
 flowchart LR
-    Request[req_099] --> Problem[Global kit needs deterministic metadata]
-    Problem --> Manifest[Define publication manifest schema]
-    Manifest --> Policy[Define version resolution and provenance rules]
-    Policy --> Repair[Expose stale and partial publication states]
-    Repair --> Done[Execution task]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[req_099 changes the runtime model from]
+    Problem --> Scope[Define a global Logics kit publication]
+    Scope --> Acceptance[AC1: A global publication manifest schema]
+    Acceptance --> Tasks[task_103_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

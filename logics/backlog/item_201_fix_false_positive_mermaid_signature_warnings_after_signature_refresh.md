@@ -1,10 +1,10 @@
 ## item_201_fix_false_positive_mermaid_signature_warnings_after_signature_refresh - Fix false positive Mermaid signature warnings after signature refresh
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Governance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|fix-false-positive-mermaid-signature-war|req-104-harden-repository-maintenance-gu|stop-the-logics-doc-linter-from|ac1-refreshing-mermaid-signatures-and-li
 flowchart LR
-    Request[req_114_fix_false_positive_mermaid_signatu] --> Problem[Stop the Logics doc linter from]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Stop the Logics doc linter from]
     Problem --> Scope[Fix false positive Mermaid signature warni]
     Scope --> Acceptance[AC1: Refreshing Mermaid signatures and lin]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -78,3 +78,4 @@ flowchart LR
 - Derived from request `req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh`.
 - Source file: `logics/request/req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh.md`.
 - Request context seeded into this backlog item from `logics/request/req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh.md`.
+- Derived from `logics/request/req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh.md`.

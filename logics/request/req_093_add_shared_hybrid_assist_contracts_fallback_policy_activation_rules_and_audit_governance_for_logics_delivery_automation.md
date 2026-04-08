@@ -41,13 +41,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-shared-hybrid-assist-contracts-fallb|add-a-shared-governance-layer-for|ac1-the-hybrid-platform-defines-a
 flowchart TD
-    Trigger[Multiple hybrid requests now exist] --> Platform[Define one shared hybrid governance layer]
-    Platform --> AC1[AC1: Shared payload and metadata contracts exist]
-    AC1 --> AC2[AC2: Fallback behavior is deterministic and uniform]
-    AC2 --> AC3[AC3: Safety classes are explicit and reused]
-    AC3 --> AC4[AC4: Activation and discovery rules are shared]
-    AC4 --> AC5[AC5: Audit trail and rollout rules are standardized]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add shared hybrid assist contracts fallbac] --> Need[Add a shared governance layer for]
+    Need --> Outcome[AC1: The hybrid platform defines a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

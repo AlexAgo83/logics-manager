@@ -1,9 +1,9 @@
 ## item_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 98%
-> Progress: 100%
+> Understanding: 99%
+> Confidence: 99%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: VS Code orchestration and companion docs
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,14 +25,13 @@ Without an explicit split, execution risks become high:
 - Implementing the feature work directly inside this umbrella item.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|align-vs-code-plugin-with-companion-docs|req-022-align-vs-code-plugin-with-compan|the-request-is-too-broad-to|ac1-the-request-is-split-into
 flowchart LR
-    Req[Request source] --> Umbrella[Umbrella backlog item]
-    Umbrella --> Indexer[Indexer and managed-doc model]
-    Umbrella --> Maintenance[Rename and reference maintenance]
-    Umbrella --> Details[Details panel and navigation]
-    Umbrella --> Visibility[Visibility controls and filters]
-    Umbrella --> Create[Test coverage and creation flows]
+    Request[req_022_align_vs_code_plugin_with_companio] --> Problem[The request is too broad to]
+    Problem --> Scope[Align VS Code plugin with companion]
+    Scope --> Acceptance[AC1: The request is split into]
+    Acceptance --> Tasks[task_021_align_vs_code_plugin_with_compani]
 ```
 
 # Acceptance criteria
@@ -90,5 +89,6 @@ flowchart LR
   - companion-doc creation flows and regression coverage delivered;
   - orchestration and close-out handled in `task_021`.
 
+- Derived from `logics/request/req_022_align_vs_code_plugin_with_companion_docs_workflow.md`.
 # Tasks
 - `logics/tasks/task_021_align_vs_code_plugin_with_companion_docs_workflow.md`

@@ -1,8 +1,17 @@
 ## req_001_add_column_add_button - Add “+” action in column headers
 > From version: 1.9.1
-> Understanding: 85% (audit-aligned)
-> Confidence: 90% (governed)
+> Understanding: 88% (audit-aligned)
+> Confidence: 93% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-action-in-column-headers|add-a-button-in-each-column|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Add action in column headers] --> Need[Add a button in each column]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a “+” button in each column header, positioned to the left of the eye toggle, to create new Logics items (Request, Backlog item, or Task).
@@ -26,3 +35,7 @@
 
 # Backlog
 - `logics/backlog/item_001_add_column_add_button.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

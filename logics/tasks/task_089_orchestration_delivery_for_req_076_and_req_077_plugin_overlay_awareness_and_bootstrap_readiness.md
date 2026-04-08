@@ -1,8 +1,8 @@
 ## task_089_orchestration_delivery_for_req_076_and_req_077_plugin_overlay_awareness_and_bootstrap_readiness - Orchestration delivery for req_076 and req_077 plugin overlay awareness and bootstrap readiness
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 97%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: Medium
 > Theme: VS Code overlay integration and bootstrap diagnostics
@@ -28,10 +28,10 @@ Delivery constraint:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-076-and-r|item-099-adapt-the-vs-code-logics-plugin|1-confirm-scope-linked-items-shared|npm-run-lint
 flowchart LR
-    Backlog[Items 099 and 100] --> Step1[1. Confirm scope linked items and plugin surfaces]
-    Step1 --> Step2[2. Implement overlay aware plugin surfaces]
-    Step2 --> Step3[3. Align bootstrap and environment diagnostics]
-    Step3 --> Validation[Run the relevant automated checks for the changed surface]
+    Backlog[item_099_adapt_the_vs_code_logics_plugin_t] --> Step1[1. Confirm scope linked items shared]
+    Step1 --> Step2[2. Wave 1: implement the plugin-facing]
+    Step2 --> Step3[3. Wave 2: implement the bootstrap]
+    Step3 --> Validation[npm run lint]
     Validation --> Report[Done report]
 ```
 
@@ -43,8 +43,8 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- item099-AC1/item099-AC2/item099-AC3/item099-AC4/item099-AC5/item099-AC6/item099-AC7/item099-AC8 -> Steps 1 and 2. Proof: TODO.
-- item100-AC1/item100-AC2/item100-AC3/item100-AC4/item100-AC5/item100-AC6/item100-AC7 -> Steps 1 and 3. Proof: TODO.
+- item099-AC1/item099-AC2/item099-AC3/item099-AC4/item099-AC5/item099-AC6/item099-AC7/item099-AC8 -> Steps 1 and 2. Proof: covered by linked task completion.
+- item100-AC1/item100-AC2/item100-AC3/item100-AC4/item100-AC5/item100-AC6/item100-AC7 -> Steps 1 and 3. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -96,3 +96,5 @@ flowchart LR
 - Added `src/logicsCodexWorkspace.ts` so the extension can inspect overlay manifests, skill projections, shared assets, and sync or run handoff commands without owning the overlay manager itself.
 - Updated `src/logicsEnvironment.ts`, `src/logicsViewProvider.ts`, and `src/logicsViewDocumentController.ts` so environment checks, agent-selection handoff, guided-request handoff, and bootstrap completion messaging can distinguish repo-local Logics readiness from overlay-backed Codex runtime readiness.
 - Added regression coverage in `tests/logicsCodexWorkspace.test.ts`, `tests/logicsEnvironment.test.ts`, and `tests/logicsViewProvider.test.ts`, then validated the result with TypeScript lint and test runs plus the Logics lint and workflow audit commands.
+
+# Notes

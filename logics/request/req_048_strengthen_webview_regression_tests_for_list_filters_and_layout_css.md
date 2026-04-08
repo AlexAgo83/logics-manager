@@ -1,11 +1,20 @@
 ## req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|strengthen-webview-regression-tests-for-|catch-ui-regressions-earlier-in-list-mod|ac1-the-webview-tests-cover-hide
+flowchart TD
+    Trigger[Strengthen webview regression tests for li] --> Need[Catch UI regressions earlier in list-mode]
+    Need --> Outcome[AC1: The webview tests cover Hide]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Catch UI regressions earlier in list-mode filtering and stacked layout behavior.
@@ -61,3 +70,7 @@ The result is a test suite that passes while a user-visible behavior can still b
 
 # Backlog
 - `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

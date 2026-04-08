@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|align-watch-and-release-helper-contracts|req-104-harden-repository-maintenance-gu|watch-currently-suggests-a-live-extensio|ac1-a-command-named-watch-either
 flowchart LR
-    Request[req_104_repository_guardrails] --> Problem[Maintainer commands imply stronger behavior than they deliver]
-    Problem --> Scope[Make watch and release helper contracts truthful]
-    Scope --> Acceptance[AC1 command names and behavior match runtime reality]
-    Acceptance --> Tasks[Execution task]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[watch currently suggests a live extension]
+    Problem --> Scope[Align watch and release helper contracts]
+    Scope --> Acceptance[AC1: A command named watch either]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

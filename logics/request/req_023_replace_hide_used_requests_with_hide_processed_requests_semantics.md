@@ -1,8 +1,8 @@
 ## req_023_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -37,14 +37,12 @@ This request is about both:
 - and the workflow rule behind that wording.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|replace-hide-used-requests-with-hide-pro|replace-the-current-plugin-filter-concep|ac1-the-plugin-no-longer-exposes
-flowchart LR
-    A[Current filter hide used requests] --> B[Technical interpretation]
-    B --> C[Request disappears once linked]
-    C --> D[User confusion]
-    A2[Target filter hide processed requests] --> B2[Workflow interpretation]
-    B2 --> C2[Request disappears once meaningfully handled]
-    C2 --> D2[Clearer backlog cockpit]
+flowchart TD
+    Trigger[Replace hide used requests with hide] --> Need[Replace the current plugin filter concept]
+    Need --> Outcome[AC1: The plugin no longer exposes]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -97,3 +95,8 @@ flowchart LR
 
 # Backlog
 - `item_028_replace_hide_used_requests_with_hide_processed_requests_semantics`
+
+- `logics/backlog/item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md`
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

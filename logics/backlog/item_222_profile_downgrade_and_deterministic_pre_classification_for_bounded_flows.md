@@ -1,10 +1,10 @@
 ## item_222_profile_downgrade_and_deterministic_pre_classification_for_bounded_flows - Profile downgrade and deterministic pre-classification for bounded flows
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 96%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 97%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,12 +23,10 @@ Derived from `logics/request/req_124_harden_hybrid_assist_runtime_efficiency_wit
 %% logics-kind: backlog
 %% logics-signature: backlog|profile-downgrade-and-deterministic-pre-|req-124-harden-hybrid-assist-runtime-eff|handoff-packet-uses-profile-deep-regardl|ac1-when-a-flow-with-profile
 flowchart LR
-    Request[req_124 hybrid runtime efficiency] --> Problem[Deep profile wasted on paid providers, trivial diffs dispatched to AI]
-    Problem --> Scope[Profile downgrade policy and deterministic pre-classifier]
-    Scope --> AC1[AC1: Profile capped at normal on remote or Codex fallback]
-    Scope --> AC2[AC2: Deterministic pre-classifier resolves obvious diff-risk cases]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_124_harden_hybrid_assist_runtime_effic] --> Problem[handoff-packet uses profile: deep regardle]
+    Problem --> Scope[Profile downgrade and deterministic pre-cl]
+    Scope --> Acceptance[AC1: When a flow with profile:]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -58,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: High — reduces cost on every handoff-packet call to paid providers
 - Urgency: Normal
+
+# Notes

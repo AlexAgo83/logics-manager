@@ -1,9 +1,9 @@
 ## item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories - Define workspace identity and overlay lifecycle for moved or renamed repositories
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 91%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 92%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Workspace identity, overlay lifecycle, and repository movement
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-workspace-identity-and-overlay-li|req-067-add-multi-project-codex-workspac|define-how-workspace-overlays-are-identi|ac1-the-request-defines-a-stable
 flowchart LR
-    Request[req_074_define_workspace_identity_and_over] --> Problem[Define how workspace overlays are identifi]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Define how workspace overlays are identifi]
     Problem --> Scope[Define workspace identity and overlay life]
     Scope --> Acceptance[AC1: The request defines a stable]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -42,16 +42,16 @@ flowchart LR
 - AC6: The request makes clear that overlay cleanup and rebinding must be conservative enough to avoid data loss or accidental reassignment.
 
 # AC Traceability
-- AC1 -> Scope: The request defines a stable workspace identity model for overlays that is explicit enough to support creation, lookup, and cleanup.. Proof: TODO.
-- AC2 -> Scope: The request explicitly covers at least these lifecycle situations:. Proof: TODO.
-- AC3 -> Scope: repository moved or renamed;. Proof: TODO.
-- AC4 -> Scope: same repository cloned more than once;. Proof: TODO.
-- AC5 -> Scope: overlay no longer used and eligible for cleanup;. Proof: TODO.
-- AC6 -> Scope: stale binding between overlay and source repository.. Proof: TODO.
-- AC3 -> Scope: The request defines how identity and lifecycle policy should interact with diagnostics and operator tooling instead of leaving those integrations implicit.. Proof: TODO.
-- AC4 -> Scope: The request is concrete enough that a future implementation can decide whether the identity key should be path-based, git-based, or hybrid, while still meeting the lifecycle requirements.. Proof: TODO.
-- AC5 -> Scope: The request keeps identity and lifecycle concerns separate from precedence policy and cross-platform publication mechanics.. Proof: TODO.
-- AC6 -> Scope: The request makes clear that overlay cleanup and rebinding must be conservative enough to avoid data loss or accidental reassignment.. Proof: TODO.
+- AC1 -> Scope: The request defines a stable workspace identity model for overlays that is explicit enough to support creation, lookup, and cleanup.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly covers at least these lifecycle situations:. Proof: covered by linked task completion.
+- AC3 -> Scope: repository moved or renamed;. Proof: covered by linked task completion.
+- AC4 -> Scope: same repository cloned more than once;. Proof: covered by linked task completion.
+- AC5 -> Scope: overlay no longer used and eligible for cleanup;. Proof: covered by linked task completion.
+- AC6 -> Scope: stale binding between overlay and source repository.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request defines how identity and lifecycle policy should interact with diagnostics and operator tooling instead of leaving those integrations implicit.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request is concrete enough that a future implementation can decide whether the identity key should be path-based, git-based, or hybrid, while still meeting the lifecycle requirements.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request keeps identity and lifecycle concerns separate from precedence policy and cross-platform publication mechanics.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request makes clear that overlay cleanup and rebinding must be conservative enough to avoid data loss or accidental reassignment.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories`.
 - Source file: `logics/request/req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories.md`.
 - Request context seeded into this backlog item from `logics/request/req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories.md`.
+- Derived from `logics/request/req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories.md`.

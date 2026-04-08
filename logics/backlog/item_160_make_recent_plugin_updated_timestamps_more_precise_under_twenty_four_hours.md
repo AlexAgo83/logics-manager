@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-recent-plugin-updated-timestamps-mo|req-096-refine-plugin-responsive-activit|the-plugin-currently-shows-updated-value|ac1-updated-values-are-more-precise
 flowchart LR
-    Request[req_096] --> Problem[Recent Updated values are too coarse]
-    Problem --> Recent[Use more precise formatting under 24h]
-    Recent --> Stable[Keep formatting understandable and stable]
-    Stable --> Test[Regression coverage]
+    Request[req_096_refine_plugin_responsive_activity_] --> Problem[The plugin currently shows Updated values]
+    Problem --> Scope[Make recent plugin Updated timestamps more]
+    Scope --> Acceptance[AC1: Updated values are more precise]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

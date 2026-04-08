@@ -51,15 +51,9 @@ The preferred outcome is a documentation layer that tells the truth:
 %% logics-kind: request
 %% logics-signature: request|clarify-windows-operator-guidance-and-pl|clarify-the-documented-windows-operator-|ac1-the-request-explicitly-covers-docume
 flowchart TD
-    Review[Windows operator review] --> PluginDocs[Plugin install and operator docs]
-    Review --> KitDocs[Kit README and skill examples]
-    Review --> Maintainer[Contributor and release guidance]
-    Review --> Helpers[Platform-specific helper labeling]
-    PluginDocs --> Clarity[Explicit supported command paths]
-    KitDocs --> Clarity
-    Maintainer --> Clarity
-    Helpers --> Clarity
-    Clarity --> Outcome[Lower friction and fewer false assumptions on Windows]
+    Trigger[Clarify Windows operator guidance and plat] --> Need[Clarify the documented Windows operator pa]
+    Need --> Outcome[AC1: The request explicitly covers documen]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

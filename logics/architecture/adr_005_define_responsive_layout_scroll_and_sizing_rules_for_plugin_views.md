@@ -1,5 +1,5 @@
 ## adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views - Define responsive layout, scroll, and sizing rules for plugin views
-> Date: 2026-03-15
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: Stop recurring layout regressions in board/list/details views, keep the plugin within the visible webview viewport, prevent detail-panel loss in stacked mode, and preserve readable board columns under width pressure.
 > Related request: `req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `req_053_preserve_readable_board_columns_by_preventing_column_compression`
@@ -117,3 +117,26 @@ Adopt the following layout rules as the plugin contract.
   - `item_054` / `task_059`
   - `item_062` / `task_067`
 - Re-check future board/detail responsive changes against this contract before implementation.
+
+# Alternatives considered
+- Let each view grow independently and rely on browser defaults for scroll behavior.
+- Rejected because it reintroduces the same viewport, splitter, and footer regressions that this ADR is meant to prevent.
+
+# Migration and rollout
+- Apply the new layout contract incrementally in the plugin view layer.
+- Update the affected board, list, details, and activity containers to respect the explicit scroll and height budgets.
+- Add or refresh regression tests for stacked mode, bounded details, and board overflow before treating the contract as stable.
+
+# References
+- `logics/request/req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`
+- `logics/request/req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`
+- `logics/request/req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+- `logics/request/req_053_preserve_readable_board_columns_by_preventing_column_compression.md`
+- `logics/backlog/item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`
+- `logics/backlog/item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`
+- `logics/backlog/item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+- `logics/backlog/item_062_preserve_readable_board_columns_by_preventing_column_compression.md`
+- `logics/tasks/task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`
+- `logics/tasks/task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css.md`
+- `logics/tasks/task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+- `logics/tasks/task_067_preserve_readable_board_columns_by_preventing_column_compression.md`

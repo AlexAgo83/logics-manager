@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|collapse-bottom-details-when-activity-op|req-096-refine-plugin-responsive-activit|in-the-vertical-plugin-layout-the|ac1-opening-activity-in-the-vertical
 flowchart LR
-    Request[req_096] --> Problem[Vertical layout has competing bottom panels]
-    Problem --> Detect[Detect vertical docked-details mode]
-    Detect --> Collapse[Collapse details when Activity opens]
-    Collapse --> Test[Regression coverage]
+    Request[req_096_refine_plugin_responsive_activity_] --> Problem[In the vertical plugin layout the]
+    Problem --> Scope[Collapse bottom details when Activity open]
+    Scope --> Acceptance[AC1: Opening Activity in the vertical]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

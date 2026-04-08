@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -26,11 +26,9 @@
 %% logics-kind: request
 %% logics-signature: request|align-the-local-ci-check-with-the-full-r|remove-the-false-sense-of-safety|ac1-the-repository-exposes-a-single
 flowchart TD
-    Local[Local ci check] --> Compare[Compare with GitHub CI]
-    Remote[GitHub CI jobs] --> Compare
-    Compare --> Contract[Align or rename validation contract]
-    Contract --> Predictable[Predictable maintainer workflow]
-    Predictable --> Backlog[Backlog slice]
+    Trigger[Align the local ci check with] --> Need[Remove the false sense of safety]
+    Need --> Outcome[AC1: The repository exposes a single]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -89,3 +87,4 @@ flowchart TD
 
 # Backlog
 - `item_195_align_the_local_ci_check_with_the_full_repository_ci_contract`
+- `logics/backlog/item_195_align_the_local_ci_check_with_the_full_repository_ci_contract.md`

@@ -1,10 +1,10 @@
 ## item_224_actionable_efficiency_recommendations_in_hybrid_insights - Actionable efficiency recommendations in Hybrid Insights
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@ Derived from `logics/request/req_124_harden_hybrid_assist_runtime_efficiency_wit
 %% logics-kind: backlog
 %% logics-signature: backlog|actionable-efficiency-recommendations-in|req-124-harden-hybrid-assist-runtime-eff|hybrid-assist-measurements-jsonl-and-hyb|ac1-the-hybrid-insights-panel-surfaces
 flowchart LR
-    Request[req_124 hybrid runtime efficiency] --> Problem[Audit data not surfaced as actionable per-flow cost recommendations]
-    Problem --> Scope[Hybrid Insights panel additions for cache, pre-classification, profile downgrade]
-    Scope --> AC1[AC1: Panel shows cache hit potential, preclassified saves, and downgrade count]
-    AC1 --> Tasks[Execution task]
+    Request[req_124_harden_hybrid_assist_runtime_effic] --> Problem[hybrid_assist_measurements.jsonl and hybri]
+    Problem --> Scope[Actionable efficiency recommendations in H]
+    Scope --> Acceptance[AC1: The Hybrid Insights panel surfaces]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -54,3 +54,5 @@ flowchart LR
 # Priority
 - Impact: Medium — improves operator visibility into efficiency gains
 - Urgency: Low — depends on items 220-222 being implemented first
+
+# Notes

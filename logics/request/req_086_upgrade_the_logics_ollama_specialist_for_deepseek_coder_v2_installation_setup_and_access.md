@@ -2,8 +2,8 @@
 > From version: 1.12.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 99%
+> Confidence: 96%
 > Complexity: Medium
 > Theme: Local Ollama coding workflows
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -22,12 +22,9 @@
 %% logics-kind: request
 %% logics-signature: request|upgrade-the-logics-ollama-specialist-for|expand-the-repository-s-logics-ollama-sp|ac1-the-repository-skill-documents-a
 flowchart TD
-    Trigger[Current skill is CodeLlama and frontend integration centric] --> Need[Add a deepseek-coder-v2 local coding workflow]
-    Need --> Install[AC1: Install and validation path is documented]
-    Install --> Access[AC2: Local API and model access path is covered]
-    Access --> Continue[AC3: Continue setup path is documented]
-    Continue --> Assets[AC4: Scripts and references support the workflow]
-    Assets --> Backlog[Backlog slice]
+    Trigger[Upgrade the Logics Ollama specialist for] --> Need[Expand the repository s logics-ollama-spec]
+    Need --> Outcome[AC1: The repository skill documents a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -78,3 +75,4 @@ flowchart TD
 # Backlog
 - `item_135_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access`
 - Task: `task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows`
+- `logics/backlog/item_135_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access.md`

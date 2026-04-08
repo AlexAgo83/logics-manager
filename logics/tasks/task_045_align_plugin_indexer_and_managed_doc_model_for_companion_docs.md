@@ -1,14 +1,26 @@
 ## task_045_align_plugin_indexer_and_managed_doc_model_for_companion_docs - Align plugin indexer and managed doc model for companion docs
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin managed-doc model and indexing
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|align-plugin-indexer-and-managed-doc-mod|item-023-align-plugin-indexer-and-manage|1-extend-the-managed-doc-stage-model|npm-run-compile
+flowchart LR
+    Backlog[item_023_align_plugin_indexer_and_managed_] --> Step1[1. Extend the managed-doc stage model]
+    Step1 --> Step2[2. Centralize stage ordering and family]
+    Step2 --> Step3[3. Align the indexed payload with]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md`.
 - Derived from backlog item `item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs`.
 - Source file: `logics/backlog/item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs.md`.
 - Related request(s): `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
@@ -33,3 +45,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

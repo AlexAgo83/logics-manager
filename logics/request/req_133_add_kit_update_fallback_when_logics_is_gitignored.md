@@ -23,18 +23,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-kit-update-fallback-when-logics-is-g|when-users-gitignore-the-entire-logics|ac1-when-logics-is-gitignored-and
 flowchart TD
-    A[Plugin requests kit update] --> B{logics/skills submodule functional?}
-    B -- Yes --> C[git submodule update as today]
-    B -- No --> D{Global kit available locally?}
-    D -- Yes --> E[Copy from global kit]
-    D -- No --> F[Clone from canonical URL]
-    C --> G[Kit updated]
-    E --> G
-    F --> G
-    G --> H{User confirmation before fallback?}
-    H -- Confirmed --> I[Run bootstrap convergence]
-    I --> J[Detect standalone vs submodule for future updates]
-    J --> K[Plugin functional]
+    Trigger[Add kit update fallback when logics] --> Need[When users gitignore the entire logics]
+    Need --> Outcome[AC1: When logics is gitignored and]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Design decisions

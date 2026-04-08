@@ -29,13 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|split-oversized-plugin-source-entry-and-|req-131-reduce-all-remaining-active-sour|reduce-the-maintenance-cost-of-the|ac1-src-logicsviewprovider-ts-is-reduced
 flowchart LR
-    A[req 131] --> B[Oversized plugin source]
-    B --> C[Provider entry seams]
-    B --> D[Workflow controller seams]
-    B --> E[Insights html seams]
-    C --> F[Files below 1000]
-    D --> F
-    E --> F
+    Request[req_131_reduce_all_remaining_active_source] --> Problem[Reduce the maintenance cost of the]
+    Problem --> Scope[Split oversized plugin source entry and]
+    Scope --> Acceptance[AC1: src logicsViewProvider.ts is reduced]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

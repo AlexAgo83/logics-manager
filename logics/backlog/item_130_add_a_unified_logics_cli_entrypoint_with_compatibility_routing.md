@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-unified-logics-cli-entrypoint-with|req-085-add-repo-config-runtime-entrypoi|operators-still-had-to-remember-several|ac1-a-top-level-logics-py-entrypoint-exi
 flowchart LR
-    Need[Operators need one stable kit command] --> Route[Route core commands through logics py]
-    Route --> Compat[Keep legacy scripts behind compatibility routing]
-    Compat --> Smoke[Cover the routed paths in smoke checks]
-    Smoke --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Operators still had to remember several]
+    Problem --> Scope[Add a unified logics CLI entrypoint]
+    Scope --> Acceptance[AC1: A top-level logics.py entrypoint exis]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

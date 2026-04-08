@@ -1,9 +1,9 @@
 ## task_103_orchestration_delivery_for_req_099_global_logics_kit_publication_and_overlay_migration - Orchestration delivery for req_099 global Logics kit publication and overlay migration
-> From version: 1.14.0
+> From version: 1.14.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Coordinated migration from overlay-backed Codex runtime to a globally published Logics kit
@@ -35,11 +35,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-099-globa|item-167-define-a-global-logics-kit-publ|1-confirm-the-architecture-shift-from|python3-logics-skills-logics-flow-manage
 flowchart LR
-    Start[req_099] --> Wave1[Wave 1 manifest policy and provenance contract]
-    Wave1 --> Wave2[Wave 2 plugin publication and zero touch auto upgrade]
-    Wave2 --> Wave3[Wave 3 plugin docs and overlay UX migration]
-    Wave3 --> Validate[Validate migration diagnostics docs and normal path automation]
-    Validate --> Report[Done report]
+    Backlog[item_167_define_a_global_logics_kit_public] --> Step1[1. Confirm the architecture shift from]
+    Step1 --> Step2[2. Wave 1: define and implement]
+    Step2 --> Step3[3. Wave 2: deliver plugin-side detection]
+    Step3 --> Validation[python3 logics skills logics-flow-manager]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -130,3 +130,5 @@ flowchart LR
 - Delivered zero-touch plugin publication and upgrade behavior in `src/logicsViewProvider.ts`, plus migration of launch, diagnostics, and handoff flows in `src/logicsViewDocumentController.ts`, `src/logicsWebviewHtml.ts`, and `media/hostApi.js`.
 - Updated README and Logics architecture/docs to make the global published kit the primary runtime model and explicitly downscope legacy overlay tooling to compatibility use only.
 - Validation completed with `npm test -- tests/logicsCodexWorkspace.test.ts tests/logicsViewProvider.test.ts tests/webview.harness-details-and-filters.test.ts`, `npm run lint:ts`, `npm test`, `npm run lint:logics`, and `python3 logics/skills/logics-flow-manager/scripts/workflow_audit.py --group-by-doc`.
+
+# Notes

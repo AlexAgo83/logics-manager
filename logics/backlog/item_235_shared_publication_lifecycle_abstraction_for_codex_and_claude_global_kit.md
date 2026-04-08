@@ -1,10 +1,10 @@
 ## item_235_shared_publication_lifecycle_abstraction_for_codex_and_claude_global_kit - Shared publication lifecycle abstraction for Codex and Claude global kit
-> From version: 1.21.1+traceability
+> From version: 1.21.1+traceability (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,11 +25,10 @@ Item_229 (global Claude kit) deliberately duplicates the publication lifecycle l
 %% logics-kind: backlog
 %% logics-signature: backlog|shared-publication-lifecycle-abstraction|req-127-consolidate-deferred-hybrid-and-|item-229-global-claude-kit-deliberately-|ac1-the-publication-lifecycle-for-the
 flowchart LR
-    Request[req_127 post-rollout consolidation] --> Prerequisite[items 229-231 live and stable in production]
-    Prerequisite --> Problem[Codex and Claude kit publication logic is duplicated after item_229]
-    Problem --> Scope[Shared lifecycle abstraction with runtime-specific adapters]
-    Scope --> AC1[AC1: Shared abstraction eliminates duplication, adapters preserve format differences]
-    AC1 --> Tasks[Execution task]
+    Request[req_127_consolidate_deferred_hybrid_and_ki] --> Problem[Item_229 global Claude kit deliberately du]
+    Problem --> Scope[Shared publication lifecycle abstraction f]
+    Scope --> Acceptance[AC1: The publication lifecycle for the]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -58,3 +57,5 @@ flowchart LR
 # Priority
 - Impact: Medium — reduces maintenance risk for future lifecycle changes
 - Urgency: Low — gated on items 229-231 being stable in production
+
+# Notes

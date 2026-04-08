@@ -1,10 +1,10 @@
 ## item_236_logics_mermaid_generator_skill_package_with_deterministic_fallback - logics-mermaid-generator skill package with deterministic fallback
-> From version: 1.21.1+item236
+> From version: 1.21.1+item236 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 97%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 98%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics kit skills and Mermaid quality
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,12 +23,10 @@ Mermaid diagram generation for Logics workflow docs is hardcoded inside `logics_
 %% logics-kind: backlog
 %% logics-signature: backlog|logics-mermaid-generator-skill-package-w|req-128-add-a-logics-mermaid-generator-s|mermaid-diagram-generation-for-logics-wo|ac1-a-logics-mermaid-generator-skill-pac
 flowchart LR
-    Request[req_128 logics-mermaid-generator skill] --> Problem[Mermaid generation hardcoded in logics_flow_support.py, no dedicated skill]
-    Problem --> Scope[Skill package scaffold and deterministic fallback extraction]
-    Scope --> AC1[AC1: Skill package with SKILL.md, agents/openai.yaml, and generation script]
-    Scope --> AC2[AC2: Deterministic functions extracted as backward-compatible fallback]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_128_add_a_logics_mermaid_generator_ski] --> Problem[Mermaid diagram generation for Logics work]
+    Problem --> Scope[logics-mermaid-generator skill package wit]
+    Scope --> Acceptance[AC1: A logics-mermaid-generator skill pack]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -60,3 +58,5 @@ flowchart LR
 # Priority
 - Impact: High — foundational prerequisite for items 237 and 238
 - Urgency: Normal
+
+# Notes

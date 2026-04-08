@@ -1,9 +1,9 @@
 ## task_099_orchestration_delivery_for_req_088_local_llm_dispatcher_for_deterministic_logics_flow_orchestration - Orchestration delivery for req_088 local LLM dispatcher for deterministic Logics flow orchestration
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -29,11 +29,10 @@ Constraint:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-088-local|item-137-define-a-compact-dispatcher-con|1-confirm-scope-dependencies-and-linked|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 137 138 and 139] --> Step1[Confirm contract scope and delivery order]
-    Step1 --> Step2[Wave 1 context package and strict decision schema]
-    Step2 --> Step3[Wave 2 deterministic runner and whitelisted action mapping]
-    Step3 --> Step4[Wave 3 Ollama-first adapter audit trail and entrypoints]
-    Step4 --> Validation[Lint docs audit workflow and run tests]
+    Backlog[item_137_define_a_compact_dispatcher_conte] --> Step1[1. Confirm scope dependencies and linked]
+    Step1 --> Step2[2. Wave 1: define and document]
+    Step2 --> Step3[3. Wave 2: implement the deterministic]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -121,3 +120,5 @@ flowchart LR
 - Finished on 2026-03-24.
 - Linked backlog item(s): `item_137_define_a_compact_dispatcher_context_package_and_strict_local_decision_contract`, `item_138_build_a_deterministic_dispatcher_runner_with_whitelisted_logics_action_mapping`, `item_139_add_an_ollama_first_local_dispatcher_adapter_audit_trail_and_operator_entrypoints`
 - Related request(s): `req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation`, `req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives`, `req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts`, `req_088_add_a_local_llm_dispatcher_for_deterministic_logics_flow_orchestration`
+
+# Notes

@@ -1,11 +1,20 @@
 ## req_006_update_extension_for_flow_manager_changes - Update extension for flow manager changes
 > From version: 1.9.1
 > Status: Done
-> Understanding: 99% (audit-aligned)
-> Confidence: 96% (governed)
+> Understanding: 100% ((audit-aligned); refreshed)
+> Confidence: 99% (governed)
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|update-extension-for-flow-manager-change|align-the-vs-code-extension-with|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Update extension for flow manager changes] --> Need[Align the VS Code extension with]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Align the VS Code extension with the updated Logics skills kit (especially the flow manager).
@@ -33,3 +42,7 @@
 
 # Backlog
 - `logics/backlog/item_006_update_extension_for_flow_manager_changes.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

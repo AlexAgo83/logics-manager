@@ -59,15 +59,9 @@ The goal is to define and enforce a realistic Windows support boundary for the p
 %% logics-kind: request
 %% logics-signature: request|harden-windows-compatibility-across-the-|make-the-vs-code-extension-genuinely|ac1-the-request-explicitly-covers-both
 flowchart TD
-    Audit[Windows compatibility audit] --> Runtime[Extension runtime paths]
-    Audit --> Scripts[Repo scripts and packaging commands]
-    Audit --> Kit[Kit CLI and documentation contract]
-    Audit --> Validation[CI and release validation]
-    Runtime --> Contract[Explicit Windows support contract]
-    Scripts --> Contract
-    Kit --> Contract
-    Validation --> Contract
-    Contract --> Outcome[Users and maintainers can run supported flows on Windows]
+    Trigger[Harden Windows compatibility across the VS] --> Need[Make the VS Code extension genuinely]
+    Need --> Outcome[AC1: The request explicitly covers both]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

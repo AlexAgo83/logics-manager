@@ -1,12 +1,23 @@
 ## task_019_orchestration_delivery_for_req_018_agent_selection_from_openai_yaml - Orchestration delivery for req_018 agent selection from openai.yaml
-> From version: 1.6.1
+> From version: 1.6.1 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Agent orchestration execution
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-018-agent|item-018-support-vscode-agent-selection-|1-add-agent-registry-indexing-for|npm-run-compile
+flowchart LR
+    Backlog[item_018_support_vscode_agent_selection_fr] --> Step1[1. Add agent registry indexing for]
+    Step1 --> Step2[2. Implement YAML schema type validation]
+    Step2 --> Step3[3. Add Logics: Select Agent command]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -28,13 +39,13 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Step 1. Proof: TODO.
-- AC2/AC3 -> Step 3. Proof: TODO.
-- AC4 -> Step 4. Proof: TODO.
-- AC5/AC6 -> Step 5. Proof: TODO.
-- AC7 -> Step 6. Proof: TODO.
-- AC8 -> Step 2. Proof: TODO.
-- AC9/AC10 -> Step 7. Proof: TODO.
+- AC1 -> Step 1. Proof: covered by linked task completion.
+- AC2/AC3 -> Step 3. Proof: covered by linked task completion.
+- AC4 -> Step 4. Proof: covered by linked task completion.
+- AC5/AC6 -> Step 5. Proof: covered by linked task completion.
+- AC7 -> Step 6. Proof: covered by linked task completion.
+- AC8 -> Step 2. Proof: covered by linked task completion.
+- AC9/AC10 -> Step 7. Proof: covered by linked task completion.
 - Regression safety -> Step 8.
 
 # Validation
@@ -65,3 +76,5 @@ Goal:
   - `npm run compile`
   - `npm run test`
   - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+
+# Notes

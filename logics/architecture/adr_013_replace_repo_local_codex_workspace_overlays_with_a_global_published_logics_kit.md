@@ -1,5 +1,5 @@
 ## adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit - Replace repo-local Codex workspace overlays with a global published Logics kit
-> Date: 2026-03-26
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: operator simplicity, deterministic global runtime provenance, zero-touch migration, plugin/runtime coherence
 > Related request: `req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration`
@@ -67,18 +67,11 @@ Rejected because requests, backlog items, tasks, product briefs, and ADRs remain
 - Treat old overlay state as deprecated compatibility data rather than as an active operator concern.
 
 # References
-- `logics/architecture/adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable.md`
 - `logics/request/req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration.md`
 - `logics/backlog/item_167_define_a_global_logics_kit_publication_manifest_and_version_resolution_policy.md`
 - `logics/backlog/item_168_publish_and_auto_upgrade_the_global_codex_logics_kit_from_canonical_repo_sources_in_the_plugin.md`
 - `logics/backlog/item_169_migrate_plugin_docs_and_existing_overlay_ux_to_the_global_published_kit_model.md`
 - `logics/tasks/task_103_orchestration_delivery_for_req_099_global_logics_kit_publication_and_overlay_migration.md`
-- `src/logicsCodexWorkspace.ts`
-- `src/logicsEnvironment.ts`
-- `src/logicsViewProvider.ts`
-- `src/logicsViewDocumentController.ts`
-- `README.md`
-
 # Follow-up work
 - Keep the global manifest and publication policy aligned with plugin diagnostics and auto-upgrade behavior.
 - Retire or downscope overlay-specific docs and tooling as the migration stabilizes.

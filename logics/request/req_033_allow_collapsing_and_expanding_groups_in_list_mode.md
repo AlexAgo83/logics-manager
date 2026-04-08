@@ -1,11 +1,20 @@
 ## req_033_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|allow-collapsing-and-expanding-groups-in|allow-each-group-section-in-list|ac1-each-visible-group-in-list
+flowchart TD
+    Trigger[Allow collapsing and expanding groups in] --> Need[Allow each group section in list]
+    Need --> Outcome[AC1: Each visible group in list]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Allow each group/section in list mode to be collapsed and expanded.
@@ -75,3 +84,7 @@ It is about making grouped list mode operational:
 
 # Backlog
 - `logics/backlog/item_038_allow_collapsing_and_expanding_groups_in_list_mode.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -30,11 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|migrate-plugin-docs-and-existing-overlay|req-076-adapt-the-vs-code-logics-plugin-|even-if-the-runtime-and-publication|ac1-plugin-and-documentation-surfaces-de
 flowchart LR
-    Request[req_099] --> Problem[Overlay wording would keep old mental model alive]
-    Problem --> Plugin[Update diagnostics tools and status surfaces]
-    Plugin --> Docs[Rewrite README and operator guidance]
-    Docs --> Retire[Hide or retire stale overlay concepts]
-    Retire --> Done[Execution task]
+    Request[req_076_adapt_the_vs_code_logics_plugin_to] --> Problem[Even if the runtime and publication]
+    Problem --> Scope[Migrate plugin docs and existing overlay]
+    Scope --> Acceptance[AC1: Plugin and documentation surfaces des]
+    Acceptance --> Tasks[task_103_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

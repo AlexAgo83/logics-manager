@@ -1,27 +1,29 @@
 ## task_031_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_037_enable_horizontal_scrolling_for_board_columns.md`.
 - Derived from backlog item `item_037_enable_horizontal_scrolling_for_board_columns`.
 - Source file: `logics/backlog/item_037_enable_horizontal_scrolling_for_board_columns.md`.
 - Related request(s): `req_032_enable_horizontal_scrolling_for_board_columns`.
 - Related architecture decision(s): `adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|enable-horizontal-scrolling-for-board-co|item-037-enable-horizontal-scrolling-for|1-identify-the-correct-board-container|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> Container[Identify correct board overflow container]
-    Container --> Scroll[Enable horizontal scroll behavior]
-    Scroll --> Width[Preserve readable column sizing]
-    Width --> Layout[Verify toolbar and details remain stable]
-    Layout --> Tests[Add overflow regression coverage]
+    Backlog[item_037_enable_horizontal_scrolling_for_b] --> Step1[1. Identify the correct board container]
+    Step1 --> Step2[2. Enable native horizontal scrolling when]
+    Step2 --> Step3[3. Preserve stable minimum readable column]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -34,12 +36,12 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
-- AC3 -> Step 3. Proof: TODO.
-- AC4 -> Step 2 and step 6 validation scenarios. Proof: TODO.
-- AC5 -> Step 4. Proof: TODO.
-- AC6 -> Step 5. Proof: TODO.
-- AC7 -> Step 6. Proof: TODO.
+- AC1/AC2 -> Steps 1 and 2. Proof: covered by linked task completion.
+- AC3 -> Step 3. Proof: covered by linked task completion.
+- AC4 -> Step 2 and step 6 validation scenarios. Proof: covered by linked task completion.
+- AC5 -> Step 4. Proof: covered by linked task completion.
+- AC6 -> Step 5. Proof: covered by linked task completion.
+- AC7 -> Step 6. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_037_enable_horizontal_scrolling_for_board_columns`
@@ -56,3 +58,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

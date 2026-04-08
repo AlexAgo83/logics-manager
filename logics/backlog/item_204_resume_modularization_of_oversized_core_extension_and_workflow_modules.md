@@ -1,10 +1,10 @@
 ## item_204_resume_modularization_of_oversized_core_extension_and_workflow_modules - Resume modularization of oversized core extension and workflow modules
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Architecture
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|resume-modularization-of-oversized-core-|req-104-harden-repository-maintenance-gu|reduce-the-maintenance-cost-of-the|ac1-the-next-modularization-pass-identif
 flowchart LR
-    Request[req_117_resume_modularization_of_oversized] --> Problem[Reduce the maintenance cost of the]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Reduce the maintenance cost of the]
     Problem --> Scope[Resume modularization of oversized core ex]
     Scope --> Acceptance[AC1: The next modularization pass identifi]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -81,3 +81,4 @@ flowchart LR
 - Derived from request `req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules`.
 - Source file: `logics/request/req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`.
 - Request context seeded into this backlog item from `logics/request/req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`.
+- Derived from `logics/request/req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules.md`.

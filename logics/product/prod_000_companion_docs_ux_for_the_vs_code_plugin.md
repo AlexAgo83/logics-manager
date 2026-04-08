@@ -1,5 +1,5 @@
 ## prod_000_companion_docs_ux_for_the_vs_code_plugin - Companion docs UX for the VS Code plugin
-> Date: 2026-03-14
+> Date: 2026-04-09
 > Status: Proposed
 > Related request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
 > Related backlog: `item_022_align_vs_code_plugin_with_companion_docs_workflow`
@@ -63,3 +63,8 @@ This creates three user problems:
 
 # Open questions
 - Should `spec` share the same supporting-doc visibility controls as `product` and `architecture` in V1, or remain on a separate toggle until a later cleanup?
+
+# References
+- `logics/request/req_022_align_vs_code_plugin_with_companion_docs_workflow.md`
+- `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`
+- `logics/architecture/adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model.md`

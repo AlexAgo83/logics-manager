@@ -1,10 +1,10 @@
 ## item_203_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain - Address the remaining esbuild and vite audit advisory in the toolchain
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|address-the-remaining-esbuild-and-vite-a|req-110-make-the-security-audit-workflow|resolve-or-explicitly-contain-the-remain|ac1-the-repository-has-a-chosen
 flowchart LR
-    Request[req_116_address_the_remaining_esbuild_and_] --> Problem[Resolve or explicitly contain the remainin]
+    Request[req_110_make_the_security_audit_workflow_b] --> Problem[Resolve or explicitly contain the remainin]
     Problem --> Scope[Address the remaining esbuild and vite]
     Scope --> Acceptance[AC1: The repository has a chosen]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain`.
 - Source file: `logics/request/req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`.
 - Request context seeded into this backlog item from `logics/request/req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`.
+- Derived from `logics/request/req_116_address_the_remaining_esbuild_and_vite_audit_advisory_in_the_toolchain.md`.

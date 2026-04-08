@@ -1,14 +1,26 @@
 ## task_049_add_companion_doc_creation_flows_and_regression_coverage_in_plugin - Add companion doc creation flows and regression coverage in plugin
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Companion-doc creation and regression safety
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-companion-doc-creation-flows-and-reg|item-027-add-companion-doc-creation-flow|1-add-companion-doc-creation-entry-point|npm-run-compile
+flowchart LR
+    Backlog[item_027_add_companion_doc_creation_flows_] --> Step1[1. Add companion-doc creation entry points]
+    Step1 --> Step2[2. Route product-brief and ADR creation]
+    Step2 --> Step3[3. Keep the creation flow coherent]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md`.
 - Derived from backlog item `item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin`.
 - Source file: `logics/backlog/item_027_add_companion_doc_creation_flows_and_regression_coverage_in_plugin.md`.
 - Related request(s): `req_022_align_vs_code_plugin_with_companion_docs_workflow`.
@@ -33,3 +45,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

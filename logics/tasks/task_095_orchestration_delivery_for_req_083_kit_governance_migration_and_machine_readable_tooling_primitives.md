@@ -1,8 +1,8 @@
 ## task_095_orchestration_delivery_for_req_083_kit_governance_migration_and_machine_readable_tooling_primitives - Orchestration delivery for req_083 kit governance migration and machine-readable tooling primitives
-> From version: 1.11.1
+> From version: 1.11.1 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 97%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -37,11 +37,10 @@ Delivery shape:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-083-kit-g|item-116-extend-workflow-audit-and-repai|1-confirm-portfolio-scope-dependencies-a|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 116 118 120 122 and 123] --> Step1[Confirm portfolio scope and delivery order]
-    Step1 --> Step2[Implement JSON outputs and schema migrations]
-    Step2 --> Step3[Implement audit repair and graph or skill validation]
-    Step3 --> Step4[Implement strict governance and reusable APIs]
-    Step4 --> Validation[python3 logics skills logics doc linter]
+    Backlog[item_116_extend_workflow_audit_and_repair_] --> Step1[1. Confirm portfolio scope dependencies an]
+    Step1 --> Step2[2. Wave 1: implement machine-readable JSON]
+    Step2 --> Step3[3. Wave 2: extend structural audit]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -113,3 +112,5 @@ flowchart LR
 - Finished on 2026-03-24.
 - Linked backlog item(s): `item_116_extend_workflow_audit_and_repair_tooling_for_structural_autofix_coverage`, `item_118_export_workflow_graphs_and_validate_structured_skill_package_contracts`, `item_120_define_strict_governance_profiles_and_extract_reusable_kit_document_assembly_apis`, `item_122_add_machine_readable_json_outputs_for_core_flow_manager_commands`, `item_123_introduce_workflow_doc_schema_versioning_and_named_migration_commands`
 - Related request(s): `req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation`, `req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives`
+
+# Notes

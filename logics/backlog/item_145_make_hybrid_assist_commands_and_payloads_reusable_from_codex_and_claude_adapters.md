@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-hybrid-assist-commands-and-payloads|req-055-add-a-minimal-claude-code-bridge|req-091-exists-because-the-hybrid-runtim|ac1-hybrid-assist-commands-and-payload
 flowchart LR
-    Request[req_091] --> Problem[Hybrid runtime must not drift into Codex only semantics]
-    Problem --> Shared[Use one shared command and payload contract]
-    Shared --> Adapters[Let Codex and Claude stay thin adapters]
-    Adapters --> Done[Execution task]
+    Request[req_055_add_a_minimal_claude_code_bridge_f] --> Problem[req_091 exists because the hybrid runtime]
+    Problem --> Scope[Make hybrid assist commands and payloads]
+    Scope --> Acceptance[AC1: Hybrid assist commands and payload]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -14,10 +14,11 @@ in the VS Code view.
 %% logics-kind: task
 %% logics-signature: task|build-flow-board-ui-and-details-panel|item-000-kickoff|1-build-the-board-layout-and|manual-verify-ui-renders-selection-updat
 flowchart LR
-    Kickoff[item 000 kickoff] --> Board[Implement board layout and cards]
-    Board --> Details[Render item details panel]
-    Details --> States[Handle empty and error states]
-    States --> Done[Flow board UI delivered]
+    Backlog[item_000_kickoff] --> Step1[1. Build the board layout and]
+    Step1 --> Step2[2. Implement selection state and the]
+    Step2 --> Step3[3. Add empty error states and]
+    Step3 --> Validation[Manual: verify UI renders selection update]
+    Validation --> Report[Done report]
 ```
 
 # Plan

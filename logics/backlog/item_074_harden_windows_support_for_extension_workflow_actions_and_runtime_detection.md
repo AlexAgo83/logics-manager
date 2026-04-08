@@ -25,10 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-windows-support-for-extension-wor|req-025-harden-logics-kit-workflow-gener|make-the-vs-code-extension-genuinely|ac1-the-request-explicitly-covers-both
 flowchart LR
-    Request[req_062_harden_windows_compatibility_acros] --> Problem[Make the VS Code extension genuinely]
+    Request[req_025_harden_logics_kit_workflow_generat] --> Problem[Make the VS Code extension genuinely]
     Problem --> Scope[Harden Windows support for extension workf]
     Scope --> Acceptance[AC1: The request explicitly covers both]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_076_harden_windows_support_for_extens]
 ```
 
 # Acceptance criteria

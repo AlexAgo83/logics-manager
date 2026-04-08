@@ -1,9 +1,20 @@
 ## task_008_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 85% (audit-aligned)
-> Confidence: 85% (governed)
-> Progress: 100% (governed)
+> Understanding: 86% (audit-aligned)
+> Confidence: 86% (governed)
+> Progress: 100%
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-references-and-used-by-links-on-requ|item-004-add-references-and-used-by-link|1-define-the-markdown-write-format|manual-not-run-yet-needs-verification
+flowchart LR
+    Backlog[item_004_add_references_and_used_by_links] --> Step1[1. Define the Markdown write format]
+    Step1 --> Step2[2. Add contextual actions in References]
+    Step2 --> Step3[3. Add inline empty-state CTAs Add]
+    Step3 --> Validation[Manual: not run yet needs verification]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_004_add_references_and_used_by_links.md`.

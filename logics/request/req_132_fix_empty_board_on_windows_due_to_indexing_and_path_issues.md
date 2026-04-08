@@ -30,17 +30,9 @@ Three probable root cause areas have been identified, ordered by likelihood of c
 %% logics-kind: request
 %% logics-signature: request|fix-empty-board-on-windows-due-to-indexi|on-windows-the-plugin-board-stays|ac1-indexlogics-root-returns-items-on
 flowchart TD
-    A[User opens plugin on Windows] --> B[extension.ts sets up watchers]
-    B --> C{Watchers fire correctly?}
-    C -- Yes --> D[logicsViewProvider refresh called]
-    C -- No --> X1[Board stays empty - watcher failure]
-    D --> E[indexLogics parses docs]
-    E --> F{Async diagnostics succeed?}
-    F -- Yes --> G[postData sends items to webview]
-    F -- No --> X2[Board stays empty - pipeline error]
-    G --> H{Root path matches persisted root?}
-    H -- Yes --> I[Board displays items]
-    H -- No --> X3[Board stays empty - path mismatch]
+    Trigger[Fix empty board on Windows due] --> Need[On Windows the plugin board stays]
+    Need --> Outcome[AC1: indexLogics root returns items on]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Scope

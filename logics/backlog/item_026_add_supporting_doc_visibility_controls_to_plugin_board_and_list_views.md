@@ -22,12 +22,13 @@ If exposed naively as permanent first-class columns, they would reduce scanabili
 - A full alternate board product just for documentation governance.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|add-supporting-doc-visibility-controls-t|req-022-align-vs-code-plugin-with-compan|supporting-docs-needed-to-be-discoverabl|ac1-supporting-doc-visibility-is-control
 flowchart LR
-    Req[Request source] --> Problem[Problem to solve]
-    Problem --> Scope[Scoped delivery]
-    Scope --> AC[Acceptance criteria]
-    AC --> Tasks[Implementation task s]
+    Request[req_022_align_vs_code_plugin_with_companio] --> Problem[Supporting docs needed to be discoverable]
+    Problem --> Scope[Add supporting doc visibility controls to]
+    Scope --> Acceptance[AC1: Supporting-doc visibility is controll]
+    Acceptance --> Tasks[task_021_align_vs_code_plugin_with_compani]
 ```
 
 # Acceptance criteria

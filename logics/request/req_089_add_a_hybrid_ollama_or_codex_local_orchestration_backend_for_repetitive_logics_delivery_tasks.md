@@ -36,13 +36,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-a-hybrid-ollama-or-codex-local-orche|add-a-hybrid-backend-selection-layer|ac1-the-kit-can-detect-whether
 flowchart TD
-    Trigger[Operators want one simple command for repetitive delivery tasks] --> Router[Choose Ollama first when local backend is healthy]
-    Router --> AC1[AC1: Runtime can detect and select backend]
-    AC1 --> AC2[AC2: High ROI micro-tasks use bounded local-model contracts]
-    AC2 --> AC3[AC3: Fallback to Codex keeps the operator flow intact]
-    AC3 --> AC4[AC4: Commit and summary flows stay deterministic and safe]
-    AC4 --> AC5[AC5: The design records ROI boundaries and unsupported tasks]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add a hybrid Ollama or Codex] --> Need[Add a hybrid backend selection layer]
+    Need --> Outcome[AC1: The kit can detect whether]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

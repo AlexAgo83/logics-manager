@@ -45,17 +45,9 @@
 %% logics-kind: request
 %% logics-signature: request|harden-repository-maintenance-guardrails|close-the-gap-between-green-ci|ac1-workflow-doc-guardrails-become-stric
 flowchart TD
-    Audit[Project audit highlights weak guardrails] --> Docs[Workflow doc proofs and placeholders]
-    Audit --> Package[VSIX package contents]
-    Audit --> DevLoop[Watch and local rebuild loop]
-    Audit --> Refresh[Plugin auto refresh surface]
-    Audit --> Release[Release changelog helper contract]
-    Docs --> Hardening[Harden repository maintenance contracts]
-    Package --> Hardening
-    DevLoop --> Hardening
-    Refresh --> Hardening
-    Release --> Hardening
-    Hardening --> Backlog[Backlog slices and implementation tasks]
+    Trigger[Harden repository maintenance guardrails r] --> Need[Close the gap between green CI]
+    Need --> Outcome[AC1: Workflow-doc guardrails become strict]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

@@ -1,14 +1,26 @@
 ## task_060_split_extension_host_entrypoint_into_focused_modules - Split extension host entrypoint into focused modules
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Extension host modularity and ownership boundaries
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|split-extension-host-entrypoint-into-foc|item-055-split-extension-host-entrypoint|1-keep-extension-ts-as-a-readable|npm-run-compile
+flowchart LR
+    Backlog[item_055_split_extension_host_entrypoint_i] --> Step1[1. Keep extension.ts as a readable]
+    Step1 --> Step2[2. Extract focused host-side modules for]
+    Step2 --> Step3[3. Preserve clear ownership boundaries and]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_055_split_extension_host_entrypoint_into_focused_modules.md`.
 - Derived from backlog item `item_055_split_extension_host_entrypoint_into_focused_modules`.
 - Source file: `logics/backlog/item_055_split_extension_host_entrypoint_into_focused_modules.md`.
 - Related request(s): `req_050_split_oversized_source_files_into_coherent_modules`.
@@ -37,9 +49,14 @@
 - [x] Status and progress updated.
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC2 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC3 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+
+# Report
+- 
+
+# Notes

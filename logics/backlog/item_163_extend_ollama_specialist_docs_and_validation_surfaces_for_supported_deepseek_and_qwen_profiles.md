@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|extend-ollama-specialist-docs-and-valida|req-086-upgrade-the-logics-ollama-specia|even-if-the-runtime-supports-multiple|ac1-the-ollama-specialist-and-related
 flowchart LR
-    Request[req_097] --> Problem[Docs and validation are still DeepSeek biased]
-    Problem --> Specialist[Extend specialist guidance for supported profiles]
-    Specialist --> Validate[Align validation and runtime checks]
-    Validate --> Bound[Keep support curated and explicit]
+    Request[req_086_upgrade_the_logics_ollama_speciali] --> Problem[Even if the runtime supports multiple]
+    Problem --> Scope[Extend Ollama specialist docs and validati]
+    Scope --> Acceptance[AC1: The Ollama specialist and related]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

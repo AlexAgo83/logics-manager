@@ -27,10 +27,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|exclude-or-deprioritize-stale-completed-|req-080-reduce-codex-token-consumption-w|old-completed-or-weakly-linked-context|ac1-the-token-efficiency-workflow-define
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Old completed or weakly linked context]
     Problem --> Scope[Exclude or deprioritize stale completed an]
-    Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The token-efficiency workflow defines]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -1,5 +1,5 @@
 ## adr_008_keep_codex_workspace_overlays_repo_local_isolated_and_composable - Keep Codex workspace overlays repo local isolated and composable
-> Date: 2026-03-22
+> Date: 2026-04-09
 > Status: Superseded
 > Drivers: Keep `logics/skills/` as the canonical source of truth, support multiple active repositories concurrently, prevent global skill collisions, preserve shared user-level Codex state where appropriate, and keep overlay operations diagnosable across platforms.
 > Related request: `req_067_add_multi_project_codex_workspace_overlays_for_logics_skills`, `req_069_add_an_operator_facing_logics_codex_workspace_manager_cli`, `req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills`, `req_071_add_diagnostics_and_self_healing_for_codex_workspace_overlays`, `req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback`, `req_073_add_concurrent_multi_repo_validation_for_codex_workspace_overlays`, `req_074_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories`
@@ -84,7 +84,6 @@ Adopt the following architecture contract for Codex workspace overlays.
 - Validate the resulting doc chain and future task links against this ADR as the overlay work advances.
 
 # References
-- `logics/architecture/adr_006_keep_claude_code_bridge_files_thin_and_derivative_of_logics.md`
 - `logics/request/req_067_add_multi_project_codex_workspace_overlays_for_logics_skills.md`
 - `logics/request/req_069_add_an_operator_facing_logics_codex_workspace_manager_cli.md`
 - `logics/request/req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills.md`
@@ -99,7 +98,6 @@ Adopt the following architecture contract for Codex workspace overlays.
 - `logics/backlog/item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback.md`
 - `logics/backlog/item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays.md`
 - `logics/backlog/item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories.md`
-
 # Follow-up work
 - Use this ADR as the required architecture reference for `item_090`, `item_092`, `item_093`, `item_094`, `item_095`, `item_096`, and `item_097`.
 - Keep future overlay tasks aligned to the same ownership split: repo-local skills, workspace runtime projection, and shared global Codex state.

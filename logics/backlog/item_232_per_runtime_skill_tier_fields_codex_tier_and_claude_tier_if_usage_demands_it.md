@@ -1,10 +1,10 @@
 ## item_232_per_runtime_skill_tier_fields_codex_tier_and_claude_tier_if_usage_demands_it - Per-runtime skill tier fields codex_tier and claude_tier if usage demands it
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,11 +25,10 @@ The single `tier` field (`core` / `optional`) introduced in item_223 applies uni
 %% logics-kind: backlog
 %% logics-signature: backlog|per-runtime-skill-tier-fields-codex-tier|req-127-consolidate-deferred-hybrid-and-|the-single-tier-field-core-optional|ac1-conditional-if-production-usage
 flowchart LR
-    Request[req_127 post-rollout consolidation] --> Condition[Conditional on real usage demand from item_223]
-    Condition --> Problem[Single tier field cannot differentiate per-runtime skill relevance]
-    Problem --> Scope[codex_tier and claude_tier fields overriding shared tier]
-    Scope --> AC1[AC1: Per-runtime tier fields added if usage demands it]
-    AC1 --> Tasks[Execution task]
+    Request[req_127_consolidate_deferred_hybrid_and_ki] --> Problem[The single tier field core optional]
+    Problem --> Scope[Per-runtime skill tier fields codex_tier a]
+    Scope --> Acceptance[AC1 conditional : If production usage]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -57,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: Low — conditional on usage evidence; do not implement speculatively
 - Urgency: Low — gated on item_223 shipping and real usage materialising
+
+# Notes

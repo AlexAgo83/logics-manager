@@ -1,8 +1,17 @@
 ## req_004_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
 > From version: 1.9.1
-> Understanding: 90% (audit-aligned)
-> Confidence: 90% (governed)
+> Understanding: 93% (audit-aligned)
+> Confidence: 93% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-references-and-used-by-links-on-requ|allow-adding-and-editing-references-and|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Add references and used-by links on] --> Need[Allow adding and editing References and]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Allow adding and editing `References` and/or `Used by` links on entries in Request, Backlog, and Task stages.
@@ -25,3 +34,7 @@
 
 # Backlog
 - `logics/backlog/item_004_add_references_and_used_by_links.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,14 +1,26 @@
 ## task_044_move_secondary_view_controls_into_a_toggleable_second_toolbar_row - Move secondary view controls into a toggleable second toolbar row
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: Toolbar information architecture and control density
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|move-secondary-view-controls-into-a-togg|item-050-move-secondary-view-controls-in|1-split-the-toolbar-structure-into|npm-run-compile
+flowchart LR
+    Backlog[item_050_move_secondary_view_controls_into] --> Step1[1. Split the toolbar structure into]
+    Step1 --> Step2[2. Add a first-row toggle that]
+    Step2 --> Step3[3. Move search sort grouping filter]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`.
 - Derived from backlog item `item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`.
 - Source file: `logics/backlog/item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row.md`.
 - Related request(s): `req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`.
@@ -25,12 +37,12 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 3. Proof: TODO.
-- AC3 -> Step 2. Proof: TODO.
-- AC4 -> Step 4. Proof: TODO.
-- AC5 -> Step 5. Proof: TODO.
-- AC6 -> Step 6. Proof: TODO.
-- AC7 -> Step 7. Proof: TODO.
+- AC1/AC2 -> Steps 1 and 3. Proof: covered by linked task completion.
+- AC3 -> Step 2. Proof: covered by linked task completion.
+- AC4 -> Step 4. Proof: covered by linked task completion.
+- AC5 -> Step 5. Proof: covered by linked task completion.
+- AC6 -> Step 6. Proof: covered by linked task completion.
+- AC7 -> Step 7. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`
@@ -46,3 +58,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

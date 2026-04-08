@@ -1,5 +1,5 @@
 ## adr_011_keep_hybrid_assist_runtime_contracts_shared_backend_agnostic_and_safely_bounded - Keep hybrid assist runtime contracts shared, backend-agnostic, and safely bounded
-> Date: 2026-03-25
+> Date: 2026-04-09
 > Status: Proposed
 > Drivers: shared runtime coherence, backend portability, safe bounded automation, auditability
 > Related request: `req_093_add_shared_hybrid_assist_contracts_fallback_policy_activation_rules_and_audit_governance_for_logics_delivery_automation`
@@ -61,18 +61,9 @@ Rejected because it would create multiple sources of truth and raise drift risk 
 - Make plugin and adapter surfaces consume structured runtime outputs instead of inventing parallel state.
 
 # References
-- `logics/request/req_089_add_a_hybrid_ollama_or_codex_local_orchestration_backend_for_repetitive_logics_delivery_tasks.md`
-- `logics/request/req_090_add_high_roi_hybrid_ollama_or_codex_assist_flows_for_repetitive_logics_delivery_operations.md`
-- `logics/request/req_091_ensure_hybrid_logics_delivery_automation_stays_compatible_with_claude_environments_and_windows_runtimes.md`
-- `logics/request/req_092_add_a_second_wave_of_hybrid_ollama_or_codex_assist_flows_for_risk_triage_commit_planning_closure_summaries_doc_consistency_checks_and_validation_checklists.md`
 - `logics/request/req_093_add_shared_hybrid_assist_contracts_fallback_policy_activation_rules_and_audit_governance_for_logics_delivery_automation.md`
-- `logics/request/req_094_add_hybrid_assist_measurement_shared_context_strategy_and_degraded_mode_governance_for_logics_delivery_automation.md`
 - `logics/backlog/item_150_define_a_shared_hybrid_assist_payload_envelope_and_execution_metadata_contract.md`
-- `logics/backlog/item_151_codify_shared_fallback_safety_class_activation_and_rollout_rules_for_hybrid_assist_flows.md`
-- `logics/backlog/item_152_add_shared_hybrid_audit_metrics_and_observability_governance.md`
 - `logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md`
-
 # Follow-up work
 - Implement the shared contract and safety classes through `item_150`, `item_151`, and `item_152`.
 - Reuse the contract in the context and degraded-mode work tracked by `req_094`.
-

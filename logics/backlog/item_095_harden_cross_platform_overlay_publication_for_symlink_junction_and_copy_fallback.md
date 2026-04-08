@@ -1,9 +1,9 @@
 ## item_095_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback - Harden cross-platform overlay publication for symlink junction and copy fallback
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 94%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Cross-platform overlay publication and filesystem compatibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-cross-platform-overlay-publicatio|req-067-add-multi-project-codex-workspac|define-a-supported-cross-platform-public|ac1-the-request-defines-an-explicit
 flowchart LR
-    Request[req_072_harden_cross_platform_overlay_publ] --> Problem[Define a supported cross-platform publicat]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Define a supported cross-platform publicat]
     Problem --> Scope[Harden cross-platform overlay publication]
     Scope --> Acceptance[AC1: The request defines an explicit]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -41,15 +41,15 @@ flowchart LR
 - AC6: The request preserves the repo-local `logics/skills` source-of-truth model regardless of publication mode.
 
 # AC Traceability
-- AC1 -> Scope: The request defines an explicit publication contract for at least these modes:. Proof: TODO.
-- AC2 -> Scope: symlink when supported;. Proof: TODO.
-- AC3 -> Scope: Windows-friendly junction or equivalent when required;. Proof: TODO.
-- AC4 -> Scope: copy fallback when link-based publication is unavailable.. Proof: TODO.
-- AC2 -> Scope: The request defines how the chosen publication mode is surfaced to operators or diagnostics rather than remaining implicit.. Proof: TODO.
-- AC3 -> Scope: The request explicitly covers cleanup and refresh semantics for each publication mode, especially the higher drift risk of copy fallback.. Proof: TODO.
-- AC4 -> Scope: The request is concrete enough that a future implementation can validate behavior on Windows without treating symlink support as guaranteed.. Proof: TODO.
-- AC5 -> Scope: The request keeps publication mechanics separate from precedence policy and overlay identity policy, even if they interact operationally.. Proof: TODO.
-- AC6 -> Scope: The request preserves the repo-local `logics/skills` source-of-truth model regardless of publication mode.. Proof: TODO.
+- AC1 -> Scope: The request defines an explicit publication contract for at least these modes:. Proof: covered by linked task completion.
+- AC2 -> Scope: symlink when supported;. Proof: covered by linked task completion.
+- AC3 -> Scope: Windows-friendly junction or equivalent when required;. Proof: covered by linked task completion.
+- AC4 -> Scope: copy fallback when link-based publication is unavailable.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request defines how the chosen publication mode is surfaced to operators or diagnostics rather than remaining implicit.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request explicitly covers cleanup and refresh semantics for each publication mode, especially the higher drift risk of copy fallback.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request is concrete enough that a future implementation can validate behavior on Windows without treating symlink support as guaranteed.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request keeps publication mechanics separate from precedence policy and overlay identity policy, even if they interact operationally.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request preserves the repo-local `logics/skills` source-of-truth model regardless of publication mode.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -77,3 +77,4 @@ flowchart LR
 - Derived from request `req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback`.
 - Source file: `logics/request/req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback.md`.
 - Request context seeded into this backlog item from `logics/request/req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback.md`.
+- Derived from `logics/request/req_072_harden_cross_platform_overlay_publication_for_symlink_junction_and_copy_fallback.md`.

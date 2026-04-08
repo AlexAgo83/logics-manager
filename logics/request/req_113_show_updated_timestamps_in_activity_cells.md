@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -26,12 +26,9 @@
 %% logics-kind: request
 %% logics-signature: request|show-updated-timestamps-in-activity-cell|make-recent-activity-cells-more-informat|ac1-each-activity-cell-shows-an
 flowchart TD
-    Activity[Activity panel cells] --> Missing[Missing updated information]
-    Board[Board preview already shows updated] --> Missing
-    Details[Details panel already shows updated] --> Missing
-    Missing --> Add[Add updated field to activity cells]
-    Add --> Faster[Faster recent activity triage]
-    Faster --> Backlog[Backlog slice]
+    Trigger[Show updated timestamps in activity cells] --> Need[Make recent-activity cells more informativ]
+    Need --> Outcome[AC1: Each activity cell shows an]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -91,3 +88,4 @@ flowchart TD
 
 # Backlog
 - `item_200_show_updated_timestamps_in_activity_cells`
+- `logics/backlog/item_200_show_updated_timestamps_in_activity_cells.md`

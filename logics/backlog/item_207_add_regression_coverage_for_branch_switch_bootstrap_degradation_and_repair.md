@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-regression-coverage-for-branch-switc|req-065-harden-partial-logics-bootstrap-|the-branch-switch-problem-is-easy-to|ac1-automated-coverage-proves-a-previous
 flowchart LR
-    Request[req_118_handle_branch_switches_to_branches] --> Problem[The branch-switch problem is easy to re]
+    Request[req_065_harden_partial_logics_bootstrap_re] --> Problem[The branch-switch problem is easy to]
     Problem --> Scope[Add regression coverage for branch-switch]
-    Scope --> Acceptance[AC1: Automated coverage proves a previo]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Automated coverage proves a previousl]
+    Acceptance --> Tasks[task_108_orchestration_delivery_for_req_11]
 ```
 
 # Acceptance criteria

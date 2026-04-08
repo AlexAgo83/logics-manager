@@ -1,9 +1,9 @@
 ## task_098_orchestration_delivery_for_req_086_and_req_087_local_ollama_coding_workflows - Orchestration delivery for req_086 and req_087 local Ollama coding workflows
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 97%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Cross-item delivery orchestration
@@ -28,10 +28,10 @@ Delivery constraint:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-086-and-r|item-135-upgrade-the-logics-ollama-speci|1-confirm-scope-dependencies-and-linked|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 135 and 136] --> Step1[Confirm baseline scope and dependency order]
-    Step1 --> Step2[Wave 1 DeepSeek install validation and Continue path]
-    Step2 --> Step3[Wave 2 Roo Code and autocomplete guidance]
-    Step3 --> Validation[Lint workflow docs and validate helper assets]
+    Backlog[item_135_upgrade_the_logics_ollama_special] --> Step1[1. Confirm scope dependencies and linked]
+    Step1 --> Step2[2. Wave 1: update logics-ollama-specialist]
+    Step2 --> Step3[3. Wave 2: extend the same]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -112,3 +112,5 @@ flowchart LR
 - Finished on 2026-03-24.
 - Linked backlog item(s): `item_135_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access`, `item_136_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows`
 - Related request(s): `req_086_upgrade_the_logics_ollama_specialist_for_deepseek_coder_v2_installation_setup_and_access`, `req_087_extend_the_logics_ollama_specialist_for_roo_code_and_dedicated_local_autocomplete_workflows`
+
+# Notes

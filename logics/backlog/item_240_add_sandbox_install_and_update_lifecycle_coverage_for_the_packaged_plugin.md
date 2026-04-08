@@ -25,7 +25,7 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-sandbox-install-and-update-lifecycle|req-129-greatly-improve-plugin-and-kit-c|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart LR
-    Request[req 129 greatly improve plugin and] --> Problem[Raise plugin coverage in a way]
+    Request[req_129_greatly_improve_plugin_and_kit_cov] --> Problem[Raise plugin coverage in a way]
     Problem --> Scope[Add sandbox install and update lifecycle]
     Scope --> Acceptance[AC1: The request clearly separates plugin]
     Acceptance --> Tasks[Execution task]

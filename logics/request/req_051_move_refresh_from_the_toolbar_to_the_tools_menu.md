@@ -1,11 +1,20 @@
 ## req_051_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Low
 > Theme: Toolbar prioritization and tools-menu cleanup
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|move-refresh-from-the-toolbar-to-the-too|reduce-the-number-of-always-visible-cont|ac1-the-primary-toolbar-no-longer
+flowchart TD
+    Trigger[Move Refresh from the toolbar to] --> Need[Reduce the number of always-visible contro]
+    Need --> Outcome[AC1: The primary toolbar no longer]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Reduce the number of always-visible controls in the primary toolbar.
@@ -67,3 +76,7 @@ The expected move is specific:
 
 # Backlog
 - `logics/backlog/item_060_move_refresh_from_the_toolbar_to_the_tools_menu.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,14 +1,15 @@
 ## task_072_double_click_should_read_items_from_list_board_and_activity - Double click should read items from list board and activity
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UX workflow
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_070_double_click_should_read_items_from_list_board_and_activity.md`.
 - Derived from backlog item `item_070_double_click_should_read_items_from_list_board_and_activity`.
 - Source file: `logics/backlog/item_070_double_click_should_read_items_from_list_board_and_activity.md`.
 - Related request(s): `req_058_double_click_should_read_items_from_list_board_and_activity`.
@@ -19,13 +20,14 @@
   - lock the behavior with focused webview regressions.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|double-click-should-read-items-from-list|item-070-double-click-should-read-items-|1-confirm-scope-dependencies-and-linked|executed
 flowchart LR
-    Backlog[item 070] --> Step1[update board and list card handlers]
-    Step1 --> Step2[add activity read helper]
-    Step2 --> Step3[extend regression coverage]
-    Step3 --> Validation[targeted vitest run]
-    Validation --> Report[docs updated and done]
+    Backlog[item_070_double_click_should_read_items_fr] --> Step1[1. Confirm scope dependencies and linked]
+    Step1 --> Step2[2. Route board and list card]
+    Step2 --> Step3[3. Add activity-panel double-click to Read]
+    Step3 --> Validation[Executed]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -82,3 +84,5 @@ flowchart LR
 - Mitigation:
   - preserve explicit `Open/Edit` as a separate action;
   - keep single-click handlers unchanged and lock behavior with focused regressions.
+
+# Notes

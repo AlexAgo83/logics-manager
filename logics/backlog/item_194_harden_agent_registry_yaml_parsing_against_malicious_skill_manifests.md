@@ -1,10 +1,10 @@
 ## item_194_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests - Harden agent registry YAML parsing against malicious skill manifests
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 91%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-agent-registry-yaml-parsing-again|req-104-harden-repository-maintenance-gu|prevent-repo-local-agents-openai-yaml-fi|ac1-agent-manifest-loading-rejects-malfo
 flowchart LR
-    Request[req_107_harden_agent_registry_yaml_parsing] --> Problem[Prevent repo-local agents openai.yaml file]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Prevent repo-local agents openai.yaml file]
     Problem --> Scope[Harden agent registry YAML parsing against]
     Scope --> Acceptance[AC1: Agent-manifest loading rejects malfor]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests`.
 - Source file: `logics/request/req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`.
 - Request context seeded into this backlog item from `logics/request/req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`.
+- Derived from `logics/request/req_107_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`.

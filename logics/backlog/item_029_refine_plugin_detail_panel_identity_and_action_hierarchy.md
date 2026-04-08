@@ -1,9 +1,9 @@
 ## item_029_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 99% (closed)
-> Confidence: 98% (validated)
-> Progress: 100%
+> Understanding: 100% (closed)
+> Confidence: 99% (validated)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,12 +25,13 @@
   - Reworking companion-doc behavior again.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|refine-plugin-detail-panel-identity-and-|req-024-refine-plugin-detail-panel-ident|the-detail-panel-worked-functionally-but|ac1-the-detail-panel-title-area
 flowchart LR
-    Req[req_024 detail panel hierarchy] --> Problem[Readable but visually dense detail panel]
-    Problem --> Scope[Refine title metadata and action hierarchy]
-    Scope --> AC[Sharper hierarchy without feature churn]
-    AC --> Tasks[task_023 delivery]
+    Request[req_024_refine_plugin_detail_panel_identit] --> Problem[The detail panel worked functionally but]
+    Problem --> Scope[Refine plugin detail panel identity and]
+    Scope --> Acceptance[AC1: The detail panel title area]
+    Acceptance --> Tasks[task_023_refine_plugin_detail_panel_identi]
 ```
 
 # Acceptance criteria
@@ -76,3 +77,4 @@ flowchart LR
 # Notes
 - Derived from request `req_024_refine_plugin_detail_panel_identity_and_action_hierarchy`.
 - Source file: `logics/request/req_024_refine_plugin_detail_panel_identity_and_action_hierarchy.md`.
+- Derived from `logics/request/req_024_refine_plugin_detail_panel_identity_and_action_hierarchy.md`.

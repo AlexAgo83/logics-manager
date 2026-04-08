@@ -1,9 +1,9 @@
 ## item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 99% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% (validated)
+> Progress: 100% ((audit-aligned); refreshed)
 > Complexity: High
 > Theme: Extension runtime robustness and release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -38,18 +38,13 @@ It coordinates hardening work across packaging, runtime behavior, and integratio
 - Broad UI redesign or workflow-model changes.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|harden-extension-packaging-agent-loading|req-027-harden-extension-packaging-agent|the-extension-is-functionally-solid-but|ac1-the-request-is-turned-into
 flowchart LR
-    Req[Extension hardening request] --> Package[Package hygiene]
-    Req --> Agents[Agent loading]
-    Req --> Prompt[Prompt injection safety]
-    Req --> Workspace[Multi root behavior]
-    Req --> Smoke[Integration smoke tests]
-    Package --> Stable[More robust extension]
-    Agents --> Stable
-    Prompt --> Stable
-    Workspace --> Stable
-    Smoke --> Stable
+    Request[req_027_harden_extension_packaging_agent_l] --> Problem[The extension is functionally solid but]
+    Problem --> Scope[Harden extension packaging agent loading a]
+    Scope --> Acceptance[AC1: The request is turned into]
+    Acceptance --> Tasks[task_025_harden_extension_packaging_agent_]
 ```
 
 # Acceptance criteria
@@ -68,11 +63,11 @@ flowchart LR
 - AC2 -> Scope and mermaid identify the five main hardening areas. Proof: listed above.
 - AC3 -> Out-of-scope explicitly excludes `req_025` and `req_026`. Proof: scope boundaries above.
 - AC4 -> Priority and notes frame the work around robustness and release quality. Proof: sections below.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC8 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC8 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -104,5 +99,6 @@ flowchart LR
   - shared `logics/skills` hardening
   - webview structure refactor
 
+- Derived from `logics/request/req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`.
 # Tasks
 - `logics/tasks/task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`

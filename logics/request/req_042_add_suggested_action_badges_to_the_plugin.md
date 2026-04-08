@@ -1,11 +1,20 @@
 ## req_042_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Workflow guidance and proactive orchestration
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-suggested-action-badges-to-the-plugi|surface-stronger-visual-cues-about-what|ac1-the-plugin-displays-suggested-action
+flowchart TD
+    Trigger[Add suggested-action badges to the plugin] --> Need[Surface stronger visual cues about what]
+    Need --> Outcome[AC1: The plugin displays suggested-action]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Surface stronger visual cues about what users are likely expected to do next.
@@ -69,3 +78,7 @@ It is about visible, explainable badges that help users decide where to act next
 
 # Backlog
 - `logics/backlog/item_047_add_suggested_action_badges_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

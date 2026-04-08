@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-session-hygiene-guidance-when-topic-|req-080-reduce-codex-token-consumption-w|even-a-good-context-pack-cannot|ac1-operator-guidance-or-workflow-behavi
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Even a good context pack cannot]
     Problem --> Scope[Add session-hygiene guidance when topic or]
-    Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Operator guidance or workflow behavio]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

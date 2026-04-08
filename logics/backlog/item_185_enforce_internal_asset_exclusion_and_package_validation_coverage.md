@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|enforce-internal-asset-exclusion-and-pac|req-104-harden-repository-maintenance-gu|the-repository-currently-ships-internal-|ac1-internal-only-repository-assets-such
 flowchart LR
-    Request[req_104_repository_guardrails] --> Problem[Internal assets leak into the VSIX]
-    Problem --> Scope[Define and enforce package exclusion policy]
-    Scope --> Acceptance[AC1 internal only assets are excluded or explicitly justified]
-    Acceptance --> Tasks[Execution task]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[The repository currently ships internal-on]
+    Problem --> Scope[Enforce internal asset exclusion and packa]
+    Scope --> Acceptance[AC1: Internal-only repository assets such]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

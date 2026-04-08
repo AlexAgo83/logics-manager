@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|label-platform-specific-helpers-and-shel|req-062-harden-windows-compatibility-acr|clarify-the-documented-windows-operator-|ac1-the-request-explicitly-covers-docume
 flowchart LR
-    Request[req_063_clarify_windows_operator_guidance_] --> Problem[Clarify the documented Windows operator pa]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Clarify the documented Windows operator pa]
     Problem --> Scope[Label platform-specific helpers and shell]
     Scope --> Acceptance[AC1: The request explicitly covers documen]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_086_label_platform_specific_helpers_a]
 ```
 
 # Acceptance criteria

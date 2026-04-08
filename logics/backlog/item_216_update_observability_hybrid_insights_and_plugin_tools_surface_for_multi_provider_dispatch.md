@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|update-observability-hybrid-insights-and|req-120-add-openai-and-gemini-provider-d|after-provider-expansion-the-observabili|ac7-observability-remains-trustworthy-af
 flowchart LR
-    Request[req_120 provider dispatch] --> Problem[Reporting assumes ollama vs codex only]
-    Problem --> Scope[Multi-provider observability and UI]
-    Scope --> AC[AC7 audit AC7b insights AC7c tools menu]
-    AC --> Clear[Operator sees provider distribution clearly]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[After provider expansion the observability]
+    Problem --> Scope[Update observability Hybrid Insights and p]
+    Scope --> Acceptance[AC7: Observability remains trustworthy aft]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

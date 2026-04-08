@@ -1,11 +1,20 @@
 ## req_030_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
 > From version: 1.9.2
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-confirmation-before-done-and-obsolet|add-an-explicit-confirmation-step-before|ac1-clicking-done-requires-explicit-conf
+flowchart TD
+    Trigger[Add confirmation before Done and Obsolete] --> Need[Add an explicit confirmation step before]
+    Need --> Outcome[AC1: Clicking Done requires explicit confi]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add an explicit confirmation step before applying `Done`.
@@ -72,3 +81,7 @@ The goal is:
 
 # Backlog
 - `logics/backlog/item_035_add_confirmation_for_done_and_obsolete_actions.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

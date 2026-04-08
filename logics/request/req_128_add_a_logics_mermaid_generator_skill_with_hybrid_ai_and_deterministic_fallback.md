@@ -1,10 +1,13 @@
 ## req_128_add_a_logics_mermaid_generator_skill_with_hybrid_ai_and_deterministic_fallback - Add a logics-mermaid-generator skill with hybrid AI and deterministic fallback
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Done
-> Understanding: 94%
-> Confidence: 89%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Logics kit skills, Mermaid quality, and hybrid AI integration
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -44,13 +47,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-a-logics-mermaid-generator-skill-wit|create-a-dedicated-logics-mermaid-genera|ac1-a-logics-mermaid-generator-skill-pac
 flowchart TD
-    Problem[Mermaid generation is hardcoded and deterministic only] --> Gap[No dedicated skill, no hybrid path]
-    Gap --> Skill[AC1: logics-mermaid-generator skill created]
-    Skill --> Hybrid[AC2: Hybrid AI generates semantically richer diagrams]
-    Hybrid --> Fallback[AC3: Deterministic fallback when no provider ready]
-    Fallback --> Wiring[AC4: Flow manager uses skill at all call sites]
-    Wiring --> Safety[AC5: AI output validated against Mermaid safety rules]
-    Safety --> Backlog[Backlog slice]
+    Trigger[Add a logics-mermaid-generator skill with] --> Need[Create a dedicated logics-mermaid-generato]
+    Need --> Outcome[AC1: A logics-mermaid-generator skill pack]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

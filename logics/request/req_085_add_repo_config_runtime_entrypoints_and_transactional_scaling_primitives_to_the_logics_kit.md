@@ -26,14 +26,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-repo-config-runtime-entrypoints-and-|make-the-logics-kit-easier-to|ac1-the-kit-supports-a-repo-native
 flowchart TD
-    Trigger[The kit is powerful but still script-centric and partly hard-coded] --> Need[Make repo configuration, runtime entrypoints, and large-scale operations explicit]
-    Need --> AC1[AC1: Repo-native configuration exists]
-    AC1 --> AC2[AC2: A unified kit CLI exists]
-    AC2 --> AC3[AC3: Structured outputs extend across core skills]
-    AC3 --> AC4[AC4: Incremental indexing speeds repeated operations]
-    AC4 --> AC5[AC5: Bulk mutations can run transactionally]
-    AC5 --> AC6[AC6: Split policy favors the minimum coherent slice count]
-    AC6 --> Backlog[Backlog slice]
+    Trigger[Add repo config runtime entrypoints and] --> Need[Make the Logics kit easier to]
+    Need --> Outcome[AC1: The kit supports a repo-native]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

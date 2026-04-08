@@ -1,10 +1,10 @@
 ## item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu - Restructure the tools menu information architecture without moving actions out of the menu
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -27,7 +27,7 @@ flowchart LR
     Request[req_112_restructure_the_tools_menu_informa] --> Problem[Reduce the scan cost of the]
     Problem --> Scope[Restructure the tools menu information arc]
     Scope --> Acceptance[AC1: The tools menu is reorganized]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -85,3 +85,4 @@ flowchart LR
 - Derived from request `req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`.
 - Source file: `logics/request/req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`.
 - Request context seeded into this backlog item from `logics/request/req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`.
+- Derived from `logics/request/req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`.

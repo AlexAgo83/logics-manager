@@ -1,11 +1,20 @@
 ## req_012_web_debug_harness_simulate_vs_code_controls_with_browser_native_behavior - Web debug harness: simulate VS Code controls with browser-native behavior
 > From version: 1.2.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Debug Harness UX Parity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|web-debug-harness-simulate-vs-code-contr|in-web-debug-server-mode-most|ac1-in-harness-mode-control-actions
+flowchart TD
+    Trigger[Web debug harness: simulate VS Code] --> Need[In web debug server mode most]
+    Need --> Outcome[AC1: In harness mode control actions]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - In web debug/server mode, most toolbar/details controls should be usable without VS Code runtime.
@@ -55,3 +64,7 @@ Examples:
 
 # Backlog
 - `logics/backlog/item_012_web_debug_harness_simulate_vs_code_controls_with_browser_native_behavior.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,9 +1,9 @@
 ## task_105_orchestration_delivery_for_req_103_hybrid_runtime_status_semantics_dispatch_expansion_and_windows_global_kit_validation - Orchestration delivery for req_103 across hybrid runtime status semantics, dispatch expansion, and Windows global-kit validation
-> From version: 1.15.0
+> From version: 1.15.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Hybrid runtime health semantics, adapter contract alignment, broader Ollama-first delegation, and Windows-safe validation after global kit migration
@@ -41,12 +41,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-103-acros|item-179-reclassify-optional-claude-brid|1-confirm-req-103-traceability-current-r|python3-logics-skills-logics-py-flow-syn
 flowchart LR
-    Start[req_103] --> Wave1[Wave 1 runtime health semantics and bridge contract alignment]
-    Wave1 --> Wave2[Wave 2 explicit per-flow Ollama-first dispatch policy]
-    Wave2 --> Wave3[Wave 3 expose additional bounded operator flows]
-    Wave3 --> Wave4[Wave 4 regression coverage and Windows global-kit validation]
-    Wave4 --> Validate[Validate docs tests and compatibility evidence]
-    Validate --> Report[Ready for delivery closure]
+    Backlog[item_179_reclassify_optional_claude_bridge] --> Step1[1. Confirm req_103 traceability current ru]
+    Step1 --> Step2[2. Wave 1: deliver hybrid runtime]
+    Step2 --> Step3[3. Wave 2: define and implement]
+    Step3 --> Validation[python3 logics skills logics.py flow sync]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -154,3 +153,5 @@ flowchart LR
 - Wave 4 closed regression and Windows/post-global-kit evidence:
   - Python and Vitest coverage now proves the healthy-without-Claude status path, unified bridge detection, explicit policy metadata, one new Ollama-eligible path, and one codex-only `auto` path;
   - `README.md` now documents the Windows VM checklist around the post-global-kit shared runtime entrypoint and explicitly calls out the supported `python logics/skills/logics.py flow assist ...` path instead of any repo-local overlay shortcut.
+
+# Notes

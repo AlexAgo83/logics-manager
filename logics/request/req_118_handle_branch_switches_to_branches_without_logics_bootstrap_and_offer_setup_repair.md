@@ -39,11 +39,9 @@
 %% logics-kind: request
 %% logics-signature: request|handle-branch-switches-to-branches-witho|prevent-the-plugin-from-feeling-broken|ac1-the-extension-detects-or-re-evaluate
 flowchart TD
-    Branch[User checks out another branch] --> Detect[Extension re-evaluates repository state]
-    Detect --> Classify[Branch is unbootstrapped, partial, or ready]
-    Classify --> Guide[UI explains the state and next action]
-    Guide --> Repair[Bootstrap or repair current branch setup when appropriate]
-    Repair --> Outcome[User is no longer stranded after branch switch]
+    Trigger[Handle branch switches to branches without] --> Need[Prevent the plugin from feeling broken]
+    Need --> Outcome[AC1: The extension detects or re-evaluates]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|rewrite-logics-kit-readme-and-skill-exam|req-062-harden-windows-compatibility-acr|clarify-the-documented-windows-operator-|ac1-the-request-explicitly-covers-docume
 flowchart LR
-    Request[req_063_clarify_windows_operator_guidance_] --> Problem[Clarify the documented Windows operator pa]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Clarify the documented Windows operator pa]
     Problem --> Scope[Rewrite Logics kit README and skill]
     Scope --> Acceptance[AC1: The request explicitly covers documen]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_084_rewrite_logics_kit_readme_and_ski]
 ```
 
 # Acceptance criteria

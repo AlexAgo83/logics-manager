@@ -1,8 +1,8 @@
 ## task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance - Orchestration delivery for req_067 to req_075 Codex overlays and workflow maintenance
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 96%
+> Confidence: 93%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -45,11 +45,10 @@ Delivery shape:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-067-to-re|item-090-add-multi-project-codex-workspa|1-confirm-portfolio-scope-linked-adrs|python3-logics-skills-logics-doc-linter-
 flowchart LR
-    Backlog[Items 090 to 098] --> Step1[Confirm portfolio scope ADRs and delivery order]
-    Step1 --> Step2[Implement overlay runtime manager and policy slices]
-    Step2 --> Step3[Implement doc maintenance and task wave governance]
-    Step3 --> Step4[Integrate plugin follow on through task 089]
-    Step4 --> Validation[python3 logics skills logics doc linter]
+    Backlog[item_090_add_multi_project_codex_workspace] --> Step1[1. Confirm portfolio scope linked ADRs]
+    Step1 --> Step2[2. Wave 1: implement the minimum]
+    Step2 --> Step3[3. Wave 2: harden the overlay]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
     Validation --> Report[Done report]
 ```
 
@@ -63,17 +62,17 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- item090-AC1/item090-AC2/item090-AC3/item090-AC4/item090-AC5/item090-AC6 -> Steps 1 and 2. Proof: TODO.
-- item090-AC7/item090-AC8/item090-AC9 -> Steps 2 and 4. Proof: TODO.
-- item091-AC1/item091-AC2/item091-AC3/item091-AC4/item091-AC5/item091-AC6/item091-AC7/item091-AC8 -> Step 3. Proof: TODO.
-- item092-AC1/item092-AC2/item092-AC3/item092-AC4/item092-AC5/item092-AC6 -> Steps 1, 2, and 4. Proof: TODO.
-- item093-AC1/item093-AC2/item093-AC3/item093-AC4/item093-AC5/item093-AC6 -> Steps 1 and 2. Proof: TODO.
-- item094-AC1/item094-AC2/item094-AC3/item094-AC4/item094-AC5/item094-AC6 -> Steps 2 and 4. Proof: TODO.
-- item095-AC1/item095-AC2/item095-AC3/item095-AC4/item095-AC5/item095-AC6 -> Steps 2 and 4. Proof: TODO.
-- item096-AC1/item096-AC2/item096-AC3/item096-AC4/item096-AC5/item096-AC6 -> Steps 2 and 4. Proof: TODO.
-- item097-AC1/item097-AC2/item097-AC3/item097-AC4/item097-AC5/item097-AC6 -> Steps 1, 2, and 4. Proof: TODO.
-- item098-AC1/item098-AC2/item098-AC3/item098-AC4/item098-AC5/item098-AC6/item098-AC7 -> Steps 3 and 4. Proof: TODO.
-- task089-item099/task089-item100 plugin follow-on coverage -> Step 5. Proof: TODO.
+- item090-AC1/item090-AC2/item090-AC3/item090-AC4/item090-AC5/item090-AC6 -> Steps 1 and 2. Proof: covered by linked task completion.
+- item090-AC7/item090-AC8/item090-AC9 -> Steps 2 and 4. Proof: covered by linked task completion.
+- item091-AC1/item091-AC2/item091-AC3/item091-AC4/item091-AC5/item091-AC6/item091-AC7/item091-AC8 -> Step 3. Proof: covered by linked task completion.
+- item092-AC1/item092-AC2/item092-AC3/item092-AC4/item092-AC5/item092-AC6 -> Steps 1, 2, and 4. Proof: covered by linked task completion.
+- item093-AC1/item093-AC2/item093-AC3/item093-AC4/item093-AC5/item093-AC6 -> Steps 1 and 2. Proof: covered by linked task completion.
+- item094-AC1/item094-AC2/item094-AC3/item094-AC4/item094-AC5/item094-AC6 -> Steps 2 and 4. Proof: covered by linked task completion.
+- item095-AC1/item095-AC2/item095-AC3/item095-AC4/item095-AC5/item095-AC6 -> Steps 2 and 4. Proof: covered by linked task completion.
+- item096-AC1/item096-AC2/item096-AC3/item096-AC4/item096-AC5/item096-AC6 -> Steps 2 and 4. Proof: covered by linked task completion.
+- item097-AC1/item097-AC2/item097-AC3/item097-AC4/item097-AC5/item097-AC6 -> Steps 1, 2, and 4. Proof: covered by linked task completion.
+- item098-AC1/item098-AC2/item098-AC3/item098-AC4/item098-AC5/item098-AC6/item098-AC7 -> Steps 3 and 4. Proof: covered by linked task completion.
+- task089-item099/task089-item100 plugin follow-on coverage -> Step 5. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -151,3 +150,5 @@ flowchart LR
 - Added plugin-side Codex overlay inspection and surfaced overlay runtime health through environment diagnostics, agent handoff guidance, and bootstrap completion messaging.
 - Added extension-side regression coverage for overlay inspection, environment capability reporting, and tools menu guidance, while keeping the repo-local `logics/skills` contract intact.
 - Final validation passed across TypeScript lint and tests, Python workflow tests, workflow audit, and Logics lint, and the related request/backlog/task portfolio was marked done.
+
+# Notes

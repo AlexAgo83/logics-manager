@@ -1,11 +1,20 @@
 ## req_018_support_vscode_agent_selection_from_skills_openai_yaml - Support VS Code agent selection from skills openai.yaml
 > From version: 1.6.1
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Agent orchestration and chat routing
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|support-vs-code-agent-selection-from-ski|index-agent-definitions-from-logics-skil|ac1-agent-discovery-scans-all-files
+flowchart TD
+    Trigger[Support VS Code agent selection from] --> Need[Index agent definitions from logics skills]
+    Need --> Outcome[AC1: Agent discovery scans all files]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Index agent definitions from `logics/skills/*/agents/openai.yaml`.
@@ -64,3 +73,7 @@ Current `openai.yaml` files expose `display_name`, `short_description`, and `def
 
 # Backlog
 - `logics/backlog/item_018_support_vscode_agent_selection_from_skills_openai_yaml.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

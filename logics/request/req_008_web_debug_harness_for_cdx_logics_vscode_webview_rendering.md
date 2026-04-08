@@ -1,11 +1,20 @@
 ## req_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering - Web Debug Harness for cdx-logics-vscode Webview Rendering
 > From version: 1.9.1
 > Status: Done
-> Understanding: 99% (audit-aligned)
-> Confidence: 97% (governed)
+> Understanding: 100% ((audit-aligned); refreshed)
+> Confidence: 100% (governed)
 > Complexity: Medium
 > Theme: Front-End Debugging Workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|web-debug-harness-for-cdx-logics-vscode-|debug-and-iterate-webview-rendering-in|ac1-a-browser-accessible-debug-entrypoin
+flowchart TD
+    Trigger[Web Debug Harness for cdx-logics-vscode We] --> Need[Debug and iterate webview rendering in]
+    Need --> Outcome[AC1: A browser-accessible debug entrypoint]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Debug and iterate webview rendering in a browser/server without launching the VS Code extension host.
@@ -53,3 +62,7 @@ A local harness should serve the same assets and emulate extension messages to r
 
 # Backlog
 - `logics/backlog/item_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

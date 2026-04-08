@@ -42,36 +42,9 @@ A comprehensive audit was performed on 2026-04-04 covering both projects. The fi
 %% logics-kind: request
 %% logics-signature: request|audit-cleanup-fix-code-quality-issues-ac|resolve-all-code-quality-consistency-and|ac1-no-duplicated-maybeshowcodexoverlayh
 flowchart TD
-    Audit[Full audit 2026-04-04] --> PluginFindings[Plugin: 8 findings]
-    Audit --> KitFindings[Kit: 9 findings]
-    PluginFindings --> P1[Duplicated code extraction]
-    PluginFindings --> P2[Runtime JSON validation]
-    PluginFindings --> P3[Dead code removal]
-    PluginFindings --> P4[Dependency injection for gitRuntime]
-    PluginFindings --> P5[HTML generator test coverage]
-    PluginFindings --> P6[Provider decomposition]
-    PluginFindings --> P7[Stale VSIX cleanup]
-    PluginFindings --> P8[Message dispatch exhaustive check]
-    KitFindings --> K1[Launcher harmonization x34 skills]
-    KitFindings --> K2[Entrypoint refs update]
-    KitFindings --> K3[Claude bridge alignment]
-    KitFindings --> K4[Wildcard import cleanup]
-    KitFindings --> K5[Hybrid module split x3 modules]
-    KitFindings --> K6[Specs and config housekeeping]
-    P1 --> Done[All 17 findings resolved]
-    P2 --> Done
-    P3 --> Done
-    P4 --> Done
-    P5 --> Done
-    P6 --> Done
-    P7 --> Done
-    P8 --> Done
-    K1 --> Done
-    K2 --> Done
-    K3 --> Done
-    K4 --> Done
-    K5 --> Done
-    K6 --> Done
+    Trigger[Audit cleanup fix code quality issues] --> Need[Resolve all code quality consistency and]
+    Need --> Outcome[AC1: No duplicated maybeShowCodexOverlayHa]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

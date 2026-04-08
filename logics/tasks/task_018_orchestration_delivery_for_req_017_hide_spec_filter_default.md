@@ -1,12 +1,23 @@
 ## task_018_orchestration_delivery_for_req_017_hide_spec_filter_default - Orchestration delivery for req_017 Hide SPEC filter default
-> From version: 1.6.0
+> From version: 1.6.0 (refreshed)
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Filter behavior delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-017-hide-|item-017-hide-spec-stage-by-default-filt|1-add-ui-filter-option-hide|npm-run-compile
+flowchart LR
+    Backlog[item_017_hide_spec_stage_by_default_filter] --> Step1[1. Add UI filter option Hide]
+    Step1 --> Step2[2. Add hideSpec state in webview]
+    Step2 --> Step3[3. Apply stage-level filtering in board]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -25,9 +36,9 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1-2. Proof: TODO.
-- AC3/AC4/AC5 -> Step 3. Proof: TODO.
-- AC6 -> Step 4. Proof: TODO.
+- AC1/AC2 -> Steps 1-2. Proof: covered by linked task completion.
+- AC3/AC4/AC5 -> Step 3. Proof: covered by linked task completion.
+- AC6 -> Step 4. Proof: covered by linked task completion.
 - Regression coverage -> Step 5.
 
 # Validation
@@ -51,3 +62,5 @@ Goal:
   - `npm run compile`
   - `npm run test`
   - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+
+# Notes

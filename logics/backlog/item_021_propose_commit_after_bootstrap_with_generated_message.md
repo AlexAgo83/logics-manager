@@ -23,12 +23,13 @@ Bootstrap currently gets the repository into a usable Logics state, but it stops
   - Long-form AI-generated release notes or changelog content.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|propose-commit-after-bootstrap-with-gene|req-021-propose-commit-after-bootstrap-w|bootstrap-currently-gets-the-repository-|ac1-a-commit-proposal-is-shown
 flowchart LR
-    Req[Request req_021] --> Problem[Bootstrap ends without commit checkpoint]
-    Problem --> Scope[Offer safe post-bootstrap commit]
-    Scope --> AC[Prompt, generated message, safe git behavior]
-    AC --> Tasks[Task task_020 orchestration]
+    Request[req_021_propose_commit_after_bootstrap_wit] --> Problem[Bootstrap currently gets the repository in]
+    Problem --> Scope[Propose commit after bootstrap with genera]
+    Scope --> Acceptance[AC1: A commit proposal is shown]
+    Acceptance --> Tasks[task_020_orchestration_delivery_for_req_01]
 ```
 
 # Acceptance criteria

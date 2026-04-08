@@ -30,14 +30,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|raise-plugin-src-coverage-on-high-return|req-130-make-plugin-coverage-actionable-|make-plugin-coverage-actionable-by-raisi|ac1-behavior-focused-tests-are-added-for
 flowchart LR
-    A[req 130] --> B[Raise src coverage first]
-    B --> C[Test entry and utility modules]
-    C --> D[Activation and parsing]
-    C --> E[Python fallback]
-    C --> F[Overlay handoff]
-    D --> G[Better src signal]
-    E --> G
-    F --> G
+    Request[req_130_make_plugin_coverage_actionable_wi] --> Problem[Make plugin coverage actionable by raising]
+    Problem --> Scope[Raise plugin src coverage on high-return]
+    Scope --> Acceptance[AC1: Behavior-focused tests are added for]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

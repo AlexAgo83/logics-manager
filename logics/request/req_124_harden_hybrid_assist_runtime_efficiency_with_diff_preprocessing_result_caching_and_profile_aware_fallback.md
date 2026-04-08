@@ -1,10 +1,13 @@
 ## req_124_harden_hybrid_assist_runtime_efficiency_with_diff_preprocessing_result_caching_and_profile_aware_fallback - Harden hybrid assist runtime efficiency with diff preprocessing, result caching, and profile-aware fallback
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 96%
+> Understanding: 100% (refreshed)
+> Confidence: 97%
 > Complexity: Medium
 > Theme: Hybrid assist token efficiency and runtime hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -38,21 +41,9 @@
 %% logics-kind: request
 %% logics-signature: request|harden-hybrid-assist-runtime-efficiency-|reduce-claude-and-codex-token-consumptio|ac1-the-hybrid-assist-runtime-applies
 flowchart TD
-    Waste[Avoidable token waste at runtime layer] --> P1[Noisy diffs reach AI unchanged]
-    Waste --> P2[git snapshot collected multiple times per session]
-    Waste --> P3[No result cache for repeated calls on same diff]
-    Waste --> P4[handoff-packet deep profile used on Codex fallback]
-    Waste --> P5[No deterministic pre-classification for bounded flows]
-    Waste --> P6[All skills published to overlay regardless of tier]
-    Waste --> P7[ROI data not surfaced as actionable recommendations]
-    P1 --> AC1[AC1: Diff preprocessor strips lock files and binaries]
-    P2 --> AC2[AC2: git snapshot shared within session]
-    P3 --> AC3[AC3: Short-lived result cache by diff hash]
-    P4 --> AC4[AC4: Profile downgrade on remote or Codex fallback]
-    P5 --> AC5[AC5: Deterministic pre-classification for diff-risk]
-    P6 --> AC6[AC6: Tier-based selective skill overlay publishing]
-    P7 --> AC7[AC7: Actionable cost recommendations in Hybrid Insights]
-    AC1 --> Backlog[Backlog slice]
+    Trigger[Harden hybrid assist runtime efficiency wi] --> Need[Reduce Claude and Codex token consumption]
+    Need --> Outcome[AC1: The hybrid assist runtime applies]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

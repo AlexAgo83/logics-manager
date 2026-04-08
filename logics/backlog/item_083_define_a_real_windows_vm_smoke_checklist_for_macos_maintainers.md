@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-a-real-windows-vm-smoke-checklist|req-062-harden-windows-compatibility-acr|define-a-practical-way-for-a|ac1-the-request-defines-a-two-layer
 flowchart LR
-    Request[req_064_add_a_practical_windows_validation] --> Problem[Define a practical way for a]
+    Request[req_062_harden_windows_compatibility_acros] --> Problem[Define a practical way for a]
     Problem --> Scope[Define a real Windows VM smoke]
     Scope --> Acceptance[AC1: The request defines a two-layer]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_087_define_a_real_windows_vm_smoke_ch]
 ```
 
 # Acceptance criteria

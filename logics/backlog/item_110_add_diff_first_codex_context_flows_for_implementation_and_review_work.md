@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-diff-first-codex-context-flows-for-i|req-080-reduce-codex-token-consumption-w|implementation-and-review-work-often-nee|ac1-implementation-and-review-oriented-f
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Implementation and review work often need]
     Problem --> Scope[Add diff-first Codex context flows for]
-    Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Implementation and review-oriented fl]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

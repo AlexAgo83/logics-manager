@@ -42,12 +42,9 @@
 %% logics-kind: request
 %% logics-signature: request|harden-ollama-hybrid-assist-prompts-and-|make-ollama-backed-hybrid-assist-flows-r|ac1-for-supported-local-hybrid-flows
 flowchart TD
-    Trigger[Healthy Ollama backend is selected] --> Prompt[Runtime builds local hybrid JSON prompt]
-    Prompt --> BadOutput[Model echoes contract instead of result payload]
-    BadOutput --> Fallback[Validation raises hybrid_missing_field and falls back to codex]
-    Fallback --> Insight[Hybrid Insights shows degraded fallback heavy usage]
-    Insight --> Fix[Harden prompt contract validation and diagnostics]
-    Fix --> Backlog[Backlog slice]
+    Trigger[Harden Ollama hybrid assist prompts and] --> Need[Make Ollama-backed hybrid assist flows ret]
+    Need --> Outcome[AC1: For supported local hybrid flows]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

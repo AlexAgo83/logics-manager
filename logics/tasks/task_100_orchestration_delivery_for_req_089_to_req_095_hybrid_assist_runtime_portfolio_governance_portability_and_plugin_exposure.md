@@ -1,9 +1,9 @@
 ## task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure - Orchestration delivery for req_089 to req_095 hybrid assist runtime portfolio governance portability and plugin exposure
-> From version: 1.12.1
+> From version: 1.12.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-request hybrid assist delivery orchestration
@@ -46,12 +46,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-089-to-re|item-140-define-deterministic-hybrid-bac|1-confirm-cross-request-scope-dependenci|python3-logics-skills-logics-flow-manage
 flowchart LR
-    Start[req_089 to req_095 hybrid portfolio] --> Wave1[Wave 1 governance context and degraded policy]
-    Wave1 --> Wave2[Wave 2 backend runtime and portability]
-    Wave2 --> Wave3[Wave 3 first-wave and second-wave assist flows]
-    Wave3 --> Wave4[Wave 4 plugin diagnostics actions and audit UX]
-    Wave4 --> Validate[Validate docs runtime tests portability and plugin surfaces]
-    Validate --> Report[Done report]
+    Backlog[item_140_define_deterministic_hybrid_backe] --> Step1[1. Confirm cross-request scope dependencie]
+    Step1 --> Step2[2. Wave 1: deliver shared governance]
+    Step2 --> Step3[3. Wave 2: deliver reusable runtime]
+    Step3 --> Validation[python3 logics skills logics-flow-manager]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -165,3 +164,8 @@ flowchart LR
 - [x] Linked request/backlog/task docs updated during completed waves and at closure.
 - [x] Each completed wave leaves a commit-ready checkpoint or an explicit exception is documented.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

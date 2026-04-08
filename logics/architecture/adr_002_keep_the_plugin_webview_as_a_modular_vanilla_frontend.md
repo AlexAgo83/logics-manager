@@ -1,5 +1,5 @@
 ## adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend - Keep the plugin webview as a modular vanilla frontend
-> Date: 2026-03-14
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: Improve maintainability, preserve CSP/package simplicity, avoid framework overhead, and reduce regression risk in the webview.
 > Related request: `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
@@ -62,3 +62,8 @@ Implementation direction:
 # Follow-up work
 - Continue reducing `main.js` only when a new extraction has a clear boundary.
 - Avoid introducing framework/tooling churn unless a later request proves the current modular model insufficient.
+
+# References
+- `logics/request/req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`
+- `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`
+- `logics/tasks/task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`

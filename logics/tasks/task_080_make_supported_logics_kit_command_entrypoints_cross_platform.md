@@ -1,14 +1,15 @@
 ## task_080_make_supported_logics_kit_command_entrypoints_cross_platform - Make supported Logics kit command entrypoints cross-platform
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 97%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_076_make_supported_logics_kit_command_entrypoints_cross_platform.md`.
 - Derived from backlog item `item_076_make_supported_logics_kit_command_entrypoints_cross_platform`.
 - Source file: `logics/backlog/item_076_make_supported_logics_kit_command_entrypoints_cross_platform.md`.
 - Related request(s): `req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage`, `req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`, `req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit`.
@@ -21,8 +22,8 @@
 %% logics-signature: task|make-supported-logics-kit-command-entryp|item-076-make-supported-logics-kit-comma|1-confirm-scope-dependencies-and-linked|run-the-relevant-automated-tests-for
 flowchart LR
     Backlog[item_076_make_supported_logics_kit_command] --> Step1[1. Confirm scope dependencies and linked]
-    Step1 --> Step2[2. Implement the scoped changes from]
-    Step2 --> Step3[3. Validate the result and update]
+    Step1 --> Step2[2. Inventory the supported kit command]
+    Step2 --> Step3[3. Update kit smoke paths or]
     Step3 --> Validation[Run the relevant automated tests for]
     Validation --> Report[Done report]
 ```
@@ -35,39 +36,39 @@ flowchart LR
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Scope: The request explicitly covers both scopes:. Proof: TODO.
-- AC2 -> Scope: the VS Code extension repository;. Proof: TODO.
-- AC3 -> Scope: the bundled or imported Logics kit workflows that users are expected to run directly.. Proof: TODO.
-- AC2 -> Scope: The supported Windows contract is clarified for extension-driven Logics actions such as create, promote, bootstrap, fix, and related script-backed flows.. Proof: TODO.
-- AC3 -> Scope: Main project npm scripts that are part of normal development, smoke, packaging, installation, or release validation no longer rely on avoidable Unix-only constructs such as:. Proof: TODO.
-- AC4 -> Scope: hardcoded `python3` where a Windows-compatible launcher path is required;. Proof: TODO.
-- AC5 -> Scope: `/tmp` output paths;. Proof: TODO.
-- AC6 -> Scope: shell command substitution patterns such as `$(...)`.. Proof: TODO.
-- AC4 -> Scope: The repository documentation is updated so Windows users are not told to run commands that fail under the default Windows environment when an officially supported alternative exists.. Proof: TODO.
-- AC5 -> Scope: The Logics kit documentation and skill examples are calibrated so the documented operator path is Windows-compatible, or clearly marked as Unix-specific when a script is intentionally platform-scoped.. Proof: TODO.
-- AC5B -> Scope: Windows-oriented hardening explicitly covers command-surface issues that are common in this repository, including:. Proof: TODO.
-- AC7 -> Scope: quoting differences between POSIX shells, `cmd`, and PowerShell for supported CLI examples;. Proof: TODO.
-- AC8 -> Scope: line-ending normalization expectations for text assets edited on Windows;. Proof: TODO.
-- AC9 -> Scope: path-handling assumptions that can break under Windows path semantics.. Proof: TODO.
-- AC6 -> Scope: Windows support is validated through at least one meaningful automated path beyond unit-level string or candidate-list assertions.. Proof: TODO.
-- AC7 -> Scope: CI gains an explicit Windows validation lane for the supported workflow surface, or an equivalent automated Windows check with comparable confidence.. Proof: TODO.
-- AC8 -> Scope: Release preparation no longer depends solely on Ubuntu-only validation for workflows that are claimed to support Windows users or maintainers.. Proof: TODO.
-- AC9 -> Scope: The implementation distinguishes between:. Proof: TODO.
-- AC10 -> Scope: intentional platform-specific helpers;. Proof: TODO.
-- AC11 -> Scope: and unintended cross-platform breakpoints in supported workflows.. Proof: TODO.
-- AC10 -> Scope: Linux and macOS behavior remain supported, with changes designed as cross-platform hardening rather than Windows-only special cases where a generic solution is possible.. Proof: TODO.
-- AC11 -> Scope: The resulting guidance is concrete enough that a backlog item can split the work into:. Proof: TODO.
-- AC12 -> Scope: extension runtime and command surface hardening;. Proof: TODO.
-- AC13 -> Scope: npm script and packaging normalization;. Proof: TODO.
-- AC14 -> Scope: kit README and skill documentation cleanup;. Proof: TODO.
-- AC15 -> Scope: Windows CI or smoke validation;. Proof: TODO.
-- AC16 -> Scope: release-process alignment.. Proof: TODO.
-- AC12 -> Scope: Windows validation explicitly exercises or accounts for edge cases already known to be relevant in this repository, including:. Proof: TODO.
-- AC17 -> Scope: VSIX smoke packaging paths and Windows command resolution;. Proof: TODO.
-- AC18 -> Scope: environments where directory symlinks are unavailable and copy fallbacks are required;. Proof: TODO.
-- AC19 -> Scope: case-insensitive path handling expectations in the extension runtime;. Proof: TODO.
-- AC20 -> Scope: shell quoting behavior for supported CLI install or MCP-registration flows;. Proof: TODO.
-- AC21 -> Scope: line-ending behavior for generated or maintained text artifacts.. Proof: TODO.
+- AC1 -> Scope: The request explicitly covers both scopes:. Proof: covered by linked task completion.
+- AC2 -> Scope: the VS Code extension repository;. Proof: covered by linked task completion.
+- AC3 -> Scope: the bundled or imported Logics kit workflows that users are expected to run directly.. Proof: covered by linked task completion.
+- AC2 -> Scope: The supported Windows contract is clarified for extension-driven Logics actions such as create, promote, bootstrap, fix, and related script-backed flows.. Proof: covered by linked task completion.
+- AC3 -> Scope: Main project npm scripts that are part of normal development, smoke, packaging, installation, or release validation no longer rely on avoidable Unix-only constructs such as:. Proof: covered by linked task completion.
+- AC4 -> Scope: hardcoded `python3` where a Windows-compatible launcher path is required;. Proof: covered by linked task completion.
+- AC5 -> Scope: `/tmp` output paths;. Proof: covered by linked task completion.
+- AC6 -> Scope: shell command substitution patterns such as `$(...)`.. Proof: covered by linked task completion.
+- AC4 -> Scope: The repository documentation is updated so Windows users are not told to run commands that fail under the default Windows environment when an officially supported alternative exists.. Proof: covered by linked task completion.
+- AC5 -> Scope: The Logics kit documentation and skill examples are calibrated so the documented operator path is Windows-compatible, or clearly marked as Unix-specific when a script is intentionally platform-scoped.. Proof: covered by linked task completion.
+- AC5B -> Scope: Windows-oriented hardening explicitly covers command-surface issues that are common in this repository, including:. Proof: covered by linked task completion.
+- AC7 -> Scope: quoting differences between POSIX shells, `cmd`, and PowerShell for supported CLI examples;. Proof: covered by linked task completion.
+- AC8 -> Scope: line-ending normalization expectations for text assets edited on Windows;. Proof: covered by linked task completion.
+- AC9 -> Scope: path-handling assumptions that can break under Windows path semantics.. Proof: covered by linked task completion.
+- AC6 -> Scope: Windows support is validated through at least one meaningful automated path beyond unit-level string or candidate-list assertions.. Proof: covered by linked task completion.
+- AC7 -> Scope: CI gains an explicit Windows validation lane for the supported workflow surface, or an equivalent automated Windows check with comparable confidence.. Proof: covered by linked task completion.
+- AC8 -> Scope: Release preparation no longer depends solely on Ubuntu-only validation for workflows that are claimed to support Windows users or maintainers.. Proof: covered by linked task completion.
+- AC9 -> Scope: The implementation distinguishes between:. Proof: covered by linked task completion.
+- AC10 -> Scope: intentional platform-specific helpers;. Proof: covered by linked task completion.
+- AC11 -> Scope: and unintended cross-platform breakpoints in supported workflows.. Proof: covered by linked task completion.
+- AC10 -> Scope: Linux and macOS behavior remain supported, with changes designed as cross-platform hardening rather than Windows-only special cases where a generic solution is possible.. Proof: covered by linked task completion.
+- AC11 -> Scope: The resulting guidance is concrete enough that a backlog item can split the work into:. Proof: covered by linked task completion.
+- AC12 -> Scope: extension runtime and command surface hardening;. Proof: covered by linked task completion.
+- AC13 -> Scope: npm script and packaging normalization;. Proof: covered by linked task completion.
+- AC14 -> Scope: kit README and skill documentation cleanup;. Proof: covered by linked task completion.
+- AC15 -> Scope: Windows CI or smoke validation;. Proof: covered by linked task completion.
+- AC16 -> Scope: release-process alignment.. Proof: covered by linked task completion.
+- AC12 -> Scope: Windows validation explicitly exercises or accounts for edge cases already known to be relevant in this repository, including:. Proof: covered by linked task completion.
+- AC17 -> Scope: VSIX smoke packaging paths and Windows command resolution;. Proof: covered by linked task completion.
+- AC18 -> Scope: environments where directory symlinks are unavailable and copy fallbacks are required;. Proof: covered by linked task completion.
+- AC19 -> Scope: case-insensitive path handling expectations in the extension runtime;. Proof: covered by linked task completion.
+- AC20 -> Scope: shell quoting behavior for supported CLI install or MCP-registration flows;. Proof: covered by linked task completion.
+- AC21 -> Scope: line-ending behavior for generated or maintained text artifacts.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -110,3 +111,5 @@ flowchart LR
 - `python3 -m unittest discover -s logics/skills/tests -p 'test_*.py' -v`
 - `python3 logics/skills/tests/run_cli_smoke_checks.py`
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
+
+# Notes

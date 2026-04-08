@@ -38,12 +38,9 @@
 %% logics-kind: request
 %% logics-signature: request|make-logics-bootstrap-converge-to-a-read|ensure-the-logics-bootstrap-flow-is|ac1-when-bootstrap-runs-on-a
 flowchart TD
-    Trigger[Bootstrap installs repo local kit] --> Inspect[Inspect whether repo can publish global kit]
-    Inspect --> Publish[Attempt global publication in the normal path]
-    Publish --> Ready[Report completion only when global kit is ready]
-    Publish --> Repair[If publish fails report partial or blocked state with remediation]
-    Ready --> Backlog[Backlog slice]
-    Repair --> Backlog
+    Trigger[Make Logics bootstrap converge to a] --> Need[Ensure the Logics bootstrap flow is]
+    Need --> Outcome[AC1: When bootstrap runs on a]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

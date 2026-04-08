@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-plugin-hybrid-assist-roi-dispatch-|req-095-adapt-the-vs-code-logics-plugin-|even-with-a-canonical-runtime-report|ac1-the-plugin-exposes-a-dedicated
 flowchart LR
-    Request[req_098] --> Problem[Operators need plugin visible insights]
-    Problem --> Surface[Add dedicated ROI dispatch insights panel]
-    Surface --> Metrics[Render usage split degraded reasons and review flags]
-    Metrics --> Drilldown[Support recent audit drill down]
-    Drilldown --> Done[Execution task]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[Even with a canonical runtime report]
+    Problem --> Scope[Add a plugin hybrid assist ROI]
+    Scope --> Acceptance[AC1: The plugin exposes a dedicated]
+    Acceptance --> Tasks[task_102_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

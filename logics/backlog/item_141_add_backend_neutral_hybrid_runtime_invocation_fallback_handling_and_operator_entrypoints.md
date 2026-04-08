@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-backend-neutral-hybrid-runtime-invoc|req-089-add-a-hybrid-ollama-or-codex-loc|backend-detection-alone-does-not-deliver|ac1-the-hybrid-runtime-exposes-backend-n
 flowchart LR
-    Request[req_089] --> Problem[Hybrid flows need one runtime path]
-    Problem --> Invoke[Define backend-neutral invocation helpers]
-    Invoke --> Fallback[Define explicit fallback and error handling]
-    Fallback --> Entry[Define stable operator entrypoints]
-    Entry --> Done[Execution task]
+    Request[req_089_add_a_hybrid_ollama_or_codex_local] --> Problem[Backend detection alone does not deliver]
+    Problem --> Scope[Add backend-neutral hybrid runtime invocat]
+    Scope --> Acceptance[AC1: The hybrid runtime exposes backend-ne]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

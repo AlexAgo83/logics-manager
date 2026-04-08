@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-shared-hybrid-assist-context-pack|req-082-strengthen-logics-kit-primitives|req-094-identifies-context-discipline-as|ac1-shared-context-pack-profiles-exist-f
 flowchart LR
-    Request[req_094] --> Problem[Hybrid assist needs one shared context discipline]
-    Problem --> Core[Define core context profiles]
-    Core --> Enrich[Define optional enrichments]
-    Enrich --> Trim[Define trimming and truncation rules]
-    Trim --> Done[Execution task]
+    Request[req_082_strengthen_logics_kit_primitives_f] --> Problem[req_094 identifies context discipline as a]
+    Problem --> Scope[Define shared hybrid assist context-pack p]
+    Scope --> Acceptance[AC1: Shared context-pack profiles exist fo]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

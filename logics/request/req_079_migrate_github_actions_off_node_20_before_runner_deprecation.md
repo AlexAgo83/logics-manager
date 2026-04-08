@@ -1,8 +1,8 @@
 ## req_079_migrate_github_actions_off_node_20_before_runner_deprecation - Migrate GitHub Actions off Node 20 before runner deprecation
 > From version: 1.11.1
 > Status: Done
-> Understanding: 96%
-> Confidence: 95%
+> Understanding: 99%
+> Confidence: 98%
 > Complexity: Medium
 > Theme: CI and release maintenance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -21,10 +21,9 @@
 %% logics-kind: request
 %% logics-signature: request|migrate-github-actions-off-node-20-befor|remove-the-current-github-actions-depend|ac1-ci-yml-release-yml-and-any-other
 flowchart TD
-    Trigger[GitHub warns about Node 20 action deprecation] --> Need[Keep CI and release workflows forward-compatible]
-    Need --> AC1[AC1: Update the repository workflow actions to versions that support the post-Node-20 runner contract]
-    AC1 --> AC2[AC2: CI and release validation stay green on Ubuntu and Windows after the action upgrade]
-    AC2 --> Backlog[Backlog slice]
+    Trigger[Migrate GitHub Actions off Node 20] --> Need[Remove the current GitHub Actions dependen]
+    Need --> Outcome[AC1: ci.yml release.yml and any other]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -44,3 +43,4 @@ flowchart TD
 
 # Backlog
 - `item_102_migrate_github_actions_off_node_20_before_runner_deprecation`
+- `logics/backlog/item_102_migrate_github_actions_off_node_20_before_runner_deprecation.md`

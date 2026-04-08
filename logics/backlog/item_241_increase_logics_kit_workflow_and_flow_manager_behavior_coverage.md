@@ -25,13 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|increase-logics-kit-workflow-and-flow-ma|req-129-greatly-improve-plugin-and-kit-c|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart LR
-    A[Separate plugin and kit coverage] --> B[Focus on behavior validation]
-    B --> C[Coverage reporting & CI strategy]
-    C --> D[Scenario-driven tests for high-risk paths]
-    D --> E[Make low-covered modules testable]
-    E --> F[Define coverage quality metrics]
-    F --> G[Include opt-in live API tests]
-    G --> H[Add lifecycle integration tests]
+    Request[req_129_greatly_improve_plugin_and_kit_cov] --> Problem[Raise plugin coverage in a way]
+    Problem --> Scope[Increase Logics kit workflow and flow-mana]
+    Scope --> Acceptance[AC1: The request clearly separates plugin]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

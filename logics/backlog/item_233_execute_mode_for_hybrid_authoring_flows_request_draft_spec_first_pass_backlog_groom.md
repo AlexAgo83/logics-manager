@@ -1,10 +1,10 @@
 ## item_233_execute_mode_for_hybrid_authoring_flows_request_draft_spec_first_pass_backlog_groom - Execute mode for hybrid authoring flows request-draft spec-first-pass backlog-groom
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 95%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 96%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,11 +25,10 @@ The authoring hybrid flows introduced in items 226-227 (`request-draft`, `spec-f
 %% logics-kind: backlog
 %% logics-signature: backlog|execute-mode-for-hybrid-authoring-flows-|req-127-consolidate-deferred-hybrid-and-|the-authoring-hybrid-flows-introduced-in|ac1-the-hybrid-authoring-flows-request-d
 flowchart LR
-    Request[req_127 post-rollout consolidation] --> Prerequisite[items 226-227 live and contracts validated in production]
-    Prerequisite --> Problem[Authoring flows are proposal-only, operators must manually create docs]
-    Problem --> Scope[Execute mode flag that creates docs from validated proposals]
-    Scope --> AC1[AC1: execute mode creates logics doc with explicit operator confirmation]
-    AC1 --> Tasks[Execution task]
+    Request[req_127_consolidate_deferred_hybrid_and_ki] --> Problem[The authoring hybrid flows introduced in]
+    Problem --> Scope[Execute mode for hybrid authoring flows]
+    Scope --> Acceptance[AC1: The hybrid authoring flows request-dr]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -57,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: High — eliminates the manual copy-paste step from proposal to logics doc
 - Urgency: Low — gated on items 226-227 production validation
+
+# Notes

@@ -28,10 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-logics-kit-doctor-command-and-expl|req-084-improve-logics-kit-diagnostics-s|the-kit-lacks-a-single-operator-facing|ac1-a-doctor-command-detects-common
 flowchart LR
-    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit lacks a single operator facing diag]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit lacks a single operator-facing]
     Problem --> Scope[Add a Logics kit doctor command]
-    Scope --> Acceptance[AC1: A doctor command detects common kit]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: A doctor command detects common]
+    Acceptance --> Tasks[task_096_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -1,8 +1,8 @@
 ## req_055_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
 > From version: 1.10.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 95%
+> Understanding: 100% (refreshed)
+> Confidence: 98%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -30,13 +30,12 @@ The desired direction is therefore a bridge, not a migration:
 - the bridge should point Claude Code back toward `logics/instructions.md` and the relevant skill docs/scripts instead of copying detailed logic into root files.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|add-a-minimal-claude-code-bridge-for-log|make-logics-more-natively-usable-from|ac1-the-solution-defines-a-minimal
 flowchart TD
-    Need[Team wants Claude Code support] --> Constraint[Keep logics as source of truth]
-    Constraint --> Bridge[Add thin claude bridge]
-    Bridge --> Agents[Claude agents point to logics docs]
-    Agents --> Commands[Claude commands trigger logics flows]
-    Commands --> Outcome[Claude can work with Logics cleanly]
+    Trigger[Add a minimal Claude Code bridge] --> Need[Make Logics more natively usable from]
+    Need --> Outcome[AC1: The solution defines a minimal]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -99,3 +98,4 @@ flowchart TD
 
 # Backlog
 - `item_064_add_a_minimal_claude_code_bridge_for_logics_agents`
+- `logics/backlog/item_064_add_a_minimal_claude_code_bridge_for_logics_agents.md`

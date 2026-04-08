@@ -25,13 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|increase-plugin-webview-behavior-coverag|req-129-greatly-improve-plugin-and-kit-c|raise-plugin-coverage-in-a-way|ac1-the-request-clearly-separates-plugin
 flowchart LR
-    A[Start] --> B[Separate plugin and kit coverage]
-    B --> C[Focus plugin on behavior tests]
-    C --> D[Add plugin coverage governance]
-    D --> E[Focus kit on high-risk paths]
-    E --> F[Make low-covered kit modules testable]
-    F --> G[Define coverage quality metrics]
-    G --> H[Add lifecycle and integration tests]
+    Request[req_129_greatly_improve_plugin_and_kit_cov] --> Problem[Raise plugin coverage in a way]
+    Problem --> Scope[Increase plugin webview behavior coverage]
+    Scope --> Acceptance[AC1: The request clearly separates plugin]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

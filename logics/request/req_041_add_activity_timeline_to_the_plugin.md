@@ -1,11 +1,20 @@
 ## req_041_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: Change visibility and workflow awareness
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-an-activity-timeline-to-the-plugin|expose-recent-logics-activity-in-a|ac1-the-plugin-exposes-a-visible
+flowchart TD
+    Trigger[Add an activity timeline to the] --> Need[Expose recent Logics activity in a]
+    Need --> Outcome[AC1: The plugin exposes a visible]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Expose recent Logics activity in a timeline-like surface.
@@ -71,3 +80,7 @@ It is about a practical timeline of meaningful recent Logics events surfaced ins
 
 # Backlog
 - `logics/backlog/item_046_add_activity_timeline_to_the_plugin.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

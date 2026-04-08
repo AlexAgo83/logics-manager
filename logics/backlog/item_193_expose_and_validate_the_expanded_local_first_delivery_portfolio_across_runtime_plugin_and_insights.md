@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|expose-and-validate-the-expanded-local-f|req-106-expand-deterministic-and-ollama-|deterministic-helpers-and-bounded-ollama|ac1-operators-can-reach-the-selected
 flowchart LR
-    Request[req_106_local_first_portfolio_expansion] --> Problem[New helpers need discoverable surfaces and clear observability]
-    Problem --> Scope[Expose and validate the expanded portfolio]
-    Scope --> Acceptance[AC1 operators can reach and understand the new local first helpers]
-    Acceptance --> Tasks[Execution task]
+    Request[req_106_expand_deterministic_and_ollama_fi] --> Problem[Deterministic helpers and bounded Ollama-f]
+    Problem --> Scope[Expose and validate the expanded local-fir]
+    Scope --> Acceptance[AC1: Operators can reach the selected]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

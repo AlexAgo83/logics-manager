@@ -1,5 +1,5 @@
 ## adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map - Centralize plugin relationship reasoning for context packs attention explain and dependency map
-> Date: 2026-03-16
+> Date: 2026-04-09
 > Status: Accepted
 > Drivers: Avoid duplicate graph traversal logic, keep context assembly and attention explanations consistent, preserve the Markdown-backed Logics model, and make a dependency map feasible without a separate relationship subsystem.
 > Related request: `req_056_add_codex_context_pack_attention_explain_and_dependency_map`
@@ -86,7 +86,6 @@ The shared layer should be capable of:
 - `logics/backlog/item_066_explain_attention_reasons_and_suggested_remediation.md`
 - `logics/backlog/item_067_add_dependency_map_for_logics_workflow_relationships.md`
 - `logics/tasks/task_070_orchestration_delivery_for_req_056_context_pack_attention_explain_and_dependency_map.md`
-
 # Follow-up work
 - Use this ADR as the required architecture reference for `item_065`, `item_066`, `item_067`, and `task_070`.
 - Keep the first dependency map bounded to a selected-item subgraph rather than a whole-workspace graph.

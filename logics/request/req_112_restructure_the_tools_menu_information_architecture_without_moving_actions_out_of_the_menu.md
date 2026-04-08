@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
+> Understanding: 95%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -32,12 +32,9 @@
 %% logics-kind: request
 %% logics-signature: request|restructure-the-tools-menu-information-a|reduce-the-scan-cost-of-the|ac1-the-tools-menu-is-reorganized
 flowchart TD
-    Flat[Flat tools menu] --> Group[Group by operator intent]
-    State[Repository and runtime state] --> Prioritize[Prioritize contextually relevant actions]
-    Group --> Menu[Structured tools menu]
-    Prioritize --> Menu
-    Menu --> Discoverability[Better discoverability without removing actions]
-    Discoverability --> Backlog[Backlog slice]
+    Trigger[Restructure the tools menu information arc] --> Need[Reduce the scan cost of the]
+    Need --> Outcome[AC1: The tools menu is reorganized]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -126,3 +123,4 @@ flowchart TD
 
 # Backlog
 - `item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`
+- `logics/backlog/item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu.md`

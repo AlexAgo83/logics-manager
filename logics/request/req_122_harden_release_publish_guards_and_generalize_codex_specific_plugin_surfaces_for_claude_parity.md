@@ -2,8 +2,8 @@
 > From version: 1.21.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: High
 > Theme: AI Runtime
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -55,14 +55,9 @@ Out of scope for this request:
 %% logics-kind: request
 %% logics-signature: request|harden-release-publish-guards-and-genera|prevent-the-plugin-from-exposing-publish|ac1-the-plugin-exposes-publish-release
 flowchart TD
-    Trigger[Plugin exposes shared assistant and release actions] --> GuardA[Guard GitHub-only release publish]
-    Trigger --> GuardB[Require explicit consent for release branch maintenance]
-    Trigger --> Parity[Close Claude parity gaps beyond launcher and bridge]
-    Trigger --> Wording[Generalize assistant-agnostic wording]
-    GuardA --> Outcome[Safer and clearer operator contract]
-    GuardB --> Outcome
-    Parity --> Outcome
-    Wording --> Outcome
+    Trigger[Harden release publish guards and generali] --> Need[Prevent the plugin from exposing Publish]
+    Need --> Outcome[AC1: The plugin exposes Publish Release]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -163,3 +158,4 @@ Out of scope:
 # Backlog
 - `item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity`
 - `task_111_orchestration_delivery_for_req_122_and_req_123_across_release_guardrails_assistant_wording_and_environment_diagnostics_clarity`
+- `logics/backlog/item_218_harden_release_publish_guards_and_generalize_codex_specific_plugin_surfaces_for_claude_parity.md`

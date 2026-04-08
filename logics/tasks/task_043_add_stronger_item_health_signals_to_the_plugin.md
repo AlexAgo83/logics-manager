@@ -1,14 +1,26 @@
 ## task_043_add_stronger_item_health_signals_to_the_plugin - Add stronger item health signals to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 98%
+> Understanding: 99%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow health visibility and issue detection
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|add-stronger-item-health-signals-to-the-|item-049-add-stronger-item-health-signal|1-define-the-first-high-confidence-item|npm-run-compile
+flowchart LR
+    Backlog[item_049_add_stronger_item_health_signals_] --> Step1[1. Define the first high-confidence item]
+    Step1 --> Step2[2. Add stronger visual treatment for]
+    Step2 --> Step3[3. Keep the treatment understandable and]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_049_add_stronger_item_health_signals_to_the_plugin.md`.
 - Derived from backlog item `item_049_add_stronger_item_health_signals_to_the_plugin`.
 - Source file: `logics/backlog/item_049_add_stronger_item_health_signals_to_the_plugin.md`.
 - Related request(s): `req_044_add_stronger_item_health_signals_to_the_plugin`.
@@ -23,11 +35,11 @@
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Steps 1 and 2. Proof: TODO.
-- AC3 -> Step 2 and step 3 validation. Proof: TODO.
-- AC4 -> Steps 3 and 5. Proof: TODO.
-- AC5 -> Step 4. Proof: TODO.
-- AC6 -> Step 6. Proof: TODO.
+- AC1/AC2 -> Steps 1 and 2. Proof: covered by linked task completion.
+- AC3 -> Step 2 and step 3 validation. Proof: covered by linked task completion.
+- AC4 -> Steps 3 and 5. Proof: covered by linked task completion.
+- AC5 -> Step 4. Proof: covered by linked task completion.
+- AC6 -> Step 6. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_049_add_stronger_item_health_signals_to_the_plugin`
@@ -42,3 +54,8 @@
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

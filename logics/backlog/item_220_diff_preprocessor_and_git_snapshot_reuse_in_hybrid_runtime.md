@@ -1,10 +1,10 @@
 ## item_220_diff_preprocessor_and_git_snapshot_reuse_in_hybrid_runtime - Diff preprocessor and git snapshot reuse in hybrid runtime
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 93%
-> Confidence: 88%
-> Progress: 100%
+> Understanding: 94%
+> Confidence: 89%
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: Hybrid assist token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,12 +25,10 @@ Separately, `collect_git_snapshot` is called independently at lines 724, 1069, 1
 %% logics-kind: backlog
 %% logics-signature: backlog|diff-preprocessor-and-git-snapshot-reuse|req-124-harden-hybrid-assist-runtime-eff|lock-files-package-lock-json-yarn-lock-c|ac1-the-hybrid-runtime-strips-lock
 flowchart LR
-    Request[req_124 hybrid runtime efficiency] --> Problem[Lock files inflate prompts, snapshot collected 4 times per session]
-    Problem --> Scope[Diff preprocessor in transport layer and snapshot reuse in flow runner]
-    Scope --> AC1[AC1: Preprocessor strips lock files and binaries before prompt build]
-    Scope --> AC2[AC2: Snapshot computed once and reused within a single invocation]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_124_harden_hybrid_assist_runtime_effic] --> Problem[Lock files package-lock.json yarn.lock Car]
+    Problem --> Scope[Diff preprocessor and git snapshot reuse]
+    Scope --> Acceptance[AC1: The hybrid runtime strips lock]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -60,3 +58,5 @@ flowchart LR
 # Priority
 - Impact: Medium — affects every hybrid flow, every provider
 - Urgency: Normal
+
+# Notes

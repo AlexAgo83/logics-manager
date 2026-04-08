@@ -28,10 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-a-summary-only-first-pass-mode-for-c|req-080-reduce-codex-token-consumption-w|many-codex-tasks-do-not-need|ac1-at-least-one-supported-codex
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Many Codex tasks do not need]
     Problem --> Scope[Add a summary-only first-pass mode for]
-    Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: At least one supported Codex]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -24,12 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|normalize-workspace-root-comparison-with|req-132-fix-empty-board-on-windows-due-t|in-media-main-js-the-webview-compares|ac1-workspace-root-comparison-in-media
 flowchart LR
-    Request[req 132 - Windows empty board] --> Problem[String equality on paths fails on Windows]
-    Problem --> Scope[Use Windows-aware path comparison]
-    Scope --> AC1[Webview root comparison uses areSamePath logic]
-    Scope --> AC2[Watcher patterns work on Windows]
-    AC1 --> Task[Implementation task]
-    AC2 --> Task
+    Request[req_132_fix_empty_board_on_windows_due_to_] --> Problem[In media main.js the webview compares]
+    Problem --> Scope[Normalize workspace root comparison with W]
+    Scope --> Acceptance[AC1: Workspace root comparison in media]
+    Acceptance --> Tasks[task_115_fix_windows_empty_board_orchestra]
 ```
 
 # Acceptance criteria

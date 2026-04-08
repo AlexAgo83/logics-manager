@@ -1,14 +1,15 @@
 ## task_090_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
-> From version: 1.10.9
+> From version: 1.10.9 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
-> Progress: 100% (governed)
+> Understanding: 99%
+> Confidence: 97%
+> Progress: 100%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`.
 - Derived from backlog item `item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`.
 - Source file: `logics/backlog/item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`.
 - Related request(s): `req_067_add_multi_project_codex_workspace_overlays_for_logics_skills`, `req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays`, `req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays`, `req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays`.
@@ -40,13 +41,13 @@ flowchart LR
 - Prefer a reviewed commit checkpoint at the end of each meaningful wave instead of accumulating several undocumented partial states.
 
 # AC Traceability
-- AC1 -> Scope: A plugin action exists to update the Logics kit when the repository uses the canonical `logics/skills` submodule model and the detected kit is older than the overlay-manager baseline.. Proof: TODO.
-- AC2 -> Scope: A plugin action exists to sync the Codex workspace overlay when `logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py` is present and the overlay is missing, stale, or otherwise not ready.. Proof: TODO.
-- AC3 -> Scope: The plugin checks Git and repository safety before attempting kit updates, including missing Git on PATH, dirty worktree, and missing or non-submodule `logics/skills` layouts.. Proof: TODO.
-- AC4 -> Scope: Unsupported or unsafe update cases fall back to explicit operator guidance instead of partial automation or misleading success messages.. Proof: TODO.
-- AC5 -> Scope: The plugin keeps the kit and overlay logic delegated to the existing submodule and Python scripts rather than duplicating those behaviors in TypeScript.. Proof: TODO.
-- AC6 -> Scope: The new actions are surfaced from at least one user-facing remediation surface that already reports the corresponding problem state.. Proof: TODO.
-- AC7 -> Scope: Documentation and user-facing messaging explain when the plugin can remediate automatically and when it only provides manual guidance.. Proof: TODO.
+- AC1 -> Scope: A plugin action exists to update the Logics kit when the repository uses the canonical `logics/skills` submodule model and the detected kit is older than the overlay-manager baseline.. Proof: covered by linked task completion.
+- AC2 -> Scope: A plugin action exists to sync the Codex workspace overlay when `logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py` is present and the overlay is missing, stale, or otherwise not ready.. Proof: covered by linked task completion.
+- AC3 -> Scope: The plugin checks Git and repository safety before attempting kit updates, including missing Git on PATH, dirty worktree, and missing or non-submodule `logics/skills` layouts.. Proof: covered by linked task completion.
+- AC4 -> Scope: Unsupported or unsafe update cases fall back to explicit operator guidance instead of partial automation or misleading success messages.. Proof: covered by linked task completion.
+- AC5 -> Scope: The plugin keeps the kit and overlay logic delegated to the existing submodule and Python scripts rather than duplicating those behaviors in TypeScript.. Proof: covered by linked task completion.
+- AC6 -> Scope: The new actions are surfaced from at least one user-facing remediation surface that already reports the corresponding problem state.. Proof: covered by linked task completion.
+- AC7 -> Scope: Documentation and user-facing messaging explain when the plugin can remediate automatically and when it only provides manual guidance.. Proof: covered by linked task completion.
 - AC8 -> Scope: The first implementation pass can expose the remediation flow from both the Tools menu and actionable environment diagnostics without expanding beyond the current wrapper role.. Proof: Implemented through new Tools menu entries plus actionable `Logics: Check Environment` remediation items.
 
 # Decision framing
@@ -96,3 +97,5 @@ flowchart LR
 - Follow-up remediation UX completed on 2026-03-23.
 - Added startup-time VS Code notifications that proactively offer `Update Logics Kit` or `Sync Codex Overlay` once per unresolved repository state, matching the existing bootstrap prompt model without spamming repeated refreshes.
 - Tightened terminal Codex handoff on 2026-03-23 so copied overlay commands use the detected Python launcher and healthy overlays can be launched directly in a VS Code terminal instead of relying only on clipboard handoff.
+
+# Notes

@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-deterministic-hybrid-backend-dete|req-089-add-a-hybrid-ollama-or-codex-loc|req-089-needs-one-predictable-way-to|ac1-backend-selection-rules-for-ollama
 flowchart LR
-    Request[req_089] --> Problem[Hybrid backend choice must be deterministic]
-    Problem --> Probes[Define health probes and model checks]
-    Probes --> Router[Define auto routing and override rules]
-    Router --> Done[Execution task]
+    Request[req_089_add_a_hybrid_ollama_or_codex_local] --> Problem[req_089 needs one predictable way to]
+    Problem --> Scope[Define deterministic hybrid backend detect]
+    Scope --> Acceptance[AC1: Backend selection rules for ollama]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

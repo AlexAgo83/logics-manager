@@ -1,8 +1,17 @@
 ## req_003_filter_panel_options - Regroup options into filter panel
 > From version: 1.9.1
-> Understanding: 85% (audit-aligned)
-> Confidence: 85% (governed)
+> Understanding: 88% (audit-aligned)
+> Confidence: 88% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|regroup-options-into-filter-panel|regroup-the-existing-options-into-a|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Regroup options into filter panel] --> Need[Regroup the existing options into a]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Regroup the existing options into a dedicated panel that opens when clicking a filter-like icon.
@@ -24,3 +33,7 @@
 
 # Backlog
 - `logics/backlog/item_003_filter_panel_options.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

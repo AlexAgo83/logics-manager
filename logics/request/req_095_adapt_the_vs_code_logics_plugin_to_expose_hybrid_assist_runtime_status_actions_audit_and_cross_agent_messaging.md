@@ -47,15 +47,9 @@
 %% logics-kind: request
 %% logics-signature: request|adapt-the-vs-code-logics-plugin-to-expos|adapt-the-vs-code-logics-plugin|ac1-the-plugin-environment-and-diagnosti
 flowchart TD
-    Trigger[Hybrid assist runtime grows beyond terminal flows] --> Status[Expose runtime health and backend status]
-    Status --> Actions[Expose assist actions through plugin tools]
-    Actions --> Audit[Show backend result state and audit visibility]
-    Audit --> Messaging[Separate shared runtime from Codex specific UX]
-    Messaging --> AC1[AC1: Plugin surfaces hybrid runtime health]
-    AC1 --> AC2[AC2: Plugin exposes stable hybrid actions]
-    AC2 --> AC3[AC3: Plugin shows backend and degraded states clearly]
-    AC3 --> AC4[AC4: Plugin remains a thin client over shared runtime]
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Adapt the VS Code Logics plugin] --> Need[Adapt the VS Code Logics plugin]
+    Need --> Outcome[AC1: The plugin environment and diagnostic]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

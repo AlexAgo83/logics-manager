@@ -28,10 +28,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|reclassify-optional-claude-bridge-availa|req-103-separate-optional-claude-bridge-|the-shared-hybrid-runtime-currently-trea|ac1-runtime-status-no-longer-reports-deg
 flowchart LR
-    Request[req_103_separate_optional_claude_bridge_status] --> Problem[Claude bridge absence currently marks runtime degraded]
-    Problem --> Scope[Reclassify bridge availability as informational metadata]
-    Scope --> Acceptance[AC1 runtime health no longer depends on Claude presence]
-    Acceptance --> Tasks[Execution task]
+    Request[req_103_separate_optional_claude_bridge_st] --> Problem[The shared hybrid runtime currently treats]
+    Problem --> Scope[Reclassify optional Claude bridge availabi]
+    Scope --> Acceptance[AC1: Runtime-status no longer reports degr]
+    Acceptance --> Tasks[task_105_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

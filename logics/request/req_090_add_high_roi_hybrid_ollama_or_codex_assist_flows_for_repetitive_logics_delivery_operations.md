@@ -35,13 +35,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-high-roi-hybrid-ollama-or-codex-assi|add-a-first-wave-of-concrete|ac1-the-kit-defines-and-implements
 flowchart TD
-    Trigger[Need concrete hybrid assist flows with real operator ROI] --> Scope[Select high ROI and bounded use cases only]
-    Scope --> AC1[AC1: First strong-fit flows are defined and bounded]
-    AC1 --> AC2[AC2: Shared contracts keep backend switching stable]
-    AC2 --> AC3[AC3: Operator flows keep Codex or deterministic execution]
-    AC3 --> AC4[AC4: Medium-fit assist flows stay proposal-only]
-    AC4 --> AC5[AC5: Low-fit tasks stay explicitly out of scope]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add high ROI hybrid Ollama or] --> Need[Add a first wave of concrete]
+    Need --> Outcome[AC1: The kit defines and implements]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

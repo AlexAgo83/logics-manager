@@ -37,10 +37,9 @@ The preferred direction is to improve automatic generation at creation and promo
 %% logics-kind: request
 %% logics-signature: request|generate-context-aware-mermaid-diagrams-|make-mermaid-diagrams-in-logics-docs|ac1-the-request-defines-a-kit-level
 flowchart TD
-    A[Request backlog or task doc is created or updated] --> B[Mermaid should reflect the current need]
-    B --> C[Generation or update uses real doc context]
-    C --> D[Diagram stays aligned with prose and acceptance criteria]
-    D --> E[Readers get a useful visual summary instead of stale filler]
+    Trigger[Generate context aware Mermaid diagrams an] --> Need[Make Mermaid diagrams in Logics docs]
+    Need --> Outcome[AC1: The request defines a kit-level]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

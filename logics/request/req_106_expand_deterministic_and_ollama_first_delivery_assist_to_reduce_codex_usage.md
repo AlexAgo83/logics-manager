@@ -52,13 +52,9 @@
 %% logics-kind: request
 %% logics-signature: request|expand-deterministic-and-ollama-first-de|reduce-unnecessary-codex-consumption-fur|ac1-the-platform-adds-a-second
 flowchart TD
-    Current[First hybrid wave already shipped] --> Split[Identify two reduction paths]
-    Split --> Deterministic[Deterministic helpers avoid any LLM call]
-    Split --> Local[Bounded Ollama-first helpers stay proposal-only]
-    Deterministic --> Target[Reduce Codex usage on repetitive delivery work]
-    Local --> Target
-    Target --> Guardrails[Keep mutation and deep reasoning boundaries explicit]
-    Guardrails --> Backlog[Backlog slice]
+    Trigger[Expand deterministic and Ollama-first deli] --> Need[Reduce unnecessary Codex consumption furth]
+    Need --> Outcome[AC1: The platform adds a second]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

@@ -35,10 +35,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-the-three-step-onboarding-model-a|req-119-three-step-onboarding-for-need-f|make-the-logics-workflow-understandable-|ac1-the-product-exposes-three-clearly
 flowchart LR
-    Request[req_119_three_step_onboarding_for_need_fra] --> Problem[Make the Logics workflow understandable at]
+    Request[req_119_three_step_onboarding_for_need_fra] --> Problem[Make the Logics workflow understandable th]
     Problem --> Scope[Define the three step onboarding model]
     Scope --> Acceptance[AC1: The product exposes three clearly]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_109_orchestration_delivery_for_req_11]
 ```
 
 # Acceptance criteria

@@ -27,10 +27,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-skill-fixtures-benchmarks-and-extens|req-084-improve-logics-kit-diagnostics-s|the-kit-still-lacks-a-standard|ac1-the-kit-provides-reusable-fixtures
 flowchart LR
-    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit still lacks a standard regressio]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[The kit still lacks a standard]
     Problem --> Scope[Add skill fixtures benchmarks and extensio]
-    Scope --> Acceptance[AC1: The kit provides reusable fixtures o]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The kit provides reusable fixtures]
+    Acceptance --> Tasks[task_096_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

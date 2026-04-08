@@ -1,9 +1,9 @@
 ## task_110_orchestration_delivery_for_req_120_and_req_121_multi_provider_hybrid_dispatch_and_audit_cleanup - Orchestration delivery for req_120 and req_121 across audit cleanup and multi-provider hybrid dispatch
-> From version: 1.18.1
+> From version: 1.18.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Progress: 100%
 > Complexity: High
 > Theme: Orchestration
@@ -54,11 +54,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-120-and-r|item-210-quick-wins-remove-dead-code-sta|1-confirm-item-ordering-cross-request-de|python3-logics-skills-logics-py-audit-re
 flowchart LR
-    Start[item 210 to item 217] --> Wave1[Wave 1 req 121 cleanup and modularization]
-    Wave1 --> Wave2[Wave 2 req 120 provider abstraction and transports]
-    Wave2 --> Wave3[Wave 3 observability tools surface and regression closure]
-    Wave3 --> Validate[Validate docs runtime tests plugin and kit state]
-    Validate --> Report[Commit ready orchestration report]
+    Backlog[item_210_quick_wins_remove_dead_code_stale] --> Step1[1. Confirm item ordering cross-request dep]
+    Step1 --> Step2[2. Wave 1: deliver item_210 item_211]
+    Step2 --> Step3[3. Wave 2: deliver item_213 item_214]
+    Step3 --> Validation[python3 logics skills logics.py audit --re]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -201,3 +201,5 @@ flowchart LR
 - Validation checkpoint for `item_217`: ran `python3 -m unittest logics.skills.tests.test_bootstrapper logics.skills.tests.test_logics_flow -v` successfully after extending the shared runtime regression matrix.
 - Wave 3 is now complete. Final close-out synchronized the README with the shipped `AI Runtime` / `AI Provider Insights` labels and reran the relevant TypeScript, Logics-doc, and shared-runtime validation suite.
 - Direct handoff: start `task_109_orchestration_delivery_for_req_119_three_step_onboarding` next. Reuse the stabilized `AI Runtime` tools baseline as-is, avoid reopening provider/runtime refactors during onboarding work, and treat the current multi-provider runtime contract as the platform underneath that onboarding slice.
+
+# Notes

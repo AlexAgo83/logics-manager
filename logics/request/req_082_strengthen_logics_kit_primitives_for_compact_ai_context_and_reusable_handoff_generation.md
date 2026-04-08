@@ -27,13 +27,9 @@
 %% logics-kind: request
 %% logics-signature: request|strengthen-logics-kit-primitives-for-com|reduce-token-waste-at-the-source|ac1-the-logics-kit-can-backfill
 flowchart TD
-    Trigger[The kit still leaks verbosity and duplicated handoff logic] --> Need[Make compact AI context and handoff generation kit-native]
-    Need --> AC1[AC1: Backfill or repair compact AI Context on existing docs]
-    AC1 --> AC2[AC2: Reuse shared helpers across connector-generated docs]
-    AC2 --> AC3[AC3: Generate stable context-pack artifacts from the kit]
-    AC3 --> AC4[AC4: Add corpus compaction and token hygiene maintenance flows]
-    AC4 --> AC5[AC5: Audit generated assets and skill capability metadata]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Strengthen Logics kit primitives for compa] --> Need[Reduce token waste at the source]
+    Need --> Outcome[AC1: The Logics kit can backfill]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

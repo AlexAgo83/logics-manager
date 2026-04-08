@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-incremental-workflow-and-skill-index|req-085-add-repo-config-runtime-entrypoi|repeated-context-graph-registry-doctor-b|ac1-a-runtime-index-exists-for
 flowchart LR
-    Need[Repeated kit scans are reparsing the same files] --> Index[Build runtime index with file signatures]
-    Index --> Reuse[Reuse cached workflow and skill entries]
-    Reuse --> Inspect[Expose cache stats through sync build-index and index json]
-    Inspect --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[Repeated context graph registry doctor ben]
+    Problem --> Scope[Add incremental workflow and skill indexin]
+    Scope --> Acceptance[AC1: A runtime index exists for]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

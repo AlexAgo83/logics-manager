@@ -1,11 +1,20 @@
 ## req_010_stacked_layout_disable_splitter_and_compact_details_when_collapsed - Stacked layout: disable splitter and compact details when collapsed
 > From version: 1.1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Medium
 > Theme: UX Behavior and Interaction Guardrails
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|stacked-layout-disable-splitter-and-comp|in-stacked-vertical-split-layout-collaps|ac1-in-stacked-layout-when-details
+flowchart TD
+    Trigger[Stacked layout: disable splitter and compa] --> Need[In stacked vertical split layout collapsin]
+    Need --> Outcome[AC1: In stacked layout when Details]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - In stacked (vertical split) layout, collapsing Details should also disable splitter interaction.
@@ -47,3 +56,7 @@ Expected behavior:
 
 # Backlog
 - `logics/backlog/item_010_stacked_layout_disable_splitter_and_compact_details_when_collapsed.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

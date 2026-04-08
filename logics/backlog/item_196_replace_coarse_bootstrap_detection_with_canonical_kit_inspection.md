@@ -1,10 +1,10 @@
 ## item_196_replace_coarse_bootstrap_detection_with_canonical_kit_inspection - Replace coarse bootstrap detection with canonical kit inspection
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 91%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|replace-coarse-bootstrap-detection-with-|req-104-harden-repository-maintenance-gu|stop-treating-any-logics-skills-presence|ac1-bootstrap-and-repair-actions-are
 flowchart LR
-    Request[req_109_replace_coarse_bootstrap_detection] --> Problem[Stop treating any logics skills presence]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Stop treating any logics skills presence]
     Problem --> Scope[Replace coarse bootstrap detection with ca]
     Scope --> Acceptance[AC1: Bootstrap and repair actions are]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -80,3 +80,4 @@ flowchart LR
 - Derived from request `req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection`.
 - Source file: `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`.
 - Request context seeded into this backlog item from `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`.
+- Derived from `logics/request/req_109_replace_coarse_bootstrap_detection_with_canonical_kit_inspection.md`.

@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|harden-workflow-doc-proof-and-placeholde|req-104-harden-repository-maintenance-gu|ready-or-done-workflow-docs-can|ac1-ready-or-done-workflow-docs
 flowchart LR
-    Request[req_104_repository_guardrails] --> Problem[Workflow docs can pass with placeholder proof]
-    Problem --> Scope[Harden proof and placeholder enforcement]
-    Scope --> Acceptance[AC1 stricter blocking governance for ready or done docs]
-    Acceptance --> Tasks[Execution task]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Ready or done workflow docs can]
+    Problem --> Scope[Harden workflow-doc proof and placeholder]
+    Scope --> Acceptance[AC1: Ready or done workflow docs]
+    Acceptance --> Tasks[task_038_improve_ui_state_persistence_in_t]
 ```
 
 # Acceptance criteria

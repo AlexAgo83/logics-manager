@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|generalize-plugin-context-pack-wording-b|req-095-adapt-the-vs-code-logics-plugin-|the-plugin-still-says-context-pack|ac1-the-shared-context-pack-surface-uses
 flowchart LR
-    Request[req_096] --> Problem[Shared context pack is still framed as Codex only]
-    Problem --> Neutral[Use agent neutral wording]
-    Neutral --> Preserve[Preserve explicit Codex only actions]
-    Preserve --> Docs[Align UI and README copy]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[The plugin still says Context pack]
+    Problem --> Scope[Generalize plugin context pack wording bey]
+    Scope --> Acceptance[AC1: The shared context-pack surface uses]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

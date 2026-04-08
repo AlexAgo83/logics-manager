@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|extend-machine-readable-outputs-across-a|req-085-add-repo-config-runtime-entrypoi|the-flow-manager-already-exposed-json|ac1-the-bootstrapper-can-return-a
 flowchart LR
-    Need[Automation needs structured kit outputs] --> JSON[Add json contracts to adjacent scripts]
-    JSON --> Docs[Document routed machine-readable entrypoints]
-    Docs --> Tests[Verify the structured payloads in tests]
-    Tests --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[The flow manager already exposed JSON]
+    Problem --> Scope[Extend machine-readable outputs across aut]
+    Scope --> Acceptance[AC1: The bootstrapper can return a]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

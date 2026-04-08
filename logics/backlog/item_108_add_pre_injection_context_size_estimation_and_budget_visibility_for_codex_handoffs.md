@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-pre-injection-context-size-estimatio|req-080-reduce-codex-token-consumption-w|codex-handoffs-still-hide-their-approxim|ac1-the-plugin-or-kit-can
 flowchart LR
-    Request[req_081_add_measurement_summary_first_and_] --> Problem[Add operator-facing measurement and lightw]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Codex handoffs still hide their approximat]
     Problem --> Scope[Add pre-injection context size estimation]
     Scope --> Acceptance[AC1: The plugin or kit can]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_093_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

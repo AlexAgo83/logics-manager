@@ -1,5 +1,5 @@
 ## prod_004_logics_auto_orchestration_vision - Logics auto orchestration vision
-> Date: 2026-04-03
+> Date: 2026-04-09
 > Status: Proposed
 > Related request: `req_119_three_step_onboarding_for_need_framing_and_execution`
 > Related backlog: `item_208_define_the_three_step_onboarding_model_and_operator_copy`, `item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment`
@@ -66,14 +66,6 @@ flowchart LR
 - `logics/backlog/item_208_define_the_three_step_onboarding_model_and_operator_copy.md`
 - `logics/backlog/item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment.md`
 - `logics/tasks/task_109_orchestration_delivery_for_req_119_three_step_onboarding.md`
-- `logics/instructions.md`
-- `logics/skills/logics-flow-manager/SKILL.md`
-- `src/logicsViewProvider.ts`
-- `src/logicsViewDocumentController.ts`
-- `media/toolsPanelLayout.js`
-- `.claude/agents/logics-flow-manager.md`
-- `.claude/agents/logics-hybrid-delivery-assistant.md`
-
 # Open questions
 - When should autonomy levels become user-visible instead of staying as an internal behavior policy?
 - How should first-run and post-update triggering be tuned so the onboarding stays helpful rather than intrusive?

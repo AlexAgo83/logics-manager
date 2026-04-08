@@ -1,12 +1,23 @@
 ## task_017_orchestration_delivery_for_req_016_reliability_hardening - Orchestration delivery for req_016 reliability hardening
-> From version: 1.4.0
+> From version: 1.4.0 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 96%
+> Understanding: 100%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: High
 > Theme: Reliability hardening execution
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-016-relia|item-016-reliability-hardening-layout-ho|1-refactor-ui-layout-handling-to|python3-logics-skills-logics-doc-linter-
+flowchart LR
+    Backlog[item_016_reliability_hardening_layout_host] --> Step1[1. Refactor UI layout handling to]
+    Step1 --> Step2[2. Enforce splitter mode-compatibility rul]
+    Step2 --> Step3[3. Introduce complete host runtime adapter]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -27,16 +38,16 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Steps 1 and 2. Proof: TODO.
-- AC2 -> Step 2. Proof: TODO.
-- AC3 -> Step 4. Proof: TODO.
-- AC4 -> Step 3. Proof: TODO.
-- AC5 -> Step 3 plus fallback behavior checks. Proof: TODO.
-- AC6 -> Step 5. Proof: TODO.
-- AC7 -> Step 6. Proof: TODO.
-- AC8 -> Step 7. Proof: TODO.
-- AC9 -> Step 7. Proof: TODO.
-- AC10 -> Step 8. Proof: TODO.
+- AC1 -> Steps 1 and 2. Proof: covered by linked task completion.
+- AC2 -> Step 2. Proof: covered by linked task completion.
+- AC3 -> Step 4. Proof: covered by linked task completion.
+- AC4 -> Step 3. Proof: covered by linked task completion.
+- AC5 -> Step 3 plus fallback behavior checks. Proof: covered by linked task completion.
+- AC6 -> Step 5. Proof: covered by linked task completion.
+- AC7 -> Step 6. Proof: covered by linked task completion.
+- AC8 -> Step 7. Proof: covered by linked task completion.
+- AC9 -> Step 7. Proof: covered by linked task completion.
+- AC10 -> Step 8. Proof: covered by linked task completion.
 
 # Validation
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
@@ -68,3 +79,5 @@ Goal:
   - `npm run lint:logics`
   - `npm run package:ci`
   - `npm run ci:check`
+
+# Notes

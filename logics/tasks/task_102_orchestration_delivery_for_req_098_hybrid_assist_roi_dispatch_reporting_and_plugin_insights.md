@@ -1,9 +1,9 @@
 ## task_102_orchestration_delivery_for_req_098_hybrid_assist_roi_dispatch_reporting_and_plugin_insights - Orchestration delivery for req_098 hybrid assist ROI dispatch reporting and plugin insights
-> From version: 1.13.0
+> From version: 1.13.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100%
+> Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Coordinated kit and plugin delivery for hybrid assist ROI observability
@@ -34,10 +34,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-098-hybri|item-164-add-a-canonical-hybrid-assist-r|1-confirm-the-kit-first-versus-plugin-se|python3-logics-skills-logics-flow-manage
 flowchart LR
-    Start[req_098] --> Wave1[Wave 1 runtime roi-report aggregation and semantics]
-    Wave1 --> Wave2[Wave 2 plugin insights surface and recent audit drill-down]
-    Wave2 --> Validate[Validate runtime report plugin rendering docs and tests]
-    Validate --> Report[Done report]
+    Backlog[item_164_add_a_canonical_hybrid_assist_roi] --> Step1[1. Confirm the kit-first versus plugin-sec]
+    Step1 --> Step2[2. Wave 1: deliver the canonical]
+    Step2 --> Step3[3. Wave 2: deliver the plugin]
+    Step3 --> Validation[python3 logics skills logics-flow-manager]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -131,3 +132,5 @@ flowchart LR
 - Wave 1 also documented the measured-versus-estimated semantics in the shared Logics runtime docs so CLI and plugin consumers interpret fallback-heavy or degraded-heavy reports the same way.
 - Wave 2 added a dedicated VS Code `Hybrid Insights` panel backed directly by the shared runtime report, plus Tools menu and command-palette entrypoints and source-log shortcuts.
 - Coverage was extended with a focused Python runtime test for `assist roi-report`, provider coverage for the panel handoff, and webview harness updates for the new tool action.
+
+# Notes

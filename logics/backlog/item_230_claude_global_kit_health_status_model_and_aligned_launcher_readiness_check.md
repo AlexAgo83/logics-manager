@@ -1,10 +1,10 @@
 ## item_230_claude_global_kit_health_status_model_and_aligned_launcher_readiness_check - Claude global kit health status model and aligned launcher readiness check
-> From version: 1.21.1+item230
+> From version: 1.21.1+item230 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 97%
-> Confidence: 91%
-> Progress: 100%
+> Understanding: 98%
+> Confidence: 92%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Claude and Codex runtime parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,12 +23,10 @@ The Claude launcher in `src/runtimeLaunchers.ts` checks only whether two repo-lo
 %% logics-kind: backlog
 %% logics-signature: backlog|claude-global-kit-health-status-model-an|req-126-achieve-claude-runtime-parity-wi|the-claude-launcher-in-src-runtimelaunch|ac1-the-plugin-exposes-a-health
 flowchart LR
-    Request[req_126 Claude runtime parity] --> Problem[Claude launcher checks 2 repo-local files while Codex checks full overlay health]
-    Problem --> Scope[ClaudeKitSnapshot type and inspector plus aligned launcher readiness check]
-    Scope --> AC1[AC1: ClaudeKitSnapshot with rich status states]
-    Scope --> AC2[AC2: Claude launcher requires global kit healthy before enabling]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_126_achieve_claude_runtime_parity_with] --> Problem[The Claude launcher in src runtimeLauncher]
+    Problem --> Scope[Claude global kit health status model]
+    Scope --> Acceptance[AC1: The plugin exposes a health]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -58,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: High — makes the Claude launcher trustworthy and equivalent to Codex
 - Urgency: Normal — depends on item_229 being implemented first
+
+# Notes

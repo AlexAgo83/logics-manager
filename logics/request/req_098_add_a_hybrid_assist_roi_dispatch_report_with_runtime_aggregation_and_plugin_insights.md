@@ -47,15 +47,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-a-hybrid-assist-roi-dispatch-report-|make-the-hybrid-assist-measurement-and|ac1-the-kit-exposes-a-canonical
 flowchart TD
-    Trigger[Hybrid assist logs exist but stay too raw] --> Aggregate[Aggregate measurements and audits into one report]
-    Aggregate --> Label[Separate measured facts from estimated ROI proxies]
-    Label --> Surface[Expose a plugin insights screen over the shared runtime]
-    Surface --> Trust[Show backend provenance degraded states and fallback reasons]
-    Trust --> AC1[AC1: Canonical runtime roi-report exists]
-    AC1 --> AC2[AC2: Measurement and estimate semantics stay explicit]
-    AC2 --> AC3[AC3: Plugin exposes a dedicated insights surface]
-    AC3 --> AC4[AC4: The plugin remains a thin client over runtime data]
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Add a hybrid assist ROI dispatch] --> Need[Make the hybrid assist measurement and]
+    Need --> Outcome[AC1: The kit exposes a canonical]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

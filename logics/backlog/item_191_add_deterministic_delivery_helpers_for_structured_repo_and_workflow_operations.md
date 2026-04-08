@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-deterministic-delivery-helpers-for-s|req-088-add-a-local-llm-dispatcher-for-d|some-repetitive-operator-tasks-still-pus|ac1-the-platform-adds-deterministic-help
 flowchart LR
-    Request[req_106_local_first_portfolio_expansion] --> Problem[Structured tasks still consume assistant budget]
-    Problem --> Scope[Add deterministic no LLM delivery helpers]
-    Scope --> Acceptance[AC1 stable deterministic helpers cover key structured operations]
-    Acceptance --> Tasks[Execution task]
+    Request[req_088_add_a_local_llm_dispatcher_for_det] --> Problem[Some repetitive operator tasks still push]
+    Problem --> Scope[Add deterministic delivery helpers for str]
+    Scope --> Acceptance[AC1: The platform adds deterministic helpe]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

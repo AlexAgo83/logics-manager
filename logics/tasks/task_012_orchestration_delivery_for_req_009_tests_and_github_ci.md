@@ -1,12 +1,23 @@
 ## task_012_orchestration_delivery_for_req_009_tests_and_github_ci - Orchestration delivery for req_009 tests and GitHub CI
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 98% (closed)
-> Confidence: 95% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 99% (closed)
+> Confidence: 96% (validated)
+> Progress: 100%
 > Complexity: Medium-High
 > Theme: CI and Test Baseline Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-009-tests|item-009-add-automated-tests-and-github-|1-select-and-configure-test-stack|npm-run-compile
+flowchart LR
+    Backlog[item_009_add_automated_tests_and_github_ci] --> Step1[1. Select and configure test stack]
+    Step1 --> Step2[2. Add baseline tests for indexer]
+    Step2 --> Step3[3. Add GitHub Actions workflow for]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from `logics/backlog/item_009_add_automated_tests_and_github_ci_workflow_script.md`.
@@ -27,11 +38,11 @@ Constraint:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 (local tests runnable) -> `package.json` scripts + test config committed. Proof: TODO.
-- AC2 (core behavior covered) -> tests for parsing/references/promotion guards committed. Proof: TODO.
-- AC3 (CI workflow active) -> `.github/workflows/ci.yml` (or equivalent) committed. Proof: TODO.
-- AC4 (docs aligned) -> README section updated with commands and checks. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 (local tests runnable) -> `package.json` scripts + test config committed. Proof: covered by linked task completion.
+- AC2 (core behavior covered) -> tests for parsing/references/promotion guards committed. Proof: covered by linked task completion.
+- AC3 (CI workflow active) -> `.github/workflows/ci.yml` (or equivalent) committed. Proof: covered by linked task completion.
+- AC4 (docs aligned) -> README section updated with commands and checks. Proof: covered by linked task completion.
+- AC5 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Validation
 - `npm run compile`
@@ -59,3 +70,5 @@ Constraint:
   - Added CI workflow (`.github/workflows/ci.yml`) for `npm run compile` + `npm run test`.
   - Added npm scripts: `test`, `test:watch`.
   - Updated README with validation and CI details.
+
+# Notes

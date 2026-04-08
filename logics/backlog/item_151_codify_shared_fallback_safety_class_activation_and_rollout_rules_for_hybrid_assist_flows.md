@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|codify-shared-fallback-safety-class-acti|req-091-ensure-hybrid-logics-delivery-au|req-093-also-needs-one-place-to|ac1-one-shared-fallback-policy-exists
 flowchart LR
-    Request[req_093] --> Problem[Hybrid governance needs one shared policy]
-    Problem --> Fallback[Define fallback and recovery rules]
-    Fallback --> Safety[Define safety classes and rollout defaults]
-    Safety --> Activate[Define shared activation expectations]
-    Activate --> Done[Execution task]
+    Request[req_091_ensure_hybrid_logics_delivery_auto] --> Problem[req_093 also needs one place to]
+    Problem --> Scope[Codify shared fallback safety-class activa]
+    Scope --> Acceptance[AC1: One shared fallback policy exists]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

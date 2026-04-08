@@ -25,13 +25,9 @@
 %% logics-kind: request
 %% logics-signature: request|improve-logics-kit-diagnostics-safety-an|make-the-logics-kit-easier-to|ac1-the-kit-provides-a-doctor
 flowchart TD
-    Trigger[The kit still has operator and maintenance blind spots] --> Need[Make diagnostics safety and internal runtime contracts explicit]
-    Need --> AC1[AC1: Doctor and explainable diagnostics exist]
-    AC1 --> AC2[AC2: Canonical parse and normalize models exist]
-    AC2 --> AC3[AC3: Conventions and capability metadata are centralized]
-    AC3 --> AC4[AC4: Bulk operations support safe write preview and patch planning]
-    AC4 --> AC5[AC5: Skills have fixtures benchmarks and extension contracts]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Improve Logics kit diagnostics safety and] --> Need[Make the Logics kit easier to]
+    Need --> Outcome[AC1: The kit provides a doctor]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

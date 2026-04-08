@@ -1,10 +1,10 @@
 ## item_228_extend_claude_bridge_for_new_authoring_flows_and_add_operator_guidance - Extend Claude bridge for new authoring flows and add operator guidance
-> From version: 1.21.1+item228
+> From version: 1.21.1+item228 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: Hybrid assist provider coverage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,12 +23,10 @@ The Claude bridge (`src/claudeBridgeSupport.ts`) currently only wires two skills
 %% logics-kind: backlog
 %% logics-signature: backlog|extend-claude-bridge-for-new-authoring-f|req-125-expand-hybrid-provider-coverage-|the-claude-bridge-src-claudebridgesuppor|ac1-the-claude-bridge-repairclaudebridge
 flowchart LR
-    Request[req_125 expand hybrid coverage] --> Problem[Claude bridge covers only two skills, no guidance on hybrid vs interactive]
-    Problem --> Scope[Bridge extension for new authoring flows and decision rule documentation]
-    Scope --> AC1[AC1: Claude bridge generates entries for new authoring flows]
-    Scope --> AC2[AC2: Operator guidance documents hybrid vs interactive decision rule]
-    AC1 --> Tasks[Execution task]
-    AC2 --> Tasks
+    Request[req_125_expand_hybrid_provider_coverage_to] --> Problem[The Claude bridge src claudeBridgeSupport]
+    Problem --> Scope[Extend Claude bridge for new authoring]
+    Scope --> Acceptance[AC1: The Claude bridge repairClaudeBridgeF]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -58,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: Medium — makes hybrid flows accessible directly from Claude sessions
 - Urgency: Low — depends on items 226-227 being implemented first
+
+# Notes

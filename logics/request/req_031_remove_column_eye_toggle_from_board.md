@@ -1,11 +1,20 @@
 ## req_031_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|remove-the-eye-toggle-from-board-columns|remove-the-eye-toggle-button-currently|ac1-the-eye-toggle-button-is
+flowchart TD
+    Trigger[Remove the eye toggle from board] --> Need[Remove the eye toggle button currently]
+    Need --> Outcome[AC1: The eye toggle button is]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Remove the eye toggle button currently shown in board column headers.
@@ -67,3 +76,7 @@ It should also avoid confusion with other visibility mechanisms that already exi
 
 # Backlog
 - `logics/backlog/item_036_remove_column_eye_toggle_from_board.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

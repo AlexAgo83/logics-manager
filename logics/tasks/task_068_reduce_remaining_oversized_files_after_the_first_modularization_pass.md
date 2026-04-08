@@ -1,14 +1,26 @@
 ## task_068_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 95%
+> Understanding: 98%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Second-pass modularity and ownership clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|reduce-remaining-oversized-files-after-t|item-063-reduce-remaining-oversized-file|1-split-the-remaining-oversized-responsi|npm-run-compile
+flowchart LR
+    Backlog[item_063_reduce_remaining_oversized_files_] --> Step1[1. Split the remaining oversized responsib]
+    Step1 --> Step2[2. Split the remaining oversized responsib]
+    Step2 --> Step3[3. Split the remaining oversized responsib]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
+```
+
 # Context
+Derived from `logics/backlog/item_063_reduce_remaining_oversized_files_after_the_first_modularization_pass.md`.
 - Derived from backlog item `item_063_reduce_remaining_oversized_files_after_the_first_modularization_pass`.
 - Source file: `logics/backlog/item_063_reduce_remaining_oversized_files_after_the_first_modularization_pass.md`.
 - Related request(s): `req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass`.
@@ -56,3 +68,5 @@
 - Extracted DOM event binding from `media/main.js` into `media/mainInteractions.js`; `main.js` remains slightly above the soft ceiling to preserve a single readable webview orchestration entrypoint.
 - Extracted Logics decision-framing and companion-rendering helpers from `logics_flow_support.py` into `logics_flow_decision_support.py`.
 - Validation passed on TypeScript compile, full Vitest suite, and the full Python skills test suite.
+
+# Notes

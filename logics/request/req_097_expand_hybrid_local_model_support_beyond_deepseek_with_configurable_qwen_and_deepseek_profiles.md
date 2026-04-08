@@ -33,11 +33,9 @@
 %% logics-kind: request
 %% logics-signature: request|expand-hybrid-local-model-support-beyond|broaden-the-kit-side-local-model-story-s|ac1-the-hybrid-assist-kit-runtime
 flowchart TD
-    Trigger[Hybrid runtime currently assumes DeepSeek first] --> Profiles[Support DeepSeek and Qwen model profiles]
-    Profiles --> Config[Make model choice explicit and configurable]
-    Config --> Health[Expose health and availability by selected profile]
-    Health --> Docs[Document supported families and operator guidance]
-    Docs --> Backlog[Backlog slice]
+    Trigger[Expand hybrid local-model support beyond D] --> Need[Broaden the kit-side local-model story so]
+    Need --> Outcome[AC1: The hybrid assist kit runtime]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

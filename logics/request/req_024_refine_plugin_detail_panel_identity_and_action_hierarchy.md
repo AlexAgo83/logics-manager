@@ -1,8 +1,8 @@
 ## req_024_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
 > From version: 1.9.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: VS Code plugin detail panel UX and action hierarchy
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -35,15 +35,12 @@ It should preserve the current workflow behavior while improving:
 - and resilience of the panel layout in edge cases.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|refine-plugin-detail-panel-identity-and-|refine-the-vs-code-plugin-detail|ac1-the-detail-panel-title-area
 flowchart TD
-    A[Current detail panel] --> B[Readable but visually dense identity block]
-    A --> C[Footer actions with similar visual weight]
-    B --> D[Refine title and metadata hierarchy]
-    C --> E[Refine primary versus secondary versus risky actions]
-    D --> F[Cleaner scanning]
-    E --> F
-    F --> G[More intentional workflow cockpit]
+    Trigger[Refine plugin detail panel identity and] --> Need[Refine the VS Code plugin detail]
+    Need --> Outcome[AC1: The detail panel title area]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -110,3 +107,8 @@ flowchart TD
 
 # Backlog
 - `item_029_refine_plugin_detail_panel_identity_and_action_hierarchy`
+
+- `logics/backlog/item_029_refine_plugin_detail_panel_identity_and_action_hierarchy.md`
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -1,8 +1,8 @@
 ## req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.1
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 99% (validated)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: VS Code webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -35,23 +35,12 @@ The intended architecture direction is:
 - shared workflow logic is centralized instead of duplicated inside rendering code.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|refactor-webview-frontend-structure-with|refactor-the-plugin-webview-frontend-so|ac1-the-webview-frontend-is-split
 flowchart TD
-    A[Current webview frontend] --> B[main.js mixes state render host bridge and helpers]
-    A --> C[main.css mixes all visual concerns]
-    B --> D[Harder maintenance and refactoring]
-    C --> D
-    D --> E[Refactor to lightweight frontend modules]
-    E --> F[Bootstrap entry]
-    E --> G[State and host API]
-    E --> H[Board and details renderers]
-    E --> I[Shared workflow model helpers]
-    E --> J[CSS split by UI concern]
-    F --> K[Better maintainability without full framework overhead]
-    G --> K
-    H --> K
-    I --> K
-    J --> K
+    Trigger[Refactor webview frontend structure withou] --> Need[Refactor the plugin webview frontend so]
+    Need --> Outcome[AC1: The webview frontend is split]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -113,3 +102,4 @@ flowchart TD
 
 # Backlog
 - `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`
+- `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`

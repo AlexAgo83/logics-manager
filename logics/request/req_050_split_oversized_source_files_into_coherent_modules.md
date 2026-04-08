@@ -1,11 +1,20 @@
 ## req_050_split_oversized_source_files_into_coherent_modules - Split oversized source files into coherent modules
 > From version: 1.10.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: High
 > Theme: Codebase modularity and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|split-oversized-source-files-into-cohere|reduce-the-maintenance-cost-of-a|ac1-each-targeted-oversized-file-is
+flowchart TD
+    Trigger[Split oversized source files into coherent] --> Need[Reduce the maintenance cost of a]
+    Need --> Outcome[AC1: Each targeted oversized file is]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Reduce the maintenance cost of a few oversized source files that currently concentrate too many responsibilities.
@@ -88,3 +97,7 @@ This refactor should be done intelligently:
 - `logics/backlog/item_057_split_monolithic_webview_harness_tests_by_behavior_domain.md`
 - `logics/backlog/item_058_split_logics_flow_manager_script_into_cli_and_workflow_modules.md`
 - `logics/backlog/item_059_split_react_render_bootstrap_script_into_bootstrap_phase_modules.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

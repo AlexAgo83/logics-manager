@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-plugin-audit-visibility-result-panel|req-095-adapt-the-vs-code-logics-plugin-|once-the-plugin-can-launch-hybrid|ac1-plugin-result-surfaces-show-backend
 flowchart LR
-    Request[req_095] --> Problem[Plugin triggered hybrid runs need explanation]
-    Problem --> Result[Show backend and degraded result state]
-    Result --> Audit[Show concise audit visibility]
-    Audit --> Messaging[Clean up cross agent runtime wording]
-    Messaging --> Done[Execution task]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[Once the plugin can launch hybrid]
+    Problem --> Scope[Add plugin audit visibility result panels]
+    Scope --> Acceptance[AC1: Plugin result surfaces show backend]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

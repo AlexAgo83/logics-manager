@@ -2,8 +2,8 @@
 > From version: 1.16.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 90%
+> Understanding: 93%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -28,11 +28,9 @@
 %% logics-kind: request
 %% logics-signature: request|harden-agent-registry-yaml-parsing-again|prevent-repo-local-agents-openai-yaml-fi|ac1-agent-manifest-loading-rejects-malfo
 flowchart TD
-    Repo[Repo local agent manifest] --> Parse[Manifest parsing path]
-    Audit[Dependency audit finding] --> Parse
-    Parse --> Guard[Harden parser and validation boundary]
-    Guard --> Stable[Stable extension behavior]
-    Stable --> Backlog[Backlog slice]
+    Trigger[Harden agent registry YAML parsing against] --> Need[Prevent repo-local agents openai.yaml file]
+    Need --> Outcome[AC1: Agent-manifest loading rejects malfor]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -92,3 +90,4 @@ flowchart TD
 
 # Backlog
 - `item_194_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests`
+- `logics/backlog/item_194_harden_agent_registry_yaml_parsing_against_malicious_skill_manifests.md`

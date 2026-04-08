@@ -29,11 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|split-oversized-flow-manager-cli-and-sup|req-131-reduce-all-remaining-active-sour|reduce-the-maintenance-cost-of-the|ac1-logics-flow-py-is-reduced-below-1000
 flowchart LR
-    A[req 131] --> B[Flow manager core scripts]
-    B --> C[CLI and dispatch seams]
-    B --> D[Support seams]
-    C --> E[Core scripts below 1000]
-    D --> E
+    Request[req_131_reduce_all_remaining_active_source] --> Problem[Reduce the maintenance cost of the]
+    Problem --> Scope[Split oversized flow manager CLI and]
+    Scope --> Acceptance[AC1: logics_flow.py is reduced below 1000]
+    Acceptance --> Tasks[task_114_orchestration_delivery_for_req_13]
 ```
 
 # Acceptance criteria

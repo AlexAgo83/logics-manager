@@ -1,9 +1,9 @@
 ## item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills - Define workspace overlay precedence and coexistence with global Codex skills
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 100%
+> Understanding: 96%
+> Confidence: 93%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Skill resolution policy and overlay coexistence
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-workspace-overlay-precedence-and-|req-067-add-multi-project-codex-workspac|define-how-workspace-overlays-coexist-wi|ac1-the-request-defines-an-explicit
 flowchart LR
-    Request[req_070_define_workspace_overlay_precedenc] --> Problem[Define how workspace overlays coexist with]
+    Request[req_067_add_multi_project_codex_workspace_] --> Problem[Define how workspace overlays coexist with]
     Problem --> Scope[Define workspace overlay precedence and co]
     Scope --> Acceptance[AC1: The request defines an explicit]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -41,15 +41,15 @@ flowchart LR
 - AC6: The request preserves the `logics/skills` source-of-truth contract from `req_067` while still defining how non-Logics skills coexist beside it.
 
 # AC Traceability
-- AC1 -> Scope: The request defines an explicit precedence model for at least these skill categories:. Proof: TODO.
-- AC2 -> Scope: repo-local Logics skills;. Proof: TODO.
-- AC3 -> Scope: user-global skills;. Proof: TODO.
-- AC4 -> Scope: system-provided skills.. Proof: TODO.
-- AC2 -> Scope: The request defines how overlays should behave when same-named skills exist in more than one source.. Proof: TODO.
-- AC3 -> Scope: The request makes visible-vs-hidden behavior explicit for user-global skills inside workspace overlays rather than leaving it to implementation accident.. Proof: TODO.
-- AC4 -> Scope: The request is concrete enough that a future implementation can build overlay contents and diagnostics against a single deterministic resolution policy.. Proof: TODO.
-- AC5 -> Scope: The request keeps this policy work separate from cross-platform publication mechanics and from operator CLI design, even if those later features depend on the result.. Proof: TODO.
-- AC6 -> Scope: The request preserves the `logics/skills` source-of-truth contract from `req_067` while still defining how non-Logics skills coexist beside it.. Proof: TODO.
+- AC1 -> Scope: The request defines an explicit precedence model for at least these skill categories:. Proof: covered by linked task completion.
+- AC2 -> Scope: repo-local Logics skills;. Proof: covered by linked task completion.
+- AC3 -> Scope: user-global skills;. Proof: covered by linked task completion.
+- AC4 -> Scope: system-provided skills.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request defines how overlays should behave when same-named skills exist in more than one source.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request makes visible-vs-hidden behavior explicit for user-global skills inside workspace overlays rather than leaving it to implementation accident.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request is concrete enough that a future implementation can build overlay contents and diagnostics against a single deterministic resolution policy.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request keeps this policy work separate from cross-platform publication mechanics and from operator CLI design, even if those later features depend on the result.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request preserves the `logics/skills` source-of-truth contract from `req_067` while still defining how non-Logics skills coexist beside it.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -77,3 +77,4 @@ flowchart LR
 - Derived from request `req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills`.
 - Source file: `logics/request/req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills.md`.
 - Request context seeded into this backlog item from `logics/request/req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills.md`.
+- Derived from `logics/request/req_070_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills.md`.

@@ -22,10 +22,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|refactor-hybrid-backend-selection-around|req-120-add-openai-and-gemini-provider-d|backend-selection-in-the-hybrid-assist|ac2-backend-selection-is-refactored-arou
 flowchart LR
-    Request[req_120 provider dispatch] --> Problem[Backend selection is transport-specific]
-    Problem --> Scope[Provider abstraction layer]
-    Scope --> AC[AC2 contract AC5 validation AC6 policy]
-    AC --> Foundation[Foundation for OpenAI and Gemini]
+    Request[req_120_add_openai_and_gemini_provider_dis] --> Problem[Backend selection in the hybrid assist]
+    Problem --> Scope[Refactor hybrid backend selection around a]
+    Scope --> Acceptance[AC2: Backend selection is refactored aroun]
+    Acceptance --> Tasks[Execution task]
 ```
 
 # Acceptance criteria

@@ -25,10 +25,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|normalize-npm-scripts-vsix-flows-and-rep|req-025-harden-logics-kit-workflow-gener|make-the-vs-code-extension-genuinely|ac1-the-request-explicitly-covers-both
 flowchart LR
-    Request[req_062_harden_windows_compatibility_acros] --> Problem[Make the VS Code extension genuinely]
+    Request[req_025_harden_logics_kit_workflow_generat] --> Problem[Make the VS Code extension genuinely]
     Problem --> Scope[Normalize npm scripts VSIX flows and]
     Scope --> Acceptance[AC1: The request explicitly covers both]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_077_normalize_npm_scripts_vsix_flows_]
 ```
 
 # Acceptance criteria

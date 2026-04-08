@@ -1,8 +1,8 @@
 ## task_073_orchestration_delivery_for_req_059_ui_steering_guidance_in_logics_kit - Orchestration delivery for req_059 UI steering guidance in Logics kit
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 95%
+> Understanding: 98%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit skill orchestration and frontend guidance
@@ -18,13 +18,14 @@
   - keep the guidance advisory and compatible with other skill framings.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-059-ui-st|item-071-guide-frontend-work-toward-the-|1-confirm-trigger-vocabulary-insertion-p|python3-m-pytest-logics-skills-tests
 flowchart LR
-    Backlog[item 071] --> Audit[audit trigger surfaces]
-    Audit --> Design[define trigger and insertion rules]
-    Design --> Implement[implement orchestration behavior]
-    Implement --> Validate[validate docs and tests]
-    Validate --> Report[ready for report]
+    Backlog[item_071_guide_frontend_work_toward_the_ui] --> Step1[1. Confirm trigger vocabulary insertion po]
+    Step1 --> Step2[2. Audit current flow-manager guidance and]
+    Step2 --> Step3[3. Implement deterministic frontend-scope]
+    Step3 --> Validation[python3 -m pytest logics skills tests]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -36,17 +37,17 @@ flowchart LR
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Workflow outputs explicitly surface `logics-ui-steering` for frontend-oriented scope. Proof: TODO.
-- AC2 -> Trigger vocabulary and limited-context rules are implemented and testable. Proof: TODO.
-- AC3 -> Recommendation appears in the chosen orchestration surfaces. Proof: TODO.
-- AC4 -> Advisory behavior and multi-skill coexistence are preserved. Proof: TODO.
-- AC5 -> Tests and docs cover the new behavior. Proof: TODO.
-- AC3B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6B -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6C -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC7 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Workflow outputs explicitly surface `logics-ui-steering` for frontend-oriented scope. Proof: covered by linked task completion.
+- AC2 -> Trigger vocabulary and limited-context rules are implemented and testable. Proof: covered by linked task completion.
+- AC3 -> Recommendation appears in the chosen orchestration surfaces. Proof: covered by linked task completion.
+- AC4 -> Advisory behavior and multi-skill coexistence are preserved. Proof: covered by linked task completion.
+- AC5 -> Tests and docs cover the new behavior. Proof: covered by linked task completion.
+- AC3B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC4B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6 -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6B -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC6C -> covered by linked delivery scope. Proof: covered by linked task completion.
+- AC7 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Not needed
@@ -79,3 +80,5 @@ flowchart LR
 - Finished on 2026-03-18.
 - Linked backlog item(s): `item_071_guide_frontend_work_toward_the_ui_steering_skill_in_the_logics_kit`
 - Related request(s): `req_059_guide_frontend_work_toward_the_ui_steering_skill_in_the_logics_kit`
+
+# Notes

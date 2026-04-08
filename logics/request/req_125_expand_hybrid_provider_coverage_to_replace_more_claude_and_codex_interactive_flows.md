@@ -1,10 +1,13 @@
 ## req_125_expand_hybrid_provider_coverage_to_replace_more_claude_and_codex_interactive_flows - Expand hybrid provider coverage to replace more Claude and Codex interactive flows
+> From version: 1.22.2 (refreshed)
+> Understanding: ??% (refreshed)
+> Confidence: ??% (refreshed)
 
 > From version: 1.21.1+traceability
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 91%
+> Understanding: 97%
+> Confidence: 92%
 > Complexity: High
 > Theme: Hybrid assist provider coverage and Claude or Codex cost reduction
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -32,16 +35,9 @@
 %% logics-kind: request
 %% logics-signature: request|expand-hybrid-provider-coverage-to-repla|reduce-the-number-of-tasks-that|ac1-next-step-is-made-eligible-for
 flowchart TD
-    Gap[Claude and Codex still handle tasks that could be hybrid] --> G1[next-step locked to codex-only under auto]
-    Gap --> G2[Authoring tasks done interactively instead of as hybrid flows]
-    Gap --> G3[Claude bridge covers only two skills]
-    G1 --> AC1[AC1: next-step eligible for openai and gemini dispatch]
-    G2 --> AC2[AC2: New hybrid flows for bounded authoring tasks]
-    G3 --> AC3[AC3: Claude bridge expanded to cover new flows]
-    AC1 --> AC4[AC4: Operator guidance on hybrid vs interactive]
-    AC2 --> AC4
-    AC3 --> AC4
-    AC4 --> Backlog[Backlog slice]
+    Trigger[Expand hybrid provider coverage to replace] --> Need[Reduce the number of tasks that]
+    Need --> Outcome[AC1: next-step is made eligible for]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

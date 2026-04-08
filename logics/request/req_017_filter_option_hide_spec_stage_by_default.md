@@ -1,11 +1,20 @@
 ## req_017_filter_option_hide_spec_stage_by_default - Add filter option to hide SPEC stage by default
 > From version: 1.5.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 99%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Filtering and view ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-filter-option-to-hide-spec-stage-by-|add-a-filter-option-to-completely|ac1-filter-panel-includes-a-new
+flowchart TD
+    Trigger[Add filter option to hide SPEC] --> Need[Add a filter option to completely]
+    Need --> Outcome[AC1: Filter panel includes a new]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a filter option to completely hide `SPEC` in both board and list modes.
@@ -42,3 +51,7 @@ The UI already has a filter panel and persisted filter state, so this change sho
 
 # Backlog
 - `logics/backlog/item_017_hide_spec_stage_by_default_filter_option.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

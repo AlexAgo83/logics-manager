@@ -1,10 +1,10 @@
 ## item_202_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html - Sanitize webview error rendering instead of injecting raw error HTML
-> From version: 1.16.0
+> From version: 1.16.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 93%
+> Confidence: 91%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -24,10 +24,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|sanitize-webview-error-rendering-instead|req-104-harden-repository-maintenance-gu|remove-direct-html-injection-from-the|ac1-webview-error-states-render-message
 flowchart LR
-    Request[req_115_sanitize_webview_error_rendering_i] --> Problem[Remove direct HTML injection from the]
+    Request[req_104_harden_repository_maintenance_guar] --> Problem[Remove direct HTML injection from the]
     Problem --> Scope[Sanitize webview error rendering instead o]
     Scope --> Acceptance[AC1: Webview error states render message]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_107_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria
@@ -79,3 +79,4 @@ flowchart LR
 - Derived from request `req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html`.
 - Source file: `logics/request/req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`.
 - Request context seeded into this backlog item from `logics/request/req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`.
+- Derived from `logics/request/req_115_sanitize_webview_error_rendering_instead_of_injecting_raw_error_html.md`.

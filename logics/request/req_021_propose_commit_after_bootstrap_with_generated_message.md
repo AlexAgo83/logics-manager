@@ -1,8 +1,8 @@
 ## req_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
 > From version: 1.7.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Bootstrap workflow and git ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -34,15 +34,12 @@ The desired UX is:
 - user can accept or skip the commit.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|propose-commit-after-bootstrap-with-gene|at-the-end-of-project-bootstrap|ac1-after-a-successful-bootstrap-the
 flowchart TD
-    Start[User runs Bootstrap Logics] --> Bootstrap[Bootstrap succeeds]
-    Bootstrap --> Detect[Collect created/modified files]
-    Detect --> Suggest[Assistant proposes commit]
-    Suggest --> Message[Assistant generates commit message]
-    Message --> Decision{User accepts?}
-    Decision -->|Yes| Commit[Create git commit]
-    Decision -->|No| Skip[Leave changes uncommitted]
+    Trigger[Propose commit after bootstrap with genera] --> Need[At the end of project bootstrap]
+    Need --> Outcome[AC1: After a successful bootstrap the]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria
@@ -87,3 +84,7 @@ flowchart TD
 
 # Backlog
 - `logics/backlog/item_021_propose_commit_after_bootstrap_with_generated_message.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

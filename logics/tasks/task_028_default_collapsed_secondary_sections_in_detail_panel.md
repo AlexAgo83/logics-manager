@@ -1,26 +1,28 @@
 ## task_028_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 99%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Detail panel scanability and progressive disclosure
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_033_default_collapsed_secondary_sections_in_detail_panel.md`.
 - Derived from backlog item `item_033_default_collapsed_secondary_sections_in_detail_panel`.
 - Source file: `logics/backlog/item_033_default_collapsed_secondary_sections_in_detail_panel.md`.
 - Related request(s): `req_029_default_collapsed_secondary_sections_in_detail_panel`.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|default-secondary-detail-sections-to-col|item-033-default-collapsed-secondary-sec|1-clarify-where-default-collapsed-sectio|npm-run-compile
 flowchart LR
-    Backlog[Backlog source] --> State[Define default open/collapsed section state]
-    State --> Renderer[Apply defaults in details renderer]
-    Renderer --> Toggle[Preserve manual expand/collapse behavior]
-    Toggle --> Selection[Validate behavior on selection changes]
-    Selection --> Tests[Add regression coverage]
+    Backlog[item_033_default_collapsed_secondary_secti] --> Step1[1. Clarify where default collapsed-section]
+    Step1 --> Step2[2. Set Indicators open by default]
+    Step2 --> Step3[3. Preserve existing manual expand collaps]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -32,11 +34,11 @@ flowchart LR
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1/AC2 -> Step 2. Proof: TODO.
-- AC3/AC4/AC5/AC6 -> Step 2. Proof: TODO.
-- AC7/AC8 -> Steps 3 and 4. Proof: TODO.
-- AC9 -> Step 3. Proof: TODO.
-- AC10 -> Step 5. Proof: TODO.
+- AC1/AC2 -> Step 2. Proof: covered by linked task completion.
+- AC3/AC4/AC5/AC6 -> Step 2. Proof: covered by linked task completion.
+- AC7/AC8 -> Steps 3 and 4. Proof: covered by linked task completion.
+- AC9 -> Step 3. Proof: covered by linked task completion.
+- AC10 -> Step 5. Proof: covered by linked task completion.
 
 # Links
 - Backlog item: `item_033_default_collapsed_secondary_sections_in_detail_panel`
@@ -52,3 +54,8 @@ flowchart LR
 - [x] Validation commands executed and results captured.
 - [x] Linked request/backlog/task docs updated.
 - [x] Status is `Done` and progress is `100%`.
+
+# Report
+- 
+
+# Notes

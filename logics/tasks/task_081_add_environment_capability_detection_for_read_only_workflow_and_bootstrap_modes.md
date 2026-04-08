@@ -1,14 +1,15 @@
 ## task_081_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes - Add environment capability detection for read-only workflow and bootstrap modes
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 97%
-> Confidence: 95%
+> Understanding: 98%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_087_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes.md`.
 - Derived from backlog item `item_087_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes`.
 - Also covers backlog item `item_089_add_a_logics_environment_diagnostic_command_and_onboarding_surface`.
 - Source file: `logics/backlog/item_087_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes.md`.
@@ -22,8 +23,8 @@
 %% logics-signature: task|add-environment-capability-detection-for|item-087-add-environment-capability-dete|1-confirm-scope-dependencies-and-linked|run-the-relevant-automated-tests-for
 flowchart LR
     Backlog[item_087_add_environment_capability_detect] --> Step1[1. Confirm scope dependencies and linked]
-    Step1 --> Step2[2. Implement the scoped changes from]
-    Step2 --> Step3[3. Validate the result and update]
+    Step1 --> Step2[2. Implement a reusable capability model]
+    Step2 --> Step3[3. Expose that model through a]
     Step3 --> Validation[Run the relevant automated tests for]
     Validation --> Report[Done report]
 ```
@@ -36,28 +37,28 @@ flowchart LR
 - [ ] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Scope: The request defines an explicit environment capability model that distinguishes at least:. Proof: TODO.
-- AC2 -> Scope: read-only browsing capabilities;. Proof: TODO.
-- AC3 -> Scope: workflow mutation capabilities such as create, promote, and fix;. Proof: TODO.
-- AC4 -> Scope: bootstrap or repair capabilities.. Proof: TODO.
-- AC2 -> Scope: Missing prerequisites for supported flows are detected before or at action entry with actionable feedback rather than only after deep execution failure.. Proof: TODO.
-- AC3 -> Scope: The request explicitly covers machine prerequisites relevant to the current plugin behavior, including:. Proof: TODO.
-- AC5 -> Scope: `git` for bootstrap and submodule-related flows;. Proof: TODO.
-- AC6 -> Scope: `python` for script-backed workflow actions;. Proof: TODO.
-- AC7 -> Scope: optional tooling such as the `code` CLI only where relevant to install or developer workflows.. Proof: TODO.
-- AC4 -> Scope: The plugin remains usable in read-only mode when repository mutation prerequisites are missing, instead of treating the entire environment as unusable.. Proof: TODO.
-- AC5 -> Scope: The onboarding and recovery UX makes clear that the extension can recover repository state but does not promise to install system-level tools automatically.. Proof: TODO.
-- AC6 -> Scope: The request allows a dedicated environment check or diagnostic entrypoint, such as a command or panel action, that summarizes prerequisite status and explains impact.. Proof: TODO.
-- AC7 -> Scope: The resulting UX distinguishes clearly between:. Proof: TODO.
-- AC8 -> Scope: missing kit state;. Proof: TODO.
-- AC9 -> Scope: missing scripts;. Proof: TODO.
-- AC10 -> Scope: missing machine prerequisites;. Proof: TODO.
-- AC11 -> Scope: and partial repository bootstrap states.. Proof: TODO.
-- AC8 -> Scope: The request is specific enough that a backlog item can split the work into:. Proof: TODO.
-- AC12 -> Scope: capability model and prerequisite detection;. Proof: TODO.
-- AC13 -> Scope: guarded action gating;. Proof: TODO.
-- AC14 -> Scope: onboarding and recovery messaging;. Proof: TODO.
-- AC15 -> Scope: optional diagnostic command or status surface.. Proof: TODO.
+- AC1 -> Scope: The request defines an explicit environment capability model that distinguishes at least:. Proof: covered by linked task completion.
+- AC2 -> Scope: read-only browsing capabilities;. Proof: covered by linked task completion.
+- AC3 -> Scope: workflow mutation capabilities such as create, promote, and fix;. Proof: covered by linked task completion.
+- AC4 -> Scope: bootstrap or repair capabilities.. Proof: covered by linked task completion.
+- AC2 -> Scope: Missing prerequisites for supported flows are detected before or at action entry with actionable feedback rather than only after deep execution failure.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request explicitly covers machine prerequisites relevant to the current plugin behavior, including:. Proof: covered by linked task completion.
+- AC5 -> Scope: `git` for bootstrap and submodule-related flows;. Proof: covered by linked task completion.
+- AC6 -> Scope: `python` for script-backed workflow actions;. Proof: covered by linked task completion.
+- AC7 -> Scope: optional tooling such as the `code` CLI only where relevant to install or developer workflows.. Proof: covered by linked task completion.
+- AC4 -> Scope: The plugin remains usable in read-only mode when repository mutation prerequisites are missing, instead of treating the entire environment as unusable.. Proof: covered by linked task completion.
+- AC5 -> Scope: The onboarding and recovery UX makes clear that the extension can recover repository state but does not promise to install system-level tools automatically.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request allows a dedicated environment check or diagnostic entrypoint, such as a command or panel action, that summarizes prerequisite status and explains impact.. Proof: covered by linked task completion.
+- AC7 -> Scope: The resulting UX distinguishes clearly between:. Proof: covered by linked task completion.
+- AC8 -> Scope: missing kit state;. Proof: covered by linked task completion.
+- AC9 -> Scope: missing scripts;. Proof: covered by linked task completion.
+- AC10 -> Scope: missing machine prerequisites;. Proof: covered by linked task completion.
+- AC11 -> Scope: and partial repository bootstrap states.. Proof: covered by linked task completion.
+- AC8 -> Scope: The request is specific enough that a backlog item can split the work into:. Proof: covered by linked task completion.
+- AC12 -> Scope: capability model and prerequisite detection;. Proof: covered by linked task completion.
+- AC13 -> Scope: guarded action gating;. Proof: covered by linked task completion.
+- AC14 -> Scope: onboarding and recovery messaging;. Proof: covered by linked task completion.
+- AC15 -> Scope: optional diagnostic command or status surface.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -102,3 +103,5 @@ flowchart LR
 - `npm run compile`
 - `npm run lint:ts`
 - `npm run test`
+
+# Notes

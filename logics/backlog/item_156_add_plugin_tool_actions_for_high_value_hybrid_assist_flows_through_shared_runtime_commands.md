@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-plugin-tool-actions-for-high-value-h|req-095-adapt-the-vs-code-logics-plugin-|the-plugin-currently-exposes-bootstrap-o|ac1-representative-high-value-hybrid-ass
 flowchart LR
-    Request[req_095] --> Problem[Plugin needs representative hybrid actions]
-    Problem --> Commands[Invoke shared runtime commands]
-    Commands --> Results[Return structured hybrid results]
-    Results --> Done[Execution task]
+    Request[req_095_adapt_the_vs_code_logics_plugin_to] --> Problem[The plugin currently exposes bootstrap ove]
+    Problem --> Scope[Add plugin tool actions for high-value]
+    Scope --> Acceptance[AC1: Representative high-value hybrid assi]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

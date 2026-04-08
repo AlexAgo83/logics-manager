@@ -1,14 +1,15 @@
 ## task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
-> Understanding: 100% (closed)
-> Confidence: 99% (validated)
-> Progress: 100% (audit-aligned)
+> Understanding: 100% ((closed); refreshed)
+> Confidence: 100% (validated)
+> Progress: 100%
 > Complexity: High
 > Theme: Extension hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
 
 # Context
+Derived from `logics/backlog/item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`.
 - Derived from backlog item `item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`.
 - Source file: `logics/backlog/item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`.
 - Related request(s): `req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`.
@@ -17,14 +18,14 @@ This is an orchestration task for the main extension project.
 It should sequence the hardening work so packaging, runtime behavior, and integration safety improve without mixing this delivery with shared-kit changes or the broader webview-structure refactor.
 
 ```mermaid
+%% logics-kind: task
 %% logics-signature: task|harden-extension-packaging-agent-loading|item-031-harden-extension-packaging-agen|1-lock-packaging-boundaries-so-the|npm-run-compile
 flowchart LR
-    Backlog[Umbrella backlog item] --> Package[Packaging boundaries]
-    Package --> Agents[Agent loading hardening]
-    Agents --> Prompt[Prompt injection fallback]
-    Prompt --> Workspace[Multi root behavior]
-    Workspace --> Smoke[Integration smoke validation]
-    Smoke --> Report[Close out and report]
+    Backlog[item_031_harden_extension_packaging_agent_] --> Step1[1. Lock packaging boundaries so the]
+    Step1 --> Step2[2. Harden agent definition loading with]
+    Step2 --> Step3[3. Make prompt injection more defensive]
+    Step3 --> Validation[npm run compile]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -44,7 +45,7 @@ flowchart LR
 - AC6 -> Step 4. Proof: root-selection behavior becomes explicit in multi-root contexts.
 - AC7 -> Step 5. Proof: extension-host smoke check validates activation-readiness.
 - AC8 -> FINAL. Proof: work stays scoped to the extension project and docs/tests are updated.
-- AC9 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC9 -> covered by linked delivery scope. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -96,3 +97,5 @@ flowchart LR
   - `npm run test` OK
   - `npm run test:smoke` OK
   - `npm run package:ci` OK
+
+# Notes

@@ -38,14 +38,13 @@ The main constraint is architectural cleanliness:
   - Broad connector or MCP setup beyond the minimum bridge needed for Claude Code entrypoints.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|add-a-minimal-claude-code-bridge-for-log|req-055-add-a-minimal-claude-code-bridge|the-logics-kit-is-already-usable|ac1-the-solution-defines-a-minimal
 flowchart LR
-    Request[Request source] --> Canonical[Keep logics as canonical source]
-    Canonical --> Bridge[Add thin claude bridge]
-    Bridge --> Agent[Expose workflow agent entrypoint]
-    Bridge --> Command[Expose request workflow command entrypoint]
-    Agent --> Reuse[Reuse logics instructions and scripts]
-    Command --> Reuse
+    Request[req_055_add_a_minimal_claude_code_bridge_f] --> Problem[The Logics kit is already usable]
+    Problem --> Scope[Add a minimal Claude Code bridge]
+    Scope --> Acceptance[AC1: The solution defines a minimal]
+    Acceptance --> Tasks[task_069_add_a_minimal_claude_code_bridge_]
 ```
 
 # Acceptance criteria

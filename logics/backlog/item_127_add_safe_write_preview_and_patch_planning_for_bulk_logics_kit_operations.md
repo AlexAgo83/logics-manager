@@ -27,10 +27,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-safe-write-preview-and-patch-plannin|req-084-improve-logics-kit-diagnostics-s|bulk-kit-operations-such-as-sync|ac1-at-least-one-bulk-kit
 flowchart LR
-    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[Bulk kit operations still rewrite many fi]
+    Request[req_084_improve_logics_kit_diagnostics_saf] --> Problem[Bulk kit operations such as sync]
     Problem --> Scope[Add safe-write preview and patch planning]
-    Scope --> Acceptance[AC1: At least one bulk kit operation supp]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: At least one bulk kit]
+    Acceptance --> Tasks[task_096_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

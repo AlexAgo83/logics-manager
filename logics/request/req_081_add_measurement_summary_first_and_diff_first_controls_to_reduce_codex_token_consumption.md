@@ -26,13 +26,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-measurement-summary-first-and-diff-f|add-operator-facing-measurement-and-ligh|ac1-the-plugin-or-kit-can
 flowchart TD
-    Trigger[Codex handoffs still waste tokens in practice] --> Need[Make token cost visible and lightweight defaults easier]
-    Need --> AC1[AC1: Show estimated size before injection]
-    AC1 --> AC2[AC2: Offer summary-only first pass]
-    AC2 --> AC3[AC3: Offer diff-first context for code work]
-    AC3 --> AC4[AC4: Age out stale or completed context by default]
-    AC4 --> AC5[AC5: Suggest fresh sessions when the topic changes]
-    AC5 --> Backlog[Backlog slice]
+    Trigger[Add measurement summary-first and diff-fir] --> Need[Add operator-facing measurement and lightw]
+    Need --> Outcome[AC1: The plugin or kit can]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

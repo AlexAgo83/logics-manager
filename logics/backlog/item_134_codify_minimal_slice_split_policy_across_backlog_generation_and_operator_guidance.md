@@ -26,10 +26,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|codify-minimal-slice-split-policy-across|req-085-add-repo-config-runtime-entrypoi|the-kit-had-no-explicit-default|ac1-the-default-repo-config-declares
 flowchart LR
-    Need[Workflow splitting needs a clear default] --> Policy[Define minimal coherent split policy]
-    Policy --> Enforce[Enforce defaults in split commands]
-    Enforce --> Guide[Document override path for justified extra slices]
-    Guide --> Done[Done]
+    Request[req_085_add_repo_config_runtime_entrypoint] --> Problem[The kit had no explicit default]
+    Problem --> Scope[Codify minimal-slice split policy across b]
+    Scope --> Acceptance[AC1: The default repo config declares]
+    Acceptance --> Tasks[task_097_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

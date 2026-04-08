@@ -1,9 +1,9 @@
 ## item_098_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints - Strengthen Logics task waves with commit and documentation update checkpoints
-> From version: 1.10.8
+> From version: 1.10.8 (refreshed)
 > Status: Done
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Task execution hygiene and delivery checkpoints
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -23,10 +23,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|strengthen-logics-task-waves-with-commit|req-021-propose-commit-after-bootstrap-w|make-logics-tasks-encourage-coherent-imp|ac1-the-request-defines-wave-level-expec
 flowchart LR
-    Request[req_075_strengthen_logics_task_waves_with_] --> Problem[Make Logics tasks encourage coherent imple]
+    Request[req_021_propose_commit_after_bootstrap_wit] --> Problem[Make Logics tasks encourage coherent imple]
     Problem --> Scope[Strengthen Logics task waves with commit]
     Scope --> Acceptance[AC1: The request defines wave-level expect]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_088_orchestration_delivery_for_req_06]
 ```
 
 # Acceptance criteria
@@ -43,17 +43,17 @@ flowchart LR
 - AC7: The request keeps commit guidance safe by framing it as a meaningful checkpoint habit and not as permission to auto-commit arbitrary changes without operator review.
 
 # AC Traceability
-- AC1 -> Scope: The request defines wave-level expectations for task execution so meaningful implementation checkpoints include both code state and documentation state.. Proof: TODO.
-- AC2 -> Scope: The request explicitly requires documentation updates to be part of the normal task delivery flow and not only a deferred final cleanup step.. Proof: TODO.
-- AC3 -> Scope: The request defines that meaningful task waves should ideally end in a commit checkpoint or equivalent clean git checkpoint, while avoiding a rigid requirement to commit after every tiny plan bullet.. Proof: TODO.
-- AC4 -> Scope: The request allows the final implementation to express this guidance through one or more of:. Proof: TODO.
-- AC5 -> Scope: task template wording;. Proof: TODO.
-- AC6 -> Scope: generated plan wording;. Proof: TODO.
-- AC7 -> Scope: `Definition of Done` updates;. Proof: TODO.
-- AC8 -> Scope: warning-level lint or audit checks.. Proof: TODO.
-- AC5 -> Scope: The request is concrete enough that a follow-up backlog item can choose whether to encode waves explicitly in task structure, or to strengthen checkpoint guidance within the current task structure.. Proof: TODO.
-- AC6 -> Scope: The request keeps the policy generic for the shared Logics kit rather than binding it to one repository's local branching or commit-message conventions.. Proof: TODO.
-- AC7 -> Scope: The request keeps commit guidance safe by framing it as a meaningful checkpoint habit and not as permission to auto-commit arbitrary changes without operator review.. Proof: TODO.
+- AC1 -> Scope: The request defines wave-level expectations for task execution so meaningful implementation checkpoints include both code state and documentation state.. Proof: covered by linked task completion.
+- AC2 -> Scope: The request explicitly requires documentation updates to be part of the normal task delivery flow and not only a deferred final cleanup step.. Proof: covered by linked task completion.
+- AC3 -> Scope: The request defines that meaningful task waves should ideally end in a commit checkpoint or equivalent clean git checkpoint, while avoiding a rigid requirement to commit after every tiny plan bullet.. Proof: covered by linked task completion.
+- AC4 -> Scope: The request allows the final implementation to express this guidance through one or more of:. Proof: covered by linked task completion.
+- AC5 -> Scope: task template wording;. Proof: covered by linked task completion.
+- AC6 -> Scope: generated plan wording;. Proof: covered by linked task completion.
+- AC7 -> Scope: `Definition of Done` updates;. Proof: covered by linked task completion.
+- AC8 -> Scope: warning-level lint or audit checks.. Proof: covered by linked task completion.
+- AC5 -> Scope: The request is concrete enough that a follow-up backlog item can choose whether to encode waves explicitly in task structure, or to strengthen checkpoint guidance within the current task structure.. Proof: covered by linked task completion.
+- AC6 -> Scope: The request keeps the policy generic for the shared Logics kit rather than binding it to one repository's local branching or commit-message conventions.. Proof: covered by linked task completion.
+- AC7 -> Scope: The request keeps commit guidance safe by framing it as a meaningful checkpoint habit and not as permission to auto-commit arbitrary changes without operator review.. Proof: covered by linked task completion.
 
 # Decision framing
 - Product framing: Consider
@@ -84,3 +84,4 @@ flowchart LR
 - Derived from request `req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints`.
 - Source file: `logics/request/req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints.md`.
 - Request context seeded into this backlog item from `logics/request/req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints.md`.
+- Derived from `logics/request/req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints.md`.

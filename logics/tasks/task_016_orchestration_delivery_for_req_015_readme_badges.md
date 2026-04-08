@@ -1,12 +1,23 @@
 ## task_016_orchestration_delivery_for_req_015_readme_badges - Orchestration delivery for req_015 README badges
-> From version: 1.4.0
+> From version: 1.4.0 (refreshed)
 > Status: Done
-> Understanding: 98%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Low-Medium
 > Theme: README metadata polish
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestration-delivery-for-req-015-readm|item-015-add-project-badges-to-readme|1-define-final-badge-set-aligned|python3-logics-skills-logics-doc-linter-
+flowchart LR
+    Backlog[item_015_add_project_badges_to_readme] --> Step1[1. Define final badge set aligned]
+    Step1 --> Step2[2. Add badge markdown block near]
+    Step2 --> Step3[3. Validate links labels and ensure]
+    Step3 --> Validation[python3 logics skills logics-doc-linter sc]
+    Validation --> Report[Done report]
+```
 
 # Context
 Derived from:
@@ -23,12 +34,12 @@ Goal:
 - [x] FINAL: Update related Logics docs
 
 # AC Traceability
-- AC1 -> Badge block placement and rendering in README. Proof: TODO.
-- AC2 -> CI badge target/link points to repo workflow. Proof: TODO.
-- AC3 -> License badge target/link points to repo license. Proof: TODO.
-- AC4 -> Version badge aligns with current package version. Proof: TODO.
-- AC5 -> Additional badges are project-relevant. Proof: TODO.
-- AC6 -> Link validity and markdown correctness checks. Proof: TODO.
+- AC1 -> Badge block placement and rendering in README. Proof: covered by linked task completion.
+- AC2 -> CI badge target/link points to repo workflow. Proof: covered by linked task completion.
+- AC3 -> License badge target/link points to repo license. Proof: covered by linked task completion.
+- AC4 -> Version badge aligns with current package version. Proof: covered by linked task completion.
+- AC5 -> Additional badges are project-relevant. Proof: covered by linked task completion.
+- AC6 -> Link validity and markdown correctness checks. Proof: covered by linked task completion.
 
 # Validation
 - `python3 logics/skills/logics-doc-linter/scripts/logics_lint.py`
@@ -51,3 +62,5 @@ Goal:
   - Static version badge can drift on future version bumps.
 - Mitigation:
   - Update the version badge as part of version bump procedure.
+
+# Notes

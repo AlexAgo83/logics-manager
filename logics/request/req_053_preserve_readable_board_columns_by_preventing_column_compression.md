@@ -1,11 +1,20 @@
 ## req_053_preserve_readable_board_columns_by_preventing_column_compression - Preserve readable board columns by preventing column compression
 > From version: 1.10.1
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Board readability and width budgeting
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|preserve-readable-board-columns-by-preve|keep-board-columns-readable-when-board|ac1-board-columns-keep-a-stable
+flowchart TD
+    Trigger[Preserve readable board columns by prevent] --> Need[Keep board columns readable when board]
+    Need --> Outcome[AC1: Board columns keep a stable]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Keep board columns readable when board mode shares horizontal space with the `Details` panel.
@@ -66,3 +75,7 @@ The corrective rule is simple:
 
 # Backlog
 - `logics/backlog/item_062_preserve_readable_board_columns_by_preventing_column_compression.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

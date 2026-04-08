@@ -27,12 +27,12 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|reframe-hybrid-insights-overview-and-too|req-105-hybrid-insights-refinement|the-current-hybrid-insights-screen-uses|ac1-the-first-viewport-emphasizes-the
+%% logics-signature: backlog|reframe-hybrid-insights-overview-and-too|req-105-refine-hybrid-insights-ux-ui-inf|the-current-hybrid-insights-screen-uses|ac1-the-first-viewport-emphasizes-the
 flowchart LR
-    Request[req_105_hybrid_insights_refinement] --> Problem[Top level treatment feels too report like]
-    Problem --> Scope[Reframe overview hierarchy and visual language]
-    Scope --> Acceptance[AC1 the first viewport emphasizes operator signals]
-    Acceptance --> Tasks[Execution task]
+    Request[req_105_refine_hybrid_insights_ux_ui_infor] --> Problem[The current Hybrid Insights screen uses]
+    Problem --> Scope[Reframe Hybrid Insights overview and tool]
+    Scope --> Acceptance[AC1: The first viewport emphasizes the]
+    Acceptance --> Tasks[task_106_orchestration_delivery_for_req_10]
 ```
 
 # Acceptance criteria

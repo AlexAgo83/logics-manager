@@ -1,9 +1,9 @@
 ## item_070_double_click_should_read_items_from_list_board_and_activity - Double click should read items from list board and activity
-> From version: 1.10.5
+> From version: 1.10.5 (refreshed)
 > Status: Done
-> Understanding: 99%
-> Confidence: 97%
-> Progress: 100%
+> Understanding: 100%
+> Confidence: 98%
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: UX workflow
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -29,12 +29,13 @@ This slice standardizes double-click on `Read` across board, list, and activity 
   - Broad IA or visual redesign of board, list, or activity surfaces.
 
 ```mermaid
+%% logics-kind: backlog
 %% logics-signature: backlog|double-click-should-read-items-from-list|req-058-double-click-should-read-items-f|the-plugin-already-exposes-both-open|ac1-double-click-on-an-item-card
 flowchart LR
-    Req[req 058] --> Problem[double click behavior is inconsistent]
-    Problem --> Scope[read becomes the common double click action]
-    Scope --> AC[acceptance criteria and regressions]
-    AC --> Task[task 072]
+    Request[req_058_double_click_should_read_items_fro] --> Problem[The plugin already exposes both Open]
+    Problem --> Scope[Double click should read items from]
+    Scope --> Acceptance[AC1: Double-click on an item card]
+    Acceptance --> Tasks[task_072_double_click_should_read_items_fr]
 ```
 
 # Acceptance criteria
@@ -76,6 +77,7 @@ flowchart LR
 - Source file: `logics/request/req_058_double_click_should_read_items_from_list_board_and_activity.md`.
 - Request context seeded into this backlog item from `logics/request/req_058_double_click_should_read_items_from_list_board_and_activity.md`.
 
+- Derived from `logics/request/req_058_double_click_should_read_items_from_list_board_and_activity.md`.
 # Delivery
 - Implemented in:
   - `media/renderBoard.js`

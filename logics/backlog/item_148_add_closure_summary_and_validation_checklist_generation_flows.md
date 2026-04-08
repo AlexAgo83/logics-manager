@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-closure-summary-and-validation-check|req-092-add-a-second-wave-of-hybrid-olla|operators-repeatedly-need-short-closure-|ac1-closure-summary-generation-exists-fo
 flowchart LR
-    Request[req_092] --> Problem[Operators need bounded closure and validation help]
-    Problem --> Summary[Generate closure summaries]
-    Summary --> Checklist[Generate validation checklists]
-    Checklist --> Done[Execution task]
+    Request[req_092_add_a_second_wave_of_hybrid_ollama] --> Problem[Operators repeatedly need short closure su]
+    Problem --> Scope[Add closure-summary and validation-checkli]
+    Scope --> Acceptance[AC1: Closure-summary generation exists for]
+    Acceptance --> Tasks[task_100_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

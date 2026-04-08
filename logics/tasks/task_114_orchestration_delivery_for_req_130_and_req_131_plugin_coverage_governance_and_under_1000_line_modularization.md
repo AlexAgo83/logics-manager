@@ -1,9 +1,9 @@
 ## task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization - Orchestration delivery for req_130 and req_131 across plugin coverage governance and under-1000-line modularization
-> From version: 1.22.0
+> From version: 1.22.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 97%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
@@ -51,12 +51,11 @@ Constraints:
 %% logics-kind: task
 %% logics-signature: task|orchestration-delivery-for-req-130-and-r|item-244-raise-plugin-src-coverage-on-hi|wave-1-item-244-quick-win-plugin|python3-logics-skills-logics-py-audit-re
 flowchart LR
-    Start[req 130 and req 131] --> W1[Wave 1 item 244 src quick wins]
-    W1 --> W2[Wave 2 item 247 plugin source modularization]
-    W2 --> W3[Wave 3 item 245 scenario coverage and item 246 governance]
-    W3 --> W4[Wave 4 item 248 plugin test suite decomposition]
-    W4 --> W5[Wave 5 item 249 and item 250 python modularization]
-    W5 --> Final[Docs validation and close report]
+    Backlog[item_244_raise_plugin_src_coverage_on_high] --> Step1[Wave 1 - item_244: quick-win plugin]
+    Step1 --> Step2[1.1 Lock the current src baseline]
+    Step2 --> Step3[1.2 Add or expand behavior-focused tests]
+    Step3 --> Validation[python3 logics skills logics.py audit --re]
+    Validation --> Report[Done report]
 ```
 
 # Plan
@@ -214,3 +213,5 @@ flowchart LR
 - Wave 3 is now complete too: `tests/logicsCodexWorkflowController.test.ts` covers startup remediation, copy-command fallback, republish recovery, and Git-missing guard paths; `npx vitest run tests/logicsCodexWorkflowController.test.ts tests/logicsProviderUtils.test.ts` is green.
 - Wave 5 is complete: `item_249` finished the `logics_flow.py` and `logics_flow_support.py` split, `item_250` finished the hybrid, audit, and test-surface split, and the remaining active workflow-manager source and test files are now below the ceiling.
 - `npm run test:coverage:src` now enforces a dedicated `src` threshold and reports `59.01%` lines coverage, while `npm run test:coverage:media` reports the `media` surface separately at `0%` so the under-measured webview runtime remains visible without acting as the primary gate.
+
+# Notes

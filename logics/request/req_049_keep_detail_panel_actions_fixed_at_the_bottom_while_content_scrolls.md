@@ -1,11 +1,20 @@
 ## req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
 > From version: 1.10.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|keep-detail-panel-actions-fixed-at-the-b|keep-the-primary-actions-of-the|ac1-the-details-panel-separates-its
+flowchart TD
+    Trigger[Keep detail panel actions fixed at] --> Need[Keep the primary actions of the]
+    Need --> Outcome[AC1: The Details panel separates its]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Keep the primary actions of the `Details` panel always reachable, even when the selected item has long content.
@@ -83,3 +92,7 @@ That means the request is not only about fixing action anchoring, but also about
 
 # Backlog
 - `logics/backlog/item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

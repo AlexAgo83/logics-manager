@@ -1,11 +1,20 @@
 ## req_028_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.2
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|add-reset-action-to-restore-default-filt|add-a-dedicated-reset-action-to|ac1-the-filter-panel-includes-a
+flowchart TD
+    Trigger[Add reset action to restore default] --> Need[Add a dedicated Reset action to]
+    Need --> Outcome[AC1: The filter panel includes a]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Add a dedicated `Reset` action to the filter panel so users can restore the intended default filter configuration in one click.
@@ -74,3 +83,7 @@ It is a recovery action:
 
 # Backlog
 - `logics/backlog/item_034_add_reset_action_for_filter_defaults.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

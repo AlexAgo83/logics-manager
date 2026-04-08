@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|add-configurable-deepseek-and-qwen-local|req-097-expand-hybrid-local-model-suppor|the-hybrid-runtime-currently-assumes-a|ac1-the-hybrid-runtime-supports-at
 flowchart LR
-    Request[req_097] --> Problem[Hybrid runtime assumes DeepSeek first]
-    Problem --> Profiles[Add DeepSeek and Qwen profiles]
-    Profiles --> Config[Select active profile through config]
-    Config --> Status[Align health and status with selected profile]
+    Request[req_097_expand_hybrid_local_model_support_] --> Problem[The hybrid runtime currently assumes a]
+    Problem --> Scope[Add configurable DeepSeek and Qwen local]
+    Scope --> Acceptance[AC1: The hybrid runtime supports at]
+    Acceptance --> Tasks[task_101_orchestration_delivery_for_req_09]
 ```
 
 # Acceptance criteria

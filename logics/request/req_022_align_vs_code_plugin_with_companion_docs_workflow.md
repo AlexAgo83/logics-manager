@@ -49,17 +49,12 @@ The expected adaptation plan is:
 - then complete commands, affordances, and regression tests.
 
 ```mermaid
+%% logics-kind: request
 %% logics-signature: request|align-vs-code-plugin-with-companion-docs|adapt-the-vs-code-plugin-so|ac1-the-plugin-indexer-recognizes-logics
 flowchart TD
-    A[Logics kit adds product and architecture companion docs] --> B[VS Code plugin must align with expanded workflow model]
-    B --> C[Indexer and shared data model understand request backlog task spec product architecture]
-    B --> D[Maintenance operations rewrite and preserve cross references across all managed docs]
-    B --> E[Webview keeps delivery flow primary and exposes companion docs as linked decision artifacts]
-    C --> F[Consistent indexing and metadata]
-    D --> F
-    E --> G[Clear authoring navigation and review UX]
-    F --> H[Stable tests and safe future evolution]
-    G --> H
+    Trigger[Align VS Code plugin with companion] --> Need[Adapt the VS Code plugin so]
+    Need --> Outcome[AC1: The plugin indexer recognizes logics]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Acceptance criteria

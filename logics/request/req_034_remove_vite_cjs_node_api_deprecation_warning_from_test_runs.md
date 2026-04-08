@@ -1,11 +1,20 @@
 ## req_034_remove_vite_cjs_node_api_deprecation_warning_from_test_runs - Remove the Vite CJS Node API deprecation warning from test runs
 > From version: 1.9.3
 > Status: Done
-> Understanding: 98%
-> Confidence: 97%
+> Understanding: 100% (refreshed)
+> Confidence: 100%
 > Complexity: Low
 > Theme: Tooling hygiene and test-run clarity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|remove-the-vite-cjs-node-api-deprecation|remove-the-vite-deprecation-warning-curr|ac1-running-the-project-test-suite
+flowchart TD
+    Trigger[Remove the Vite CJS Node API] --> Need[Remove the Vite deprecation warning curren]
+    Need --> Outcome[AC1: Running the project test suite]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Remove the Vite deprecation warning currently shown during test runs.
@@ -65,3 +74,7 @@ It is about tooling hygiene:
 
 # Backlog
 - `logics/backlog/item_039_remove_vite_cjs_node_api_deprecation_warning_from_test_runs.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|build-delta-oriented-codex-context-packs|req-080-reduce-codex-token-consumption-w|current-context-packs-are-still-biased|ac1-the-codex-context-pack-workflow-can
 flowchart LR
-    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce unnecessary Codex token consumption]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Current context packs are still biased]
     Problem --> Scope[Build delta-oriented Codex context packs f]
-    Scope --> Acceptance[AC1: The Logics kit defines a]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The Codex context-pack workflow can]
+    Acceptance --> Tasks[task_092_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

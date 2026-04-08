@@ -1,11 +1,20 @@
 ## req_032_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.9.3
 > Status: Done
-> Understanding: 99%
-> Confidence: 98%
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|enable-horizontal-scrolling-for-board-co|make-the-board-columns-horizontally-scro|ac1-when-the-total-width-of
+flowchart TD
+    Trigger[Enable horizontal scrolling for board colu] --> Need[Make the board columns horizontally scroll]
+    Need --> Outcome[AC1: When the total width of]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Make the board columns horizontally scrollable when the total column width exceeds the available viewport.
@@ -70,3 +79,7 @@ It is about restoring a natural overflow behavior for a Kanban-style surface:
 
 # Backlog
 - `logics/backlog/item_037_enable_horizontal_scrolling_for_board_columns.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

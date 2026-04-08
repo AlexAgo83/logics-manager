@@ -1,8 +1,17 @@
 ## req_005_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
 > From version: 1.9.1
-> Understanding: 95% (audit-aligned)
-> Confidence: 90% (governed)
+> Understanding: 98% (audit-aligned)
+> Confidence: 93% (governed)
 > Status: Done
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|allow-renaming-request-backlog-task-entr|give-users-the-ability-to-rename|ac1-define-a-measurable-outcome
+flowchart TD
+    Trigger[Allow renaming request backlog task entry] --> Need[Give users the ability to rename]
+    Need --> Outcome[AC1: Define a measurable outcome]
+    Outcome --> Backlog[Backlog slice]
+```
 
 # Needs
 - Give users the ability to rename entry names for `request`, `item`, and `task`.
@@ -26,3 +35,7 @@
 
 # Backlog
 - `logics/backlog/item_005_rename_entry_name_suffix.md`
+
+# Companion docs
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

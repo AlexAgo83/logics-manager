@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|detect-redundant-or-oversized-logics-con|req-080-reduce-codex-token-consumption-w|even-with-better-profiles-and-summaries|ac1-the-kit-or-plugin-can
 flowchart LR
-    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce unnecessary Codex token consumption]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Even with better profiles and summaries]
     Problem --> Scope[Detect redundant or oversized Logics conte]
-    Scope --> Acceptance[AC1: The Logics kit defines a]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: The kit or plugin can]
+    Acceptance --> Tasks[task_092_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

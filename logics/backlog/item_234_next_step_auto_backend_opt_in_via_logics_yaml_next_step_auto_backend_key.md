@@ -1,10 +1,10 @@
 ## item_234_next_step_auto_backend_opt_in_via_logics_yaml_next_step_auto_backend_key - next-step auto backend opt-in via logics.yaml next_step_auto_backend key
-> From version: 1.21.1
+> From version: 1.21.1 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 96%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 97%
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: Hybrid assist and kit publication consolidation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -25,11 +25,10 @@ After item_225 ships, teams can route `next-step` to OpenAI or Gemini using `--b
 %% logics-kind: backlog
 %% logics-signature: backlog|next-step-auto-backend-opt-in-via-logics|req-127-consolidate-deferred-hybrid-and-|after-item-225-ships-teams-can-route|ac1-the-logics-yaml-configuration-suppor
 flowchart LR
-    Request[req_127 post-rollout consolidation] --> Prerequisite[item_225 live and explicit dispatch validated in production]
-    Prerequisite --> Problem[Teams must pass explicit backend flag on every next-step call to use non-Codex provider]
-    Problem --> Scope[next_step_auto_backend key in logics.yaml changing auto policy]
-    Scope --> AC1[AC1: logics.yaml key changes auto default for next-step with safe fallback]
-    AC1 --> Tasks[Execution task]
+    Request[req_127_consolidate_deferred_hybrid_and_ki] --> Problem[After item_225 ships teams can route]
+    Problem --> Scope[next-step auto backend opt-in via logics.y]
+    Scope --> Acceptance[AC1: The logics.yaml configuration support]
+    Acceptance --> Tasks[task_112_orchestration_delivery_for_req_12]
 ```
 
 # Acceptance criteria
@@ -57,3 +56,5 @@ flowchart LR
 # Priority
 - Impact: Medium — quality-of-life improvement for teams that use OpenAI/Gemini as primary
 - Urgency: Low — gated on item_225 production validation
+
+# Notes

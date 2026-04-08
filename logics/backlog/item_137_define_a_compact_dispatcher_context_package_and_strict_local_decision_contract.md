@@ -29,12 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|define-a-compact-dispatcher-context-pack|req-082-strengthen-logics-kit-primitives|req-088-requires-a-local-model-to|ac1-the-backlog-slice-defines-a
 flowchart LR
-    Request[req_088] --> Problem[Bounded dispatcher input and output contracts are missing]
-    Problem --> Scope[Define compact context package and strict schema]
-    Scope --> AC1[AC1: Baseline compact state package is defined]
-    AC1 --> AC2[AC2: Canonical decision schema is strict and bounded]
-    AC2 --> AC3[AC3: Validation and default safety posture are documented]
-    AC3 --> Task[Execution task]
+    Request[req_082_strengthen_logics_kit_primitives_f] --> Problem[req_088 requires a local model to]
+    Problem --> Scope[Define a compact dispatcher context packag]
+    Scope --> Acceptance[AC1: The backlog slice defines a]
+    Acceptance --> Tasks[task_099_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

@@ -29,10 +29,10 @@
 %% logics-kind: backlog
 %% logics-signature: backlog|make-agent-manifests-declare-context-bud|req-080-reduce-codex-token-consumption-w|the-repository-already-has-agent-manifes|ac1-agent-facing-manifests-or-equivalent
 flowchart LR
-    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[Reduce unnecessary Codex token consumption]
+    Request[req_080_reduce_codex_token_consumption_wit] --> Problem[The repository already has agent manifests]
     Problem --> Scope[Make agent manifests declare context budge]
-    Scope --> Acceptance[AC1: The Logics kit defines a]
-    Acceptance --> Tasks[Execution task]
+    Scope --> Acceptance[AC1: Agent-facing manifests or equivalent]
+    Acceptance --> Tasks[task_092_orchestration_delivery_for_req_08]
 ```
 
 # Acceptance criteria

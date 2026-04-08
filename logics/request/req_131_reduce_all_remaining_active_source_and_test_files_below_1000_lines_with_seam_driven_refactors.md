@@ -2,9 +2,9 @@
 
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Done
+> Understanding: 96%
+> Confidence: 91%
 > Complexity: High
 > Theme: Architecture, modularity, maintainability, and testability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -23,19 +23,19 @@
   - `req_117_resume_modularization_of_oversized_core_extension_and_workflow_modules`
 
 - Those earlier passes were useful, but the repository still contains several active files above the intended upper bound of `1000` lines. At the time of this request, the notable remaining files are:
-  - `src/logicsViewProvider.ts` - `1823` lines
-  - `media/main.js` - `1364` lines
-  - `src/logicsHybridInsightsHtml.ts` - `1107` lines
-  - `src/logicsCodexWorkflowController.ts` - `1066` lines
-  - `tests/logicsViewProvider.test.ts` - `2491` lines
-  - `tests/webview.harness-details-and-filters.test.ts` - `1121` lines
-  - `tests/webview.harness-core.test.ts` - `1042` lines
-  - `logics/skills/logics-flow-manager/scripts/logics_flow.py` - `3575` lines
-  - `logics/skills/tests/test_logics_flow.py` - `7597` lines
-  - `logics/skills/logics-flow-manager/scripts/logics_flow_hybrid.py` - `2015` lines
-  - `logics/skills/logics-flow-manager/scripts/logics_flow_support.py` - `1508` lines
-  - `logics/skills/logics-flow-manager/scripts/logics_flow_hybrid_transport.py` - `1161` lines
-  - `logics/skills/logics-flow-manager/scripts/workflow_audit.py` - `1108` lines
+  - `src/logicsViewProvider.ts` - split below the threshold
+  - `media/main.js` - split below the threshold
+  - `src/logicsHybridInsightsHtml.ts` - split below the threshold
+  - `src/logicsCodexWorkflowController.ts` - split below the threshold
+  - `tests/logicsViewProvider.test.ts` - split below the threshold
+  - `tests/webview.harness-details-and-filters.test.ts` - split below the threshold
+  - `tests/webview.harness-core.test.ts` - split below the threshold
+  - `logics/skills/logics-flow-manager/scripts/logics_flow.py` - split below the threshold
+  - `logics/skills/tests/test_logics_flow.py` - split below the threshold
+  - `logics/skills/logics-flow-manager/scripts/logics_flow_hybrid.py` - split below the threshold
+  - `logics/skills/logics-flow-manager/scripts/logics_flow_support.py` - split below the threshold
+  - `logics/skills/logics-flow-manager/scripts/logics_flow_hybrid_transport.py` - split below the threshold
+  - `logics/skills/logics-flow-manager/scripts/workflow_audit.py` - split below the threshold
 
 - Generated artifacts under `out/` also exceed `1000` lines, but they are intentionally out of scope for refactoring because they are build outputs, not maintained source.
 

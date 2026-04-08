@@ -1,10 +1,10 @@
 ## item_244_raise_plugin_src_coverage_on_high_return_entry_and_utility_modules - Raise plugin src coverage on high-return entry and utility modules
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 89%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Testing, coverage governance, plugin runtime, and webview reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -63,7 +63,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `logics/tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md`
 
 # AI Context
 - Summary: Raise plugin `src` coverage quickly on the smallest high-return entry and utility modules so the repository gets a more actionable baseline before larger workflow or webview measurement work.
@@ -77,6 +77,10 @@ flowchart LR
 - `src/logicsViewMessages.ts`
 - `src/pythonRuntime.ts`
 - `src/logicsOverlaySupport.ts`
+- `tests/extension.test.ts`
+- `tests/logicsViewMessages.test.ts`
+- `tests/logicsOverlaySupport.test.ts`
+- `tests/pythonRuntime.behavior.test.ts`
 - `tests/logicsViewProvider.test.ts`
 - `tests/pythonRuntime.test.ts`
 
@@ -87,4 +91,5 @@ flowchart LR
 # Notes
 - Derived from request `req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement`.
 - Source file: `logics/request/req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement.md`.
+- Delivered in task `task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization` wave 1.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.

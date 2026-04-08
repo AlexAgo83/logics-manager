@@ -1,3 +1,26 @@
+const coverageTarget = process.env.CDX_PLUGIN_COVERAGE_TARGET ?? "combined";
+const coverageInclude =
+  coverageTarget === "src"
+    ? ["src/**/*.ts"]
+    : coverageTarget === "media"
+      ? ["media/**/*.js"]
+      : ["src/**/*.ts", "media/**/*.js"];
+const coverageReportsDirectory =
+  coverageTarget === "src"
+    ? "coverage/plugin-src"
+    : coverageTarget === "media"
+      ? "coverage/plugin-media"
+      : "coverage/plugin";
+const coverageThresholds =
+  coverageTarget === "src"
+    ? {
+        lines: 58,
+        statements: 58,
+        functions: 63,
+        branches: 49
+      }
+    : undefined;
+
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -8,8 +31,9 @@ export default defineConfig({
       provider: "v8",
       all: true,
       reporter: ["text", "json-summary", "lcov"],
-      reportsDirectory: "coverage/plugin",
-      include: ["src/**/*.ts", "media/**/*.js"],
+      reportsDirectory: coverageReportsDirectory,
+      include: coverageInclude,
+      thresholds: coverageThresholds,
       exclude: ["**/*.d.ts", "dist/**", "tests/**"]
     }
   }

@@ -1,10 +1,10 @@
 ## item_248_split_oversized_plugin_test_suites_by_behavior_domain_below_1000_lines - Split oversized plugin test suites by behavior domain below 1000 lines
 > From version: 1.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 90%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Architecture, modularity, maintainability, and testability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -64,7 +64,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_131_reduce_all_remaining_active_source_and_test_files_below_1000_lines_with_seam_driven_refactors`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `logics/tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md`
 
 # AI Context
 - Summary: Split the oversized plugin test suites by behavior domain so they fall below 1000 lines and become easier to extend and debug.

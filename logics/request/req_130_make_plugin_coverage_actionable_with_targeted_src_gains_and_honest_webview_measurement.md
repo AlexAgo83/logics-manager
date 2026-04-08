@@ -1,10 +1,10 @@
 ## req_130_make_plugin_coverage_actionable_with_targeted_src_gains_and_honest_webview_measurement - Make plugin coverage actionable with targeted src gains and honest webview measurement
 
-> From version: 1.22.0
+> From version: 1.22.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 89%
+> Status: Done
+> Understanding: 96%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Testing, coverage governance, plugin runtime, and webview reliability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -18,10 +18,10 @@
 
 # Context
 
-- The current plugin coverage report is numerically low but diagnostically mixed:
-  - global lines coverage is around `30.85%`
-  - `src/` lines coverage is around `55.74%`
-  - most `media/*.js` files are reported at `0%`
+- The current plugin coverage report is now separated by surface instead of being treated as one blended headline:
+  - `src/` lines coverage is around `59.01%`
+  - `media/` coverage is reported separately and currently shows `0%` because the webview runtime is eval-loaded in the harness and is not yet a trustworthy gate
+  - the combined headline is therefore no longer the useful engineering signal
 
 - The repository already has substantial test scaffolding for the plugin:
   - `tests/logicsViewProvider.test.ts`
@@ -179,3 +179,8 @@ flowchart TD
 - `logics/backlog/item_244_raise_plugin_src_coverage_on_high_return_entry_and_utility_modules.md`
 - `logics/backlog/item_245_add_scenario_driven_coverage_for_plugin_workflow_and_utility_decision_paths.md`
 - `logics/backlog/item_246_separate_src_and_media_plugin_coverage_reporting_thresholds_and_webview_measurement.md`
+
+# Report
+- Wave 1 delivered behavior-focused coverage for the quick-win `src` modules: `src/extension.ts`, `src/logicsViewMessages.ts`, `src/pythonRuntime.ts`, and `src/logicsOverlaySupport.ts`.
+- Validation for the wave1 slice passed with targeted Vitest coverage over the new tests plus `npx tsc -p ./ --noEmit`.
+- `npm run test:coverage` now reports `src` lines coverage at `59.06%`, up from the previous quick-win baseline.

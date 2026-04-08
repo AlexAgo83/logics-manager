@@ -2,8 +2,8 @@
 > From version: 1.22.2
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 97%
-> Confidence: 93%
+> Understanding: 98%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -52,8 +52,8 @@ flowchart TD
 - [ ] Known risks and fallback behavior are documented.
 
 # Companion docs
-- Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Product brief(s): `prod_005_logics_corpus_navigation_views`
+- Architecture decision(s): `adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation`
 
 # AI Context
 - Summary: Generated corpus index and relationship views for the Logics repository

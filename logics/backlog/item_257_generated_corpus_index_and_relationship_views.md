@@ -2,9 +2,9 @@
 > From version: 1.22.2
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -61,7 +61,7 @@ flowchart LR
 
 # Links
 - Product brief(s): `prod_005_logics_corpus_navigation_views`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation`
 - Request: `req_134_generated_corpus_index_and_relationship_views`
 - Primary task(s): `task_117_generated_corpus_index_and_relationship_views`
 

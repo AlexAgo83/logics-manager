@@ -24,3 +24,15 @@ logics/mutation_audit.jsonl
 .env.local
 logics/.cache/hybrid_assist_audit.jsonl
 logics/.cache/hybrid_assist_measurements.jsonl
+
+# code-review-graph
+setup-crg.sh
+setup-crg.ps1
+check-crg.sh
+CLAUDE.md
+crg-cheatsheet.pdf
+CRG-README.md
+.cursorrules
+.opencode.json
+.windsurfrules
+GEMINI.md

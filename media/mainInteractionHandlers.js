@@ -108,6 +108,10 @@
         hostApi.openHybridInsights();
         setToolsPanelOpen(false);
       },
+      onOpenLogicsInsights() {
+        hostApi.openLogicsInsights();
+        setToolsPanelOpen(false);
+      },
       onOpenOnboarding() {
         hostApi.openOnboarding();
         setToolsPanelOpen(false);

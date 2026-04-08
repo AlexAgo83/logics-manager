@@ -41,5 +41,5 @@ CODE_REVIEW_GRAPH.md
 RTK.md
 
 # Claude Code local settings
-.claude/settings.local.json
+.claude/
 .mcp.json

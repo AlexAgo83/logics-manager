@@ -232,6 +232,15 @@
       .toLowerCase();
   }
 
+  function parseProgress(value) {
+    const match = String(value || "").match(/(\d+(?:\.\d+)?)/);
+    if (!match) {
+      return null;
+    }
+    const parsed = Number(match[1]);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   function isProcessedWorkflowStatus(value) {
     return normalizeStatus(value) === "done";
   }

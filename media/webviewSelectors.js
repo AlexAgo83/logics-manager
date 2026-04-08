@@ -71,6 +71,12 @@
       return typeof modelApi.collectPrimaryFlowItems === "function" ? modelApi.collectPrimaryFlowItems(item, getItems()) : [];
     }
 
+    function collectLinkedWorkflowItems(item) {
+      return typeof modelApi.collectLinkedWorkflowItems === "function"
+        ? modelApi.collectLinkedWorkflowItems(item, getItems())
+        : [];
+    }
+
     function getAttentionReasons(item) {
       return typeof modelApi.getAttentionReasons === "function" ? modelApi.getAttentionReasons(item, getItems()) : [];
     }

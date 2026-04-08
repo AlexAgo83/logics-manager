@@ -1,10 +1,10 @@
 ## item_257_generated_corpus_index_and_relationship_views - Generated corpus index and relationship views
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 95%
-> Progress: 50%
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Navigation and discoverability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

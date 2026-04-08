@@ -441,24 +441,10 @@
       });
     }
 
-    if ((item.stage === "request" || item.stage === "backlog") && insights.supportingDocs.length === 0) {
-      reasons.push({
-        key: "missing-supporting-doc",
-        label: "Missing supporting doc",
-        shortLabel: "Missing docs",
-        description: "This workflow item has no linked companion docs or specs yet.",
-        remediation: {
-          label: "Create companion doc",
-          action: "create-companion-doc"
-        }
-      });
-    }
-
     const priority = {
       blocked: 0,
       "workflow-inconsistent": 1,
-      "missing-supporting-doc": 2,
-      orphaned: 3
+      orphaned: 2
     };
 
     return reasons

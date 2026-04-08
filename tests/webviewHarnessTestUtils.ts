@@ -113,7 +113,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   </div>
                 </div>
                 <div data-tools-section="maintenance">
-                <div>Maintenance</div>
+                  <div>Maintenance</div>
                   <div data-tools-body="maintenance">
                     <button class="tools-panel__item" data-action="fix-docs"></button>
                     <button class="tools-panel__item" data-action="open-logics-insights" title="Open corpus stats and relationship signals">Logics Insights</button>
@@ -122,11 +122,15 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                 </div>
               </div>
             </div>
+          </div>
+          <div class="toolbar__buttons">
+            <button id="header-logics-insights" type="button" title="Open Logics insights"></button>
             <button id="activity-toggle" type="button"></button>
             <button id="attention-toggle" type="button"></button>
             <button data-action="toggle-view-mode"></button>
             <button data-action="select-agent"></button>
             <button data-action="create-companion-doc" title="Create a companion doc"></button>
+          </div>
           </div>
           <div id="filter-panel" class="toolbar__row toolbar__row--secondary" hidden>
             <input id="search-input" type="search" />

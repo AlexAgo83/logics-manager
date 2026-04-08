@@ -158,6 +158,29 @@ describe("webview board renderer behavior", () => {
     expect(card?.classList.contains("card--compact")).toBe(true);
   });
 
+  it("renders request badges with understanding, confidence, and complexity", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          indicators: {
+            Understanding: "95%",
+            Confidence: "90%",
+            Complexity: "Medium"
+          }
+        }
+      ]
+    });
+
+    const badge = dom.window.document.querySelector(".card__badge--metric");
+    expect(badge?.textContent).toContain("U 95%");
+    expect(badge?.textContent).toContain("C 90%");
+    expect(badge?.textContent).toContain("M");
+  });
+
   it("navigates up and down within a board column using arrow keys", () => {
     const { dom } = bootstrapWebview();
 

@@ -1,10 +1,10 @@
 ## task_116_orchestrate_kit_update_fallback_for_gitignored_logics - Orchestrate kit update fallback for gitignored logics
 > From version: 1.22.1 (doc sync)
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
-> Confidence: 88%
-> Progress: 5%
+> Confidence: 93%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -33,28 +33,28 @@ flowchart TD
 # Plan
 
 ## Wave 1 - Detect dangerous gitignore patterns (item_254)
-- [ ] 1. Add `detectDangerousGitignorePatterns(root)` in `src/logicsProviderUtils.ts` that scans `.gitignore` for broad patterns (`logics/`, `logics/*`, `logics/**`) covering `logics/skills`.
-- [ ] 2. Surface the warning in Check Environment (`src/logicsViewProvider.ts`) as a non-blocking informational item explaining the trade-off and that a fallback exists.
-- [ ] 3. Add unit tests for pattern detection (positive and negative cases).
-- [ ] 4. CHECKPOINT: compile, lint, test. Commit wave 1.
+- [x] 1. Add `detectDangerousGitignorePatterns(root)` in `src/logicsProviderUtils.ts` that scans `.gitignore` for broad patterns (`logics/`, `logics/*`, `logics/**`) covering `logics/skills`.
+- [x] 2. Surface the warning in Check Environment (`src/logicsViewProvider.ts`) as a non-blocking informational item explaining the trade-off and that a fallback exists.
+- [x] 3. Add unit tests for pattern detection (positive and negative cases).
+- [x] 4. CHECKPOINT: compile, lint, test. Commit wave 1.
 
 ## Wave 2 - Fallback kit install cascade (item_255)
-- [ ] 5. Add a `fallbackInstallKit(root)` method in `src/logicsCodexWorkflowController.ts` that tries: (a) copy from global kit (`~/.codex/skills/` or `~/.claude/`, using existing inspection), then (b) `git clone` from the canonical URL into `logics/skills/`.
-- [ ] 6. Wire the fallback into `updateLogicsKit`: when submodule update fails or is not functional and a dangerous gitignore pattern is detected, prompt user for confirmation and run the fallback.
-- [ ] 7. Call `reconcileRepoBootstrapAfterKitUpdate` after successful fallback install.
-- [ ] 8. Add tests: fallback with global kit present, fallback with clone, existing submodule path unchanged.
-- [ ] 9. CHECKPOINT: compile, lint, test. Commit wave 2.
+- [x] 5. Add a `fallbackInstallKit(root)` method in `src/logicsCodexWorkflowController.ts` that tries: (a) copy from global kit (`~/.codex/skills/` or `~/.claude/`, using existing inspection), then (b) `git clone` from the canonical URL into `logics/skills/`.
+- [x] 6. Wire the fallback into `updateLogicsKit`: when submodule update fails or is not functional and a dangerous gitignore pattern is detected, prompt user for confirmation and run the fallback.
+- [x] 7. Call `reconcileRepoBootstrapAfterKitUpdate` after successful fallback install.
+- [x] 8. Add tests: fallback with global kit present, fallback with clone, existing submodule path unchanged.
+- [x] 9. CHECKPOINT: compile, lint, test. Commit wave 2.
 
 ## Wave 3 - Adaptive update strategy (item_256)
-- [ ] 10. Add `detectKitInstallType(root)` in `src/logicsProviderUtils.ts` returning `"submodule" | "standalone-clone" | "plain-copy"` based on the state of `logics/skills`.
-- [ ] 11. Update `updateLogicsKit` to route: submodule -> `git submodule update`, standalone-clone -> `git -C logics/skills pull`, plain-copy -> re-copy from global kit or fresh clone.
-- [ ] 12. Guard against submodule operations on a standalone clone if the user later un-ignores `logics/`.
-- [ ] 13. Add tests for each routing path and the un-ignore guard.
-- [ ] 14. CHECKPOINT: compile, lint, test. Commit wave 3.
+- [x] 10. Add `detectKitInstallType(root)` in `src/logicsProviderUtils.ts` returning `"submodule" | "standalone-clone" | "plain-copy"` based on the state of `logics/skills`.
+- [x] 11. Update `updateLogicsKit` to route: submodule -> `git submodule update`, standalone-clone -> `git -C logics/skills pull`, plain-copy -> re-copy from global kit or fresh clone.
+- [x] 12. Guard against submodule operations on a standalone clone if the user later un-ignores `logics/`.
+- [x] 13. Add tests for each routing path and the un-ignore guard.
+- [x] 14. CHECKPOINT: compile, lint, test. Commit wave 3.
 
 ## Final
-- [ ] 15. Update item_254, item_255, item_256 progress and status.
-- [ ] 16. Run full validation: `npm run compile && npm run test && python3 logics/skills/logics.py lint --require-status && python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
+- [x] 15. Update item_254, item_255, item_256 progress and status.
+- [x] 16. Run full validation: `npm run compile && npm run test && python3 logics/skills/logics.py lint --require-status && python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.
@@ -109,11 +109,13 @@ flowchart TD
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered for all 3 backlog items.
-- [ ] Validation commands executed and results captured for each wave.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered for all 3 backlog items.
+- [x] Validation commands executed and results captured for each wave.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Implemented the three-wave kit fallback flow for gitignored `logics/`: proactive `.gitignore` warnings, copy-first fallback installation, direct clone fallback, and adaptive routing for standalone clones.
+- Validation passed: `npm run compile`, `npm test`, and targeted Vitest coverage for `logicsProviderUtils.test.ts` and `logicsViewProvider.test.ts`.

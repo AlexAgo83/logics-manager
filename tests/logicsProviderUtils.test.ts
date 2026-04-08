@@ -11,7 +11,12 @@ vi.mock("vscode", () => ({
   env: {}
 }));
 
-import { areSamePath, inspectLogicsBootstrapState } from "../src/logicsProviderUtils";
+import {
+  areSamePath,
+  detectDangerousGitignorePatterns,
+  detectKitInstallType,
+  inspectLogicsBootstrapState
+} from "../src/logicsProviderUtils";
 
 describe("inspectLogicsBootstrapState", () => {
   const roots: string[] = [];
@@ -103,6 +108,84 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.missingPaths).toContain(".env");
     expect(state.missingPaths).toContain(".env.local");
     expect(state.missingPaths).toContain(".env.production");
+  });
+});
+
+describe("detectDangerousGitignorePatterns", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("detects broad logics patterns that would hide logics/skills", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-gitignore-"));
+    roots.push(root);
+    fs.writeFileSync(
+      path.join(root, ".gitignore"),
+      [
+        "# generated",
+        "logics/",
+        "logics/*",
+        "logics/**",
+        "!logics/request/"
+      ].join("\n"),
+      "utf8"
+    );
+
+    const inspection = detectDangerousGitignorePatterns(root);
+
+    expect(inspection.hasDangerousPatterns).toBe(true);
+    expect(inspection.matchedPatterns).toEqual(["logics/", "logics/*", "logics/**"]);
+    expect(inspection.reason).toContain("logics/skills");
+  });
+
+  it("ignores harmless .gitignore entries", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-gitignore-"));
+    roots.push(root);
+    fs.writeFileSync(path.join(root, ".gitignore"), "node_modules/\n*.vsix\n", "utf8");
+
+    const inspection = detectDangerousGitignorePatterns(root);
+
+    expect(inspection.hasDangerousPatterns).toBe(false);
+    expect(inspection.matchedPatterns).toEqual([]);
+  });
+});
+
+describe("detectKitInstallType", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("detects the canonical submodule when .git is file-backed", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", ".git"), "gitdir: ../../.git/modules/logics/skills\n", "utf8");
+
+    expect(detectKitInstallType(root)).toBe("submodule");
+  });
+
+  it("detects a standalone clone when .git is a directory", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
+
+    expect(detectKitInstallType(root)).toBe("standalone-clone");
+  });
+
+  it("falls back to plain-copy when no .git metadata is present", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+
+    expect(detectKitInstallType(root)).toBe("plain-copy");
   });
 });
 

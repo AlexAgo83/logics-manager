@@ -1,10 +1,10 @@
 ## item_256_adaptive_kit_update_strategy_for_standalone_clone_vs_submodule_installs - Adaptive kit update strategy for standalone clone vs submodule installs
 > From version: 1.22.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
-> Confidence: 80%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -68,3 +68,4 @@ flowchart LR
 - Corresponds to request design decision D2 (subsequent update strategy).
 - Depends on item_255 (fallback install must exist before adaptive updates make sense).
 - Risk: if user removes `logics/` from `.gitignore` after a standalone clone, the plugin must not try submodule operations on it.
+- Implemented in `src/logicsProviderUtils.ts` and `src/logicsCodexWorkflowController.ts`, with tests covering standalone-clone and plain-copy routing.

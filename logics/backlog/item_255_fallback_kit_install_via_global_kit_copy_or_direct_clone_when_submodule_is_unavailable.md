@@ -1,10 +1,10 @@
 ## item_255_fallback_kit_install_via_global_kit_copy_or_direct_clone_when_submodule_is_unavailable - Fallback kit install via global kit copy or direct clone when submodule is unavailable
 > From version: 1.22.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
-> Confidence: 80%
-> Progress: 0%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -72,3 +72,4 @@ flowchart LR
 - Corresponds to request design decisions D1 (cascade), D4 (user confirmation), D5 (global kit source).
 - Depends on item_254 for the detection/warning that makes the fallback discoverable.
 - Item_256 builds on this to handle subsequent updates after the initial fallback install.
+- Implemented in `src/logicsCodexWorkflowController.ts` with tests for copy-first and clone fallback paths.

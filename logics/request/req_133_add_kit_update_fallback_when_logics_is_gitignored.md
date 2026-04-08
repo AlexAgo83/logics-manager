@@ -1,9 +1,9 @@
 ## req_133_add_kit_update_fallback_when_logics_is_gitignored - Add kit update fallback when logics is gitignored
 > From version: 1.22.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
-> Confidence: 85%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and references when you edit this doc.

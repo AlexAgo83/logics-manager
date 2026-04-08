@@ -1,10 +1,10 @@
 ## item_254_detect_dangerous_gitignore_patterns_covering_logics_skills_and_warn_the_user - Detect dangerous gitignore patterns covering logics skills and warn the user
 > From version: 1.22.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Low
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -61,6 +61,7 @@ flowchart LR
 - Derived from request `req_133_add_kit_update_fallback_when_logics_is_gitignored`.
 - Corresponds to request design decision D3 (proactive detection layer).
 - This item is a prerequisite for item_255 (the warning should explain the fallback before the fallback exists).
+- Implemented in `src/logicsProviderUtils.ts` and surfaced in `src/logicsViewProvider.ts`.
 
 # Used by
 - `logics/backlog/item_255_fallback_kit_install_via_global_kit_copy_or_direct_clone_when_submodule_is_unavailable.md`

@@ -58,12 +58,87 @@ export function hasLogicsSubmodule(root: string): boolean {
   return inspection.exists && inspection.isCanonical;
 }
 
+export function detectDangerousGitignorePatterns(root: string): DangerousGitignorePatternInspection {
+  const gitignorePath = path.join(root, ".gitignore");
+  if (!fs.existsSync(gitignorePath)) {
+    return {
+      hasDangerousPatterns: false,
+      matchedPatterns: [],
+      reason: "No .gitignore file was found."
+    };
+  }
+
+  let content = "";
+  try {
+    content = fs.readFileSync(gitignorePath, "utf8");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      hasDangerousPatterns: false,
+      matchedPatterns: [],
+      reason: `Could not read .gitignore: ${message}`
+    };
+  }
+
+  const matchedPatterns = new Set<string>();
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#") || line.startsWith("!")) {
+      continue;
+    }
+    const normalized = line.replace(/^\/+/, "");
+    if (normalized === "logics" || normalized === "logics/" || normalized === "logics/*" || normalized === "logics/**") {
+      matchedPatterns.add(normalized);
+    }
+  }
+
+  const matches = Array.from(matchedPatterns).sort();
+  return {
+    hasDangerousPatterns: matches.length > 0,
+    matchedPatterns: matches,
+    reason: matches.length > 0
+      ? `Broad .gitignore pattern(s) cover logics/skills: ${matches.join(", ")}.`
+      : "No broad .gitignore pattern covering logics/skills was detected."
+  };
+}
+
+export function detectKitInstallType(root: string): LogicsKitInstallType {
+  const skillsDir = path.join(root, "logics", "skills");
+  const gitPath = path.join(skillsDir, ".git");
+
+  if (!fs.existsSync(skillsDir) || !fs.existsSync(gitPath)) {
+    return "plain-copy";
+  }
+
+  try {
+    const stat = fs.lstatSync(gitPath);
+    if (stat.isDirectory()) {
+      return "standalone-clone";
+    }
+    if (stat.isFile() || stat.isSymbolicLink()) {
+      return "submodule";
+    }
+  } catch {
+    return "plain-copy";
+  }
+
+  return "plain-copy";
+}
+
 export type LogicsKitSubmoduleInspection = {
   exists: boolean;
   isCanonical: boolean;
   remoteUrl?: string;
   reason: string;
 };
+
+export type DangerousGitignorePatternInspection = {
+  hasDangerousPatterns: boolean;
+  matchedPatterns: string[];
+  reason: string;
+};
+
+export type LogicsKitInstallType = "submodule" | "standalone-clone" | "plain-copy";
 
 export type LogicsBootstrapState = {
   status: "missing" | "incomplete" | "canonical" | "noncanonical";

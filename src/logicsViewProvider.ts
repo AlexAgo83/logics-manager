@@ -14,6 +14,7 @@ import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
+  detectDangerousGitignorePatterns,
   getWorkspaceRoot,
   inspectLogicsBootstrapState,
   hasMultipleWorkspaceFolders,
@@ -654,6 +655,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       const gitignoreItem = await this.buildGitignoreArtifactsQuickPickItem(root);
       if (gitignoreItem) {
         detailItems.push(gitignoreItem);
+      }
+    }
+
+    if (root) {
+      const dangerousGitignore = detectDangerousGitignorePatterns(root);
+      if (dangerousGitignore.hasDangerousPatterns) {
+        detailItems.push({
+          label: "Gitignore warning: logics/skills may be hidden",
+          description: `${dangerousGitignore.reason} The extension can still recover via fallback copy or clone after confirmation.`
+        });
       }
     }
 

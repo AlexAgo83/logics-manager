@@ -1,9 +1,9 @@
 ## req_135_hide_processed_requests_should_only_hide_done_requests - Hide processed requests should only hide done requests
-> From version: 1.22.2
+> From version: 1.22.2 (refreshed)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 96%
-> Confidence: 94%
+> Understanding: 96% (refreshed)
+> Confidence: 94% (refreshed)
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -53,4 +53,4 @@ flowchart TD
 - Use when: Use when the plugin should hide only requests that are actually done, regardless of downstream item or task coverage.
 - Skip when: Skip when the work is about a different filter, view mode, or workflow stage.
 # Backlog
-- (none yet)
+- `item_259_hide_processed_requests_should_only_hide_done_requests`

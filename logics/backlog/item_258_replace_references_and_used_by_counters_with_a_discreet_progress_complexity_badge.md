@@ -29,7 +29,7 @@ flowchart LR
     Request[req_136_replace_references_and_used_by_cou] --> Problem[Replace the References and Used by]
     Problem --> Scope[Replace references and used by counters]
     Scope --> Acceptance[AC1: Request and task cells no]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_118_replace_references_and_used_by_co]
 ```
 
 # Acceptance criteria

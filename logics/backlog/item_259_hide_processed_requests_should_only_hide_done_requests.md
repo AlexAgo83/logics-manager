@@ -29,7 +29,7 @@ flowchart LR
     Request[req_135_hide_processed_requests_should_onl] --> Problem[Define processed for requests as Status:]
     Problem --> Scope[Hide processed requests should only hide]
     Scope --> Acceptance[AC1: A request with Status: Done]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_119_hide_processed_requests_should_on]
 ```
 
 # Acceptance criteria

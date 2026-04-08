@@ -16,6 +16,10 @@ function activityIcon() {
   `;
 }
 
+function infoIcon() {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 10.5v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="7.5" r="1" fill="currentColor" /></svg>`;
+}
+
 function attentionIcon() {
   return `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -208,6 +212,15 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
         </div>
       </div>
       <div class="toolbar__buttons">
+        <button
+          class="btn btn--secondary btn--icon"
+          id="header-logics-insights"
+          type="button"
+          aria-label="Open Logics insights"
+          title="Open Logics insights"
+        >
+          ${infoIcon()}
+        </button>
         <button
           class="btn btn--secondary btn--icon"
           id="activity-toggle"

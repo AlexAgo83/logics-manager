@@ -3,6 +3,7 @@
     const {
       activityToggle,
       attentionToggle,
+      headerLogicsInsightsButton,
       board,
       assistCommitAllButton,
       assistNextStepButton,
@@ -134,6 +135,9 @@
     function attach() {
       if (refreshButton) {
         refreshButton.addEventListener("click", () => onRefresh());
+      }
+      if (headerLogicsInsightsButton) {
+        headerLogicsInsightsButton.addEventListener("click", () => onOpenLogicsInsights());
       }
       if (viewModeToggleButton) {
         viewModeToggleButton.addEventListener("click", () => onToggleViewMode());

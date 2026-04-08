@@ -266,6 +266,15 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "open-logics-insights")).toBe(true);
   });
 
+  it("posts logics insights action from the header button in non-harness mode", () => {
+    const { dom, postedMessages } = bootstrapWebview({ harness: false });
+
+    const button = dom.window.document.getElementById("header-logics-insights");
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "open-logics-insights")).toBe(true);
+  });
+
   it("routes trigger-tool-action messages through the existing tool buttons", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 

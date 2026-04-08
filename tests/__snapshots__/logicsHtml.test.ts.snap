@@ -907,6 +907,15 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
       <div class="toolbar__buttons">
         <button
           class="btn btn--secondary btn--icon"
+          id="header-logics-insights"
+          type="button"
+          aria-label="Open Logics insights"
+          title="Open Logics insights"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 10.5v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="7.5" r="1" fill="currentColor" /></svg>
+        </button>
+        <button
+          class="btn btn--secondary btn--icon"
           id="activity-toggle"
           type="button"
           aria-label="Show recent activity"

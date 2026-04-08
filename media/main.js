@@ -23,6 +23,7 @@
   const searchInput = document.getElementById("search-input");
   const groupBySelect = document.getElementById("group-by");
   const sortBySelect = document.getElementById("sort-by");
+  const headerLogicsInsightsButton = document.getElementById("header-logics-insights");
   const activityToggle = document.getElementById("activity-toggle");
   const attentionToggle = document.getElementById("attention-toggle");
   const activityPanel = document.getElementById("activity-panel");
@@ -446,6 +447,7 @@
       ? chromeFactory({
           activityPanel,
           activityToggle,
+          headerLogicsInsightsButton,
           attentionToggle,
           bootstrapLogicsButton,
           launchCodexOverlayButton,
@@ -916,6 +918,7 @@
     typeof mainInteractionsFactory === "function"
       ? mainInteractionsFactory({
           activityToggle,
+          headerLogicsInsightsButton,
           attentionToggle,
           board,
           assistCommitAllButton,

@@ -502,28 +502,58 @@
     }
 
     function createProgressComplexityBadge(item) {
-      const progressValue = getProgressValue(item);
-      const complexityValue = String(item?.indicators?.Complexity || "").trim();
-      if (typeof progressValue !== "number" && !complexityValue) {
-        return null;
-      }
-
       const badge = document.createElement("div");
       badge.className = "card__badges card__badges--metrics";
 
+      const stage = String(item?.stage || "").trim();
+      const isRequest = stage === "request";
+      const primaryShortLabel = isRequest ? "U" : "P";
+      const primaryIndicator = isRequest ? String(item?.indicators?.Understanding || "").trim() : null;
+      const secondaryIndicator = isRequest ? String(item?.indicators?.Confidence || "").trim() : String(item?.indicators?.Complexity || "").trim();
+      const tertiaryIndicator = isRequest ? String(item?.indicators?.Complexity || "").trim() : "";
+      const progressValue = isRequest ? null : getProgressValue(item);
+
+      const normalizedPrimary =
+        isRequest && primaryIndicator
+          ? primaryIndicator.match(/(\d+(?:\.\d+)?)/)
+          : typeof progressValue === "number"
+            ? [String(Math.max(0, Math.min(100, Math.round(progressValue))))]
+            : null;
+      const normalizedSecondary = secondaryIndicator ? secondaryIndicator.match(/(\d+(?:\.\d+)?)/) : null;
+      const complexityValue = isRequest ? tertiaryIndicator : secondaryIndicator;
+
+      if (!normalizedPrimary && !normalizedSecondary && !complexityValue) {
+        return null;
+      }
+
       const pill = document.createElement("span");
       pill.className = "card__badge card__badge--metric";
-      const progressText = typeof progressValue === "number" ? `${Math.max(0, Math.min(100, Math.round(progressValue)))}%` : "—";
+
+      const primaryText = normalizedPrimary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedPrimary[1] || normalizedPrimary[0]))))}%` : "—";
+      const secondaryText = normalizedSecondary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedSecondary[1]))))}%` : "—";
       const complexityText = complexityValue ? normalizeComplexityLabel(complexityValue) : "—";
-      pill.textContent = `${progressText} / ${complexityText}`;
-      const titleParts = [];
-      if (typeof progressValue === "number") {
-        titleParts.push(`Progress: ${Math.max(0, Math.min(100, Math.round(progressValue)))}%`);
+
+      if (isRequest) {
+        pill.textContent = `${primaryShortLabel} ${primaryText} / C ${secondaryText} / ${complexityText}`;
+        pill.title = [
+          primaryIndicator ? `Understanding: ${primaryIndicator}` : null,
+          secondaryIndicator ? `Confidence: ${secondaryIndicator}` : null,
+          complexityValue ? `Complexity: ${complexityValue}` : null
+        ]
+          .filter(Boolean)
+          .join(" • ");
+      } else {
+        pill.textContent = `${primaryShortLabel} ${primaryText} / ${complexityText}`;
+        const titleParts = [];
+        if (typeof progressValue === "number") {
+          titleParts.push(`Progress: ${Math.max(0, Math.min(100, Math.round(progressValue)))}%`);
+        }
+        if (complexityValue) {
+          titleParts.push(`Complexity: ${complexityValue}`);
+        }
+        pill.title = titleParts.join(" • ");
       }
-      if (complexityValue) {
-        titleParts.push(`Complexity: ${complexityValue}`);
-      }
-      pill.title = titleParts.join(" • ");
+
       badge.appendChild(pill);
       return badge;
     }

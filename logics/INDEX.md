@@ -434,7 +434,7 @@
 | [item_254_detect_dangerous_gitignore_patterns_covering_logics_skills_and_warn_the_user](backlog/item_254_detect_dangerous_gitignore_patterns_covering_logics_skills_and_warn_the_user.md) | Detect dangerous gitignore patterns covering logics skills and warn the user | Done | 100% | backlog/item_254_detect_dangerous_gitignore_patterns_covering_logics_skills_and_warn_the_user.md |
 | [item_255_fallback_kit_install_via_global_kit_copy_or_direct_clone_when_submodule_is_unavailable](backlog/item_255_fallback_kit_install_via_global_kit_copy_or_direct_clone_when_submodule_is_unavailable.md) | Fallback kit install via global kit copy or direct clone when submodule is unavailable | Done | 100% | backlog/item_255_fallback_kit_install_via_global_kit_copy_or_direct_clone_when_submodule_is_unavailable.md |
 | [item_256_adaptive_kit_update_strategy_for_standalone_clone_vs_submodule_installs](backlog/item_256_adaptive_kit_update_strategy_for_standalone_clone_vs_submodule_installs.md) | Adaptive kit update strategy for standalone clone vs submodule installs | Done | 100% | backlog/item_256_adaptive_kit_update_strategy_for_standalone_clone_vs_submodule_installs.md |
-| [item_257_generated_corpus_index_and_relationship_views](backlog/item_257_generated_corpus_index_and_relationship_views.md) | Generated corpus index and relationship views | Ready | 50% | backlog/item_257_generated_corpus_index_and_relationship_views.md |
+| [item_257_generated_corpus_index_and_relationship_views](backlog/item_257_generated_corpus_index_and_relationship_views.md) | Generated corpus index and relationship views | Done | 100% | backlog/item_257_generated_corpus_index_and_relationship_views.md |
 
 ## Tasks
 
@@ -551,4 +551,4 @@
 | [Cross](tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md) | wave rules | Done | 100% | tasks/task_114_orchestration_delivery_for_req_130_and_req_131_plugin_coverage_governance_and_under_1000_line_modularization.md |
 | [task_115_fix_windows_empty_board_orchestration](tasks/task_115_fix_windows_empty_board_orchestration.md) | Closure | Done | 100% | tasks/task_115_fix_windows_empty_board_orchestration.md |
 | [task_116_orchestrate_kit_update_fallback_for_gitignored_logics](tasks/task_116_orchestrate_kit_update_fallback_for_gitignored_logics.md) | Final | Done | 100% | tasks/task_116_orchestrate_kit_update_fallback_for_gitignored_logics.md |
-| [task_117_generated_corpus_index_and_relationship_views](tasks/task_117_generated_corpus_index_and_relationship_views.md) | Generated corpus index and relationship views | Ready | 50% | tasks/task_117_generated_corpus_index_and_relationship_views.md |
+| [task_117_generated_corpus_index_and_relationship_views](tasks/task_117_generated_corpus_index_and_relationship_views.md) | Generated corpus index and relationship views | Done | 100% | tasks/task_117_generated_corpus_index_and_relationship_views.md |

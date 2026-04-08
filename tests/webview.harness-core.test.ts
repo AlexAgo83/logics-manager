@@ -630,8 +630,8 @@ describe("webview harness core behaviors", () => {
       header.textContent?.replace(/[▾▸]/g, "").replace(/\s+/g, " ").trim()
     );
 
-    expect(sectionLabels).toContain("Draft (1)");
-    expect(sectionLabels).toContain("Proposed (1)");
+    expect(sectionLabels).toContain("Draft1/2");
+    expect(sectionLabels).toContain("Proposed1/2");
   });
 
   it("sorts board cards by most recently updated when requested", () => {
@@ -661,7 +661,7 @@ describe("webview harness core behaviors", () => {
     }
 
     const cardTitles = Array.from(document.querySelectorAll('.column[data-stage="request"] .card__title')).map((node) =>
-      node.textContent?.trim()
+      node.querySelector(".card__title-text")?.textContent?.trim()
     );
     expect(cardTitles).toEqual(["Newer request", "Older request"]);
   });

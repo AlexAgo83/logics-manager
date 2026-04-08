@@ -45,7 +45,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 
-  it("hides processed requests by default and can reveal them when disabled", () => {
+  it("hides done requests by default and can reveal them when disabled", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -53,9 +53,10 @@ describe("webview harness filters, details, and docs", () => {
         {
           ...baseItem,
           id: "req_001_processed",
-          title: "Processed request",
+          title: "Done request",
           relPath: "logics/request/req_001_processed.md",
           path: "/workspace/mock/logics/request/req_001_processed.md",
+          indicators: { Status: "Done" },
           references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_001_processed.md" }]
         },
         {
@@ -137,7 +138,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(document.querySelector('[data-id="req_003_processed_by_id"]')).toBeNull();
   });
 
-  it("hides processed requests when processing is inferred from usedBy links, Progress 100, or Archived status", () => {
+  it("keeps non-done requests visible even when linked items are done, progress 100, or archived", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -145,25 +146,28 @@ describe("webview harness filters, details, and docs", () => {
         {
           ...baseItem,
           id: "req_004_processed_by_used_by",
-          title: "Processed request by usedBy",
+          title: "Done request by usedBy",
           relPath: "logics/request/req_004_processed_by_used_by.md",
           path: "/workspace/mock/logics/request/req_004_processed_by_used_by.md",
+          indicators: { Status: "Done" },
           usedBy: [{ id: "item_004_processed_by_used_by", relPath: "item_004_processed_by_used_by" }]
         },
         {
           ...baseItem,
           id: "req_005_processed_by_progress",
-          title: "Processed request by progress",
+          title: "Draft request by progress",
           relPath: "logics/request/req_005_processed_by_progress.md",
           path: "/workspace/mock/logics/request/req_005_processed_by_progress.md",
+          indicators: { Status: "Draft" },
           references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_005_processed_by_progress.md" }]
         },
         {
           ...baseItem,
           id: "req_006_processed_by_archived",
-          title: "Processed request by archived backlog",
+          title: "Draft request by archived backlog",
           relPath: "logics/request/req_006_processed_by_archived.md",
           path: "/workspace/mock/logics/request/req_006_processed_by_archived.md",
+          indicators: { Status: "Draft" },
           references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_006_processed_by_archived.md" }]
         },
         {
@@ -201,8 +205,8 @@ describe("webview harness filters, details, and docs", () => {
     expect(processedToggle?.checked).toBe(true);
 
     expect(document.querySelector('[data-id="req_004_processed_by_used_by"]')).toBeNull();
-    expect(document.querySelector('[data-id="req_005_processed_by_progress"]')).toBeNull();
-    expect(document.querySelector('[data-id="req_006_processed_by_archived"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_005_processed_by_progress"]')).not.toBeNull();
+    expect(document.querySelector('[data-id="req_006_processed_by_archived"]')).not.toBeNull();
   });
 
   it("hides empty columns in board view by default and can be disabled", () => {
@@ -641,8 +645,10 @@ describe("webview harness filters, details, and docs", () => {
 
     expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
     expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
-    expect(document.querySelector('.column[data-stage="product"] .column__title')?.textContent).toBe("Product briefs");
-    expect(document.querySelector('.column[data-stage="architecture"] .column__title')?.textContent).toBe(
+    expect(document.querySelector('.column[data-stage="product"] .column__title-label')?.textContent).toBe(
+      "Product briefs"
+    );
+    expect(document.querySelector('.column[data-stage="architecture"] .column__title-label')?.textContent).toBe(
       "Architecture decisions"
     );
     expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();

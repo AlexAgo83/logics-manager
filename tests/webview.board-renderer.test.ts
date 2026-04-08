@@ -137,9 +137,8 @@ describe("webview board renderer behavior", () => {
     const headers = Array.from(board?.querySelectorAll(".list-view__header") || []);
     expect(headers.length).toBeGreaterThan(0);
 
-    // First header should show the count
     const firstHeader = headers[0];
-    expect(firstHeader?.textContent).toMatch(/\(\d+\)/);
+    expect(firstHeader?.querySelector(".list-view__header-count")?.textContent).toBe("1/1");
   });
 
   it("renders compact cards in list mode", () => {
@@ -156,6 +155,20 @@ describe("webview board renderer behavior", () => {
     const board = dom.window.document.getElementById("board");
     const card = board?.querySelector(".card");
     expect(card?.classList.contains("card--compact")).toBe(true);
+  });
+
+  it("renders compact document prefixes before the card title", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const prefix = dom.window.document.querySelector(".card__title-prefix");
+    const title = dom.window.document.querySelector(".card__title-text");
+    expect(prefix?.textContent).toBe("R000");
+    expect(title?.textContent).toBe("Kickoff");
   });
 
   it("renders request badges with understanding, confidence, and complexity", () => {

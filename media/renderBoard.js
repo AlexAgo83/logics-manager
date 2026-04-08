@@ -501,6 +501,24 @@
       return raw.slice(0, 1).toUpperCase();
     }
 
+    function getDocumentPrefix(item) {
+      const stage = String(item?.stage || "").trim();
+      const prefixByStage = {
+        request: "R",
+        backlog: "I",
+        task: "T",
+        product: "P",
+        architecture: "A",
+        spec: "S"
+      };
+      const prefix = prefixByStage[stage] || (stage ? stage.slice(0, 1).toUpperCase() : "");
+      const match = String(item?.id || "").match(/^[a-z]+_(\d+)/i) || String(item?.id || "").match(/(\d+)/);
+      if (!prefix || !match) {
+        return "";
+      }
+      return `${prefix}${String(match[1] || "").padStart(3, "0")}`;
+    }
+
     function createProgressComplexityBadge(item) {
       const badge = document.createElement("div");
       badge.className = "card__badges card__badges--metrics";
@@ -558,6 +576,25 @@
       return badge;
     }
 
+    function createCardTitle(item) {
+      const titleEl = document.createElement("div");
+      titleEl.className = "card__title";
+
+      const prefix = getDocumentPrefix(item);
+      if (prefix) {
+        const prefixEl = document.createElement("span");
+        prefixEl.className = "card__title-prefix";
+        prefixEl.textContent = prefix;
+        titleEl.appendChild(prefixEl);
+      }
+
+      const textEl = document.createElement("span");
+      textEl.className = "card__title-text";
+      textEl.textContent = item.title;
+      titleEl.appendChild(textEl);
+      return titleEl;
+    }
+
     function createCardPreview(item) {
       const preview = document.createElement("div");
       preview.className = "card__preview";
@@ -607,10 +644,7 @@
         card.classList.toggle("card--preview-open", isOpen);
       }
 
-      const titleEl = document.createElement("div");
-      titleEl.className = "card__title";
-      titleEl.textContent = item.title;
-      card.appendChild(titleEl);
+      card.appendChild(createCardTitle(item));
 
       const companionBadges = createCompanionBadges(item);
       if (companionBadges) {
@@ -682,7 +716,8 @@
       return card;
     }
 
-    function renderBoardColumns(grouped) {
+    function renderBoardColumns(grouped, totalVisibleItems) {
+      const totalCount = Math.max(0, totalVisibleItems || 0);
       getVisibleStages().forEach((stage) => {
         const stageItems = grouped[stage] || [];
         if (getHideEmptyColumns() && stageItems.length === 0) {
@@ -698,7 +733,15 @@
 
         const title = document.createElement("div");
         title.className = "column__title";
-        title.textContent = getStageHeading(stage);
+        const titleLabel = document.createElement("span");
+        titleLabel.className = "column__title-label";
+        titleLabel.textContent = getStageHeading(stage);
+        title.appendChild(titleLabel);
+
+        const titleCount = document.createElement("span");
+        titleCount.className = "column__title-count";
+        titleCount.textContent = `${stageItems.length}/${totalCount}`;
+        title.appendChild(titleCount);
         header.appendChild(title);
 
         const actions = document.createElement("div");
@@ -766,8 +809,14 @@
         header.appendChild(chevron);
 
         const label = document.createElement("span");
-        label.textContent = `${group.heading} (${stageItems.length})`;
+        label.className = "list-view__header-label";
+        label.textContent = group.heading;
         header.appendChild(label);
+
+        const count = document.createElement("span");
+        count.className = "list-view__header-count";
+        count.textContent = `${stageItems.length}/${Math.max(0, group.totalCount || 0)}`;
+        header.appendChild(count);
         header.addEventListener("click", () => {
           toggleListStageCollapsed(group.key, !getCollapsedListStages().has(group.key));
           focusListHeader(group.key);
@@ -829,7 +878,7 @@
       if (isListMode()) {
         renderListView(typeof getListGroups === "function" ? getListGroups() : []);
       } else {
-        renderBoardColumns(grouped);
+        renderBoardColumns(grouped, visibleItems.length);
       }
       restoreBoardScroll(scrollState);
     }

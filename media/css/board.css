@@ -44,11 +44,26 @@
 }
 
 .column__title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--vscode-descriptionForeground, #9da5b4);
   min-width: 0;
+}
+
+.column__title-label {
+  min-width: 0;
+}
+
+.column__title-count {
+  flex: none;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
 .column__actions {
@@ -165,11 +180,27 @@
 }
 
 .card__title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   font-size: 13px;
   color: var(--vscode-foreground, #d4d4d4);
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.card__title-prefix {
+  flex: none;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card__title-text {
+  min-width: 0;
 }
 
 .card__meta {
@@ -374,6 +405,19 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
   padding: 0 12px 6px;
   cursor: pointer;
+}
+
+.list-view__header-label {
+  min-width: 0;
+}
+
+.list-view__header-count {
+  margin-left: auto;
+  flex: none;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
 .list-view__header-icon {

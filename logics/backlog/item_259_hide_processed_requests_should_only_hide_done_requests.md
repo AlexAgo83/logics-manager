@@ -1,10 +1,10 @@
 ## item_259_hide_processed_requests_should_only_hide_done_requests - Hide processed requests should only hide done requests
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.

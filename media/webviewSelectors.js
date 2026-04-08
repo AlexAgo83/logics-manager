@@ -140,33 +140,7 @@
 
     function isProcessedWorkflowStatus(value) {
       const normalized = normalizeStatus(value);
-      return normalized === "ready" || normalized === "in progress" || normalized === "blocked" || normalized === "done";
-    }
-
-    function collectLinkedWorkflowItems(item) {
-      if (!item || item.stage !== "request") {
-        return [];
-      }
-      const linkedPaths = new Set();
-      if (Array.isArray(item.references)) {
-        item.references.forEach((ref) => {
-          if (ref && typeof ref.path === "string") {
-            linkedPaths.add(ref.path.replace(/\\/g, "/"));
-          }
-        });
-      }
-      if (Array.isArray(item.usedBy)) {
-        item.usedBy.forEach((usage) => {
-          if (usage && typeof usage.relPath === "string") {
-            linkedPaths.add(usage.relPath.replace(/\\/g, "/"));
-          }
-        });
-      }
-      return getItems().filter(
-        (candidate) =>
-          linkedPaths.has(String(candidate.relPath || "").replace(/\\/g, "/")) &&
-          (candidate.stage === "backlog" || candidate.stage === "task")
-      );
+      return normalized === "done";
     }
 
     function isRequestProcessed(item) {

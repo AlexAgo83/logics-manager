@@ -508,95 +508,22 @@ function normalizeStatus(value: string | undefined): string {
 }
 
 function isProcessedWorkflowStatus(value: string | undefined): boolean {
-  const normalized = normalizeStatus(value);
-  return (
-    normalized === "ready" ||
-    normalized === "in progress" ||
-    normalized === "blocked" ||
-    normalized === "done" ||
-    normalized === "archived"
-  );
-}
-
-function parseProgress(value: string | undefined): number | null {
-  if (!value) {
-    return null;
-  }
-  const match = value.match(/(\d{1,3})/);
-  if (!match) {
-    return null;
-  }
-  const parsed = Number.parseInt(match[1], 10);
-  if (Number.isNaN(parsed)) {
-    return null;
-  }
-  return Math.max(0, Math.min(100, parsed));
+  return normalizeStatus(value) === "done";
 }
 
 function isProcessedWorkflowItem(item: LogicsItem): boolean {
-  if (item.stage !== "backlog" && item.stage !== "task") {
+  if (item.stage !== "request") {
     return false;
   }
-  if (isProcessedWorkflowStatus(item.indicators?.Status)) {
-    return true;
-  }
-  return parseProgress(item.indicators?.Progress) === 100;
-}
-
-function collectLinkedWorkflowPaths(item: LogicsItem): string[] {
-  if (item.stage !== "request") {
-    return [];
-  }
-  const paths = new Set<string>();
-  for (const ref of item.references) {
-    if (ref.kind === "backlog" || ref.kind === "from" || ref.kind === "manual") {
-      paths.add(normalizeRef(ref.path));
-    }
-  }
-  for (const usage of item.usedBy ?? []) {
-    if (usage.relPath) {
-      paths.add(normalizeRef(usage.relPath));
-    }
-  }
-  return Array.from(paths);
-}
-
-function workflowCandidateKeys(candidate: LogicsItem): string[] {
-  const keys = new Set<string>();
-  if (candidate.relPath) {
-    const normalizedPath = normalizeRef(candidate.relPath);
-    keys.add(normalizedPath);
-    keys.add(path.basename(normalizedPath, ".md"));
-  }
-  if (candidate.id) {
-    keys.add(candidate.id);
-  }
-  return Array.from(keys);
+  return isProcessedWorkflowStatus(item.indicators?.Status);
 }
 
 export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {
   if (item.stage !== "request") {
     return false;
   }
-  const linkedPaths = collectLinkedWorkflowPaths(item);
-  if (linkedPaths.length === 0 || !Array.isArray(allItems) || allItems.length === 0) {
-    return false;
-  }
-  const linkedItems = new Map<string, LogicsItem>();
-  for (const candidate of allItems) {
-    for (const key of workflowCandidateKeys(candidate)) {
-      if (!linkedItems.has(key)) {
-        linkedItems.set(key, candidate);
-      }
-    }
-  }
-  return linkedPaths.some((linkedPath) => {
-    const linked = linkedItems.get(linkedPath);
-    if (!linked) {
-      return false;
-    }
-    return isProcessedWorkflowItem(linked);
-  });
+  void allItems;
+  return isProcessedWorkflowItem(item);
 }
 
 export function isRequestUsed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {

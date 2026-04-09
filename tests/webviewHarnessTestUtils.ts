@@ -26,40 +26,16 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
         <div class="toolbar">
           <div class="toolbar__row toolbar__row--primary">
             <button id="filter-toggle" class="toolbar__filter"></button>
-            <button id="tools-toggle" class="toolbar__filter"></button>
+            <button id="workflow-toggle" class="toolbar__filter"></button>
+            <button id="assist-toggle" class="toolbar__filter"></button>
+            <button id="system-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
-              <div class="tools-panel__switcher" role="tablist" aria-label="Tools categories">
-                <button
-                  class="tools-panel__switch is-active"
-                  type="button"
-                  role="tab"
-                  id="tools-view-tab-workflow"
-                  aria-selected="true"
-                  aria-controls="tools-view-workflow"
-                  tabindex="0"
-                  data-tools-view-toggle="workflow"
-                >
-                  Workflow
-                </button>
-                <button
-                  class="tools-panel__switch"
-                  type="button"
-                  role="tab"
-                  id="tools-view-tab-system"
-                  aria-selected="false"
-                  aria-controls="tools-view-system"
-                  tabindex="-1"
-                  data-tools-view-toggle="system"
-                >
-                  System
-                </button>
-              </div>
               <div data-tools-section="recommended">
                 <div>Recommended</div>
                 <div data-tools-body="recommended">
                   <button class="tools-panel__item" data-action="new-request" title="Create a new request document"></button>
-                  <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next step"></button>
-                  <button class="tools-panel__item" data-action="assist-triage" title="Turn a rough idea into a structured request"></button>
+                  <button class="tools-panel__item" data-action="assist-next-step" title="Suggest the next bounded workflow step for the current Logics wave"></button>
+                  <button class="tools-panel__item" data-action="assist-triage" title="Classify a workflow doc into a request, backlog item, or task with the shared runtime"></button>
                   <button class="tools-panel__item" data-action="bootstrap-logics" title="Bootstrap Logics in this repository"></button>
                   <button class="tools-panel__item" data-action="check-environment" title="Review environment health and recommended fixes">Check Environment</button>
                 </div>
@@ -69,22 +45,23 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                   <div>Workflow</div>
                   <div data-tools-body="workflow">
                     <button class="tools-panel__item" data-action="open-onboarding" title="Open the getting started guide"></button>
-                    <button class="tools-panel__item" data-action="select-agent" title="Select the active agent profile"></button>
-                    <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc"></button>
-                    <button class="tools-panel__item" data-action="refresh" title="Refresh"></button>
+                    <button class="tools-panel__item" data-action="select-agent" title="Select the active assistant persona used for workflow actions"></button>
+                    <button class="tools-panel__item" data-action="create-companion-doc" title="Create a companion doc for the selected Logics item"></button>
                   </div>
                 </div>
+              </div>
+              <div class="tools-panel__view" id="tools-view-assist" data-tools-view="assist" hidden>
                 <div data-tools-section="assist">
                   <div>Assist</div>
                   <div data-tools-body="assist">
-                    <button class="tools-panel__item" data-action="assist-commit-all"></button>
-                    <button class="tools-panel__item" data-action="assist-diff-risk"></button>
-                    <button class="tools-panel__item" data-action="assist-summarize-changelog"></button>
-                    <button class="tools-panel__item" data-action="assist-prepare-release"></button>
-                    <button class="tools-panel__item" data-action="assist-publish-release"></button>
-                    <button class="tools-panel__item" data-action="assist-summarize-validation"></button>
-                    <button class="tools-panel__item" data-action="assist-validation-checklist"></button>
-                    <button class="tools-panel__item" data-action="assist-doc-consistency"></button>
+                    <button class="tools-panel__item" data-action="assist-commit-all" title="Suggest a bounded commit plan for the current workspace changes"></button>
+                    <button class="tools-panel__item" data-action="assist-diff-risk" title="Assess the current diff risk before you commit or hand off changes"></button>
+                    <button class="tools-panel__item" data-action="assist-summarize-changelog" title="Draft a changelog summary from the current Logics delivery wave"></button>
+                    <button class="tools-panel__item" data-action="assist-prepare-release" title="Prepare a release by generating missing changelog material and staging the release prep changes"></button>
+                    <button class="tools-panel__item" data-action="assist-publish-release" title="Create the release tag, push it, and publish the GitHub release"></button>
+                    <button class="tools-panel__item" data-action="assist-summarize-validation" title="Summarize the latest validation outcome and what still needs attention"></button>
+                    <button class="tools-panel__item" data-action="assist-validation-checklist" title="Build a concise validation checklist for the current delivery wave"></button>
+                    <button class="tools-panel__item" data-action="assist-doc-consistency" title="Review the workflow docs for consistency, stale indicators, and broken references"></button>
                   </div>
                 </div>
               </div>
@@ -92,8 +69,6 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                 <div data-tools-section="runtime">
                   <div>AI Runtime</div>
                   <div data-tools-body="runtime">
-                    <button class="tools-panel__item" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit"></button>
-                    <button class="tools-panel__item" data-action="launch-claude" title="Launch Claude with the globally published Logics kit"></button>
                     <button class="tools-panel__item" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
                     <button class="tools-panel__item" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                   </div>
@@ -115,7 +90,6 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
                 <div data-tools-section="maintenance">
                   <div>Maintenance</div>
                   <div data-tools-body="maintenance">
-                    <button class="tools-panel__item" data-action="fix-docs"></button>
                     <button class="tools-panel__item" data-action="open-logics-insights" title="Open corpus stats and relationship signals">Logics Insights</button>
                     <button class="tools-panel__item" data-action="about"></button>
                   </div>

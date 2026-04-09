@@ -42,12 +42,12 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
     <html>
       <body>
         <button id="filter-toggle"></button>
-        <button id="tools-toggle"></button>
+        <button id="workflow-toggle"></button>
+        <button id="assist-toggle"></button>
+        <button id="system-toggle"></button>
         <div id="tools-panel">
           <button data-action="change-project-root"></button>
           <button data-action="reset-project-root"></button>
-          <button data-action="refresh"></button>
-          <button data-action="fix-docs"></button>
         </div>
         <div id="filter-panel" hidden>
           <button id="filter-reset" type="button"></button>

@@ -17,7 +17,14 @@
     const setFilterPanelOpen =
       core && typeof core.setFilterPanelOpen === "function" ? (isOpen) => core.setFilterPanelOpen(isOpen) : () => undefined;
     const setToolsPanelOpen =
-      core && typeof core.setToolsPanelOpen === "function" ? (isOpen) => core.setToolsPanelOpen(isOpen) : () => undefined;
+      core && typeof core.setToolsPanelOpen === "function"
+        ? (viewNameOrOpen, maybeOpen) => {
+            if (typeof maybeOpen === "boolean") {
+              return core.setToolsPanelOpen(viewNameOrOpen, maybeOpen);
+            }
+            return core.setToolsPanelOpen(undefined, Boolean(viewNameOrOpen));
+          }
+        : () => undefined;
     const restoreDefaultFilters =
       core && typeof core.restoreDefaultFilters === "function" ? () => core.restoreDefaultFilters() : () => undefined;
     const openSelectedItem =
@@ -156,14 +163,6 @@
         hostApi.assistDocConsistency();
         setToolsPanelOpen(false);
       },
-      onLaunchCodexOverlay() {
-        hostApi.launchCodexOverlay();
-        setToolsPanelOpen(false);
-      },
-      onLaunchClaude() {
-        hostApi.launchClaude();
-        setToolsPanelOpen(false);
-      },
       onChangeProjectRoot() {
         return handleChangeProjectRoot();
       },
@@ -201,10 +200,6 @@
         restoreDefaultFilters();
         persistState();
         render();
-      },
-      onFixDocs() {
-        hostApi.fixDocs();
-        setToolsPanelOpen(false);
       },
       onGroupChange(event) {
         state.groupMode = event.target ? String(event.target.value || "stage") : "stage";
@@ -262,9 +257,6 @@
       onReadSelectedItem() {
         openSelectedItem("read");
       },
-      onRefresh() {
-        hostApi.refresh();
-      },
       onResetProjectRoot() {
         handleResetProjectRoot();
         setToolsPanelOpen(false);
@@ -304,9 +296,15 @@
         persistState();
         render();
       },
-      onToolsPanelToggle(event) {
-        event.stopPropagation();
-        setToolsPanelOpen(!state.toolsPanelOpen);
+      onToolsPanelToggle(viewName, event) {
+        const activeView = typeof viewName === "string" && viewName ? viewName : "workflow";
+        const nativeEvent = event && typeof event === "object" && "stopPropagation" in event ? event : null;
+        if (nativeEvent && typeof nativeEvent.stopPropagation === "function") {
+          nativeEvent.stopPropagation();
+        }
+        const shouldOpen = !state.toolsPanelOpen || state.toolsPanelView !== activeView;
+        state.toolsPanelView = shouldOpen ? activeView : state.toolsPanelView;
+        setToolsPanelOpen(activeView, shouldOpen);
       },
       onWindowMessage(event) {
         handleHostMessage(event);

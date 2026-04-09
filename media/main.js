@@ -18,7 +18,9 @@
   const detailsEyebrow = document.getElementById("details-eyebrow");
   const filterToggle = document.getElementById("filter-toggle");
   const filterPanel = document.getElementById("filter-panel");
-  const toolsToggle = document.getElementById("tools-toggle");
+  const workflowToggle = document.getElementById("workflow-toggle");
+  const assistToggle = document.getElementById("assist-toggle");
+  const systemToggle = document.getElementById("system-toggle");
   const toolsPanel = document.getElementById("tools-panel");
   const searchInput = document.getElementById("search-input");
   const groupBySelect = document.getElementById("group-by");
@@ -31,9 +33,6 @@
   const helpBannerCopy = document.getElementById("help-banner-copy");
   const helpBannerDismiss = document.getElementById("help-banner-dismiss");
   const viewModeToggleButton = document.querySelector('[data-action="toggle-view-mode"]');
-  const refreshButton = document.querySelector('[data-action="refresh"]');
-  const launchCodexOverlayButton = document.querySelector('[data-action="launch-codex-overlay"]');
-  const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
   const selectAgentButton = document.querySelector('[data-action="select-agent"]');
   const newRequestToolButton = document.querySelector('[data-action="new-request"]');
   const createCompanionDocToolButton = document.querySelector('[data-action="create-companion-doc"]');
@@ -57,7 +56,6 @@
   const assistDocConsistencyButton = document.querySelector('[data-action="assist-doc-consistency"]');
   const changeProjectRootButton = document.querySelector('[data-action="change-project-root"]');
   const resetProjectRootButton = document.querySelector('[data-action="reset-project-root"]');
-  const fixDocsButton = document.querySelector('[data-action="fix-docs"]');
   const aboutButton = document.querySelector('[data-action="about"]');
   const promoteButton = document.querySelector('[data-action="promote"]');
   const markDoneButton = document.querySelector('[data-action="mark-done"]');
@@ -113,6 +111,7 @@
   let activeColumnMenuButton = null;
   let secondaryToolbarOpen = false;
   let toolsPanelOpen = false;
+  let toolsPanelView = "workflow";
   let canResetProjectRoot = false;
   let canBootstrapLogics = false;
   let bootstrapLogicsTitle = "Bootstrap Logics in this project";
@@ -218,6 +217,7 @@
     selectedId = null;
     secondaryToolbarOpen = false;
     toolsPanelOpen = false;
+    toolsPanelView = "workflow";
     uiState.detailsCollapsed = uiDefaults.detailsCollapsed;
     uiState.viewMode = uiDefaults.viewMode;
     uiState.splitRatio = uiDefaults.splitRatio;
@@ -263,6 +263,9 @@
     }
     if (nextState && typeof nextState.secondaryToolbarOpen === "boolean") {
       secondaryToolbarOpen = nextState.secondaryToolbarOpen;
+    }
+    if (nextState && typeof nextState.toolsPanelView === "string") {
+      toolsPanelView = nextState.toolsPanelView;
     }
     if (nextState && typeof nextState.selectedId === "string") {
       selectedId = nextState.selectedId;
@@ -422,6 +425,7 @@
     activeColumnMenuButton: { get: () => activeColumnMenuButton, set: (value) => { activeColumnMenuButton = value; } },
     secondaryToolbarOpen: { get: () => secondaryToolbarOpen, set: (value) => { secondaryToolbarOpen = value; } },
     toolsPanelOpen: { get: () => toolsPanelOpen, set: (value) => { toolsPanelOpen = value; } },
+    toolsPanelView: { get: () => toolsPanelView, set: (value) => { toolsPanelView = value; } },
     canResetProjectRoot: { get: () => canResetProjectRoot, set: (value) => { canResetProjectRoot = value; } },
     canBootstrapLogics: { get: () => canBootstrapLogics, set: (value) => { canBootstrapLogics = value; } },
     bootstrapLogicsTitle: { get: () => bootstrapLogicsTitle, set: (value) => { bootstrapLogicsTitle = value; } },
@@ -449,9 +453,8 @@
           activityToggle,
           headerLogicsInsightsButton,
           attentionToggle,
+          assistToggle,
           bootstrapLogicsButton,
-          launchCodexOverlayButton,
-          launchClaudeButton,
           repairLogicsKitButton,
           assistPublishReleaseButton,
           filterPanel,
@@ -473,7 +476,8 @@
           showCompanionDocsToggle,
           sortBySelect,
           toolsPanel,
-          toolsToggle,
+          workflowToggle,
+          systemToggle,
           viewModeToggleButton,
           defaultFilterState,
           canPromote,
@@ -539,7 +543,9 @@
   const syncChromeInputs =
     chrome && typeof chrome.syncInputs === "function" ? () => chrome.syncInputs() : () => undefined;
   const applyToolsPanelOpen =
-    chrome && typeof chrome.setToolsPanelOpen === "function" ? (isOpen) => chrome.setToolsPanelOpen(isOpen) : () => undefined;
+    chrome && typeof chrome.setToolsPanelOpen === "function"
+      ? (viewName, isOpen) => chrome.setToolsPanelOpen(viewName, isOpen)
+      : () => undefined;
   const setControlDescription =
     chrome && typeof chrome.setControlDescription === "function"
       ? (element, label) => chrome.setControlDescription(element, label)
@@ -792,9 +798,10 @@
           filterPanel,
           toolsPanel,
           filterToggle,
-          toolsToggle,
+          workflowToggle,
+          assistToggle,
+          systemToggle,
           viewModeToggleButton,
-          refreshButton,
           projectGithubUrl,
           stackedQuery,
           compactListQuery,
@@ -934,7 +941,6 @@
           bootstrapLogicsButton,
           checkHybridRuntimeButton,
           checkEnvironmentButton,
-          launchClaudeButton,
           openHybridInsightsButton,
           openLogicsInsightsButton,
           openOnboardingButton,
@@ -946,7 +952,7 @@
           filterPanel,
           filterResetButton,
           filterToggle,
-          fixDocsButton,
+          assistToggle,
           groupBySelect,
           helpBannerDismiss,
           hideCompleteToggle,
@@ -954,7 +960,6 @@
           hideProcessedRequestsToggle,
           hideSpecToggle,
           layoutController,
-          launchCodexOverlayButton,
           repairLogicsKitButton,
           mainPane,
           markDoneButton,
@@ -963,7 +968,6 @@
           openButton,
           promoteButton,
           readButton,
-          refreshButton,
           resetProjectRootButton,
           searchInput,
           selectAgentButton,
@@ -973,7 +977,8 @@
           splitter,
           stackedQuery,
           toolsPanel,
-          toolsToggle,
+          workflowToggle,
+          systemToggle,
           updateLogicsKitButton,
           viewModeToggleButton,
           aboutButton,

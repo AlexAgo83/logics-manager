@@ -800,9 +800,9 @@ describe("webview harness filters, details, and docs", () => {
 
     const document = dom.window.document;
     const filterToggle = document.getElementById("filter-toggle");
-    const toolsToggle = document.getElementById("tools-toggle");
-    const launchCodexButton = document.querySelector('[data-action="launch-codex-overlay"]');
-    const launchClaudeButton = document.querySelector('[data-action="launch-claude"]');
+    const workflowToggle = document.getElementById("workflow-toggle");
+    const assistToggle = document.getElementById("assist-toggle");
+    const systemToggle = document.getElementById("system-toggle");
     const newRequestButton = document.querySelector('[data-action="new-request"]');
     const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
@@ -810,27 +810,29 @@ describe("webview harness filters, details, and docs", () => {
     const detailsToggle = document.getElementById("details-toggle");
 
     expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
-    expect(toolsToggle?.getAttribute("title")).toBe("Tools");
-    expect(launchCodexButton?.getAttribute("title")).toBe("Launch Codex with the globally published Logics kit");
-    expect(launchClaudeButton?.getAttribute("title")).toBe("Launch Claude with the globally published Logics kit");
+    expect(workflowToggle?.getAttribute("title")).toBe("Open workflow menu");
+    expect(assistToggle?.getAttribute("title")).toBe("Open assist menu");
+    expect(systemToggle?.getAttribute("title")).toBe("Open system menu");
+    expect(document.querySelector('[data-action="launch-codex-overlay"]')).toBeNull();
+    expect(document.querySelector('[data-action="launch-claude"]')).toBeNull();
     expect(newRequestButton?.getAttribute("title")).toBe("Create a new request document");
-    expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc");
+    expect(createCompanionDocButton?.getAttribute("title")).toBe("Create a companion doc for the selected Logics item");
     expect(
       Array.from(document.querySelectorAll("#tools-panel [data-action]")).map((node) => node.getAttribute("data-action"))
     ).toEqual(
       expect.arrayContaining([
-        "launch-codex-overlay",
-        "launch-claude",
         "check-hybrid-runtime",
         "open-hybrid-insights",
         "assist-commit-all",
         "assist-triage",
         "assist-diff-risk",
         "assist-summarize-changelog",
+        "assist-prepare-release",
+        "assist-publish-release",
+        "assist-summarize-validation",
         "assist-validation-checklist",
         "assist-doc-consistency",
-        "repair-logics-kit",
-        "refresh"
+        "repair-logics-kit"
       ])
     );
     expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("new-request");

@@ -107,17 +107,18 @@ describe("webview harness core behaviors", () => {
 
     const workflowView = dom.window.document.getElementById("tools-view-workflow");
     const systemView = dom.window.document.getElementById("tools-view-system");
-    const systemTab = dom.window.document.querySelector('[data-tools-view-toggle="system"]') as HTMLButtonElement | null;
+    const toolsPanel = dom.window.document.getElementById("tools-panel") as HTMLDivElement | null;
+    const systemToggle = dom.window.document.getElementById("system-toggle") as HTMLButtonElement | null;
 
     expect(workflowView?.hidden).toBe(false);
     expect(systemView?.hidden).toBe(true);
-    expect(systemTab?.getAttribute("aria-selected")).toBe("false");
+    expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
 
-    systemTab?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    systemToggle?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
 
     expect(workflowView?.hidden).toBe(true);
     expect(systemView?.hidden).toBe(false);
-    expect(systemTab?.getAttribute("aria-selected")).toBe("true");
+    expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(true);
   });
 
   it("opens selected item in harness mode without posting open message", async () => {
@@ -290,15 +291,12 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "new-request")).toBe(true);
   });
 
-  it("posts runtime launcher and repair actions in non-harness mode", () => {
+  it("posts repair actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 
-    const launchClaudeButton = dom.window.document.querySelector('[data-action="launch-claude"]');
     const repairButton = dom.window.document.querySelector('[data-action="repair-logics-kit"]');
-    launchClaudeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     repairButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(postedMessages.some((message) => message.type === "launch-claude")).toBe(true);
     expect(postedMessages.some((message) => message.type === "repair-logics-kit")).toBe(true);
   });
 
@@ -340,34 +338,20 @@ describe("webview harness core behaviors", () => {
     expect(resetButton?.disabled).toBe(false);
   });
 
-  it("uses host-provided launcher and repair availability in the tools menu", () => {
+  it("uses host-provided repair availability in the tools menu", () => {
     const { dom } = bootstrapWebview({ harness: true });
 
     pushData(dom, {
       root: "/workspace/mock",
-      canLaunchCodex: false,
-      launchCodexTitle: "Codex CLI not found on PATH",
-      canLaunchClaude: false,
-      launchClaudeTitle: "Claude CLI not found on PATH",
       canRepairLogicsKit: false,
       repairLogicsKitTitle: "Select a project root first",
       items: [baseItem]
     });
 
-    const launchCodexButton = dom.window.document.querySelector(
-      '[data-action="launch-codex-overlay"]'
-    ) as HTMLButtonElement | null;
-    const launchClaudeButton = dom.window.document.querySelector(
-      '[data-action="launch-claude"]'
-    ) as HTMLButtonElement | null;
     const repairButton = dom.window.document.querySelector(
       '[data-action="repair-logics-kit"]'
     ) as HTMLButtonElement | null;
 
-    expect(launchCodexButton?.disabled).toBe(true);
-    expect(launchCodexButton?.title).toBe("Codex CLI not found on PATH");
-    expect(launchClaudeButton?.disabled).toBe(true);
-    expect(launchClaudeButton?.title).toBe("Claude CLI not found on PATH");
     expect(repairButton?.disabled).toBe(true);
     expect(repairButton?.title).toBe("Select a project root first");
   });

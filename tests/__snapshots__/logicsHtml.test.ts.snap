@@ -772,7 +772,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
 </head>
 <body>
   <div class="toolbar">
-    <div class="toolbar__row toolbar__row--primary">
+      <div class="toolbar__row toolbar__row--primary">
       <div class="toolbar__filters">
         <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -789,57 +789,72 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
         <div class="toolbar__tools">
           <button
             class="toolbar__filter"
-            id="tools-toggle"
-            aria-label="Tools"
+            id="workflow-toggle"
+            aria-label="Open workflow menu"
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls="tools-panel"
-            title="Tools"
+            title="Open workflow menu"
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                d="M4 7h16M6 12h12M8 17h8"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="6" cy="7" r="1.6" fill="currentColor" />
+      <circle cx="18" cy="7" r="1.6" fill="currentColor" />
+      <circle cx="12" cy="17" r="1.6" fill="currentColor" />
+      <path d="M6 7h12M12 17V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  
+          </button>
+          <button
+            class="toolbar__filter"
+            id="assist-toggle"
+            aria-label="Open assist menu"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="tools-panel"
+            title="Open assist menu"
+          >
+            
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M12 4.8l1.7 4.2 4.5 1.1-4.5 1.1-1.7 4.2-1.7-4.2-4.5-1.1 4.5-1.1z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+    </svg>
+  
+          </button>
+          <button
+            class="toolbar__filter"
+            id="system-toggle"
+            aria-label="Open system menu"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="tools-panel"
+            title="Open system menu"
+          >
+            
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+      <path
+        d="M12 4.5v2M12 17.5v2M4.5 12h2M17.5 12h2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M17.8 6.2l-1.4 1.4M7.6 16.4l-1.4 1.4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
-            <div class="tools-panel__switcher" role="tablist" aria-label="Tools categories">
-              <button
-                class="tools-panel__switch is-active"
-                type="button"
-                role="tab"
-                id="tools-view-tab-workflow"
-                aria-selected="true"
-                aria-controls="tools-view-workflow"
-                tabindex="0"
-                data-tools-view-toggle="workflow"
-              >
-                Workflow
-              </button>
-              <button
-                class="tools-panel__switch"
-                type="button"
-                role="tab"
-                id="tools-view-tab-system"
-                aria-selected="false"
-                aria-controls="tools-view-system"
-                tabindex="-1"
-                data-tools-view-toggle="system"
-              >
-                System
-              </button>
-            </div>
             <div class="tools-panel__section" data-tools-section="recommended">
               <div class="tools-panel__section-label">Recommended</div>
               <div class="tools-panel__section-body" data-tools-body="recommended">
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="new-request" title="Create a new request document">New Request</button>
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step">Suggest Next Step</button>
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc through the shared runtime">Triage Item</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-next-step" title="Suggest the next bounded workflow step for the current Logics wave">Suggest Next Step</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-triage" title="Classify a workflow doc into a request, backlog item, or task with the shared runtime">Triage Item</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="bootstrap-logics" title="Bootstrap Logics">Bootstrap Logics</button>
                 <button class="tools-panel__item" type="button" role="menuitem" data-action="check-environment" title="Review environment health and recommended fixes">Check Environment</button>
               </div>
@@ -849,22 +864,23 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
                 <div class="tools-panel__section-label">Workflow</div>
                 <div class="tools-panel__section-body" data-tools-body="workflow">
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="open-onboarding" title="Open the getting started guide">Getting Started</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select active agent">Select Agent</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc">Companion Doc</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh">Refresh</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="select-agent" title="Select the active assistant persona used for workflow actions">Select Agent</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="create-companion-doc" title="Create a companion doc for the selected Logics item">Companion Doc</button>
                 </div>
               </div>
+            </div>
+            <div class="tools-panel__view" id="tools-view-assist" data-tools-view="assist" hidden>
               <div class="tools-panel__section" data-tools-section="assist">
                 <div class="tools-panel__section-label">Assist</div>
                 <div class="tools-panel__section-body" data-tools-body="assist">
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest or execute a bounded commit plan">Commit All Changes</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk through the shared runtime">Assess Diff Risk</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-changelog" title="Generate bounded changelog entries through the shared runtime">Changelog Summary</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-prepare-release" title="Generate changelog via AI if missing, update README badge, and commit prep changes">Prepare Release</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-publish-release" title="Create the release tag, push, and publish the GitHub release">Publish Release</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize validation status through the shared runtime">Validation Summary</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a bounded validation checklist through the shared runtime">Validation Checklist</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review workflow doc consistency through the shared runtime">Doc Consistency</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-commit-all" title="Suggest a bounded commit plan for the current workspace changes">Commit All Changes</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-diff-risk" title="Assess the current diff risk before you commit or hand off changes">Assess Diff Risk</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-changelog" title="Draft a changelog summary from the current Logics delivery wave">Changelog Summary</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-prepare-release" title="Prepare a release by generating missing changelog material and staging the release prep changes">Prepare Release</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-publish-release" title="Create the release tag, push it, and publish the GitHub release">Publish Release</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-summarize-validation" title="Summarize the latest validation outcome and what still needs attention">Validation Summary</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-validation-checklist" title="Build a concise validation checklist for the current delivery wave">Validation Checklist</button>
+                  <button class="tools-panel__item" type="button" role="menuitem" data-action="assist-doc-consistency" title="Review the workflow docs for consistency, stale indicators, and broken references">Doc Consistency</button>
                 </div>
               </div>
             </div>
@@ -872,8 +888,6 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
               <div class="tools-panel__section" data-tools-section="runtime">
                 <div class="tools-panel__section-label">AI Runtime</div>
                 <div class="tools-panel__section-body" data-tools-body="runtime">
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-codex-overlay" title="Launch Codex with the globally published Logics kit">Launch Codex</button>
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="launch-claude" title="Launch Claude with the globally published Logics kit">Launch Claude</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="check-hybrid-runtime" title="Check provider availability, cooldown state, and hybrid assist health">AI Runtime Status</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="open-hybrid-insights" title="Open multi-provider Hybrid Insights with dispatch and fallback breakdowns">AI Provider Insights</button>
                 </div>
@@ -895,7 +909,6 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
               <div class="tools-panel__section" data-tools-section="maintenance">
                 <div class="tools-panel__section-label">Maintenance</div>
                 <div class="tools-panel__section-body" data-tools-body="maintenance">
-                  <button class="tools-panel__item" type="button" role="menuitem" data-action="fix-docs" title="Fix Logics">Fix Logics</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="open-logics-insights" title="Open corpus stats and relationship signals">Logics Insights</button>
                   <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="About this extension">About</button>
                 </div>

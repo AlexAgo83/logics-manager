@@ -282,6 +282,69 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).toContain("H");
   });
 
+  it("renders progress badges for unknown stages without losing the progress metric", () => {
+    const { dom } = bootstrapWebview();
+    const board = dom.window.document.getElementById("board");
+    const renderBoard = dom.window.createCdxLogicsBoardRenderer({
+      board,
+      hostApi: {},
+      getItems: () => [
+        {
+          ...baseItem,
+          id: "misc_001",
+          stage: "misc",
+          relPath: "logics/misc/misc_001.md",
+          path: "/workspace/mock/logics/misc/misc_001.md",
+          indicators: {
+            Progress: "150%",
+            Complexity: "High"
+          }
+        }
+      ],
+      getTotalItemCount: () => 1,
+      getSelectedId: () => null,
+      setSelectedId: () => undefined,
+      isListMode: () => false,
+      getVisibleStages: () => ["misc"],
+      groupByStage: (items: Array<{ stage: string }>) => ({ misc: items }),
+      getListGroups: () => [],
+      isVisible: () => true,
+      isPrimaryFlowStage: () => false,
+      isRequestProcessed: () => false,
+      getStageHeading: () => "Misc",
+      getStageLabel: () => "misc",
+      collectCompanionDocs: () => [],
+      collectSpecs: () => [],
+      collectPrimaryFlowItems: () => [],
+      getAttentionReasons: () => [],
+      getHealthSignals: () => [],
+      getSuggestedActions: () => [],
+      progressState: () => "",
+      getProgressValue: () => 150,
+      isComplete: () => false,
+      render: () => undefined,
+      openSelectedItem: () => undefined,
+      closeColumnMenu: () => undefined,
+      toggleColumnMenu: () => undefined,
+      persistState: () => undefined,
+      getCollapsedListStages: () => new Set<string>(),
+      getHideCompleted: () => false,
+      getHideProcessedRequests: () => false,
+      getHideSpec: () => false,
+      getShowCompanionDocs: () => true,
+      getHideEmptyColumns: () => false,
+      getSearchQuery: () => "",
+      getAttentionOnly: () => false
+    });
+
+    renderBoard.renderBoard();
+
+    const badge = dom.window.document.querySelector(".card__badge--metric");
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual(["P"]);
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("100%");
+    expect(badge?.textContent).toContain("H");
+  });
+
   it("navigates up and down within a board column using arrow keys", () => {
     const { dom } = bootstrapWebview();
 

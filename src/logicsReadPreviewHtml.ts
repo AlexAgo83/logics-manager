@@ -33,7 +33,7 @@ export function buildReadPreviewHtml(params: {
   const mermaidScriptUri = fs.existsSync(mermaidScriptPath)
     ? webview.asWebviewUri(vscode.Uri.file(mermaidScriptPath)).toString()
     : "";
-  const renderedMarkdown = renderMarkdownToHtml(markdown);
+  const renderedMarkdown = renderMarkdownToHtml(stripLeadingIndicatorBlock(markdown));
   const documentPrefix = formatDocumentPrefix(item);
   const summaryChips = buildSummaryChips(item);
   const relatedSections = buildRelatedSections(item, linkedItems);
@@ -50,26 +50,26 @@ export function buildReadPreviewHtml(params: {
   <title>${escapeHtmlForHtml(item.id || "Logics item")}</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0b1220;
-      --panel: rgba(15, 23, 42, 0.9);
-      --panel-strong: rgba(15, 23, 42, 0.96);
-      --ink: #e5e7eb;
-      --muted: #94a3b8;
-      --border: rgba(148, 163, 184, 0.22);
-      --border-strong: rgba(148, 163, 184, 0.32);
-      --accent: #7dd3fc;
-      --accent-strong: #38bdf8;
-      --chip: rgba(59, 130, 246, 0.14);
-      --code-bg: rgba(148, 163, 184, 0.14);
+      color-scheme: light dark;
+      --bg: var(--vscode-editor-background, #1e1e1e);
+      --panel: color-mix(in srgb, var(--vscode-panel-background, var(--vscode-editor-background, #1e1e1e)) 92%, transparent);
+      --panel-strong: color-mix(in srgb, var(--vscode-panel-background, var(--vscode-editor-background, #1e1e1e)) 96%, transparent);
+      --ink: var(--vscode-editor-foreground, #d4d4d4);
+      --muted: var(--vscode-descriptionForeground, #9da5b4);
+      --border: var(--vscode-panel-border, rgba(148, 163, 184, 0.22));
+      --border-strong: color-mix(in srgb, var(--vscode-focusBorder, #0e639c) 35%, var(--border));
+      --accent: var(--vscode-focusBorder, #0e639c);
+      --accent-strong: color-mix(in srgb, var(--accent) 80%, white);
+      --chip: color-mix(in srgb, var(--vscode-button-secondaryBackground, #3a3d41) 18%, transparent);
+      --code-bg: color-mix(in srgb, var(--vscode-input-background, #1f1f1f) 88%, transparent);
     }
     body {
       margin: 0;
       padding: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 30%),
-        linear-gradient(180deg, #0b1220 0%, #111827 100%);
+        radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 16%, transparent), transparent 30%),
+        linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 92%, black) 100%);
       color: var(--ink);
     }
     .read-preview {
@@ -84,9 +84,9 @@ export function buildReadPreviewHtml(params: {
       padding: 20px 22px;
       border: 1px solid var(--border);
       border-radius: 18px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 23, 42, 0.82) 100%);
+      background: linear-gradient(180deg, var(--panel-strong) 0%, var(--panel) 100%);
       backdrop-filter: blur(14px);
-      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
     }
     .read-preview__eyebrow {
       margin: 0 0 8px;
@@ -112,7 +112,7 @@ export function buildReadPreviewHtml(params: {
       border-radius: 999px;
       border: 1px solid var(--border-strong);
       color: var(--accent);
-      background: rgba(59, 130, 246, 0.12);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -154,7 +154,7 @@ export function buildReadPreviewHtml(params: {
       padding: 14px 16px;
       border: 1px solid var(--border);
       border-radius: 16px;
-      background: rgba(15, 23, 42, 0.66);
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
     }
     .read-preview__related-title {
@@ -189,7 +189,7 @@ export function buildReadPreviewHtml(params: {
       border: 1px solid var(--border-strong);
       border-radius: 999px;
       padding: 7px 10px;
-      background: rgba(30, 41, 59, 0.8);
+      background: color-mix(in srgb, var(--vscode-button-secondaryBackground, #3a3d41) 72%, transparent);
       color: var(--ink);
       font: inherit;
       font-size: 12px;
@@ -200,8 +200,8 @@ export function buildReadPreviewHtml(params: {
     .read-preview__link:hover,
     .read-preview__link:focus-visible {
       transform: translateY(-1px);
-      border-color: rgba(125, 211, 252, 0.65);
-      background: rgba(30, 41, 59, 0.95);
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--vscode-button-secondaryBackground, #3a3d41) 88%, transparent);
       outline: none;
     }
     .read-preview__link-prefix {
@@ -219,7 +219,7 @@ export function buildReadPreviewHtml(params: {
       border: 1px solid var(--border);
       border-radius: 20px;
       background: var(--panel-strong);
-      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.18);
     }
     .markdown-preview h1,
     .markdown-preview h2,
@@ -246,7 +246,7 @@ export function buildReadPreviewHtml(params: {
     }
     .markdown-preview a,
     .markdown-preview a:visited {
-      color: #7dd3fc;
+      color: var(--accent);
     }
     .markdown-preview a[data-logics-link],
     .markdown-preview a[data-logics-external] {
@@ -376,6 +376,21 @@ export function buildReadPreviewHtml(params: {
 </html>`;
 }
 
+function buildRelatedSections(item: ReadPreviewItem, linkedItems: ReadPreviewLinkedItem[]): string {
+  const lookup = buildLinkedItemLookup(linkedItems);
+  const sections: string[] = [];
+  const references = resolveRelatedEntries(item.references || [], lookup);
+  const usedBy = resolveRelatedEntries(item.usedBy || [], lookup);
+
+  if (references.length > 0) {
+    sections.push(buildRelatedGroup("References", references));
+  }
+  if (usedBy.length > 0) {
+    sections.push(buildRelatedGroup("Used by", usedBy));
+  }
+  return sections.join("");
+}
+
 function buildSummaryChips(item: ReadPreviewItem): string {
   const indicators = item.indicators || {};
   const chips: string[] = [];
@@ -396,19 +411,40 @@ function buildSummaryChips(item: ReadPreviewItem): string {
   return chips.join("");
 }
 
-function buildRelatedSections(item: ReadPreviewItem, linkedItems: ReadPreviewLinkedItem[]): string {
-  const lookup = buildLinkedItemLookup(linkedItems);
-  const sections: string[] = [];
-  const references = resolveRelatedEntries(item.references || [], lookup);
-  const usedBy = resolveRelatedEntries(item.usedBy || [], lookup);
+function stripLeadingIndicatorBlock(markdown: string): string {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  let index = 0;
+  while (index < lines.length && lines[index].trim() === "") {
+    index += 1;
+  }
+  if (index >= lines.length || !lines[index].trimStart().startsWith(">")) {
+    return markdown;
+  }
 
-  if (references.length > 0) {
-    sections.push(buildRelatedGroup("References", references));
+  const block: string[] = [];
+  let cursor = index;
+  let sawIndicatorLine = false;
+  while (cursor < lines.length) {
+    const line = lines[cursor];
+    if (line.trim() === "") {
+      break;
+    }
+    if (!line.trimStart().startsWith(">")) {
+      break;
+    }
+    sawIndicatorLine = sawIndicatorLine || />(\s+)?(From version|Schema version|Status|Understanding|Confidence|Progress|Complexity|Theme|Reminder)\s*:/.test(line);
+    block.push(line);
+    cursor += 1;
   }
-  if (usedBy.length > 0) {
-    sections.push(buildRelatedGroup("Used by", usedBy));
+
+  if (!sawIndicatorLine) {
+    return markdown;
   }
-  return sections.join("");
+
+  while (cursor < lines.length && lines[cursor].trim() === "") {
+    cursor += 1;
+  }
+  return lines.slice(cursor).join("\n");
 }
 
 function buildRelatedGroup(title: string, entries: Array<{ target: string; title: string; prefix: string; relPath: string }>): string {

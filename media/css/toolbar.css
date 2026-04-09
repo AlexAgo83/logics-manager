@@ -182,7 +182,13 @@
 }
 
 .toolbar__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
   position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .tools-panel {

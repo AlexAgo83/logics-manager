@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
-![Version](https://img.shields.io/badge/version-v1.22.2-4C8BF5)
+![Version](https://img.shields.io/badge/version-v1.23.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -33,13 +33,15 @@ If you already use the extension but want to inspect the workflow scripts, templ
 
 ## Features
 
-- Workflow visibility that feels operational, not archival: board view, grouped list view, recent activity, triage signals, and reverse references on top of the existing Markdown docs.
+- Workflow visibility that feels operational, not archival: board view, grouped list view, recent activity, triage signals, reverse references, and Logics corpus navigation on top of the existing Markdown docs.
+- Native markdown preview for Logics docs with clickable references, related workflow items, compact document titles, and Mermaid-aware rendering.
 - Faster AI handoffs from the exact item you are working on, instead of rebuilding context manually from chat history.
 - Safer day-to-day flow management with create, promote, read, bootstrap, root-management, and agent-selection actions directly in the extension.
 - Flow board view plus grouped list view, with forced list mode below `500px`.
 - Horizontal board scrolling, list-group collapse/expand, and improved keyboard navigation across cards and groups.
+- Compact document prefixes, `X/TOTAL` headers, and muted progress / understanding / confidence badges that stay readable at a glance.
 - Instant local search, explicit sorting/grouping controls, and an `Attention` triage filter for actionable items.
-- Compact item previews, stronger health signals, suggested-action badges, and a recent activity panel.
+- Compact item previews, stronger health signals, suggested-action badges, related-doc preview links, and a recent activity panel.
 - Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
 - `Context pack for AI assistants` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
 - Preview modes for assistant handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
@@ -49,7 +51,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
 - Lightweight onboarding guidance and more actionable empty states.
 - Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
-- `Read` opens a rendered markdown view and interprets Mermaid diagrams in Logics docs.
+- `Read` opens the native rendered markdown preview and interprets Mermaid diagrams in Logics docs.
 - Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
 - Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
 - Tools menu now groups provider management under `AI Runtime`, with `AI Runtime Status`, `AI Provider Insights`, and the shared hybrid-assist workflow actions in one compact system surface.

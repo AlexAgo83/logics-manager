@@ -2,8 +2,8 @@
 > From version: 1.23.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 91%
-> Confidence: 88%
+> Understanding: 92%
+> Confidence: 89%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
@@ -60,7 +60,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_014_keep_plugin_safety_and_repository_governance_explicit_bounded_and_modular`
 - Request: `req_146_improve_generated_mermaid_diagrams_for_logics_docs`
 - Primary task(s): `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`
 

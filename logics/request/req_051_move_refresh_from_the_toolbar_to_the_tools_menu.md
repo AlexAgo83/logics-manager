@@ -1,5 +1,5 @@
 ## req_051_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|move-refresh-from-the-toolbar-to-the-too|reduce-the-number-of-always-visible-cont|ac1-the-primary-toolbar-no-longer
 flowchart TD
-    Trigger[Move Refresh from the toolbar to] --> Need[Reduce the number of always-visible contro]
-    Need --> Outcome[AC1: The primary toolbar no longer]
-    Outcome --> Backlog[Backlog slice]
+    Toolbar[Toolbar]
+    ToolsMenu[Tools menu]
+    RefreshBtn[Refresh button]
+    UseWorkspace[Use workspace]
+    Toolbar -->|Remove Refresh| RefreshBtn
+    ToolsMenu --> UseWorkspace --> RefreshBtn
+    RefreshBtn -->|Preserve behavior| RefreshBtn
 ```
 
 # Needs

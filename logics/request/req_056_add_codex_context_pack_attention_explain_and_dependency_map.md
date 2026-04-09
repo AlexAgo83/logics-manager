@@ -1,5 +1,5 @@
 ## req_056_add_codex_context_pack_attention_explain_and_dependency_map - Add codex context pack, attention explain, and dependency map
-> From version: 1.10.6
+> From version: 1.10.6 (refreshed)
 > Status: Done
 > Understanding: 99%
 > Confidence: 97%
@@ -32,8 +32,12 @@ The outcome should be a plugin that not only shows workflow state but actively h
 %% logics-signature: request|add-codex-context-pack-attention-explain|help-users-start-codex-work-with|ac1-the-request-defines-a-context
 flowchart TD
     Trigger[Add codex context pack attention explain] --> Need[Help users start Codex work with]
-    Need --> Outcome[AC1: The request defines a Context]
-    Outcome --> Backlog[Backlog slice]
+    Need --> Outcome[Define Context Pack for Codex]
+    Outcome --> Attention[Explain Attention reasons]
+    Outcome --> DepMap[Show Dependency Map]
+    Attention --> Guide[Provide user guidance]
+    DepMap --> Nav[Enable navigation & sync]
+    Nav --> Phase[Phase implementation]
 ```
 
 # Acceptance criteria

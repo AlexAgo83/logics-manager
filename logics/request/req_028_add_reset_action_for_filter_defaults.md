@@ -1,5 +1,5 @@
 ## req_028_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
-> From version: 1.9.2
+> From version: 1.9.2 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-reset-action-to-restore-default-filt|add-a-dedicated-reset-action-to|ac1-the-filter-panel-includes-a
 flowchart TD
-    Trigger[Add reset action to restore default] --> Need[Add a dedicated Reset action to]
-    Need --> Outcome[AC1: The filter panel includes a]
-    Outcome --> Backlog[Backlog slice]
+    A[User toggles filters] --> B[Filters changed]
+    B --> C[Reset control clicked]
+    C --> D[Restore default filter states]
+    D --> E[Update UI and content immediately]
+    E --> F[Persist reset state]
+    F --> G[Maintain unrelated UI state]
+    G --> H[Webview harness verifies behavior]
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_012_web_debug_harness_simulate_vs_code_controls_with_browser_native_behavior - Web debug harness: simulate VS Code controls with browser-native behavior
-> From version: 1.2.0
+> From version: 1.2.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|web-debug-harness-simulate-vs-code-contr|in-web-debug-server-mode-most|ac1-in-harness-mode-control-actions
 flowchart TD
-    Trigger[Web debug harness: simulate VS Code] --> Need[In web debug server mode most]
-    Need --> Outcome[AC1: In harness mode control actions]
-    Outcome --> Backlog[Backlog slice]
+  A[Start Harness Mode] --> B{Detect Environment}
+  B -->|VS Code Webview| C[Use VS Code Handlers]
+  B -->|Browser Harness| D[Use Browser Native Fallbacks]
+  D --> E[Change Project Root via FS API or Path Prompt]
+  D --> F[Open/Edit File in New Tab]
+  C --> G[Normal VS Code Behavior]
+  E --> H[Show Guidance if Unsupported]
+  F --> H
 ```
 
 # Needs

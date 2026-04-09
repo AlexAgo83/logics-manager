@@ -1,5 +1,5 @@
 ## req_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability - Reliability hardening for layout state, host API abstraction, accessibility, CI, and debug observability
-> From version: 1.4.0
+> From version: 1.4.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,21 @@
 %% logics-kind: request
 %% logics-signature: request|reliability-hardening-for-layout-state-h|stabilize-layout-splitter-behavior-by-us|ac1-layout-rendering-is-driven-by
 flowchart TD
-    Trigger[Reliability hardening for layout state hos] --> Need[Stabilize layout splitter behavior by usin]
-    Need --> Outcome[AC1: Layout rendering is driven by]
-    Outcome --> Backlog[Backlog slice]
+  LayoutState[Layout State]
+  Splitter[Splitter Behavior]
+  HostAPI[Host API Abstraction]
+  Accessibility[Accessibility Baseline]
+  CI[CI Pipeline]
+  Bootstrap[Bootstrap Resilience]
+  BoardList[Board/List Mode UX]
+  DebugLogs[Debug Observability]
+  LayoutState --> Splitter
+  LayoutState --> Accessibility
+  HostAPI --> Accessibility
+  CI --> Bootstrap
+  BoardList --> Accessibility
+  DebugLogs --> LayoutState
+  DebugLogs --> Splitter
 ```
 
 # Needs

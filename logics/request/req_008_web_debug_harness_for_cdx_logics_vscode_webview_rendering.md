@@ -1,5 +1,5 @@
 ## req_008_web_debug_harness_for_cdx_logics_vscode_webview_rendering - Web Debug Harness for cdx-logics-vscode Webview Rendering
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
 > Understanding: 100% ((audit-aligned); refreshed)
 > Confidence: 100% (governed)
@@ -11,9 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|web-debug-harness-for-cdx-logics-vscode-|debug-and-iterate-webview-rendering-in|ac1-a-browser-accessible-debug-entrypoin
 flowchart TD
-    Trigger[Web Debug Harness for cdx-logics-vscode We] --> Need[Debug and iterate webview rendering in]
-    Need --> Outcome[AC1: A browser-accessible debug entrypoint]
-    Outcome --> Backlog[Backlog slice]
+  A[Browser Debug Entrypoint] --> B[Mock acquireVsCodeApi]
+  B --> C[Support getState/setState/postMessage]
+  C --> D[Push type:data payloads]
+  D --> E[Reproduce board/details rendering]
+  E --> F[Reusable scenarios: empty, error, populated]
+  F --> G[Document limits vs VS Code runtime]
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
-> From version: 1.8.1
+> From version: 1.8.1 (refreshed)
 > Status: Done
 > Understanding: 99%
 > Confidence: 99%
@@ -52,9 +52,13 @@ The expected adaptation plan is:
 %% logics-kind: request
 %% logics-signature: request|align-vs-code-plugin-with-companion-docs|adapt-the-vs-code-plugin-so|ac1-the-plugin-indexer-recognizes-logics
 flowchart TD
-    Trigger[Align VS Code plugin with companion] --> Need[Adapt the VS Code plugin so]
-    Need --> Outcome[AC1: The plugin indexer recognizes logics]
-    Outcome --> Backlog[Backlog slice]
+    Req[Request] --> Backlog[Backlog]
+    Backlog --> Task[Task]
+    Task --> Spec[Spec]
+    Task --> Prod[Product brief]
+    Task --> Arch[Architecture decision]
+    Spec --> Prod
+    Spec --> Arch
 ```
 
 # Acceptance criteria

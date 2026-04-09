@@ -1,5 +1,5 @@
 ## req_038_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-compact-preview-for-items-in-the-plu|let-users-inspect-a-compact-summary|ac1-users-can-trigger-a-compact
 flowchart TD
-    Trigger[Add compact preview for items in] --> Need[Let users inspect a compact summary]
-    Need --> Outcome[AC1: Users can trigger a compact]
-    Outcome --> Backlog[Backlog slice]
+    A[User triggers preview] --> B[Show compact preview]
+    B --> C[Display key metadata]
+    C --> D[Indicators/status]
+    C --> E[Key references]
+    C --> F[Used-by summary]
+    C --> G[Recent updates]
+    B --> H[Dismiss preview cleanly]
 ```
 
 # Needs

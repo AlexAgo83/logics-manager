@@ -1,5 +1,5 @@
 ## req_005_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Understanding: 98% (audit-aligned)
 > Confidence: 93% (governed)
 > Status: Done
@@ -8,9 +8,12 @@
 %% logics-kind: request
 %% logics-signature: request|allow-renaming-request-backlog-task-entr|give-users-the-ability-to-rename|ac1-define-a-measurable-outcome
 flowchart TD
-    Trigger[Allow renaming request backlog task entry] --> Need[Give users the ability to rename]
-    Need --> Outcome[AC1: Define a measurable outcome]
-    Outcome --> Backlog[Backlog slice]
+    A[Start] --> B[Identify entry]
+    B --> C[Check immutable prefix]
+    C --> D[Allow rename of suffix]
+    D --> E[Save new name]
+    E --> F[Update display]
+    F --> G[End]
 ```
 
 # Needs

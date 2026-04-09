@@ -1,5 +1,5 @@
 ## req_006_update_extension_for_flow_manager_changes - Update extension for flow manager changes
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
 > Understanding: 100% ((audit-aligned); refreshed)
 > Confidence: 99% (governed)
@@ -11,9 +11,18 @@
 %% logics-kind: request
 %% logics-signature: request|update-extension-for-flow-manager-change|align-the-vs-code-extension-with|ac1-define-a-measurable-outcome
 flowchart TD
-    Trigger[Update extension for flow manager changes] --> Need[Align the VS Code extension with]
-    Need --> Outcome[AC1: Define a measurable outcome]
-    Outcome --> Backlog[Backlog slice]
+  NewReq[New Request]
+  PromoteReq[Promote Req to Backlog]
+  PromoteBacklog[Promote Backlog to Task]
+  ValidateScripts[Check Required Scripts]
+  ErrorHandle[Error Handling]
+  SmokeTest[Smoke Test Checklist]
+  VersionBump[Bump Extension Version]
+  NewReq --> PromoteReq --> PromoteBacklog
+  PromoteBacklog --> ValidateScripts
+  ValidateScripts -->|Fail| ErrorHandle
+  ValidateScripts -->|Pass| SmokeTest
+  SmokeTest --> VersionBump
 ```
 
 # Needs

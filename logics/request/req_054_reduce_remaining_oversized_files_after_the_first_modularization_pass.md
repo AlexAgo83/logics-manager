@@ -1,5 +1,5 @@
 ## req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
-> From version: 1.10.2
+> From version: 1.10.2 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 99%
@@ -11,9 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-remaining-oversized-files-after-t|finish-the-modularization-effort-by-redu|ac1-each-targeted-file-is-reduced
 flowchart TD
-    Trigger[Reduce remaining oversized files after the] --> Need[Finish the modularization effort by reduci]
-    Need --> Outcome[AC1: Each targeted file is reduced]
-    Outcome --> Backlog[Backlog slice]
+  A[Start: Identify oversized files] --> B[Extract coherent modules]
+  B --> C[Check file size reduction]
+  C -->|Below threshold| D[Preserve entry-point readability]
+  C -->|Still large| E[Justify exceptions]
+  D --> F[Update tests and validation]
+  E --> F
+  F --> G[Maintain architecture clarity]
+  G --> H[End: Modularization complete]
 ```
 
 # Needs

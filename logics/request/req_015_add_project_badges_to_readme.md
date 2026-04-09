@@ -1,5 +1,5 @@
 ## req_015_add_project_badges_to_readme - Add project badges to README
-> From version: 1.4.0
+> From version: 1.4.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-project-badges-to-readme|add-a-badge-section-in-the|ac1-readme-includes-a-dedicated-badge
 flowchart TD
-    Trigger[Add project badges to README] --> Need[Add a badge section in the]
-    Need --> Outcome[AC1: README includes a dedicated badge]
-    Outcome --> Backlog[Backlog slice]
+  A[Start] --> B[Add badge section near top]
+  B --> C[Add CI badge linking to .github/workflows/ci.yml]
+  C --> D[Add License badge reflecting repo license]
+  D --> E[Add Version badge aligned with package.json]
+  E --> F[Add relevant additional badges]
+  F --> G[Validate badge links and rendering]
+  G --> H[End]
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_052_reduce_extension_package_size_and_file_count_for_release_quality - Reduce extension package size and file count for release quality
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-extension-package-size-and-file-c|reduce-the-number-of-files-and|ac1-the-packaged-vsix-includes-fewer
 flowchart TD
-    Trigger[Reduce extension package size and file] --> Need[Reduce the number of files and]
-    Need --> Outcome[AC1: The packaged VSIX includes fewer]
-    Outcome --> Backlog[Backlog slice]
+  A[Start: Identify large JS file count] --> B[Bundle extension files]
+  B --> C[Apply stricter .vscodeignore]
+  C --> D[Verify package:ci success]
+  D --> E[Check no runtime/test files removed]
+  E --> F[Document package layout]
+  F --> G[Release with reduced size]
 ```
 
 # Needs

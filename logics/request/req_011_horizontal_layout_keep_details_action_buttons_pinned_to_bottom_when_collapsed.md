@@ -1,5 +1,5 @@
 ## req_011_horizontal_layout_keep_details_action_buttons_pinned_to_bottom_when_collapsed - Horizontal layout: keep details action buttons pinned to bottom when collapsed
-> From version: 1.1.0
+> From version: 1.1.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|horizontal-layout-keep-details-action-bu|in-horizontal-layout-non-stacked-split-w|ac1-in-horizontal-layout-collapsing-deta
 flowchart TD
-    Trigger[Horizontal layout: keep details action but] --> Need[In horizontal layout non-stacked split whe]
-    Need --> Outcome[AC1: In horizontal layout collapsing Detai]
-    Outcome --> Backlog[Backlog slice]
+  Header[Header at top]
+  DetailsBody[Details body]
+  Actions[Action buttons at bottom]
+  Header --> DetailsBody
+  DetailsBody --> Actions
+  DetailsBody -. collapsed .-> Actions
+  style Actions fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
 # Needs

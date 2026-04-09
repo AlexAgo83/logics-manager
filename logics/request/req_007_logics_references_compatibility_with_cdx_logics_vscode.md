@@ -1,5 +1,5 @@
 ## req_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
 > Understanding: 100% ((audit-aligned); refreshed)
 > Confidence: 100% (governed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|logics-references-compatibility-with-cdx|make-logics-references-consistently-pars|ac1-a-documented-reference-contract-is
 flowchart TD
-    Trigger[Logics References Compatibility with cdx-l] --> Need[Make Logics references consistently parsab]
-    Need --> Outcome[AC1: A documented reference contract is]
-    Outcome --> Backlog[Backlog slice]
+  A[Indexer infers links] --> B[Explicit markers]
+  A --> C[Section links]
+  A --> D[Free-form notes]
+  D --> E[Missing lineage markers]
+  E --> F[Degraded board behavior]
+  F --> G[Need clear reference contract]
+  G --> H[Consistent parsing & visibility]
 ```
 
 # Needs

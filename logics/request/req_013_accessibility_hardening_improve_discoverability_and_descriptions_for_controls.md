@@ -1,5 +1,5 @@
 ## req_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls - Accessibility hardening: improve discoverability and descriptions for controls
-> From version: 1.2.0
+> From version: 1.2.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,11 @@
 %% logics-kind: request
 %% logics-signature: request|accessibility-hardening-improve-discover|improve-accessibility-and-discoverabilit|ac1-interactive-icon-controls-expose-dis
 flowchart TD
-    Trigger[Accessibility hardening: improve discovera] --> Need[Improve accessibility and discoverability]
-    Need --> Outcome[AC1: Interactive icon controls expose disc]
-    Outcome --> Backlog[Backlog slice]
+    A[Identify controls lacking descriptions] --> B[Add tooltips and titles]
+    B --> C[Assign clear accessible names]
+    C --> D[Apply ARIA attributes for dynamic states]
+    D --> E[Enable keyboard-only navigation]
+    E --> F[Document accessibility baseline]
 ```
 
 # Needs

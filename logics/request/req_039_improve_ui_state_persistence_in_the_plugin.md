@@ -1,5 +1,5 @@
 ## req_039_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|improve-ui-state-persistence-in-the-plug|preserve-more-of-the-users-working|ac1-the-plugin-preserves-a-broader
 flowchart TD
-    Trigger[Improve UI state persistence in the] --> Need[Preserve more of the users working]
-    Need --> Outcome[AC1: The plugin preserves a broader]
-    Outcome --> Backlog[Backlog slice]
+    A[Start Refresh] --> B[Check Persisted UI State]
+    B --> C{State Scoped to Workspace?}
+    C -- Yes --> D[Restore Selection]
+    C -- No --> E[Ignore Global State]
+    D --> F[Restore Scroll Position]
+    F --> G[Restore Expanded Groups]
+    G --> H[Restore View Mode & Preferences]
+    H --> I[Complete Restoration]
 ```
 
 # Needs

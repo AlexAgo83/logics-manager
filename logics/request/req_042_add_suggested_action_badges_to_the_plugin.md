@@ -1,5 +1,5 @@
 ## req_042_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-suggested-action-badges-to-the-plugi|surface-stronger-visual-cues-about-what|ac1-the-plugin-displays-suggested-action
 flowchart TD
-    Trigger[Add suggested-action badges to the plugin] --> Need[Surface stronger visual cues about what]
-    Need --> Outcome[AC1: The plugin displays suggested-action]
-    Outcome --> Backlog[Backlog slice]
+    A[Start: Current Plugin] --> B[Identify Actionable States]
+    B --> C[Define Badge Types]
+    C --> D[Integrate Badge Rendering]
+    D --> E[Ensure Board & List Mode Support]
+    E --> F[Maintain Existing Flows]
+    F --> G[Add Tests for Badge Rules]
+    G --> H[End: Enhanced Plugin]
 ```
 
 # Needs

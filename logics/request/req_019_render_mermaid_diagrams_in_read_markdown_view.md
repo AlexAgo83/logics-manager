@@ -1,5 +1,5 @@
 ## req_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
-> From version: 1.7.0
+> From version: 1.7.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -22,9 +22,11 @@ From a user perspective, clicking `Read` on a Logics document that includes:
 %% logics-kind: request
 %% logics-signature: request|render-mermaid-diagrams-in-read-markdown|when-a-logics-document-contains-a|ac1-if-a-selected-logics-document
 flowchart TD
-    Trigger[Render Mermaid diagrams in Read markdown] --> Need[When a Logics document contains a]
-    Need --> Outcome[AC1: If a selected Logics document]
-    Outcome --> Backlog[Backlog slice]
+    User[User clicks Read] --> Preview[Markdown preview opens]
+    Preview --> Detect[Mermaid block detected]
+    Detect --> Render[Graph is rendered visually]
+    Render --> Review[User reads text plus diagram]
+    Detect --> Fallback[If invalid, show safe fallback]
 ```mermaid
 flowchart TD
     User[User clicks Read] --> Preview[Markdown preview opens]

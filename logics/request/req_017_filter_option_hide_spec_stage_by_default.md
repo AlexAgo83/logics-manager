@@ -1,5 +1,5 @@
 ## req_017_filter_option_hide_spec_stage_by_default - Add filter option to hide SPEC stage by default
-> From version: 1.5.0
+> From version: 1.5.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,20 @@
 %% logics-kind: request
 %% logics-signature: request|add-filter-option-to-hide-spec-stage-by-|add-a-filter-option-to-completely|ac1-filter-panel-includes-a-new
 flowchart TD
-    Trigger[Add filter option to hide SPEC] --> Need[Add a filter option to completely]
-    Need --> Outcome[AC1: Filter panel includes a new]
-    Outcome --> Backlog[Backlog slice]
+  FilterPanel[Filter Panel]
+  HideSPEC[Checkbox: Hide SPEC]
+  BoardMode[Board Mode View]
+  ListMode[List Mode View]
+  SpecColumn[Spec Column]
+  SpecSection[Spec Section]
+  StatePersistence[Filter State Persistence]
+  FilterPanel --> HideSPEC
+  HideSPEC -- enabled --> SpecColumn[absent in Board Mode]
+  HideSPEC -- enabled --> SpecSection[absent in List Mode]
+  HideSPEC -- disabled --> SpecColumn[present in Board Mode]
+  HideSPEC -- disabled --> SpecSection[present in List Mode]
+  HideSPEC --> StatePersistence
+  StatePersistence --> FilterPanel
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_003_filter_panel_options - Regroup options into filter panel
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Understanding: 88% (audit-aligned)
 > Confidence: 88% (governed)
 > Status: Done
@@ -8,9 +8,12 @@
 %% logics-kind: request
 %% logics-signature: request|regroup-options-into-filter-panel|regroup-the-existing-options-into-a|ac1-define-a-measurable-outcome
 flowchart TD
-    Trigger[Regroup options into filter panel] --> Need[Regroup the existing options into a]
-    Need --> Outcome[AC1: Define a measurable outcome]
-    Outcome --> Backlog[Backlog slice]
+    A[Toolbar with inline toggles] --> B[Click filter icon]
+    B --> C[Open filter panel]
+    C --> D[Show regrouped options]
+    D --> E[User selects options]
+    E --> F[Apply filters]
+    F --> G[Decluttered header with quick access]
 ```
 
 # Needs

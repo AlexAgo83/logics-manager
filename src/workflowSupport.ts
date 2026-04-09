@@ -5,6 +5,11 @@ export type GitStatusEntry = {
 };
 
 type ListType = "ul" | "ol";
+type ListItem = {
+  text: string;
+  checkbox?: boolean;
+  checked?: boolean;
+};
 
 function escapeHtml(value: string): string {
   return value
@@ -35,6 +40,7 @@ function renderInlineMarkdown(value: string): string {
   });
   rendered = rendered.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   rendered = rendered.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+  rendered = rendered.replace(/~~([^~]+)~~/g, "<s>$1</s>");
 
   for (let i = 0; i < codeSpans.length; i += 1) {
     const placeholder = `@@CODE_SPAN_${i}@@`;
@@ -49,7 +55,7 @@ export function renderMarkdownToHtml(markdown: string): string {
   const html: string[] = [];
   let paragraph: string[] = [];
   let listType: ListType | null = null;
-  let listItems: string[] = [];
+  let listItems: ListItem[] = [];
   let codeFence: { language: string; lines: string[] } | null = null;
 
   const flushParagraph = () => {
@@ -71,11 +77,19 @@ export function renderMarkdownToHtml(markdown: string): string {
     }
     html.push(`<${listType}>`);
     for (const item of listItems) {
-      html.push(`<li>${renderInlineMarkdown(item)}</li>`);
+      html.push(renderListItem(item));
     }
     html.push(`</${listType}>`);
     listType = null;
     listItems = [];
+  };
+
+  const renderListItem = (item: ListItem) => {
+    if (!item.checkbox) {
+      return `<li>${renderInlineMarkdown(item.text)}</li>`;
+    }
+    const checked = item.checked ? " checked" : "";
+    return `<li class="markdown-preview__task-item"><label class="markdown-preview__task-label"><input class="markdown-preview__task-checkbox" type="checkbox" disabled${checked} /><span>${renderInlineMarkdown(item.text)}</span></label></li>`;
   };
 
   const flushCodeFence = () => {
@@ -133,6 +147,21 @@ export function renderMarkdownToHtml(markdown: string): string {
       continue;
     }
 
+    const taskMatch = line.match(/^\s*-\s+\[( |x|X)\]\s+(.*)$/);
+    if (taskMatch) {
+      flushParagraph();
+      if (listType && listType !== "ul") {
+        flushList();
+      }
+      listType = "ul";
+      listItems.push({
+        checkbox: true,
+        checked: taskMatch[1].toLowerCase() === "x",
+        text: taskMatch[2]
+      });
+      continue;
+    }
+
     const unorderedMatch = line.match(/^\s*-\s+(.*)$/);
     if (unorderedMatch) {
       flushParagraph();
@@ -140,7 +169,7 @@ export function renderMarkdownToHtml(markdown: string): string {
         flushList();
       }
       listType = "ul";
-      listItems.push(unorderedMatch[1]);
+      listItems.push({ text: unorderedMatch[1] });
       continue;
     }
 
@@ -151,7 +180,7 @@ export function renderMarkdownToHtml(markdown: string): string {
         flushList();
       }
       listType = "ol";
-      listItems.push(orderedMatch[1]);
+      listItems.push({ text: orderedMatch[1] });
       continue;
     }
 

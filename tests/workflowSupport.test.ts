@@ -45,6 +45,23 @@ describe("workflowSupport", () => {
     expect(html.includes("<li>Second nested item</li>")).toBe(true);
   });
 
+  it("renders task list checkboxes and stylized inline markdown in list items", () => {
+    const html = renderMarkdownToHtml(
+      [
+        "- [ ] Open task",
+        "- [x] Done task with `code` and ~~done~~",
+        "- Plain item"
+      ].join("\n")
+    );
+
+    expect(html.includes('class="markdown-preview__task-checkbox"')).toBe(true);
+    expect(html.includes('type="checkbox" disabled')).toBe(true);
+    expect(html.includes("checked")).toBe(true);
+    expect(html.includes("<code>code</code>")).toBe(true);
+    expect(html.includes("<s>done</s>")).toBe(true);
+    expect(html.includes("Plain item")).toBe(true);
+  });
+
   it("builds a guided request prompt from the agent default prompt", () => {
     const prompt = buildGuidedRequestPrompt("Use $logics-flow-manager to manage workflow docs.");
     expect(prompt.includes("Use $logics-flow-manager")).toBe(true);

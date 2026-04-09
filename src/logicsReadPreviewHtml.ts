@@ -33,7 +33,7 @@ export function buildReadPreviewHtml(params: {
   const mermaidScriptUri = fs.existsSync(mermaidScriptPath)
     ? webview.asWebviewUri(vscode.Uri.file(mermaidScriptPath)).toString()
     : "";
-  const renderedMarkdown = renderMarkdownToHtml(stripLeadingIndicatorBlock(markdown));
+  const renderedMarkdown = renderMarkdownToHtml(stripLeadingDocumentFrontMatter(markdown, item));
   const documentPrefix = formatDocumentPrefix(item);
   const summaryChips = buildSummaryChips(item);
   const relatedSections = buildRelatedSections(item, linkedItems);
@@ -240,6 +240,21 @@ export function buildReadPreviewHtml(params: {
       line-height: 1.65;
       color: var(--ink);
     }
+    .markdown-preview__task-item {
+      margin: 0.15em 0;
+    }
+    .markdown-preview__task-label {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 0.65em;
+    }
+    .markdown-preview__task-checkbox {
+      margin-top: 0.2em;
+      width: 1rem;
+      height: 1rem;
+      flex: 0 0 auto;
+      accent-color: var(--accent);
+    }
     .markdown-preview ul,
     .markdown-preview ol {
       padding-left: 1.4rem;
@@ -445,6 +460,38 @@ function stripLeadingIndicatorBlock(markdown: string): string {
     cursor += 1;
   }
   return lines.slice(cursor).join("\n");
+}
+
+function stripLeadingDocumentFrontMatter(markdown: string, item: ReadPreviewItem): string {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  let index = 0;
+  while (index < lines.length && lines[index].trim() === "") {
+    index += 1;
+  }
+  if (index >= lines.length) {
+    return markdown;
+  }
+
+  const headingMatch = lines[index].match(/^(#{1,6})\s+(.*)$/);
+  if (!headingMatch) {
+    return stripLeadingIndicatorBlock(markdown);
+  }
+
+  const normalizedHeading = headingMatch[2].replace(/\s+/g, " ").trim().toLowerCase();
+  const title = String(item.title || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const id = String(item.id || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const titleWithId = id && title ? `${id} - ${title}` : "";
+  const headingMatches =
+    (title && normalizedHeading === title) ||
+    (titleWithId && normalizedHeading === titleWithId) ||
+    (id && normalizedHeading.startsWith(`${id} - `));
+
+  if (!headingMatches) {
+    return stripLeadingIndicatorBlock(markdown);
+  }
+
+  const remainder = lines.slice(index + 1).join("\n");
+  return stripLeadingIndicatorBlock(remainder);
 }
 
 function buildRelatedGroup(title: string, entries: Array<{ target: string; title: string; prefix: string; relPath: string }>): string {

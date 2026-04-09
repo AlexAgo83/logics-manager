@@ -1303,6 +1303,21 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
       line-height: 1.65;
       color: var(--ink);
     }
+    .markdown-preview__task-item {
+      margin: 0.15em 0;
+    }
+    .markdown-preview__task-label {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 0.65em;
+    }
+    .markdown-preview__task-checkbox {
+      margin-top: 0.2em;
+      width: 1rem;
+      height: 1rem;
+      flex: 0 0 auto;
+      accent-color: var(--accent);
+    }
     .markdown-preview ul,
     .markdown-preview ol {
       padding-left: 1.4rem;

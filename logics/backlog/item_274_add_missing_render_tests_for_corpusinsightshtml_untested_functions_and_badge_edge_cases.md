@@ -1,10 +1,10 @@
 ## item_274_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases - Add missing render tests for CorpusInsightsHtml untested functions and badge edge cases
 > From version: 1.23.2 (refreshed)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 93% (refreshed)
 > Confidence: 89% (refreshed)
-> Progress: 0% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

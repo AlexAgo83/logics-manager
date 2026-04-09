@@ -1,9 +1,9 @@
 ## task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices - Fix post 1.23 review findings with targeted delivery slices
 > From version: 1.23.2
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 94%
-> Confidence: 88%
+> Status: Done
+> Understanding: 96%
+> Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI
@@ -46,6 +46,13 @@ stateDiagram-v2
 - [ ] CHECKPOINT: if the shared AI runtime is active and healthy, run `python logics/skills/logics.py flow assist commit-all` for the current step, item, or wave commit checkpoint.
 - [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 - [ ] FINAL: Update related Logics docs
+
+# Definition of Done (DoD)
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Delivery checkpoints
 - Each completed wave should leave the repository in a coherent, commit-ready state.

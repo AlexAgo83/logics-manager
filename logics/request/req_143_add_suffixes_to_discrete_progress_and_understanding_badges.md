@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 93%
-> Confidence: 90%
+> Confidence: 91%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -38,11 +38,11 @@ flowchart TD
 - AC5: The prefix styling keeps the numeric value visually dominant.
 
 # Definition of Ready (DoR)
-- [ ] The exact badge formats are explicit for requests and for backlog/tasks.
-- [ ] The desired visual emphasis between prefix and value is explicit.
-- [ ] The scope of unchanged badges is explicit, especially Complexity.
-- [ ] Relevant code and CSS touchpoints are identified.
-- [ ] The acceptance criteria are testable through DOM assertions or snapshot checks.
+- [x] The exact badge formats are explicit for requests and for backlog/tasks.
+- [x] The desired visual emphasis between prefix and value is explicit.
+- [x] The scope of unchanged badges is explicit, especially Complexity.
+- [x] Relevant code and CSS touchpoints are identified.
+- [x] The acceptance criteria are testable through DOM assertions or snapshot checks.
 
 # Companion docs
 - Product brief(s): (none yet)

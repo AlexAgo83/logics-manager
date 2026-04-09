@@ -1,5 +1,5 @@
 ## req_029_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
-> From version: 1.9.2
+> From version: 1.9.2 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,19 @@
 %% logics-kind: request
 %% logics-signature: request|default-secondary-detail-sections-to-col|reduce-visual-density-in-the-plugin|ac1-when-a-detail-panel-is
 flowchart TD
-    Trigger[Default secondary detail sections to colla] --> Need[Reduce visual density in the plugin]
-    Need --> Outcome[AC1: When a detail panel is]
-    Outcome --> Backlog[Backlog slice]
+  Header[Header/Identity]
+  Indicators[Indicators (expanded)]
+  Companion[Companion docs (collapsed)]
+  Specs[Specs (collapsed)]
+  References[References (collapsed)]
+  UsedBy[Used by (collapsed)]
+  Actions[Main Actions]
+  Header --> Indicators
+  Indicators --> Companion
+  Companion --> Specs
+  Specs --> References
+  References --> UsedBy
+  UsedBy --> Actions
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 99%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|strengthen-webview-regression-tests-for-|catch-ui-regressions-earlier-in-list-mod|ac1-the-webview-tests-cover-hide
 flowchart TD
-    Trigger[Strengthen webview regression tests for li] --> Need[Catch UI regressions earlier in list-mode]
-    Need --> Outcome[AC1: The webview tests cover Hide]
-    Outcome --> Backlog[Backlog slice]
+  A[Identify gaps in current tests] --> B[Add list-mode hide empty columns test]
+  B --> C[Strengthen CSS selector assertions]
+  C --> D[Ensure tests remain maintainable]
+  D --> E[Cover stacked layout and splitter regressions]
+  E --> F[Catch UI regressions earlier]
+  F --> G[Increase confidence in CSS/layout validation]
+  G --> H[Reduce visible regression slips]
 ```
 
 # Needs

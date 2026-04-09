@@ -1,5 +1,5 @@
 ## req_032_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|enable-horizontal-scrolling-for-board-co|make-the-board-columns-horizontally-scro|ac1-when-the-total-width-of
 flowchart TD
-    Trigger[Enable horizontal scrolling for board colu] --> Need[Make the board columns horizontally scroll]
-    Need --> Outcome[AC1: When the total width of]
-    Outcome --> Backlog[Backlog slice]
+    A[Board layout: columns] --> B[Columns exceed viewport width]
+    B --> C[Enable horizontal scrolling]
+    C --> D[Users scroll horizontally to access columns]
+    D --> E[Columns keep readable width]
+    E --> F[Board header and details panel stable]
+    F --> G[No regression on responsive modes]
+    G --> H[Webview tests updated]
 ```
 
 # Needs

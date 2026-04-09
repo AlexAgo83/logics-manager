@@ -1,5 +1,5 @@
 ## req_053_preserve_readable_board_columns_by_preventing_column_compression - Preserve readable board columns by preventing column compression
-> From version: 1.10.1
+> From version: 1.10.1 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|preserve-readable-board-columns-by-preve|keep-board-columns-readable-when-board|ac1-board-columns-keep-a-stable
 flowchart TD
-    Trigger[Preserve readable board columns by prevent] --> Need[Keep board columns readable when board]
-    Need --> Outcome[AC1: Board columns keep a stable]
-    Outcome --> Backlog[Backlog slice]
+    A[Start] --> B[Detect width pressure]
+    B --> C{Is horizontal space sufficient?}
+    C -- Yes --> D[Keep stable column width]
+    C -- No --> E[Enable horizontal scroll]
+    E --> F[Prevent column shrink below threshold]
+    F --> G[Maintain readability]
+    G --> H[End]
 ```
 
 # Needs

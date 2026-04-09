@@ -1,5 +1,5 @@
 ## req_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
-> From version: 1.7.0
+> From version: 1.7.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -37,9 +37,15 @@ The desired UX is:
 %% logics-kind: request
 %% logics-signature: request|propose-commit-after-bootstrap-with-gene|at-the-end-of-project-bootstrap|ac1-after-a-successful-bootstrap-the
 flowchart TD
-    Trigger[Propose commit after bootstrap with genera] --> Need[At the end of project bootstrap]
-    Need --> Outcome[AC1: After a successful bootstrap the]
-    Outcome --> Backlog[Backlog slice]
+    Bootstrap[Bootstrap starts] --> Success{Bootstrap success?}
+    Success -- No --> End[End flow, no commit]
+    Success -- Yes --> GenMsg[Generate commit message]
+    GenMsg --> Prompt[Prompt user to commit]
+    Prompt --> Accept[User accepts]
+    Prompt --> Skip[User skips]
+    Accept --> Commit[Create git commit]
+    Skip --> End
+    Commit --> End
 ```
 
 # Acceptance criteria

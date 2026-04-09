@@ -1,5 +1,5 @@
 ## req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|keep-detail-panel-actions-fixed-at-the-b|keep-the-primary-actions-of-the|ac1-the-details-panel-separates-its
 flowchart TD
-    Trigger[Keep detail panel actions fixed at] --> Need[Keep the primary actions of the]
-    Need --> Outcome[AC1: The Details panel separates its]
-    Outcome --> Backlog[Backlog slice]
+  A[Board/Activity Region] --> B[Detail Panel]
+  B --> C[Scrollable Detail Content]
+  B --> D[Fixed Action Area]
+  A -.-> B
+  C -->|scrolls| C
+  D -.->|fixed height| D
 ```
 
 # Needs

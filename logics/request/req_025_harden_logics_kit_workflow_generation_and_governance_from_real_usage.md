@@ -1,5 +1,5 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
@@ -56,9 +56,11 @@ It is about making the existing workflow:
 %% logics-kind: request
 %% logics-signature: request|harden-logics-kit-workflow-generation-an|improve-the-logics-kit-so-real|ac1-promotion-from-request-backlog
 flowchart TD
-    Trigger[Harden Logics kit workflow generation and] --> Need[Improve the Logics kit so real]
-    Need --> Outcome[AC1: Promotion from request - backlog]
-    Outcome --> Backlog[Backlog slice]
+    Request[Request Created] --> Promote1[Promote to Backlog]
+    Promote1 --> Backlog[Backlog Item]
+    Backlog --> Promote2[Promote to Task]
+    Promote2 --> Task[Task Created]
+    Task --> Close[Close Task]
 ```
 
 # Acceptance criteria

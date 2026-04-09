@@ -1,5 +1,5 @@
 ## req_024_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
-> From version: 1.9.0
+> From version: 1.9.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -38,9 +38,11 @@ It should preserve the current workflow behavior while improving:
 %% logics-kind: request
 %% logics-signature: request|refine-plugin-detail-panel-identity-and-|refine-the-vs-code-plugin-detail|ac1-the-detail-panel-title-area
 flowchart TD
-    Trigger[Refine plugin detail panel identity and] --> Need[Refine the VS Code plugin detail]
-    Need --> Outcome[AC1: The detail panel title area]
-    Outcome --> Backlog[Backlog slice]
+    Trigger[Start refinement] --> Readability[Improve readability]
+    Readability --> Hierarchy[Enhance visual hierarchy]
+    Hierarchy --> Actions[Distinguish action semantics]
+    Actions --> Preserve[Preserve companion-doc workflow]
+    Preserve --> Outcome[Deliver stable, clear panel]
 ```
 
 # Acceptance criteria

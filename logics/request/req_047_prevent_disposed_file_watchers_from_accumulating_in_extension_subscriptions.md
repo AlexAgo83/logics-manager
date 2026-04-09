@@ -1,5 +1,5 @@
 ## req_047_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 99%
 > Confidence: 97%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|prevent-disposed-file-watchers-from-accu|keep-the-extension-runtime-clean-when|ac1-rebuilding-the-watcher-does-not
 flowchart TD
-    Trigger[Prevent disposed file watchers from accumu] --> Need[Keep the extension runtime clean when]
-    Need --> Outcome[AC1: Rebuilding the watcher does not]
-    Outcome --> Backlog[Backlog slice]
+  A[Watcher root change or provider reconfig] --> B[Rebuild watcher]
+  B --> C[Dispose active watcher]
+  C --> D[Add new watcher to context.subscriptions]
+  D --> E[Extension shutdown disposes active watcher]
+  E --> F[No accumulation of disposed watchers]
+  F --> G[Clean extension runtime]
+  G --> H[Easy watcher lifecycle reasoning]
 ```
 
 # Needs

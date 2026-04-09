@@ -1,5 +1,5 @@
 ## req_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
-> From version: 1.7.0
+> From version: 1.7.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -40,9 +40,11 @@ This action should be clearly distinguished from the existing request-generation
 %% logics-kind: request
 %% logics-signature: request|add-tools-new-request-action-for-codex-p|add-a-new-request-action-in|ac1-the-tools-menu-exposes-a
 flowchart TD
-    Trigger[Add Tools New Request action for] --> Need[Add a New Request action in]
-    Need --> Outcome[AC1: The Tools menu exposes a]
-    Outcome --> Backlog[Backlog slice]
+    Tools[Tools menu] --> SelectAgent[Select Agent]
+    SelectAgent --> NewRequest[New Request action]
+    NewRequest --> SetAgent[Set $logics-flow-manager]
+    SetAgent --> OpenCodex[Open Codex with scaffold]
+    NewRequest -.-> DirectCreate[Direct markdown create flows]
 ```
 
 # Acceptance criteria

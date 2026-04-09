@@ -1,5 +1,5 @@
 ## req_050_split_oversized_source_files_into_coherent_modules - Split oversized source files into coherent modules
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|split-oversized-source-files-into-cohere|reduce-the-maintenance-cost-of-a|ac1-each-targeted-oversized-file-is
 flowchart TD
-    Trigger[Split oversized source files into coherent] --> Need[Reduce the maintenance cost of a]
-    Need --> Outcome[AC1: Each targeted oversized file is]
-    Outcome --> Backlog[Backlog slice]
+    A[Identify oversized files] --> B[Analyze responsibilities]
+    B --> C[Define coherent modules]
+    C --> D[Split files into modules]
+    D --> E[Ensure module size 500-1000 lines]
+    E --> F[Verify no behavior change]
+    F --> G[Clarify ownership and interfaces]
+    G --> H[Run and add tests]
 ```
 
 # Needs

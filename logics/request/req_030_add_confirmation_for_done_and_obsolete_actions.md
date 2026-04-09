@@ -1,5 +1,5 @@
 ## req_030_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
-> From version: 1.9.2
+> From version: 1.9.2 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,26 @@
 %% logics-kind: request
 %% logics-signature: request|add-confirmation-before-done-and-obsolet|add-an-explicit-confirmation-step-before|ac1-clicking-done-requires-explicit-conf
 flowchart TD
-    Trigger[Add confirmation before Done and Obsolete] --> Need[Add an explicit confirmation step before]
-    Need --> Outcome[AC1: Clicking Done requires explicit confi]
-    Outcome --> Backlog[Backlog slice]
+  Start[Start]
+  ClickDone[Click Done]
+  ClickObsolete[Click Obsolete]
+  ConfirmDone{Confirm Done?}
+  ConfirmObsolete{Confirm Obsolete?}
+  Cancel[Cancel]
+  ApplyDone[Apply Done]
+  ApplyObsolete[Apply Obsolete]
+  Feedback[Show Feedback]
+  Start --> ClickDone
+  Start --> ClickObsolete
+  ClickDone --> ConfirmDone
+  ClickObsolete --> ConfirmObsolete
+  ConfirmDone -- Yes --> ApplyDone
+  ConfirmDone -- No --> Cancel
+  ConfirmObsolete -- Yes --> ApplyObsolete
+  ConfirmObsolete -- No --> Cancel
+  ApplyDone --> Feedback
+  ApplyObsolete --> Feedback
+  Cancel --> Start
 ```
 
 # Needs

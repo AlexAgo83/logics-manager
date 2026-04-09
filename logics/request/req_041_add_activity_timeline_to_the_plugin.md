@@ -1,5 +1,5 @@
 ## req_041_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-an-activity-timeline-to-the-plugin|expose-recent-logics-activity-in-a|ac1-the-plugin-exposes-a-visible
 flowchart TD
-    Trigger[Add an activity timeline to the] --> Need[Expose recent Logics activity in a]
-    Need --> Outcome[AC1: The plugin exposes a visible]
-    Outcome --> Backlog[Backlog slice]
+    A[Start] --> B[Detect recent changes]
+    B --> C[Filter meaningful events]
+    C --> D[Format timeline entries]
+    D --> E[Display timeline surface]
+    E --> F[Enable navigation to items]
+    F --> G[Maintain existing workflows]
+    G --> H[Run tests]
 ```
 
 # Needs

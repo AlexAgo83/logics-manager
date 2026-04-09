@@ -1,5 +1,5 @@
 ## req_040_add_attention_required_view_to_the_plugin - Add an attention-required view to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,16 @@
 %% logics-kind: request
 %% logics-signature: request|add-an-attention-required-view-to-the-pl|add-a-focused-way-to-surface|ac1-the-plugin-exposes-an-explicit
 flowchart TD
-    Trigger[Add an attention-required view to the] --> Need[Add a focused way to surface]
-    Need --> Outcome[AC1: The plugin exposes an explicit]
-    Outcome --> Backlog[Backlog slice]
+  A[Start: Current plugin view]
+  B[Identify items needing attention]
+  C[Apply explicit attention filter]
+  D[Show attention-required view]
+  E[User reviews actionable items]
+  F[Integrate with existing filters]
+  G[No regression to current workflows]
+  H[Tests validate attention classification]
+  A --> B --> C --> D --> E
+  D --> F --> G --> H
 ```
 
 # Needs

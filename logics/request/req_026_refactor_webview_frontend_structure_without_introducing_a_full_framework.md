@@ -1,5 +1,5 @@
 ## req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Status: Done
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
@@ -38,9 +38,13 @@ The intended architecture direction is:
 %% logics-kind: request
 %% logics-signature: request|refactor-webview-frontend-structure-with|refactor-the-plugin-webview-frontend-so|ac1-the-webview-frontend-is-split
 flowchart TD
-    Trigger[Refactor webview frontend structure withou] --> Need[Refactor the plugin webview frontend so]
-    Need --> Outcome[AC1: The webview frontend is split]
-    Outcome --> Backlog[Backlog slice]
+    Entry[main.js bootstrap] --> Modules[Split into modules]
+    Modules --> HostComm[Host communication module]
+    Modules --> State[State management module]
+    Modules --> Render[Rendering module]
+    Modules --> Helpers[Shared workflow helpers]
+    Modules --> CSS[CSS split by concern]
+    CSS --> Outcome[Maintain lightweight, testable webview]
 ```
 
 # Acceptance criteria

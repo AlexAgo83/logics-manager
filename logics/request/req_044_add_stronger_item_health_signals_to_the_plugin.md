@@ -1,5 +1,5 @@
 ## req_044_add_stronger_item_health_signals_to_the_plugin - Add stronger item health signals to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100%
@@ -11,9 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|add-stronger-item-health-signals-to-the-|make-problematic-or-fragile-items-visual|ac1-the-plugin-surfaces-a-clear
 flowchart TD
-    Trigger[Add stronger item health signals to] --> Need[Make problematic or fragile items visually]
-    Need --> Outcome[AC1: The plugin surfaces a clear]
-    Outcome --> Backlog[Backlog slice]
+  A[Start: Current signals] --> B[Identify weak signals]
+  B --> C[Define stronger health signals]
+  C --> D[Integrate signals in UI]
+  D --> E[Ensure visibility in board/list modes]
+  E --> F[Run tests for coverage]
+  F --> G[Deploy and monitor]
 ```
 
 # Needs

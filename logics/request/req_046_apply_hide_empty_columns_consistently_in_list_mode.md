@@ -1,5 +1,5 @@
 ## req_046_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
-> From version: 1.10.0
+> From version: 1.10.0 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|apply-hide-empty-columns-consistently-in|make-the-hide-empty-columns-option|ac1-when-hide-empty-columns-is
 flowchart TD
-    Trigger[Apply hide empty columns consistently in] --> Need[Make the Hide empty columns option]
-    Need --> Outcome[AC1: When Hide empty columns is]
-    Outcome --> Backlog[Backlog slice]
+    A[Enable Hide Empty Columns] --> B{View Mode}
+    B -->|Board| C[Hide Empty Stages]
+    B -->|List| D[Hide Empty Groups]
+    C --> E[Consistent Filter Behavior]
+    D --> E
+    E --> F[Remove Visual Noise]
+    F --> G[Improve User Trust]
 ```
 
 # Needs

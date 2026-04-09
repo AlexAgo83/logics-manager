@@ -1,5 +1,5 @@
 ## req_036_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-instant-local-search-to-the-plugin|add-a-fast-local-search-input|ac1-the-plugin-exposes-a-search
 flowchart TD
-    Trigger[Add instant local search to the] --> Need[Add a fast local search input]
-    Need --> Outcome[AC1: The plugin exposes a search]
-    Outcome --> Backlog[Backlog slice]
+  A[User types in search input] --> B[Filter visible items instantly]
+  B --> C[Update results immediately]
+  C --> D[Works in board mode]
+  C --> E[Works in list mode]
+  B --> F[Combine with existing filters]
+  F --> G[Clear search restores view]
+  B --> H[Responsive with large data]
 ```
 
 # Needs

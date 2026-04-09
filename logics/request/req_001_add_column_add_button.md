@@ -1,5 +1,5 @@
 ## req_001_add_column_add_button - Add “+” action in column headers
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Understanding: 88% (audit-aligned)
 > Confidence: 93% (governed)
 > Status: Done
@@ -8,9 +8,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-action-in-column-headers|add-a-button-in-each-column|ac1-define-a-measurable-outcome
 flowchart TD
-    Trigger[Add action in column headers] --> Need[Add a button in each column]
-    Need --> Outcome[AC1: Define a measurable outcome]
-    Outcome --> Backlog[Backlog slice]
+    A[Board UI] --> B[Column Header]
+    B --> C[Eye Toggle]
+    B --> D[+ Button]
+    D --> E[Create New Item]
+    E --> F[Request]
+    E --> G[Backlog Item]
+    E --> H[Task]
 ```
 
 # Needs

@@ -1,5 +1,5 @@
 ## req_033_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
-> From version: 1.9.3
+> From version: 1.9.3 (refreshed)
 > Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
@@ -11,9 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|allow-collapsing-and-expanding-groups-in|allow-each-group-section-in-list|ac1-each-visible-group-in-list
 flowchart TD
-    Trigger[Allow collapsing and expanding groups in] --> Need[Allow each group section in list]
-    Need --> Outcome[AC1: Each visible group in list]
-    Outcome --> Backlog[Backlog slice]
+    A[List Mode] --> B[Groups Visible]
+    B --> C[Collapse Control]
+    C --> D[Collapse Group]
+    C --> E[Expand Group]
+    D --> F[Hide Items]
+    E --> G[Show Items]
+    F --> H[Keep Header Visible]
+    G --> H
 ```
 
 # Needs

@@ -55,19 +55,25 @@ For more detailed workflow behavior, see the sections below on requirements, Flo
 
 Use these as quick starting points when you want the plugin or the shared Logics flow to help frame work before execution.
 
-### Need
+### (1) Need
 
 > Start a new request for this problem: `<describe the need or pain point>`
 >
 > Before you draft it, ask me any clarifying questions that would make the request stronger. Suggest helpful options if I need guidance.
 
-### Framing
+### (2) Framing
 
 > Generate backlog items for the new requests and split them into separate delivery slices.
 >
 > Ask me any questions that would increase your confidence or improve your understanding before you finalize the backlog.
 
-### Execution
+### (3) Orchestration Tasks
+
+> Create the orchestration tasks needed to execute the backlog slices, one bounded task per coherent delivery wave.
+>
+> If the slice is still broad, propose a split before you draft the tasks and ask any questions that would reduce ambiguity.
+
+### (4) Execution
 
 > Execute task `<task id or title>`. Commit after each wave, keep going until the work is done, and do not stop early.
 >

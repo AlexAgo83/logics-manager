@@ -1,5 +1,5 @@
 ## req_002_add_read_button - Add Read button for rendered Markdown
-> From version: 1.9.1
+> From version: 1.9.1 (refreshed)
 > Understanding: 83% (audit-aligned)
 > Confidence: 93% (governed)
 > Status: Done
@@ -8,9 +8,10 @@
 %% logics-kind: request
 %% logics-signature: request|add-read-button-for-rendered-markdown|add-a-new-read-button-next|ac1-define-a-measurable-outcome
 flowchart TD
-    Trigger[Add Read button for rendered Markdown] --> Need[Add a new Read button next]
-    Need --> Outcome[AC1: Define a measurable outcome]
-    Outcome --> Backlog[Backlog slice]
+    A[Details Panel] --> B[Edit Button]
+    A --> C[Read Button]
+    C --> D[Open Rendered Markdown View]
+    D --> E[VS Code Main Editor Area]
 ```
 
 # Needs

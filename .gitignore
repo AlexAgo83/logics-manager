@@ -26,6 +26,7 @@ logics/.cache/hybrid_assist_audit.jsonl
 logics/.cache/hybrid_assist_measurements.jsonl
 
 # code-review-graph
+.code-review-graph/
 setup-crg.sh
 setup-crg.ps1
 check-crg.sh

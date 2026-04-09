@@ -1,2 +1,0 @@
-@CODE_REVIEW_GRAPH.md
-@RTK.md

@@ -1,10 +1,10 @@
 ## item_272_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics - Fix isProcessedWorkflowStatus divergence parseProgress clamp and totalCount semantics
 > From version: 1.23.2 (refreshed)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96% (refreshed)
 > Confidence: 91% (refreshed)
-> Progress: 0% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

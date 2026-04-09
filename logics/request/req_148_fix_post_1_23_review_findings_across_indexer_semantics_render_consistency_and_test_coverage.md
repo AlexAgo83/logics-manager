@@ -1,9 +1,9 @@
 ## req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage - Fix post-1.23 review findings across indexer semantics render consistency and test coverage
 > From version: 1.23.2 (refreshed)
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 85%
+> Status: Done
+> Understanding: 96%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -60,10 +60,10 @@ flowchart TD
 - AC10: All existing tests pass after the fixes (`npm run test`).
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none needed — purely correctness fixes)

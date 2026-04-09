@@ -42,7 +42,7 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
       "Logics keeps this as a request so you can refine it and track where it goes.",
     promptExamples: [
       "Draft a new request for this problem: <describe the need or pain point>.",
-      "Before you write it, ask me any clarifying questions and suggest options that would make the request stronger."
+      "Ask me any clarifying questions and suggest options that would make the request stronger."
     ],
     primaryActions: [
       {

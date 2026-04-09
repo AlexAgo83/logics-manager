@@ -146,7 +146,7 @@
 
     function isProcessedWorkflowStatus(value) {
       const normalized = normalizeStatus(value);
-      return normalized === "done";
+      return normalized === "ready" || normalized === "done" || normalized === "complete" || normalized === "completed" || normalized === "archived";
     }
 
     function isRequestProcessed(item) {
@@ -346,12 +346,13 @@
         const grouped = visibleItems.reduce((acc, item) => {
           const heading = item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status";
           const key = `status:${normalizeSearchValue(heading) || "no-status"}`;
-          acc[key] = acc[key] || { key, heading, items: [], totalCount: visibleItems.length };
+          acc[key] = acc[key] || { key, heading, items: [], totalCount: 0 };
           acc[key].items.push(item);
+          acc[key].totalCount = acc[key].items.length;
           return acc;
         }, {});
         return Object.values(grouped)
-          .map((group) => ({ ...group, items: sortItems(group.items), totalCount: visibleItems.length }))
+          .map((group) => ({ ...group, items: sortItems(group.items), totalCount: group.items.length }))
           .sort((left, right) => normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading)));
       }
 
@@ -362,7 +363,7 @@
           stage,
           heading: getStageHeading(stage),
           items: grouped[stage] || [],
-          totalCount: visibleItems.length,
+          totalCount: (grouped[stage] || []).length,
           emptyLabel: isPrimaryFlowStage(stage) ? "No items" : "No linked docs"
         }))
         .filter((group) => !getHideEmptyColumns() || group.items.length > 0);

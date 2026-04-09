@@ -238,7 +238,10 @@
       return null;
     }
     const parsed = Number(match[1]);
-    return Number.isFinite(parsed) ? parsed : null;
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+    return Math.max(0, Math.min(100, parsed));
   }
 
   function isProcessedWorkflowStatus(value) {

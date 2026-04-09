@@ -59,7 +59,7 @@ Use these as quick starting points when you want the plugin or the shared Logics
 
 > Start a new request for this problem: `<describe the need or pain point>`
 >
-> Before you draft it, ask me any clarifying questions that would make the request stronger. Suggest helpful options if I need guidance.
+> Ask me any clarifying questions that would make the request stronger. Suggest helpful options if I need guidance.
 
 ### (2) Framing
 

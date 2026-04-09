@@ -1,10 +1,10 @@
 ## task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements - Orchestration delivery for req 144 to req 147 board preview and doc quality improvements
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 67%
+> Progress: 100%
 > Complexity: High
 > Theme: Board preview, Mermaid generation, and token efficiency
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -46,8 +46,8 @@ flowchart TD
 - [x] 1. Confirm scope, dependencies, and linked acceptance criteria across all five backlog items.
 - [x] 2. Wave 1: implement cache context pack reuse, cache-key normalization, and optional payload overhead reductions.
 - [x] 3. Wave 2: implement the board preview cleanup and task markdown parsing improvements.
-- [ ] 4. Wave 3: implement the Mermaid generation improvements for orientation, relevance, and diagram variety.
-- [ ] 5. Validate each wave in a commit-ready state and update the linked Logics docs before moving on.
+- [x] 4. Wave 3: implement the Mermaid generation improvements for orientation, relevance, and diagram variety.
+- [x] 5. Validate each wave in a commit-ready state and update the linked Logics docs before moving on.
 - [ ] CHECKPOINT: leave each completed wave commit-ready and update the linked Logics docs before continuing.
 - [ ] CHECKPOINT: if the shared AI runtime is active and healthy, run `python logics/skills/logics.py flow assist commit-all` for the current step, item, or wave commit checkpoint.
 - [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
@@ -107,12 +107,12 @@ flowchart TD
   - capture the validation evidence in this task before advancing.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered across all five backlog items.
-- [ ] Validation commands executed and results captured for each wave.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered across all five backlog items.
+- [x] Validation commands executed and results captured for each wave.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
 - Wave 1 completed.
@@ -129,3 +129,9 @@ flowchart TD
 - Validation run:
   - `npm test -- tests/workflowSupport.test.ts tests/logicsHtml.test.ts tests/webview.harness-preview-and-context.test.ts`
   - `npm run lint:ts`
+- Wave 3 completed.
+- Reworked the Mermaid generator so request and backlog diagrams stay vertical while task diagrams use `stateDiagram-v2` to express the delivery stages more contextually.
+- Added diagram-type-aware safety checks and normalization so provider responses are validated against the intended Mermaid form.
+- Validation run:
+  - `python3 -m unittest tests.test_mermaid_generator`
+  - `python3 -m unittest tests.test_logics_flow_02.LogicsFlowTest.test_sync_refresh_mermaid_signatures_updates_stale_workflow_docs`

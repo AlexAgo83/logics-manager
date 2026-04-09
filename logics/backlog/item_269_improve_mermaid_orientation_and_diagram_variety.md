@@ -1,10 +1,10 @@
 ## item_269_improve_mermaid_orientation_and_diagram_variety - Improve Mermaid orientation and diagram variety
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 91%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -62,7 +62,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_146_improve_generated_mermaid_diagrams_for_logics_docs`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`
 
 # AI Context
 - Summary: Improve the Mermaid generator so Logics docs get more contextual, vertical, and shape-appropriate diagrams instead of generic linear...
@@ -88,3 +88,4 @@ flowchart LR
 - Source file: `logics/request/req_146_improve_generated_mermaid_diagrams_for_logics_docs.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_146_improve_generated_mermaid_diagrams_for_logics_docs.md`.
+- Implemented in wave 3 of `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements` and validated with the Mermaid generator tests.

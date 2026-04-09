@@ -1,7 +1,7 @@
 ## req_138_use_understanding_confidence_and_complexity_for_request_badges - Use Understanding Confidence and Complexity for request badges
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

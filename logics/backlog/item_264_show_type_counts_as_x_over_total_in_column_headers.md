@@ -1,10 +1,10 @@
 ## item_264_show_type_counts_as_x_over_total_in_column_headers - Show type counts as x over total in column headers
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -26,7 +26,7 @@ flowchart LR
     Request[req_141_show_type_counts_as_x_over_total_i] --> Problem[Replace the current TYPE X labels]
     Problem --> Scope[Show type counts as x over]
     Scope --> Acceptance[AC1: Headers use a compact X]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_120_orchestrate_header_and_badge_ui_u]
 ```
 
 # Acceptance criteria
@@ -71,3 +71,4 @@ flowchart LR
 - Source file: `logics/request/req_141_show_type_counts_as_x_over_total_in_column_headers.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_141_show_type_counts_as_x_over_total_in_column_headers.md`.
+- Task `task_120_orchestrate_header_and_badge_ui_updates` was finished via `logics_flow.py finish task` on 2026-04-09.

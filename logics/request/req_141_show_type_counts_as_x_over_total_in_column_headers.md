@@ -1,7 +1,7 @@
 ## req_141_show_type_counts_as_x_over_total_in_column_headers - Show type counts as x over total in column headers
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

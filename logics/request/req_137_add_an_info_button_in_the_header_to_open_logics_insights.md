@@ -1,7 +1,7 @@
 ## req_137_add_an_info_button_in_the_header_to_open_logics_insights - Add an info button in the header to open Logics insights
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

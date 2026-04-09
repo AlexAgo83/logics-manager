@@ -1,7 +1,7 @@
 ## req_139_remove_the_missing_docs_badge_from_the_plugin_preview - Remove the missing docs badge from the plugin preview
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

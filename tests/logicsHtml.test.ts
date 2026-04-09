@@ -324,9 +324,19 @@ describe("logics HTML builders", () => {
     const extensionPath = fs.mkdtempSync(path.join(os.tmpdir(), "logics-html-"));
 
     const html = buildReadPreviewHtml({
-      title: "Task 110",
-      itemId: "task_110",
-      relPath: "logics/tasks/task_110.md",
+      item: {
+        id: "task_110",
+        title: "Task 110",
+        stage: "task",
+        relPath: "logics/tasks/task_110.md",
+        indicators: {
+          Status: "Ready",
+          Progress: "50%",
+          Complexity: "Medium"
+        },
+        references: [{ path: "logics/backlog/item_042_example.md" }],
+        usedBy: [{ id: "prod_005_preview", relPath: "logics/product/prod_005_preview.md", title: "Preview brief", stage: "product" }]
+      },
       markdown: [
         "## Summary",
         "",
@@ -339,7 +349,21 @@ describe("logics HTML builders", () => {
         "```"
       ].join("\n"),
       webview: createWebview() as never,
-      extensionPath
+      extensionPath,
+      linkedItems: [
+        {
+          id: "item_042_example",
+          title: "Example backlog item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_042_example.md"
+        },
+        {
+          id: "prod_005_preview",
+          title: "Preview brief",
+          stage: "product",
+          relPath: "logics/product/prod_005_preview.md"
+        }
+      ]
     });
 
     expect(html).toMatchSnapshot();

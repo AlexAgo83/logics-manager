@@ -298,14 +298,13 @@ export class LogicsViewDocumentController {
     try {
       const markdown = fs.readFileSync(item.path, "utf8");
       const panel = this.options.getReadPreviewPanel();
-      panel.title = `Read: ${item.id}`;
+      panel.title = `Preview: ${item.title}`;
       panel.webview.html = buildReadPreviewHtml({
-        title: item.title,
-        itemId: item.id,
-        relPath: item.relPath,
+        item,
         markdown,
         webview: panel.webview,
-        extensionPath: this.options.context.extensionPath
+        extensionPath: this.options.context.extensionPath,
+        linkedItems: this.items
       });
       panel.reveal(vscode.ViewColumn.Beside, false);
     } catch (error) {
@@ -313,6 +312,15 @@ export class LogicsViewDocumentController {
       void vscode.window.showErrorMessage(`Could not open rendered Markdown preview (${message}). Opening in Edit.`);
       await this.openItem(id);
     }
+  }
+
+  async openLinkedItem(reference: string): Promise<void> {
+    const item = this.resolveManagedItemForCompanionDoc(reference);
+    if (!item) {
+      void vscode.window.showWarningMessage(`Could not resolve linked Logics document: ${reference}`);
+      return;
+    }
+    await this.readItem(item.id);
   }
 
   async promoteItem(id: string): Promise<void> {

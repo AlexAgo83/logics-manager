@@ -786,6 +786,23 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
         this.readPreviewPanel = undefined;
       }
     });
+    panel.webview.onDidReceiveMessage(async (message) => {
+      if (!message || typeof message !== "object") {
+        return;
+      }
+      if (message.type === "open-linked-doc" && typeof message.target === "string" && message.target.trim()) {
+        await this.documentController.openLinkedItem(message.target);
+        return;
+      }
+      if (message.type === "open-external-link" && typeof message.target === "string" && message.target.trim()) {
+        try {
+          await vscode.env.openExternal(vscode.Uri.parse(message.target));
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : String(error);
+          void vscode.window.showWarningMessage(`Could not open external link: ${reason}`);
+        }
+      }
+    });
     this.readPreviewPanel = panel;
     return panel;
   }

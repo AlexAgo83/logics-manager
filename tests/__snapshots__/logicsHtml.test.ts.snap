@@ -1100,34 +1100,43 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
   <title>task_110</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #0f172a;
-      --panel: #111827;
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.9);
+      --panel-strong: rgba(15, 23, 42, 0.96);
       --ink: #e5e7eb;
       --muted: #94a3b8;
-      --border: rgba(148, 163, 184, 0.28);
-      --accent: #38bdf8;
+      --border: rgba(148, 163, 184, 0.22);
+      --border-strong: rgba(148, 163, 184, 0.32);
+      --accent: #7dd3fc;
+      --accent-strong: #38bdf8;
+      --chip: rgba(59, 130, 246, 0.14);
       --code-bg: rgba(148, 163, 184, 0.14);
     }
     body {
       margin: 0;
       padding: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+      background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 30%),
+        linear-gradient(180deg, #0b1220 0%, #111827 100%);
       color: var(--ink);
     }
     .read-preview {
-      max-width: 980px;
+      max-width: 1120px;
       margin: 0 auto;
       padding: 24px 24px 48px;
     }
     .read-preview__header {
-      margin-bottom: 24px;
-      padding: 18px 20px;
+      display: grid;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 20px 22px;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(15, 23, 42, 0.72);
-      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 23, 42, 0.82) 100%);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
     }
     .read-preview__eyebrow {
       margin: 0 0 8px;
@@ -1139,19 +1148,127 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
     }
     .read-preview__title {
       margin: 0 0 4px;
-      font-size: 32px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 30px;
       line-height: 1.1;
+    }
+    .read-preview__title-prefix {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.12);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
     .read-preview__path {
       margin: 0;
       color: var(--muted);
       font-size: 14px;
     }
+    .read-preview__path code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--code-bg);
+    }
+    .read-preview__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .read-preview__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      background: var(--chip);
+      font-size: 13px;
+      line-height: 1;
+    }
+    .read-preview__chip-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .read-preview__related {
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.74);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+      margin-bottom: 18px;
+    }
+    .read-preview__related-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .read-preview__related-group {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .read-preview__related-group:first-of-type {
+      margin-top: 0;
+    }
+    .read-preview__related-group-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .read-preview__link-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .read-preview__link {
+      appearance: none;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.25;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+    }
+    .read-preview__link:hover,
+    .read-preview__link:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(125, 211, 252, 0.65);
+      background: rgba(30, 41, 59, 0.95);
+      outline: none;
+    }
+    .read-preview__link-prefix {
+      color: var(--accent);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .read-preview__link-muted {
+      color: var(--muted);
+      margin-left: 6px;
+      font-size: 12px;
+    }
     .markdown-preview {
       padding: 26px 28px;
       border: 1px solid var(--border);
       border-radius: 20px;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--panel-strong);
       box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
     }
     .markdown-preview h1,
@@ -1177,8 +1294,13 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
     .markdown-preview ol {
       padding-left: 1.4rem;
     }
-    .markdown-preview a {
+    .markdown-preview a,
+    .markdown-preview a:visited {
       color: #7dd3fc;
+    }
+    .markdown-preview a[data-logics-link],
+    .markdown-preview a[data-logics-external] {
+      cursor: pointer;
     }
     .markdown-preview pre {
       overflow-x: auto;
@@ -1220,10 +1342,14 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
 <body>
   <div class="read-preview">
     <header class="read-preview__header">
-      <p class="read-preview__eyebrow">task_110</p>
-      <h1 class="read-preview__title">Task 110</h1>
-      <p class="read-preview__path">logics/tasks/task_110.md</p>
+      <div>
+        <p class="read-preview__eyebrow">task</p>
+        <h1 class="read-preview__title"><span class="read-preview__title-prefix">T110</span><span>Task 110</span></h1>
+        <p class="read-preview__path">task_110 • <code>logics/tasks/task_110.md</code></p>
+      </div>
+      <div class="read-preview__meta"><span class="read-preview__chip"><span class="read-preview__chip-label">Status</span><span>Ready</span></span><span class="read-preview__chip"><span class="read-preview__chip-label">Progress</span><span>50%</span></span><span class="read-preview__chip"><span class="read-preview__chip-label">Complexity</span><span>Medium</span></span></div>
     </header>
+    <section class="read-preview__related"><p class="read-preview__related-title">Related docs</p><div class="read-preview__related-group"><p class="read-preview__related-group-title">References</p><div class="read-preview__link-list"><button type="button" class="read-preview__link" data-logics-target="logics/backlog/item_042_example.md"><span class="read-preview__link-prefix">I042</span>I042 - Example backlog item<span class="read-preview__link-muted">logics/backlog/item_042_example.md</span></button></div></div><div class="read-preview__related-group"><p class="read-preview__related-group-title">Used by</p><div class="read-preview__link-list"><button type="button" class="read-preview__link" data-logics-target="logics/product/prod_005_preview.md"><span class="read-preview__link-prefix">P005</span>P005 - Preview brief<span class="read-preview__link-muted">logics/product/prod_005_preview.md</span></button></div></div></section>
     <main class="markdown-preview"><h2>Summary</h2>
 <ul>
 <li>First item</li>
@@ -1235,6 +1361,7 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
   
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH">
     (() => {
+      const vscode = typeof acquireVsCodeApi === "function" ? acquireVsCodeApi() : null;
       const fallbackNodes = Array.from(document.querySelectorAll(".markdown-preview__mermaid-fallback"));
       const showFallback = (message) => {
         fallbackNodes.forEach((node) => {
@@ -1244,6 +1371,39 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
           }
         });
       };
+      const postNavigation = (type, target) => {
+        if (!vscode || !target) {
+          return;
+        }
+        vscode.postMessage({ type, target });
+      };
+
+      Array.from(document.querySelectorAll('.markdown-preview a[href]')).forEach((anchor) => {
+        anchor.addEventListener("click", (event) => {
+          const href = String(anchor.getAttribute("href") || "").trim();
+          if (!href) {
+            return;
+          }
+          if (/^(https?:|mailto:)/i.test(href)) {
+            event.preventDefault();
+            postNavigation("open-external-link", href);
+            return;
+          }
+          if (href.startsWith("#")) {
+            return;
+          }
+          if (href.endsWith(".md") || href.startsWith("logics/") || href.startsWith("./") || href.startsWith("../")) {
+            event.preventDefault();
+            postNavigation("open-linked-doc", href);
+          }
+        });
+      });
+
+      Array.from(document.querySelectorAll(".read-preview__link[data-logics-target]")).forEach((button) => {
+        button.addEventListener("click", () => {
+          postNavigation("open-linked-doc", button.getAttribute("data-logics-target") || "");
+        });
+      });
 
       if (!window.mermaid) {
         showFallback("Mermaid preview unavailable. Raw diagram source shown below.");

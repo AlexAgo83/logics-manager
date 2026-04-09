@@ -189,9 +189,36 @@ describe("webview board renderer behavior", () => {
     });
 
     const badge = dom.window.document.querySelector(".card__badge--metric");
-    expect(badge?.textContent).toContain("U 95%");
-    expect(badge?.textContent).toContain("C 90%");
+    expect(badge?.querySelector(".card__badge-metric-prefix")?.textContent).toBe("U");
+    expect(badge?.querySelector(".card__badge-metric-value")?.textContent).toBe("95%");
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual(["U", "C"]);
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("90%");
     expect(badge?.textContent).toContain("M");
+  });
+
+  it("renders progress badges with a muted P prefix", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_001",
+          stage: "task",
+          indicators: {
+            Status: "Ready",
+            Progress: "65%",
+            Complexity: "High"
+          }
+        }
+      ]
+    });
+
+    const badge = dom.window.document.querySelector(".card__badge--metric");
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual(["P"]);
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("65%");
+    expect(badge?.textContent).toContain("H");
   });
 
   it("navigates up and down within a board column using arrow keys", () => {

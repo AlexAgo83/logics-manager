@@ -283,6 +283,40 @@
   letter-spacing: 0.02em;
   text-transform: none;
   font-weight: 600;
+  gap: 4px;
+  padding-inline: 8px;
+  align-items: center;
+}
+
+.card__badge-metric-segment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+}
+
+.card__badge-metric-prefix {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.card__badge-metric-value {
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.card__badge-metric-value--complexity {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card__badge-metric-separator {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 9px;
+  line-height: 1;
+  margin: 0 2px;
 }
 
 .card__badge--product {

@@ -413,6 +413,23 @@
       return badges;
     }
 
+    function createMetricSegment(prefix, value) {
+      const segment = document.createElement("span");
+      segment.className = "card__badge-metric-segment";
+
+      const prefixEl = document.createElement("span");
+      prefixEl.className = "card__badge-metric-prefix";
+      prefixEl.textContent = prefix;
+      segment.appendChild(prefixEl);
+
+      const valueEl = document.createElement("span");
+      valueEl.className = "card__badge-metric-value";
+      valueEl.textContent = value;
+      segment.appendChild(valueEl);
+
+      return segment;
+    }
+
     function createPrimaryFlowSummary(item) {
       if (isPrimaryFlowStage(item.stage)) {
         return "";
@@ -525,7 +542,6 @@
 
       const stage = String(item?.stage || "").trim();
       const isRequest = stage === "request";
-      const primaryShortLabel = isRequest ? "U" : "P";
       const primaryIndicator = isRequest ? String(item?.indicators?.Understanding || "").trim() : null;
       const secondaryIndicator = isRequest ? String(item?.indicators?.Confidence || "").trim() : String(item?.indicators?.Complexity || "").trim();
       const tertiaryIndicator = isRequest ? String(item?.indicators?.Complexity || "").trim() : "";
@@ -546,13 +562,25 @@
 
       const pill = document.createElement("span");
       pill.className = "card__badge card__badge--metric";
-
       const primaryText = normalizedPrimary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedPrimary[1] || normalizedPrimary[0]))))}%` : "—";
       const secondaryText = normalizedSecondary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedSecondary[1]))))}%` : "—";
       const complexityText = complexityValue ? normalizeComplexityLabel(complexityValue) : "—";
 
       if (isRequest) {
-        pill.textContent = `${primaryShortLabel} ${primaryText} / C ${secondaryText} / ${complexityText}`;
+        pill.appendChild(createMetricSegment("U", primaryText));
+        const separatorOne = document.createElement("span");
+        separatorOne.className = "card__badge-metric-separator";
+        separatorOne.textContent = "/";
+        pill.appendChild(separatorOne);
+        pill.appendChild(createMetricSegment("C", secondaryText));
+        const separatorTwo = document.createElement("span");
+        separatorTwo.className = "card__badge-metric-separator";
+        separatorTwo.textContent = "/";
+        pill.appendChild(separatorTwo);
+        const complexitySegment = document.createElement("span");
+        complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
+        complexitySegment.textContent = complexityText;
+        pill.appendChild(complexitySegment);
         pill.title = [
           primaryIndicator ? `Understanding: ${primaryIndicator}` : null,
           secondaryIndicator ? `Confidence: ${secondaryIndicator}` : null,
@@ -561,7 +589,15 @@
           .filter(Boolean)
           .join(" • ");
       } else {
-        pill.textContent = `${primaryShortLabel} ${primaryText} / ${complexityText}`;
+        pill.appendChild(createMetricSegment("P", primaryText));
+        const separator = document.createElement("span");
+        separator.className = "card__badge-metric-separator";
+        separator.textContent = "/";
+        pill.appendChild(separator);
+        const complexitySegment = document.createElement("span");
+        complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
+        complexitySegment.textContent = complexityText;
+        pill.appendChild(complexitySegment);
         const titleParts = [];
         if (typeof progressValue === "number") {
           titleParts.push(`Progress: ${Math.max(0, Math.min(100, Math.round(progressValue)))}%`);

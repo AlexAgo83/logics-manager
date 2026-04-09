@@ -1,10 +1,10 @@
 ## task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements - Orchestration delivery for req 144 to req 147 board preview and doc quality improvements
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: High
 > Theme: Board preview, Mermaid generation, and token efficiency
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -43,8 +43,8 @@ flowchart TD
 ```
 
 # Plan
-- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria across all five backlog items.
-- [ ] 2. Wave 1: implement cache context pack reuse, cache-key normalization, and optional payload overhead reductions.
+- [x] 1. Confirm scope, dependencies, and linked acceptance criteria across all five backlog items.
+- [x] 2. Wave 1: implement cache context pack reuse, cache-key normalization, and optional payload overhead reductions.
 - [ ] 3. Wave 2: implement the board preview cleanup and task markdown parsing improvements.
 - [ ] 4. Wave 3: implement the Mermaid generation improvements for orientation, relevance, and diagram variety.
 - [ ] 5. Validate each wave in a commit-ready state and update the linked Logics docs before moving on.
@@ -115,3 +115,10 @@ flowchart TD
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Wave 1 completed.
+- Implemented cache-key normalization for noisy lockfile and binary diff signals in `logics_flow_hybrid_transport_core.py` and reused the same normalization when building hybrid result cache fingerprints in `logics_flow_core.py`.
+- Added a small in-process context-pack cache in `logics_flow_core.py` so repeated pack assembly reuses the previous result for identical inputs in the same process.
+- Fixed the runtime index cache path resolution so temp repos under symlinked `/private/var` paths do not fail when computing relative cache metadata.
+- Validation run:
+  - `python3 -m unittest tests.test_logics_flow_04.LogicsFlowTest.test_build_hybrid_result_cache_key_ignores_noisy_lockfile_paths tests.test_logics_flow_04.LogicsFlowTest.test_build_context_pack_reuses_cached_pack_between_calls`
+  - `python3 -m unittest tests.test_logics_flow_04.LogicsFlowTest.test_sync_build_index_reuses_cached_entries`

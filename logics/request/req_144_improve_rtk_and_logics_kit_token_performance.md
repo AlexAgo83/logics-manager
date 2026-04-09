@@ -1,7 +1,7 @@
 ## req_144_improve_rtk_and_logics_kit_token_performance - Improve RTK and Logics kit token performance
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
@@ -114,3 +114,6 @@ flowchart TD
 # Backlog
 - `item_267_cache_context_packs_and_normalize_cache_keys`
 - `item_271_reduce_optional_payload_and_command_overhead`
+
+# Task
+- `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`

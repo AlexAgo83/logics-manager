@@ -1,7 +1,7 @@
 ## req_145_remove_duplicated_title_and_instruction_from_board_preview_panel - Remove duplicated title and instruction from board preview panel
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 91%
 > Confidence: 88%
 > Complexity: Medium
@@ -102,3 +102,6 @@ flowchart TD
 
 # Backlog
 - `item_268_trim_duplicated_title_and_instruction_from_board_preview`
+
+# Task
+- `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`

@@ -1,7 +1,7 @@
 ## req_147_improve_task_preview_checkbox_parsing_in_board_preview - Improve task preview checkbox parsing in board preview
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 91%
 > Confidence: 87%
 > Complexity: Medium
@@ -101,3 +101,6 @@ flowchart TD
 
 # Backlog
 - `item_270_improve_task_preview_markdown_parsing`
+
+# Task
+- `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`

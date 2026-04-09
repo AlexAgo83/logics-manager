@@ -196,7 +196,7 @@
       .preview__body a{color:#0369a1;}
       .markdown-preview__diagram svg{max-width:100%;height:auto;}
       .markdown-preview__mermaid-fallback{margin-top:10px;padding:10px 12px;border-radius:10px;color:#991b1b;background:#fee2e2;border:1px solid rgba(248,113,113,.35);}
-    </style></head><body><div class="preview"><header class="preview__header"><h1 class="preview__title">${safeTitle}</h1><p class="preview__source">Source: <code>${safeSourceLabel}</code></p></header><main class="preview__body">${renderedHtml}</main></div><script src="/node_modules/mermaid/dist/mermaid.min.js"></script><script>
+    </style></head><body><div class="preview"><header class="preview__header"><h1 class="preview__title">${safeTitle}</h1><p class="preview__source">File: <code>${safeSourceLabel}</code></p></header><main class="preview__body">${renderedHtml}</main></div><script src="/node_modules/mermaid/dist/mermaid.min.js"></script><script>
       (() => {
         const fallbackNodes = Array.from(document.querySelectorAll(".markdown-preview__mermaid-fallback"));
         const showFallback = (message) => {

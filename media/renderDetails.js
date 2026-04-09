@@ -322,7 +322,21 @@
         if (status) headerBits.push(status);
         detailsEyebrow.textContent = headerBits.join(" • ");
       }
-      if (detailsTitle) detailsTitle.textContent = item.title;
+      if (detailsTitle) {
+        detailsTitle.innerHTML = "";
+        const titleLine = document.createElement("div");
+        titleLine.className = "details__header-title-main";
+        titleLine.textContent = item.title;
+        detailsTitle.appendChild(titleLine);
+
+        const filePath = String(item?.relPath || item?.path || item?.id || "").trim();
+        if (filePath) {
+          const fileLine = document.createElement("div");
+          fileLine.className = "details__header-title-file";
+          fileLine.textContent = `File: ${filePath}`;
+          detailsTitle.appendChild(fileLine);
+        }
+      }
 
       const list = document.createElement("div");
       list.className = "details__list";

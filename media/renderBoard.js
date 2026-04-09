@@ -541,49 +541,58 @@
       badge.className = "card__badges card__badges--metrics";
 
       const stage = String(item?.stage || "").trim();
-      const isRequest = stage === "request";
-      const primaryIndicator = isRequest ? String(item?.indicators?.Understanding || "").trim() : null;
-      const secondaryIndicator = isRequest ? String(item?.indicators?.Confidence || "").trim() : String(item?.indicators?.Complexity || "").trim();
-      const tertiaryIndicator = isRequest ? String(item?.indicators?.Complexity || "").trim() : "";
-      const progressValue = isRequest ? null : getProgressValue(item);
+      const indicators = item?.indicators || {};
+      const understandingValue = String(indicators.Understanding || "").trim();
+      const confidenceValue = String(indicators.Confidence || "").trim();
+      const complexityValue = String(indicators.Complexity || "").trim();
+      const progressValue = getProgressValue(item);
+      const showUnderstandingConfidence = Boolean(understandingValue || confidenceValue);
+      const useUnderstandingConfidence = showUnderstandingConfidence || stage === "request";
 
       const normalizedPrimary =
-        isRequest && primaryIndicator
-          ? primaryIndicator.match(/(\d+(?:\.\d+)?)/)
+        useUnderstandingConfidence && understandingValue
+          ? understandingValue.match(/(\d+(?:\.\d+)?)/)
           : typeof progressValue === "number"
             ? [String(Math.max(0, Math.min(100, Math.round(progressValue))))]
             : null;
-      const normalizedSecondary = secondaryIndicator ? secondaryIndicator.match(/(\d+(?:\.\d+)?)/) : null;
-      const complexityValue = isRequest ? tertiaryIndicator : secondaryIndicator;
+      const normalizedSecondary =
+        useUnderstandingConfidence && confidenceValue
+          ? confidenceValue.match(/(\d+(?:\.\d+)?)/)
+          : complexityValue
+            ? complexityValue.match(/(\d+(?:\.\d+)?)/)
+            : null;
+      const complexityLabel = useUnderstandingConfidence ? complexityValue : complexityValue;
 
-      if (!normalizedPrimary && !normalizedSecondary && !complexityValue) {
+      if (!normalizedPrimary && !normalizedSecondary && !complexityLabel) {
         return null;
       }
 
       const pill = document.createElement("span");
       pill.className = "card__badge card__badge--metric";
       const primaryText = normalizedPrimary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedPrimary[1] || normalizedPrimary[0]))))}%` : "—";
-      const secondaryText = normalizedSecondary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedSecondary[1]))))}%` : "—";
-      const complexityText = complexityValue ? normalizeComplexityLabel(complexityValue) : "—";
+      const secondaryText = normalizedSecondary ? `${Math.max(0, Math.min(100, Math.round(Number(normalizedSecondary[1] || normalizedSecondary[0]))))}%` : "—";
+      const complexityText = complexityLabel ? normalizeComplexityLabel(complexityLabel) : "—";
 
-      if (isRequest) {
+      if (useUnderstandingConfidence) {
         pill.appendChild(createMetricSegment("U", primaryText));
         const separatorOne = document.createElement("span");
         separatorOne.className = "card__badge-metric-separator";
         separatorOne.textContent = "/";
         pill.appendChild(separatorOne);
         pill.appendChild(createMetricSegment("C", secondaryText));
-        const separatorTwo = document.createElement("span");
-        separatorTwo.className = "card__badge-metric-separator";
-        separatorTwo.textContent = "/";
-        pill.appendChild(separatorTwo);
-        const complexitySegment = document.createElement("span");
-        complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
-        complexitySegment.textContent = complexityText;
-        pill.appendChild(complexitySegment);
+        if (complexityValue) {
+          const separatorTwo = document.createElement("span");
+          separatorTwo.className = "card__badge-metric-separator";
+          separatorTwo.textContent = "/";
+          pill.appendChild(separatorTwo);
+          const complexitySegment = document.createElement("span");
+          complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
+          complexitySegment.textContent = complexityText;
+          pill.appendChild(complexitySegment);
+        }
         pill.title = [
-          primaryIndicator ? `Understanding: ${primaryIndicator}` : null,
-          secondaryIndicator ? `Confidence: ${secondaryIndicator}` : null,
+          understandingValue ? `Understanding: ${understandingValue}` : null,
+          confidenceValue ? `Confidence: ${confidenceValue}` : null,
           complexityValue ? `Complexity: ${complexityValue}` : null
         ]
           .filter(Boolean)
@@ -637,33 +646,10 @@
       preview.hidden = true;
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
-      if (Array.isArray(item?.references) && item.references.length > 0) {
-        preview.appendChild(createPreviewRow("References", summarizeLinkedPreview(item.references, "linked doc")));
-      }
-      if (Array.isArray(item?.usedBy) && item.usedBy.length > 0) {
-        preview.appendChild(createPreviewRow("Used by", summarizeLinkedPreview(item.usedBy, "linked item")));
-      }
 
       const linkage = createPrimaryFlowSummary(item);
       if (linkage) {
         preview.appendChild(createPreviewRow("Flow", linkage));
-      }
-      return preview;
-    }
-
-    function summarizeLinkedPreview(entries, singularLabel) {
-      if (!Array.isArray(entries) || entries.length === 0) {
-        return "";
-      }
-      if (entries.length === 1) {
-        const entry = entries[0] || {};
-        return entry.title || entry.relPath || entry.id || `1 ${singularLabel}`;
-      }
-      const first = entries[0] || {};
-      const second = entries[1] || {};
-      const preview = [first.title || first.relPath || first.id, second.title || second.relPath || second.id].filter(Boolean).join(", ");
-      if (entries.length > 2) {
-        return `${preview}, +${entries.length - 2} more`;
       }
       return preview;
     }

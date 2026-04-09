@@ -14,11 +14,18 @@ export type OnboardingStage = {
   label: string;
   tagline: string;
   description: string;
+  promptExamples: string[];
   primaryActions: OnboardingAction[];
   workflowMapping: string;
 };
 
 export type OnboardingAction = {
+  label: string;
+  toolAction: string;
+  description: string;
+};
+
+export type OnboardingFooterAction = {
   label: string;
   toolAction: string;
   description: string;
@@ -33,6 +40,10 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
       "Start by writing down what you need — a goal, a problem, or an idea. " +
       "You don't need to know the full solution yet. " +
       "Logics keeps this as a request so you can refine it and track where it goes.",
+    promptExamples: [
+      "Draft a new request for this problem: <describe the need or pain point>.",
+      "Before you write it, ask me any clarifying questions and suggest options that would make the request stronger."
+    ],
     primaryActions: [
       {
         label: "New Request",
@@ -50,6 +61,10 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
       "Once a need is clear, shape it into something actionable. " +
       "Add context, scope, and acceptance criteria so that anyone — including an AI assistant — " +
       "can pick it up without re-explaining the whole problem.",
+    promptExamples: [
+      "Split the new request into backlog items and separate delivery slices.",
+      "Ask me any questions that would improve your confidence or understanding before you finalize the backlog."
+    ],
     primaryActions: [
       {
         label: "Promote to Backlog",
@@ -72,6 +87,10 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
       "When a backlog item is ready, break it into an executable task. " +
       "The task carries the full history of decisions so delivery stays grounded — " +
       "whether you're working alone, with a team, or with an AI assistant.",
+    promptExamples: [
+      "Execute task <task id or title>. Commit after each wave and keep going until the work is done.",
+      "If needed, make brief assumptions and keep moving."
+    ],
     primaryActions: [
       {
         label: "Suggest Next Step",
@@ -97,3 +116,16 @@ export const ONBOARDING_INTRO =
 export const ONBOARDING_FOOTER =
   "This screen appears once at first use and after significant updates. " +
   "You can reopen it from the Tools menu at any time.";
+
+export const ONBOARDING_FOOTER_ACTIONS: OnboardingFooterAction[] = [
+  {
+    label: "Open Logics Insights",
+    toolAction: "open-logics-insights",
+    description: "Open the repository-level corpus stats and recent activity panel."
+  },
+  {
+    label: "About",
+    toolAction: "about",
+    description: "Open the project repository information."
+  }
+];

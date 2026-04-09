@@ -246,6 +246,30 @@
   gap: 4px;
 }
 
+.card__preview-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card__preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.card__preview-file {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .card__preview-row {
   display: flex;
   justify-content: space-between;

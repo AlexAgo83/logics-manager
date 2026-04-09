@@ -312,7 +312,7 @@ export function buildReadPreviewHtml(params: {
         <h1 class="read-preview__title">${
           documentPrefix ? `<span class="read-preview__title-prefix">${escapeHtmlForHtml(documentPrefix)}</span>` : ""
         }<span>${escapeHtmlForHtml(item.title || "Logics item")}</span></h1>
-        <p class="read-preview__path">${escapeHtmlForHtml(item.id || "unknown")} • <code>${escapeHtmlForHtml(item.relPath || "")}</code></p>
+        <p class="read-preview__path">File: <code>${escapeHtmlForHtml(item.relPath || item.id || "unknown")}</code></p>
       </div>
       ${summaryChips ? `<div class="read-preview__meta">${summaryChips}</div>` : ""}
     </header>

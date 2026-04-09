@@ -33,33 +33,15 @@ If you already use the extension but want to inspect the workflow scripts, templ
 
 ## Features
 
-- Workflow visibility that feels operational, not archival: board view, grouped list view, recent activity, triage signals, reverse references, and Logics corpus navigation on top of the existing Markdown docs.
-- Native markdown preview for Logics docs with clickable references, related workflow items, compact document titles, and Mermaid-aware rendering.
-- Faster AI handoffs from the exact item you are working on, instead of rebuilding context manually from chat history.
-- Safer day-to-day flow management with create, promote, read, bootstrap, root-management, and agent-selection actions directly in the extension.
-- Flow board view plus grouped list view, with forced list mode below `500px`.
-- Horizontal board scrolling, list-group collapse/expand, and improved keyboard navigation across cards and groups.
-- Compact document prefixes, `X/TOTAL` headers, and muted progress / understanding / confidence badges that stay readable at a glance.
-- Instant local search, explicit sorting/grouping controls, and an `Attention` triage filter for actionable items.
-- Compact item previews, stronger health signals, suggested-action badges, related-doc preview links, and a recent activity panel.
-- Details panel with indicators, references, reverse `Used by`, smarter default section collapse, and lifecycle confirmations for `Done` / `Obsolete`.
-- `Context pack for AI assistants` in the details panel, with token estimate, budget label, task-type-specific response contract, and session-hygiene hints.
-- Preview modes for assistant handoff: `standard`, `summary-only`, and `diff-first` when relevant changed files exist.
-- Direct handoff-copy actions from the details panel support faster low-token assistant sessions.
-- Filter defaults enabled out of the box plus a `Reset` action to restore them quickly.
-- `Hide empty columns` now behaves consistently in board and list mode.
-- Persisted workspace-scoped UI state for selection, search, grouping, sorting, collapses, and scroll.
-- Lightweight onboarding guidance and more actionable empty states.
-- Create new requests, backlog items, and tasks from the UI (uses Logics templates / Flow Manager).
-- `Read` opens the native rendered markdown preview and interprets Mermaid diagrams in Logics docs.
-- Open, read, refresh, promote, bootstrap, root-management, and agent-selection actions from the UI.
-- Tools menu includes a guided `New Request` Codex entrypoint and bootstrap recovery actions.
-- Tools menu now groups provider management under `AI Runtime`, with `AI Runtime Status`, `AI Provider Insights`, and the shared hybrid-assist workflow actions in one compact system surface.
-- Tools menu also exposes `Prepare Release` and `Publish Release` so kit-backed release prep and publication stay available from the plugin.
-- `Publish Release` is now GitHub-aware, stays visible but disabled with an explicit reason when publication is unavailable, and can honor repo-local consent before helping with a local `release` fast-forward.
-- Bootstrap can propose a follow-up git commit with a generated message once setup succeeds.
-- Environment diagnostics now show a clearer action-first summary, hybrid-runtime backend readiness, degraded-state notes, Claude-bridge availability, and a Windows-safe shared runtime entrypoint.
-- Older canonical repos are now prompted toward `Update Logics Kit` earlier, instead of relying on the operator to discover that step manually.
+- Turn `logics/*` Markdown into a delivery cockpit inside VS Code.
+- Keep requests, backlog items, tasks, and specs connected in one workspace.
+- Preview Logics docs with clickable references, Mermaid rendering, and cleaner read views.
+- Move from triage to execution with board, list, search, and recent-activity views that stay aligned.
+- Create, promote, bootstrap, and review workflow items without leaving the editor.
+- Reuse shared project context for faster AI handoffs and lower-token sessions.
+- Prepare releases and keep workflow docs synchronized from the same toolchain.
+
+For more detailed workflow behavior, see the sections below on requirements, Flow Manager compatibility, commands, and tools.
 
 ## Why This Matters For AI Projects
 
@@ -68,6 +50,28 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - The plugin makes that memory operational: you can inspect it, navigate it, and inject a smaller assistant handoff directly from the active item.
 - That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing earlier decisions.
 - Because the memory is plain Markdown in git, it stays reviewable by humans, diffable in pull requests, and portable across tools.
+
+## Onboarding Prompts
+
+Use these as quick starting points when you want the plugin or the shared Logics flow to help frame work before execution.
+
+### Need
+
+> Start a new request for this problem: `<describe the need or pain point>`
+>
+> Before you draft it, ask me any clarifying questions that would make the request stronger. Suggest helpful options if I need guidance.
+
+### Framing
+
+> Generate backlog items for the new requests and split them into separate delivery slices.
+>
+> Ask me any questions that would increase your confidence or improve your understanding before you finalize the backlog.
+
+### Execution
+
+> Execute task `<task id or title>`. Commit after each wave, keep going until the work is done, and do not stop early.
+>
+> If you need to make assumptions, state them briefly and keep the task moving.
 
 <table>
   <tr>
@@ -105,7 +109,7 @@ If you already use the extension but want to inspect the workflow scripts, templ
 Windows notes:
 - You do not need the `code` CLI for normal extension usage inside VS Code.
 - If Python is installed through the Windows launcher, `py -3` is supported by the extension.
-- Repository-managed text files are normalized through [`.gitattributes`](/Users/alexandreagostini/Documents/cdx-logics-vscode/.gitattributes); let Git handle `CRLF`/`LF` conversion instead of rewriting line endings manually.
+- Repository-managed text files are normalized through [`.gitattributes`](.gitattributes); let Git handle `CRLF`/`LF` conversion instead of rewriting line endings manually.
 
 ## Flow Manager Compatibility
 
@@ -190,7 +194,7 @@ If the current plugin version is already published, `python logics/skills/logics
 
 ## Curated Changelogs
 
-Versioned release notes for the main extension live in [`changelogs/`](/Users/alexandreagostini/Documents/cdx-logics-vscode/changelogs).
+Versioned release notes for the main extension live in [`changelogs/`](changelogs).
 
 Contract:
 - filename pattern: `CHANGELOGS_X_Y_Z.md`

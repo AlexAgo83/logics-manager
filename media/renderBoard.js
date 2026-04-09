@@ -762,12 +762,12 @@
     }
 
     function renderBoardColumns(grouped, totalVisibleItems) {
-      const totalCount = Math.max(0, totalVisibleItems || 0);
       getVisibleStages().forEach((stage) => {
         const stageItems = grouped[stage] || [];
         if (getHideEmptyColumns() && stageItems.length === 0) {
           return;
         }
+        const totalCount = Math.max(0, stageItems.length || 0);
         const column = document.createElement("div");
         const canCreateFromColumn = isPrimaryFlowStage(stage);
         column.className = "column";

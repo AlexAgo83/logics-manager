@@ -507,7 +507,7 @@ function normalizeStatus(value: string | undefined): string {
     .toLowerCase();
 }
 
-function isProcessedWorkflowStatus(value: string | undefined): boolean {
+export function isProcessedWorkflowStatus(value: string | undefined): boolean {
   const normalized = normalizeStatus(value);
   return (
     normalized === "ready" ||
@@ -518,16 +518,19 @@ function isProcessedWorkflowStatus(value: string | undefined): boolean {
   );
 }
 
-function parseProgress(value: string | undefined): number | null {
+export function parseProgress(value: string | undefined): number | null {
   const match = String(value || "").match(/(\d+(?:\.\d+)?)/);
   if (!match) {
     return null;
   }
   const parsed = Number(match[1]);
-  return Number.isFinite(parsed) ? parsed : null;
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  return Math.max(0, Math.min(100, parsed));
 }
 
-function isProcessedWorkflowItem(item: LogicsItem | undefined): boolean {
+export function isProcessedWorkflowItem(item: LogicsItem | undefined): boolean {
   if (!item) {
     return false;
   }
@@ -556,7 +559,7 @@ function normalizeReferencePath(value: string): string {
   return normalized.split("/").pop()?.replace(/\.md$/i, "") || normalized;
 }
 
-function collectLinkedWorkflowItems(item: LogicsItem, allItems: LogicsItem[] = []): LogicsItem[] {
+export function collectLinkedWorkflowItems(item: LogicsItem, allItems: LogicsItem[] = []): LogicsItem[] {
   if (!item || item.stage !== "request") {
     return [];
   }

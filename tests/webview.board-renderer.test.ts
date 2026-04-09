@@ -65,6 +65,38 @@ describe("webview board renderer behavior", () => {
     expect(productColumn?.querySelector(".column__add")).toBeFalsy();
   });
 
+  it("shows per-column totals in the board column header", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        {
+          ...baseItem,
+          id: "req_001_followup",
+          title: "Follow-up request"
+        },
+        {
+          ...baseItem,
+          id: "item_001_backlog",
+          title: "Backlog item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_001_backlog.md",
+          path: "/workspace/mock/logics/backlog/item_001_backlog.md"
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const requestColumn = Array.from(board?.querySelectorAll(".column") || []).find(
+      (c) => (c as HTMLElement).dataset.stage === "request"
+    );
+    const requestCount = requestColumn?.querySelector(".column__title-count")?.textContent;
+
+    expect(requestCount).toBe("2/2");
+  });
+
   it("opens and closes the column add menu on toggle", () => {
     const { dom } = bootstrapWebview();
 

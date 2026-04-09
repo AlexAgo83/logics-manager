@@ -5,11 +5,15 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   canPromote,
   compareStages,
+  collectLinkedWorkflowItems,
   getManagedDocDirectories,
   indexLogics,
   inferStage,
+  isProcessedWorkflowItem,
+  isProcessedWorkflowStatus,
   isRequestProcessed,
   isRequestUsed,
+  parseProgress,
   promotionCommand,
   STAGE_ORDER
 } from "../src/logicsIndexer";
@@ -337,6 +341,39 @@ describe("logicsIndexer", () => {
     } as any;
 
     expect(isRequestProcessed(requestLike, [archivedBacklog])).toBe(true);
+  });
+
+  it("clamps progress values and treats clamped completion as processed", () => {
+    expect(parseProgress("150%")).toBe(100);
+    expect(parseProgress("-20%")).toBe(20);
+    expect(parseProgress("n/a")).toBeNull();
+    expect(isProcessedWorkflowStatus("Archived")).toBe(true);
+
+    const processedTask = {
+      stage: "task",
+      indicators: { Progress: "150%" }
+    } as any;
+    expect(isProcessedWorkflowItem(processedTask)).toBe(true);
+  });
+
+  it("collects linked workflow items from references and usedBy entries", () => {
+    const requestLike = {
+      stage: "request",
+      references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_200_linked.md" }],
+      usedBy: [{ id: "task_200_linked", relPath: "logics/tasks/task_200_linked.md" }]
+    } as any;
+    const backlog = {
+      id: "item_200_linked",
+      stage: "backlog",
+      relPath: "logics/backlog/item_200_linked.md"
+    } as any;
+    const task = {
+      id: "task_200_linked",
+      stage: "task",
+      relPath: "logics/tasks/task_200_linked.md"
+    } as any;
+
+    expect(collectLinkedWorkflowItems(requestLike, [backlog, task])).toEqual([backlog, task]);
   });
 
   it("normalizes bare .md backlog references and derived from request backlinks", () => {

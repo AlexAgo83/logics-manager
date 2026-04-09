@@ -1,10 +1,10 @@
 ## item_268_trim_duplicated_title_and_instruction_from_board_preview - Trim duplicated title and instruction from board preview
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 91%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Board preview and markdown rendering
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -59,7 +59,7 @@ flowchart LR
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_145_remove_duplicated_title_and_instruction_from_board_preview_panel`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`
 
 # AI Context
 - Summary: Remove the duplicated title and top instruction block from the board item preview panel so the preview body...
@@ -83,3 +83,4 @@ flowchart LR
 - Source file: `logics/request/req_145_remove_duplicated_title_and_instruction_from_board_preview_panel.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_145_remove_duplicated_title_and_instruction_from_board_preview_panel.md`.
+- Implemented in wave 2 of `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements` and validated with the preview rendering tests.

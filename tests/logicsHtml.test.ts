@@ -370,6 +370,41 @@ describe("logics HTML builders", () => {
     fs.rmSync(extensionPath, { recursive: true, force: true });
   });
 
+  it("removes the document heading and indicator block from the read preview body", () => {
+    const extensionPath = fs.mkdtempSync(path.join(os.tmpdir(), "logics-html-"));
+
+    const html = buildReadPreviewHtml({
+      item: {
+        id: "task_111",
+        title: "Task 111",
+        stage: "task",
+        relPath: "logics/tasks/task_111.md",
+        indicators: {
+          Status: "Ready",
+          Progress: "25%"
+        }
+      },
+      markdown: [
+        "## task_111 - Task 111",
+        "> From version: 1.0.0",
+        "> Schema version: 1.0.0",
+        "> Status: Ready",
+        "",
+        "- [ ] Open item",
+        "- [x] Closed item"
+      ].join("\n"),
+      webview: createWebview() as never,
+      extensionPath
+    });
+
+    expect(html).toContain("Task 111");
+    expect(html).not.toContain("<h2>task_111 - Task 111</h2>");
+    expect(html).not.toContain("From version: 1.0.0");
+    expect(html).toContain('class="markdown-preview__task-checkbox"');
+    expect(html).toContain('checked');
+    fs.rmSync(extensionPath, { recursive: true, force: true });
+  });
+
   it("sorts recent hybrid runs newest first and formats recent timestamps relatively", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-04T12:00:00Z"));

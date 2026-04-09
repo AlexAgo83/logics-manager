@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 33%
+> Progress: 67%
 > Complexity: High
 > Theme: Board preview, Mermaid generation, and token efficiency
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -45,7 +45,7 @@ flowchart TD
 # Plan
 - [x] 1. Confirm scope, dependencies, and linked acceptance criteria across all five backlog items.
 - [x] 2. Wave 1: implement cache context pack reuse, cache-key normalization, and optional payload overhead reductions.
-- [ ] 3. Wave 2: implement the board preview cleanup and task markdown parsing improvements.
+- [x] 3. Wave 2: implement the board preview cleanup and task markdown parsing improvements.
 - [ ] 4. Wave 3: implement the Mermaid generation improvements for orientation, relevance, and diagram variety.
 - [ ] 5. Validate each wave in a commit-ready state and update the linked Logics docs before moving on.
 - [ ] CHECKPOINT: leave each completed wave commit-ready and update the linked Logics docs before continuing.
@@ -122,3 +122,10 @@ flowchart TD
 - Validation run:
   - `python3 -m unittest tests.test_logics_flow_04.LogicsFlowTest.test_build_hybrid_result_cache_key_ignores_noisy_lockfile_paths tests.test_logics_flow_04.LogicsFlowTest.test_build_context_pack_reuses_cached_pack_between_calls`
   - `python3 -m unittest tests.test_logics_flow_04.LogicsFlowTest.test_sync_build_index_reuses_cached_entries`
+- Wave 2 completed.
+- Updated the read preview rendering path so the preview body strips the document heading and leading indicator block before rendering the Markdown content.
+- Extended the shared Markdown renderer to understand checkbox task items and a small set of extra inline styling patterns so task previews read naturally.
+- Synchronized the media-side Markdown renderer with the preview renderer so the webview and native preview surfaces stay aligned.
+- Validation run:
+  - `npm test -- tests/workflowSupport.test.ts tests/logicsHtml.test.ts tests/webview.harness-preview-and-context.test.ts`
+  - `npm run lint:ts`

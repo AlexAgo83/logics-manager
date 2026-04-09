@@ -108,17 +108,22 @@ describe("webview harness core behaviors", () => {
     const workflowView = dom.window.document.getElementById("tools-view-workflow");
     const systemView = dom.window.document.getElementById("tools-view-system");
     const toolsPanel = dom.window.document.getElementById("tools-panel") as HTMLDivElement | null;
+    const workflowToggle = dom.window.document.getElementById("workflow-toggle") as HTMLButtonElement | null;
     const systemToggle = dom.window.document.getElementById("system-toggle") as HTMLButtonElement | null;
 
     expect(workflowView?.hidden).toBe(false);
     expect(systemView?.hidden).toBe(true);
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
+    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(systemToggle?.getAttribute("aria-expanded")).toBe("false");
 
     systemToggle?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
 
     expect(workflowView?.hidden).toBe(true);
     expect(systemView?.hidden).toBe(false);
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(true);
+    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(systemToggle?.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("opens selected item in harness mode without posting open message", async () => {
@@ -614,8 +619,8 @@ describe("webview harness core behaviors", () => {
       header.textContent?.replace(/[▾▸]/g, "").replace(/\s+/g, " ").trim()
     );
 
-    expect(sectionLabels).toContain("Draft1/2");
-    expect(sectionLabels).toContain("Proposed1/2");
+    expect(sectionLabels).toContain("Draft1/1");
+    expect(sectionLabels).toContain("Proposed1/1");
   });
 
   it("sorts board cards by most recently updated when requested", () => {

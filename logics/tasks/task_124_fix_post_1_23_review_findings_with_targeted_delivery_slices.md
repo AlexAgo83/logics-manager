@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 33%
+> Progress: 67%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -40,7 +40,7 @@ stateDiagram-v2
 # Plan
 - [x] 1. Confirm the combined scope, dependencies, and linked acceptance criteria across the three backlog slices.
 - [x] 2. Implement the semantic fixes from `item_272` and validate the processed-item behaviour.
-- [ ] 3. Implement the state and proxy safety fixes from `item_273` and validate the guarded interactions.
+- [x] 3. Implement the state and proxy safety fixes from `item_273` and validate the guarded interactions.
 - [ ] 4. Implement the render coverage from `item_274` and run the relevant automated tests.
 - [ ] CHECKPOINT: leave the current wave commit-ready and update the linked Logics docs before continuing.
 - [ ] CHECKPOINT: if the shared AI runtime is active and healthy, run `python logics/skills/logics.py flow assist commit-all` for the current step, item, or wave commit checkpoint.

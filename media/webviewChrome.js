@@ -71,7 +71,6 @@
             getShouldRecommendCheckEnvironment
           })
         : null;
-    let activeToolsView = "workflow";
 
     function setButtonIcon(button, svgMarkup) {
       if (!button) {
@@ -249,6 +248,13 @@
       }
     }
 
+    function getActiveToolsView() {
+      if (toolsPanelLayout && typeof toolsPanelLayout.getActiveToolsView === "function") {
+        return toolsPanelLayout.getActiveToolsView();
+      }
+      return "workflow";
+    }
+
     function hasNonDefaultSecondaryControls() {
       return (
         getHideCompleted() !== defaultFilterState.hideCompleted ||
@@ -343,8 +349,8 @@
       }
       if (isOpen && viewName && toolsPanelLayout && typeof toolsPanelLayout.setActiveToolsView === "function") {
         toolsPanelLayout.setActiveToolsView(viewName);
-        activeToolsView = viewName;
       }
+      const activeToolsView = getActiveToolsView();
       if (workflowToggle) {
         workflowToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "workflow"));
       }

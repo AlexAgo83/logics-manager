@@ -51,6 +51,36 @@ describe("webview selectors behavior", () => {
     expect(doneCard?.classList.contains("card--done")).toBe(true);
   });
 
+  it("throws when collectLinkedWorkflowItems is missing from the model API", () => {
+    const { dom } = bootstrapWebview();
+    const selectors = dom.window.createCdxLogicsWebviewSelectors({
+      modelApi: {},
+      primaryStageOrder: ["request", "backlog", "task"],
+      companionStageOrder: ["product", "architecture"],
+      compactListQuery: { matches: false },
+      getItems: () => [baseItem],
+      getSelectedId: () => null,
+      getActiveWorkspaceRoot: () => "/workspace/mock",
+      getChangedPaths: () => [],
+      getActiveAgent: () => null,
+      getLastInjectedContext: () => null,
+      getHideCompleted: () => false,
+      getHideProcessedRequests: () => false,
+      getHideSpec: () => false,
+      getShowCompanionDocs: () => true,
+      getHideEmptyColumns: () => false,
+      getSearchQuery: () => "",
+      getGroupMode: () => "stage",
+      getSortMode: () => "default",
+      getAttentionOnly: () => false,
+      getUiState: () => ({ viewMode: "board" })
+    });
+
+    expect(() => selectors.collectLinkedWorkflowItems(baseItem as never)).toThrow(
+      "collectLinkedWorkflowItems is not available on modelApi."
+    );
+  });
+
   it("renders a CSS custom property for the progress bar on active cards", () => {
     const { dom } = bootstrapWebview();
 

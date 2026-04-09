@@ -62,6 +62,10 @@
       applyActiveToolsView();
     }
 
+    function getActiveToolsView() {
+      return activeToolsView;
+    }
+
     function formatActivityUpdated(updatedAt) {
       const timestamp = Date.parse(updatedAt || "");
       if (!Number.isFinite(timestamp)) {
@@ -146,6 +150,7 @@
 
     return {
       formatActivityUpdated,
+      getActiveToolsView,
       renderToolsPanelStructure,
       setActiveToolsView
     };

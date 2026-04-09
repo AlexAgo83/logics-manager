@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 91%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -33,10 +33,10 @@ flowchart TD
 - AC4: The interaction is accessible from keyboard and has a clear label or tooltip.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

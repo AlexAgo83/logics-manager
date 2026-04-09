@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 94%
-> Confidence: 88%
+> Confidence: 89%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
@@ -39,11 +39,11 @@ flowchart TD
 - AC5: The preview visually matches the existing Logics app theme and remains readable in the current dark UI.
 
 # Definition of Ready (DoR)
-- [ ] The preview surface scope is explicit, including what should and should not be rendered.
-- [ ] Navigation behavior for references, open, and read is explicit.
-- [ ] The title formatting rule is explicit.
-- [ ] The implementation surface and likely integration points are identified.
-- [ ] The main risks are listed, including the migration away from VS Code markdown preview.
+- [x] The preview surface scope is explicit, including what should and should not be rendered.
+- [x] Navigation behavior for references, open, and read is explicit.
+- [x] The title formatting rule is explicit.
+- [x] The implementation surface and likely integration points are identified.
+- [x] The main risks are listed, including the migration away from VS Code markdown preview.
 
 # Companion docs
 - Product brief(s): `prod_006_custom_logics_markdown_preview_experience`

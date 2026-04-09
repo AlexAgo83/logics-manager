@@ -75,7 +75,7 @@ export function buildReadPreviewHtml(params: {
     .read-preview {
       max-width: 1120px;
       margin: 0 auto;
-      padding: 24px 24px 48px;
+      padding: 24px 24px 32px;
     }
     .read-preview__header {
       display: grid;
@@ -149,26 +149,26 @@ export function buildReadPreviewHtml(params: {
       color: var(--muted);
       font-weight: 600;
     }
-    .read-preview__related {
-      padding: 18px 20px;
+    .read-preview__footer {
+      margin-top: 18px;
+      padding: 14px 16px;
       border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.74);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
-      margin-bottom: 18px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.66);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
     }
     .read-preview__related-title {
       margin: 0 0 12px;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
     .read-preview__related-group {
       display: grid;
-      gap: 12px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 12px;
     }
     .read-preview__related-group:first-of-type {
       margin-top: 0;
@@ -176,23 +176,23 @@ export function buildReadPreviewHtml(params: {
     .read-preview__related-group-title {
       margin: 0;
       color: var(--ink);
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
     }
     .read-preview__link-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
     .read-preview__link {
       appearance: none;
       border: 1px solid var(--border-strong);
       border-radius: 999px;
-      padding: 8px 12px;
+      padding: 7px 10px;
       background: rgba(30, 41, 59, 0.8);
       color: var(--ink);
       font: inherit;
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.25;
       cursor: pointer;
       transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
@@ -207,12 +207,12 @@ export function buildReadPreviewHtml(params: {
     .read-preview__link-prefix {
       color: var(--accent);
       font-weight: 700;
-      margin-right: 6px;
+      margin-right: 4px;
     }
     .read-preview__link-muted {
       color: var(--muted);
-      margin-left: 6px;
-      font-size: 12px;
+      margin-left: 4px;
+      font-size: 11px;
     }
     .markdown-preview {
       padding: 26px 28px;
@@ -301,8 +301,8 @@ export function buildReadPreviewHtml(params: {
       </div>
       ${summaryChips ? `<div class="read-preview__meta">${summaryChips}</div>` : ""}
     </header>
-    ${relatedSections ? `<section class="read-preview__related"><p class="read-preview__related-title">Related docs</p>${relatedSections}</section>` : ""}
     <main class="markdown-preview">${renderedMarkdown}</main>
+    ${relatedSections ? `<footer class="read-preview__footer"><p class="read-preview__related-title">Related docs</p>${relatedSections}</footer>` : ""}
   </div>
   ${mermaidScriptUri ? `<script src="${mermaidScriptUri}"></script>` : ""}
   <script nonce="${nonce}">

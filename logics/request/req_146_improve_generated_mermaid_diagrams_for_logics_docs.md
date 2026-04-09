@@ -1,7 +1,7 @@
 ## req_146_improve_generated_mermaid_diagrams_for_logics_docs - Improve generated Mermaid diagrams for Logics docs
 > From version: 1.23.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 91%
 > Confidence: 88%
 > Complexity: Medium
@@ -112,3 +112,6 @@ flowchart TD
 
 # Backlog
 - `item_269_improve_mermaid_orientation_and_diagram_variety`
+
+# Task
+- `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`

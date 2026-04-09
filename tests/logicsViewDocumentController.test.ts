@@ -180,4 +180,39 @@ describe("LogicsViewDocumentController", () => {
     expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Logics: Check Environment");
     expect(mocks.showErrorMessage.mock.calls[0][0]).toContain("Read-only Logics browsing remains available.");
   });
+
+  it("resolves preview links back to the native read preview", async () => {
+    const controller = new LogicsViewDocumentController({
+      context: { extensionPath: root } as never,
+      agentsOutput: { show: vi.fn() } as never,
+      getItems: () => [],
+      getAgentRegistry: () => ({ issues: [] }) as never,
+      getActionRoot: async () => root,
+      maybeOfferBootstrap: vi.fn(),
+      refresh: vi.fn(),
+      refreshAgents: vi.fn(),
+      findRequestAuthoringAgent: vi.fn(),
+      setActiveAgent: vi.fn(),
+      injectPromptIntoCodexChat: vi.fn(),
+      getReadPreviewPanel: vi.fn()
+    });
+
+    Object.defineProperty(controller, "items", {
+      configurable: true,
+      value: [
+        {
+          id: "task_001_followup",
+          stage: "task",
+          title: "Follow-up task",
+          relPath: "logics/tasks/task_001_followup.md",
+          path: path.join(root, "logics/tasks/task_001_followup.md")
+        }
+      ]
+    });
+
+    const readSpy = vi.spyOn(controller, "readItem").mockResolvedValue();
+    await controller.openLinkedItem("logics/tasks/task_001_followup.md");
+
+    expect(readSpy).toHaveBeenCalledWith("task_001_followup");
+  });
 });

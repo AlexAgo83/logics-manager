@@ -242,14 +242,21 @@
   }
 
   function isProcessedWorkflowStatus(value) {
-    return normalizeStatus(value) === "done";
+    const normalized = normalizeStatus(value);
+    return normalized === "ready" || normalized === "done" || normalized === "complete" || normalized === "completed" || normalized === "archived";
   }
 
   function isProcessedWorkflowItem(item) {
-    if (!item || item.stage !== "request") {
+    if (!item) {
       return false;
     }
-    return isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "");
+    if (item.stage !== "backlog" && item.stage !== "task") {
+      return false;
+    }
+    if (isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "")) {
+      return true;
+    }
+    return parseProgress(item && item.indicators ? item.indicators.Progress : "") === 100;
   }
 
   function workflowCandidateKeys(candidate) {
@@ -304,8 +311,13 @@
   }
 
   function isRequestProcessed(item, allItems) {
-    void allItems;
-    return isProcessedWorkflowItem(item);
+    if (!item || item.stage !== "request") {
+      return false;
+    }
+    if (!isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "")) {
+      return false;
+    }
+    return collectLinkedWorkflowItems(item, allItems).some((candidate) => isProcessedWorkflowItem(candidate));
   }
 
   function getWorkflowStageRank(stage) {

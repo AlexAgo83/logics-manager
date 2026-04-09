@@ -508,22 +508,106 @@ function normalizeStatus(value: string | undefined): string {
 }
 
 function isProcessedWorkflowStatus(value: string | undefined): boolean {
-  return normalizeStatus(value) === "done";
+  const normalized = normalizeStatus(value);
+  return (
+    normalized === "ready" ||
+    normalized === "done" ||
+    normalized === "complete" ||
+    normalized === "completed" ||
+    normalized === "archived"
+  );
 }
 
-function isProcessedWorkflowItem(item: LogicsItem): boolean {
-  if (item.stage !== "request") {
+function parseProgress(value: string | undefined): number | null {
+  const match = String(value || "").match(/(\d+(?:\.\d+)?)/);
+  if (!match) {
+    return null;
+  }
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isProcessedWorkflowItem(item: LogicsItem | undefined): boolean {
+  if (!item) {
     return false;
   }
-  return isProcessedWorkflowStatus(item.indicators?.Status);
+  const stage = String(item.stage || "").trim();
+  if (stage !== "backlog" && stage !== "task") {
+    return false;
+  }
+  if (isProcessedWorkflowStatus(item.indicators?.Status)) {
+    return true;
+  }
+  const progress = parseProgress(item.indicators?.Progress);
+  return progress === 100;
+}
+
+function normalizeIndexedReference(value: string): string {
+  return String(value || "")
+    .trim()
+    .replace(/\\/g, "/");
+}
+
+function normalizeReferencePath(value: string): string {
+  const normalized = normalizeIndexedReference(value);
+  if (!normalized) {
+    return "";
+  }
+  return normalized.split("/").pop()?.replace(/\.md$/i, "") || normalized;
+}
+
+function collectLinkedWorkflowItems(item: LogicsItem, allItems: LogicsItem[] = []): LogicsItem[] {
+  if (!item || item.stage !== "request") {
+    return [];
+  }
+
+  const linkedValues = new Set<string>();
+  for (const reference of item.references || []) {
+    if (reference && typeof reference.path === "string") {
+      linkedValues.add(normalizeIndexedReference(reference.path));
+      linkedValues.add(normalizeReferencePath(reference.path));
+    }
+  }
+  for (const usage of item.usedBy || []) {
+    if (usage && typeof usage.relPath === "string") {
+      linkedValues.add(normalizeIndexedReference(usage.relPath));
+      linkedValues.add(normalizeReferencePath(usage.relPath));
+    }
+    if (usage && typeof usage.id === "string") {
+      linkedValues.add(normalizeIndexedReference(usage.id));
+    }
+  }
+
+  const linkedItems = new Map<string, LogicsItem>();
+  for (const candidate of allItems || []) {
+    if (!candidate) {
+      continue;
+    }
+    const keys = new Set<string>();
+    if (candidate.relPath) {
+      keys.add(normalizeIndexedReference(candidate.relPath));
+      keys.add(normalizeReferencePath(candidate.relPath));
+    }
+    if (candidate.id) {
+      keys.add(candidate.id);
+    }
+    for (const key of keys) {
+      if (key && !linkedItems.has(key)) {
+        linkedItems.set(key, candidate);
+      }
+    }
+  }
+
+  return Array.from(linkedValues)
+    .map((rawValue) => linkedItems.get(rawValue))
+    .filter((candidate, index, collection) => Boolean(candidate) && collection.indexOf(candidate) === index) as LogicsItem[];
 }
 
 export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {
   if (item.stage !== "request") {
     return false;
   }
-  void allItems;
-  return isProcessedWorkflowItem(item);
+  return collectLinkedWorkflowItems(item, allItems).some((candidate) => isProcessedWorkflowItem(candidate));
 }
 
 export function isRequestUsed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {

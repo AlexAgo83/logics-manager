@@ -637,10 +637,33 @@
       preview.hidden = true;
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
+      if (Array.isArray(item?.references) && item.references.length > 0) {
+        preview.appendChild(createPreviewRow("References", summarizeLinkedPreview(item.references, "linked doc")));
+      }
+      if (Array.isArray(item?.usedBy) && item.usedBy.length > 0) {
+        preview.appendChild(createPreviewRow("Used by", summarizeLinkedPreview(item.usedBy, "linked item")));
+      }
 
       const linkage = createPrimaryFlowSummary(item);
       if (linkage) {
         preview.appendChild(createPreviewRow("Flow", linkage));
+      }
+      return preview;
+    }
+
+    function summarizeLinkedPreview(entries, singularLabel) {
+      if (!Array.isArray(entries) || entries.length === 0) {
+        return "";
+      }
+      if (entries.length === 1) {
+        const entry = entries[0] || {};
+        return entry.title || entry.relPath || entry.id || `1 ${singularLabel}`;
+      }
+      const first = entries[0] || {};
+      const second = entries[1] || {};
+      const preview = [first.title || first.relPath || first.id, second.title || second.relPath || second.id].filter(Boolean).join(", ");
+      if (entries.length > 2) {
+        return `${preview}, +${entries.length - 2} more`;
       }
       return preview;
     }

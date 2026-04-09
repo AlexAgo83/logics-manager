@@ -2,8 +2,8 @@
 > From version: 1.23.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 100%
 > Complexity: High
 > Theme: Board preview, Mermaid generation, and token efficiency
@@ -65,6 +65,9 @@ flowchart TD
 - AC2 -> Wave 2. Proof: `item_268_trim_duplicated_title_and_instruction_from_board_preview` and `item_270_improve_task_preview_markdown_parsing` land the board preview rendering cleanup.
 - AC3 -> Wave 3. Proof: `item_269_improve_mermaid_orientation_and_diagram_variety` lands the Mermaid generation refinement.
 - AC4 -> all waves. Proof: the task requires each completed wave to end commit-ready and validated before moving on.
+- AC5 -> Waves 1-3. Proof: the task stays bounded to the four documented delivery waves and excludes unrelated product expansion, new AI backends, and broad workflow redesign.
+- AC6 -> Waves 1-3 and final validation. Proof: each wave is required to finish in a commit-ready, validated state before the task can close.
+- AC7 -> Wave 3 validation. Proof: the Mermaid generation wave is validated with the generator and signature-related tests called out in the validation plan.
 
 # Decision framing
 - Product framing: Not needed

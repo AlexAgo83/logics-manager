@@ -2,8 +2,8 @@
 > From version: 1.23.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 100%
 > Complexity: High
 > Theme: Token performance and repeated assistant workflows
@@ -57,7 +57,7 @@ flowchart LR
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map`
 - Request: `req_144_improve_rtk_and_logics_kit_token_performance`
 - Primary task(s): `task_123_orchestration_delivery_for_req_144_to_req_147_board_preview_and_doc_quality_improvements`
 

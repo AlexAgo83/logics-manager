@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   showErrorMessage: vi.fn(),
   showInformationMessage: vi.fn(),
+  showWarningMessage: vi.fn(),
   showInputBox: vi.fn(),
   getCreateConfig: vi.fn(),
   getFlowManagerScriptPath: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock("vscode", () => ({
   window: {
     showErrorMessage: mocks.showErrorMessage,
     showInformationMessage: mocks.showInformationMessage,
+    showWarningMessage: mocks.showWarningMessage,
     showInputBox: mocks.showInputBox
   }
 }));
@@ -56,6 +58,7 @@ describe("LogicsViewDocumentController", () => {
 
     mocks.showErrorMessage.mockReset();
     mocks.showInformationMessage.mockReset();
+    mocks.showWarningMessage.mockReset();
     mocks.showInputBox.mockReset();
     mocks.getCreateConfig.mockReset();
     mocks.getFlowManagerScriptPath.mockReset();
@@ -214,5 +217,30 @@ describe("LogicsViewDocumentController", () => {
     await controller.openLinkedItem("logics/tasks/task_001_followup.md");
 
     expect(readSpy).toHaveBeenCalledWith("task_001_followup");
+  });
+
+  it("sanitizes unresolved linked references before warning the user", async () => {
+    const controller = new LogicsViewDocumentController({
+      context: { extensionPath: root } as never,
+      agentsOutput: { show: vi.fn() } as never,
+      getItems: () => [],
+      getAgentRegistry: () => ({ issues: [] }) as never,
+      getActionRoot: async () => root,
+      maybeOfferBootstrap: vi.fn(),
+      refresh: vi.fn(),
+      refreshAgents: vi.fn(),
+      findRequestAuthoringAgent: vi.fn(),
+      setActiveAgent: vi.fn(),
+      injectPromptIntoCodexChat: vi.fn(),
+      getReadPreviewPanel: vi.fn()
+    });
+
+    await controller.openLinkedItem("logics/tasks/task_001_followup.md\n<script>alert(1)</script>");
+
+    expect(mocks.showWarningMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showWarningMessage.mock.calls[0][0]).not.toContain("\n");
+    expect(mocks.showWarningMessage.mock.calls[0][0]).toContain(
+      "Could not resolve linked Logics document: logics/tasks/task_001_followup.md <script>alert(1)</script>"
+    );
   });
 });

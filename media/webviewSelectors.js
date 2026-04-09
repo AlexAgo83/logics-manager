@@ -72,9 +72,10 @@
     }
 
     function collectLinkedWorkflowItems(item) {
-      return typeof modelApi.collectLinkedWorkflowItems === "function"
-        ? modelApi.collectLinkedWorkflowItems(item, getItems())
-        : [];
+      if (typeof modelApi.collectLinkedWorkflowItems !== "function") {
+        throw new Error("collectLinkedWorkflowItems is not available on modelApi.");
+      }
+      return modelApi.collectLinkedWorkflowItems(item, getItems());
     }
 
     function getAttentionReasons(item) {

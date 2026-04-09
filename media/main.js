@@ -990,6 +990,10 @@
     interactions.attach();
   }
 
+  if (typeof setToolsPanelOpen === "function") {
+    setToolsPanelOpen(toolsPanelView, toolsPanelOpen);
+  }
+
   if (layoutController && typeof layoutController.updateLayoutMode === "function") {
     layoutController.updateLayoutMode();
   }

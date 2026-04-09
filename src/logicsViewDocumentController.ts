@@ -315,9 +315,12 @@ export class LogicsViewDocumentController {
   }
 
   async openLinkedItem(reference: string): Promise<void> {
+    const root = await this.options.getActionRoot();
     const item = this.resolveManagedItemForCompanionDoc(reference);
     if (!item) {
-      void vscode.window.showWarningMessage(`Could not resolve linked Logics document: ${reference}`);
+      const normalizedReference = root ? normalizeRelationPath(reference, this.items, root) : null;
+      const warningReference = this.formatLinkedReferenceForWarning(normalizedReference ?? reference);
+      void vscode.window.showWarningMessage(`Could not resolve linked Logics document: ${warningReference}`);
       return;
     }
     await this.readItem(item.id);
@@ -590,6 +593,13 @@ export class LogicsViewDocumentController {
     }
     const fileStem = path.basename(normalized, ".md");
     return this.items.find((item) => item.relPath === normalized || item.id === normalized || item.id === fileStem);
+  }
+
+  private formatLinkedReferenceForWarning(reference: string): string {
+    return String(reference || "")
+      .replace(/[\u0000-\u001f\u007f]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
   private async addLinksToSection(

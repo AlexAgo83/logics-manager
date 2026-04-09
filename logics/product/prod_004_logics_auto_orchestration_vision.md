@@ -1,16 +1,16 @@
 ## prod_004_logics_auto_orchestration_vision - Logics auto orchestration vision
-> Date: 2026-04-09
+> Date: 2026-04-09 (refreshed)
 > Status: Proposed
-> Related request: `req_119_three_step_onboarding_for_need_framing_and_execution`
-> Related backlog: `item_208_define_the_three_step_onboarding_model_and_operator_copy`, `item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment`
-> Related task: `task_109_orchestration_delivery_for_req_119_three_step_onboarding`
+> Related request: `req_119_three_step_onboarding_for_need_framing_and_execution` (refreshed)
+> Related backlog: `item_208_define_the_three_step_onboarding_model_and_operator_copy`, `item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment` (refreshed)
+> Related task: `task_109_orchestration_delivery_for_req_119_three_step_onboarding` (refreshed)
 > Related architecture: (none yet)
-> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc. (refreshed)
 
 # Overview
 Logics should eventually move beyond a workflow that users must manually pilot step by step.
 The product direction is to let users start from a simple expressed need while the system progressively absorbs more of the framing, preparation, and delivery orchestration.
-The immediate product slice remains a one-shot onboarding webview that explains the three-step model, while auto orchestration stays as a bounded follow-on vision rather than current delivery scope.
+The immediate product slice remains a one-shot onboarding webview that explains the four-step model, while auto orchestration stays as a bounded follow-on vision rather than current delivery scope.
 The expected outcome is a future workflow that feels more guided and less protocol-heavy without sacrificing control, traceability, or operator trust.
 
 ```mermaid
@@ -25,7 +25,7 @@ flowchart LR
 ```
 
 # Product problem
-- The current workflow is powerful, but it still expects the operator to understand the sequence of request creation, refinement, backlog generation, orchestration, and execution.
+- The current workflow is powerful, but it still expects the operator to understand the sequence of request creation, refinement, backlog generation, orchestration-task planning, and execution.
 - Existing surfaces already expose many actions, but they do not yet give a sufficiently simple mental model for what the system does for the user versus what the user must still drive manually.
 - A direct jump to full automation would risk overpromising behavior before the product has a stable entry model, clear guardrails, and a credible trust model.
 
@@ -45,12 +45,12 @@ flowchart LR
 - Replacing the canonical request, backlog, task workflow model with a hidden black-box system.
 
 # Scope and guardrails
-- In: product framing for future auto orchestration, relationship to the three-step onboarding model, autonomy guardrails, and expected user value.
+- In: product framing for future auto orchestration, relationship to the four-step onboarding model, autonomy guardrails, and expected user value.
 - Out: immediate implementation commitments for end-to-end execution automation, silent high-risk actions, or rigid wave-to-commit rules.
 
 # Key product decisions
-- Treat Need, Framing, and Execution as the user-facing mental model, even if preparation remains an internal system phase.
-- Deliver the three-step onboarding first as a one-shot webview so the entry model is stable before increasing autonomy deeper in the workflow.
+- Treat Need, Framing, Orchestration Tasks, and Execution as the user-facing mental model, even if preparation remains an internal system phase.
+- Deliver the four-step onboarding first as a one-shot webview so the entry model is stable before increasing autonomy deeper in the workflow.
 - Use the onboarding as a first-run or post-update explanation surface, not as a permanent operational workspace.
 - Use this brief as the product frame for later exploration of autonomy levels, diagnostic behavior, and progressive orchestration.
 - Prefer assisted orchestration with visible checkpoints over opaque full automation that hides decision points from the operator.

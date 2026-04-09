@@ -1,10 +1,10 @@
 ## item_272_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics - Fix isProcessedWorkflowStatus divergence parseProgress clamp and totalCount semantics
-> From version: 1.23.2
+> From version: 1.23.2 (refreshed)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 90%
-> Progress: 0%
+> Understanding: 96% (refreshed)
+> Confidence: 91% (refreshed)
+> Progress: 0% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -16,7 +16,7 @@
 
 # Scope
 - In: align `isProcessedWorkflowStatus` between TS and JS; restore clamping in `parseProgress`; fix `totalCount` to reflect the column item count.
-- Out: toolbar state, proxy behavior, test coverage (handled in items 273 and 274).
+- Out: toolbar state, proxy behavior, test coverage (handled in the merged orchestration task).
 
 ```mermaid
 %% logics-kind: backlog
@@ -50,7 +50,7 @@ flowchart TD
 - Product brief(s): (none)
 - Architecture decision(s): (none)
 - Request: `logics/request/req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage.md`
-- Primary task(s): `task_124_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics`
+- Primary task(s): `task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices`
 
 # Priority
 - Impact: High — silent correctness regressions on processed-item detection

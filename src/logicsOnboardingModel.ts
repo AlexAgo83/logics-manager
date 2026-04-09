@@ -1,8 +1,8 @@
 /**
- * Three-step onboarding model for Logics.
+ * Four-step onboarding model for Logics.
  *
- * Visible surface: Need → Framing → Execution
- * Internal mapping: request → backlog → task
+ * Visible surface: Need → Framing → Orchestration Tasks → Execution
+ * Internal mapping: request → backlog → task planning → task
  *
  * This module owns the naming, copy, and highlighted actions for the one-shot
  * onboarding screen. It does NOT own lifecycle or rendering — those live in
@@ -10,7 +10,7 @@
  */
 
 export type OnboardingStage = {
-  id: "need" | "framing" | "execution";
+  id: "need" | "framing" | "orchestration" | "execution";
   label: string;
   tagline: string;
   description: string;
@@ -80,6 +80,20 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
     workflowMapping: "Maps to a Logics backlog document in logics/backlog/."
   },
   {
+    id: "orchestration",
+    label: "Orchestration Tasks",
+    tagline: "Create the task plan before execution",
+    description:
+      "Before a task is executed, turn the backlog item into orchestration tasks. " +
+      "Break the work into clear tasks, preserve dependencies, and keep the delivery sequence explicit so execution stays focused.",
+    promptExamples: [
+      "Create orchestration tasks from this backlog item and split the work into the smallest useful delivery slices.",
+      "List the tasks needed to execute this backlog item in order, with brief context for each one."
+    ],
+    primaryActions: [],
+    workflowMapping: "Maps to orchestration task planning in logics/tasks/."
+  },
+  {
     id: "execution",
     label: "Execution",
     tagline: "Deliver with context",
@@ -107,11 +121,12 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
   }
 ];
 
-export const ONBOARDING_HEADLINE = "Logics in three steps";
+export const ONBOARDING_HEADLINE = "Logics in four steps";
 
 export const ONBOARDING_INTRO =
   "Logics is a lightweight delivery workflow that keeps your project context in plain Markdown — " +
-  "readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.";
+  "readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time. " +
+  "The flow moves from need to framing, orchestration, and execution.";
 
 export const ONBOARDING_FOOTER =
   "This screen appears once at first use and after significant updates. " +

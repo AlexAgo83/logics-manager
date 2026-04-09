@@ -1,10 +1,10 @@
 ## item_273_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety - Fix activeToolsView dual state collectLinkedWorkflowItems proxy and openLinkedItem safety
-> From version: 1.23.2
+> From version: 1.23.2 (refreshed)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 91% (refreshed)
+> Confidence: 86% (refreshed)
+> Progress: 0% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -16,7 +16,7 @@
 
 # Scope
 - In: unify `activeToolsView` into a single source of truth; guard the `collectLinkedWorkflowItems` proxy; sanitize `reference` in `openLinkedItem`.
-- Out: data semantics (item_272), test coverage (item_274).
+- Out: data semantics and test coverage are handled in the merged orchestration task.
 
 ```mermaid
 %% logics-kind: backlog
@@ -50,7 +50,7 @@ flowchart TD
 - Product brief(s): (none)
 - Architecture decision(s): (none)
 - Request: `logics/request/req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage.md`
-- Primary task(s): `task_125_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety`
+- Primary task(s): `task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices`
 
 # Priority
 - Impact: Medium — toolbar state divergence is a latent UX bug; proxy silent failure hides linked-doc misses

@@ -1,10 +1,10 @@
 ## item_274_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases - Add missing render tests for CorpusInsightsHtml untested functions and badge edge cases
-> From version: 1.23.2
+> From version: 1.23.2 (refreshed)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 92%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 93% (refreshed)
+> Confidence: 89% (refreshed)
+> Progress: 0% (refreshed)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -16,7 +16,7 @@
 
 # Scope
 - In: snapshot/render tests for `logicsCorpusInsightsHtml.ts`; direct unit tests for the 5 flagged functions; edge-case test for `createProgressComplexityBadge` with unknown stage.
-- Out: fixing bugs (item_272 and 273 cover those); new features.
+- Out: fixing bugs and new features are handled in the merged orchestration task.
 
 ```mermaid
 %% logics-kind: backlog
@@ -52,7 +52,7 @@ flowchart TD
 - Product brief(s): (none)
 - Architecture decision(s): (none)
 - Request: `logics/request/req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage.md`
-- Primary task(s): `task_126_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases`
+- Primary task(s): `task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices`
 
 # Priority
 - Impact: Medium — untested paths accumulate silent regressions over time

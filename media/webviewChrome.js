@@ -4,9 +4,8 @@
       activityPanel,
       activityToggle,
       attentionToggle,
+      assistToggle,
       bootstrapLogicsButton,
-      launchCodexOverlayButton,
-      launchClaudeButton,
       repairLogicsKitButton,
       assistPublishReleaseButton,
       filterPanel,
@@ -28,7 +27,8 @@
       showCompanionDocsToggle,
       sortBySelect,
       toolsPanel,
-      toolsToggle,
+      workflowToggle,
+      systemToggle,
       viewModeToggleButton,
       defaultFilterState,
       canPromote,
@@ -37,10 +37,6 @@
       getCanBootstrapLogics,
       getBootstrapLogicsTitle,
       getCanResetProjectRoot,
-      getCanLaunchCodex,
-      getLaunchCodexTitle,
-      getCanLaunchClaude,
-      getLaunchClaudeTitle,
       getCanRepairLogicsKit,
       getRepairLogicsKitTitle,
       getCanPublishRelease,
@@ -75,6 +71,7 @@
             getShouldRecommendCheckEnvironment
           })
         : null;
+    let activeToolsView = "workflow";
 
     function setButtonIcon(button, svgMarkup) {
       if (!button) {
@@ -239,14 +236,6 @@
         bootstrapLogicsButton.disabled = !getCanBootstrapLogics();
         bootstrapLogicsButton.title = getBootstrapLogicsTitle();
       }
-      if (launchCodexOverlayButton) {
-        launchCodexOverlayButton.disabled = !getCanLaunchCodex();
-        launchCodexOverlayButton.title = getLaunchCodexTitle();
-      }
-      if (launchClaudeButton) {
-        launchClaudeButton.disabled = !getCanLaunchClaude();
-        launchClaudeButton.title = getLaunchClaudeTitle();
-      }
       if (repairLogicsKitButton) {
         repairLogicsKitButton.disabled = !getCanRepairLogicsKit();
         repairLogicsKitButton.title = getRepairLogicsKitTitle();
@@ -347,13 +336,23 @@
       }
     }
 
-    function setToolsPanelOpen(isOpen) {
+    function setToolsPanelOpen(viewName, isOpen) {
       if (toolsPanel) {
         toolsPanel.classList.toggle("tools-panel--open", isOpen);
         toolsPanel.setAttribute("aria-hidden", String(!isOpen));
       }
-      if (toolsToggle) {
-        toolsToggle.setAttribute("aria-expanded", String(isOpen));
+      if (isOpen && viewName && toolsPanelLayout && typeof toolsPanelLayout.setActiveToolsView === "function") {
+        toolsPanelLayout.setActiveToolsView(viewName);
+        activeToolsView = viewName;
+      }
+      if (workflowToggle) {
+        workflowToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "workflow"));
+      }
+      if (assistToggle) {
+        assistToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "assist"));
+      }
+      if (systemToggle) {
+        systemToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "system"));
       }
     }
 

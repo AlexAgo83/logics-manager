@@ -200,22 +200,15 @@ describe("webview hydration and data message handling", () => {
     expect(postedMessages.some((m) => m.type === "ready")).toBe(true);
   });
 
-  it("posts a refresh message when the refresh button is clicked", () => {
-    const { dom, postedMessages } = bootstrapWebview();
+  it("does not render the legacy refresh button anymore", () => {
+    const { dom } = bootstrapWebview();
 
     pushData(dom, {
       root: "/workspace/mock",
       items: [baseItem]
     });
 
-    // Open tools panel to access refresh
-    const toolsToggle = dom.window.document.getElementById("tools-toggle");
-    toolsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
-    const refreshButton = dom.window.document.querySelector('[data-action="refresh"]');
-    refreshButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
-    expect(postedMessages.some((m) => m.type === "refresh")).toBe(true);
+    expect(dom.window.document.querySelector('[data-action="refresh"]')).toBeNull();
   });
 
   it("handles empty payload gracefully without crashing", () => {

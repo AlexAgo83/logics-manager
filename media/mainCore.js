@@ -25,9 +25,10 @@
       filterPanel,
       toolsPanel,
       filterToggle,
-      toolsToggle,
+      workflowToggle,
+      assistToggle,
+      systemToggle,
       viewModeToggleButton,
-      refreshButton,
       projectGithubUrl,
       stackedQuery,
       compactListQuery,
@@ -292,10 +293,13 @@
       persistState();
     }
 
-    function setToolsPanelOpen(isOpen) {
+    function setToolsPanelOpen(viewName, isOpen) {
       state.toolsPanelOpen = isOpen;
+      if (isOpen && typeof viewName === "string" && viewName) {
+        state.toolsPanelView = viewName;
+      }
       if (typeof applyToolsPanelOpen === "function") {
-        applyToolsPanelOpen(isOpen);
+        applyToolsPanelOpen(viewName, isOpen);
       }
       if (toolsPanel) {
         toolsPanel.hidden = !isOpen;
@@ -464,10 +468,12 @@
     }
 
     function handleDocumentClick(event) {
-      if (state.toolsPanelOpen && toolsPanel && toolsToggle) {
+      if (state.toolsPanelOpen && toolsPanel) {
         const target = event.target;
-        if (!toolsPanel.contains(target) && !toolsToggle.contains(target)) {
-          setToolsPanelOpen(false);
+        const toolbarButtons = [workflowToggle, assistToggle, systemToggle].filter(Boolean);
+        const clickedToolbarButton = toolbarButtons.some((button) => button && button.contains(target));
+        if (!toolsPanel.contains(target) && !clickedToolbarButton) {
+          setToolsPanelOpen(undefined, false);
         }
       }
       if (!state.activeColumnMenu) {
@@ -488,7 +494,7 @@
         setFilterPanelOpen(false);
       }
       if (event.key === "Escape" && state.toolsPanelOpen) {
-        setToolsPanelOpen(false);
+        setToolsPanelOpen(undefined, false);
       }
       if (event.key === "Escape" && state.activeColumnMenu) {
         closeColumnMenu();

@@ -5,6 +5,7 @@
       attentionToggle,
       headerLogicsInsightsButton,
       board,
+      assistToggle,
       assistCommitAllButton,
       assistNextStepButton,
       assistTriageButton,
@@ -18,7 +19,6 @@
       bootstrapLogicsButton,
       checkHybridRuntimeButton,
       checkEnvironmentButton,
-      launchClaudeButton,
       openHybridInsightsButton,
       openLogicsInsightsButton,
       openOnboardingButton,
@@ -30,7 +30,6 @@
       filterPanel,
       filterResetButton,
       filterToggle,
-      fixDocsButton,
       groupBySelect,
       helpBannerDismiss,
       hideCompleteToggle,
@@ -38,7 +37,6 @@
       hideProcessedRequestsToggle,
       hideSpecToggle,
       layoutController,
-      launchCodexOverlayButton,
       repairLogicsKitButton,
       mainPane,
       markDoneButton,
@@ -66,15 +64,12 @@
       onAssistValidationChecklist,
       onAssistDocConsistency,
       onCreateCompanionDoc,
-      onLaunchCodexOverlay,
-      onLaunchClaude,
       onDetailsScroll,
       onDetailsToggle,
       onDocumentClick,
       onDocumentKeydown,
       onFilterPanelToggle,
       onFilterReset,
-      onFixDocs,
       onGroupChange,
       onHelpDismiss,
       onHideCompleteChange,
@@ -86,7 +81,6 @@
       onOpenSelectedItem,
       onPromoteSelectedItem,
       onReadSelectedItem,
-      onRefresh,
       onResetProjectRoot,
       onSearchInput,
       onSelectAgent,
@@ -103,7 +97,6 @@
       openButton,
       promoteButton,
       readButton,
-      refreshButton,
       resetProjectRootButton,
       searchInput,
       selectAgentButton,
@@ -113,7 +106,8 @@
       splitter,
       stackedQuery,
       toolsPanel,
-      toolsToggle,
+      workflowToggle,
+      systemToggle,
       updateLogicsKitButton,
       viewModeToggleButton,
       aboutButton
@@ -133,9 +127,6 @@
     }
 
     function attach() {
-      if (refreshButton) {
-        refreshButton.addEventListener("click", () => onRefresh());
-      }
       if (headerLogicsInsightsButton) {
         headerLogicsInsightsButton.addEventListener("click", () => onOpenLogicsInsights());
       }
@@ -199,12 +190,6 @@
       if (newRequestToolButton) {
         newRequestToolButton.addEventListener("click", () => onNewRequest());
       }
-      if (launchCodexOverlayButton) {
-        launchCodexOverlayButton.addEventListener("click", () => onLaunchCodexOverlay());
-      }
-      if (launchClaudeButton) {
-        launchClaudeButton.addEventListener("click", () => onLaunchClaude());
-      }
       if (createCompanionDocToolButton) {
         createCompanionDocToolButton.addEventListener("click", () => onCreateCompanionDoc("create-companion-doc"));
       }
@@ -217,17 +202,20 @@
       if (resetProjectRootButton) {
         resetProjectRootButton.addEventListener("click", () => onResetProjectRoot());
       }
-      if (fixDocsButton) {
-        fixDocsButton.addEventListener("click", () => onFixDocs());
-      }
       if (aboutButton) {
         aboutButton.addEventListener("click", () => onAbout());
       }
       if (filterToggle) {
         filterToggle.addEventListener("click", (event) => onFilterPanelToggle(event));
       }
-      if (toolsToggle) {
-        toolsToggle.addEventListener("click", (event) => onToolsPanelToggle(event));
+      if (workflowToggle) {
+        workflowToggle.addEventListener("click", (event) => onToolsPanelToggle("workflow", event));
+      }
+      if (assistToggle) {
+        assistToggle.addEventListener("click", (event) => onToolsPanelToggle("assist", event));
+      }
+      if (systemToggle) {
+        systemToggle.addEventListener("click", (event) => onToolsPanelToggle("system", event));
       }
       if (hideCompleteToggle) {
         hideCompleteToggle.addEventListener("change", (event) => onHideCompleteChange(event));
@@ -323,15 +311,14 @@
       window.addEventListener("resize", () => onWindowResize());
 
       setControlDescription(filterToggle, "Show view controls");
-      setControlDescription(toolsToggle, "Tools");
+      setControlDescription(workflowToggle, "Open workflow menu");
+      setControlDescription(assistToggle, "Open assist menu");
+      setControlDescription(systemToggle, "Open system menu");
       setControlDescription(viewModeToggleButton, "Switch display mode");
-      setControlDescription(refreshButton, "Refresh");
       setControlDescription(selectAgentButton, "Select active agent");
       setControlDescription(newRequestToolButton, "Create a new request document");
       setControlDescription(bootstrapLogicsButton, "Bootstrap Logics");
       setControlDescription(checkEnvironmentButton, "Review environment health and recommended fixes");
-      setControlDescription(launchCodexOverlayButton, "Launch Codex with the globally published Logics kit");
-      setControlDescription(launchClaudeButton, "Launch Claude with the globally published Logics kit");
       setControlDescription(checkHybridRuntimeButton, "Check hybrid assist runtime health");
       setControlDescription(openHybridInsightsButton, "Open the hybrid assist ROI insights panel");
       setControlDescription(openLogicsInsightsButton, "Open repository-level Logics stats and relationship signals");
@@ -348,7 +335,6 @@
       setControlDescription(changeProjectRootButton, "Change project root");
       setControlDescription(resetProjectRootButton, "Use workspace root");
       setControlDescription(repairLogicsKitButton, "Check current Logics runtime state and repair the shared kit publication or bridge files.");
-      setControlDescription(fixDocsButton, "Fix Logics");
       setControlDescription(aboutButton, "About this extension");
       setControlDescription(detailsToggle, detailsToggle?.getAttribute("aria-label") || "Collapse details");
       setControlDescription(markDoneButton, "Mark selected item as done");
@@ -366,8 +352,14 @@
       if (filterToggle && filterPanel && filterPanel.id) {
         filterToggle.setAttribute("aria-controls", filterPanel.id);
       }
-      if (toolsToggle && toolsPanel && toolsPanel.id) {
-        toolsToggle.setAttribute("aria-controls", toolsPanel.id);
+      if (workflowToggle && toolsPanel && toolsPanel.id) {
+        workflowToggle.setAttribute("aria-controls", toolsPanel.id);
+      }
+      if (assistToggle && toolsPanel && toolsPanel.id) {
+        assistToggle.setAttribute("aria-controls", toolsPanel.id);
+      }
+      if (systemToggle && toolsPanel && toolsPanel.id) {
+        systemToggle.setAttribute("aria-controls", toolsPanel.id);
       }
       if (mainPane) {
         mainPane.classList.toggle("layout__main--activity", false);

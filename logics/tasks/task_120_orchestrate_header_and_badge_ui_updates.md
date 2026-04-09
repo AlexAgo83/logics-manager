@@ -1,10 +1,10 @@
 ## task_120_orchestrate_header_and_badge_ui_updates - Orchestrate header and badge UI updates
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
@@ -25,14 +25,14 @@ flowchart LR
 ```
 
 # Plan
-- [ ] 1. Deliver the header info button slice from `item_260`.
-- [ ] 2. Deliver the request badge slice from `item_261`.
-- [ ] 3. Deliver the missing-docs badge slice from `item_262`.
-- [ ] 4. Deliver the compact document prefix slice from `item_263`.
-- [ ] 5. Deliver the `X/TOTAL` header count slice from `item_264`.
-- [ ] CHECKPOINT: leave each wave commit-ready and update the linked Logics docs before continuing.
-- [ ] CHECKPOINT: if the shared AI runtime is active and healthy, run `python logics/skills/logics.py flow assist commit-all` for each wave checkpoint.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] 1. Deliver the header info button slice from `item_260`.
+- [x] 2. Deliver the request badge slice from `item_261`.
+- [x] 3. Deliver the missing-docs badge slice from `item_262`.
+- [x] 4. Deliver the compact document prefix slice from `item_263`.
+- [x] 5. Deliver the `X/TOTAL` header count slice from `item_264`.
+- [x] CHECKPOINT: leave each wave commit-ready and update the linked Logics docs before continuing.
+- [x] CHECKPOINT: if the shared AI runtime is active and healthy, run `python logics/skills/logics.py flow assist commit-all` for each wave checkpoint.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 - [ ] FINAL: Update the request, backlog, and task docs once the full orchestration is complete.
 
 # Delivery checkpoints
@@ -75,13 +75,18 @@ flowchart LR
 - Run the relevant automated tests for each wave before closing that wave.
 - Run the relevant lint or quality checks before closing the current wave or step.
 - Confirm each completed wave leaves the repository in a commit-ready state.
+- Finish workflow executed on 2026-04-09.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-04-09.
+- Linked backlog item(s): `item_260_add_an_info_button_in_the_header_to_open_logics_insights`, `item_261_use_understanding_confidence_and_complexity_for_request_badges`, `item_262_remove_the_missing_docs_badge_from_the_plugin_preview`, `item_263_show_compact_document_type_and_number_before_cell_names`, `item_264_show_type_counts_as_x_over_total_in_column_headers`
+- Related request(s): `req_137_add_an_info_button_in_the_header_to_open_logics_insights`, `req_138_use_understanding_confidence_and_complexity_for_request_badges`, `req_139_remove_the_missing_docs_badge_from_the_plugin_preview`, `req_140_show_compact_document_type_and_number_before_cell_names`, `req_141_show_type_counts_as_x_over_total_in_column_headers`

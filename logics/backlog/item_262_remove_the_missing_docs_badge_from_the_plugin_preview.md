@@ -1,10 +1,10 @@
 ## item_262_remove_the_missing_docs_badge_from_the_plugin_preview - Remove the missing docs badge from the plugin preview
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
@@ -26,7 +26,7 @@ flowchart LR
     Request[req_139_remove_the_missing_docs_badge_from] --> Problem[Remove the Missing docs badge from]
     Problem --> Scope[Remove the missing docs badge from]
     Scope --> Acceptance[AC1: Optional missing documents no longer]
-    Acceptance --> Tasks[Execution task]
+    Acceptance --> Tasks[task_120_orchestrate_header_and_badge_ui_u]
 ```
 
 # Acceptance criteria
@@ -69,3 +69,4 @@ flowchart LR
 - Source file: `logics/request/req_139_remove_the_missing_docs_badge_from_the_plugin_preview.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_139_remove_the_missing_docs_badge_from_the_plugin_preview.md`.
+- Task `task_120_orchestrate_header_and_badge_ui_updates` was finished via `logics_flow.py finish task` on 2026-04-09.

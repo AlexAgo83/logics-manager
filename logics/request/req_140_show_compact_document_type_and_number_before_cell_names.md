@@ -1,7 +1,7 @@
 ## req_140_show_compact_document_type_and_number_before_cell_names - Show compact document type and number before cell names
 > From version: 1.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

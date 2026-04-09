@@ -8,10 +8,13 @@ describe("buildOnboardingHtml", () => {
   it("renders prompt examples for each onboarding stage", () => {
     const html = buildOnboardingHtml({} as never);
 
+    expect(html).toContain("Logics in four steps");
     expect(html).toContain("Example prompt");
     expect(html).toContain("Draft a new request for this problem");
     expect(html).toContain("Split the new request into backlog items");
+    expect(html).toContain("Create orchestration tasks from this backlog item");
     expect(html).toContain("Execute task &lt;task id or title&gt;");
+    expect(html).toContain("Orchestration Tasks");
     expect(html).toContain("Open Logics Insights");
     expect(html).toContain("data-action=\"open-logics-insights\"");
     expect(html).toContain("About");

@@ -4,13 +4,14 @@
 > Drivers: Preserve semantic correctness, keep state ownership explicit, and add durable render coverage without broad refactors.
 > Related request: `req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage`
 > Related backlog: `item_272_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics`, `item_273_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety`, `item_274_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases`
-> Related task: `task_124_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics`, `task_125_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety`, `task_126_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases`
+> Related task: `task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices`
 > Reminder: Update status, linked refs, decision rationale, consequences, migration plan, and follow-up work when you edit this doc.
 
 # Overview
 Keep the 1.23.x review fixes split into three bounded delivery slices:
 semantic correctness, state and proxy safety, and render coverage.
 Prefer small targeted changes over broad rewrites so each slice can be validated independently.
+Execute the slices under a single orchestration task so the delivery plan stays coherent while the implementation remains bounded.
 The resulting work stays close to the existing model and UI surfaces rather than introducing new abstractions.
 
 ```mermaid
@@ -53,10 +54,7 @@ This keeps the semantic fixes, state fixes, and test coverage work independently
 - `logics/backlog/item_272_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics.md`
 - `logics/backlog/item_273_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety.md`
 - `logics/backlog/item_274_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases.md`
-- `logics/tasks/task_124_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics.md`
-- `logics/tasks/task_125_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety.md`
-- `logics/tasks/task_126_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases.md`
-
+- `logics/tasks/task_124_fix_post_1_23_review_findings_with_targeted_delivery_slices.md`
 # Follow-up work
 - Keep the slices narrow and complete them before expanding scope.
 - Revisit whether a broader data-contract or render-system ADR is needed only if future work starts to cross these boundaries again.

@@ -1373,7 +1373,7 @@ exports[`logics HTML builders > renders the read preview snapshot 1`] = `
       <div>
         <p class="read-preview__eyebrow">task</p>
         <h1 class="read-preview__title"><span class="read-preview__title-prefix">T110</span><span>Task 110</span></h1>
-        <p class="read-preview__path">task_110 • <code>logics/tasks/task_110.md</code></p>
+        <p class="read-preview__path">File: <code>logics/tasks/task_110.md</code></p>
       </div>
       <div class="read-preview__meta"><span class="read-preview__chip"><span class="read-preview__chip-label">Status</span><span>Ready</span></span><span class="read-preview__chip"><span class="read-preview__chip-label">Progress</span><span>50%</span></span><span class="read-preview__chip"><span class="read-preview__chip-label">Complexity</span><span>Medium</span></span></div>
     </header>

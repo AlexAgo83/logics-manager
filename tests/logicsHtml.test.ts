@@ -205,6 +205,11 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Managed docs");
     expect(html).toContain("Generated INDEX.md");
     expect(html).toContain("missing");
+    expect(html).toContain("Distribution snapshots");
+    expect(html).toContain("Getting Started");
+    expect(html).toContain("data-action=\"open-onboarding\"");
+    expect(html).toContain("data-action=\"about\"");
+    expect(html).toContain("<svg viewBox=\"0 0 120 120\"");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {
@@ -367,6 +372,8 @@ describe("logics HTML builders", () => {
     });
 
     expect(html).toMatchSnapshot();
+    expect(html).toContain("File: <code>logics/tasks/task_110.md</code>");
+    expect(html).not.toContain("task_110 •");
     fs.rmSync(extensionPath, { recursive: true, force: true });
   });
 

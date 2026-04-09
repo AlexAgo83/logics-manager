@@ -179,7 +179,7 @@
 
       const resolved = await resolveHarnessItemContent(item);
       if (!resolved.error) {
-        const opened = openHarnessContentTab(item, "read", resolved.source, resolved.content);
+        const opened = openHarnessContentTab(item, "read", resolved.relativePath || resolved.source, resolved.content);
         if (opened) {
           showStatus(`Opened read preview for ${resolved.relativePath} (${resolved.source}).`, "info");
         }

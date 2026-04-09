@@ -26,8 +26,8 @@ describe("webview harness state, preview, and persistence behaviors", () => {
     expect(getPreview()?.hidden).toBe(false);
     expect(getPreview()?.textContent).toContain("Status");
     expect(getPreview()?.textContent).toContain("Draft");
-    expect(getPreview()?.textContent).toContain("References");
-    expect(getPreview()?.textContent).toContain("Used by");
+    expect(getPreview()?.textContent).not.toContain("References");
+    expect(getPreview()?.textContent).not.toContain("Used by");
 
     card?.dispatchEvent(new dom.window.MouseEvent("mouseleave", { bubbles: true }));
     expect(getPreview()?.hidden).toBe(true);

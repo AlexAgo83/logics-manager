@@ -496,6 +496,41 @@ describe("LogicsViewProvider", () => {
     expect(mocks.createWebviewPanel).toHaveBeenCalledTimes(1);
   });
 
+  it("executes onboarding footer shortcuts directly", async () => {
+    const onDidDispose = vi.fn();
+    let didReceiveMessage: ((message: { type: string; action?: string }) => Promise<void> | void) | undefined;
+    const panel = {
+      title: "",
+      reveal: vi.fn(),
+      dispose: vi.fn(),
+      onDidDispose,
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage: vi.fn((callback) => {
+          didReceiveMessage = callback;
+        }),
+        postMessage: vi.fn()
+      }
+    };
+    mocks.createWebviewPanel.mockReturnValue(panel as never);
+    mocks.showInformationMessage.mockResolvedValue("Not now");
+    const openLogicsInsightsFromTools = vi.fn().mockResolvedValue(undefined);
+    (provider as any).openLogicsInsightsFromTools = openLogicsInsightsFromTools;
+
+    await provider.refresh();
+    await didReceiveMessage?.({ type: "tool-action", action: "open-logics-insights" });
+
+    expect(panel.dispose).toHaveBeenCalledTimes(1);
+    expect(openLogicsInsightsFromTools).toHaveBeenCalledTimes(1);
+    expect(mocks.openExternal).not.toHaveBeenCalled();
+
+    await didReceiveMessage?.({ type: "tool-action", action: "about" });
+
+    expect(panel.dispose).toHaveBeenCalledTimes(2);
+    expect(mocks.openExternal).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps rendering items when non-critical refresh diagnostics reject", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     const postMessage = vi.fn();

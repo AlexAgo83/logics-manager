@@ -157,7 +157,7 @@ describe("webview board renderer behavior", () => {
     expect(card?.classList.contains("card--compact")).toBe(true);
   });
 
-  it("renders compact document prefixes before the card title", () => {
+  it("renders the compact document prefix before the card title", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -194,6 +194,35 @@ describe("webview board renderer behavior", () => {
     expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual(["U", "C"]);
     expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("90%");
     expect(badge?.textContent).toContain("M");
+  });
+
+  it("renders understanding and confidence badges for non-request items when present", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_001",
+          stage: "task",
+          indicators: {
+            Understanding: "88%",
+            Confidence: "84%",
+            Complexity: "High"
+          }
+        }
+      ]
+    });
+
+    const badge = dom.window.document.querySelector(".card__badge--metric");
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual([
+      "U",
+      "C"
+    ]);
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("88%");
+    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("84%");
+    expect(badge?.textContent).toContain("H");
   });
 
   it("renders progress badges with a muted P prefix", () => {

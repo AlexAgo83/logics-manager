@@ -147,6 +147,7 @@ describe("webview hydration and data message handling", () => {
     const detailsEyebrow = dom.window.document.getElementById("details-eyebrow");
 
     expect(detailsTitle?.textContent).toContain("Kickoff");
+    expect(detailsTitle?.textContent).toContain("File: logics/request/req_000_kickoff.md");
     expect(detailsEyebrow?.textContent).toBeTruthy();
   });
 

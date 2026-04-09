@@ -100,7 +100,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       context: this.context,
       getActionRoot: () => viewProviderSupport.getActionRoot.call(this),
       getItems: () => this.items,
-      refresh: () => this.refresh()
+      refresh: () => this.refresh(),
+      openOnboarding: async () => {
+        viewProviderSupport.openOnboardingPanel.call(this);
+      },
+      openAbout: () => viewProviderSupport.openAbout.call(this)
     });
     this.codexWorkflowController = new LogicsCodexWorkflowController({
       refresh: () => this.refresh()

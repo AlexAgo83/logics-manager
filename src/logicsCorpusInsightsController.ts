@@ -8,6 +8,8 @@ type LogicsCorpusInsightsControllerOptions = {
   getActionRoot: () => Promise<string | null>;
   getItems: () => LogicsItem[];
   refresh: () => Promise<void>;
+  openOnboarding: () => Promise<void>;
+  openAbout: () => Promise<void>;
 };
 
 export class LogicsCorpusInsightsController {
@@ -56,14 +58,22 @@ export class LogicsCorpusInsightsController {
       if (!message || typeof message !== "object" || Array.isArray(message)) {
         return;
       }
-      if ((message as { type?: string }).type !== "refresh-report") {
+      const type = (message as { type?: string }).type;
+      if (type === "refresh-report") {
+        const root = await this.options.getActionRoot();
+        if (!root) {
+          return;
+        }
+        await this.refreshLogicsInsightsPanel(root);
         return;
       }
-      const root = await this.options.getActionRoot();
-      if (!root) {
+      if (type === "open-onboarding") {
+        await this.options.openOnboarding();
         return;
       }
-      await this.refreshLogicsInsightsPanel(root);
+      if (type === "about") {
+        await this.options.openAbout();
+      }
     });
 
     panel.onDidDispose(() => {

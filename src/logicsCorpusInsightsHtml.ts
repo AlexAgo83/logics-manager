@@ -5,6 +5,18 @@ import { getNonce } from "./logicsReadPreviewHtml";
 import { LogicsItem, compareStages } from "./logicsIndexer";
 
 type CountMap = Record<string, number>;
+type PieSlice = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+type PieChartSpec = {
+  title: string;
+  description: string;
+  slices: PieSlice[];
+  totalLabel: string;
+};
 
 function escapeHtml(value: string): string {
   return value
@@ -52,6 +64,10 @@ function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+function formatCount(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
 function parseProgress(value: string | undefined): number | null {
   if (!value) {
     return null;
@@ -97,6 +113,108 @@ function renderStatCard(label: string, value: string, hint: string, tone: "neutr
       <strong>${escapeHtml(value)}</strong>
       <em>${escapeHtml(hint)}</em>
     </section>
+  `;
+}
+
+function buildPieSlices(entries: Array<[string, number]>): PieSlice[] {
+  const palette = [
+    "var(--vscode-terminal-ansiBlue)",
+    "var(--vscode-terminal-ansiGreen)",
+    "var(--vscode-terminal-ansiYellow)",
+    "var(--vscode-terminal-ansiRed)",
+    "var(--vscode-terminal-ansiCyan)",
+    "var(--vscode-terminal-ansiMagenta)"
+  ];
+  return entries
+    .filter(([, value]) => value > 0)
+    .map(([label, value], index) => ({
+      label,
+      value,
+      color: palette[index % palette.length]
+    }));
+}
+
+function polarToCartesian(cx: number, cy: number, radius: number, angleInDegrees: number): { x: number; y: number } {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
+  return {
+    x: cx + radius * Math.cos(angleInRadians),
+    y: cy + radius * Math.sin(angleInRadians)
+  };
+}
+
+function describePieSlice(cx: number, cy: number, radius: number, startAngle: number, endAngle: number): string {
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  return [
+    `M ${cx} ${cy}`,
+    `L ${start.x.toFixed(3)} ${start.y.toFixed(3)}`,
+    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x.toFixed(3)} ${end.y.toFixed(3)}`,
+    "Z"
+  ].join(" ");
+}
+
+function renderPieChart(spec: PieChartSpec): string {
+  const total = spec.slices.reduce((sum, slice) => sum + slice.value, 0);
+  if (total <= 0) {
+    return `
+      <article class="logics-insights__chart-card">
+        <h3>${escapeHtml(spec.title)}</h3>
+        <p>${escapeHtml(spec.description)}</p>
+        <p class="logics-insights__empty">No data available.</p>
+      </article>
+    `;
+  }
+  let cursor = 0;
+  const segments = spec.slices.map((slice) => {
+    const startAngle = cursor;
+    const endAngle = cursor + (slice.value / total) * 360;
+    cursor = endAngle;
+    return {
+      ...slice,
+      startAngle,
+      endAngle
+    };
+  });
+  return `
+    <article class="logics-insights__chart-card">
+      <h3>${escapeHtml(spec.title)}</h3>
+      <p>${escapeHtml(spec.description)}</p>
+      <div class="logics-insights__chart">
+        <svg viewBox="0 0 120 120" aria-label="${escapeHtml(spec.title)}" role="img">
+          <circle cx="60" cy="60" r="38" class="logics-insights__chart-hole"></circle>
+          ${
+            segments.length === 1
+              ? `<circle cx="60" cy="60" r="48" fill="${segments[0].color}"></circle>`
+              : segments
+                  .map(
+                    (slice) => `
+                      <path d="${describePieSlice(60, 60, 48, slice.startAngle, slice.endAngle)}" fill="${slice.color}"></path>
+                    `
+                  )
+                  .join("")
+          }
+          <circle cx="60" cy="60" r="18" class="logics-insights__chart-center"></circle>
+          <text x="60" y="57" text-anchor="middle" class="logics-insights__chart-total">${escapeHtml(formatCount(total))}</text>
+          <text x="60" y="71" text-anchor="middle" class="logics-insights__chart-total-label">${escapeHtml(spec.totalLabel)}</text>
+        </svg>
+        <div class="logics-insights__chart-legend">
+          ${segments
+            .map(
+              (slice) => `
+                <div class="logics-insights__chart-legend-row">
+                  <span class="logics-insights__chart-swatch" style="background:${slice.color}"></span>
+                  <div>
+                    <strong>${escapeHtml(slice.label)}</strong>
+                    <span>${escapeHtml(String(slice.value))} · ${formatPercent(slice.value / total)}</span>
+                  </div>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+    </article>
   `;
 }
 
@@ -171,6 +289,24 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const totalLines = items.reduce((sum, item) => sum + item.lineCount, 0);
   const totalChars = items.reduce((sum, item) => sum + item.charCount, 0);
   const averageLines = items.length > 0 ? totalLines / items.length : 0;
+  const linkedItems = items.filter((item) => item.references.length > 0 || item.usedBy.length > 0);
+  const stagePie = buildPieSlices(
+    Object.entries(stageCounts)
+      .filter(([, count]) => count > 0)
+      .sort((left, right) => right[1] - left[1])
+  );
+  const progressPie = buildPieSlices(
+    Object.entries(progressCounts)
+      .filter(([, count]) => count > 0)
+      .sort((left, right) => {
+        const order = ["100%", "50-99%", "1-49%", "0%", "missing"];
+        return order.indexOf(left[0]) - order.indexOf(right[0]);
+      })
+  );
+  const relationshipPie = buildPieSlices([
+    ["Linked docs", linkedItems.length],
+    ["Orphaned docs", orphanedItems.length]
+  ]);
 
   return `<!DOCTYPE html>
   <html lang="en">
@@ -288,6 +424,83 @@ export function buildLogicsCorpusInsightsHtml(params: {
           gap: 14px;
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         }
+        .logics-insights__chart-grid {
+          display: grid;
+          gap: 14px;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+        .logics-insights__chart-card {
+          border: 1px solid var(--vscode-panel-border, color-mix(in srgb, currentColor 20%, transparent));
+          border-radius: 14px;
+          background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+          padding: 16px 18px;
+        }
+        .logics-insights__chart-card h3 {
+          margin: 0 0 6px;
+          font-size: 0.98rem;
+        }
+        .logics-insights__chart-card p {
+          margin: 0 0 12px;
+          line-height: 1.5;
+          opacity: 0.9;
+        }
+        .logics-insights__chart {
+          display: grid;
+          gap: 14px;
+          grid-template-columns: minmax(120px, 160px) 1fr;
+          align-items: center;
+        }
+        .logics-insights__chart svg {
+          width: 100%;
+          max-width: 160px;
+          height: auto;
+          display: block;
+        }
+        .logics-insights__chart-hole {
+          fill: none;
+          stroke: color-mix(in srgb, currentColor 12%, transparent);
+          stroke-width: 0;
+        }
+        .logics-insights__chart-center {
+          fill: var(--vscode-sideBar-background, var(--vscode-editor-background));
+          stroke: color-mix(in srgb, currentColor 12%, transparent);
+          stroke-width: 1;
+        }
+        .logics-insights__chart-total {
+          fill: var(--vscode-editor-foreground);
+          font-size: 16px;
+          font-weight: 700;
+        }
+        .logics-insights__chart-total-label {
+          fill: var(--vscode-descriptionForeground);
+          font-size: 7px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .logics-insights__chart-legend {
+          display: grid;
+          gap: 10px;
+        }
+        .logics-insights__chart-legend-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .logics-insights__chart-legend-row strong,
+        .logics-insights__chart-legend-row span {
+          display: block;
+        }
+        .logics-insights__chart-legend-row span {
+          opacity: 0.78;
+          font-size: 0.9em;
+        }
+        .logics-insights__chart-swatch {
+          width: 12px;
+          height: 12px;
+          border-radius: 999px;
+          margin-top: 4px;
+          flex: 0 0 auto;
+        }
         .logics-insights__panel {
           padding: 14px;
         }
@@ -330,9 +543,39 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__status--good { color: var(--vscode-terminal-ansiGreen); }
         .logics-insights__status--warn { color: var(--vscode-terminal-ansiYellow); }
         .logics-insights__status--bad { color: var(--vscode-terminal-ansiRed); }
+        .logics-insights__footer {
+          margin-top: 18px;
+          padding-top: 16px;
+          border-top: 1px solid var(--vscode-panel-border, color-mix(in srgb, currentColor 20%, transparent));
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .logics-insights__footer-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .logics-insights__footer-button {
+          border: 1px solid var(--vscode-button-border, transparent);
+          background: var(--vscode-button-secondaryBackground);
+          color: var(--vscode-button-secondaryForeground);
+          border-radius: 999px;
+          padding: 8px 12px;
+          cursor: pointer;
+        }
+        .logics-insights__footer-button:hover {
+          background: var(--vscode-button-secondaryHoverBackground);
+        }
         @media (max-width: 920px) {
           .logics-insights__header {
             flex-direction: column;
+          }
+          .logics-insights__chart {
+            grid-template-columns: 1fr;
+            justify-items: start;
           }
         }
       </style>
@@ -360,6 +603,31 @@ export function buildLogicsCorpusInsightsHtml(params: {
         </section>
 
         <section class="logics-insights__sections">
+          <div class="logics-insights__section">
+            <h2>Distribution snapshots</h2>
+            <p>Compact pies that show how the corpus is split right now.</p>
+            <div class="logics-insights__chart-grid">
+              ${renderPieChart({
+                title: "Stage mix",
+                description: "How the corpus is distributed across workflow and companion doc types.",
+                slices: stagePie,
+                totalLabel: "docs"
+              })}
+              ${renderPieChart({
+                title: "Progress mix",
+                description: "How backlog and task work is distributed across the current progress buckets.",
+                slices: progressPie,
+                totalLabel: "items"
+              })}
+              ${renderPieChart({
+                title: "Link coverage",
+                description: "Whether docs are connected to the corpus or still isolated.",
+                slices: relationshipPie,
+                totalLabel: "docs"
+              })}
+            </div>
+          </div>
+
           <div class="logics-insights__section">
             <h2>Stage distribution</h2>
             <p>How the corpus breaks down by managed doc family.</p>
@@ -444,11 +712,27 @@ export function buildLogicsCorpusInsightsHtml(params: {
             )}
           </div>
         </section>
+
+        <footer class="logics-insights__footer">
+          <p class="logics-insights__summary">Need a refresher or more context? Open the onboarding guide or jump to the repository page.</p>
+          <div class="logics-insights__footer-actions">
+            <button class="logics-insights__footer-button" type="button" data-action="open-onboarding">Getting Started</button>
+            <button class="logics-insights__footer-button" type="button" data-action="about">About</button>
+          </div>
+        </footer>
       </main>
       <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
         document.querySelector('[data-action="refresh-report"]')?.addEventListener('click', () => {
           vscode.postMessage({ type: 'refresh-report' });
+        });
+        document.querySelectorAll('[data-action="open-onboarding"], [data-action="about"]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const action = button.getAttribute('data-action');
+            if (action === 'open-onboarding' || action === 'about') {
+              vscode.postMessage({ type: action });
+            }
+          });
         });
       </script>
     </body>

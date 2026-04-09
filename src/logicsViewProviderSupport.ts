@@ -383,6 +383,14 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     panel.webview.onDidReceiveMessage(async (message: { type: string; action?: string }) => {
       if (message.type === "tool-action" && message.action) {
         panel.dispose();
+        if (message.action === "open-logics-insights") {
+          await this.openLogicsInsightsFromTools();
+          return;
+        }
+        if (message.action === "about") {
+          await openAbout.call(this);
+          return;
+        }
         await this.view?.webview.postMessage({ type: "trigger-tool-action", action: message.action });
       }
     });

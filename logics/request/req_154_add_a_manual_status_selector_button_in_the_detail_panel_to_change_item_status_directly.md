@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 100%
-> Confidence: 90%
+> Confidence: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -54,7 +54,13 @@ flowchart TD
 # Dependencies and risks
 - Dependency: the plugin must be able to write the `Status:` line in a markdown file reliably without corrupting surrounding content.
 - Risk: if the status set varies across kit versions, the selector must stay in sync with the canonical set defined in `logics/instructions.md`.
-- Risk: UI crowding in the action bar — placement and label must stay compact.
+- Risk: the selector label must stay short enough to remain readable at full width.
+
+# Clarifications
+- The button is placed immediately below the Obsolete button, as the last element in the action bar.
+- It takes full width, matching the width of the Obsolete button.
+- Its visual style (shape, size, border, typography) must match the Obsolete button — same component or same CSS treatment, just different label and colour intent.
+- It opens an inline dropdown or VS Code quick-pick on click; it does not navigate away from the panel.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

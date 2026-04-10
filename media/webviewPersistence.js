@@ -32,10 +32,13 @@
       if (!target) {
         return 0;
       }
-      const size = horizontal ? target.scrollWidth : target.scrollHeight;
-      const viewport = horizontal ? target.clientWidth : target.clientHeight;
-      const maxScroll = Math.max(0, Number(size || 0) - Number(viewport || 0));
       const current = horizontal ? target.scrollLeft : target.scrollTop;
+      const size = Number(horizontal ? target.scrollWidth : target.scrollHeight);
+      const viewport = Number(horizontal ? target.clientWidth : target.clientHeight);
+      if (!Number.isFinite(size) || !Number.isFinite(viewport) || size <= 0 || viewport <= 0) {
+        return Number(current || 0);
+      }
+      const maxScroll = Math.max(0, size - viewport);
       const nextValue = Math.min(Math.max(Number(current || 0), 0), maxScroll);
       if (horizontal) {
         target.scrollLeft = nextValue;

@@ -133,7 +133,7 @@
       state.hideEmptyColumns = defaultFilterState.hideEmptyColumns;
       state.searchQuery = "";
       state.groupMode = "stage";
-      state.sortMode = "default";
+      state.sortMode = "updated-desc";
       state.activityPanelOpen = false;
       state.attentionOnly = false;
       state.helpDismissed = false;

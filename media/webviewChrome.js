@@ -264,7 +264,7 @@
         getHideEmptyColumns() !== defaultFilterState.hideEmptyColumns ||
         options.normalizeSearchValue(getSearchQuery()) !== "" ||
         getGroupMode() !== "stage" ||
-        getSortMode() !== "default"
+        getSortMode() !== "updated-desc"
       );
     }
 

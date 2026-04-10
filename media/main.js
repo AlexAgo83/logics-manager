@@ -91,7 +91,7 @@
   let hideEmptyColumns = defaultFilterState.hideEmptyColumns;
   let searchQuery = "";
   let groupMode = "stage";
-  let sortMode = "default";
+  let sortMode = "updated-desc";
   let activityPanelOpen = false;
   let attentionOnly = false;
   let helpDismissed = false;
@@ -208,7 +208,7 @@
     hideEmptyColumns = nextDefaultFilterState.hideEmptyColumns;
     searchQuery = "";
     groupMode = "stage";
-    sortMode = "default";
+    sortMode = "updated-desc";
     activityPanelOpen = false;
     attentionOnly = false;
     helpDismissed = false;

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 100%
 > Progress: 0%
 > Complexity: Medium
 > Theme: UI
@@ -28,7 +28,9 @@ stateDiagram-v2
     Wave5 : Wave 5a - item_280 status selector UI
     Wave5 --> Wave6
     Wave6 : Wave 5b - item_281 status write and refresh
-    Wave6 --> Done
+    Wave6 --> Wave7
+    Wave7 : Wave 6 - item_282 align Obsolete in kit
+    Wave7 --> Done
     Done : Done and docs updated
     Done --> [*]
 ```
@@ -88,10 +90,21 @@ Derived from `logics/request/req_154_add_a_manual_status_selector_button_in_the_
 - [ ] 5.8 Run `npm run compile` and `npm run test`.
 - [ ] CHECKPOINT: commit wave 5.
 
+## Wave 6 — item_282: Align Obsolete status in the kit
+Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_logics_kit.md`
+
+- [ ] 6.1 Add `Obsolete` to the `allowed_statuses` tuple for `request`, `backlog`, and `task` kinds in `logics/skills/logics-doc-linter/scripts/logics_lint.py`.
+- [ ] 6.2 Update `logics/skills/logics-flow-manager/SKILL.md` to include `Obsolete` in the Status indicator list.
+- [ ] 6.3 Update `logics/skills/logics-bootstrapper/assets/instructions.md` to include `Obsolete`.
+- [ ] 6.4 Update `logics/skills/README.md` to include `Obsolete` in the status values list.
+- [ ] 6.5 Run `python3 logics/skills/logics.py lint --require-status` and verify existing `Status: Obsolete` files (if any) now pass.
+- [ ] 6.6 Run `npm run compile` and `npm run test`.
+- [ ] CHECKPOINT: commit wave 6.
+
 ## Final
-- [ ] 6.1 Update all linked backlog items and request docs (Status, Progress).
-- [ ] 6.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
-- [ ] 6.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
+- [ ] 7.1 Update all linked backlog items and request docs (Status, Progress).
+- [ ] 7.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
+- [ ] 7.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
 
 # Delivery checkpoints
 - Each wave must leave the repository in a commit-ready state before starting the next.
@@ -106,6 +119,7 @@ Derived from `logics/request/req_154_add_a_manual_status_selector_button_in_the_
 - item_279 AC1-AC4 → Wave 3 (items visible at any size, no interaction required, no regression)
 - item_280 AC1, AC3, AC5, AC6 → Wave 5a (button UI, current status highlighted, disabled when no item, coexists with Done/Obsolete)
 - item_281 AC2, AC4 → Wave 5b (status written to file, board/list refreshes)
+- item_282 AC1-AC4 → Wave 6 (Obsolete in kit linter, SKILL.md, instructions.md, README; existing files pass lint)
 
 # Links
 - Backlog items:
@@ -115,12 +129,14 @@ Derived from `logics/request/req_154_add_a_manual_status_selector_button_in_the_
   - `logics/backlog/item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed.md`
   - `logics/backlog/item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel.md`
   - `logics/backlog/item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change.md`
+  - `logics/backlog/item_282_align_obsolete_status_between_plugin_and_logics_kit.md`
 - Requests:
   - `logics/request/req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first.md`
   - `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`
   - `logics/request/req_152_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md.md`
   - `logics/request/req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed.md`
   - `logics/request/req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly.md`
+  - `logics/request/req_155_align_obsolete_status_between_plugin_and_logics_kit.md`
 
 # Validation
 - `npm run compile`
@@ -129,7 +145,7 @@ Derived from `logics/request/req_154_add_a_manual_status_selector_button_in_the_
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 
 # Definition of Done (DoD)
-- [ ] All 6 backlog items addressed across 5 waves.
+- [ ] All 7 backlog items addressed across 6 waves.
 - [ ] `npm run compile` and `npm run test` pass after each wave.
 - [ ] Linked request and backlog docs updated at each wave checkpoint.
 - [ ] No wave closed before tests and quality checks passed.

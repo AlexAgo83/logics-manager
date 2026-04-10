@@ -441,25 +441,33 @@ describe("webview harness core behaviors", () => {
     const requestFollowup = {
       ...baseItem,
       id: "req_001_followup",
-      title: "Followup"
+      title: "Followup",
+      updatedAt: "2024-01-01T00:00:00.000Z"
     };
     const backlogItem = {
       ...baseItem,
       id: "item_001_plan_followup",
       title: "Plan Followup",
-      stage: "backlog"
+      stage: "backlog",
+      updatedAt: "2024-01-01T00:00:00.000Z"
     };
     const taskItem = {
       ...baseItem,
       id: "task_001_ship_followup",
       title: "Ship Followup",
-      stage: "task"
+      stage: "task",
+      updatedAt: "2024-01-01T00:00:00.000Z"
     };
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
       selectedId: "req_000_kickoff",
-      items: [baseItem, requestFollowup, backlogItem, taskItem]
+      items: [
+        { ...baseItem, updatedAt: "2024-02-01T00:00:00.000Z" },
+        requestFollowup,
+        backlogItem,
+        taskItem
+      ]
     });
 
     const document = dom.window.document;
@@ -621,6 +629,31 @@ describe("webview harness core behaviors", () => {
 
     expect(sectionLabels).toContain("Draft1/1");
     expect(sectionLabels).toContain("Proposed1/1");
+  });
+
+  it("defaults board cards to most recently updated first", () => {
+    const olderRequest = {
+      ...baseItem,
+      id: "req_001_older",
+      title: "Older request",
+      updatedAt: "2024-01-01T00:00:00.000Z"
+    };
+    const newerRequest = {
+      ...baseItem,
+      id: "req_002_newer",
+      title: "Newer request",
+      updatedAt: "2024-02-01T00:00:00.000Z"
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [olderRequest, newerRequest]
+    });
+
+    const cardTitles = Array.from(dom.window.document.querySelectorAll('.column[data-stage="request"] .card__title')).map(
+      (node) => node.querySelector(".card__title-text")?.textContent?.trim()
+    );
+    expect(cardTitles).toEqual(["Newer request", "Older request"]);
   });
 
   it("sorts board cards by most recently updated when requested", () => {

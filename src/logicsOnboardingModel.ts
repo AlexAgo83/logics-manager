@@ -31,6 +31,12 @@ export type OnboardingFooterAction = {
   description: string;
 };
 
+export type OnboardingDocGuide = {
+  label: string;
+  cue: string;
+  destination: string;
+};
+
 export const ONBOARDING_STAGES: OnboardingStage[] = [
   {
     id: "need",
@@ -121,12 +127,49 @@ export const ONBOARDING_STAGES: OnboardingStage[] = [
   }
 ];
 
+export const ONBOARDING_DOC_GUIDE: OnboardingDocGuide[] = [
+  {
+    label: "Request",
+    cue: "If you think \"here is the problem and context...\"",
+    destination: "-> request"
+  },
+  {
+    label: "Item",
+    cue: "If you think \"this needs a scoped delivery slice...\"",
+    destination: "-> item"
+  },
+  {
+    label: "Product brief",
+    cue: "If you think \"we want...\"",
+    destination: "-> product brief"
+  },
+  {
+    label: "ADR",
+    cue: "If you think \"we decided...\"",
+    destination: "-> ADR"
+  },
+  {
+    label: "Spec",
+    cue: "If you think \"the system should...\"",
+    destination: "-> spec"
+  },
+  {
+    label: "Task",
+    cue: "If you think \"let's do...\"",
+    destination: "-> task"
+  }
+];
+
 export const ONBOARDING_HEADLINE = "Logics in four steps";
 
 export const ONBOARDING_INTRO =
   "Logics is a lightweight delivery workflow that keeps your project context in plain Markdown — " +
   "readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time. " +
   "The flow moves from need to framing, orchestration, and execution.";
+
+export const ONBOARDING_DOC_GUIDE_TITLE = "What each document is for";
+export const ONBOARDING_DOC_GUIDE_INTRO =
+  "A quick rule of thumb for choosing the right artifact before you start writing.";
 
 export const ONBOARDING_FOOTER =
   "This screen appears once at first use and after significant updates. " +

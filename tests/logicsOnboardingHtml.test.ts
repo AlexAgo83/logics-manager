@@ -14,6 +14,13 @@ describe("buildOnboardingHtml", () => {
     expect(html).toContain("Split the new request into backlog items");
     expect(html).toContain("Create orchestration tasks from this backlog item");
     expect(html).toContain("Execute task &lt;task id or title&gt;");
+    expect(html).toContain("What each document is for");
+    expect(html).toContain("If you think &quot;here is the problem and context...&quot;");
+    expect(html).toContain("-&gt; request");
+    expect(html).toContain("If you think &quot;this needs a scoped delivery slice...&quot;");
+    expect(html).toContain("-&gt; item");
+    expect(html).toContain("If you think &quot;we want...&quot;");
+    expect(html).toContain("-&gt; product brief");
     expect(html).toContain("Orchestration Tasks");
     expect(html).toContain("Open Logics Insights");
     expect(html).toContain("data-action=\"open-logics-insights\"");

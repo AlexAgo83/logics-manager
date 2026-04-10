@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 100% (refreshed)
 > Confidence: 100%
-> Progress: 77%
+> Progress: 85%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -143,8 +143,8 @@ Derived from `logics/request/req_158_address_post_audit_improvements_across_work
 ## Wave 11 — item_287: Modularization plan for oversized source files
 Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
 
-- [ ] 11.1 Document a modularization plan for the 5 oversized files as a new backlog item or ADR in `logics/architecture/`, covering: `logicsViewProviderSupport.ts` (1 025 L), `logicsViewProvider.ts` (1 004 L), `media/main.js` (1 002 L), `media/renderBoard.js` (935 L), `media/logicsModel.js` (910 L).
-- [ ] 11.2 Each file should have a proposed split boundary and rationale.
+- [x] 11.1 Document a modularization plan for the 5 oversized files as a new backlog item or ADR in `logics/architecture/`, covering: `logicsViewProviderSupport.ts` (1 025 L), `logicsViewProvider.ts` (1 004 L), `media/main.js` (1 002 L), `media/renderBoard.js` (935 L), `media/logicsModel.js` (910 L).
+- [x] 11.2 Each file should have a proposed split boundary and rationale.
 - [ ] CHECKPOINT: commit wave 11.
 
 ## Wave 12 — item_289: Velocity counter in Logics Insights

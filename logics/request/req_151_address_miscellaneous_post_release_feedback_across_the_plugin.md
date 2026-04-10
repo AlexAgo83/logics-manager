@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 100%
-> Confidence: 90%
+> Confidence: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -46,13 +46,17 @@ flowchart TD
 <!-- Add individual items here as they are identified, e.g.:
 - [ ] Item description — source / reported by
 -->
-- [ ] Board and list default sort order — newest first (tracked separately in req_150)
 - [ ] Spec cells in board/list must not display the Flow information
 - [ ] Cell borders must not be coloured by status — the colour should be reserved for the hover effect
 
 # Dependencies and risks
 - Risk: scope creep — items must stay small and independent; anything requiring design discussion should be spun off into its own request.
 - Risk: items may overlap with open requests; check before adding to avoid duplicate work.
+
+# Clarifications
+- Items in this batch are shipped as a single grouped backlog item — no need to promote each one individually.
+- Items already tracked in a dedicated request (e.g. req_150 for sort order) must not be listed here to avoid confusion.
+- A feedback item that grows in complexity during implementation should be spun off into its own request at that point.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

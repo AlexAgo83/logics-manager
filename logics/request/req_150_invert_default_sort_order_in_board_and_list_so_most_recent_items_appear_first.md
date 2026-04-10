@@ -3,13 +3,14 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
 
 # Needs
-- In the board and list views, cells within each category/column are currently sorted oldest-first (ascending by date). The order should be inverted so the most recent item always appears at the top, for every item type (requests, backlog, tasks, etc.).
+- In the board and list views, cells within each category/column are currently sorted oldest-first (ascending by date). The order should be inverted so the most recent item always appears at the top, for every item type (requests, backlog, tasks, specs, etc.).
+- The sort field is `updatedAt` — a recently modified item is more relevant than one recently created but never touched since.
 - This matches the existing behaviour already in place in the Activity view, where the most recent entry is always shown first.
 
 # Context
@@ -27,7 +28,7 @@ flowchart TD
 ```
 
 # Acceptance criteria
-- AC1: Board and list cells are sorted newest-first (descending by date) by default, for all item types.
+- AC1: Board and list cells are sorted newest-first (descending by `updatedAt`) by default, for all item types including specs.
 - AC2: The ordering is consistent across all category columns in both board and list modes.
 - AC3: The behaviour matches the Activity view, where the most recent entry is always first.
 - AC4: No manual sort toggle is required — the inversion applies as the new default.
@@ -36,7 +37,7 @@ flowchart TD
 # Scope
 - In:
   - Change the default sort direction from ascending to descending for date-based ordering in board and list views.
-  - Apply the change to every item type (requests, backlog items, tasks, etc.) and every category/column.
+  - Apply the change to every item type (requests, backlog items, tasks, specs, etc.) and every category/column.
 - Out:
   - Adding a new sort control or toggle — the request is to fix the default, not to introduce new UI controls.
   - Changing the Activity view (it already behaves correctly).
@@ -44,6 +45,7 @@ flowchart TD
 
 # Dependencies and risks
 - Dependency: the sort direction must be applied at the rendering layer, not only for one item type.
+- Dependency: `updatedAt` must be a stable, populated field across all item types — verify before implementing.
 - Risk: any component that hard-codes ascending date order would need to be updated individually.
 
 # Definition of Ready (DoR)

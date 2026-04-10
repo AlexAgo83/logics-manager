@@ -1,8 +1,8 @@
 ## req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first - Invert default sort order in board and list so most recent items appear first
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 100%
+> Status: Ready
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Low
 > Theme: UI
@@ -59,4 +59,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- (none yet)
+- `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`

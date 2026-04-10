@@ -1,9 +1,9 @@
 ## req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed - Fix board and list items disappearing when the detail panel is resized or collapsed
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 100%
-> Confidence: 90%
+> Confidence: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -53,4 +53,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- (none yet)
+- `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`

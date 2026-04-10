@@ -1,8 +1,8 @@
 ## req_151_address_miscellaneous_post_release_feedback_across_the_plugin - Address miscellaneous post-release feedback across the plugin
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 100%
+> Status: Ready
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Low
 > Theme: UI
@@ -69,4 +69,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- (none yet)
+- `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`

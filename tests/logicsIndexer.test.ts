@@ -294,7 +294,7 @@ describe("logicsIndexer", () => {
       relPath: "logics/backlog/item_001.md",
       indicators: { Status: "Ready" }
     } as any;
-    expect(isRequestProcessed(requestLike, [draftBacklog])).toBe(true);
+    expect(isRequestProcessed(requestLike, [draftBacklog])).toBe(false);
     expect(isRequestProcessed(requestLike, [readyBacklog])).toBe(true);
     expect(isRequestUsed(requestLike, [readyBacklog])).toBe(true);
     expect(isRequestUsed(untouchedRequest, [readyBacklog])).toBe(false);

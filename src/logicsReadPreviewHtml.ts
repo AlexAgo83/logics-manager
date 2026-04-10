@@ -287,6 +287,38 @@ export function buildReadPreviewHtml(params: {
       border-radius: 6px;
       background: var(--code-bg);
     }
+    .markdown-preview__table-wrap {
+      overflow-x: auto;
+      margin: 18px 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 82%, transparent);
+    }
+    .markdown-preview table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+    .markdown-preview thead th {
+      background: color-mix(in srgb, var(--accent) 14%, var(--panel-strong));
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .markdown-preview th,
+    .markdown-preview td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      text-align: left;
+      word-break: break-word;
+    }
+    .markdown-preview tbody tr:nth-child(even) {
+      background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+    .markdown-preview tbody tr:last-child td {
+      border-bottom: none;
+    }
     .markdown-preview__diagram {
       margin: 24px 0;
     }

@@ -317,9 +317,10 @@
     if (!item || item.stage !== "request") {
       return false;
     }
-    return collectLinkedWorkflowItems(item, allItems).some(
-      (candidate) => candidate.stage === "backlog" || candidate.stage === "task"
-    );
+    if (!isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "")) {
+      return false;
+    }
+    return collectLinkedWorkflowItems(item, allItems).some((candidate) => isProcessedWorkflowItem(candidate));
   }
 
   function getWorkflowStageRank(stage) {
@@ -429,12 +430,15 @@
       });
     }
 
-    if (item.stage === "request" && !isRequestProcessed(item, allItems)) {
+    if (
+      item.stage === "request" &&
+      !collectLinkedWorkflowItems(item, allItems).some((candidate) => candidate.stage === "backlog" || candidate.stage === "task")
+    ) {
       reasons.push({
         key: "workflow-inconsistent",
         label: "Workflow inconsistent",
         shortLabel: "No delivery child",
-        description: "This request has no linked backlog or task item in a delivery-ready workflow state yet.",
+        description: "This request has no linked backlog or task item yet.",
         remediation: {
           label: "Promote request",
           action: "promote"

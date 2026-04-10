@@ -10,6 +10,12 @@ type ListItem = {
   checkbox?: boolean;
   checked?: boolean;
 };
+type TableAlignment = "left" | "center" | "right" | null;
+type TableBlock = {
+  headerCells: string[];
+  alignments: TableAlignment[];
+  bodyRows: string[][];
+};
 
 function escapeHtml(value: string): string {
   return value
@@ -48,6 +54,129 @@ function renderInlineMarkdown(value: string): string {
   }
 
   return rendered;
+}
+
+function splitTableCells(line: string): string[] {
+  const trimmed = line.trim();
+  const normalized = trimmed.replace(/^\|/, "").replace(/\|$/, "");
+  const cells: string[] = [];
+  let current = "";
+  let escaping = false;
+
+  for (let index = 0; index < normalized.length; index += 1) {
+    const char = normalized[index];
+    if (escaping) {
+      current += char;
+      escaping = false;
+      continue;
+    }
+    if (char === "\\") {
+      escaping = true;
+      continue;
+    }
+    if (char === "|") {
+      cells.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+
+  cells.push(current.trim());
+  return cells;
+}
+
+function parseTableAlignment(cell: string): TableAlignment {
+  const trimmed = cell.trim();
+  if (!/^:?-{3,}:?$/.test(trimmed)) {
+    return null;
+  }
+  const hasLeft = trimmed.startsWith(":");
+  const hasRight = trimmed.endsWith(":");
+  if (hasLeft && hasRight) {
+    return "center";
+  }
+  if (hasRight) {
+    return "right";
+  }
+  if (hasLeft) {
+    return "left";
+  }
+  return null;
+}
+
+function isTableDividerRow(line: string): boolean {
+  const cells = splitTableCells(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function parseTableBlock(lines: string[], index: number): TableBlock | null {
+  const headerLine = lines[index] || "";
+  const dividerLine = lines[index + 1] || "";
+  if (!headerLine.includes("|") || !isTableDividerRow(dividerLine)) {
+    return null;
+  }
+
+  const headerCells = splitTableCells(headerLine);
+  const dividerCells = splitTableCells(dividerLine);
+  if (headerCells.length === 0 || headerCells.length !== dividerCells.length) {
+    return null;
+  }
+
+  const bodyRows: string[][] = [];
+  let cursor = index + 2;
+  while (cursor < lines.length) {
+    const line = lines[cursor];
+    if (line.trim() === "" || !line.includes("|")) {
+      break;
+    }
+    const cells = splitTableCells(line);
+    if (cells.length === 0) {
+      break;
+    }
+    bodyRows.push(cells);
+    cursor += 1;
+  }
+
+  return {
+    headerCells,
+    alignments: dividerCells.map((cell) => parseTableAlignment(cell)),
+    bodyRows
+  };
+}
+
+function renderTableBlock(table: TableBlock): string {
+  const columnCount = Math.max(
+    table.headerCells.length,
+    table.alignments.length,
+    ...table.bodyRows.map((row) => row.length)
+  );
+  const columns = Array.from({ length: columnCount }, (_value, columnIndex) => ({
+    alignment: table.alignments[columnIndex] || null,
+    header: table.headerCells[columnIndex] || ""
+  }));
+
+  const renderCell = (tagName: "th" | "td", text: string, alignment: TableAlignment) => {
+    const style = alignment ? ` style="text-align:${alignment}"` : "";
+    const scope = tagName === "th" ? ' scope="col"' : "";
+    return `<${tagName}${scope}${style}>${renderInlineMarkdown(text)}</${tagName}>`;
+  };
+
+  const rows = table.bodyRows.map((row) => {
+    const cells = Array.from({ length: columnCount }, (_value, columnIndex) =>
+      renderCell("td", row[columnIndex] || "", columns[columnIndex].alignment)
+    ).join("");
+    return `<tr>${cells}</tr>`;
+  });
+
+  return [
+    '<div class="markdown-preview__table-wrap"><table>',
+    `<thead><tr>${columns
+      .map((column) => renderCell("th", column.header, column.alignment))
+      .join("")}</tr></thead>`,
+    `<tbody>${rows.join("")}</tbody>`,
+    "</table></div>"
+  ].join("");
 }
 
 export function renderMarkdownToHtml(markdown: string): string {
@@ -109,7 +238,8 @@ export function renderMarkdownToHtml(markdown: string): string {
     codeFence = null;
   };
 
-  for (const rawLine of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const rawLine = lines[index];
     const line = rawLine.replace(/\t/g, "  ");
 
     if (codeFence) {
@@ -144,6 +274,15 @@ export function renderMarkdownToHtml(markdown: string): string {
       flushList();
       const level = headingMatch[1].length;
       html.push(`<h${level}>${renderInlineMarkdown(headingMatch[2].trim())}</h${level}>`);
+      continue;
+    }
+
+    const tableBlock = parseTableBlock(lines, index);
+    if (tableBlock) {
+      flushParagraph();
+      flushList();
+      html.push(renderTableBlock(tableBlock));
+      index += tableBlock.bodyRows.length + 1;
       continue;
     }
 

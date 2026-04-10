@@ -1,7 +1,7 @@
 ## req_149_improve_markdown_preview_table_rendering_in_claude_authored_docs - Improve Markdown preview table rendering in Claude-authored docs
 > From version: 1.23.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 94%
 > Confidence: 91%
 > Complexity: Medium

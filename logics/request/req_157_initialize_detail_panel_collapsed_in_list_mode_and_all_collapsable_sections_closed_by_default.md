@@ -1,9 +1,9 @@
 ## req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default - Initialize detail panel collapsed in list mode and all collapsable sections closed by default
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -49,6 +49,13 @@ flowchart TD
 
 # Dependencies and risks
 - Risk: if persisted state already exists from a previous session, it will override the new defaults. This is the correct behaviour (AC5), but it means the fix is only visible on fresh installs or after a state reset.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`. Proof: implemented in task_126 wave 8 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`. Proof: implemented in task_126 wave 8 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`. Proof: implemented in task_126 wave 8 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`. Proof: implemented in task_126 wave 8 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`. Proof: implemented in task_126 wave 8 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

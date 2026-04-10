@@ -1,9 +1,9 @@
 ## req_155_align_obsolete_status_between_plugin_and_logics_kit - Align Obsolete status between plugin and Logics kit
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -55,6 +55,12 @@ flowchart TD
 # Dependencies and risks
 - Dependency: the linter change is in the kit submodule, not in the plugin repo directly.
 - Risk: if the submodule is not updated after the kit change, the lint will still fail on the plugin side.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_282_align_obsolete_status_between_plugin_and_logics_kit`. Proof: implemented in task_126 wave 6 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_282_align_obsolete_status_between_plugin_and_logics_kit`. Proof: implemented in task_126 wave 6 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_282_align_obsolete_status_between_plugin_and_logics_kit`. Proof: implemented in task_126 wave 6 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_282_align_obsolete_status_between_plugin_and_logics_kit`. Proof: implemented in task_126 wave 6 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

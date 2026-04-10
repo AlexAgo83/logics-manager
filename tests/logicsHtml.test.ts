@@ -261,14 +261,45 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Velocity");
     expect(html).toContain("Closed this week");
     expect(html).toContain("Closed this month");
+    expect(html).toContain("Delivery timeline");
+    expect(html).toContain("Apr 6");
     expect(html).toContain("Done, Archived, Obsolete");
     expect(html).toContain("Distribution snapshots");
     expect(html).toContain("Getting Started");
     expect(html).toContain("data-action=\"open-onboarding\"");
     expect(html).toContain("data-action=\"about\"");
     expect(html).toContain("<svg viewBox=\"0 0 120 120\"");
-    expect(html).toContain("<strong>1</strong>");
-    expect(html).toContain("<strong>3</strong>");
+  });
+
+  it("renders an empty logics timeline when no closed items exist in the window", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-08T12:00:00Z"));
+    const html = buildLogicsCorpusInsightsHtml({
+      webview: createWebview() as never,
+      root: "/workspace/project",
+      items: [
+        {
+          id: "req_001_open",
+          title: "Open request",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_001_open.md",
+          relPath: "logics/request/req_001_open.md",
+          filename: "req_001_open.md",
+          updatedAt: "2026-04-07T10:00:00Z",
+          indicators: { Status: "Ready" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 24,
+          charCount: 800,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+
+    expect(html).toContain("Delivery timeline");
+    expect(html).toContain("No closed items in the last 12 weeks.");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

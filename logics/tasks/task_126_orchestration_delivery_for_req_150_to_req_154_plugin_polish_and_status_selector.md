@@ -1,10 +1,10 @@
 ## task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector - Orchestration delivery for req_150 to req_154 plugin polish and status selector
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100% (refreshed)
-> Confidence: 100%
-> Progress: 92%
+> Confidence: 100% (refreshed)
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -159,12 +159,12 @@ Derived from `logics/request/req_160_add_a_velocity_counter_in_logics_insights_s
 ## Wave 13 — item_288: Timeline view in Logics Insights
 Derived from `logics/request/req_159_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`
 
-- [ ] 13.1 Add bucketing logic in the extension host: group closed items by week or month using `updatedAt`.
-- [ ] 13.2 Add a timeline section to `logicsCorpusInsightsHtml.ts` covering the last 12 weeks or 6 months.
-- [ ] 13.3 Render inline as SVG bars or DOM-based chart — no external library.
-- [ ] 13.4 Show an empty state when no closed items exist in the window.
-- [ ] 13.5 Run `npm run compile` and `npm run test`.
-- [ ] CHECKPOINT: commit wave 13.
+- [x] 13.1 Add bucketing logic in the extension host: group closed items by week or month using `updatedAt`.
+- [x] 13.2 Add a timeline section to `logicsCorpusInsightsHtml.ts` covering the last 12 weeks or 6 months.
+- [x] 13.3 Render inline as SVG bars or DOM-based chart — no external library.
+- [x] 13.4 Show an empty state when no closed items exist in the window.
+- [x] 13.5 Run `npm run compile` and `npm run test`.
+- [x] CHECKPOINT: commit wave 13.
 
 ## Wave 8 — item_284: Initialize detail panel collapsed and all sections closed
 Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
@@ -203,14 +203,17 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
 - item_288 AC1-AC5 → Wave 13 (timeline: 12w/6m window, inline chart, empty state)
 
 ## Request AC proof lines
-- req_150 AC1-AC5 → item_276 Wave 1 (board/list default to newest-first; activity view unaffected)
-- req_151 AC1-AC3 → item_277 Wave 2 (spec cells drop Flow text; status-colored borders removed)
-- req_152 AC1-AC7 → item_278 Wave 4 (bootstrap creates/patches AGENTS.md and LOGICS.md, adds LOGICS.md to gitignore, dry-run/check coverage)
-- req_153 AC1-AC4 → item_279 Wave 3 (items remain visible after resize/collapse; no user interaction required; no regression)
-- req_154 AC1, AC3, AC5, AC6 and item_281 AC2, AC4 → item_280/item_281 Wave 5 (status selector UI plus write/refresh path)
-- req_155 AC1-AC4 → item_282 Wave 6 (Obsolete supported in kit linter, SKILL.md, bootstrap instructions, and README)
-- req_156 AC1-AC5 → item_283 Wave 7 (launcher-aware environment checks suppress spurious Claude/Codex warnings)
-- req_157 AC1-AC5 → item_284 Wave 8 (list mode starts collapsed; indicators section closed; persisted state still wins)
+- req_150 AC1-AC5 -> item_276 Wave 1. Proof: board/list default to newest-first and Activity view stays unaffected.
+- req_151 AC1-AC4 -> item_277 Wave 2. Proof: spec cells drop Flow text and status-colored borders are removed.
+- req_152 AC1-AC7 -> item_278 Wave 4. Proof: bootstrap creates/patches AGENTS.md and LOGICS.md, adds LOGICS.md to gitignore, and keeps check/dry-run covered.
+- req_153 AC1-AC4 -> item_279 Wave 3. Proof: items remain visible after resize/collapse and no user interaction is required.
+- req_154 AC1-AC6 -> item_280/item_281 Wave 5. Proof: status selector UI plus write/refresh path were implemented together.
+- req_155 AC1-AC4 -> item_282 Wave 6. Proof: Obsolete is supported in the kit linter, SKILL.md, bootstrap instructions, and README.
+- req_156 AC1-AC5 -> item_283 Wave 7. Proof: launcher-aware environment checks suppress spurious Claude/Codex warnings.
+- req_157 AC1-AC5 -> item_284 Wave 8. Proof: list mode starts collapsed, indicators are closed, and persisted state still wins.
+- req_158 AC1-AC5 -> item_285/item_286/item_287 Waves 9-11. Proof: AC traceability cleanup, generated INDEX/RELATIONSHIPS docs, and modularization planning were completed.
+- req_159 AC1-AC5 -> item_288 Wave 13. Proof: timeline view covers the requested window with an inline chart and empty state.
+- req_160 AC1-AC5 -> item_289 Wave 12. Proof: velocity counter shows week and month counts, zero state, and all item types.
 
 # Links
 - Backlog items:
@@ -246,12 +249,17 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
 - `npm run test`
 - `python3 logics/skills/logics.py lint --require-status`
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
+- Finish workflow executed on 2026-04-11.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] All 14 backlog items addressed across 13 waves.
-- [ ] `npm run compile` and `npm run test` pass after each wave.
-- [ ] Linked request and backlog docs updated at each wave checkpoint.
-- [ ] No wave closed before tests and quality checks passed.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] All 14 backlog items addressed across 13 waves.
+- [x] `npm run compile` and `npm run test` pass after each wave.
+- [x] Linked request and backlog docs updated at each wave checkpoint.
+- [x] No wave closed before tests and quality checks passed.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-04-11.
+- Linked backlog item(s): `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`, `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`, `item_278_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md`, `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`, `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel`, `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`, `item_282_align_obsolete_status_between_plugin_and_logics_kit`, `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`, `item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`, `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, `item_287_create_modularization_plan_for_the_five_oversized_source_files`, `item_288_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time`, `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`
+- Related request(s): `req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`, `req_151_address_miscellaneous_post_release_feedback_across_the_plugin`, `req_152_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md`, `req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`, `req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly`, `req_155_align_obsolete_status_between_plugin_and_logics_kit`, `req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`, `req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default`, `req_158_address_post_audit_improvements_ac`, `req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files`, `req_159_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time`, `req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`

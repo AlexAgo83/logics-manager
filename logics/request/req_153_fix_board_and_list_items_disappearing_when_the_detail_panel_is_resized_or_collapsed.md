@@ -1,9 +1,9 @@
 ## req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed - Fix board and list items disappearing when the detail panel is resized or collapsed
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -41,6 +41,12 @@ flowchart TD
 
 # Dependencies and risks
 - Risk: the bug may be intermittent and depend on specific panel width thresholds — reproducing it reliably is a prerequisite for a confident fix.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`. Proof: implemented in task_126 wave 3 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`. Proof: implemented in task_126 wave 3 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`. Proof: implemented in task_126 wave 3 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_279_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`. Proof: implemented in task_126 wave 3 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

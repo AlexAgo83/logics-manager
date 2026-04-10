@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 100% (refreshed)
-> Confidence: 100% (refreshed)
+> Confidence: 100% (final)
 > Progress: 100%
 > Complexity: Low
 > Theme: UI
@@ -74,3 +74,4 @@ flowchart TD
 - Source file: `logics/request/req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`.
+- Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` was finished via `logics_flow.py finish task` on 2026-04-11.

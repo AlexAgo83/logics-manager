@@ -1,10 +1,10 @@
 ## item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus - Generate INDEX.md and RELATIONSHIPS.md for the Logics doc corpus
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 95% (final)
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -28,7 +28,7 @@ flowchart TD
 %% logics-kind: backlog
 %% logics-signature: backlog|generate-index-md-and-relationships-md-f|req-158-address-post-audit-improvements-|fix-ac-traceability-gaps-the-10|ac1-ac-traceability-proof-lines-are
 flowchart TD
-    Request[req_158_address_post_audit_improvements_ac] --> Problem[Fix AC traceability gaps: the 10]
+    Request[req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files] --> Problem[Fix AC traceability gaps: the 10]
     Problem --> Scope[Generate INDEX.md and RELATIONSHIPS.md for]
     Scope --> Acceptance[AC1: AC traceability proof lines are]
     Acceptance --> Tasks[Execution task]
@@ -49,9 +49,9 @@ flowchart TD
 - AC5 -> Scope: A modularization plan exists for the 5 oversized files — either as a new request/backlog item or as explicit notes in `logics/architecture/`.. Proof: capture validation evidence in this doc.
 
 # Decision framing
-- Product framing: Required
-- Product signals: pricing and packaging, navigation and discoverability
-- Product follow-up: Create or link a product brief before implementation moves deeper into delivery.
+- Product framing: Not needed
+- Product signals: (none detected)
+- Product follow-up: No product brief follow-up is expected based on current signals.
 - Architecture framing: Consider
 - Architecture signals: data model and persistence
 - Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
@@ -79,3 +79,4 @@ flowchart TD
 - Source file: `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`.
+- Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` was finished via `logics_flow.py finish task` on 2026-04-11.

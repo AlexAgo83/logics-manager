@@ -1,9 +1,9 @@
 ## req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first - Invert default sort order in board and list so most recent items appear first
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100% (refreshed)
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -47,6 +47,13 @@ flowchart TD
 - Dependency: the sort direction must be applied at the rendering layer, not only for one item type.
 - Dependency: `updatedAt` must be a stable, populated field across all item types — verify before implementing.
 - Risk: any component that hard-codes ascending date order would need to be updated individually.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`. Proof: implemented in task_126 wave 1 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`. Proof: implemented in task_126 wave 1 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`. Proof: implemented in task_126 wave 1 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`. Proof: implemented in task_126 wave 1 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_276_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first`. Proof: implemented in task_126 wave 1 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

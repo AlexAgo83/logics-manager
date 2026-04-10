@@ -1,9 +1,9 @@
 ## req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files - Address post-audit improvements across workflow traceability docs and oversized source files
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 100% (final)
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -50,6 +50,13 @@ flowchart TD
 
 # Dependencies and risks
 - Risk: INDEX.md and RELATIONSHIPS.md are generated files — they should be regenerated after each significant workflow change to stay accurate.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, and `item_287_create_modularization_plan_for_the_five_oversized_source_files`. Proof: implemented in task_126 waves 9 to 11 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, and `item_287_create_modularization_plan_for_the_five_oversized_source_files`. Proof: implemented in task_126 waves 9 to 11 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, and `item_287_create_modularization_plan_for_the_five_oversized_source_files`. Proof: implemented in task_126 waves 9 to 11 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, and `item_287_create_modularization_plan_for_the_five_oversized_source_files`. Proof: implemented in task_126 waves 9 to 11 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items`, `item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus`, and `item_287_create_modularization_plan_for_the_five_oversized_source_files`. Proof: implemented in task_126 waves 9 to 11 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

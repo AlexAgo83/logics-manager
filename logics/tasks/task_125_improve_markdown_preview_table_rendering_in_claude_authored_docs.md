@@ -1,10 +1,10 @@
 ## task_125_improve_markdown_preview_table_rendering_in_claude_authored_docs - Improve Markdown preview table rendering in Claude-authored docs
 > From version: 1.23.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Board preview and markdown rendering
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -89,6 +89,8 @@ stateDiagram-v2
 - `npm run test`
 - `npm run lint:ts`
 - `npm run lint:logics`
+- Finish workflow executed on 2026-04-10.
+- Linked backlog/request close verification passed.
 
 # Validation Notes
 - Run the relevant automated tests for the changed surface before closing the current wave or step.
@@ -96,11 +98,14 @@ stateDiagram-v2
 - Confirm the completed wave leaves the repository in a commit-ready state.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-04-10.
+- Linked backlog item(s): `item_275_improve_markdown_preview_table_rendering_in_claude_authored_docs`
+- Related request(s): `req_149_improve_markdown_preview_table_rendering_in_claude_authored_docs`

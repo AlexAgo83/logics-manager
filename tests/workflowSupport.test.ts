@@ -62,6 +62,26 @@ describe("workflowSupport", () => {
     expect(html.includes("Plain item")).toBe(true);
   });
 
+  it("renders markdown tables as structured table markup with inline formatting", () => {
+    const html = renderMarkdownToHtml(
+      [
+        "| Surface | Pre-V2 role | Post-V2 role |",
+        "|---|:---:|---:|",
+        "| DeepVault - Navy | Primary local explorer for validation | Internal operator tool with `code` |",
+        "| DeepVault - Gordon | Planned Teams channel | Primary production user-facing channel |"
+      ].join("\n")
+    );
+
+    expect(html).toContain('class="markdown-preview__table-wrap"');
+    expect(html).toContain("<table>");
+    expect(html).toContain("<thead>");
+    expect(html).toContain("<tbody>");
+    expect(html).toContain('<th scope="col">Surface</th>');
+    expect(html).toContain('<th scope="col" style="text-align:center">Pre-V2 role</th>');
+    expect(html).toContain('<th scope="col" style="text-align:right">Post-V2 role</th>');
+    expect(html).toContain("<code>code</code>");
+  });
+
   it("builds a guided request prompt from the agent default prompt", () => {
     const prompt = buildGuidedRequestPrompt("Use $logics-flow-manager to manage workflow docs.");
     expect(prompt.includes("Use $logics-flow-manager")).toBe(true);

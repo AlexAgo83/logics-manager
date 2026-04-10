@@ -412,6 +412,34 @@ describe("logics HTML builders", () => {
     fs.rmSync(extensionPath, { recursive: true, force: true });
   });
 
+  it("renders markdown tables inside the read preview surface", () => {
+    const extensionPath = fs.mkdtempSync(path.join(os.tmpdir(), "logics-html-"));
+
+    const html = buildReadPreviewHtml({
+      item: {
+        id: "req_149",
+        title: "Improve Markdown preview table rendering in Claude-authored docs",
+        stage: "request",
+        relPath: "logics/request/req_149_improve_markdown_preview_table_rendering_in_claude_authored_docs.md"
+      },
+      markdown: [
+        "## Context",
+        "",
+        "| Surface | Pre-V2 role | Post-V2 role |",
+        "|---|---|---|",
+        "| DeepVault - Navy | Primary local explorer for validation | Internal operator tool for content inspection and ingestion debugging |"
+      ].join("\n"),
+      webview: createWebview() as never,
+      extensionPath
+    });
+
+    expect(html).toContain('class="markdown-preview__table-wrap"');
+    expect(html).toContain("<table>");
+    expect(html).toContain("DeepVault - Navy");
+    expect(html).toContain("Internal operator tool for content inspection and ingestion debugging");
+    fs.rmSync(extensionPath, { recursive: true, force: true });
+  });
+
   it("sorts recent hybrid runs newest first and formats recent timestamps relatively", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-04T12:00:00Z"));

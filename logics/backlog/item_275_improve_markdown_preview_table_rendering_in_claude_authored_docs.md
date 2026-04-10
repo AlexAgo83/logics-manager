@@ -1,10 +1,10 @@
 ## item_275_improve_markdown_preview_table_rendering_in_claude_authored_docs - Improve Markdown preview table rendering in Claude-authored docs
 > From version: 1.23.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Board preview and markdown rendering
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -90,3 +90,4 @@ flowchart TD
 - Source file: `logics/request/req_149_improve_markdown_preview_table_rendering_in_claude_authored_docs.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_149_improve_markdown_preview_table_rendering_in_claude_authored_docs.md`.
+- Task `task_125_improve_markdown_preview_table_rendering_in_claude_authored_docs` was finished via `logics_flow.py finish task` on 2026-04-10.

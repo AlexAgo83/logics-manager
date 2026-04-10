@@ -30,6 +30,131 @@
     return rendered;
   }
 
+  function splitTableCells(line) {
+    const normalized = String(line || "")
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "");
+    const cells = [];
+    let current = "";
+    let escaping = false;
+
+    for (let index = 0; index < normalized.length; index += 1) {
+      const char = normalized[index];
+      if (escaping) {
+        current += char;
+        escaping = false;
+        continue;
+      }
+      if (char === "\\") {
+        escaping = true;
+        continue;
+      }
+      if (char === "|") {
+        cells.push(current.trim());
+        current = "";
+        continue;
+      }
+      current += char;
+    }
+
+    cells.push(current.trim());
+    return cells;
+  }
+
+  function parseTableAlignment(cell) {
+    const trimmed = String(cell || "").trim();
+    if (!/^:?-{3,}:?$/.test(trimmed)) {
+      return null;
+    }
+    const hasLeft = trimmed.startsWith(":");
+    const hasRight = trimmed.endsWith(":");
+    if (hasLeft && hasRight) {
+      return "center";
+    }
+    if (hasRight) {
+      return "right";
+    }
+    if (hasLeft) {
+      return "left";
+    }
+    return null;
+  }
+
+  function isTableDividerRow(line) {
+    const cells = splitTableCells(line);
+    return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(String(cell || "").trim()));
+  }
+
+  function parseTableBlock(lines, index) {
+    const headerLine = lines[index] || "";
+    const dividerLine = lines[index + 1] || "";
+    if (!headerLine.includes("|") || !isTableDividerRow(dividerLine)) {
+      return null;
+    }
+
+    const headerCells = splitTableCells(headerLine);
+    const dividerCells = splitTableCells(dividerLine);
+    if (headerCells.length === 0 || headerCells.length !== dividerCells.length) {
+      return null;
+    }
+
+    const bodyRows = [];
+    let cursor = index + 2;
+    while (cursor < lines.length) {
+      const line = lines[cursor];
+      if (line.trim() === "" || !line.includes("|")) {
+        break;
+      }
+      const cells = splitTableCells(line);
+      if (cells.length === 0) {
+        break;
+      }
+      bodyRows.push(cells);
+      cursor += 1;
+    }
+
+    return {
+      headerCells,
+      alignments: dividerCells.map((cell) => parseTableAlignment(cell)),
+      bodyRows
+    };
+  }
+
+  function renderTableBlock(table) {
+    const columnCount = Math.max(
+      table.headerCells.length,
+      table.alignments.length,
+      ...table.bodyRows.map((row) => row.length)
+    );
+    const columns = Array.from({ length: columnCount }, (_value, columnIndex) => ({
+      alignment: table.alignments[columnIndex] || null,
+      header: table.headerCells[columnIndex] || ""
+    }));
+
+    const renderCell = (tagName, text, alignment) => {
+      const style = alignment ? ` style="text-align:${alignment}"` : "";
+      const scope = tagName === "th" ? ' scope="col"' : "";
+      return `<${tagName}${scope}${style}>${renderInlineMarkdown(text)}</${tagName}>`;
+    };
+
+    const rows = table.bodyRows
+      .map((row) => {
+        const cells = Array.from({ length: columnCount }, (_value, columnIndex) =>
+          renderCell("td", row[columnIndex] || "", columns[columnIndex].alignment)
+        ).join("");
+        return `<tr>${cells}</tr>`;
+      })
+      .join("");
+
+    return [
+      '<div class="markdown-preview__table-wrap"><table>',
+      `<thead><tr>${columns.map((column) => renderCell("th", column.header, column.alignment)).join("")}</tr></thead>`,
+      `<tbody>${rows}</tbody>`,
+      "</table></div>"
+    ].join("");
+  }
+
   function renderMarkdownToHtml(markdown) {
     const lines = String(markdown || "").replace(/\r\n/g, "\n").split("\n");
     const html = [];
@@ -89,7 +214,8 @@
       codeFence = null;
     }
 
-    lines.forEach((rawLine) => {
+    for (let index = 0; index < lines.length; index += 1) {
+      const rawLine = lines[index];
       const line = rawLine.replace(/\t/g, "  ");
 
       if (codeFence) {
@@ -98,7 +224,7 @@
         } else {
           codeFence.lines.push(rawLine);
         }
-        return;
+        continue;
       }
 
       const fenceMatch = line.match(/^```([a-zA-Z0-9_-]+)?\s*$/);
@@ -109,13 +235,13 @@
           language: fenceMatch[1] || "",
           lines: []
         };
-        return;
+        continue;
       }
 
       if (line.trim() === "") {
         flushParagraph();
         flushList();
-        return;
+        continue;
       }
 
       const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
@@ -124,7 +250,16 @@
         flushList();
         const level = headingMatch[1].length;
         html.push(`<h${level}>${renderInlineMarkdown(headingMatch[2].trim())}</h${level}>`);
-        return;
+        continue;
+      }
+
+      const tableBlock = parseTableBlock(lines, index);
+      if (tableBlock) {
+        flushParagraph();
+        flushList();
+        html.push(renderTableBlock(tableBlock));
+        index += tableBlock.bodyRows.length + 1;
+        continue;
       }
 
       const taskMatch = line.match(/^\s*-\s+\[( |x|X)\]\s+(.*)$/);
@@ -139,7 +274,7 @@
           checked: taskMatch[1].toLowerCase() === "x",
           text: taskMatch[2]
         });
-        return;
+        continue;
       }
 
       const unorderedMatch = line.match(/^\s*-\s+(.*)$/);
@@ -150,7 +285,7 @@
         }
         listType = "ul";
         listItems.push({ text: unorderedMatch[1] });
-        return;
+        continue;
       }
 
       const orderedMatch = line.match(/^\s*\d+\.\s+(.*)$/);
@@ -161,12 +296,12 @@
         }
         listType = "ol";
         listItems.push({ text: orderedMatch[1] });
-        return;
+        continue;
       }
 
       flushList();
       paragraph.push(line.trim());
-    });
+    }
 
     flushParagraph();
     flushList();
@@ -193,6 +328,12 @@
       .preview__body .markdown-preview__task-item{margin:.15em 0;}
       .preview__body .markdown-preview__task-label{display:inline-flex;align-items:flex-start;gap:.65em;}
       .preview__body .markdown-preview__task-checkbox{margin-top:.2em;width:1rem;height:1rem;flex:0 0 auto;accent-color:#0369a1;}
+      .preview__body .markdown-preview__table-wrap{overflow-x:auto;margin:18px 0;border:1px solid rgba(148,163,184,.28);border-radius:16px;background:rgba(255,255,255,.78);}
+      .preview__body table{width:100%;min-width:520px;border-collapse:collapse;border-spacing:0;}
+      .preview__body thead th{background:#dbeafe;color:#0f172a;font-weight:700;}
+      .preview__body th,.preview__body td{padding:12px 14px;border-bottom:1px solid rgba(148,163,184,.28);vertical-align:top;text-align:left;word-break:break-word;}
+      .preview__body tbody tr:nth-child(even){background:rgba(59,130,246,.04);}
+      .preview__body tbody tr:last-child td{border-bottom:none;}
       .preview__body a{color:#0369a1;}
       .markdown-preview__diagram svg{max-width:100%;height:auto;}
       .markdown-preview__mermaid-fallback{margin-top:10px;padding:10px 12px;border-radius:10px;color:#991b1b;background:#fee2e2;border:1px solid rgba(248,113,113,.35);}

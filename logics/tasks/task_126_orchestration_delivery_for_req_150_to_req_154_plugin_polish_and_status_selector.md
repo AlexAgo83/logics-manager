@@ -2,7 +2,7 @@
 > From version: 1.24.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 100% (refreshed)
+> Understanding: 100%
 > Confidence: 100%
 > Progress: 0%
 > Complexity: Medium

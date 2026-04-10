@@ -508,7 +508,7 @@ describe("webview harness filters, details, and docs", () => {
     ).toBe(true);
   });
 
-  it("keeps only indicators open by default in the details panel", () => {
+  it("keeps all detail sections collapsed by default in the details panel", () => {
     const { dom } = bootstrapWebview({ harness: false });
     pushData(dom, {
       root: "/workspace/mock",
@@ -523,11 +523,31 @@ describe("webview harness filters, details, and docs", () => {
     const referencesToggle = document.querySelector('[data-section="references"]');
     const usedByToggle = document.querySelector('[data-section="usedBy"]');
 
-    expect(indicatorsToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(indicatorsToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(companionToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(specsToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(referencesToggle?.getAttribute("aria-expanded")).toBe("false");
     expect(usedByToggle?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("starts the details panel collapsed on first load in list mode when no persisted state exists", () => {
+    const { dom } = bootstrapWebview({
+      initialState: {
+        viewMode: "list",
+        workspaceRoot: "/workspace/mock"
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const details = dom.window.document.getElementById("details");
+    const detailsToggle = dom.window.document.getElementById("details-toggle");
+
+    expect(details?.classList.contains("details--collapsed")).toBe(true);
+    expect(detailsToggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("resets filter toggles back to their default state without changing unrelated UI state", () => {

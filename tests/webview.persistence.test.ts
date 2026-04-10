@@ -216,4 +216,38 @@ describe("webview persistence behavior", () => {
       expect(lastState).toHaveProperty("detailsCollapsed");
     }
   });
+
+  it("clamps restored scroll positions when the layout geometry shrinks", () => {
+    const { dom } = bootstrapWebview({
+      initialState: {
+        boardScrollLeft: 1200,
+        boardScrollTop: 950,
+        detailsScrollTop: 500,
+        workspaceRoot: "/workspace/mock"
+      }
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board") as HTMLElement | null;
+    const detailsBody = document.getElementById("details-body") as HTMLElement | null;
+    if (board) {
+      Object.defineProperty(board, "scrollWidth", { configurable: true, get: () => 1200 });
+      Object.defineProperty(board, "clientWidth", { configurable: true, get: () => 300 });
+      Object.defineProperty(board, "scrollHeight", { configurable: true, get: () => 1000 });
+      Object.defineProperty(board, "clientHeight", { configurable: true, get: () => 200 });
+    }
+    if (detailsBody) {
+      Object.defineProperty(detailsBody, "scrollHeight", { configurable: true, get: () => 600 });
+      Object.defineProperty(detailsBody, "clientHeight", { configurable: true, get: () => 240 });
+    }
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    expect(board?.scrollLeft).toBeLessThanOrEqual(900);
+    expect(board?.scrollTop).toBeLessThanOrEqual(800);
+    expect(detailsBody?.scrollTop).toBeLessThanOrEqual(360);
+  });
 });

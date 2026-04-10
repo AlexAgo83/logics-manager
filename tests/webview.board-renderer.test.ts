@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { baseItem, bootstrapWebview, pushData } from "./webviewHarnessTestUtils";
+import { baseItem, bootstrapWebview, pushData, specItem } from "./webviewHarnessTestUtils";
 
 describe("webview board renderer behavior", () => {
   it("renders board columns for each visible stage", () => {
@@ -201,6 +201,26 @@ describe("webview board renderer behavior", () => {
     const title = dom.window.document.querySelector(".card__title-text");
     expect(prefix?.textContent).toBe("R000");
     expect(title?.textContent).toBe("Kickoff");
+  });
+
+  it("omits primary-flow text from spec cards in board and list renderings", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...specItem,
+          references: [{ kind: "manual", label: "Reference", path: "logics/request/req_000_kickoff.md" }]
+        }
+      ]
+    });
+
+    const specCard = dom.window.document.querySelector('[data-id="spec_001_reference_contract"]') as HTMLElement | null;
+    const preview = specCard?.querySelector(".card__preview");
+
+    expect(specCard?.querySelector(".card__meta--linkage")).toBeFalsy();
+    expect(preview?.textContent ?? "").not.toContain("Flow");
   });
 
   it("renders request badges with understanding, confidence, and complexity", () => {

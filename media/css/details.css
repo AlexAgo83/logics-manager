@@ -118,7 +118,8 @@
   min-height: 34px;
 }
 
-.details__actions .btn[data-action="mark-obsolete"] {
+.details__actions .btn[data-action="mark-obsolete"],
+.details__actions .btn[data-action="change-status"] {
   grid-column: 1 / -1;
 }
 

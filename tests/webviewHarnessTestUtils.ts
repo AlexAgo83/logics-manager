@@ -126,6 +126,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
         <button class="btn btn--contextual" data-action="promote"></button>
         <button class="btn btn--secondary" data-action="mark-done"></button>
         <button class="btn btn--caution" data-action="mark-obsolete"></button>
+        <button class="btn btn--caution" data-action="change-status"></button>
         <input id="hide-complete" type="checkbox" />
         <input id="hide-processed-requests" type="checkbox" />
         <input id="hide-spec" type="checkbox" />

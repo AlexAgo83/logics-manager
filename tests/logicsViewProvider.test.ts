@@ -3,6 +3,8 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultEnvironmentSnapshot } from "./logicsViewProviderTestUtils";
+import * as viewProviderSupport from "../src/logicsViewProviderSupport";
+import { updateIndicatorsOnDisk } from "../src/logicsProviderUtils";
 
 const mocks = vi.hoisted(() => ({
   showErrorMessage: vi.fn(),
@@ -256,6 +258,7 @@ describe("LogicsViewProvider", () => {
     mocks.detectClaudeBridgeStatus.mockReset();
     mocks.inspectRuntimeLaunchers.mockReset();
     mocks.inspectGitHubReleaseCapability.mockReset();
+    vi.mocked(updateIndicatorsOnDisk).mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
       preferredVariant: "hybrid-assist",
@@ -471,6 +474,48 @@ describe("LogicsViewProvider", () => {
         retainContextWhenHidden: false
       })
     );
+  });
+
+  it("changes item status with stage-aware quick-pick options and refreshes the item", async () => {
+    const item = {
+      id: "item_001_ready",
+      title: "Ready backlog item",
+      stage: "backlog",
+      path: path.join(root, "logics", "backlog", "item_001_ready.md"),
+      indicators: {
+        Status: "Ready"
+      }
+    };
+    const refresh = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(updateIndicatorsOnDisk).mockReturnValue(true);
+    mocks.showQuickPick.mockResolvedValue({ label: "Blocked" });
+
+    await viewProviderSupport.changeItemStatus.call(
+      {
+        items: [item],
+        getValidStatusesForItem: viewProviderSupport.getValidStatusesForItem,
+        refresh
+      },
+      item.id
+    );
+
+    expect(mocks.showQuickPick).toHaveBeenCalledWith(
+      [
+        { label: "Draft", description: undefined, picked: false },
+        { label: "Ready", description: "Current status", picked: true },
+        { label: "In progress", description: undefined, picked: false },
+        { label: "Blocked", description: undefined, picked: false },
+        { label: "Done", description: undefined, picked: false },
+        { label: "Archived", description: undefined, picked: false }
+      ],
+      expect.objectContaining({
+        placeHolder: "Change status for item_001_ready",
+        title: "Ready backlog item"
+      })
+    );
+    expect(updateIndicatorsOnDisk).toHaveBeenCalledWith(item.path, { Status: "Blocked" });
+    expect(refresh).toHaveBeenCalledWith(item.id);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith("Updated item_001_ready status to Blocked.");
   });
 
   it("does not reopen onboarding on later refreshes for the same project and version", async () => {

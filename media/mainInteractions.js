@@ -41,6 +41,7 @@
       mainPane,
       markDoneButton,
       markObsoleteButton,
+      changeStatusButton,
       newRequestToolButton,
       onNewRequest,
       onAbout,
@@ -78,6 +79,7 @@
       onHideSpecChange,
       onMarkDone,
       onMarkObsolete,
+      onChangeStatus,
       onOpenSelectedItem,
       onPromoteSelectedItem,
       onReadSelectedItem,
@@ -277,6 +279,9 @@
       if (markObsoleteButton) {
         markObsoleteButton.addEventListener("click", () => onMarkObsolete());
       }
+      if (changeStatusButton) {
+        changeStatusButton.addEventListener("click", () => onChangeStatus());
+      }
 
       window.addEventListener("message", (event) => onWindowMessage(event));
       document.addEventListener("click", (event) => onDocumentClick(event));
@@ -339,6 +344,7 @@
       setControlDescription(detailsToggle, detailsToggle?.getAttribute("aria-label") || "Collapse details");
       setControlDescription(markDoneButton, "Mark selected item as done");
       setControlDescription(markObsoleteButton, "Mark selected item as obsolete");
+      setControlDescription(changeStatusButton, "Change selected item status");
       setControlDescription(openButton, "Edit selected item");
       setControlDescription(readButton, "Read selected item");
       setControlDescription(promoteButton, "Promote selected item");

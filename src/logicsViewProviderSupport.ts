@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { AgentDefinition, AgentRegistrySnapshot, createEmptyAgentRegistry, loadAgentRegistry } from "./agentRegistry";
-import { LogicsItem } from "./logicsIndexer";
+import { LogicsItem, LogicsStage } from "./logicsIndexer";
 import { parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "./logicsEnvironment";
@@ -24,6 +24,14 @@ const STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX = "logics.startupKitUpdatePrompt";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 const MIN_LOGICS_KIT_MAJOR = 1;
 const MIN_LOGICS_KIT_MINOR = 7;
+const STATUS_OPTIONS_BY_STAGE: Record<LogicsStage, readonly string[]> = {
+  request: ["Draft", "Ready", "Done", "Archived"],
+  backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
+  task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
+  product: ["Proposed", "Validated", "Done", "Archived"],
+  architecture: ["Proposed", "Accepted", "Validated", "Superseded", "Archived"],
+  spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Archived"]
+};
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
   codex: {
     available: false,
@@ -512,6 +520,49 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   }
   export async function markItemObsolete(this: any, id: string): Promise<void> {
     await this.updateItemLifecycle(id, "Obsolete", "100%");
+  }
+  export function getValidStatusesForItem(this: any, item: LogicsItem): string[] {
+    return [...(STATUS_OPTIONS_BY_STAGE[item.stage] || [])];
+  }
+  export async function changeItemStatus(this: any, id: string): Promise<void> {
+    const item = this.items.find((entry: LogicsItem) => entry.id === id);
+    if (!item) {
+      return;
+    }
+    const statuses: string[] = this.getValidStatusesForItem(item);
+    if (statuses.length === 0) {
+      void vscode.window.showInformationMessage(`No selectable statuses are defined for ${item.id}.`);
+      return;
+    }
+    const currentStatus = String(item.indicators?.Status || "").trim();
+    const pickItems: vscode.QuickPickItem[] = statuses.map((status: string): vscode.QuickPickItem => ({
+        label: status,
+        description: status === currentStatus ? "Current status" : undefined,
+        picked: status === currentStatus
+      }));
+    const pick = (await vscode.window.showQuickPick(
+      pickItems,
+      {
+        placeHolder: `Change status for ${item.id}`,
+        title: item.title ? `${item.title}` : undefined
+      }
+    )) as vscode.QuickPickItem | undefined;
+    if (!pick) {
+      return;
+    }
+    if (pick.label === currentStatus) {
+      void vscode.window.showInformationMessage(`Status for ${item.id} is already ${pick.label}.`);
+      return;
+    }
+    const updated = updateIndicatorsOnDisk(item.path, {
+      Status: pick.label
+    });
+    if (!updated) {
+      void vscode.window.showInformationMessage(`Item already marked as ${pick.label.toLowerCase()}.`);
+      return;
+    }
+    void vscode.window.showInformationMessage(`Updated ${item.id} status to ${pick.label}.`);
+    await this.refresh(item.id);
   }
   export async function updateItemLifecycle(this: any, id: string, status: string, progress: string): Promise<void> {
     const item = this.items.find((entry: LogicsItem) => entry.id === id);

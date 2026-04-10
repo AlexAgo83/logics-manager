@@ -19,6 +19,7 @@
       hideSpecToggle,
       markDoneButton,
       markObsoleteButton,
+      changeStatusButton,
       openButton,
       promoteButton,
       readButton,
@@ -217,6 +218,10 @@
       if (markObsoleteButton) {
         markObsoleteButton.disabled = !item;
         markObsoleteButton.title = item ? "Mark selected item as obsolete" : "Select an item first";
+      }
+      if (changeStatusButton) {
+        changeStatusButton.disabled = !item;
+        changeStatusButton.title = item ? "Change status of selected item" : "Select an item first";
       }
       openButton.title = item ? "Edit selected item" : "Select an item to edit";
       promoteButton.title = canPromote(item)

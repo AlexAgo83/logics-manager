@@ -2,7 +2,7 @@
 > From version: 1.24.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 100%
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Progress: 0%
 > Complexity: Medium
@@ -34,7 +34,17 @@ stateDiagram-v2
     Wave8 : Wave 7 - item_283 gate Claude and Codex checks
     Wave8 --> Wave9
     Wave9 : Wave 8 - item_284 panel init collapsed
-    Wave9 --> Done
+    Wave9 --> Wave10
+    Wave10 : Wave 9 - item_285 AC traceability and ADR cleanup
+    Wave10 --> Wave11
+    Wave11 : Wave 10 - item_286 INDEX and RELATIONSHIPS docs
+    Wave11 --> Wave12
+    Wave12 : Wave 11 - item_287 modularization plan
+    Wave12 --> Wave13
+    Wave13 : Wave 12 - item_289 velocity counter
+    Wave13 --> Wave14
+    Wave14 : Wave 13 - item_288 timeline view
+    Wave14 --> Done
     Done : Done and docs updated
     Done --> [*]
 ```
@@ -115,6 +125,47 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
 - [ ] 7.5 Run `npm run compile` and `npm run test`.
 - [ ] CHECKPOINT: commit wave 7.
 
+## Wave 9 — item_285: AC traceability and ADR cleanup
+Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
+
+- [ ] 9.1 Add per-request AC proof lines to this task doc for req_150 through req_157 so the audit no longer flags traceability gaps.
+- [ ] 9.2 Add an explicit "no ADR required" note in the Architecture decision section of item_277, item_279, item_280, item_281, item_282.
+- [ ] CHECKPOINT: commit wave 9 (docs only, no compile/test needed).
+
+## Wave 10 — item_286: Generate INDEX.md and RELATIONSHIPS.md
+Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
+
+- [ ] 10.1 Run `python3 logics/skills/logics-indexer/scripts/generate_index.py --out logics/INDEX.md`.
+- [ ] 10.2 Run `python3 logics/skills/logics-relationship-linker/scripts/link_relations.py --out logics/RELATIONSHIPS.md`.
+- [ ] 10.3 Verify both files are generated and contain reasonable content.
+- [ ] CHECKPOINT: commit wave 10.
+
+## Wave 11 — item_287: Modularization plan for oversized source files
+Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
+
+- [ ] 11.1 Document a modularization plan for the 5 oversized files as a new backlog item or ADR in `logics/architecture/`, covering: `logicsViewProviderSupport.ts` (1 025 L), `logicsViewProvider.ts` (1 004 L), `media/main.js` (1 002 L), `media/renderBoard.js` (935 L), `media/logicsModel.js` (910 L).
+- [ ] 11.2 Each file should have a proposed split boundary and rationale.
+- [ ] CHECKPOINT: commit wave 11.
+
+## Wave 12 — item_289: Velocity counter in Logics Insights
+Derived from `logics/request/req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`
+
+- [ ] 12.1 Add a velocity section to `logicsCorpusInsightsHtml.ts` computing closed items for the current ISO week and calendar month.
+- [ ] 12.2 Render as a compact stat block, consistent with existing Insights sections.
+- [ ] 12.3 Show zero explicitly when no items were closed in the period.
+- [ ] 12.4 Run `npm run compile` and `npm run test`.
+- [ ] CHECKPOINT: commit wave 12.
+
+## Wave 13 — item_288: Timeline view in Logics Insights
+Derived from `logics/request/req_159_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`
+
+- [ ] 13.1 Add bucketing logic in the extension host: group closed items by week or month using `updatedAt`.
+- [ ] 13.2 Add a timeline section to `logicsCorpusInsightsHtml.ts` covering the last 12 weeks or 6 months.
+- [ ] 13.3 Render inline as SVG bars or DOM-based chart — no external library.
+- [ ] 13.4 Show an empty state when no closed items exist in the window.
+- [ ] 13.5 Run `npm run compile` and `npm run test`.
+- [ ] CHECKPOINT: commit wave 13.
+
 ## Wave 8 — item_284: Initialize detail panel collapsed and all sections closed
 Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
 
@@ -145,6 +196,11 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
 - item_282 AC1-AC4 → Wave 6 (Obsolete in kit linter, SKILL.md, instructions.md, README; existing files pass lint)
 - item_283 AC1-AC5 → Wave 7 (hasClaude/hasCodex gates, no spurious degraded warnings, no regression when binary present)
 - item_284 AC1-AC5 → Wave 8 (panel collapsed in list mode, indicators section closed, persisted state wins)
+- item_285 AC1-AC2 → Wave 9 (AC proof lines in task doc, no-ADR notes on 5 backlog items)
+- item_286 AC3-AC4 → Wave 10 (INDEX.md and RELATIONSHIPS.md generated)
+- item_287 AC5 → Wave 11 (modularization plan documented)
+- item_289 AC1-AC5 → Wave 12 (velocity counter: week + month counts, zero shown, all types)
+- item_288 AC1-AC5 → Wave 13 (timeline: 12w/6m window, inline chart, empty state)
 
 # Links
 - Backlog items:
@@ -157,6 +213,11 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
   - `logics/backlog/item_282_align_obsolete_status_between_plugin_and_logics_kit.md`
   - `logics/backlog/item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
   - `logics/backlog/item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
+  - `logics/backlog/item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items.md`
+  - `logics/backlog/item_286_generate_index_md_and_relationships_md_for_the_logics_doc_corpus.md`
+  - `logics/backlog/item_287_create_modularization_plan_for_the_five_oversized_source_files.md`
+  - `logics/backlog/item_288_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`
+  - `logics/backlog/item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`
 - Requests:
   - `logics/request/req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first.md`
   - `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`
@@ -166,6 +227,9 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
   - `logics/request/req_155_align_obsolete_status_between_plugin_and_logics_kit.md`
   - `logics/request/req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
   - `logics/request/req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
+  - `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
+  - `logics/request/req_159_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`
+  - `logics/request/req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`
 
 # Validation
 - `npm run compile`
@@ -174,7 +238,7 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 
 # Definition of Done (DoD)
-- [ ] All 9 backlog items addressed across 8 waves.
+- [ ] All 14 backlog items addressed across 13 waves.
 - [ ] `npm run compile` and `npm run test` pass after each wave.
 - [ ] Linked request and backlog docs updated at each wave checkpoint.
 - [ ] No wave closed before tests and quality checks passed.

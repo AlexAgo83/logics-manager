@@ -11,12 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|add-project-badges-to-readme|add-a-badge-section-in-the|ac1-readme-includes-a-dedicated-badge
 flowchart TD
-  A[Start] --> B[Add badge section near top]
+  A[Start] --> B[Add badge block near top]
   B --> C[Add CI badge linking to .github/workflows/ci.yml]
   C --> D[Add License badge reflecting repo license]
   D --> E[Add Version badge aligned with package.json]
   E --> F[Add relevant additional badges]
-  F --> G[Validate badge links and rendering]
+  F --> G[Validate badge links render correctly]
   G --> H[End]
 ```
 

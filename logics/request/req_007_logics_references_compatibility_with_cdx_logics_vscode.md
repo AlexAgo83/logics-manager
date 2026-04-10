@@ -11,13 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|logics-references-compatibility-with-cdx|make-logics-references-consistently-pars|ac1-a-documented-reference-contract-is
 flowchart TD
-  A[Indexer infers links] --> B[Explicit markers]
-  A --> C[Section links]
-  A --> D[Free-form notes]
-  D --> E[Missing lineage markers]
-  E --> F[Degraded board behavior]
-  F --> G[Need clear reference contract]
-  G --> H[Consistent parsing & visibility]
+    A[Start] --> B[Define ref contract]
+    B --> C[Index explicit markers]
+    C --> D[Check lineage markers]
+    D --> E[Detect workflow issues]
+    E --> F[Establish clear contract]
+    F --> G[Improve parsing & visibility]
+    G --> H[Align lineage & promotion]
 ```
 
 # Needs

@@ -11,14 +11,14 @@ flowchart TD
   Req[Request Entry]
   Backlog[Backlog Entry]
   Task[Task Entry]
-  Ref[Add/Edit References]
-  UsedBy[Add/Edit Used By]
-  Req --> Ref
-  Req --> UsedBy
-  Backlog --> Ref
-  Backlog --> UsedBy
-  Task --> Ref
-  Task --> UsedBy
+  Ref[References]
+  UsedBy[Used By]
+  Req -->|add/edit| Ref
+  Req -->|add/edit| UsedBy
+  Backlog -->|add/edit| Ref
+  Backlog -->|add/edit| UsedBy
+  Task -->|add/edit| Ref
+  Task -->|add/edit| UsedBy
 ```
 
 # Needs

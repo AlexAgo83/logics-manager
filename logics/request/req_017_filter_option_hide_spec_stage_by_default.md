@@ -15,16 +15,16 @@ flowchart TD
   HideSPEC[Checkbox: Hide SPEC]
   BoardMode[Board Mode View]
   ListMode[List Mode View]
-  SpecColumn[Spec Column]
-  SpecSection[Spec Section]
-  StatePersistence[Filter State Persistence]
+  SpecColumn[Show SPEC Column]
+  SpecSection[Show SPEC Section]
+  Persistence[Filter State Persistence]
   FilterPanel --> HideSPEC
-  HideSPEC -- enabled --> SpecColumn[absent in Board Mode]
-  HideSPEC -- enabled --> SpecSection[absent in List Mode]
-  HideSPEC -- disabled --> SpecColumn[present in Board Mode]
-  HideSPEC -- disabled --> SpecSection[present in List Mode]
-  HideSPEC --> StatePersistence
-  StatePersistence --> FilterPanel
+  HideSPEC -- enabled --> SpecColumn[Absent in Board Mode]
+  HideSPEC -- enabled --> SpecSection[Absent in List Mode]
+  HideSPEC -- disabled --> SpecColumn[Present in Board Mode]
+  HideSPEC -- disabled --> SpecSection[Present in List Mode]
+  HideSPEC --> Persistence
+  Persistence --> FilterPanel
 ```
 
 # Needs

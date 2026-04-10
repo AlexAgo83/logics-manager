@@ -12,20 +12,20 @@
 %% logics-signature: request|reliability-hardening-for-layout-state-h|stabilize-layout-splitter-behavior-by-us|ac1-layout-rendering-is-driven-by
 flowchart TD
   LayoutState[Layout State]
-  Splitter[Splitter Behavior]
+  SplitterBehavior[Splitter Behavior]
   HostAPI[Host API Abstraction]
   Accessibility[Accessibility Baseline]
-  CI[CI Pipeline]
+  CIWorkflow[CI Workflow]
   Bootstrap[Bootstrap Resilience]
-  BoardList[Board/List Mode UX]
+  BoardListUX[Board/List Mode UX]
   DebugLogs[Debug Observability]
-  LayoutState --> Splitter
-  LayoutState --> Accessibility
+  LayoutState --> SplitterBehavior
   HostAPI --> Accessibility
-  CI --> Bootstrap
-  BoardList --> Accessibility
-  DebugLogs --> LayoutState
-  DebugLogs --> Splitter
+  Accessibility --> CIWorkflow
+  CIWorkflow --> Bootstrap
+  Bootstrap --> BoardListUX
+  BoardListUX --> DebugLogs
+  SplitterBehavior --> DebugLogs
 ```
 
 # Needs

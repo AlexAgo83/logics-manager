@@ -11,11 +11,11 @@
 %% logics-kind: request
 %% logics-signature: request|accessibility-hardening-improve-discover|improve-accessibility-and-discoverabilit|ac1-interactive-icon-controls-expose-dis
 flowchart TD
-    A[Identify controls lacking descriptions] --> B[Add tooltips and titles]
-    B --> C[Assign clear accessible names]
-    C --> D[Apply ARIA attributes for dynamic states]
-    D --> E[Enable keyboard-only navigation]
-    E --> F[Document accessibility baseline]
+  A[Identify controls lacking descriptions] --> B[Add tooltip/title for icons]
+  B --> C[Assign clear accessible names]
+  C --> D[Apply ARIA attributes for dynamic states]
+  D --> E[Enable keyboard-only navigation]
+  E --> F[Document accessibility baseline]
 ```
 
 # Needs

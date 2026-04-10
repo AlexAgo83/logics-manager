@@ -16,7 +16,7 @@ flowchart TD
   C --> D[Push type:data payloads]
   D --> E[Reproduce board/details rendering]
   E --> F[Reusable scenarios: empty, error, populated]
-  F --> G[Document limits vs VS Code runtime]
+  F --> G[Document limits vs real VS Code runtime]
 ```
 
 # Needs

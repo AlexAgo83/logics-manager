@@ -28,13 +28,33 @@
       }
     }
 
+    function clampScrollPosition(target, horizontal = false) {
+      if (!target) {
+        return 0;
+      }
+      const size = horizontal ? target.scrollWidth : target.scrollHeight;
+      const viewport = horizontal ? target.clientWidth : target.clientHeight;
+      const maxScroll = Math.max(0, Number(size || 0) - Number(viewport || 0));
+      const current = horizontal ? target.scrollLeft : target.scrollTop;
+      const nextValue = Math.min(Math.max(Number(current || 0), 0), maxScroll);
+      if (horizontal) {
+        target.scrollLeft = nextValue;
+      } else {
+        target.scrollTop = nextValue;
+      }
+      return nextValue;
+    }
+
     function restoreScrollState() {
       if (board) {
         board.scrollLeft = scrollState.boardLeft;
         board.scrollTop = scrollState.boardTop;
+        clampScrollPosition(board, true);
+        clampScrollPosition(board, false);
       }
       if (detailsBody) {
         detailsBody.scrollTop = scrollState.detailsTop;
+        clampScrollPosition(detailsBody, false);
       }
     }
 

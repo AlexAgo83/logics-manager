@@ -32,7 +32,9 @@ stateDiagram-v2
     Wave7 : Wave 6 - item_282 align Obsolete in kit
     Wave7 --> Wave8
     Wave8 : Wave 7 - item_283 gate Claude and Codex checks
-    Wave8 --> Done
+    Wave8 --> Wave9
+    Wave9 : Wave 8 - item_284 panel init collapsed
+    Wave9 --> Done
     Done : Done and docs updated
     Done --> [*]
 ```
@@ -113,10 +115,19 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
 - [ ] 7.5 Run `npm run compile` and `npm run test`.
 - [ ] CHECKPOINT: commit wave 7.
 
+## Wave 8 — item_284: Initialize detail panel collapsed and all sections closed
+Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
+
+- [ ] 8.1 In `media/main.js`, set `detailsCollapsed: true` as the initial default when `viewMode` is `"list"` — keep `false` for board mode.
+- [ ] 8.2 Add `"indicators"` to `defaultCollapsedDetailSections` so all 9 sections start closed.
+- [ ] 8.3 Verify that persisted state from a previous session still overrides the new defaults correctly.
+- [ ] 8.4 Run `npm run compile` and `npm run test`.
+- [ ] CHECKPOINT: commit wave 8.
+
 ## Final
-- [ ] 8.1 Update all linked backlog items and request docs (Status, Progress).
-- [ ] 8.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
-- [ ] 8.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
+- [ ] 9.1 Update all linked backlog items and request docs (Status, Progress).
+- [ ] 9.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
+- [ ] 9.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
 
 # Delivery checkpoints
 - Each wave must leave the repository in a commit-ready state before starting the next.
@@ -133,6 +144,7 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
 - item_281 AC2, AC4 → Wave 5b (status written to file, board/list refreshes)
 - item_282 AC1-AC4 → Wave 6 (Obsolete in kit linter, SKILL.md, instructions.md, README; existing files pass lint)
 - item_283 AC1-AC5 → Wave 7 (hasClaude/hasCodex gates, no spurious degraded warnings, no regression when binary present)
+- item_284 AC1-AC5 → Wave 8 (panel collapsed in list mode, indicators section closed, persisted state wins)
 
 # Links
 - Backlog items:
@@ -144,6 +156,7 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
   - `logics/backlog/item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change.md`
   - `logics/backlog/item_282_align_obsolete_status_between_plugin_and_logics_kit.md`
   - `logics/backlog/item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
+  - `logics/backlog/item_284_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
 - Requests:
   - `logics/request/req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first.md`
   - `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`
@@ -152,6 +165,7 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
   - `logics/request/req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly.md`
   - `logics/request/req_155_align_obsolete_status_between_plugin_and_logics_kit.md`
   - `logics/request/req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
+  - `logics/request/req_157_initialize_detail_panel_collapsed_in_list_mode_and_all_collapsable_sections_closed_by_default.md`
 
 # Validation
 - `npm run compile`
@@ -160,7 +174,7 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 
 # Definition of Done (DoD)
-- [ ] All 8 backlog items addressed across 7 waves.
+- [ ] All 9 backlog items addressed across 8 waves.
 - [ ] `npm run compile` and `npm run test` pass after each wave.
 - [ ] Linked request and backlog docs updated at each wave checkpoint.
 - [ ] No wave closed before tests and quality checks passed.

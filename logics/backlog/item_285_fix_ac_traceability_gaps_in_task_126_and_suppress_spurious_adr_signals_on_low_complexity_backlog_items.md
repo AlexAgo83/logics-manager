@@ -1,10 +1,10 @@
 ## item_285_fix_ac_traceability_gaps_in_task_126_and_suppress_spurious_adr_signals_on_low_complexity_backlog_items - Fix AC traceability gaps in task_126 and suppress spurious ADR signals on Low complexity backlog items
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 95%
-> Progress: 0%
+> Confidence: 95% (final)
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -48,9 +48,9 @@ flowchart TD
 - AC5 -> Scope: A modularization plan exists for the 5 oversized files — either as a new request/backlog item or as explicit notes in `logics/architecture/`.. Proof: capture validation evidence in this doc.
 
 # Decision framing
-- Product framing: Required
-- Product signals: pricing and packaging, navigation and discoverability
-- Product follow-up: Create or link a product brief before implementation moves deeper into delivery.
+- Product framing: Not needed
+- Product signals: (none detected)
+- Product follow-up: No product brief follow-up is expected based on current signals.
 - Architecture framing: Consider
 - Architecture signals: data model and persistence
 - Architecture follow-up: Review whether an architecture decision is needed before implementation becomes harder to reverse.
@@ -78,3 +78,4 @@ flowchart TD
 - Source file: `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`.
+- Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` was finished via `logics_flow.py finish task` on 2026-04-11.

@@ -1,9 +1,9 @@
 ## req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month - Add a velocity counter in Logics Insights showing items closed per week and month
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -52,6 +52,13 @@ flowchart TD
 - "This week" means the current ISO week (Monday to Sunday).
 - "This month" means the current calendar month.
 - The velocity counter and the timeline view (req_159) are related but independent — the counter can be delivered before or after the timeline.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`. Proof: implemented in task_126 wave 12 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`. Proof: implemented in task_126 wave 12 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`. Proof: implemented in task_126 wave 12 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`. Proof: implemented in task_126 wave 12 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month`. Proof: implemented in task_126 wave 12 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

@@ -1,10 +1,10 @@
 ## item_277_address_miscellaneous_post_release_feedback_across_the_plugin - Address miscellaneous post-release feedback across the plugin
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 100% (refreshed)
-> Progress: 0%
+> Confidence: 100% (updated)
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,9 +53,9 @@ flowchart TD
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Required
-- Architecture signals: data model and persistence, security and identity, delivery and operations
-- Architecture follow-up: Create or link an architecture decision before irreversible implementation work starts.
+- Architecture framing: Not needed
+- Architecture signals: (none detected)
+- Architecture follow-up: No architecture decision follow-up is expected based on current signals.
 
 # Links
 - Product brief(s): (none yet)
@@ -80,3 +80,4 @@ flowchart TD
 - Source file: `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`.
+- Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` was finished via `logics_flow.py finish task` on 2026-04-11.

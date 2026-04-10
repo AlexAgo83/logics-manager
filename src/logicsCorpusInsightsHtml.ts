@@ -18,6 +18,11 @@ type PieChartSpec = {
   totalLabel: string;
 };
 
+type TimelinePoint = {
+  label: string;
+  value: number;
+};
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -294,6 +299,90 @@ function summarizeVelocity(items: LogicsItem[], nowMs: number): { week: number; 
   return counts;
 }
 
+function formatTimelineLabel(timestampMs: number): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC"
+  }).format(new Date(timestampMs));
+}
+
+function summarizeTimeline(items: LogicsItem[], nowMs: number, bucketCount = 12): TimelinePoint[] {
+  const closedWorkflowItems = items.filter((item) => WORKFLOW_STAGES.has(item.stage) && CLOSED_STATUSES.has(asString(item.indicators.Status, "")));
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const currentWeekStart = getUtcIsoWeekStart(nowMs);
+  const firstBucketStart = currentWeekStart - (bucketCount - 1) * weekMs;
+  const buckets = Array.from({ length: bucketCount }, (_, index) => {
+    const bucketStart = firstBucketStart + index * weekMs;
+    return {
+      label: formatTimelineLabel(bucketStart),
+      value: 0,
+      startMs: bucketStart,
+      endMs: bucketStart + weekMs
+    };
+  });
+
+  for (const item of closedWorkflowItems) {
+    const timestamp = parseTimestamp(item.updatedAt);
+    if (timestamp === null || timestamp > nowMs || timestamp < firstBucketStart) {
+      continue;
+    }
+    const index = Math.min(bucketCount - 1, Math.floor((timestamp - firstBucketStart) / weekMs));
+    buckets[index].value += 1;
+  }
+
+  return buckets.map(({ label, value }) => ({ label, value }));
+}
+
+function renderTimelineChart(title: string, description: string, points: TimelinePoint[]): string {
+  const total = points.reduce((sum, point) => sum + point.value, 0);
+  if (total <= 0) {
+    return `
+      <article class="logics-insights__chart-card">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(description)}</p>
+        <p class="logics-insights__empty">No closed items in the last 12 weeks.</p>
+      </article>
+    `;
+  }
+  const maxValue = Math.max(...points.map((point) => point.value), 1);
+  const chartWidth = 720;
+  const chartHeight = 200;
+  const chartLeft = 36;
+  const chartTop = 24;
+  const chartBottom = 150;
+  const chartUsableHeight = chartBottom - chartTop;
+  const slotWidth = (chartWidth - chartLeft * 2) / points.length;
+  const barWidth = Math.max(16, Math.min(38, slotWidth - 12));
+  const xCenterOffset = slotWidth / 2;
+
+  return `
+    <article class="logics-insights__chart-card">
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(description)}</p>
+      <div class="logics-insights__timeline">
+        <svg viewBox="0 0 ${chartWidth} ${chartHeight}" role="img" aria-label="${escapeHtml(title)}">
+          <line x1="${chartLeft}" y1="${chartBottom}" x2="${chartWidth - chartLeft}" y2="${chartBottom}" class="logics-insights__timeline-axis"></line>
+          ${points
+            .map((point, index) => {
+              const x = chartLeft + index * slotWidth + xCenterOffset - barWidth / 2;
+              const barHeight = Math.max(4, Math.round((point.value / maxValue) * chartUsableHeight));
+              const y = chartBottom - barHeight;
+              return `
+                <g>
+                  <rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth}" height="${barHeight}" rx="6" class="logics-insights__timeline-bar"></rect>
+                  <text x="${(x + barWidth / 2).toFixed(2)}" y="${(y - 6).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-count">${point.value}</text>
+                  <text x="${(x + barWidth / 2).toFixed(2)}" y="${(chartBottom + 16).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-label">${escapeHtml(point.label)}</text>
+                </g>
+              `;
+            })
+            .join("")}
+        </svg>
+      </div>
+    </article>
+  `;
+}
+
 function compareByConnectionStrength(left: LogicsItem, right: LogicsItem): number {
   const leftScore = left.references.length + left.usedBy.length;
   const rightScore = right.references.length + right.usedBy.length;
@@ -330,6 +419,7 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const totalChars = items.reduce((sum, item) => sum + item.charCount, 0);
   const averageLines = items.length > 0 ? totalLines / items.length : 0;
   const velocityCounts = summarizeVelocity(items, Date.now());
+  const timelinePoints = summarizeTimeline(items, Date.now());
   const linkedItems = items.filter((item) => item.references.length > 0 || item.usedBy.length > 0);
   const stagePie = buildPieSlices(
     Object.entries(stageCounts)
@@ -610,6 +700,29 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__footer-button:hover {
           background: var(--vscode-button-secondaryHoverBackground);
         }
+        .logics-insights__timeline {
+          overflow-x: auto;
+        }
+        .logics-insights__timeline svg {
+          min-width: 100%;
+          display: block;
+        }
+        .logics-insights__timeline-axis {
+          stroke: color-mix(in srgb, currentColor 18%, transparent);
+          stroke-width: 1;
+        }
+        .logics-insights__timeline-bar {
+          fill: var(--vscode-terminal-ansiBlue);
+        }
+        .logics-insights__timeline-count {
+          fill: var(--vscode-editor-foreground);
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .logics-insights__timeline-label {
+          fill: var(--vscode-descriptionForeground);
+          font-size: 10px;
+        }
         @media (max-width: 920px) {
           .logics-insights__header {
             flex-direction: column;
@@ -651,6 +764,12 @@ export function buildLogicsCorpusInsightsHtml(params: {
               ${renderStatCard("Closed this week", String(velocityCounts.week), "Done, Archived, Obsolete", velocityCounts.week > 0 ? "good" : "warn")}
               ${renderStatCard("Closed this month", String(velocityCounts.month), "Done, Archived, Obsolete", velocityCounts.month > 0 ? "good" : "warn")}
             </div>
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Delivery timeline</h2>
+            <p>Closed workflow items bucketed by week across the last 12 weeks.</p>
+            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week across the last 12 weeks.", timelinePoints)}
           </div>
 
           <div class="logics-insights__section">

@@ -1,9 +1,9 @@
 ## req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used - Gate Claude and Codex environment checks on whether those assistants are installed and used
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -54,6 +54,13 @@ flowchart TD
 # Dependencies and risks
 - Dependency: `inspectRuntimeLaunchers` must be called before the health computation, and its result passed through. Check whether it is already available at the call sites in `logicsViewProviderSupport.ts`.
 - Risk: if `hasClaude` / `hasCodex` detection is slow (subprocess), ensure the gate does not add latency to the environment check path.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`. Proof: implemented in task_126 wave 7 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`. Proof: implemented in task_126 wave 7 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`. Proof: implemented in task_126 wave 7 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`. Proof: implemented in task_126 wave 7 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used`. Proof: implemented in task_126 wave 7 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

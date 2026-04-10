@@ -1,9 +1,9 @@
 ## req_151_address_miscellaneous_post_release_feedback_across_the_plugin - Address miscellaneous post-release feedback across the plugin
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100% (refreshed)
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -57,6 +57,12 @@ flowchart TD
 - Items in this batch are shipped as a single grouped backlog item — no need to promote each one individually.
 - Items already tracked in a dedicated request (e.g. req_150 for sort order) must not be listed here to avoid confusion.
 - A feedback item that grows in complexity during implementation should be spun off into its own request at that point.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`. Proof: implemented in task_126 wave 2 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`. Proof: implemented in task_126 wave 2 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`. Proof: implemented in task_126 wave 2 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog item `item_277_address_miscellaneous_post_release_feedback_across_the_plugin`. Proof: implemented in task_126 wave 2 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

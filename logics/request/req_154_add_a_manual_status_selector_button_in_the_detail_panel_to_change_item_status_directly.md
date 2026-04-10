@@ -1,9 +1,9 @@
 ## req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly - Add a manual status selector button in the detail panel to change item status directly
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100% (refreshed)
-> Confidence: 100%
+> Confidence: 100% (final)
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -61,6 +61,14 @@ flowchart TD
 - It takes full width, matching the width of the Obsolete button.
 - Its visual style (shape, size, border, typography) must match the Obsolete button — same component or same CSS treatment, just different label and colour intent.
 - It opens an inline dropdown or VS Code quick-pick on click; it does not navigate away from the panel.
+
+# AC Traceability
+- AC1 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
+- AC2 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
+- AC3 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
+- AC4 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
+- AC5 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
+- AC6 -> Task `task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector` and backlog items `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel` and `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`. Proof: implemented in task_126 wave 5 and closed by the task finish flow on 2026-04-11.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

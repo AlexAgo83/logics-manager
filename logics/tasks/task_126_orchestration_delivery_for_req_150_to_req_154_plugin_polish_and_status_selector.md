@@ -2,7 +2,7 @@
 > From version: 1.24.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 100%
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Progress: 0%
 > Complexity: Medium
@@ -30,7 +30,9 @@ stateDiagram-v2
     Wave6 : Wave 5b - item_281 status write and refresh
     Wave6 --> Wave7
     Wave7 : Wave 6 - item_282 align Obsolete in kit
-    Wave7 --> Done
+    Wave7 --> Wave8
+    Wave8 : Wave 7 - item_283 gate Claude and Codex checks
+    Wave8 --> Done
     Done : Done and docs updated
     Done --> [*]
 ```
@@ -101,10 +103,20 @@ Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_lo
 - [ ] 6.6 Run `npm run compile` and `npm run test`.
 - [ ] CHECKPOINT: commit wave 6.
 
+## Wave 7 — item_283: Gate Claude and Codex environment checks
+Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
+
+- [ ] 7.1 Confirm `hasClaude` and `hasCodex` are available from `RuntimeLaunchersSnapshot` at the health computation call sites in `src/logicsViewProviderSupport.ts`.
+- [ ] 7.2 Wrap `claudeGlobalKit` and `claudeBridgeAvailable` checks inside a `hasClaude` guard — skip them from the degraded count when `hasClaude` is false.
+- [ ] 7.3 Wrap `codexOverlay` checks inside a `hasCodex` guard — skip them from the degraded count when `hasCodex` is false.
+- [ ] 7.4 Update the environment summary text so it does not mention Claude or Codex configuration issues when the corresponding binary is absent.
+- [ ] 7.5 Run `npm run compile` and `npm run test`.
+- [ ] CHECKPOINT: commit wave 7.
+
 ## Final
-- [ ] 7.1 Update all linked backlog items and request docs (Status, Progress).
-- [ ] 7.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
-- [ ] 7.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
+- [ ] 8.1 Update all linked backlog items and request docs (Status, Progress).
+- [ ] 8.2 Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
+- [ ] 8.3 Run `python3 logics/skills/logics.py flow finish task logics/tasks/task_126_orchestration_delivery_for_req_150_to_req_154_plugin_polish_and_status_selector.md`.
 
 # Delivery checkpoints
 - Each wave must leave the repository in a commit-ready state before starting the next.
@@ -120,6 +132,7 @@ Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_lo
 - item_280 AC1, AC3, AC5, AC6 → Wave 5a (button UI, current status highlighted, disabled when no item, coexists with Done/Obsolete)
 - item_281 AC2, AC4 → Wave 5b (status written to file, board/list refreshes)
 - item_282 AC1-AC4 → Wave 6 (Obsolete in kit linter, SKILL.md, instructions.md, README; existing files pass lint)
+- item_283 AC1-AC5 → Wave 7 (hasClaude/hasCodex gates, no spurious degraded warnings, no regression when binary present)
 
 # Links
 - Backlog items:
@@ -130,6 +143,7 @@ Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_lo
   - `logics/backlog/item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel.md`
   - `logics/backlog/item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change.md`
   - `logics/backlog/item_282_align_obsolete_status_between_plugin_and_logics_kit.md`
+  - `logics/backlog/item_283_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
 - Requests:
   - `logics/request/req_150_invert_default_sort_order_in_board_and_list_so_most_recent_items_appear_first.md`
   - `logics/request/req_151_address_miscellaneous_post_release_feedback_across_the_plugin.md`
@@ -137,6 +151,7 @@ Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_lo
   - `logics/request/req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed.md`
   - `logics/request/req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly.md`
   - `logics/request/req_155_align_obsolete_status_between_plugin_and_logics_kit.md`
+  - `logics/request/req_156_gate_claude_and_codex_environment_checks_on_whether_those_assistants_are_installed_and_used.md`
 
 # Validation
 - `npm run compile`
@@ -145,7 +160,7 @@ Derived from `logics/request/req_155_align_obsolete_status_between_plugin_and_lo
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 
 # Definition of Done (DoD)
-- [ ] All 7 backlog items addressed across 6 waves.
+- [ ] All 8 backlog items addressed across 7 waves.
 - [ ] `npm run compile` and `npm run test` pass after each wave.
 - [ ] Linked request and backlog docs updated at each wave checkpoint.
 - [ ] No wave closed before tests and quality checks passed.

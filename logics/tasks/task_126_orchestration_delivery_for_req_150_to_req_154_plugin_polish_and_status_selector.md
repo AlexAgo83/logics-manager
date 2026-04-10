@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 100% (refreshed)
 > Confidence: 100%
-> Progress: 0%
+> Progress: 69%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -128,8 +128,8 @@ Derived from `logics/request/req_156_gate_claude_and_codex_environment_checks_on
 ## Wave 9 — item_285: AC traceability and ADR cleanup
 Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
 
-- [ ] 9.1 Add per-request AC proof lines to this task doc for req_150 through req_157 so the audit no longer flags traceability gaps.
-- [ ] 9.2 Add an explicit "no ADR required" note in the Architecture decision section of item_277, item_279, item_280, item_281, item_282.
+- [x] 9.1 Add per-request AC proof lines to this task doc for req_150 through req_157 so the audit no longer flags traceability gaps.
+- [x] 9.2 Add an explicit "no ADR required" note in the Architecture decision section of item_277, item_279, item_280, item_281, item_282.
 - [ ] CHECKPOINT: commit wave 9 (docs only, no compile/test needed).
 
 ## Wave 10 — item_286: Generate INDEX.md and RELATIONSHIPS.md
@@ -201,6 +201,16 @@ Derived from `logics/request/req_157_initialize_detail_panel_collapsed_in_list_m
 - item_287 AC5 → Wave 11 (modularization plan documented)
 - item_289 AC1-AC5 → Wave 12 (velocity counter: week + month counts, zero shown, all types)
 - item_288 AC1-AC5 → Wave 13 (timeline: 12w/6m window, inline chart, empty state)
+
+## Request AC proof lines
+- req_150 AC1-AC5 → item_276 Wave 1 (board/list default to newest-first; activity view unaffected)
+- req_151 AC1-AC3 → item_277 Wave 2 (spec cells drop Flow text; status-colored borders removed)
+- req_152 AC1-AC7 → item_278 Wave 4 (bootstrap creates/patches AGENTS.md and LOGICS.md, adds LOGICS.md to gitignore, dry-run/check coverage)
+- req_153 AC1-AC4 → item_279 Wave 3 (items remain visible after resize/collapse; no user interaction required; no regression)
+- req_154 AC1, AC3, AC5, AC6 and item_281 AC2, AC4 → item_280/item_281 Wave 5 (status selector UI plus write/refresh path)
+- req_155 AC1-AC4 → item_282 Wave 6 (Obsolete supported in kit linter, SKILL.md, bootstrap instructions, and README)
+- req_156 AC1-AC5 → item_283 Wave 7 (launcher-aware environment checks suppress spurious Claude/Codex warnings)
+- req_157 AC1-AC5 → item_284 Wave 8 (list mode starts collapsed; indicators section closed; persisted state still wins)
 
 # Links
 - Backlog items:

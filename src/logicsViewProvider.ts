@@ -53,7 +53,9 @@ const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
     available: false,
     title: "Unavailable",
     command: "claude"
-  }
+  },
+  hasCodex: false,
+  hasClaude: false
 };
 const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   available: false,
@@ -77,6 +79,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private readonly logicsCorpusInsightsController: LogicsCorpusInsightsController;
   private readonly codexWorkflowController: LogicsCodexWorkflowController;
   private readonly environmentOutput: vscode.OutputChannel;
+  private runtimeLaunchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -457,7 +460,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       publishReleaseCapabilityResult.status === "fulfilled"
         ? publishReleaseCapabilityResult.value
         : UNAVAILABLE_RELEASE_CAPABILITY;
-    const shouldRecommendCheckEnvironment = await this.shouldRecommendCheckEnvironment(root, environmentSnapshot, bootstrapState);
+    const shouldRecommendCheckEnvironment = await this.shouldRecommendCheckEnvironment(
+      root,
+      environmentSnapshot,
+      bootstrapState,
+      launchers
+    );
+    this.runtimeLaunchers = launchers;
     viewProviderSupport.postData.call(this, {
       items: this.items,
       root,
@@ -667,6 +676,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async checkEnvironmentFromTools(): Promise<void> {
     const { root, invalidOverridePath } = viewProviderSupport.resolveProjectRoot.call(this);
     const snapshot = await inspectLogicsEnvironment(root, invalidOverridePath);
+    const launchers = root ? await inspectRuntimeLaunchers(root) : UNAVAILABLE_LAUNCHER_STATE;
     const publishReleaseCapability = root
       ? await inspectGitHubReleaseCapability(root)
       : {
@@ -693,7 +703,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       status: "unavailable",
       summary: "Hybrid assist capability is unavailable."
     };
-    const claudeGlobalKitNeedsAttention = claudeGlobalKit.status !== "healthy";
+    const claudeGlobalKitNeedsAttention = launchers.hasClaude && claudeGlobalKit.status !== "healthy";
     const recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
     const statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
     const detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
@@ -708,7 +718,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
-    if (root && (snapshot.codexOverlay.status === "missing-manager" || claudeGlobalKit.status === "missing-manager")) {
+    if (
+      root &&
+      ((launchers.hasCodex && snapshot.codexOverlay.status === "missing-manager") ||
+        (launchers.hasClaude && claudeGlobalKit.status === "missing-manager"))
+    ) {
       recommendedActions.push({
         label: "Fix now: Update Logics Kit",
         description: "Local kit is missing required manager support, so runtime publication and repair cannot complete cleanly yet.",
@@ -769,8 +783,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    const codexKitStatusLabel = !launchers.hasCodex
+      ? "Not installed"
+      : snapshot.codexOverlay.status === "healthy"
+        ? "Ready"
+        : snapshot.codexOverlay.status === "warning"
+          ? "Ready with warnings"
+          : "Needs attention";
+    const claudeKitStatusLabel = !launchers.hasClaude
+      ? "Not installed"
+      : claudeGlobalKit.status === "healthy"
+        ? "Ready"
+        : "Needs attention";
+
     if (
       root &&
+      launchers.hasCodex &&
       snapshot.codexOverlay.status !== "healthy" &&
       snapshot.codexOverlay.status !== "warning" &&
       snapshot.codexOverlay.status !== "missing-manager"
@@ -784,7 +812,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
-    if (root && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager") {
+    if (root && launchers.hasClaude && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager") {
       recommendedActions.push({
         label: "Fix now: Publish Global Claude Kit",
         description: "Claude launch readiness depends on a healthy global Claude Logics kit, not only repo-local bridge files.",
@@ -796,8 +824,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     statusItems.push(
       {
-        label: `Environment: ${viewProviderSupport.getEnvironmentOverallState.call(this, snapshot, hybridRuntime, recommendedActions)}`,
-        description: viewProviderSupport.getEnvironmentSummaryDescription.call(this, snapshot, hybridRuntime, recommendedActions)
+        label: `Environment: ${viewProviderSupport.getEnvironmentOverallState.call(this, snapshot, hybridRuntime, recommendedActions, launchers)}`,
+        description: viewProviderSupport.getEnvironmentSummaryDescription.call(this, snapshot, hybridRuntime, recommendedActions, launchers)
       },
       {
         label: `Workspace: ${snapshot.root ? "Selected" : "Missing"}`,
@@ -806,11 +834,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           : "No project root is currently selected."
       },
       {
-        label: `Global Codex kit: ${snapshot.codexOverlay.status === "healthy" ? "Ready" : snapshot.codexOverlay.status === "warning" ? "Ready with warnings" : "Needs attention"}`,
+        label: `Global Codex kit: ${codexKitStatusLabel}`,
         description: snapshot.codexOverlay.summary
       },
       {
-        label: `Global Claude kit: ${claudeGlobalKit.status === "healthy" ? "Ready" : "Needs attention"}`,
+        label: `Global Claude kit: ${claudeKitStatusLabel}`,
         description: claudeGlobalKit.summary
       },
       {
@@ -838,10 +866,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: hybridCapability.summary
       },
       {
-        label: `Claude repo bridge: ${hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing"}`,
-        description: hybridRuntime.claudeBridgeAvailable
-          ? "Claude bridge files point to the shared hybrid runtime."
-          : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
+        label: `Claude repo bridge: ${launchers.hasClaude ? (hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing") : "Not installed"}`,
+        description: launchers.hasClaude
+          ? hybridRuntime.claudeBridgeAvailable
+            ? "Claude bridge files point to the shared hybrid runtime."
+            : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
+          : "Claude is not installed on PATH, so bridge status is not checked."
       },
       {
         label: `Publish Release: ${publishReleaseCapability.available ? "Available" : "Unavailable"}`,
@@ -942,18 +972,22 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       description: hybridRuntime.windowsSafeEntrypoint
     });
 
-    for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
-      detailItems.push({
-        label: "Global Codex kit note",
-        description: issue
-      });
+    if (launchers.hasCodex) {
+      for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
+        detailItems.push({
+          label: "Global Codex kit note",
+          description: issue
+        });
+      }
     }
 
-    for (const issue of claudeGlobalKit.issues.slice(0, 3)) {
-      detailItems.push({
-        label: "Global Claude kit note",
-        description: issue
-      });
+    if (launchers.hasClaude) {
+      for (const issue of claudeGlobalKit.issues.slice(0, 3)) {
+        detailItems.push({
+          label: "Global Claude kit note",
+          description: issue
+        });
+      }
     }
 
     for (const reason of hybridRuntime.degradedReasons.slice(0, 3)) {
@@ -1002,8 +1036,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private async shouldRecommendCheckEnvironment(
     root: string,
     snapshot: LogicsEnvironmentSnapshot | null,
-    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
+    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
+    launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
   ): Promise<boolean> {
-    return viewProviderSupport.shouldRecommendCheckEnvironment.call(this, root, snapshot, bootstrapState);
+    return viewProviderSupport.shouldRecommendCheckEnvironment.call(this, root, snapshot, bootstrapState, launchers);
   }
 }

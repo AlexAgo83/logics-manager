@@ -63,6 +63,8 @@ describe("inspectRuntimeLaunchers", () => {
       detectCommand: async () => true
     });
 
+    expect(snapshot.hasCodex).toBe(true);
+    expect(snapshot.hasClaude).toBe(true);
     expect(snapshot.claude.available).toBe(false);
     expect(snapshot.claude.title).toContain("No global Claude Logics kit is published yet");
   });
@@ -76,6 +78,8 @@ describe("inspectRuntimeLaunchers", () => {
       detectCommand: async () => true
     });
 
+    expect(snapshot.hasCodex).toBe(true);
+    expect(snapshot.hasClaude).toBe(true);
     expect(snapshot.claude.available).toBe(true);
     expect(snapshot.claude.title).toContain("globally published Logics kit");
   });

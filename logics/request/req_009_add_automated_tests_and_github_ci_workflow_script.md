@@ -11,9 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|add-automated-tests-and-github-ci-workfl|add-a-reliable-automated-test-layer|ac1-a-test-runner-setup-exists
 flowchart TD
-    Trigger[Add automated tests and GitHub CI] --> Need[Add a reliable automated test layer]
-    Need --> Outcome[AC1: A test runner setup exists]
-    Outcome --> Backlog[Backlog slice]
+  A[Test runner setup] --> B[Unit tests for indexer & helpers]
+  B --> C[GitHub Actions workflow]
+  C --> D[Run on push + PR]
+  D --> E[Fail on compile/test errors]
+  E --> F[Pass on healthy branch]
+  F --> G[README with local validation commands]
 ```
 
 # Needs

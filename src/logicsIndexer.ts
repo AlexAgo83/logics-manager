@@ -610,7 +610,9 @@ export function isRequestProcessed(item: LogicsItem, allItems: LogicsItem[] = []
   if (item.stage !== "request") {
     return false;
   }
-  return collectLinkedWorkflowItems(item, allItems).some((candidate) => isProcessedWorkflowItem(candidate));
+  return collectLinkedWorkflowItems(item, allItems).some(
+    (candidate) => candidate.stage === "backlog" || candidate.stage === "task"
+  );
 }
 
 export function isRequestUsed(item: LogicsItem, allItems: LogicsItem[] = []): boolean {

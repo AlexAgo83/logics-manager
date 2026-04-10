@@ -11,14 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|web-debug-harness-simulate-vs-code-contr|in-web-debug-server-mode-most|ac1-in-harness-mode-control-actions
 flowchart TD
-  A[Start Harness Mode] --> B{Detect Environment}
-  B -->|VS Code Webview| C[Use VS Code Handlers]
-  B -->|Browser Harness| D[Use Browser Native Fallbacks]
-  D --> E[Change Project Root via FS API or Path Prompt]
-  D --> F[Open/Edit File in New Tab]
-  C --> G[Normal VS Code Behavior]
-  E --> H[Show Guidance if Unsupported]
-  F --> H
+    A[Start Harness Mode] --> B{Detect Environment}
+    B -->|Real VS Code| C[Use VS Code Handlers]
+    B -->|Harness/Web| D[Use Browser Fallbacks]
+    D --> E[Change Project Root: File System Picker or Path Prompt]
+    D --> F[Open/Edit: Open File in New Tab]
+    C --> G[Current Message-Based Behavior]
+    D --> H[Show Guidance if Unsupported]
 ```
 
 # Needs

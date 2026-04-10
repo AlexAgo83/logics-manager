@@ -11,13 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|stacked-layout-disable-splitter-and-comp|in-stacked-vertical-split-layout-collaps|ac1-in-stacked-layout-when-details
 flowchart TD
-  A[Start] --> B{Details collapsed?}
-  B -- Yes --> C[Disable splitter interaction]
-  C --> D[Render Details compact at bottom]
-  B -- No --> E[Enable splitter interaction]
-  E --> F[Render Details normal]
-  D --> G[End]
-  F --> G
+    A[Start] --> B{Details collapsed?}
+    B -- Yes --> C[Disable splitter interaction]
+    C --> D[Render Details compact at bottom]
+    B -- No --> E[Enable splitter interaction]
+    E --> F[Render Details normal]
+    D --> G[End]
+    F --> G
 ```
 
 # Needs

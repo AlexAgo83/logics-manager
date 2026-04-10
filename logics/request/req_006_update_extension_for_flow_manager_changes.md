@@ -16,8 +16,8 @@ flowchart TD
   PromoteBacklog[Promote Backlog to Task]
   ValidateScripts[Check Required Scripts]
   ErrorHandle[Error Handling]
-  SmokeTest[Smoke Test Checklist]
-  VersionBump[Bump Extension Version]
+  SmokeTest[Smoke Test]
+  VersionBump[Extension Version Bump]
   NewReq --> PromoteReq --> PromoteBacklog
   PromoteBacklog --> ValidateScripts
   ValidateScripts -->|Fail| ErrorHandle

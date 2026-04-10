@@ -317,10 +317,9 @@
     if (!item || item.stage !== "request") {
       return false;
     }
-    if (!isProcessedWorkflowStatus(item && item.indicators ? item.indicators.Status : "")) {
-      return false;
-    }
-    return collectLinkedWorkflowItems(item, allItems).some((candidate) => isProcessedWorkflowItem(candidate));
+    return collectLinkedWorkflowItems(item, allItems).some(
+      (candidate) => candidate.stage === "backlog" || candidate.stage === "task"
+    );
   }
 
   function getWorkflowStageRank(stage) {

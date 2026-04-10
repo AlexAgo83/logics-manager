@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 100% (refreshed)
 > Confidence: 100%
-> Progress: 69%
+> Progress: 77%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -135,9 +135,9 @@ Derived from `logics/request/req_158_address_post_audit_improvements_across_work
 ## Wave 10 — item_286: Generate INDEX.md and RELATIONSHIPS.md
 Derived from `logics/request/req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files.md`
 
-- [ ] 10.1 Run `python3 logics/skills/logics-indexer/scripts/generate_index.py --out logics/INDEX.md`.
-- [ ] 10.2 Run `python3 logics/skills/logics-relationship-linker/scripts/link_relations.py --out logics/RELATIONSHIPS.md`.
-- [ ] 10.3 Verify both files are generated and contain reasonable content.
+- [x] 10.1 Run `python3 logics/skills/logics-indexer/scripts/generate_index.py --out logics/INDEX.md`.
+- [x] 10.2 Run `python3 logics/skills/logics-relationship-linker/scripts/link_relations.py --out logics/RELATIONSHIPS.md`.
+- [x] 10.3 Verify both files are generated and contain reasonable content.
 - [ ] CHECKPOINT: commit wave 10.
 
 ## Wave 11 — item_287: Modularization plan for oversized source files

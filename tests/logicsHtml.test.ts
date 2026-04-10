@@ -160,6 +160,8 @@ describe("logics HTML builders", () => {
   });
 
   it("renders the logics corpus insights summary", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-08T12:00:00Z"));
     const html = buildLogicsCorpusInsightsHtml({
       webview: createWebview() as never,
       root: "/workspace/project",
@@ -197,6 +199,57 @@ describe("logics HTML builders", () => {
           isPromoted: false,
           references: [],
           usedBy: [{ id: "req_001_example", title: "Example request", stage: "request", relPath: "logics/request/req_001_example.md" }]
+        },
+        {
+          id: "req_002_closed_this_week",
+          title: "Closed this week request",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_002_closed_this_week.md",
+          relPath: "logics/request/req_002_closed_this_week.md",
+          filename: "req_002_closed_this_week.md",
+          updatedAt: "2026-04-07T10:00:00Z",
+          indicators: { Status: "Done" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 42,
+          charCount: 1000,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        },
+        {
+          id: "item_002_closed_this_month",
+          title: "Closed this month backlog item",
+          stage: "backlog",
+          path: "/workspace/project/logics/backlog/item_002_closed_this_month.md",
+          relPath: "logics/backlog/item_002_closed_this_month.md",
+          filename: "item_002_closed_this_month.md",
+          updatedAt: "2026-04-02T10:00:00Z",
+          indicators: { Status: "Archived" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 60,
+          charCount: 1300,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        },
+        {
+          id: "task_002_closed_this_month",
+          title: "Closed this month task",
+          stage: "task",
+          path: "/workspace/project/logics/tasks/task_002_closed_this_month.md",
+          relPath: "logics/tasks/task_002_closed_this_month.md",
+          filename: "task_002_closed_this_month.md",
+          updatedAt: "2026-04-03T10:00:00Z",
+          indicators: { Status: "Obsolete" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 90,
+          charCount: 1700,
+          isPromoted: false,
+          references: [],
+          usedBy: []
         }
       ]
     });
@@ -205,11 +258,17 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Managed docs");
     expect(html).toContain("Generated INDEX.md");
     expect(html).toContain("missing");
+    expect(html).toContain("Velocity");
+    expect(html).toContain("Closed this week");
+    expect(html).toContain("Closed this month");
+    expect(html).toContain("Done, Archived, Obsolete");
     expect(html).toContain("Distribution snapshots");
     expect(html).toContain("Getting Started");
     expect(html).toContain("data-action=\"open-onboarding\"");
     expect(html).toContain("data-action=\"about\"");
     expect(html).toContain("<svg viewBox=\"0 0 120 120\"");
+    expect(html).toContain("<strong>1</strong>");
+    expect(html).toContain("<strong>3</strong>");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

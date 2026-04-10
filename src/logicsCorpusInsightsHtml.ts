@@ -254,6 +254,46 @@ function summarizeProgress(items: LogicsItem[]): CountMap {
   return buckets;
 }
 
+const CLOSED_STATUSES = new Set(["Done", "Archived", "Obsolete"]);
+const WORKFLOW_STAGES = new Set<LogicsItem["stage"]>(["request", "backlog", "task"]);
+
+function getUtcIsoWeekStart(timestampMs: number): number {
+  const date = new Date(timestampMs);
+  const midnightUtc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  const day = date.getUTCDay() || 7;
+  const start = new Date(midnightUtc);
+  start.setUTCDate(start.getUTCDate() - (day - 1));
+  return start.getTime();
+}
+
+function getUtcMonthStart(timestampMs: number): number {
+  const date = new Date(timestampMs);
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+}
+
+function summarizeVelocity(items: LogicsItem[], nowMs: number): { week: number; month: number } {
+  const closedWorkflowItems = items.filter((item) => WORKFLOW_STAGES.has(item.stage) && CLOSED_STATUSES.has(asString(item.indicators.Status, "")));
+  const weekStart = getUtcIsoWeekStart(nowMs);
+  const monthStart = getUtcMonthStart(nowMs);
+  const counts = {
+    week: 0,
+    month: 0
+  };
+  for (const item of closedWorkflowItems) {
+    const timestamp = parseTimestamp(item.updatedAt);
+    if (timestamp === null || timestamp > nowMs) {
+      continue;
+    }
+    if (timestamp >= weekStart) {
+      counts.week += 1;
+    }
+    if (timestamp >= monthStart) {
+      counts.month += 1;
+    }
+  }
+  return counts;
+}
+
 function compareByConnectionStrength(left: LogicsItem, right: LogicsItem): number {
   const leftScore = left.references.length + left.usedBy.length;
   const rightScore = right.references.length + right.usedBy.length;
@@ -289,6 +329,7 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const totalLines = items.reduce((sum, item) => sum + item.lineCount, 0);
   const totalChars = items.reduce((sum, item) => sum + item.charCount, 0);
   const averageLines = items.length > 0 ? totalLines / items.length : 0;
+  const velocityCounts = summarizeVelocity(items, Date.now());
   const linkedItems = items.filter((item) => item.references.length > 0 || item.usedBy.length > 0);
   const stagePie = buildPieSlices(
     Object.entries(stageCounts)
@@ -603,6 +644,15 @@ export function buildLogicsCorpusInsightsHtml(params: {
         </section>
 
         <section class="logics-insights__sections">
+          <div class="logics-insights__section">
+            <h2>Velocity</h2>
+            <p>Closed workflow items in the current ISO week and calendar month.</p>
+            <div class="logics-insights__section-grid">
+              ${renderStatCard("Closed this week", String(velocityCounts.week), "Done, Archived, Obsolete", velocityCounts.week > 0 ? "good" : "warn")}
+              ${renderStatCard("Closed this month", String(velocityCounts.month), "Done, Archived, Obsolete", velocityCounts.month > 0 ? "good" : "warn")}
+            </div>
+          </div>
+
           <div class="logics-insights__section">
             <h2>Distribution snapshots</h2>
             <p>Compact pies that show how the corpus is split right now.</p>

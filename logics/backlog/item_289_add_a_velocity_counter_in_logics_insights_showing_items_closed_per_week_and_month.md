@@ -1,10 +1,10 @@
 ## item_289_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month - Add a velocity counter in Logics Insights showing items closed per week and month
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 100%
-> Confidence: 95%
-> Progress: 0%
+> Status: Done
+> Understanding: 100% (refreshed)
+> Confidence: 100% (refreshed)
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

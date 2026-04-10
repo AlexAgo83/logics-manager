@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (refreshed)
 > Progress: 0%
 > Complexity: Medium
 > Theme: UI
@@ -64,7 +64,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): no ADR required; this is a low-complexity UI fix.
 - Request: `req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly`
 - Primary task(s): `task_XXX_example`
 

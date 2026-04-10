@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 90%
+> Confidence: 90% (refreshed)
 > Progress: 0%
 > Complexity: Low
 > Theme: UI
@@ -59,7 +59,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): no ADR required; this is a low-complexity UI fix.
 - Request: `req_153_fix_board_and_list_items_disappearing_when_the_detail_panel_is_resized_or_collapsed`
 - Primary task(s): `task_XXX_example`
 

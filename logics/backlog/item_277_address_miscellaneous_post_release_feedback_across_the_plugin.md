@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 100% (refreshed)
 > Progress: 0%
 > Complexity: Low
 > Theme: UI
@@ -59,7 +59,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): no ADR required; this is a low-complexity UI fix.
 - Request: `req_151_address_miscellaneous_post_release_feedback_across_the_plugin`
 - Primary task(s): `task_XXX_example`
 

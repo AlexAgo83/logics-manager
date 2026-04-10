@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
 import {
+  ONBOARDING_DOC_GUIDE,
+  ONBOARDING_DOC_GUIDE_INTRO,
+  ONBOARDING_DOC_GUIDE_TITLE,
   ONBOARDING_FOOTER,
   ONBOARDING_FOOTER_ACTIONS,
   ONBOARDING_HEADLINE,
@@ -66,11 +69,33 @@ function renderFooterActions(): string {
   ).join("");
 }
 
+function renderDocGuide(): string {
+  const guideCards = ONBOARDING_DOC_GUIDE.map(
+    (item) => `
+      <div class="onboarding__doc-card">
+        <div class="onboarding__doc-cue">${escapeHtml(item.cue)}</div>
+        <div class="onboarding__doc-destination">${escapeHtml(item.destination)}</div>
+      </div>`
+  ).join("");
+
+  return `
+    <section class="onboarding__doc-guide" aria-labelledby="onboarding-doc-guide-title">
+      <div class="onboarding__doc-guide-header">
+        <h2 id="onboarding-doc-guide-title" class="onboarding__doc-guide-title">${escapeHtml(ONBOARDING_DOC_GUIDE_TITLE)}</h2>
+        <p class="onboarding__doc-guide-intro">${escapeHtml(ONBOARDING_DOC_GUIDE_INTRO)}</p>
+      </div>
+      <div class="onboarding__doc-grid">
+        ${guideCards}
+      </div>
+    </section>`;
+}
+
 export function buildOnboardingHtml(webview: vscode.Webview): string {
   const nonce = getNonce();
   const csp = `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';`;
 
   const stagesHtml = ONBOARDING_STAGES.map((stage, i) => renderStage(stage, i)).join("\n");
+  const docGuideHtml = renderDocGuide();
   const footerActionsHtml = renderFooterActions();
 
   return `<!DOCTYPE html>
@@ -165,6 +190,45 @@ export function buildOnboardingHtml(webview: vscode.Webview): string {
       font-style: italic;
     }
     .onboarding__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .onboarding__doc-guide {
+      margin-bottom: 28px;
+      padding: 18px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--vscode-widget-border, var(--vscode-editorWidget-border, #454545));
+      background: color-mix(in srgb, var(--vscode-editorWidget-background, var(--vscode-editor-background)) 92%, var(--vscode-button-background) 8%);
+    }
+    .onboarding__doc-guide-header { margin-bottom: 14px; }
+    .onboarding__doc-guide-title {
+      font-size: 1.02em;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .onboarding__doc-guide-intro {
+      color: var(--vscode-descriptionForeground);
+      line-height: 1.5;
+    }
+    .onboarding__doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .onboarding__doc-card {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--vscode-widget-border, var(--vscode-editorWidget-border, #454545));
+      background: var(--vscode-editor-background);
+    }
+    .onboarding__doc-cue {
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+    .onboarding__doc-destination {
+      font-size: 0.85em;
+      font-weight: 700;
+      color: var(--vscode-focusBorder);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
     .onboarding__action {
       padding: 5px 12px;
       border: 1px solid var(--vscode-button-border, transparent);
@@ -213,6 +277,7 @@ export function buildOnboardingHtml(webview: vscode.Webview): string {
   <div class="onboarding__stages">
     ${stagesHtml}
   </div>
+  ${docGuideHtml}
   <footer class="onboarding__footer">
     <div class="onboarding__footer-actions">
       ${footerActionsHtml}

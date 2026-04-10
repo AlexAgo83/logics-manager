@@ -79,6 +79,15 @@ Use these as quick starting points when you want the plugin or the shared Logics
 >
 > If you need to make assumptions, state them briefly and keep the task moving.
 
+### What the docs are for
+
+- If you think "here is the problem and context..." -> request
+- If you think "this needs a scoped delivery slice..." -> item
+- If you think "we want..." -> product brief
+- If you think "we decided..." -> ADR
+- If you think "the system should..." -> spec
+- If you think "let's do..." -> task
+
 <table>
   <tr>
     <td align="center">

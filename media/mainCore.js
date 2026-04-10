@@ -92,6 +92,7 @@
       "contextPack",
       "dependencyMap",
       "companionDocs",
+      "indicators",
       "specs",
       "primaryFlow",
       "references",

@@ -102,6 +102,7 @@
     "contextPack",
     "dependencyMap",
     "companionDocs",
+    "indicators",
     "specs",
     "primaryFlow",
     "references",
@@ -910,6 +911,9 @@
   } = mainCore || {});
 
   hydratePersistedState(previousState);
+  if (!previousState || typeof previousState.detailsCollapsed !== "boolean") {
+    uiState.detailsCollapsed = uiState.viewMode === "list" || compactListQuery.matches;
+  }
 
   const interactionHandlers =
     typeof mainInteractionHandlersFactory === "function"

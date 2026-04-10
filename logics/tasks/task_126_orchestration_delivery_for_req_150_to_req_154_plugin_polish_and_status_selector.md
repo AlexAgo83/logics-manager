@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 100% (refreshed)
 > Confidence: 100%
-> Progress: 85%
+> Progress: 92%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -150,10 +150,10 @@ Derived from `logics/request/req_158_address_post_audit_improvements_across_work
 ## Wave 12 — item_289: Velocity counter in Logics Insights
 Derived from `logics/request/req_160_add_a_velocity_counter_in_logics_insights_showing_items_closed_per_week_and_month.md`
 
-- [ ] 12.1 Add a velocity section to `logicsCorpusInsightsHtml.ts` computing closed items for the current ISO week and calendar month.
-- [ ] 12.2 Render as a compact stat block, consistent with existing Insights sections.
-- [ ] 12.3 Show zero explicitly when no items were closed in the period.
-- [ ] 12.4 Run `npm run compile` and `npm run test`.
+- [x] 12.1 Add a velocity section to `logicsCorpusInsightsHtml.ts` computing closed items for the current ISO week and calendar month.
+- [x] 12.2 Render as a compact stat block, consistent with existing Insights sections.
+- [x] 12.3 Show zero explicitly when no items were closed in the period.
+- [x] 12.4 Run `npm run compile` and `npm run test`.
 - [ ] CHECKPOINT: commit wave 12.
 
 ## Wave 13 — item_288: Timeline view in Logics Insights

@@ -1,8 +1,8 @@
 ## req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly - Add a manual status selector button in the detail panel to change item status directly
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 100%
+> Status: Ready
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Medium
 > Theme: UI
@@ -73,4 +73,5 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- (none yet)
+- `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel`
+- `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`

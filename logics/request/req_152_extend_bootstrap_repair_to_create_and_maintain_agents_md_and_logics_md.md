@@ -1,8 +1,8 @@
 ## req_152_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md - Extend bootstrap repair to create and maintain AGENTS.md and LOGICS.md
 > From version: 1.24.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 100%
+> Status: Ready
+> Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Low
 > Theme: UI
@@ -71,4 +71,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- (none yet)
+- `item_278_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md`

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 96%
 > Progress: 0%
 > Complexity: Medium
 > Theme: UI
@@ -60,7 +60,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): [adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules](logics/architecture/adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules.md)
 - Request: `req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files`
 - Primary task(s): `task_XXX_example`
 

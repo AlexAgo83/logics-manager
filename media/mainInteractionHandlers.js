@@ -245,6 +245,13 @@
         }
         hostApi.markObsolete(item);
       },
+      onChangeStatus() {
+        const item = state.items.find((entry) => entry.id === state.selectedId);
+        if (!item) {
+          return;
+        }
+        hostApi.changeStatus(item);
+      },
       onOpenSelectedItem() {
         openSelectedItem("open");
       },

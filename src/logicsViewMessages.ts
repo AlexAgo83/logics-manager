@@ -10,7 +10,8 @@ type ItemMessage =
   | { type: "add-used-by"; id: string }
   | { type: "rename-entry"; id: string }
   | { type: "mark-done"; id: string }
-  | { type: "mark-obsolete"; id: string };
+  | { type: "mark-obsolete"; id: string }
+  | { type: "change-status"; id: string };
 
 type PromptMessage = {
   type: "inject-prompt";
@@ -121,7 +122,8 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "add-used-by":
     case "rename-entry":
     case "mark-done":
-    case "mark-obsolete": {
+    case "mark-obsolete":
+    case "change-status": {
       const id = readString(value.id);
       return id ? { type, id } : null;
     }

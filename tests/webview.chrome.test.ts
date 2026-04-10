@@ -132,6 +132,25 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(markDoneButton?.disabled).toBe(false);
   });
 
+  it("enables the change-status action when selected and posts the message on click", () => {
+    const { dom, postedMessages } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [baseItem]
+    });
+
+    const changeStatusButton = dom.window.document.querySelector('[data-action="change-status"]') as HTMLButtonElement | null;
+
+    expect(changeStatusButton?.disabled).toBe(false);
+    expect(changeStatusButton?.title).toContain("Change status of selected item");
+
+    changeStatusButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(postedMessages.some((message) => message.type === "change-status")).toBe(true);
+  });
+
   it("updates the view mode toggle icon and ARIA label when switching modes", () => {
     const { dom } = bootstrapWebview();
 

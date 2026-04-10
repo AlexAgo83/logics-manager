@@ -157,6 +157,12 @@
         }
         invokeHostOnly("mark-obsolete", { id: item.id }, "Mark as obsolete");
       },
+      changeStatus(item) {
+        if (!item) {
+          return;
+        }
+        invokeHostOnly("change-status", { id: item.id }, "Change status");
+      },
       async changeProjectRoot() {
         if (isHarnessMode) {
           await handleHarnessChangeProjectRoot();

@@ -60,6 +60,7 @@
   const promoteButton = document.querySelector('[data-action="promote"]');
   const markDoneButton = document.querySelector('[data-action="mark-done"]');
   const markObsoleteButton = document.querySelector('[data-action="mark-obsolete"]');
+  const changeStatusButton = document.querySelector('[data-action="change-status"]');
   const openButton = document.querySelector('[data-action="open"]');
   const readButton = document.querySelector('[data-action="read"]');
   const hideCompleteToggle = document.getElementById("hide-complete");
@@ -468,6 +469,7 @@
           hideSpecToggle,
           markDoneButton,
           markObsoleteButton,
+          changeStatusButton,
           openButton,
           promoteButton,
           readButton,
@@ -964,6 +966,7 @@
           mainPane,
           markDoneButton,
           markObsoleteButton,
+          changeStatusButton,
           newRequestToolButton,
           openButton,
           promoteButton,

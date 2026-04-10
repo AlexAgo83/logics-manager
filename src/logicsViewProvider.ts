@@ -139,11 +139,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         viewProviderSupport.clearStartupKitUpdatePromptState.call(this, root),
       commitAllChangesFromTools: () => viewProviderSupport.commitAllChangesFromTools.call(this),
       bootstrapLogics: (root: string) => viewProviderSupport.bootstrapLogics.call(this, root),
+      changeItemStatus: (id: string) => viewProviderSupport.changeItemStatus.call(this, id),
       getActionRoot: () => viewProviderSupport.getActionRoot.call(this),
       getActiveAgentPayload: () => viewProviderSupport.getActiveAgentPayload.call(this),
       getRepositoryEnvFiles: (root: string) => viewProviderSupport.getRepositoryEnvFiles.call(this, root),
       getStartupKitUpdatePromptStateKey: (root: string) =>
         viewProviderSupport.getStartupKitUpdatePromptStateKey.call(this, root),
+      getValidStatusesForItem: (item: LogicsItem) => viewProviderSupport.getValidStatusesForItem.call(this, item),
       inspectKitUpdateNeed: (root: string) => viewProviderSupport.inspectKitUpdateNeed.call(this, root),
       injectPromptIntoCodexChat: (prompt: string, options?: { preferNewThread?: boolean }) =>
         viewProviderSupport.injectPromptIntoCodexChat.call(this, prompt, options),
@@ -342,6 +344,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           return;
         case "mark-obsolete":
           await viewProviderSupport.markItemObsolete.call(this, message.id);
+          return;
+        case "change-status":
+          await viewProviderSupport.changeItemStatus.call(this, message.id);
           return;
         default:
           assertNever(message);

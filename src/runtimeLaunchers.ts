@@ -12,6 +12,8 @@ export type RuntimeLauncherState = {
 export type RuntimeLaunchersSnapshot = {
   codex: RuntimeLauncherState;
   claude: RuntimeLauncherState;
+  hasCodex: boolean;
+  hasClaude: boolean;
 };
 
 type DetectorOptions = {
@@ -29,6 +31,8 @@ export async function inspectRuntimeLaunchers(
   const claudeBridge = root ? detectClaudeBridgeStatus(root) : null;
 
   return {
+    hasCodex,
+    hasClaude,
     codex: {
       available: Boolean(root) && hasCodex && (codexOverlay.status === "healthy" || codexOverlay.status === "warning"),
       title: !root

@@ -14,7 +14,7 @@ import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
-import { inspectRuntimeLaunchers, RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
+import { RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
 import { ReleasePublishCapability } from "./releasePublishSupport";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
@@ -42,14 +42,22 @@ const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
     available: false,
     title: "Unavailable",
     command: "claude"
-  }
+  },
+  hasCodex: false,
+  hasClaude: false
 };
 const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   available: false,
   title: "Unavailable",
   reason: "Unavailable"
 };
-  export async function shouldRecommendCheckEnvironment(this: any, root: string, snapshot: LogicsEnvironmentSnapshot | null, bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null): Promise<boolean> {
+  export async function shouldRecommendCheckEnvironment(
+    this: any,
+    root: string,
+    snapshot: LogicsEnvironmentSnapshot | null,
+    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
+    launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
+  ): Promise<boolean> {
     if (bootstrapState?.canBootstrap) {
       return true;
     }
@@ -62,13 +70,16 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     if (!snapshot.git.available || !snapshot.python.available) {
       return true;
     }
-    if (snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
+    if (launchers.hasCodex && snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
       return true;
     }
-    if (snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
+    if (launchers.hasClaude && snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
       return true;
     }
-    if (!snapshot.hybridRuntime || snapshot.hybridRuntime.state !== "ready" || !snapshot.hybridRuntime.claudeBridgeAvailable) {
+    if (
+      launchers.hasClaude &&
+      (!snapshot.hybridRuntime || snapshot.hybridRuntime.state !== "ready" || !snapshot.hybridRuntime.claudeBridgeAvailable)
+    ) {
       return true;
     }
     if (await this.hybridAssistController.buildProviderRemediationQuickPickItem(root)) {
@@ -79,7 +90,13 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     return false;
   }
-  export function getEnvironmentOverallState(this: any, snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>, hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>, actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>): "Blocked" | "Degraded" | "Healthy" {
+  export function getEnvironmentOverallState(
+    this: any,
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
+    actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
+    launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
+  ): "Blocked" | "Degraded" | "Healthy" {
     const hasBlockingIssue =
       !snapshot.root ||
       snapshot.repositoryState === "missing-logics" ||
@@ -93,16 +110,23 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     const hasDegradedIssue =
       snapshot.missingWorkflowDirs.length > 0 ||
-      snapshot.codexOverlay.status !== "healthy" ||
-      snapshot.claudeGlobalKit?.status === "stale" ||
-      snapshot.claudeGlobalKit?.status === "missing-overlay" ||
-      snapshot.claudeGlobalKit?.status === "missing-manager" ||
+      (launchers.hasCodex && snapshot.codexOverlay.status !== "healthy") ||
+      (launchers.hasClaude &&
+        (snapshot.claudeGlobalKit?.status === "stale" ||
+          snapshot.claudeGlobalKit?.status === "missing-overlay" ||
+          snapshot.claudeGlobalKit?.status === "missing-manager")) ||
       hybridRuntime.state === "degraded" ||
-      !hybridRuntime.claudeBridgeAvailable ||
+      (launchers.hasClaude && !hybridRuntime.claudeBridgeAvailable) ||
       actions.length > 0;
     return hasDegradedIssue ? "Degraded" : "Healthy";
   }
-  export function getEnvironmentSummaryDescription(this: any, snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>, hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>, actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>): string {
+  export function getEnvironmentSummaryDescription(
+    this: any,
+    snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
+    hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
+    actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
+    launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
+  ): string {
     const blockedCount = [
       !snapshot.root,
       snapshot.repositoryState === "missing-logics",
@@ -114,12 +138,13 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     ].filter(Boolean).length;
     const degradedCount = [
       snapshot.missingWorkflowDirs.length > 0,
-      snapshot.codexOverlay.status !== "healthy",
-      snapshot.claudeGlobalKit?.status === "stale" ||
-        snapshot.claudeGlobalKit?.status === "missing-overlay" ||
-        snapshot.claudeGlobalKit?.status === "missing-manager",
+      launchers.hasCodex && snapshot.codexOverlay.status !== "healthy",
+      launchers.hasClaude &&
+        (snapshot.claudeGlobalKit?.status === "stale" ||
+          snapshot.claudeGlobalKit?.status === "missing-overlay" ||
+          snapshot.claudeGlobalKit?.status === "missing-manager"),
       hybridRuntime.state === "degraded",
-      !hybridRuntime.claudeBridgeAvailable
+      launchers.hasClaude && !hybridRuntime.claudeBridgeAvailable
     ].filter(Boolean).length;
     if (blockedCount === 0 && degradedCount === 0 && actions.length === 0) {
       return "Environment healthy - no action required.";

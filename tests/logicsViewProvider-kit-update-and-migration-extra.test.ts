@@ -338,6 +338,8 @@ describe("LogicsViewProvider", () => {
       publishedSkillNames: ["demo-skill"]
     });
     mocks.inspectRuntimeLaunchers.mockResolvedValue({
+      hasCodex: true,
+      hasClaude: true,
       codex: {
         available: true,
         title: "Launch Codex with the globally published Logics kit",

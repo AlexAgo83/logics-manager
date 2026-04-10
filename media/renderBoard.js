@@ -647,7 +647,7 @@
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
 
-      const linkage = createPrimaryFlowSummary(item);
+      const linkage = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
       if (linkage) {
         preview.appendChild(createPreviewRow("Flow", linkage));
       }
@@ -718,7 +718,7 @@
         card.appendChild(supportMeta);
       }
 
-      const primaryFlowSummary = createPrimaryFlowSummary(item);
+      const primaryFlowSummary = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
       if (primaryFlowSummary) {
         const linkage = document.createElement("div");
         linkage.className =

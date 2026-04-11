@@ -2,8 +2,8 @@
 > From version: 1.25.4
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 92%
+> Understanding: 93%
+> Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
@@ -19,7 +19,7 @@
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|ameliorer-la-creation-de-requests-de-tes|item-312-am-liorer-la-cr-ation-de-reques|1-confirm-scope-dependencies-and-linked|run-the-relevant-automated-tests-for
+%% logics-signature: task|improve-test-request-creation-and-flow-m|item-312-am-liorer-la-cr-ation-de-reques|1-confirm-scope-dependencies-and-linked|run-the-relevant-automated-tests-for
 stateDiagram-v2
     [*] --> ConfirmScope: Confirm scope & dependencies
     ConfirmScope --> ImplementWave: Implement next delivery wave

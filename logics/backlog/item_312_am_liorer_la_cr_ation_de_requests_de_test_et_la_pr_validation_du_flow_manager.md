@@ -2,8 +2,8 @@
 > From version: 1.25.4
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 92%
+> Understanding: 93%
+> Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
@@ -23,7 +23,7 @@
 - The generated docs were technically valid, but they needed several manual fixes before they were pleasant to use or easy to audit.
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|ameliorer-la-creation-de-requests-de-tes|req-169-am-liorer-la-cr-ation-de-request|make-the-flow-manager-better-at|ac1-test-or-smoke-test-requests-can
+%% logics-signature: backlog|improve-test-request-creation-and-flow-m|req-169-am-liorer-la-cr-ation-de-request|make-the-flow-manager-better-at|ac1-test-or-smoke-test-requests-can
 flowchart TD
     A[Start] --> B[Generate synthetic test requests]
     B --> C[Surface AC traceability]

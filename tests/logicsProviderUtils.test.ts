@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import * as vscode from "vscode";
 
 vi.mock("vscode", () => ({
   workspace: {
@@ -13,9 +14,17 @@ vi.mock("vscode", () => ({
 
 import {
   areSamePath,
+  buildLogicsKitUpdateCommand,
   detectDangerousGitignorePatterns,
   detectKitInstallType,
-  inspectLogicsBootstrapState
+  getCreateConfig,
+  getNextSequence,
+  getWorkspaceRoot,
+  inspectLogicsBootstrapState,
+  inspectLogicsKitSubmodule,
+  hasMultipleWorkspaceFolders,
+  normalizeRelationPath,
+  updateIndicatorsOnDisk
 } from "../src/logicsProviderUtils";
 
 describe("inspectLogicsBootstrapState", () => {
@@ -108,6 +117,202 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.missingPaths).toContain(".env");
     expect(state.missingPaths).toContain(".env.local");
     expect(state.missingPaths).toContain(".env.production");
+  });
+});
+
+describe("workspace root helpers", () => {
+  afterEach(() => {
+    (vscode.workspace as { workspaceFolders: Array<{ uri: { fsPath: string } }> }).workspaceFolders = [];
+  });
+
+  it("reports zero, single, and multiple workspace folders consistently", () => {
+    const workspace = vscode.workspace as { workspaceFolders: Array<{ uri: { fsPath: string } }> };
+
+    workspace.workspaceFolders = [];
+    expect(getWorkspaceRoot()).toBeNull();
+    expect(hasMultipleWorkspaceFolders()).toBe(false);
+
+    workspace.workspaceFolders = [{ uri: { fsPath: "/workspace/one" } }];
+    expect(getWorkspaceRoot()).toBe("/workspace/one");
+    expect(hasMultipleWorkspaceFolders()).toBe(false);
+
+    workspace.workspaceFolders = [
+      { uri: { fsPath: "/workspace/one" } },
+      { uri: { fsPath: "/workspace/two" } }
+    ];
+    expect(getWorkspaceRoot()).toBeNull();
+    expect(hasMultipleWorkspaceFolders()).toBe(true);
+  });
+});
+
+describe("inspectLogicsKitSubmodule", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("reports missing skills and gitmodules states precisely", () => {
+    const missingSkillsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-skills-"));
+    roots.push(missingSkillsRoot);
+    fs.writeFileSync(path.join(missingSkillsRoot, ".gitmodules"), "", "utf8");
+
+    const missingSkills = inspectLogicsKitSubmodule(missingSkillsRoot);
+    expect(missingSkills.exists).toBe(false);
+    expect(missingSkills.isCanonical).toBe(false);
+    expect(missingSkills.reason).toContain("logics/skills");
+
+    const missingGitmodulesRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-gitmodules-"));
+    roots.push(missingGitmodulesRoot);
+    fs.mkdirSync(path.join(missingGitmodulesRoot, "logics", "skills"), { recursive: true });
+
+    const missingGitmodules = inspectLogicsKitSubmodule(missingGitmodulesRoot);
+    expect(missingGitmodules.exists).toBe(true);
+    expect(missingGitmodules.isCanonical).toBe(false);
+    expect(missingGitmodules.reason).toContain(".gitmodules");
+  });
+
+  it("flags non-canonical submodule URLs", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-noncanonical-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, ".gitmodules"),
+      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://example.com/other-kit.git\n',
+      "utf8"
+    );
+
+    const inspection = inspectLogicsKitSubmodule(root);
+
+    expect(inspection.exists).toBe(true);
+    expect(inspection.isCanonical).toBe(false);
+    expect(inspection.remoteUrl).toBe("https://example.com/other-kit.git");
+  });
+});
+
+describe("bootstrap state helpers", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("distinguishes missing and incomplete bootstrap setups", () => {
+    const missingRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-missing-"));
+    roots.push(missingRoot);
+
+    const missing = inspectLogicsBootstrapState(missingRoot);
+    expect(missing.status).toBe("missing");
+    expect(missing.canBootstrap).toBe(true);
+    expect(missing.actionTitle).toContain("Bootstrap");
+
+    const incompleteRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-incomplete-"));
+    roots.push(incompleteRoot);
+    fs.mkdirSync(path.join(incompleteRoot, "logics"), { recursive: true });
+
+    const incomplete = inspectLogicsBootstrapState(incompleteRoot);
+    expect(incomplete.status).toBe("incomplete");
+    expect(incomplete.canBootstrap).toBe(true);
+    expect(incomplete.actionTitle).toContain("Repair");
+  });
+
+  it("flags non-canonical bootstrap setups when the submodule URL drifts", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-noncanonical-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, ".gitmodules"),
+      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://example.com/other-kit.git\n',
+      "utf8"
+    );
+
+    const state = inspectLogicsBootstrapState(root);
+
+    expect(state.status).toBe("noncanonical");
+    expect(state.canBootstrap).toBe(false);
+    expect(state.reason).toContain("non-canonical");
+  });
+});
+
+describe("catalog helpers", () => {
+  const roots: string[] = [];
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("maps creation kinds and sequence prefixes", () => {
+    expect(getCreateConfig("request")).toEqual({
+      dir: "logics/request",
+      prefix: "req_",
+      label: "request"
+    });
+    expect(getCreateConfig("backlog")).toEqual({
+      dir: "logics/backlog",
+      prefix: "item_",
+      label: "backlog item"
+    });
+    expect(getCreateConfig("task")).toEqual({
+      dir: "logics/tasks",
+      prefix: "task_",
+      label: "task"
+    });
+    expect(getCreateConfig("other" as never)).toBeNull();
+  });
+
+  it("returns the next numeric suffix for a prefix and ignores unrelated files", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-next-sequence-"));
+    roots.push(root);
+    const dir = path.join(root, "logics", "request");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "req_001_alpha.md"), "", "utf8");
+    fs.writeFileSync(path.join(dir, "req_007_beta.md"), "", "utf8");
+    fs.writeFileSync(path.join(dir, "req_notes.md"), "", "utf8");
+    fs.writeFileSync(path.join(dir, "other.txt"), "", "utf8");
+
+    expect(getNextSequence(dir, "req_")).toBe(8);
+    expect(getNextSequence(path.join(root, "missing"), "req_")).toBe(1);
+  });
+
+  it("normalizes relation paths and update indicators on disk", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-paths-"));
+    roots.push(root);
+    const markdownPath = path.join(root, "logics", "request", "req_001_example.md");
+    fs.mkdirSync(path.dirname(markdownPath), { recursive: true });
+    fs.writeFileSync(
+      markdownPath,
+      "## req_001_example - Example\n> Status: Draft\n",
+      "utf8"
+    );
+
+    const item = { id: "req_001_example", relPath: "logics/request/req_001_example.md" };
+    expect(normalizeRelationPath("", [item], root)).toBeNull();
+    expect(normalizeRelationPath("req_001_example", [item], root)).toBe(item.relPath);
+    expect(
+      normalizeRelationPath(path.join(root, "logics", "backlog", "item_010.md"), [item], root)
+    ).toBe("logics/backlog/item_010.md");
+
+    const outsidePath = path.resolve(root, "../outside.md");
+    expect(normalizeRelationPath(outsidePath, [item], root)).toBe(outsidePath);
+
+    expect(updateIndicatorsOnDisk(markdownPath, {})).toBe(false);
+    expect(
+      updateIndicatorsOnDisk(markdownPath, {
+        Status: "Ready",
+        Progress: "50%"
+      })
+    ).toBe(true);
+    expect(fs.readFileSync(markdownPath, "utf8")).toContain("> Progress: 50%");
+  });
+
+  it("exposes the kit update command string", () => {
+    expect(buildLogicsKitUpdateCommand()).toContain("git submodule update");
   });
 });
 

@@ -2,8 +2,8 @@
 > From version: 1.25.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 85%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Workflow
@@ -19,7 +19,8 @@
 # Scope
 - In: one coherent delivery slice from the source request.
 - Out: unrelated sibling slices that should stay in separate backlog items instead of widening this doc.
-
+- We just created a synthetic request to test Logics pastilles, and it exposed a few friction points.
+- The generated docs were technically valid, but they needed several manual fixes before they were pleasant to use or easy to audit.
 ```mermaid
 %% logics-kind: backlog
 %% logics-signature: backlog|ameliorer-la-creation-de-requests-de-tes|req-169-am-liorer-la-cr-ation-de-request|make-the-flow-manager-better-at|ac1-test-or-smoke-test-requests-can

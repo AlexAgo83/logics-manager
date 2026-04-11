@@ -87,6 +87,11 @@
       );
     }
 
+    let sentinelObserver = null;
+    let sentinelWrapper = null;
+    let sentinelTop = null;
+    let sentinelBottom = null;
+
     function focusCardById(id) {
       const card = findCardById(id);
       if (card && typeof card.focus === "function") {
@@ -103,6 +108,25 @@
 
     function getVisibleGroupedItems() {
       return groupByStage(getItems().filter((item) => isVisible(item)));
+    }
+
+    function disconnectSentinels() {
+      if (sentinelObserver) {
+        sentinelObserver.disconnect();
+        sentinelObserver = null;
+      }
+      if (sentinelTop) {
+        sentinelTop.remove();
+        sentinelTop = null;
+      }
+      if (sentinelBottom) {
+        sentinelBottom.remove();
+        sentinelBottom = null;
+      }
+      if (sentinelWrapper) {
+        sentinelWrapper.remove();
+        sentinelWrapper = null;
+      }
     }
 
     function getVisibleBoardStages(grouped) {
@@ -144,6 +168,92 @@
       if (body) {
         body.hidden = collapsed;
       }
+    }
+
+    function createSentinelElement(variant) {
+      const sentinel = document.createElement("div");
+      sentinel.className = `list-view__sentinel list-view__sentinel--${variant}`;
+      sentinel.hidden = true;
+
+      const icon = document.createElement("span");
+      icon.className = "list-view__sentinel-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = chevronIcon(variant === "bottom");
+      sentinel.appendChild(icon);
+
+      const label = document.createElement("span");
+      label.className = "list-view__sentinel-label";
+      sentinel.appendChild(label);
+
+      const count = document.createElement("span");
+      count.className = "list-view__sentinel-count";
+      sentinel.appendChild(count);
+
+      return sentinel;
+    }
+
+    function updateSentinelFromHeader(sentinel, header) {
+      if (!sentinel) {
+        return;
+      }
+      const label = sentinel.querySelector(".list-view__sentinel-label");
+      const count = sentinel.querySelector(".list-view__sentinel-count");
+      if (!header || !label || !count) {
+        sentinel.hidden = true;
+        if (label) {
+          label.textContent = "";
+        }
+        if (count) {
+          count.textContent = "";
+        }
+        return;
+      }
+      label.textContent = header.querySelector(".list-view__header-label")?.textContent?.trim() || "";
+      count.textContent = header.querySelector(".list-view__header-count")?.textContent?.trim() || "";
+      sentinel.hidden = false;
+    }
+
+    function attachSentinelObserver(wrapperEl, boardListEl, topSentinel, bottomSentinel) {
+      if (typeof IntersectionObserver === "undefined") {
+        return;
+      }
+      const headers = Array.from(wrapperEl.querySelectorAll(".list-view__header"));
+      if (headers.length === 0) {
+        return;
+      }
+      const headerStates = new Map();
+      const refreshSentinels = () => {
+        const aboveHeaders = headers.filter((header) => headerStates.get(header) === "above");
+        const belowHeaders = headers.filter((header) => headerStates.get(header) === "below");
+        updateSentinelFromHeader(topSentinel, aboveHeaders.length > 0 ? aboveHeaders[aboveHeaders.length - 1] : null);
+        updateSentinelFromHeader(bottomSentinel, belowHeaders.length > 0 ? belowHeaders[0] : null);
+      };
+      sentinelObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              headerStates.set(entry.target, "visible");
+              return;
+            }
+            if (entry.rootBounds && entry.boundingClientRect.bottom < entry.rootBounds.top) {
+              headerStates.set(entry.target, "above");
+              return;
+            }
+            if (entry.rootBounds && entry.boundingClientRect.top > entry.rootBounds.bottom) {
+              headerStates.set(entry.target, "below");
+              return;
+            }
+            headerStates.set(entry.target, "below");
+          });
+          refreshSentinels();
+        },
+        {
+          root: boardListEl,
+          threshold: [0, 1]
+        }
+      );
+      headers.forEach((header) => sentinelObserver.observe(header));
+      refreshSentinels();
     }
 
     function moveBoardSelection(item, direction) {
@@ -828,8 +938,16 @@
     }
 
     function renderListView(groups) {
+      disconnectSentinels();
       const listView = document.createElement("div");
       listView.className = "list-view";
+      const wrapper = document.createElement("div");
+      wrapper.className = "list-view__wrapper";
+      sentinelTop = createSentinelElement("top");
+      sentinelBottom = createSentinelElement("bottom");
+      wrapper.appendChild(sentinelTop);
+      wrapper.appendChild(listView);
+      wrapper.appendChild(sentinelBottom);
       groups.forEach((group) => {
         const section = document.createElement("section");
         section.className = "list-view__section";
@@ -902,7 +1020,9 @@
         listView.appendChild(section);
       });
 
-      board.appendChild(listView);
+      board.appendChild(wrapper);
+      sentinelWrapper = wrapper;
+      attachSentinelObserver(wrapper, board, sentinelTop, sentinelBottom);
     }
 
     function renderBoard() {
@@ -910,6 +1030,7 @@
       if (typeof closeColumnMenu === "function") {
         closeColumnMenu();
       }
+      disconnectSentinels();
       board.innerHTML = "";
       const visibleItems = getItems().filter((item) => isVisible(item));
       if (!visibleItems.length) {

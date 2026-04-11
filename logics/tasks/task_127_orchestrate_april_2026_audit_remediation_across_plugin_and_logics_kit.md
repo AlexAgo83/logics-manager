@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 38%
+> Progress: 50%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -68,11 +68,11 @@ stateDiagram-v2
 
 ## Wave 4 — Kit security (item_296)
 
-- [ ] 4.1. Override or add a `to_dict()` method on `HybridProviderDefinition` that omits `credential_value`. *(item_296 AC1)*
-- [ ] 4.2. Write a unit test asserting `"credential_value" not in instance.to_dict()`.
-- [ ] 4.3. Add a scan in `workflow_audit.py` that reads the two `.jsonl` cache files (if they exist) and exits non-zero if `credential_value` appears. *(item_296 AC2)*
-- [ ] 4.4. Run `npm run audit:logics` and `npm run coverage:kit` — both must pass.
-- [ ] CHECKPOINT Wave 4 — commit-ready state (kit submodule commit + version bump), update item_296 progress to 100 %.
+- [x] 4.1. Override or add a `to_dict()` method on `HybridProviderDefinition` that omits `credential_value`. *(item_296 AC1)*
+- [x] 4.2. Write a unit test asserting `"credential_value" not in instance.to_dict()`.
+- [x] 4.3. Add a scan in `workflow_audit.py` that reads the two `.jsonl` cache files (if they exist) and exits non-zero if `credential_value` appears. *(item_296 AC2)*
+- [x] 4.4. Run `npm run audit:logics` and `npm run coverage:kit` — both must pass.
+- [x] CHECKPOINT Wave 4 — commit-ready state (kit submodule commit + version bump), update item_296 progress to 100 %.
 
 ## Wave 5 — Kit structure (item_294)
 

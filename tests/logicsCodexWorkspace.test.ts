@@ -1,13 +1,27 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildCodexOverlayRunCommand,
   buildCodexOverlaySyncCommand,
   inspectCodexWorkspaceOverlay,
-  publishCodexWorkspaceOverlay
+  publishCodexWorkspaceOverlay,
+  shouldPublishRepoKit
 } from "../src/logicsCodexWorkspace";
+
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    symlinkSync: vi.fn((target: any, destination: any, type?: any) => {
+      if (type === "dir") {
+        throw new Error("symlink not supported");
+      }
+      return actual.symlinkSync(target, destination, type);
+    })
+  };
+});
 
 describe("inspectCodexWorkspaceOverlay", () => {
   const roots: string[] = [];
@@ -17,6 +31,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
   afterEach(() => {
     process.env.LOGICS_CODEX_GLOBAL_HOME = originalGlobal;
     process.env.LOGICS_CODEX_WORKSPACES_HOME = originalWorkspaces;
+    vi.restoreAllMocks();
     for (const root of roots.splice(0)) {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -138,5 +153,103 @@ describe("inspectCodexWorkspaceOverlay", () => {
     expect(result.publishedSkillNames).toEqual(["core-skill", "optional-skill"]);
     expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
     expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(true);
+  });
+
+  it("covers shouldPublishRepoKit decision branches", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
+    roots.push(root);
+    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.4.0\n", "utf8");
+    fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
+    fs.writeFileSync(path.join(root, "logics", "skills", ".git", "HEAD"), "0123456789abcdef0123456789abcdef01234567\n", "utf8");
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "missing-manager",
+        summary: "missing",
+        issues: [],
+        warnings: []
+      })
+    ).toBe(false);
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "missing-overlay",
+        summary: "missing",
+        issues: [],
+        warnings: []
+      })
+    ).toBe(true);
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "stale",
+        summary: "stale",
+        issues: [],
+        warnings: []
+      })
+    ).toBe(true);
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "healthy",
+        summary: "healthy",
+        issues: [],
+        warnings: [],
+        installedVersion: "1.3.0"
+      })
+    ).toBe(true);
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "healthy",
+        summary: "healthy",
+        issues: [],
+        warnings: [],
+        installedVersion: "1.4.0",
+        sourceRevision: "0123456789abcdef0123456789abcdef01234567",
+        sourceRepo: path.resolve(root)
+      })
+    ).toBe(false);
+
+    expect(
+      shouldPublishRepoKit(root, {
+        status: "healthy",
+        summary: "healthy",
+        issues: [],
+        warnings: [],
+        installedVersion: "1.4.0",
+        sourceRevision: "fedcba9876543210fedcba9876543210fedcba98",
+        sourceRepo: path.resolve(root)
+      })
+    ).toBe(true);
+  });
+
+  it("publishes in copy mode and removes previously published skills", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
+    const globalHome = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
+    roots.push(root, globalHome);
+    process.env.LOGICS_CODEX_GLOBAL_HOME = globalHome;
+
+    const coreSkillDir = path.join(root, "logics", "skills", "core-skill");
+    const optionalSkillDir = path.join(root, "logics", "skills", "optional-skill");
+    fs.mkdirSync(path.join(coreSkillDir, "agents"), { recursive: true });
+    fs.mkdirSync(path.join(optionalSkillDir, "agents"), { recursive: true });
+    fs.writeFileSync(path.join(coreSkillDir, "SKILL.md"), "# core\n", "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "SKILL.md"), "# optional\n", "utf8");
+    fs.writeFileSync(path.join(coreSkillDir, "agents", "openai.yaml"), 'tier: core\ninterface:\n  display_name: "Core"\n', "utf8");
+    fs.writeFileSync(path.join(optionalSkillDir, "agents", "openai.yaml"), 'tier: optional\ninterface:\n  display_name: "Optional"\n', "utf8");
+
+    const initial = publishCodexWorkspaceOverlay(root, { includeOptional: true });
+    expect(initial.publicationMode).toBe("copy");
+    expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
+    expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(true);
+
+    fs.rmSync(optionalSkillDir, { recursive: true, force: true });
+    const republished = publishCodexWorkspaceOverlay(root);
+
+    expect(republished.publishedSkillNames).toEqual(["core-skill"]);
+    expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
+    expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(false);
   });
 });

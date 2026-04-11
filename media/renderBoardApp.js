@@ -647,7 +647,7 @@
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
 
-      const linkage = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
+      const linkage = ["spec", "product", "architecture"].includes(String(item?.stage || "").trim()) ? "" : createPrimaryFlowSummary(item);
       if (linkage) {
         preview.appendChild(createPreviewRow("Flow", linkage));
       }

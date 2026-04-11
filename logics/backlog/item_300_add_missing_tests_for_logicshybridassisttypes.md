@@ -1,7 +1,7 @@
 ## item_300_add_missing_tests_for_logicshybridassisttypes - Add missing tests for logicsHybridAssistTypes
 > From version: 1.25.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%

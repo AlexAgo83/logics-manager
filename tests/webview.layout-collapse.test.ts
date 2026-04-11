@@ -225,13 +225,13 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
     "media/webviewSelectors.js",
     "media/webviewPersistence.js",
     "media/webviewChrome.js",
-    "media/renderBoard.js",
+    "media/renderBoardApp.js",
     "media/renderDetails.js",
     "media/renderMarkdown.js",
     "media/mainCore.js",
     "media/mainInteractionHandlers.js",
     "media/mainInteractions.js",
-    "media/main.js"
+    "media/mainApp.js"
   ];
   for (const relPath of mediaFiles) {
     loadMediaScript(dom, relPath);

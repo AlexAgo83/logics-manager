@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { inspectClaudeGlobalKit, publishClaudeGlobalKit } from "../src/logicsClaudeGlobalKit";
+import { discoverKitSkills, inspectClaudeGlobalKit, publishClaudeGlobalKit } from "../src/logicsClaudeGlobalKit";
 
 describe("Claude global kit", () => {
   const roots: string[] = [];
@@ -24,7 +24,11 @@ describe("Claude global kit", () => {
   function writeSkill(root: string, skillName: string, prompt: string) {
     const skillDir = path.join(root, "logics", "skills", skillName, "agents");
     fs.mkdirSync(skillDir, { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", skillName, "SKILL.md"), "# skill\n", "utf8");
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", skillName, "SKILL.md"),
+      `---\nname: ${skillName}\ndescription: Repository skill.\n---\n\n# skill\n`,
+      "utf8"
+    );
     fs.writeFileSync(
       path.join(skillDir, "openai.yaml"),
       `tier: core\ninterface:\n  display_name: "${skillName}"\n  short_description: "Bounded skill."\n  default_prompt: "${prompt}"\n`,
@@ -62,5 +66,24 @@ describe("Claude global kit", () => {
     expect(snapshot.status).toBe("healthy");
     expect(snapshot.installedVersion).toBe("1.21.1");
     expect(snapshot.publishedSkillNames).toEqual(["demo-skill"]);
+  });
+
+  it("discovers kit skill names from SKILL.md frontmatter", () => {
+    const root = makeRoot("logics-claude-kit-discovery-");
+    fs.mkdirSync(path.join(root, "logics", "skills", "alpha-skill"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "alpha-skill", "SKILL.md"),
+      "---\nname: discovered-alpha\ndescription: Alpha skill.\n---\n\n# alpha\n",
+      "utf8"
+    );
+    fs.mkdirSync(path.join(root, "logics", "skills", "beta-skill"), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, "logics", "skills", "beta-skill", "SKILL.md"),
+      "---\nname: discovered-beta\ndescription: Beta skill.\n---\n\n# beta\n",
+      "utf8"
+    );
+    fs.mkdirSync(path.join(root, "logics", "skills", ".ignored"), { recursive: true });
+
+    expect(discoverKitSkills(root)).toEqual(["discovered-alpha", "discovered-beta"]);
   });
 });

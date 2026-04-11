@@ -98,13 +98,13 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   const webviewSelectorsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewSelectors.js"));
   const webviewPersistenceScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewPersistence.js"));
   const webviewChromeScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewChrome.js"));
-  const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderBoard.js"));
+  const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderBoardApp.js"));
   const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderDetails.js"));
   const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderMarkdown.js"));
   const mainCoreScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainCore.js"));
   const mainInteractionHandlersScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractionHandlers.js"));
   const mainInteractionsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractions.js"));
-  const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "main.js"));
+  const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainApp.js"));
   const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "main.css"));
   const nonce = getNonce();
 

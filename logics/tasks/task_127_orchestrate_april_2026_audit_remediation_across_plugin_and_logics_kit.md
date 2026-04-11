@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 85%
+> Confidence: 90%
 > Progress: 0%
 > Complexity: High
 > Theme: Quality
@@ -14,10 +14,13 @@
 > Derived from `logics/backlog/item_294_reorganise_flow_manager_scripts_by_functional_domain.md`
 > Derived from `logics/backlog/item_295_raise_kit_branch_coverage_and_reorganise_numbered_test_suites_by_domain.md`
 > Derived from `logics/backlog/item_296_harden_hybridproviderdefinition_credential_serialisation_and_audit_cache_files.md`
+> Derived from `logics/backlog/item_297_split_oversized_webview_files_per_adr_020.md`
+> Derived from `logics/backlog/item_298_add_maximum_kit_version_bound_in_plugin.md`
+> Derived from `logics/backlog/item_299_add_programmatic_skill_discovery_to_replace_hardcoded_names.md`
 
 # Context
 
-This task orchestrates the full remediation of the April 2026 structural audit across both the VS Code plugin (`src/`, `media/`) and the Logics kit submodule (`logics/skills/`). The audit surfaced 5 plugin issues and 4 kit issues, grouped into 7 backlog items. Delivery is sequenced so that low-risk, zero-behaviour-change items ship first and unblock the higher-complexity refactors.
+This task orchestrates the full remediation of the April 2026 structural audit across both the VS Code plugin (`src/`, `media/`) and the Logics kit submodule (`logics/skills/`). The audit surfaced 5 plugin issues and 4 kit issues, grouped into 10 backlog items. Delivery is sequenced so that low-risk, zero-behaviour-change items ship first and unblock the higher-complexity refactors.
 
 Parent requests:
 - `logics/request/req_161_address_plugin_audit_findings_from_april_2026_structural_review.md`
@@ -33,8 +36,9 @@ stateDiagram-v2
     Wave3_PluginArchitecture --> Wave4_KitSecurity
     Wave4_KitSecurity --> Wave5_KitStructure
     Wave5_KitStructure --> Wave6_KitCoverage
-    Wave6_KitCoverage --> Wave7_READMEUpdate
-    Wave7_READMEUpdate --> [*]
+    Wave6_KitCoverage --> Wave7_P3Items
+    Wave7_P3Items --> Wave8_READMEUpdate
+    Wave8_READMEUpdate --> [*]
 ```
 
 # Plan
@@ -87,21 +91,30 @@ stateDiagram-v2
 - [ ] 6.5. Run `npm run coverage:kit` — overall kit branch coverage must exceed 40 %.
 - [ ] CHECKPOINT Wave 6 — commit-ready state (kit submodule commit + version bump), update item_295 progress to 100 %.
 
-## Wave 7 — README update
+## Wave 7 — P3 items (item_297 + item_298 + item_299)
 
-- [ ] 7.1. Review `README.md` for any technical or functional content that is outdated relative to the changes made in waves 1–6:
+- [ ] 7.1. Split `media/main.js` and `media/renderBoard.js` — extract coherent sub-responsibilities until each file is below 600 lines; run `npm run test`. *(item_297 AC1)*
+- [ ] 7.2. Add `MAX_LOGICS_KIT_MAJOR` / `MAX_LOGICS_KIT_MINOR` constants (in `src/logicsViewProviderConstants.ts`); extend the version-check logic to warn on over-bound kit; add a unit test for the new branch. *(item_298 AC1)*
+- [ ] 7.3. Implement `discoverKitSkills(kitRoot)` in `src/logicsClaudeGlobalKit.ts`; replace the hardcoded skill name array; add a unit test with a fixture directory. *(item_299 AC1)*
+- [ ] 7.4. Run `npm run test` and `npm run lint:ts` — both must pass.
+- [ ] CHECKPOINT Wave 7 — commit-ready state, update item_297, item_298, item_299 progress to 100 %.
+
+## Wave 8 — README update
+
+- [ ] 8.1. Review `README.md` for any technical or functional content that is outdated relative to the changes made in waves 1–7:
   - Architecture description (module boundaries, bootstrap logic, kit structure).
   - Developer setup instructions (`.env`, Python runtime, kit submodule).
   - CI/test commands (scripts, coverage thresholds, smoke tests).
   - Feature descriptions that reference removed or renamed surfaces.
-- [ ] 7.2. Update `README.md` where needed — do not add sections that were not already present unless a new entry point or workflow was introduced by the remediation.
-- [ ] CHECKPOINT Wave 7 — commit-ready state.
+  - Kit version compatibility range (now bounded on both sides).
+- [ ] 8.2. Update `README.md` where needed — do not add sections that were not already present unless a new entry point or workflow was introduced by the remediation.
+- [ ] CHECKPOINT Wave 8 — commit-ready state.
 
 ## Final
 
 - [ ] Run `npm run ci:fast` end-to-end — all steps must pass.
 - [ ] Run `python3 logics/skills/logics.py lint --require-status` and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0` — both must pass or warnings are documented.
-- [ ] Update all 7 linked backlog items to `Status: Done` / `Progress: 100 %`.
+- [ ] Update all 10 linked backlog items to `Status: Done` / `Progress: 100 %`.
 - [ ] Update both parent requests to `Status: Done`.
 - [ ] Set this task to `Status: Done` / `Progress: 100 %`.
 
@@ -144,12 +157,15 @@ stateDiagram-v2
 - Backlog item: `logics/backlog/item_294_reorganise_flow_manager_scripts_by_functional_domain.md`
 - Backlog item: `logics/backlog/item_295_raise_kit_branch_coverage_and_reorganise_numbered_test_suites_by_domain.md`
 - Backlog item: `logics/backlog/item_296_harden_hybridproviderdefinition_credential_serialisation_and_audit_cache_files.md`
+- Backlog item: `logics/backlog/item_297_split_oversized_webview_files_per_adr_020.md`
+- Backlog item: `logics/backlog/item_298_add_maximum_kit_version_bound_in_plugin.md`
+- Backlog item: `logics/backlog/item_299_add_programmatic_skill_discovery_to_replace_hardcoded_names.md`
 - Request(s): `logics/request/req_161_address_plugin_audit_findings_from_april_2026_structural_review.md`
 - Request(s): `logics/request/req_162_address_logics_kit_audit_findings_from_april_2026_structural_review.md`
 
 # AI Context
 
-- Summary: Orchestrate 7-wave remediation of April 2026 structural audit findings across the VS Code plugin (5 issues) and the Logics kit submodule (4 issues), ending with a README review pass.
+- Summary: Orchestrate 8-wave remediation of April 2026 structural audit findings across the VS Code plugin and the Logics kit submodule (10 backlog items total), ending with a README review pass.
 - Keywords: audit, remediation, orchestrate, plugin, kit, coverage, constants, vsix, bootstrap, flow-manager, credential, tests, README
 - Use when: Executing any wave of the April 2026 audit remediation.
 - Skip when: The work is a new feature unrelated to this audit wave.

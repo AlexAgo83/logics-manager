@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 95%
 > Complexity: High
 > Theme: Quality
 
@@ -106,3 +106,4 @@ flowchart TD
 - `logics/backlog/item_291_fix_untyped_this_and_raise_plugin_branch_coverage_on_critical_files.md`
 - `logics/backlog/item_292_remove_committed_vsix_binaries_and_enforce_gitignore.md`
 - `logics/backlog/item_293_reduce_src_bootstrap_hub_coupling_by_extracting_a_dedicated_module.md`
+- `logics/backlog/item_297_split_oversized_webview_files_per_adr_020.md`

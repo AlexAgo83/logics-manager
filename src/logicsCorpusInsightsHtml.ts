@@ -307,7 +307,7 @@ function formatTimelineLabel(timestampMs: number): string {
   }).format(new Date(timestampMs));
 }
 
-function summarizeTimeline(items: LogicsItem[], nowMs: number, bucketCount = 12): TimelinePoint[] {
+function summarizeTimeline(items: LogicsItem[], nowMs: number, bucketCount = 6): TimelinePoint[] {
   const closedWorkflowItems = items.filter((item) => WORKFLOW_STAGES.has(item.stage) && CLOSED_STATUSES.has(asString(item.indicators.Status, "")));
   const weekMs = 7 * 24 * 60 * 60 * 1000;
   const currentWeekStart = getUtcIsoWeekStart(nowMs);
@@ -341,7 +341,7 @@ function renderTimelineChart(title: string, description: string, points: Timelin
       <article class="logics-insights__chart-card">
         <h3>${escapeHtml(title)}</h3>
         <p>${escapeHtml(description)}</p>
-        <p class="logics-insights__empty">No closed items in the last 12 weeks.</p>
+        <p class="logics-insights__empty">No closed items in the last 6 weeks.</p>
       </article>
     `;
   }
@@ -768,8 +768,8 @@ export function buildLogicsCorpusInsightsHtml(params: {
 
           <div class="logics-insights__section">
             <h2>Delivery timeline</h2>
-            <p>Closed workflow items bucketed by week across the last 12 weeks.</p>
-            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week across the last 12 weeks.", timelinePoints)}
+            <p>Closed workflow items bucketed by week across the last 6 weeks.</p>
+            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week across the last 6 weeks.", timelinePoints)}
           </div>
 
           <div class="logics-insights__section">

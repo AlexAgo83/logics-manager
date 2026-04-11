@@ -1,10 +1,10 @@
 ## task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit - Orchestrate April 2026 audit remediation across plugin and Logics kit
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 87.5%
+> Progress: 100%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -101,14 +101,14 @@ stateDiagram-v2
 
 ## Wave 8 — README update
 
-- [ ] 8.1. Review `README.md` for any technical or functional content that is outdated relative to the changes made in waves 1–7:
+- [x] 8.1. Review `README.md` for any technical or functional content that is outdated relative to the changes made in waves 1–7:
   - Architecture description (module boundaries, bootstrap logic, kit structure).
   - Developer setup instructions (`.env`, Python runtime, kit submodule).
   - CI/test commands (scripts, coverage thresholds, smoke tests).
   - Feature descriptions that reference removed or renamed surfaces.
   - Kit version compatibility range (now bounded on both sides).
-- [ ] 8.2. Update `README.md` where needed — do not add sections that were not already present unless a new entry point or workflow was introduced by the remediation.
-- [ ] CHECKPOINT Wave 8 — commit-ready state.
+- [x] 8.2. Update `README.md` where needed — do not add sections that were not already present unless a new entry point or workflow was introduced by the remediation.
+- [x] CHECKPOINT Wave 8 — commit-ready state.
 
 ## Final
 
@@ -181,15 +181,20 @@ stateDiagram-v2
 - `python3 logics/skills/logics.py lint --require-status` — before closing
 - `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0` — before closing
 - `npm run ci:fast` — final gate before closing the task
+- Finish workflow executed on 2026-04-11.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
 
-- [ ] All 7 backlog items are `Status: Done` / `Progress: 100 %`.
-- [ ] Both parent requests are `Status: Done`.
-- [ ] `npm run ci:fast` passes end-to-end.
-- [ ] Kit submodule has been committed and version bumped for each kit wave.
-- [ ] `README.md` has been reviewed and updated where necessary.
-- [ ] Logics lint and audit pass (or warnings are documented).
-- [ ] Status is `Done` and Progress is `100 %`.
+- [x] All 7 backlog items are `Status: Done` / `Progress: 100 %`.
+- [x] Both parent requests are `Status: Done`.
+- [x] `npm run ci:fast` passes end-to-end.
+- [x] Kit submodule has been committed and version bumped for each kit wave.
+- [x] `README.md` has been reviewed and updated where necessary.
+- [x] Logics lint and audit pass (or warnings are documented).
+- [x] Status is `Done` and Progress is `100 %`.
 
 # Report
+- Finished on 2026-04-11.
+- Linked backlog item(s): `item_290_extract_duplicated_constants_into_a_shared_plugin_module`, `item_291_fix_untyped_this_and_raise_plugin_branch_coverage_on_critical_files`, `item_292_remove_committed_vsix_binaries_and_enforce_gitignore`, `item_293_reduce_src_bootstrap_hub_coupling_by_extracting_a_dedicated_module`, `item_294_reorganise_flow_manager_scripts_by_functional_domain`, `item_295_raise_kit_branch_coverage_and_reorganise_numbered_test_suites_by_domain`, `item_296_harden_hybridproviderdefinition_credential_serialisation_and_audit_cache_files`, `item_297_split_oversized_webview_files_per_adr_020`, `item_298_add_maximum_kit_version_bound_in_plugin`, `item_299_add_programmatic_skill_discovery_to_replace_hardcoded_names`
+- Related request(s): `req_161_address_plugin_audit_findings_from_april_2026_structural_review`, `req_162_address_logics_kit_audit_findings_from_april_2026_structural_review`

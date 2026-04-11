@@ -1,7 +1,7 @@
 ## req_162_address_logics_kit_audit_findings_from_april_2026_structural_review - Address Logics kit audit findings from April 2026 structural review
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High
@@ -64,7 +64,7 @@ flowchart TD
 - [x] Problem statement is explicit and user impact is clear.
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Dependencies and known risks are listed.
 
 # Dependencies and risks
 

@@ -254,7 +254,7 @@ describe("logicsViewProviderSupport more coverage", () => {
 
     expect(resolveProjectRoot.call({ projectRootOverride: null })).toEqual({ root: "/workspace" });
     expect(canResetProjectRoot.call({ projectRootOverride: "/workspace" })).toBe(false);
-    expect(getStartupKitUpdatePromptStateKey.call({}, "/workspace")).toContain("/workspace");
+    expect(getStartupKitUpdatePromptStateKey.call({}, "/workspace")).toContain(path.resolve("/workspace"));
   });
 
   it("covers invalid override notices and data posting", () => {

@@ -299,7 +299,7 @@ describe("logics HTML builders", () => {
     });
 
     expect(html).toContain("Delivery timeline");
-    expect(html).toContain("No closed items in the last 12 weeks.");
+    expect(html).toContain("No closed items in the last 6 weeks.");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

@@ -114,6 +114,10 @@
   display: none;
 }
 
+.details--collapsed .read-preview__path {
+  display: none;
+}
+
 .details__actions .btn {
   min-height: 34px;
 }

@@ -72,3 +72,4 @@ flowchart TD
 - Urgency: Medium — no user-visible regression, but blocks confidence in further refactors.
 
 # Notes
+- Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.

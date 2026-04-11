@@ -128,7 +128,7 @@ Windows notes:
 
 ## Flow Manager Compatibility
 
-- Minimum supported Logics kit baseline: `v1.0.4+`.
+- Supported Logics kit range: `v1.0.4+` through the tested `v1.12.x` line.
 - Canonical Logics kit repo: `https://github.com/AlexAgo83/cdx-logics-kit`
 - Required script path: `logics/skills/logics-flow-manager/scripts/logics_flow.py`.
 - If the script is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.

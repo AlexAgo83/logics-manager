@@ -69,3 +69,4 @@ flowchart LR
 - Urgency: Low — P3, no correctness risk, but blocks further webview feature work cleanly.
 
 # Notes
+- Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.

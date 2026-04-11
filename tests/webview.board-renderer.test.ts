@@ -1,7 +1,30 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { baseItem, bootstrapWebview, pushData, specItem } from "./webviewHarnessTestUtils";
 
 describe("webview board renderer behavior", () => {
+  function installIntersectionObserverMock(dom: ReturnType<typeof bootstrapWebview>["dom"]) {
+    const instances: Array<{
+      callback: (entries: Array<Record<string, unknown>>) => void;
+      observe: ReturnType<typeof vi.fn>;
+      disconnect: ReturnType<typeof vi.fn>;
+    }> = [];
+    class MockIntersectionObserver {
+      callback: (entries: Array<Record<string, unknown>>) => void;
+      observe = vi.fn();
+      disconnect = vi.fn();
+
+      constructor(callback: (entries: Array<Record<string, unknown>>) => void) {
+        this.callback = callback;
+        instances.push(this);
+      }
+    }
+    Object.defineProperty(dom.window, "IntersectionObserver", {
+      configurable: true,
+      value: MockIntersectionObserver
+    });
+    return instances;
+  }
+
   it("renders board columns for each visible stage", () => {
     const { dom } = bootstrapWebview();
 
@@ -33,6 +56,7 @@ describe("webview board renderer behavior", () => {
     expect(stages).toContain("request");
     expect(stages).toContain("backlog");
     expect(stages).toContain("task");
+    expect(board?.querySelector(".list-view__wrapper")).toBeFalsy();
   });
 
   it("shows add button only on primary flow stage columns", () => {
@@ -171,6 +195,119 @@ describe("webview board renderer behavior", () => {
 
     const firstHeader = headers[0];
     expect(firstHeader?.querySelector(".list-view__header-count")?.textContent).toBe("1/1");
+  });
+
+  it("renders sticky sentinels in list mode and updates them from observer entries", () => {
+    const { dom } = bootstrapWebview();
+    const instances = installIntersectionObserverMock(dom);
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        {
+          ...baseItem,
+          id: "item_001_backlog",
+          title: "Backlog item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_001_backlog.md",
+          path: "/workspace/mock/logics/backlog/item_001_backlog.md"
+        },
+        {
+          ...baseItem,
+          id: "task_001_work",
+          title: "Task item",
+          stage: "task",
+          relPath: "logics/tasks/task_001_work.md",
+          path: "/workspace/mock/logics/tasks/task_001_work.md"
+        }
+      ]
+    });
+
+    dom.window.document.querySelector('[data-action="toggle-view-mode"]')?.dispatchEvent(
+      new dom.window.Event("click", { bubbles: true })
+    );
+
+    const board = dom.window.document.getElementById("board");
+    const wrapper = board?.querySelector(".list-view__wrapper");
+    const sentinels = Array.from(board?.querySelectorAll(".list-view__sentinel") || []);
+    const headers = Array.from(board?.querySelectorAll(".list-view__header") || []);
+
+    expect(wrapper).toBeTruthy();
+    expect(sentinels.length).toBe(2);
+    expect(instances).toHaveLength(1);
+    expect(instances[0].observe).toHaveBeenCalledTimes(headers.length);
+
+    const topHeader = headers.find((header) => (header.querySelector(".list-view__header-label")?.textContent || "").includes("Request")) || headers[0];
+    const bottomHeader = headers.find((header) => (header.querySelector(".list-view__header-label")?.textContent || "").includes("Task")) || headers[headers.length - 1];
+    const visibleHeader = headers.find((header) => header !== topHeader && header !== bottomHeader) || headers[1] || headers[0];
+
+    instances[0].callback([
+      {
+        target: topHeader,
+        isIntersecting: false,
+        boundingClientRect: { top: 0, bottom: 10 },
+        rootBounds: { top: 20, bottom: 120 }
+      },
+      {
+        target: visibleHeader,
+        isIntersecting: true,
+        boundingClientRect: { top: 40, bottom: 80 },
+        rootBounds: { top: 20, bottom: 120 }
+      },
+      {
+        target: bottomHeader,
+        isIntersecting: false,
+        boundingClientRect: { top: 200, bottom: 240 },
+        rootBounds: { top: 20, bottom: 120 }
+      }
+    ]);
+
+    const topSentinel = board?.querySelector(".list-view__sentinel--top");
+    const bottomSentinel = board?.querySelector(".list-view__sentinel--bottom");
+
+    expect(topSentinel?.hidden).toBe(false);
+    expect(topSentinel?.querySelector(".list-view__sentinel-label")?.textContent).toBe(
+      topHeader.querySelector(".list-view__header-label")?.textContent
+    );
+    expect(topSentinel?.querySelector(".list-view__sentinel-count")?.textContent).toBe(
+      topHeader.querySelector(".list-view__header-count")?.textContent
+    );
+    expect(bottomSentinel?.hidden).toBe(false);
+    expect(bottomSentinel?.querySelector(".list-view__sentinel-label")?.textContent).toBe(
+      bottomHeader.querySelector(".list-view__header-label")?.textContent
+    );
+  });
+
+  it("disconnects sticky sentinels and keeps a single wrapper on rerender", () => {
+    const { dom } = bootstrapWebview();
+    const instances = installIntersectionObserverMock(dom);
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    dom.window.document.querySelector('[data-action="toggle-view-mode"]')?.dispatchEvent(
+      new dom.window.Event("click", { bubbles: true })
+    );
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        {
+          ...baseItem,
+          id: "req_001_followup",
+          title: "Follow-up request"
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    expect(board?.querySelectorAll(".list-view__wrapper").length).toBe(1);
+    expect(board?.querySelectorAll(".list-view__sentinel").length).toBe(2);
+    expect(instances[0].disconnect).toHaveBeenCalledTimes(1);
   });
 
   it("renders compact cards in list mode", () => {

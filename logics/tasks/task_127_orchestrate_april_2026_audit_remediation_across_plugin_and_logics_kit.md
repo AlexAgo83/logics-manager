@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 25%
+> Progress: 38%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -61,10 +61,10 @@ stateDiagram-v2
 
 ## Wave 3 — Plugin architecture (item_293)
 
-- [ ] 3.1. Review `src/logicsCodexWorkflowBootstrapSupport.ts` and identify the most cohesive extractable sub-responsibility (kit-version inspection is the prime candidate).
-- [ ] 3.2. Extract the sub-responsibility into a dedicated module (e.g. `src/logicsKitVersionSupport.ts`); update all callers.
-- [ ] 3.3. Run `npm run test:smoke`, `npm run test:lifecycle`, and `npm run lint:ts`. *(item_293 AC1)*
-- [ ] CHECKPOINT Wave 3 — commit-ready state, update item_293 progress to 100 %.
+- [x] 3.1. Review `src/logicsCodexWorkflowBootstrapSupport.ts` and identify the most cohesive extractable sub-responsibility (kit-version inspection is the prime candidate).
+- [x] 3.2. Extract the sub-responsibility into a dedicated module (e.g. `src/logicsKitVersionSupport.ts`); update all callers.
+- [x] 3.3. Run `npm run test:smoke`, `npm run test:lifecycle`, and `npm run lint:ts`. *(item_293 AC1)*
+- [x] CHECKPOINT Wave 3 — commit-ready state, update item_293 progress to 100 %.
 
 ## Wave 4 — Kit security (item_296)
 

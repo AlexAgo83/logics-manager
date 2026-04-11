@@ -89,15 +89,7 @@ function assertMissing(entries, unexpected) {
 }
 
 function runVscePackage(outputPath, stdio) {
-  if (process.platform === "win32") {
-    execFileSync("cmd.exe", ["/d", "/s", "/c", "npx", "@vscode/vsce", "package", "--out", outputPath], {
-      cwd: root,
-      stdio
-    });
-    return;
-  }
-
-  execFileSync("npx", ["@vscode/vsce", "package", "--out", outputPath], {
+  execFileSync("node", ["scripts/run-python.mjs", "scripts/build/package-vsix.py", "--out", outputPath], {
     cwd: root,
     stdio
   });

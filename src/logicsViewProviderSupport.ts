@@ -19,12 +19,11 @@ import { ReleasePublishCapability } from "./releasePublishSupport";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 import {
   ACTIVE_AGENT_STATE_KEY,
-  MIN_LOGICS_KIT_MAJOR,
-  MIN_LOGICS_KIT_MINOR,
   ONBOARDING_LAST_VERSION_KEY,
   ROOT_OVERRIDE_STATE_KEY,
   STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX
 } from "./logicsViewProviderConstants";
+import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 type LogicsViewProviderSupportHost = {
   [key: string]: any;
@@ -442,7 +441,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   export function buildKitVersionQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
-    const updateNeed = this.inspectKitUpdateNeed(root);
+    const updateNeed = inspectKitUpdateNeed(root);
     if (!updateNeed) {
       return null;
     }
@@ -452,34 +451,6 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       action: async () => {
         await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
       }
-    };
-  }
-  export function inspectKitUpdateNeed(this: LogicsViewProviderSupportHost, root: string): { currentVersion: string; minimumVersion: string; signature: string } | null {
-    const versionPath = path.join(root, "logics", "skills", "VERSION");
-    if (!fs.existsSync(versionPath)) {
-      return null;
-    }
-    let raw: string;
-    try {
-      raw = fs.readFileSync(versionPath, "utf-8").trim();
-    } catch {
-      return null;
-    }
-    const parts = raw.split(".").map(Number);
-    if (parts.length < 2 || parts.some((part) => Number.isNaN(part))) {
-      return null;
-    }
-    const [major, minor] = parts;
-    const isTooOld =
-      major < MIN_LOGICS_KIT_MAJOR || (major === MIN_LOGICS_KIT_MAJOR && minor < MIN_LOGICS_KIT_MINOR);
-    if (!isTooOld) {
-      return null;
-    }
-    const minimumVersion = `${MIN_LOGICS_KIT_MAJOR}.${MIN_LOGICS_KIT_MINOR}.x`;
-    return {
-      currentVersion: raw,
-      minimumVersion,
-      signature: `kit-too-old:${raw}->${minimumVersion}`
     };
   }
   export async function checkHybridRuntimeFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
@@ -906,7 +877,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       await this.clearStartupKitUpdatePromptState(root);
       return false;
     }
-    const updateNeed = this.inspectKitUpdateNeed(root);
+    const updateNeed = inspectKitUpdateNeed(root);
     if (!updateNeed) {
       await this.clearStartupKitUpdatePromptState(root);
       return false;

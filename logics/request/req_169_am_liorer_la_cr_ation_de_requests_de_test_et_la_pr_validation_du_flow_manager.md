@@ -2,8 +2,8 @@
 > From version: 1.25.4
 > Schema version: 1.0
 > Status: Done
-> Understanding: 92%
-> Confidence: 92%
+> Understanding: 93%
+> Confidence: 93%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -38,7 +38,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|ameliorer-la-creation-de-requests-de-tes|make-the-flow-manager-better-at|ac1-test-or-smoke-test-requests-can
+%% logics-signature: request|improve-test-request-creation-and-flow-m|make-the-flow-manager-better-at|ac1-test-or-smoke-test-requests-can
 flowchart TD
     A[Synthetic request] --> B[Generate docs]
     B --> C[Prevalidate traceability]

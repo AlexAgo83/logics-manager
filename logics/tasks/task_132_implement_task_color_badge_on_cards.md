@@ -2,8 +2,8 @@
 > From version: 1.25.2
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95%
-> Confidence: 90%
+> Understanding: 96%
+> Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI
@@ -138,17 +138,17 @@ stateDiagram-v2
 
 # Definition of Done (DoD)
 
-- [ ] `.card__task-dot-container`, `.card__task-dot`, `.card__task-dot-overflow` CSS classes in `media/css/board.css`.
-- [ ] `TASK_COLORS` palette and `getTaskColor(id)` function in `media/renderBoardApp.js`.
-- [ ] `getActiveTaskUsages(item)` filter for active tasks.
-- [ ] Dot injection in `createItemCard` for both task self-dots and covered-item dots.
-- [ ] Multi-dot: ≤2 side-by-side, ≥3 first dot + `+N`.
-- [ ] Active filter: Done/Archived/Obsolete tasks produce no dots.
-- [ ] `npm run test` exits 0 with ≥ 410 passing tests.
-- [ ] `npm run compile` exits 0.
-- [ ] item_309 and req_167 have Status `Done` and Progress `100%`.
-- [ ] Lint and audit pass cleanly.
-- [ ] Status is `Done` and Progress is `100%`.
+- [x] `.card__task-dot-container`, `.card__task-dot`, `.card__task-dot-overflow` CSS classes in `media/css/board.css`.
+- [x] `TASK_COLORS` palette and `getTaskColor(id)` function in `media/renderBoardApp.js`.
+- [x] `getActiveTaskUsages(item)` filter for active tasks.
+- [x] Dot injection in `createItemCard` for both task self-dots and covered-item dots.
+- [x] Multi-dot: ≤2 side-by-side, ≥3 first dot + `+N`.
+- [x] Active filter: Done/Archived/Obsolete tasks produce no dots.
+- [x] `npm run test` exits 0 with ≥ 410 passing tests.
+- [x] `npm run compile` exits 0.
+- [x] item_309 and req_167 have Status `Done` and Progress `100%`.
+- [x] Lint and audit pass cleanly.
+- [x] Status is `Done` and Progress is `100%`.
 
 # Report
 

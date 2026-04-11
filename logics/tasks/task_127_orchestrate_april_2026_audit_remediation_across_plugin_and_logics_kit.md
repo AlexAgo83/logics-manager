@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 13%
+> Progress: 25%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`

@@ -26,6 +26,9 @@ import {
   STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX
 } from "./logicsViewProviderConstants";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
+type LogicsViewProviderSupportHost = {
+  [key: string]: any;
+};
 const STATUS_OPTIONS_BY_STAGE: Record<LogicsStage, readonly string[]> = {
   request: ["Draft", "Ready", "Done", "Archived"],
   backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
@@ -54,7 +57,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   reason: "Unavailable"
 };
   export async function shouldRecommendCheckEnvironment(
-    this: any,
+    this: LogicsViewProviderSupportHost,
     root: string,
     snapshot: LogicsEnvironmentSnapshot | null,
     bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
@@ -93,7 +96,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     return false;
   }
   export function getEnvironmentOverallState(
-    this: any,
+    this: LogicsViewProviderSupportHost,
     snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
     hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
     actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
@@ -123,7 +126,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     return hasDegradedIssue ? "Degraded" : "Healthy";
   }
   export function getEnvironmentSummaryDescription(
-    this: any,
+    this: LogicsViewProviderSupportHost,
     snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>,
     hybridRuntime: NonNullable<Awaited<ReturnType<typeof inspectLogicsEnvironment>>["hybridRuntime"]>,
     actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
@@ -158,7 +161,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     ].filter((value) => value.length > 0);
     return `${parts.join(", ")}. ${actions.length > 0 ? "Select a fix below or open the detailed report." : "Review current status below."}`;
   }
-  export function writeEnvironmentDiagnosticReport(this: any, root: string | null, snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>, recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>, statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>, detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>): void {
+  export function writeEnvironmentDiagnosticReport(this: LogicsViewProviderSupportHost, root: string | null, snapshot: Awaited<ReturnType<typeof inspectLogicsEnvironment>>, recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>, statusItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>, detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>): void {
     this.environmentOutput.clear();
     this.environmentOutput.appendLine(`Logics environment diagnostics @ ${new Date().toISOString()}`);
     this.environmentOutput.appendLine(`Root: ${root ?? "(none selected)"}`);
@@ -201,7 +204,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     this.environmentOutput.appendLine(JSON.stringify(snapshot, null, 2));
     this.environmentOutput.show(true);
   }
-  export function ensureLogicsCacheDir(this: any, root: string): void {
+  export function ensureLogicsCacheDir(this: LogicsViewProviderSupportHost, root: string): void {
     const cacheDir = path.join(root, "logics", ".cache");
     if (!fs.existsSync(cacheDir)) {
       try {
@@ -211,7 +214,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       }
     }
   }
-  export function buildMissingEnvLocalQuickPickItem(this: any,
+  export function buildMissingEnvLocalQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
     const yamlPath = path.join(root, "logics.yaml");
@@ -263,7 +266,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       }
     };
   }
-  export function getRepositoryEnvFiles(this: any, root: string): string[] {
+  export function getRepositoryEnvFiles(this: LogicsViewProviderSupportHost, root: string): string[] {
     try {
       return fs.readdirSync(root, { withFileTypes: true })
         .filter((entry: fs.Dirent) => entry.isFile() && entry.name.startsWith(".env"))
@@ -280,7 +283,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       return [];
     }
   }
-  export async function buildGitignoreArtifactsQuickPickItem(this: any,
+  export async function buildGitignoreArtifactsQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): Promise<(vscode.QuickPickItem & { action: () => Promise<void> }) | null> {
     const ARTIFACTS = [
@@ -332,7 +335,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       }
     };
   }
-  export function buildLogicsYamlBlocksQuickPickItem(this: any,
+  export function buildLogicsYamlBlocksQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
     const yamlPath = path.join(root, "logics.yaml");
@@ -387,7 +390,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       }
     };
   }
-  export function maybeShowOnboarding(this: any, root: string): void {
+  export function maybeShowOnboarding(this: LogicsViewProviderSupportHost, root: string): void {
     const extensionVersion =
       (this.context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
     const normalizedRoot = path.resolve(root);
@@ -399,7 +402,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     void this.context.workspaceState.update(workspaceKey, extensionVersion);
     this.openOnboardingPanel();
   }
-  export function openOnboardingPanel(this: any): void {
+  export function openOnboardingPanel(this: LogicsViewProviderSupportHost): void {
     if (this.onboardingPanel) {
       this.onboardingPanel.reveal(vscode.ViewColumn.Beside);
       return;
@@ -436,7 +439,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     });
     this.onboardingPanel = panel;
   }
-  export function buildKitVersionQuickPickItem(this: any,
+  export function buildKitVersionQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
     const updateNeed = this.inspectKitUpdateNeed(root);
@@ -451,7 +454,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       }
     };
   }
-  export function inspectKitUpdateNeed(this: any, root: string): { currentVersion: string; minimumVersion: string; signature: string } | null {
+  export function inspectKitUpdateNeed(this: LogicsViewProviderSupportHost, root: string): { currentVersion: string; minimumVersion: string; signature: string } | null {
     const versionPath = path.join(root, "logics", "skills", "VERSION");
     if (!fs.existsSync(versionPath)) {
       return null;
@@ -479,79 +482,79 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       signature: `kit-too-old:${raw}->${minimumVersion}`
     };
   }
-  export async function checkHybridRuntimeFromTools(this: any): Promise<void> {
+  export async function checkHybridRuntimeFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.checkHybridRuntimeFromTools();
   }
-  export async function commitAllChangesFromTools(this: any): Promise<void> {
+  export async function commitAllChangesFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.commitAllChangesFromTools();
   }
-  export async function suggestNextStepFromTools(this: any): Promise<void> {
+  export async function suggestNextStepFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.suggestNextStepFromTools();
   }
-  export async function triageWorkflowDocFromTools(this: any, preferredId?: string): Promise<void> {
+  export async function triageWorkflowDocFromTools(this: LogicsViewProviderSupportHost, preferredId?: string): Promise<void> {
     await this.hybridAssistController.triageWorkflowDocFromTools(preferredId);
   }
-  export async function assessDiffRiskFromTools(this: any): Promise<void> {
+  export async function assessDiffRiskFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.assessDiffRiskFromTools();
   }
-  export async function summarizeValidationFromTools(this: any): Promise<void> {
+  export async function summarizeValidationFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.summarizeValidationFromTools();
   }
-  export async function summarizeChangelogFromTools(this: any): Promise<void> {
+  export async function summarizeChangelogFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.summarizeChangelogFromTools();
   }
-  export async function prepareReleaseFromTools(this: any): Promise<void> {
+  export async function prepareReleaseFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.prepareReleaseFromTools();
   }
-  export async function publishReleaseFromTools(this: any): Promise<void> {
+  export async function publishReleaseFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.publishReleaseFromTools();
   }
-  export async function buildValidationChecklistFromTools(this: any): Promise<void> {
+  export async function buildValidationChecklistFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.buildValidationChecklistFromTools();
   }
-  export async function reviewDocConsistencyFromTools(this: any): Promise<void> {
+  export async function reviewDocConsistencyFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.reviewDocConsistencyFromTools();
   }
-  export async function openHybridInsightsFromTools(this: any): Promise<void> {
+  export async function openHybridInsightsFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
   }
-  export async function openLogicsInsightsFromTools(this: any): Promise<void> {
+  export async function openLogicsInsightsFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
   }
-  export async function openAbout(this: any): Promise<void> {
+  export async function openAbout(this: LogicsViewProviderSupportHost): Promise<void> {
     await vscode.env.openExternal(vscode.Uri.parse(PROJECT_GITHUB_URL));
   }
-  export async function updateLogicsKitFromTools(this: any): Promise<void> {
+  export async function updateLogicsKitFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
     }
     await this.codexWorkflowController.updateLogicsKit(root, "tools menu");
   }
-  export async function syncCodexOverlayFromTools(this: any): Promise<void> {
+  export async function syncCodexOverlayFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
     }
     await this.codexWorkflowController.syncCodexOverlay(root, "tools menu");
   }
-  export async function repairLogicsKitFromTools(this: any): Promise<void> {
+  export async function repairLogicsKitFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
     }
     await this.codexWorkflowController.repairLogicsKit(root);
   }
-  export async function markItemDone(this: any, id: string): Promise<void> {
+  export async function markItemDone(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.updateItemLifecycle(id, "Done", "100%");
   }
-  export async function markItemObsolete(this: any, id: string): Promise<void> {
+  export async function markItemObsolete(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.updateItemLifecycle(id, "Obsolete", "100%");
   }
-  export function getValidStatusesForItem(this: any, item: LogicsItem): string[] {
+  export function getValidStatusesForItem(this: LogicsViewProviderSupportHost, item: LogicsItem): string[] {
     return [...(STATUS_OPTIONS_BY_STAGE[item.stage] || [])];
   }
-  export async function changeItemStatus(this: any, id: string): Promise<void> {
+  export async function changeItemStatus(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     const item = this.items.find((entry: LogicsItem) => entry.id === id);
     if (!item) {
       return;
@@ -591,7 +594,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     void vscode.window.showInformationMessage(`Updated ${item.id} status to ${pick.label}.`);
     await this.refresh(item.id);
   }
-  export async function updateItemLifecycle(this: any, id: string, status: string, progress: string): Promise<void> {
+  export async function updateItemLifecycle(this: LogicsViewProviderSupportHost, id: string, status: string, progress: string): Promise<void> {
     const item = this.items.find((entry: LogicsItem) => entry.id === id);
     if (!item) {
       return;
@@ -607,7 +610,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     void vscode.window.showInformationMessage(`Marked ${item.id} as ${status.toLowerCase()}.`);
     await this.refresh(item.id);
   }
-  export async function changeProjectRoot(this: any): Promise<void> {
+  export async function changeProjectRoot(this: LogicsViewProviderSupportHost): Promise<void> {
     const currentRoot = this.resolveProjectRoot().root;
     const picked = await vscode.window.showOpenDialog({
       canSelectFiles: false,
@@ -641,7 +644,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     this.onProjectRootChanged();
     await this.refresh();
   }
-  export async function resetProjectRoot(this: any): Promise<void> {
+  export async function resetProjectRoot(this: LogicsViewProviderSupportHost): Promise<void> {
     if (!this.projectRootOverride) {
       void vscode.window.showInformationMessage("Already using the workspace root.");
       return;
@@ -653,7 +656,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     this.onProjectRootChanged();
     await this.refresh();
   }
-  export function canResetProjectRoot(this: any): boolean {
+  export function canResetProjectRoot(this: LogicsViewProviderSupportHost): boolean {
     if (!this.projectRootOverride) {
       return false;
     }
@@ -663,7 +666,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     return !areSamePath(this.projectRootOverride, workspaceRoot);
   }
-  export function resolveProjectRoot(this: any): {
+  export function resolveProjectRoot(this: LogicsViewProviderSupportHost): {
     root: string | null;
     invalidOverridePath?: string;
   } {
@@ -679,7 +682,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       invalidOverridePath: this.projectRootOverride
     };
   }
-  export function notifyInvalidRootOverride(this: any, invalidOverridePath: string | undefined, hasFallbackRoot: boolean): void {
+  export function notifyInvalidRootOverride(this: LogicsViewProviderSupportHost, invalidOverridePath: string | undefined, hasFallbackRoot: boolean): void {
     if (!invalidOverridePath) {
       this.invalidRootNotice = undefined;
       return;
@@ -691,7 +694,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     const suffix = hasFallbackRoot ? " Falling back to workspace root." : "";
     void vscode.window.showWarningMessage(`Configured project root not found: ${invalidOverridePath}.${suffix}`);
   }
-  export async function getActionRoot(this: any): Promise<string | null> {
+  export async function getActionRoot(this: LogicsViewProviderSupportHost): Promise<string | null> {
     const { root, invalidOverridePath } = this.resolveProjectRoot();
     this.notifyInvalidRootOverride(invalidOverridePath, Boolean(root));
     if (!root) {
@@ -706,13 +709,13 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     return root;
   }
-  export async function clearAgentRegistry(this: any): Promise<void> {
+  export async function clearAgentRegistry(this: LogicsViewProviderSupportHost): Promise<void> {
     this.agentRegistry = createEmptyAgentRegistry();
     if (this.activeAgentId) {
       await this.setActiveAgent(null);
     }
   }
-  export async function refreshAgents(this: any, mode: "silent" | "notify", root: string): Promise<void> {
+  export async function refreshAgents(this: LogicsViewProviderSupportHost, mode: "silent" | "notify", root: string): Promise<void> {
     const snapshot = loadAgentRegistry(root);
     this.agentRegistry = snapshot;
     const activeStillExists = this.activeAgentId
@@ -736,7 +739,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       this.writeAgentScanOutput(snapshot, root, false);
     }
   }
-  export function writeAgentScanOutput(this: any, snapshot: AgentRegistrySnapshot, root: string, reveal: boolean): void {
+  export function writeAgentScanOutput(this: LogicsViewProviderSupportHost, snapshot: AgentRegistrySnapshot, root: string, reveal: boolean): void {
     this.agentsOutput.clear();
     this.agentsOutput.appendLine(`Logics agent scan @ ${new Date().toISOString()}`);
     this.agentsOutput.appendLine(`Root: ${root}`);
@@ -757,7 +760,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       this.agentsOutput.show(true);
     }
   }
-  export async function setActiveAgent(this: any, agentId: string | null): Promise<void> {
+  export async function setActiveAgent(this: LogicsViewProviderSupportHost, agentId: string | null): Promise<void> {
     this.activeAgentId = agentId;
     if (agentId) {
       await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, agentId);
@@ -765,10 +768,10 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, undefined);
   }
-  export function findRequestAuthoringAgent(this: any): AgentDefinition | undefined {
+  export function findRequestAuthoringAgent(this: LogicsViewProviderSupportHost): AgentDefinition | undefined {
     return this.agentRegistry.agents.find((agent: AgentDefinition) => agent.id === "$logics-flow-manager");
   }
-  export async function injectPromptIntoCodexChat(this: any,
+  export async function injectPromptIntoCodexChat(this: LogicsViewProviderSupportHost,
     prompt: string,
     options?: {
       codexCopiedMessage?: string;
@@ -794,13 +797,13 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       void vscode.window.showWarningMessage(`${fallbackCopiedMessage} (${message})`);
     }
   }
-  export async function injectAgentPromptIntoCodexChat(this: any, agent: AgentDefinition): Promise<void> {
+  export async function injectAgentPromptIntoCodexChat(this: LogicsViewProviderSupportHost, agent: AgentDefinition): Promise<void> {
     await this.injectPromptIntoCodexChat(agent.defaultPrompt, {
       codexCopiedMessage: "Agent prompt copied to clipboard for your assistant. Paste it into your assistant session.",
       fallbackCopiedMessage: "Could not copy the agent prompt to the clipboard."
     });
   }
-  export async function injectPromptFromWebview(this: any,
+  export async function injectPromptFromWebview(this: LogicsViewProviderSupportHost,
     prompt: string,
     options?: {
       codexCopiedMessage?: string;
@@ -816,7 +819,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       preferNewThread: options?.preferNewThread
     });
   }
-  export function getActiveAgentPayload(this: any):
+  export function getActiveAgentPayload(this: LogicsViewProviderSupportHost):
     | {
         id: string;
         displayName: string;
@@ -842,7 +845,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       responseStyle: agent.responseStyle
     };
   }
-  export async function getGitChangedPaths(this: any, root: string): Promise<string[]> {
+  export async function getGitChangedPaths(this: LogicsViewProviderSupportHost, root: string): Promise<string[]> {
     const result = await runGitWithOutput(root, ["status", "--short"]);
     if (result.error) {
       return [];
@@ -852,7 +855,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       .filter((entry: string, index: number, collection: string[]) => entry.length > 0 && collection.indexOf(entry) === index)
       .slice(0, 40);
   }
-  export function getReadPreviewPanel(this: any): vscode.WebviewPanel {
+  export function getReadPreviewPanel(this: LogicsViewProviderSupportHost): vscode.WebviewPanel {
     if (this.readPreviewPanel) {
       return this.readPreviewPanel;
     }
@@ -892,10 +895,10 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     this.readPreviewPanel = panel;
     return panel;
   }
-  export async function maybeOfferBootstrap(this: any, root: string): Promise<boolean> {
+  export async function maybeOfferBootstrap(this: LogicsViewProviderSupportHost, root: string): Promise<boolean> {
     return this.codexWorkflowController.maybeOfferBootstrap(root);
   }
-  export async function maybeOfferStartupKitUpdate(this: any,
+  export async function maybeOfferStartupKitUpdate(this: LogicsViewProviderSupportHost,
     root: string,
     bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
   ): Promise<boolean> {
@@ -930,16 +933,16 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     return true;
   }
-  export async function maybeOfferCodexStartupRemediation(this: any, root: string): Promise<void> {
+  export async function maybeOfferCodexStartupRemediation(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
     await this.codexWorkflowController.maybeOfferCodexStartupRemediation(root);
   }
-  export async function maybeShowCodexOverlayHandoff(this: any, root: string, trigger: string): Promise<void> {
+  export async function maybeShowCodexOverlayHandoff(this: LogicsViewProviderSupportHost, root: string, trigger: string): Promise<void> {
     await this.codexWorkflowController.maybeShowCodexOverlayHandoff(root, trigger);
   }
-  export async function bootstrapLogics(this: any, root: string): Promise<void> {
+  export async function bootstrapLogics(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
     await this.codexWorkflowController.bootstrapLogics(root);
   }
-  export async function notifyBootstrapCompletion(this: any,
+  export async function notifyBootstrapCompletion(this: LogicsViewProviderSupportHost,
     root: string,
     globalKitOutcome?: {
       attempted: boolean;
@@ -950,7 +953,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   ): Promise<void> {
     await this.codexWorkflowController.notifyBootstrapCompletion(root, globalKitOutcome);
   }
-  export async function pickItem(this: any, items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {
+  export async function pickItem(this: LogicsViewProviderSupportHost, items: LogicsItem[], placeHolder: string): Promise<LogicsItem | undefined> {
     if (!items.length) {
       void vscode.window.showInformationMessage("No Logics items found.");
       return undefined;
@@ -965,7 +968,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     );
     return pick?.item;
   }
-  export function postData(this: any, payload: {
+  export function postData(this: LogicsViewProviderSupportHost, payload: {
     items?: LogicsItem[];
     root?: string;
     error?: string;
@@ -1001,37 +1004,37 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       payload
     });
   }
-  export function getStartupKitUpdatePromptStateKey(this: any, root: string): string {
+  export function getStartupKitUpdatePromptStateKey(this: LogicsViewProviderSupportHost, root: string): string {
     return `${STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX}:${path.resolve(root)}`;
   }
-  export async function clearStartupKitUpdatePromptState(this: any, root: string): Promise<void> {
+  export async function clearStartupKitUpdatePromptState(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
     await this.context.globalState.update(this.getStartupKitUpdatePromptStateKey(root), undefined);
   }
-  export async function openItem(this: any, id: string): Promise<void> {
+  export async function openItem(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.openItem(id);
   }
-  export async function readItem(this: any, id: string): Promise<void> {
+  export async function readItem(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.readItem(id);
   }
-  export async function promoteItem(this: any, id: string): Promise<void> {
+  export async function promoteItem(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.promoteItem(id);
   }
-  export async function addReference(this: any, id: string): Promise<void> {
+  export async function addReference(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.addReference(id);
   }
-  export async function addUsedBy(this: any, id: string): Promise<void> {
+  export async function addUsedBy(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.addUsedBy(id);
   }
-  export async function renameItem(this: any, id: string): Promise<void> {
+  export async function renameItem(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.renameItem(id);
   }
-export function getHtmlForWebview(this: any, webview: vscode.Webview): string {
+export function getHtmlForWebview(this: LogicsViewProviderSupportHost, webview: vscode.Webview): string {
     return buildLogicsWebviewHtml(this.context.extensionUri, webview);
   }
-export async function checkEnvironmentFromCommand(this: any): Promise<void> {
+export async function checkEnvironmentFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.checkEnvironmentFromTools();
   }
-export async function refreshAgentsFromCommand(this: any): Promise<void> {
+export async function refreshAgentsFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
@@ -1042,62 +1045,62 @@ export async function refreshAgentsFromCommand(this: any): Promise<void> {
     }
     await this.refreshAgents("notify", root);
   }
-export async function openHybridInsightsFromCommand(this: any): Promise<void> {
+export async function openHybridInsightsFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.openHybridInsightsFromTools();
   }
-export async function openLogicsInsightsFromCommand(this: any): Promise<void> {
+export async function openLogicsInsightsFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
   }
-export function openOnboardingFromCommand(this: any): void {
+export function openOnboardingFromCommand(this: LogicsViewProviderSupportHost): void {
     this.openOnboardingPanel();
   }
-export async function triageWorkflowDocFromCommand(this: any): Promise<void> {
+export async function triageWorkflowDocFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.triageWorkflowDocFromTools();
   }
-export async function assessDiffRiskFromCommand(this: any): Promise<void> {
+export async function assessDiffRiskFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.assessDiffRiskFromTools();
   }
-export async function buildValidationChecklistFromCommand(this: any): Promise<void> {
+export async function buildValidationChecklistFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.buildValidationChecklistFromTools();
   }
-export async function reviewDocConsistencyFromCommand(this: any): Promise<void> {
+export async function reviewDocConsistencyFromCommand(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.hybridAssistController.reviewDocConsistencyFromTools();
   }
-export async function createRequest(this: any): Promise<void> {
+export async function createRequest(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.documentController.createRequest();
   }
-export async function startGuidedRequestFromTools(this: any): Promise<void> {
+export async function startGuidedRequestFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.documentController.startGuidedRequestFromTools();
   }
-export async function launchCodexFromTools(this: any): Promise<void> {
+export async function launchCodexFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
     }
     await this.codexWorkflowController.launchCodexFromTools(root);
   }
-export async function launchClaudeFromTools(this: any): Promise<void> {
+export async function launchClaudeFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {
       return;
     }
     await this.codexWorkflowController.launchClaudeFromTools(root);
   }
-export async function createItem(this: any, kind: "request" | "backlog" | "task"): Promise<void> {
+export async function createItem(this: LogicsViewProviderSupportHost, kind: "request" | "backlog" | "task"): Promise<void> {
     await this.documentController.createItem(kind);
   }
-export async function createCompanionDoc(this: any,
+export async function createCompanionDoc(this: LogicsViewProviderSupportHost,
     sourceId: string,
     preferredKind?: "product" | "architecture"
   ): Promise<void> {
     await this.documentController.createCompanionDoc(sourceId, preferredKind);
   }
-export async function createCompanionDocFromPalette(this: any,
+export async function createCompanionDocFromPalette(this: LogicsViewProviderSupportHost,
     preferredSourceId?: string,
     preferredKind?: "product" | "architecture"
   ): Promise<void> {
     await this.documentController.createCompanionDocFromPalette(preferredSourceId, preferredKind);
   }
-export async function fixDocs(this: any): Promise<void> {
+export async function fixDocs(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.documentController.fixDocs();
   }

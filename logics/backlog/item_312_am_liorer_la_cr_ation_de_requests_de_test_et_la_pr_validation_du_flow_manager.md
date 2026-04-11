@@ -1,10 +1,10 @@
 ## item_312_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager - Improve test request creation and flow manager pre-validation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -47,6 +47,7 @@ flowchart TD
 - AC3 -> Scope: The flow manager can detect stale Mermaid signatures or other doc-shape issues earlier, ideally during generation or promotion instead of only at lint or audit time.. Proof: capture validation evidence in this doc.
 - AC4 -> Scope: A synthetic test mode or equivalent flag exists so operators can ask for a smaller, fixture-friendly request shape without hand-editing the result heavily.. Proof: capture validation evidence in this doc.
 - AC5 -> Scope: The audit and validation feedback is more actionable for creators, making it clear what to fix and where to fix it before the docs are used downstream.. Proof: capture validation evidence in this doc.
+- AC6 -> Scope: The operator-facing documentation updates are discoverable from the backlog slice and its task chain. Proof: `README.md`, `logics/skills/README.md`, and `logics/skills/logics-flow-manager/SKILL.md` now document `--fixture`/`--smoke-test` and the earlier validation path.
 
 # Decision framing
 - Product framing: Not needed
@@ -76,3 +77,4 @@ flowchart TD
 - Source file: `logics/request/req_169_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_169_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager.md`.
+- Task `task_133_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager` was finished via `logics_flow.py finish task` on 2026-04-11.

@@ -1,7 +1,7 @@
 ## req_169_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager - Improve test request creation and flow manager pre-validation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 92%
 > Complexity: Medium
@@ -61,7 +61,7 @@ flowchart TD
 - AC3 -> Mermaid validation. Proof: the request and its child docs required signature refreshes after content edits, showing that the issue is best caught earlier.
 - AC4 -> Synthetic or fixture-friendly creation flow. Proof: the pastille test request is an example of a smaller, non-production request that should not need as much manual cleanup.
 - AC5 -> Audit feedback and generator preflight. Proof: the current audit surfaced missing traceability only after generation, which is late for a simple smoke-test doc.
-- AC6 -> README and getting started docs. Proof: the flow manager changes should be reflected in operator-facing documentation so the new path is discoverable without reading the source docs first.
+- AC6 -> `item_312_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager` and `task_133_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager`. Proof: `README.md`, `logics/skills/README.md`, and `logics/skills/logics-flow-manager/SKILL.md` now document `--fixture`/`--smoke-test` and the earlier validation path so the new workflow is discoverable from the operator guidance.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

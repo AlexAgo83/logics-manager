@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 62.5%
+> Progress: 75%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -84,12 +84,12 @@ stateDiagram-v2
 
 ## Wave 6 — Kit coverage (item_295)
 
-- [ ] 6.1. Replace `test_logics_flow_07.py` through `test_logics_flow_11.py` with domain-named suites (`test_hybrid_transport.py`, `test_hybrid_runtime.py`, `test_workflow_core.py`, etc.) with local fixtures. *(item_295 AC1)*
-- [ ] 6.2. Add branch-covering tests on `logics_flow_hybrid_transport_core.py` until it reaches ≥ 35 % branch coverage.
-- [ ] 6.3. Add branch-covering tests on `logics_flow_support_workflow_core.py` until it reaches ≥ 35 % branch coverage.
-- [ ] 6.4. Add branch-covering tests on `logics_flow_hybrid_runtime_core.py` until it reaches ≥ 35 % branch coverage. *(item_295 AC2)*
-- [ ] 6.5. Run `npm run coverage:kit` — overall kit branch coverage must exceed 40 %.
-- [ ] CHECKPOINT Wave 6 — commit-ready state (kit submodule commit + version bump), update item_295 progress to 100 %.
+- [x] 6.1. Replace `test_logics_flow_07.py` through `test_logics_flow_11.py` with domain-named suites (`test_hybrid_transport.py`, `test_hybrid_runtime.py`, `test_workflow_core.py`, etc.) with local fixtures. *(item_295 AC1)*
+- [x] 6.2. Add branch-covering tests on `logics_flow_hybrid_transport_core.py` until it reaches ≥ 35 % branch coverage.
+- [x] 6.3. Add branch-covering tests on `logics_flow_support_workflow_core.py` until it reaches ≥ 35 % branch coverage.
+- [x] 6.4. Add branch-covering tests on `logics_flow_hybrid_runtime_core.py` until it reaches ≥ 35 % branch coverage. *(item_295 AC2)*
+- [x] 6.5. Run `npm run coverage:kit` — overall kit branch coverage must exceed 40 %.
+- [x] CHECKPOINT Wave 6 — commit-ready state (kit submodule commit + version bump), update item_295 progress to 100 %.
 
 ## Wave 7 — P3 items (item_297 + item_298 + item_299)
 

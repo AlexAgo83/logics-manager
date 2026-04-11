@@ -38,6 +38,32 @@
     return TASK_COLORS[n % TASK_COLORS.length];
   }
 
+  function isActiveTaskCandidate(item) {
+    return Boolean(item && String(item.stage || "").trim() === "task" && !isClosedTaskStatus(item?.indicators?.Status));
+  }
+
+  function buildTaskColorMap(items) {
+    const activeTasks = (items || []).filter(isActiveTaskCandidate).sort((left, right) => String(left.id).localeCompare(String(right.id)));
+    const assignedColors = new Set();
+    const colorMap = new Map();
+
+    for (const task of activeTasks) {
+      const preferredIndex = parseInt(String(task.id || "").match(/(\d+)$/)?.[1] ?? "0", 10) % TASK_COLORS.length;
+      let assignedColor = TASK_COLORS[preferredIndex];
+      for (let offset = 0; offset < TASK_COLORS.length; offset += 1) {
+        const candidateColor = TASK_COLORS[(preferredIndex + offset) % TASK_COLORS.length];
+        if (!assignedColors.has(candidateColor)) {
+          assignedColor = candidateColor;
+          break;
+        }
+      }
+      assignedColors.add(assignedColor);
+      colorMap.set(task.id, assignedColor);
+    }
+
+    return colorMap;
+  }
+
   window.createCdxLogicsBoardRenderer = function createCdxLogicsBoardRenderer(options) {
     const {
       board,
@@ -78,6 +104,7 @@
       getSearchQuery,
       getAttentionOnly
     } = options;
+    let activeTaskColorMap = new Map();
 
     function findCardById(id) {
       if (!board || !id) {
@@ -802,16 +829,12 @@
       );
     }
 
-    function isActiveTaskItem(taskItem) {
-      return Boolean(taskItem && String(taskItem.stage || "").trim() === "task" && !isClosedTaskStatus(taskItem?.indicators?.Status));
-    }
-
     function getActiveTaskUsages(item) {
       const activeTasks = [];
       const seen = new Set();
       for (const usage of item?.usedBy || []) {
         const taskItem = resolveTaskItem(usage);
-        if (!isActiveTaskItem(taskItem) || !taskItem?.id || seen.has(taskItem.id)) {
+        if (!isActiveTaskCandidate(taskItem) || !taskItem?.id || seen.has(taskItem.id)) {
           continue;
         }
         seen.add(taskItem.id);
@@ -849,7 +872,8 @@
         card.classList.add("card--health-alert");
       }
       const preview = createCardPreview(item);
-      const activeTasks = item.stage === "task" ? (isActiveTaskItem(item) ? [item] : []) : getActiveTaskUsages(item);
+      const activeTasks = item.stage === "task" ? (isActiveTaskCandidate(item) ? [item] : []) : getActiveTaskUsages(item);
+      const resolveTaskColor = (task) => activeTaskColorMap.get(task.id) || getTaskColor(task.id);
 
       function setPreviewOpen(isOpen) {
         preview.hidden = !isOpen;
@@ -888,7 +912,7 @@
           const task = activeTasks[index];
           const taskDot = document.createElement("span");
           taskDot.className = "card__task-dot";
-          taskDot.style.background = getTaskColor(task.id);
+          taskDot.style.background = resolveTaskColor(task);
           taskDotContainer.appendChild(taskDot);
         }
 
@@ -1114,6 +1138,7 @@
       disconnectSentinels();
       board.innerHTML = "";
       const visibleItems = getItems().filter((item) => isVisible(item));
+      activeTaskColorMap = buildTaskColorMap(visibleItems);
       if (!visibleItems.length) {
         const empty = document.createElement("div");
         empty.className = "state-message";

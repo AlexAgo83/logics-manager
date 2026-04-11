@@ -275,7 +275,6 @@ describe("webview harness filters, details, and docs", () => {
     const promoteButton = dom.window.document.querySelector('[data-action="promote"]');
     const openButton = dom.window.document.querySelector('[data-action="open"]');
     const readButton = dom.window.document.querySelector('[data-action="read"]');
-    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
 
     expect(eyebrow?.textContent).toContain("request");
     expect(title?.textContent).toContain("Kickoff");
@@ -283,7 +282,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(readButton?.classList.contains("btn--primary")).toBe(true);
     expect(promoteButton?.classList.contains("btn--contextual")).toBe(true);
     expect(promoteButton?.classList.contains("btn--contextual-active")).toBe(true);
-    expect(obsoleteButton?.classList.contains("btn--caution")).toBe(true);
+    expect(dom.window.document.querySelector('[data-action="mark-obsolete"]')).toBeNull();
   });
 
   it("reads selected item on card double-click in non-harness mode", () => {
@@ -779,15 +778,11 @@ describe("webview harness filters, details, and docs", () => {
     });
 
     const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
-    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
     doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    obsoleteButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "mark-done")).toBe(true);
-    expect(postedMessages.some((message) => message.type === "mark-obsolete")).toBe(true);
+    expect(dom.window.document.querySelector('[data-action="mark-obsolete"]')).toBeNull();
     expect(confirmMessages[0]).toContain("Mark req_000_kickoff");
-    expect(confirmMessages[1]).toContain("Mark req_000_kickoff");
-    expect(confirmMessages[1]).toContain("obsolete");
   });
 
   it("does not post lifecycle actions when confirmation is cancelled", () => {
@@ -802,12 +797,10 @@ describe("webview harness filters, details, and docs", () => {
     });
 
     const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
-    const obsoleteButton = dom.window.document.querySelector('[data-action="mark-obsolete"]');
     doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    obsoleteButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(postedMessages.some((message) => message.type === "mark-done")).toBe(false);
-    expect(postedMessages.some((message) => message.type === "mark-obsolete")).toBe(false);
+    expect(dom.window.document.querySelector('[data-action="mark-obsolete"]')).toBeNull();
   });
 
   it("adds discoverable labels/tooltips and keyboard-accessible card interactions", () => {

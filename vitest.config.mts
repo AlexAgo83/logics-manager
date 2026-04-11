@@ -14,10 +14,10 @@ const coverageReportsDirectory =
 const coverageThresholds =
   coverageTarget === "src"
     ? {
-        lines: 68,
-        statements: 68,
-        functions: 73,
-        branches: 57
+      lines: 68,
+      statements: 68,
+      functions: 73,
+      branches: 61
       }
     : undefined;
 

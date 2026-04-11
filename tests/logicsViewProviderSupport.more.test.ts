@@ -1,3 +1,6 @@
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as vscode from "vscode";
 import {
@@ -13,6 +16,7 @@ import {
   createRequest,
   addReference,
   addUsedBy,
+  buildGitignoreArtifactsQuickPickItem,
   fixDocs,
   getEnvironmentSummaryDescription,
   getHtmlForWebview,
@@ -46,7 +50,10 @@ import {
   triageWorkflowDocFromTools,
   updateLogicsKitFromTools,
   canResetProjectRoot,
-  getStartupKitUpdatePromptStateKey
+  getStartupKitUpdatePromptStateKey,
+  buildMissingEnvLocalQuickPickItem,
+  ensureLogicsCacheDir,
+  getRepositoryEnvFiles
 } from "../src/logicsViewProviderSupport";
 
 vi.mock("vscode", () => ({
@@ -438,5 +445,122 @@ describe("logicsViewProviderSupport more coverage", () => {
 
     expect(host.refreshAgents).toHaveBeenCalledWith("notify", process.cwd());
     expect(vi.mocked(vscode.env.openExternal)).toHaveBeenCalledTimes(1);
+  });
+
+  it("covers environment file helpers and cache directory creation", async () => {
+    const roots: string[] = [];
+    const makeRoot = () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-support-"));
+      roots.push(root);
+      return root;
+    };
+
+    try {
+      const missingRoot = makeRoot();
+      const host = {
+        getRepositoryEnvFiles: (root: string) => getRepositoryEnvFiles.call({}, root),
+        codexWorkflowController: {
+          bootstrapLogics: vi.fn().mockResolvedValue(undefined)
+        }
+      };
+
+      expect(buildMissingEnvLocalQuickPickItem.call(host, missingRoot)).toBeNull();
+
+      fs.writeFileSync(path.join(missingRoot, "logics.yaml"), "hybrid_assist:\n  enabled: false\n", "utf8");
+      expect(buildMissingEnvLocalQuickPickItem.call(host, missingRoot)).toBeNull();
+
+      fs.writeFileSync(path.join(missingRoot, "logics.yaml"), "hybrid_assist:\n  enabled: true\n", "utf8");
+      expect(buildMissingEnvLocalQuickPickItem.call(host, missingRoot)).not.toBeNull();
+
+      fs.writeFileSync(path.join(missingRoot, ".env.local"), "OPENAI_API_KEY=abc\n", "utf8");
+      fs.writeFileSync(path.join(missingRoot, ".env"), "GEMINI_API_KEY=def\n", "utf8");
+      const envItem = buildMissingEnvLocalQuickPickItem.call(host, missingRoot);
+      expect(envItem).not.toBeNull();
+      expect(envItem?.description).toContain(".env");
+      await envItem?.action();
+      expect(host.codexWorkflowController.bootstrapLogics).toHaveBeenCalledWith(missingRoot);
+
+      fs.writeFileSync(path.join(missingRoot, ".env.local"), "OPENAI_API_KEY=abc\nGEMINI_API_KEY=def\n", "utf8");
+      fs.writeFileSync(path.join(missingRoot, ".env"), "OPENAI_API_KEY=abc\nGEMINI_API_KEY=def\n", "utf8");
+      expect(buildMissingEnvLocalQuickPickItem.call(host, missingRoot)).toBeNull();
+
+      const emptyEnvRoot = makeRoot();
+      fs.writeFileSync(path.join(emptyEnvRoot, "logics.yaml"), "hybrid_assist:\n  enabled: true\n", "utf8");
+      const emptyEnvItem = buildMissingEnvLocalQuickPickItem.call(host, emptyEnvRoot);
+      expect(emptyEnvItem).not.toBeNull();
+      expect(emptyEnvItem?.description).toContain("no repo env file exists yet");
+
+      const cacheRoot = makeRoot();
+      ensureLogicsCacheDir.call({}, cacheRoot);
+      expect(fs.existsSync(path.join(cacheRoot, "logics", ".cache"))).toBe(true);
+
+      const blockedRoot = makeRoot();
+      fs.writeFileSync(path.join(blockedRoot, "logics"), "not a directory", "utf8");
+      expect(() => ensureLogicsCacheDir.call({}, blockedRoot)).not.toThrow();
+      expect(fs.existsSync(path.join(blockedRoot, "logics", ".cache"))).toBe(false);
+
+      const envRoot = makeRoot();
+      fs.writeFileSync(path.join(envRoot, ".env.production"), "x=1\n", "utf8");
+      fs.writeFileSync(path.join(envRoot, ".env"), "x=1\n", "utf8");
+      fs.writeFileSync(path.join(envRoot, ".env.local"), "x=1\n", "utf8");
+      fs.mkdirSync(path.join(envRoot, ".envdir"), { recursive: true });
+
+      expect(getRepositoryEnvFiles.call({}, envRoot)).toEqual([".env.local", ".env", ".env.production"]);
+
+      const brokenEnvRoot = makeRoot();
+      fs.writeFileSync(path.join(brokenEnvRoot, "logics"), "not a directory", "utf8");
+      expect(getRepositoryEnvFiles.call({}, path.join(brokenEnvRoot, "logics"))).toEqual([]);
+    } finally {
+      for (const root of roots.reverse()) {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    }
+  });
+
+  it("covers gitignore artifact suggestions", async () => {
+    const { execFileSync } = await import("node:child_process");
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-gitignore-"));
+
+    try {
+      execFileSync("git", ["init"], { cwd: repoRoot });
+      execFileSync("git", ["config", "user.email", "codex@example.com"], { cwd: repoRoot });
+      execFileSync("git", ["config", "user.name", "Codex"], { cwd: repoRoot });
+
+      const artifactPath = path.join(repoRoot, "logics", "hybrid_assist_audit.jsonl");
+      fs.mkdirSync(path.dirname(artifactPath), { recursive: true });
+      fs.writeFileSync(artifactPath, "{}\n", "utf8");
+      fs.writeFileSync(path.join(repoRoot, ".gitignore"), "# existing\n", "utf8");
+
+      const emptyItem = await buildGitignoreArtifactsQuickPickItem.call({}, repoRoot);
+      expect(emptyItem).toBeNull();
+
+      execFileSync("git", ["add", "logics/hybrid_assist_audit.jsonl"], { cwd: repoRoot });
+
+      const item = await buildGitignoreArtifactsQuickPickItem.call({}, repoRoot);
+      expect(item).not.toBeNull();
+      await item?.action();
+      expect(fs.readFileSync(path.join(repoRoot, ".gitignore"), "utf8")).toContain(
+        "logics/hybrid_assist_audit.jsonl"
+      );
+
+      fs.writeFileSync(
+        path.join(repoRoot, ".gitignore"),
+        "# existing\n\n# Logics hybrid runtime generated artifacts\n" +
+          "logics/hybrid_assist_audit.jsonl\n" +
+          "logics/hybrid_assist_measurements.jsonl\n" +
+          "logics/mutation_audit.jsonl\n" +
+          "logics/.cache/hybrid_assist_audit.jsonl\n" +
+          "logics/.cache/hybrid_assist_measurements.jsonl\n",
+        "utf8"
+      );
+      const secondItem = await buildGitignoreArtifactsQuickPickItem.call({}, repoRoot);
+      expect(secondItem).not.toBeNull();
+      await secondItem?.action();
+      expect(vi.mocked(vscode.window.showInformationMessage)).toHaveBeenCalledWith(
+        ".gitignore already contains these entries."
+      );
+    } finally {
+      fs.rmSync(repoRoot, { recursive: true, force: true });
+    }
   });
 });

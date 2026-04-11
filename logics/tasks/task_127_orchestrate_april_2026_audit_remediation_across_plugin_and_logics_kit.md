@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 75%
+> Progress: 87.5%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -93,11 +93,11 @@ stateDiagram-v2
 
 ## Wave 7 — P3 items (item_297 + item_298 + item_299)
 
-- [ ] 7.1. Split `media/main.js` and `media/renderBoard.js` — extract coherent sub-responsibilities until each file is below 600 lines; run `npm run test`. *(item_297 AC1)*
-- [ ] 7.2. Add `MAX_LOGICS_KIT_MAJOR` / `MAX_LOGICS_KIT_MINOR` constants (in `src/logicsViewProviderConstants.ts`); extend the version-check logic to warn on over-bound kit; add a unit test for the new branch. *(item_298 AC1)*
-- [ ] 7.3. Implement `discoverKitSkills(kitRoot)` in `src/logicsClaudeGlobalKit.ts`; replace the hardcoded skill name array; add a unit test with a fixture directory. *(item_299 AC1)*
-- [ ] 7.4. Run `npm run test` and `npm run lint:ts` — both must pass.
-- [ ] CHECKPOINT Wave 7 — commit-ready state, update item_297, item_298, item_299 progress to 100 %.
+- [x] 7.1. Split `media/main.js` and `media/renderBoard.js` — extract coherent sub-responsibilities until each file is below 600 lines; run `npm run test`. *(item_297 AC1)*
+- [x] 7.2. Add `MAX_LOGICS_KIT_MAJOR` / `MAX_LOGICS_KIT_MINOR` constants (in `src/logicsViewProviderConstants.ts`); extend the version-check logic to warn on over-bound kit; add a unit test for the new branch. *(item_298 AC1)*
+- [x] 7.3. Implement `discoverKitSkills(kitRoot)` in `src/logicsClaudeGlobalKit.ts`; replace the hardcoded skill name array; add a unit test with a fixture directory. *(item_299 AC1)*
+- [x] 7.4. Run `npm run test` and `npm run lint:ts` — both must pass.
+- [x] CHECKPOINT Wave 7 — commit-ready state, update item_297, item_298, item_299 progress to 100 %.
 
 ## Wave 8 — README update
 

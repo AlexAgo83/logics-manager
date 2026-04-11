@@ -1090,13 +1090,13 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewSelectors.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewPersistence.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewChrome.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderBoard.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderBoardApp.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderDetails.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderMarkdown.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainCore.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractionHandlers.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractions.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/main.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainApp.js"></script>
 </body>
 </html>"
 `;

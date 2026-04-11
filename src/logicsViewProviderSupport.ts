@@ -445,6 +445,15 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     if (!updateNeed) {
       return null;
     }
+    if (updateNeed.kind === "too-new") {
+      return {
+        label: `Warn: Logics Kit is newer than the tested maximum v${updateNeed.maximumVersion}`,
+        description: `Local kit v${updateNeed.currentVersion} exceeds the tested upper bound. Review compatibility before relying on the kit.`,
+        action: async () => {
+          await this.checkEnvironmentFromCommand();
+        }
+      };
+    }
     return {
       label: `Run: Update Logics Kit (local kit is v${updateNeed.currentVersion}, minimum recommended v${updateNeed.minimumVersion})`,
       description: "Older kit missing environment convergence, bootstrap credential scaffolding, and current repair support.",
@@ -888,6 +897,18 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       return false;
     }
     await this.context.globalState.update(promptKey, updateNeed.signature);
+    if (updateNeed.kind === "too-new") {
+      const choice = await vscode.window.showWarningMessage(
+        `Newer Logics kit detected in this repository (v${updateNeed.currentVersion}). The plugin has only been tested up to v${updateNeed.maximumVersion}. Check compatibility before proceeding.`,
+        "Check Environment",
+        "Not now"
+      );
+      if (choice === "Check Environment") {
+        await this.checkEnvironmentFromCommand();
+        return true;
+      }
+      return true;
+    }
     const choice = await vscode.window.showInformationMessage(
       `Older Logics kit detected in this repository (v${updateNeed.currentVersion}). Update now to restore migration, repair, and environment convergence support.`,
       "Update Logics Kit",

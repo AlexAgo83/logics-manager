@@ -28,7 +28,7 @@ describe("inspectKitUpdateNeed", () => {
     expect(inspectKitUpdateNeed(malformedRoot)).toBeNull();
   });
 
-  it("flags versions below the minimum and ignores newer ones", () => {
+  it("flags versions below the minimum and above the maximum", () => {
     const oldRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-old-"));
     roots.push(oldRoot);
     fs.mkdirSync(path.join(oldRoot, "logics", "skills"), { recursive: true });
@@ -37,14 +37,29 @@ describe("inspectKitUpdateNeed", () => {
     expect(inspectKitUpdateNeed(oldRoot)).toEqual({
       currentVersion: "1.6.9",
       minimumVersion: "1.7.x",
+      maximumVersion: "1.12.x",
+      kind: "too-old",
       signature: "kit-too-old:1.6.9->1.7.x"
     });
 
     const newRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-"));
     roots.push(newRoot);
     fs.mkdirSync(path.join(newRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(newRoot, "logics", "skills", "VERSION"), "1.7.0\n", "utf8");
+    fs.writeFileSync(path.join(newRoot, "logics", "skills", "VERSION"), "1.13.0\n", "utf8");
 
-    expect(inspectKitUpdateNeed(newRoot)).toBeNull();
+    expect(inspectKitUpdateNeed(newRoot)).toEqual({
+      currentVersion: "1.13.0",
+      minimumVersion: "1.7.x",
+      maximumVersion: "1.12.x",
+      kind: "too-new",
+      signature: "kit-too-new:1.13.0->1.12.x"
+    });
+
+    const supportedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-supported-"));
+    roots.push(supportedRoot);
+    fs.mkdirSync(path.join(supportedRoot, "logics", "skills"), { recursive: true });
+    fs.writeFileSync(path.join(supportedRoot, "logics", "skills", "VERSION"), "1.12.3\n", "utf8");
+
+    expect(inspectKitUpdateNeed(supportedRoot)).toBeNull();
   });
 });

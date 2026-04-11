@@ -196,8 +196,6 @@ export function publishClaudeGlobalKit(root: string): ClaudeGlobalPublishResult 
       const previousDestinations = new Set((previousManifest?.published_skill_entries ?? []).map((entry) => entry.destination_path));
       const nextDestinations = new Set<string>();
       const publishedEntries: ClaudePublishedEntry[] = [];
-      const publishedSkillNames: string[] = [];
-
       for (const skill of context.repoSkills) {
         const metadata = readClaudeSkillMetadata(skill.root, skill.name);
         const agentPath = path.join(agentsRoot, `${skill.name}.md`);
@@ -206,7 +204,6 @@ export function publishClaudeGlobalKit(root: string): ClaudeGlobalPublishResult 
         fs.writeFileSync(commandPath, renderClaudeCommand(metadata), "utf8");
         nextDestinations.add(agentPath);
         nextDestinations.add(commandPath);
-        publishedSkillNames.push(skill.name);
         publishedEntries.push({
           name: skill.name,
           kind: "agent",
@@ -233,7 +230,7 @@ export function publishClaudeGlobalKit(root: string): ClaudeGlobalPublishResult 
 
       return {
         publishedEntries,
-        publishedSkillNames: publishedSkillNames.sort(),
+        publishedSkillNames: discoverKitSkills(resolvedRoot),
         publicationMode: "copy"
       };
     },
@@ -259,6 +256,36 @@ export function publishClaudeGlobalKit(root: string): ClaudeGlobalPublishResult 
 
 function getGlobalClaudeHome(): string {
   return path.resolve(process.env.LOGICS_CLAUDE_GLOBAL_HOME || path.join(os.homedir(), ".claude"));
+}
+
+export function discoverKitSkills(kitRoot: string): string[] {
+  const skillsRoot = path.join(kitRoot, "logics", "skills");
+  if (!fs.existsSync(skillsRoot)) {
+    return [];
+  }
+  return fs
+    .readdirSync(skillsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .filter((entry) => !entry.name.startsWith("."))
+    .map((entry) => path.join(skillsRoot, entry.name))
+    .filter((skillRoot) => fs.existsSync(path.join(skillRoot, "SKILL.md")))
+    .map((skillRoot) => {
+      const skillDocPath = path.join(skillRoot, "SKILL.md");
+      try {
+        const document = parseDocument(fs.readFileSync(skillDocPath, "utf8"), { prettyErrors: false });
+        const parsed = document.toJSON();
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const skillName = (parsed as { name?: unknown }).name;
+          if (typeof skillName === "string" && skillName.trim()) {
+            return skillName.trim();
+          }
+        }
+      } catch {
+        // Keep the folder name fallback when frontmatter is malformed.
+      }
+      return path.basename(skillRoot);
+    })
+    .sort((left, right) => left.localeCompare(right));
 }
 
 type ClaudeSkillMetadata = {

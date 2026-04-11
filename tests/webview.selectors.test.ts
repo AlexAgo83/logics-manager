@@ -183,6 +183,45 @@ describe("webview selectors behavior", () => {
     expect(cardIds).toEqual(["req_b", "req_c", "req_a"]);
   });
 
+  it("treats the Default sort option as newest-first ordering", () => {
+    const { dom } = bootstrapWebview({
+      initialState: { workspaceRoot: "/workspace/mock" }
+    });
+
+    const items = [
+      {
+        ...baseItem,
+        id: "req_old",
+        title: "Old request",
+        indicators: { Status: "Draft", Progress: "10%" },
+        updatedAt: "2024-01-01T00:00:00.000Z"
+      },
+      {
+        ...baseItem,
+        id: "req_new",
+        title: "New request",
+        indicators: { Status: "Draft", Progress: "90%" },
+        updatedAt: "2024-02-01T00:00:00.000Z"
+      }
+    ];
+
+    pushData(dom, { root: "/workspace/mock", items });
+
+    const filterToggle = dom.window.document.getElementById("filter-toggle");
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const sortBySelect = dom.window.document.getElementById("sort-by") as HTMLSelectElement | null;
+    if (sortBySelect) {
+      sortBySelect.value = "default";
+      sortBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const board = dom.window.document.getElementById("board");
+    const cards = Array.from(board?.querySelectorAll(".card") || []);
+    const cardIds = cards.map((c) => (c as HTMLElement).dataset.id);
+    expect(cardIds).toEqual(["req_new", "req_old"]);
+  });
+
   it("sorts cards by status ascending when requested", () => {
     const { dom } = bootstrapWebview();
 

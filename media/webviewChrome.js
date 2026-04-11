@@ -269,7 +269,7 @@
         getHideEmptyColumns() !== defaultFilterState.hideEmptyColumns ||
         options.normalizeSearchValue(getSearchQuery()) !== "" ||
         getGroupMode() !== "stage" ||
-        getSortMode() !== "updated-desc"
+        (getSortMode() !== "updated-desc" && getSortMode() !== "default")
       );
     }
 

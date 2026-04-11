@@ -310,6 +310,7 @@ describe("webview collapsed details layout behavior", () => {
     const horizontalSplitterRule = getCssRule(css, ".layout--horizontal .splitter");
     const stackedSplitterRule = getCssRule(css, ".layout--stacked .splitter");
     const collapsedActionsRule = getCssRule(css, ".details--collapsed .details__actions");
+    const collapsedFileRule = getCssRule(css, ".details--collapsed .details__header-title-file");
     const collapsedDetailsRules = getCssRules(css, ".details--collapsed");
     const collapsedDetailsRule = collapsedDetailsRules.find((rule) => rule.includes("grid-template-rows: auto;")) || "";
     const horizontalMainRule = getCssRule(css, ".layout--horizontal .layout__main");
@@ -348,6 +349,7 @@ describe("webview collapsed details layout behavior", () => {
     expect(horizontalSplitterRule.includes("display: none")).toBe(true);
     expect(stackedSplitterRule.includes("position: absolute;")).toBe(true);
     expect(collapsedActionsRule.includes("display: none;")).toBe(true);
+    expect(collapsedFileRule.includes("display: none;")).toBe(true);
     expect(collapsedDetailsRule.includes("grid-template-rows: auto;")).toBe(true);
     expect(horizontalMainRule.includes("min-height: 0;")).toBe(true);
     expect(horizontalDetailsRule.includes("flex: 0 0 300px;")).toBe(true);

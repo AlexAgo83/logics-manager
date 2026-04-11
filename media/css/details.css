@@ -94,6 +94,10 @@
   display: none;
 }
 
+.details--collapsed .details__header-title-file {
+  display: none;
+}
+
 .details--collapsed {
   grid-template-rows: auto;
   gap: 0;

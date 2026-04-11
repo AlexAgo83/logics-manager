@@ -1,4 +1,7 @@
 (() => {
+  const TASK_COLORS = ["#2dd4bf", "#a78bfa", "#fbbf24", "#f87171", "#38bdf8", "#a3e635", "#fb923c", "#f472b6", "#818cf8", "#22d3ee"];
+  const CLOSED_TASK_STATUSES = new Set(["done", "archived", "obsolete"]);
+
   function plusIcon() {
     return `
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -17,6 +20,22 @@
     badge.textContent = count > 1 ? `${label} ${count}` : label;
     badge.title = count > 1 ? `${count} linked ${tone} companion docs` : `Linked ${tone} companion doc`;
     return badge;
+  }
+
+  function normalizeTaskStatus(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function isClosedTaskStatus(value) {
+    return CLOSED_TASK_STATUSES.has(normalizeTaskStatus(value));
+  }
+
+  function getTaskColor(id) {
+    const match = String(id || "").match(/(\d+)$/);
+    const n = parseInt(match?.[1] ?? "0", 10);
+    return TASK_COLORS[n % TASK_COLORS.length];
   }
 
   window.createCdxLogicsBoardRenderer = function createCdxLogicsBoardRenderer(options) {
@@ -764,6 +783,43 @@
       return preview;
     }
 
+    function resolveTaskItem(usage) {
+      const items = getItems();
+      const normalizedId = String(usage?.id || "").trim();
+      const normalizedRelPath = String(usage?.relPath || "").trim().replace(/\\/g, "/");
+      const normalizedBase = normalizedRelPath ? normalizedRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
+      return (
+        items.find((candidate) => {
+          const candidateRelPath = String(candidate?.relPath || "").trim().replace(/\\/g, "/");
+          const candidateBase = candidateRelPath ? candidateRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
+          return (
+            candidate?.id === normalizedId ||
+            candidateRelPath === normalizedRelPath ||
+            candidate?.id === normalizedBase ||
+            candidateBase === normalizedBase
+          );
+        }) || null
+      );
+    }
+
+    function isActiveTaskItem(taskItem) {
+      return Boolean(taskItem && String(taskItem.stage || "").trim() === "task" && !isClosedTaskStatus(taskItem?.indicators?.Status));
+    }
+
+    function getActiveTaskUsages(item) {
+      const activeTasks = [];
+      const seen = new Set();
+      for (const usage of item?.usedBy || []) {
+        const taskItem = resolveTaskItem(usage);
+        if (!isActiveTaskItem(taskItem) || !taskItem?.id || seen.has(taskItem.id)) {
+          continue;
+        }
+        seen.add(taskItem.id);
+        activeTasks.push(taskItem);
+      }
+      return activeTasks;
+    }
+
     function createItemCard(item, compact = false) {
       const card = document.createElement("div");
       const doneClass = isComplete(item) ? " card--done" : "";
@@ -793,6 +849,7 @@
         card.classList.add("card--health-alert");
       }
       const preview = createCardPreview(item);
+      const activeTasks = item.stage === "task" ? (isActiveTaskItem(item) ? [item] : []) : getActiveTaskUsages(item);
 
       function setPreviewOpen(isOpen) {
         preview.hidden = !isOpen;
@@ -819,6 +876,30 @@
       const suggestedBadges = createSuggestedBadges(item);
       if (suggestedBadges) {
         card.appendChild(suggestedBadges);
+      }
+
+      if (activeTasks.length > 0) {
+        const taskDotContainer = document.createElement("div");
+        taskDotContainer.className = "card__task-dot-container";
+        taskDotContainer.setAttribute("aria-hidden", "true");
+
+        const visibleTaskCount = activeTasks.length > 2 ? 1 : activeTasks.length;
+        for (let index = 0; index < visibleTaskCount; index += 1) {
+          const task = activeTasks[index];
+          const taskDot = document.createElement("span");
+          taskDot.className = "card__task-dot";
+          taskDot.style.background = getTaskColor(task.id);
+          taskDotContainer.appendChild(taskDot);
+        }
+
+        if (activeTasks.length > 2) {
+          const overflow = document.createElement("span");
+          overflow.className = "card__task-dot-overflow";
+          overflow.textContent = `+${activeTasks.length - 1}`;
+          taskDotContainer.appendChild(overflow);
+        }
+
+        card.appendChild(taskDotContainer);
       }
 
       if (!compact && !isPrimaryFlowStage(item.stage)) {

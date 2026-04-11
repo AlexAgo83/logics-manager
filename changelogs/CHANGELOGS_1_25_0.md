@@ -1,57 +1,31 @@
-# Changelog (`1.24.0 -> 1.25.0`)
+# Changelog `1.24.0 → 1.25.0`
 
-## Major Highlights
+> Released 2026-04-11 — 28 commits since `v1.24.0`.
 
-- Generated from 26 commit(s) between `v1.24.0` and `HEAD` on 2026-04-11.
-- Touched areas: Webview UI, Traceability & Insights, Workflow Orchestration, Bootstrapper, Submodule updates.
-- task 126: finalize traceability and insights delivery
-- wave 12: add insights velocity counter
-- wave 11: document modularization plan
-- wave 10: generate index and relationships
-- wave 9: fix traceability and ADR notes
-- Enhance webview selectors and update related tests
+## New Features
 
-## Generated Commit Summary
+- **Manual status selector** — a button in the detail panel lets users set item status without editing the source file. (`44eacf3`, `8d9039d`, `5c99c68`)
+- **Insights velocity counter** — the traceability panel now tracks and displays delivery velocity metrics. (`b664ba2`)
+- **Auto-bootstrap `AGENTS.md` and `LOGICS.md`** — the bootstrapper creates and maintains these files automatically in new projects. (`89bcf47`)
 
-## Webview UI
+## Improvements
 
-- Enhance webview selectors and update related tests (`ae14116`)
-- wave 8: collapse details by default in list mode (`64715ae`)
-- wave 5: add manual status selector (`8d9039d`)
-- wave 3: preserve scroll restoration when dimensions are unavailable (`d002901`)
-- wave 3: clamp restored scroll positions (`2130b2b`)
-- wave 2: simplify card flow and borders (`29c0855`)
-- wave 1: default to newest items first (`b59ac8f`)
+- **Traceability delivery finalized** — index generation, relationship mapping, modularization plan, and ADR notes are all part of the traceability workflow. (`8530048`, `cec1172`, `b5884f2`, `7b9c560`)
+- **Items sorted newest-first by default** — the list view now orders items with the most recent at the top. (`b59ac8f`)
+- **Details collapsed by default in list mode** — reduces visual noise when browsing large backlogs. (`64715ae`)
+- **Simplified card layout** — tighter borders and flow in card components. (`29c0855`)
+- **Webview selectors expanded** — additional selectors and improvements to `webviewSelectors.js`, with updated test coverage. (`ae14116`)
+- **Gated environment checks by launcher** — environment validation now only runs when the appropriate launcher is active. (`98cafb1`)
 
-## Traceability and Insights
+## Bug Fixes
 
-- task 126: finalize traceability and insights delivery (`8530048`)
-- wave 12: add insights velocity counter (`b664ba2`)
-- wave 11: document modularization plan (`cec1172`)
-- wave 10: generate index and relationships (`b5884f2`)
-- wave 9: fix traceability and ADR notes (`7b9c560`)
+- **Scroll position preserved on resize** — scroll state is now clamped and restored correctly when panel dimensions are unavailable. (`d002901`, `2130b2b`)
+- **Items no longer disappear on panel resize or close** — fixed a regression where list items would vanish when the detail panel was resized or collapsed. (`f409808`)
 
-## Workflow Orchestration
+## Infrastructure
 
-- add req_158-160 with backlog items_285-289, extend task_126 to waves (`218d113`)
-- fix task_126 lint: refresh indicators after wave additions (`4a325d1`)
-- add req_157 and item_284 for panel init defaults, integrate into task_126 (`4e8454c` area)
-- add req_156 and item_283 for gated env checks, integrate into task_126 (`4e8454c`)
-- add req_155 and item_282 for Obsolete alignment (`22028dd`)
-- promote req_150-154 to backlog (item_276-281) and add task_126 orchestration (`5e3fa7b`)
-- refine req_154: visual spec for status selector button placement (`5c99c68`)
-- add req_154: manual status selector button in the detail panel (`44eacf3`)
-- add req_153: fix items disappearing when detail panel is resized (`f409808`)
-- refine req_150-152 with clarifications (`56c6d76`)
-- add req_152: extend bootstrap to create AGENTS.md and LOGICS.md (`89bcf47`)
-- add req_150, req_151 and gitignore LOGICS.md (`dbafa49`)
-
-## Environment and Bootstrapper
-
-- wave 7: gate environment checks by launcher (`98cafb1`)
-- wave 4: update bootstrapper submodule pointer (`17c749f`)
-- wave 6: update kit submodule pointer (`50e44ed`)
-- Update logics skills submodule (`f5777b1`)
+- Updated `logics-skills`, bootstrapper, and kit submodule pointers. (`f5777b1`, `17c749f`, `50e44ed`)
+- Added req_150–160 and backlog items 276–289 to the spec corpus. (`dbafa49`, `89bcf47`, `56c6d76`, `22028dd`, `4e8454c`, `f81c43c`, `218d113`)
 
 ## Validation and Regression Evidence
 

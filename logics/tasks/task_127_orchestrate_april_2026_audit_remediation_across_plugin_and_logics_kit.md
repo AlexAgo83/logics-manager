@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 50%
+> Progress: 62.5%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -76,11 +76,11 @@ stateDiagram-v2
 
 ## Wave 5 — Kit structure (item_294)
 
-- [ ] 5.1. Define the four functional sub-domains: `workflow/`, `hybrid/`, `transport/`, `audit/`.
-- [ ] 5.2. Move scripts into sub-domains; update all intra-package imports.
-- [ ] 5.3. Verify `python logics/skills/logics.py flow new request --title "smoke"` succeeds end-to-end. *(item_294 AC1)*
-- [ ] 5.4. Run `python logics/skills/logics.py audit` — must exit 0; bump kit version.
-- [ ] CHECKPOINT Wave 5 — commit-ready state (kit submodule commit + version bump), update item_294 progress to 100 %.
+- [x] 5.1. Define the four functional sub-domains: `workflow/`, `hybrid/`, `transport/`, `audit/`.
+- [x] 5.2. Move scripts into sub-domains; update all intra-package imports.
+- [x] 5.3. Verify `python logics/skills/logics.py flow new request --title "smoke"` succeeds end-to-end. *(item_294 AC1)*
+- [x] 5.4. Run `python logics/skills/logics.py audit` — must exit 0; bump kit version.
+- [x] CHECKPOINT Wave 5 — commit-ready state (kit submodule commit + version bump), update item_294 progress to 100 %.
 
 ## Wave 6 — Kit coverage (item_295)
 

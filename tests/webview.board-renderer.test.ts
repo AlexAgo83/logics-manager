@@ -502,6 +502,188 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).toContain("H");
   });
 
+  it("renders task coverage dots for active tasks only in board and list views", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_131_active",
+          title: "Active task",
+          stage: "task",
+          relPath: "logics/tasks/task_131_active.md",
+          path: "/workspace/mock/logics/tasks/task_131_active.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "task_132_done",
+          title: "Completed task",
+          stage: "task",
+          relPath: "logics/tasks/task_132_done.md",
+          path: "/workspace/mock/logics/tasks/task_132_done.md",
+          indicators: {
+            Status: "Done"
+          }
+        },
+        {
+          ...baseItem,
+          id: "task_133_active",
+          title: "Second active task",
+          stage: "task",
+          relPath: "logics/tasks/task_133_active.md",
+          path: "/workspace/mock/logics/tasks/task_133_active.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_010_followup",
+          title: "Covered item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_010_followup.md",
+          path: "/workspace/mock/logics/backlog/item_010_followup.md",
+          usedBy: [
+            {
+              id: "task_131_active",
+              title: "Active task",
+              stage: "task",
+              relPath: "logics/tasks/task_131_active.md"
+            },
+            {
+              id: "task_132_done",
+              title: "Completed task",
+              stage: "task",
+              relPath: "logics/tasks/task_132_done.md"
+            }
+          ]
+        },
+        {
+          ...baseItem,
+          id: "item_011_dual",
+          title: "Dual-covered item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_011_dual.md",
+          path: "/workspace/mock/logics/backlog/item_011_dual.md",
+          usedBy: [
+            {
+              id: "task_131_active",
+              title: "Active task",
+              stage: "task",
+              relPath: "logics/tasks/task_131_active.md"
+            },
+            {
+              id: "task_133_active",
+              title: "Second active task",
+              stage: "task",
+              relPath: "logics/tasks/task_133_active.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const activeTaskCard = board?.querySelector('[data-id="task_131_active"]');
+    const doneTaskCard = board?.querySelector('[data-id="task_132_done"]');
+    const coveredCard = board?.querySelector('[data-id="item_010_followup"]');
+    const dualCoveredCard = board?.querySelector('[data-id="item_011_dual"]');
+
+    expect(activeTaskCard?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(doneTaskCard?.querySelector(".card__task-dot")).toBeNull();
+    expect(coveredCard?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(dualCoveredCard?.querySelectorAll(".card__task-dot").length).toBe(2);
+
+    const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
+    viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(board?.querySelector('[data-id="task_131_active"]')?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(board?.querySelector('[data-id="item_010_followup"]')?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(board?.querySelector('[data-id="item_011_dual"]')?.querySelectorAll(".card__task-dot").length).toBe(2);
+  });
+
+  it("renders overflow text when an item is covered by three active tasks", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_131_alpha",
+          title: "Alpha task",
+          stage: "task",
+          relPath: "logics/tasks/task_131_alpha.md",
+          path: "/workspace/mock/logics/tasks/task_131_alpha.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "task_132_beta",
+          title: "Beta task",
+          stage: "task",
+          relPath: "logics/tasks/task_132_beta.md",
+          path: "/workspace/mock/logics/tasks/task_132_beta.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "task_133_gamma",
+          title: "Gamma task",
+          stage: "task",
+          relPath: "logics/tasks/task_133_gamma.md",
+          path: "/workspace/mock/logics/tasks/task_133_gamma.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_020_multi",
+          title: "Multi-covered item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_020_multi.md",
+          path: "/workspace/mock/logics/backlog/item_020_multi.md",
+          usedBy: [
+            {
+              id: "task_131_alpha",
+              title: "Alpha task",
+              stage: "task",
+              relPath: "logics/tasks/task_131_alpha.md"
+            },
+            {
+              id: "task_132_beta",
+              title: "Beta task",
+              stage: "task",
+              relPath: "logics/tasks/task_132_beta.md"
+            },
+            {
+              id: "task_133_gamma",
+              title: "Gamma task",
+              stage: "task",
+              relPath: "logics/tasks/task_133_gamma.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const card = board?.querySelector('[data-id="item_020_multi"]');
+
+    expect(card?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(card?.querySelector(".card__task-dot-overflow")?.textContent).toBe("+2");
+  });
+
   it("navigates up and down within a board column using arrow keys", () => {
     const { dom } = bootstrapWebview();
 

@@ -149,6 +149,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  position: relative;
   overflow: hidden;
 }
 
@@ -390,6 +391,33 @@
 .card__badge--health-missing-supporting-doc {
   background: rgba(14, 116, 144, 0.2);
   border-color: rgba(34, 211, 238, 0.35);
+}
+
+.card__task-dot-container {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card__task-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.9;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex: none;
+}
+
+.card__task-dot-overflow {
+  font-size: 9px;
+  line-height: 1;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  align-self: center;
 }
 
 .card--selected {

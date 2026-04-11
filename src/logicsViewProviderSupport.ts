@@ -17,13 +17,15 @@ import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
 import { RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
 import { ReleasePublishCapability } from "./releasePublishSupport";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
-const ROOT_OVERRIDE_STATE_KEY = "logics.projectRootOverride";
-const ACTIVE_AGENT_STATE_KEY = "logics.activeAgentId";
-const ONBOARDING_LAST_VERSION_KEY = "logics.onboardingLastVersion";
-const STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX = "logics.startupKitUpdatePrompt";
+import {
+  ACTIVE_AGENT_STATE_KEY,
+  MIN_LOGICS_KIT_MAJOR,
+  MIN_LOGICS_KIT_MINOR,
+  ONBOARDING_LAST_VERSION_KEY,
+  ROOT_OVERRIDE_STATE_KEY,
+  STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX
+} from "./logicsViewProviderConstants";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
-const MIN_LOGICS_KIT_MAJOR = 1;
-const MIN_LOGICS_KIT_MINOR = 7;
 const STATUS_OPTIONS_BY_STAGE: Record<LogicsStage, readonly string[]> = {
   request: ["Draft", "Ready", "Done", "Archived"],
   backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],

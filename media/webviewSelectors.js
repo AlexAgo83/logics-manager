@@ -248,34 +248,54 @@
       return typeof value === "number" ? value : -1;
     }
 
+    function getEffectiveSortMode() {
+      return getSortMode() === "default" ? "updated-desc" : getSortMode();
+    }
+
+    function getStatusGroupOrder(value) {
+      const statusOrder = [
+        "blocked",
+        "draft",
+        "proposed",
+        "ready",
+        "in progress",
+        "accepted",
+        "validated",
+        "done",
+        "archived",
+        "obsolete",
+        "superseded",
+        "no status"
+      ];
+      const normalized = normalizeSearchValue(value) || "no status";
+      const index = statusOrder.indexOf(normalized);
+      return index === -1 ? statusOrder.length : index;
+    }
+
     function compareItems(left, right) {
-      if (getSortMode() === "updated-desc") {
+      const sortMode = getEffectiveSortMode();
+      if (sortMode === "updated-desc") {
         const leftTime = Date.parse(left.updatedAt || "") || 0;
         const rightTime = Date.parse(right.updatedAt || "") || 0;
         if (rightTime !== leftTime) {
           return rightTime - leftTime;
         }
-      } else if (getSortMode() === "progress-desc") {
+      } else if (sortMode === "progress-desc") {
         const progressDelta = getProgressSortValue(right) - getProgressSortValue(left);
         if (progressDelta !== 0) {
           return progressDelta;
         }
-      } else if (getSortMode() === "status-asc") {
+      } else if (sortMode === "status-asc") {
         const statusDelta = getStatusValue(left).localeCompare(getStatusValue(right));
         if (statusDelta !== 0) {
           return statusDelta;
         }
-      } else {
-        return 0;
       }
 
       return normalizeSearchValue(left.title).localeCompare(normalizeSearchValue(right.title));
     }
 
     function sortItems(allItems) {
-      if (getSortMode() === "default") {
-        return [...allItems];
-      }
       return [...allItems].sort(compareItems);
     }
 
@@ -354,7 +374,14 @@
         }, {});
         return Object.values(grouped)
           .map((group) => ({ ...group, items: sortItems(group.items), totalCount: group.items.length }))
-          .sort((left, right) => normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading)));
+          .sort((left, right) => {
+            const leftIndex = getStatusGroupOrder(normalizeSearchValue(left.heading));
+            const rightIndex = getStatusGroupOrder(normalizeSearchValue(right.heading));
+            if (leftIndex !== rightIndex) {
+              return leftIndex - rightIndex;
+            }
+            return normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading));
+          });
       }
 
       const grouped = groupByStage(visibleItems);
@@ -437,6 +464,7 @@
       isProcessedWorkflowStatus,
       collectLinkedWorkflowItems,
       isRequestProcessed,
+      getEffectiveSortMode,
       progressState,
       getProgressValue
     };

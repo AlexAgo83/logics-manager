@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 13%
 > Complexity: High
 > Theme: Quality
 > Derived from `logics/backlog/item_290_extract_duplicated_constants_into_a_shared_plugin_module.md`
@@ -45,10 +45,10 @@ stateDiagram-v2
 
 ## Wave 1 — Safe wins (item_292 + item_290)
 
-- [ ] 1.1. `git rm --cached cdx-logics-vscode-1.21.0.vsix cdx-logics-vscode-1.22.0.vsix` and delete local copies; confirm `.gitignore` has `*.vsix`. *(item_292 AC1)*
-- [ ] 1.2. Create `src/logicsViewProviderConstants.ts`; move the 6 duplicated constants there; update imports in `logicsViewProvider.ts` and `logicsViewProviderSupport.ts`. *(item_290 AC1)*
-- [ ] 1.3. Run `npm run lint:ts` and `npm run test` — both must pass.
-- [ ] CHECKPOINT Wave 1 — commit-ready state, update item_290 and item_292 progress to 100 %.
+- [x] 1.1. `git rm --cached cdx-logics-vscode-1.21.0.vsix cdx-logics-vscode-1.22.0.vsix` and delete local copies; confirm `.gitignore` has `*.vsix`. *(item_292 AC1)*
+- [x] 1.2. Create `src/logicsViewProviderConstants.ts`; move the 6 duplicated constants there; update imports in `logicsViewProvider.ts` and `logicsViewProviderSupport.ts`. *(item_290 AC1)*
+- [x] 1.3. Run `npm run lint:ts` and `npm run test` — both must pass.
+- [x] CHECKPOINT Wave 1 — commit-ready state, update item_290 and item_292 progress to 100 %.
 
 ## Wave 2 — Plugin typing + coverage (item_291)
 

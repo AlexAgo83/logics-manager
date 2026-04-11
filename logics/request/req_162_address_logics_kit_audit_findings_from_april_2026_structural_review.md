@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95%
-> Confidence: 85%
+> Confidence: 90%
 > Complexity: High
 > Theme: Quality
 
@@ -100,3 +100,5 @@ flowchart TD
 - `logics/backlog/item_294_reorganise_flow_manager_scripts_by_functional_domain.md`
 - `logics/backlog/item_295_raise_kit_branch_coverage_and_reorganise_numbered_test_suites_by_domain.md`
 - `logics/backlog/item_296_harden_hybridproviderdefinition_credential_serialisation_and_audit_cache_files.md`
+- `logics/backlog/item_298_add_maximum_kit_version_bound_in_plugin.md`
+- `logics/backlog/item_299_add_programmatic_skill_discovery_to_replace_hardcoded_names.md`

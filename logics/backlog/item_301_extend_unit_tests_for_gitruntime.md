@@ -1,7 +1,7 @@
 ## item_301_extend_unit_tests_for_gitruntime - Extend unit tests for gitRuntime
 > From version: 1.25.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%

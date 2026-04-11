@@ -594,6 +594,48 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector('[data-id="item_011_dual"]')?.querySelectorAll(".card__task-dot").length).toBe(2);
   });
 
+  it("resolves task coverage dots from usedBy path values as well as relPath values", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_181_active",
+          title: "Path-backed task",
+          stage: "task",
+          relPath: "logics/tasks/task_181_active.md",
+          path: "/workspace/mock/logics/tasks/task_181_active.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_030_path_used_by",
+          title: "Path usedBy item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_030_path_used_by.md",
+          path: "/workspace/mock/logics/backlog/item_030_path_used_by.md",
+          usedBy: [
+            {
+              id: "task_181_active",
+              title: "Path-backed task",
+              stage: "task",
+              path: "/workspace/mock/logics/tasks/task_181_active.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const card = board?.querySelector('[data-id="item_030_path_used_by"]');
+
+    expect(card?.querySelectorAll(".card__task-dot").length).toBe(1);
+  });
+
   it("renders overflow text when an item is covered by three active tasks", () => {
     const { dom } = bootstrapWebview();
 

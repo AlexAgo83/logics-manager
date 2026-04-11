@@ -810,14 +810,21 @@
       return preview;
     }
 
+    function normalizeTaskLookupValue(value) {
+      return String(value || "")
+        .trim()
+        .replace(/\\/g, "/")
+        .replace(/^\.?\//, "");
+    }
+
     function resolveTaskItem(usage) {
       const items = getItems();
       const normalizedId = String(usage?.id || "").trim();
-      const normalizedRelPath = String(usage?.relPath || "").trim().replace(/\\/g, "/");
+      const normalizedRelPath = normalizeTaskLookupValue(usage?.relPath || usage?.path);
       const normalizedBase = normalizedRelPath ? normalizedRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
       return (
         items.find((candidate) => {
-          const candidateRelPath = String(candidate?.relPath || "").trim().replace(/\\/g, "/");
+          const candidateRelPath = normalizeTaskLookupValue(candidate?.relPath || candidate?.path);
           const candidateBase = candidateRelPath ? candidateRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
           return (
             candidate?.id === normalizedId ||

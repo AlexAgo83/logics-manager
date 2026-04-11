@@ -136,9 +136,11 @@ Windows notes:
 ### Flow-manager smoke checklist
 
 - Create a request from UI (`New Request`) and confirm markdown is generated.
+- Create a fixture request with `python logics/skills/logics.py flow new request --title "Smoke test"` and confirm the compact synthetic request shape is generated.
 - Create a backlog item and a task from the UI and confirm markdown is generated.
 - Open `Read` on a Mermaid-bearing doc and confirm the graph is rendered.
 - Promote request -> backlog and confirm links are updated.
+- Confirm request/backlog/task generation fails fast if a Mermaid signature or traceability block is stale instead of waiting for audit to find it later.
 - Promote backlog -> task and confirm task document is generated.
 - Refresh board/details and confirm data remains consistent.
 

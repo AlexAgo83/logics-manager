@@ -1,10 +1,10 @@
 ## task_133_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager - Improve test request creation and flow manager pre-validation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -54,6 +54,7 @@ stateDiagram-v2
 - AC3 -> Scope: The flow manager can detect stale Mermaid signatures or other doc-shape issues earlier, ideally during generation or promotion instead of only at lint or audit time.. Proof: capture validation evidence in this doc.
 - AC4 -> Scope: A synthetic test mode or equivalent flag exists so operators can ask for a smaller, fixture-friendly request shape without hand-editing the result heavily.. Proof: capture validation evidence in this doc.
 - AC5 -> Scope: The audit and validation feedback is more actionable for creators, making it clear what to fix and where to fix it before the docs are used downstream.. Proof: capture validation evidence in this doc.
+- AC6 -> Scope: The operator-facing documentation updates are discoverable from the task chain. Proof: `README.md`, `logics/skills/README.md`, and `logics/skills/logics-flow-manager/SKILL.md` now document `--fixture`/`--smoke-test` and the earlier validation path.
 
 # Decision framing
 - Product framing: Not needed
@@ -78,13 +79,18 @@ stateDiagram-v2
 - Run the relevant automated tests for the changed surface before closing the current wave or step.
 - Run the relevant lint or quality checks before closing the current wave or step.
 - Confirm the completed wave leaves the repository in a commit-ready state.
+- Finish workflow executed on 2026-04-11.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] Scope implemented and acceptance criteria covered.
-- [ ] Validation commands executed and results captured.
-- [ ] No wave or step was closed before the relevant automated tests and quality checks passed.
-- [ ] Linked request/backlog/task docs updated during completed waves and at closure.
-- [ ] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
-- [ ] Status is `Done` and progress is `100%`.
+- [x] Scope implemented and acceptance criteria covered.
+- [x] Validation commands executed and results captured.
+- [x] No wave or step was closed before the relevant automated tests and quality checks passed.
+- [x] Linked request/backlog/task docs updated during completed waves and at closure.
+- [x] Each completed wave left a commit-ready checkpoint or an explicit exception is documented.
+- [x] Status is `Done` and progress is `100%`.
 
 # Report
+- Finished on 2026-04-11.
+- Linked backlog item(s): `item_312_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager`
+- Related request(s): `req_169_am_liorer_la_cr_ation_de_requests_de_test_et_la_pr_validation_du_flow_manager`

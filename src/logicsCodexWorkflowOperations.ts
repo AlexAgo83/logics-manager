@@ -167,7 +167,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
 
-    const worktreeStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
+    const worktreeStatus = await runGitWithOutput(root, ["status", "--porcelain", "--", "logics/skills"]);
     if (worktreeStatus.error) {
       void vscode.window.showErrorMessage(
         `Failed to inspect repository state before updating the Logics kit: ${worktreeStatus.stderr || worktreeStatus.error.message}`
@@ -176,7 +176,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
     if (worktreeStatus.stdout.trim()) {
       const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics kit update is blocked because the repository has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
+        "Automatic Logics kit update is blocked because the logics/skills submodule has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {

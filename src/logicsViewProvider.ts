@@ -40,6 +40,7 @@ import {
   MIN_LOGICS_KIT_MINOR,
   ROOT_OVERRIDE_STATE_KEY
 } from "./logicsViewProviderConstants";
+import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
@@ -148,7 +149,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       getStartupKitUpdatePromptStateKey: (root: string) =>
         viewProviderSupport.getStartupKitUpdatePromptStateKey.call(this, root),
       getValidStatusesForItem: (item: LogicsItem) => viewProviderSupport.getValidStatusesForItem.call(this, item),
-      inspectKitUpdateNeed: (root: string) => viewProviderSupport.inspectKitUpdateNeed.call(this, root),
+      inspectKitUpdateNeed: (root: string) => inspectKitUpdateNeed(root),
       injectPromptIntoCodexChat: (prompt: string, options?: { preferNewThread?: boolean }) =>
         viewProviderSupport.injectPromptIntoCodexChat.call(this, prompt, options),
       injectAgentPromptIntoCodexChat: (agent: AgentDefinition) =>

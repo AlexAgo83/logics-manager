@@ -523,17 +523,17 @@ export function normalizeRelationPath(value: string, items: LogicsItem[], root: 
   }
 
   const byId = items.find((item) => item.id === trimmed);
-  let normalized = byId ? byId.relPath : trimmed;
-  normalized = normalized.replace(/\\/g, "/").replace(/^\.\//, "");
+  const candidate = byId ? byId.relPath : trimmed;
 
-  if (path.isAbsolute(normalized)) {
-    const rel = path.relative(root, normalized);
+  if (path.isAbsolute(candidate)) {
+    const rel = path.relative(root, candidate);
     if (!rel.startsWith("..") && !path.isAbsolute(rel)) {
-      normalized = rel.replace(/\\/g, "/");
+      return rel.replace(/\\/g, "/");
     }
+    return path.normalize(candidate);
   }
 
-  return normalized;
+  return candidate.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
 export function updateManagedReferencesForRename(

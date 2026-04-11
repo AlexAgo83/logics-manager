@@ -364,7 +364,6 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
         <button class="btn btn--primary" data-action="read" disabled title="Read selected item">Read</button>
         <button class="btn btn--contextual" data-action="promote" disabled title="Promote selected item">Promote</button>
         <button class="btn btn--secondary" data-action="mark-done" disabled title="Mark selected item as done">Done</button>
-        <button class="btn btn--caution" data-action="mark-obsolete" disabled title="Mark selected item as obsolete">Obsolete</button>
         <button class="btn btn--caution" data-action="change-status" disabled title="Change the selected item status">Change Status</button>
       </div>
     </aside>

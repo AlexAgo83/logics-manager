@@ -521,22 +521,11 @@ describe("webview board renderer behavior", () => {
         },
         {
           ...baseItem,
-          id: "task_132_done",
-          title: "Completed task",
-          stage: "task",
-          relPath: "logics/tasks/task_132_done.md",
-          path: "/workspace/mock/logics/tasks/task_132_done.md",
-          indicators: {
-            Status: "Done"
-          }
-        },
-        {
-          ...baseItem,
-          id: "task_133_active",
+          id: "task_141_active",
           title: "Second active task",
           stage: "task",
-          relPath: "logics/tasks/task_133_active.md",
-          path: "/workspace/mock/logics/tasks/task_133_active.md",
+          relPath: "logics/tasks/task_141_active.md",
+          path: "/workspace/mock/logics/tasks/task_141_active.md",
           indicators: {
             Status: "Ready"
           }
@@ -554,12 +543,6 @@ describe("webview board renderer behavior", () => {
               title: "Active task",
               stage: "task",
               relPath: "logics/tasks/task_131_active.md"
-            },
-            {
-              id: "task_132_done",
-              title: "Completed task",
-              stage: "task",
-              relPath: "logics/tasks/task_132_done.md"
             }
           ]
         },
@@ -578,10 +561,10 @@ describe("webview board renderer behavior", () => {
               relPath: "logics/tasks/task_131_active.md"
             },
             {
-              id: "task_133_active",
+              id: "task_141_active",
               title: "Second active task",
               stage: "task",
-              relPath: "logics/tasks/task_133_active.md"
+              relPath: "logics/tasks/task_141_active.md"
             }
           ]
         }
@@ -590,19 +573,23 @@ describe("webview board renderer behavior", () => {
 
     const board = dom.window.document.getElementById("board");
     const activeTaskCard = board?.querySelector('[data-id="task_131_active"]');
-    const doneTaskCard = board?.querySelector('[data-id="task_132_done"]');
+    const secondTaskCard = board?.querySelector('[data-id="task_141_active"]');
     const coveredCard = board?.querySelector('[data-id="item_010_followup"]');
     const dualCoveredCard = board?.querySelector('[data-id="item_011_dual"]');
 
     expect(activeTaskCard?.querySelectorAll(".card__task-dot").length).toBe(1);
-    expect(doneTaskCard?.querySelector(".card__task-dot")).toBeNull();
+    expect(secondTaskCard?.querySelectorAll(".card__task-dot").length).toBe(1);
     expect(coveredCard?.querySelectorAll(".card__task-dot").length).toBe(1);
     expect(dualCoveredCard?.querySelectorAll(".card__task-dot").length).toBe(2);
+    expect(activeTaskCard?.querySelector(".card__task-dot")?.getAttribute("style")).not.toBe(
+      secondTaskCard?.querySelector(".card__task-dot")?.getAttribute("style")
+    );
 
     const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
     viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(board?.querySelector('[data-id="task_131_active"]')?.querySelectorAll(".card__task-dot").length).toBe(1);
+    expect(board?.querySelector('[data-id="task_141_active"]')?.querySelectorAll(".card__task-dot").length).toBe(1);
     expect(board?.querySelector('[data-id="item_010_followup"]')?.querySelectorAll(".card__task-dot").length).toBe(1);
     expect(board?.querySelector('[data-id="item_011_dual"]')?.querySelectorAll(".card__task-dot").length).toBe(2);
   });

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 92%
+> Confidence: 93%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -11,15 +11,17 @@
 
 # Context
 
-Orchestration task covering all maintenance and hardening items surfaced by the April 2026 project audit (req_170, req_171, req_172). Delivers in three sequential waves — tooling config first (safest, no production code), then structural refactoring, then static analysis hardening. Each wave must leave a green build and a commit checkpoint before the next starts.
+Orchestration task covering all maintenance and hardening items surfaced by the April 2026 project audit (req_170, req_171, req_172) plus the flow manager lineage fix (req_177). Delivers in four sequential waves — flow manager template fix first (pure docs, zero risk), then tooling config, then structural refactoring, then static analysis hardening. Each wave must leave a green build and a commit checkpoint before the next starts.
 
-Covers backlog items: `item_313`, `item_314`, `item_315`, `item_316`, `item_317`.
+Covers backlog items: `item_313`, `item_314`, `item_315`, `item_316`, `item_317`, `item_323`, `item_324`.
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|wave-1-maintenance-hardening-graph-embed|item-313-fix-settings-hooks-format-and-i|wave-1-tooling-config-and-graph|wave-1-gate-code-review-graph-status-js
+%% logics-signature: task|wave-1-maintenance-hardening-graph-embed|item-313-fix-settings-hooks-format-and-i|wave-0-flow-manager-template-and|wave-1-gate-code-review-graph-status-js
 stateDiagram-v2
-    [*] --> Wave1
+    [*] --> Wave0
+    Wave0 : Wave 0 - Flow manager template and docs fix
+    Wave0 --> Wave1
     Wave1 : Wave 1 - Tooling config and graph embeddings
     Wave1 --> Wave2
     Wave2 : Wave 2 - Structural refactoring and coverage
@@ -31,6 +33,18 @@ stateDiagram-v2
 ```
 
 # Plan
+
+## Wave 0 — Flow manager template and docs fix (item_323, item_324)
+*Scope: req_177 AC1–AC6. Changes only in `logics/skills/` submodule — zero risk to extension code.*
+
+- [ ] 0.1 **Fix task template (item_323 / req_177 AC1)** — in `logics/skills/logics-flow-manager/assets/templates/task.md`, replace `- Backlog item: {{BACKLOG_LINK_PLACEHOLDER}}` with `- Derived from {{BACKLOG_LINK_PLACEHOLDER}}`.
+- [ ] 0.2 **Fix generator placeholder (item_323 / req_177 AC2)** — in `logics_flow_support_workflow_core.py`, update the backlog link placeholder default for `flow new task` to read `(add: Derived from \`logics/backlog/item_XXX_...\`)`.
+- [ ] 0.3 **Run existing tests (req_177 AC6)** — `python3 logics/skills/tests/run_cli_smoke_checks.py` and `python3 logics/skills/tests/run_test_coverage.py` must pass. Fix any test that asserts the old `Backlog item:` label.
+- [ ] 0.4 **Document N:1 pattern in SKILL.md (item_324 / req_177 AC3)** — add a section in `logics/skills/logics-flow-manager/SKILL.md` documenting that orchestration tasks covering multiple backlog items must add one `- Derived from \`...\`` line per item in `# Links`.
+- [ ] 0.5 **Add hint in backlog template (item_324 / req_177 AC4)** — in `logics/skills/logics-flow-manager/assets/templates/backlog.md`, add a `<!-- When creating a task from this item, add: Derived from \`this file path\` in the task # Links section -->` comment in `# Links`.
+- [ ] 0.6 Commit in submodule, then update the submodule pointer in the parent repo. Commit checkpoint.
+
+**CHECKPOINT Wave 0**: submodule commit + parent pointer commit, update item_323/324 Progress to 100%.
 
 ## Wave 1 — Tooling config and graph embeddings (item_313)
 *Scope: req_170 AC1 + AC2. No production code changed.*
@@ -71,6 +85,12 @@ stateDiagram-v2
 
 # AC Traceability
 
+- item_323 AC → req_177 AC1: task.md template uses Derived from label.
+- item_323 AC → req_177 AC2: flow new task placeholder hints at Derived from format.
+- item_323 AC → req_177 AC6: existing logics kit tests pass.
+- item_324 AC → req_177 AC3: SKILL.md documents N:1 orchestration pattern with Derived from.
+- item_324 AC → req_177 AC4: backlog.md template includes Derived from hint comment.
+- item_324 AC → req_177 AC5: flow promote backlog-to-task unaffected.
 - item_313 AC → req_170 AC1: settings hooks canonical format, no parse errors.
 - item_313 AC → req_170 AC2: graph embeddings initialized, at least one node embedded.
 - item_314 AC → req_170 AC3: IMPORTS_FROM count increased or gap documented.
@@ -88,11 +108,14 @@ stateDiagram-v2
 - item_317 AC → req_172 AC5: npm run lint and test:coverage:src pass.
 
 # Links
+- Derived from `logics/backlog/item_323_fix_task_template_and_generator_to_use_derived_from_instead_of_backlog_item_label.md`
+- Derived from `logics/backlog/item_324_document_n_to_1_orchestration_pattern_in_skill_md_and_add_derived_from_hint_in_backlog_template.md`
 - Derived from `logics/backlog/item_313_fix_settings_hooks_format_and_initialize_graph_embeddings.md`
 - Derived from `logics/backlog/item_314_audit_graph_import_resolution_community_fragmentation_and_extract_shared_test_helpers.md`
 - Derived from `logics/backlog/item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision.md`
 - Derived from `logics/backlog/item_316_improve_extension_ts_branch_coverage_and_maintain_overall_coverage_floor.md`
 - Derived from `logics/backlog/item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast.md`
+- Request(s): `logics/request/req_177_fix_flow_manager_to_guide_derived_from_link_pattern_when_a_task_covers_a_backlog_item.md`
 - Request(s): `logics/request/req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation.md`
 - Request(s): `logics/request/req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift.md`
 - Request(s): `logics/request/req_172_harden_static_analysis_and_branch_coverage_safety_net.md`

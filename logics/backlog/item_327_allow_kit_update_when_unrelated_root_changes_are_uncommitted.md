@@ -1,10 +1,10 @@
 ## item_327_allow_kit_update_when_unrelated_root_changes_are_uncommitted - Allow kit update when unrelated root changes are uncommitted
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,3 +76,7 @@ flowchart TD
 - Source file: `logics/request/req_178_allow_kit_update_when_unrelated_root_changes_are_uncommitted.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_178_allow_kit_update_when_unrelated_root_changes_are_uncommitted.md`.
+
+# Report
+- Delivered the root-dirty-safe kit update behavior and preserved the blocking path for dirty kit installs.
+- Validation: `npm test -- tests/logicsCodexWorkflowController.test.ts`, `npm run lint:ts`.

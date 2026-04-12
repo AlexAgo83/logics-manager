@@ -1,10 +1,10 @@
 ## task_139_allow_kit_update_when_unrelated_root_changes_are_uncommitted - Allow kit update when unrelated root changes are uncommitted
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -86,3 +86,5 @@ stateDiagram-v2
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Delivered the root-dirty-safe kit update path while still blocking dirty `logics/skills` installs.
+- Validation: `npm test -- tests/logicsCodexWorkflowController.test.ts`, `npm run lint:ts`.

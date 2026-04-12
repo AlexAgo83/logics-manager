@@ -451,6 +451,8 @@ describe("logics HTML builders", () => {
     const weekPanel = dom.window.document.getElementById("timeline-week");
     const dayPanel = dom.window.document.getElementById("timeline-day");
 
+    expect(weekButton?.classList.contains("logics-insights__button--active")).toBe(true);
+    expect(dayButton?.classList.contains("logics-insights__button--active")).toBe(false);
     expect(weekButton?.getAttribute("aria-pressed")).toBe("true");
     expect(dayButton?.getAttribute("aria-pressed")).toBe("false");
     expect(weekPanel?.hidden).toBe(false);
@@ -458,10 +460,17 @@ describe("logics HTML builders", () => {
 
     dayButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
+    expect(weekButton?.classList.contains("logics-insights__button--active")).toBe(false);
+    expect(dayButton?.classList.contains("logics-insights__button--active")).toBe(true);
     expect(weekButton?.getAttribute("aria-pressed")).toBe("false");
     expect(dayButton?.getAttribute("aria-pressed")).toBe("true");
     expect(weekPanel?.hidden).toBe(true);
     expect(dayPanel?.hidden).toBe(false);
+
+    const dayLabels = Array.from(dayPanel?.querySelectorAll(".logics-insights__timeline-label") ?? [])
+      .map((node) => node.textContent ?? "");
+    expect(dayLabels.length).toBeGreaterThan(0);
+    expect(dayLabels.every((label) => /^[A-Z][a-z]{2}\d{1,2}$/.test(label))).toBe(true);
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

@@ -313,12 +313,13 @@ function isActiveStatus(value: unknown): boolean {
   return new Set(["draft", "ready", "in progress", "blocked"]).has(normalizeStatus(value));
 }
 
-function formatTimelineLabel(timestampMs: number): string {
-  return new Intl.DateTimeFormat("en-US", {
+function formatTimelineLabel(timestampMs: number, compact = false): string {
+  const formatted = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     timeZone: "UTC"
   }).format(new Date(timestampMs));
+  return compact ? formatted.replace(/\s+/g, "") : formatted;
 }
 
 function summarizeTimeline(
@@ -335,7 +336,7 @@ function summarizeTimeline(
   const buckets = Array.from({ length: bucketCount }, (_, index) => {
     const bucketStart = firstBucketStart + index * bucketDurationMs;
     return {
-      label: formatTimelineLabel(bucketStart),
+      label: formatTimelineLabel(bucketStart, period === "day"),
       value: 0,
       startMs: bucketStart,
       endMs: bucketStart + bucketDurationMs
@@ -617,8 +618,10 @@ export function buildLogicsCorpusInsightsHtml(params: {
           background: var(--vscode-button-secondaryBackground);
           color: var(--vscode-button-secondaryForeground);
           border-radius: 999px;
-          padding: 8px 12px;
+          padding: 8px 14px;
           cursor: pointer;
+          font-weight: 500;
+          transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, color 120ms ease;
         }
         .logics-insights__button:hover {
           background: var(--vscode-button-secondaryHoverBackground);
@@ -626,6 +629,10 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__button--active {
           background: var(--vscode-button-primaryBackground);
           color: var(--vscode-button-primaryForeground);
+          border-color: color-mix(in srgb, var(--vscode-button-primaryBackground) 68%, currentColor 32%);
+          box-shadow: 0 2px 10px color-mix(in srgb, currentColor 16%, transparent);
+          transform: translateY(-1px);
+          font-weight: 600;
         }
         .logics-insights__grid,
         .logics-insights__sections {

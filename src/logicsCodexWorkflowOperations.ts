@@ -10,6 +10,7 @@ import { publishClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
 import { maybeShowReadyCodexOverlayHandoff, launchClaudeTerminal, launchCodexOverlayTerminal } from "./logicsOverlaySupport";
 import { LogicsCodexWorkflowBootstrapSupport, LogicsCodexWorkflowBootstrapOptions } from "./logicsCodexWorkflowBootstrapSupport";
+import { parseGitStatusEntries } from "./workflowSupport";
 
 export type LogicsCodexWorkflowOperationsOptions = LogicsCodexWorkflowBootstrapOptions;
 
@@ -167,14 +168,19 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
 
-    const worktreeStatus = await runGitWithOutput(root, ["status", "--porcelain", "--", "logics/skills"]);
-    if (worktreeStatus.error) {
+    const rootStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
+    if (rootStatus.error) {
       void vscode.window.showErrorMessage(
-        `Failed to inspect repository state before updating the Logics kit: ${worktreeStatus.stderr || worktreeStatus.error.message}`
+        `Failed to inspect repository state before updating the Logics kit: ${rootStatus.stderr || rootStatus.error.message}`
       );
       return false;
     }
-    if (worktreeStatus.stdout.trim()) {
+    const rootStatusEntries = parseGitStatusEntries(rootStatus.stdout);
+    const hasSkillsChangesInRoot = rootStatusEntries.some(
+      (entry) => entry.path === "logics/skills" || entry.path.startsWith("logics/skills/")
+    );
+    const hasOtherRootChanges = rootStatusEntries.some((entry) => !entry.path.startsWith("logics/skills"));
+    if (hasSkillsChangesInRoot) {
       const choice = await vscode.window.showWarningMessage(
         "Automatic Logics kit update is blocked because the logics/skills submodule has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
         "Copy Update Command"
@@ -214,8 +220,9 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       }
       await this.options.refresh();
       const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
+      const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
       const messageWithConvergence = this.appendBootstrapConvergenceNote(
-        `Logics kit updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.`,
+        `Logics kit updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.${rootChangeNote}`,
         bootstrapConvergence
       );
       void vscode.window.showInformationMessage(messageWithConvergence);
@@ -308,6 +315,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
     const snapshot = await inspectLogicsEnvironment(root);
+    const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
 
     if (snapshot.codexOverlay.status === "missing-manager") {
       void vscode.window.showWarningMessage(
@@ -319,8 +327,8 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     const message = updated
-      ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.`
-      : "The Logics kit is already up to date on the tracked submodule revision.";
+      ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.${rootChangeNote}`
+      : `The Logics kit is already up to date on the tracked submodule revision.${rootChangeNote}`;
     const messageWithConvergence = this.appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"

@@ -1,10 +1,10 @@
 ## task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis - wave 1 maintenance hardening graph embeddings coverage and static analysis
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 75%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -39,7 +39,7 @@ stateDiagram-v2
 
 - [x] 0.1 **Fix task template (item_323 / req_177 AC1)** — in `logics/skills/logics-flow-manager/assets/templates/task.md`, replace `- Backlog item: {{BACKLOG_LINK_PLACEHOLDER}}` with `- Derived from {{BACKLOG_LINK_PLACEHOLDER}}`.
 - [x] 0.2 **Fix generator placeholder (item_323 / req_177 AC2)** — in `logics_flow_support_workflow_core.py`, update the backlog link placeholder default for `flow new task` to read `(add: Derived from \`logics/backlog/item_XXX_...\`)`.
-- [ ] 0.3 **Run existing tests (req_177 AC6)** — `python3 logics/skills/tests/run_cli_smoke_checks.py` and `python3 logics/skills/tests/run_test_coverage.py` must pass. Fix any test that asserts the old `Backlog item:` label.
+- [x] 0.3 **Run existing tests (req_177 AC6)** — `python3 logics/skills/tests/run_cli_smoke_checks.py` and `python3 logics/skills/tests/run_test_coverage.py` must pass. Fix any test that asserts the old `Backlog item:` label.
 - [x] 0.4 **Document N:1 pattern in SKILL.md (item_324 / req_177 AC3)** — add a section in `logics/skills/logics-flow-manager/SKILL.md` documenting that orchestration tasks covering multiple backlog items must add one `- Derived from \`...\`` line per item in `# Links`.
 - [x] 0.5 **Add hint in backlog template (item_324 / req_177 AC4)** — in `logics/skills/logics-flow-manager/assets/templates/backlog.md`, add a `<!-- When creating a task from this item, add: Derived from \`this file path\` in the task # Links section -->` comment in `# Links`.
 - [x] 0.6 Commit in submodule, then update the submodule pointer in the parent repo. Commit checkpoint.
@@ -49,25 +49,25 @@ stateDiagram-v2
 ## Wave 1 — Tooling config and graph embeddings (item_313)
 *Scope: req_170 AC1 + AC2. No production code changed.*
 
-- [ ] 1.1 Verify `.claude/settings.json` is in its corrected state (hooks array format, no `--quiet` flag). Document as done — already fixed in session.
-- [ ] 1.2 Run `code-review-graph status --json` and confirm the graph is healthy.
-- [ ] 1.3 Run `code-review-graph embed` to initialize semantic embeddings. If a model or API key is required and unavailable, document the blocker in this task and proceed.
-- [ ] 1.4 Re-run `code-review-graph status --json` and confirm at least one embedded node is reported (or document the skip reason).
-- [ ] 1.5 Commit checkpoint — `npm run compile && npm run test` must pass.
+- [x] 1.1 Verify `.claude/settings.json` is in its corrected state (hooks array format, no `--quiet` flag). Document as done — already fixed in session.
+- [x] 1.2 Run `code-review-graph status --json` and confirm the graph is healthy.
+- [x] 1.3 Run `code-review-graph embed` to initialize semantic embeddings. If a model or API key is required and unavailable, document the blocker in this task and proceed.
+- [x] 1.4 Re-run `code-review-graph status --json` and confirm at least one embedded node is reported (or document the skip reason).
+- [x] 1.5 Commit checkpoint — `npm run compile && npm run test` must pass.
 
 **CHECKPOINT Wave 1**: commit, update item_313 Progress to 100%.
 
 ## Wave 2 — Structural refactoring and coverage (item_314, item_315, item_316)
 *Scope: req_170 AC3–AC5, req_171 AC1–AC5.*
 
-- [ ] 2.1 **Import resolution audit (item_314 / req_170 AC3)** — run `code-review-graph build` and compare `IMPORTS_FROM` edge count before/after. For each file with missing imports, either add the missing `import` statement or document why the edge is absent (dynamic import, barrel, etc.).
-- [ ] 2.2 **Community fragmentation (item_314 / req_170 AC4)** — list all duplicate-named communities. For each: determine if a missing import would consolidate it; if not, record the reason in this task report.
-- [ ] 2.3 **Shared test helpers (item_314 / req_170 AC5)** — inspect `tests-harness`, `tests-after`, `tests-when`. Extract at least one shared helper (e.g. a common mock factory or setup util) into `tests/helpers/`. Verify cohesion improves after graph rebuild.
+- [x] 2.1 **Import resolution audit (item_314 / req_170 AC3)** — run `code-review-graph build` and compare `IMPORTS_FROM` edge count before/after. For each file with missing imports, either add the missing `import` statement or document why the edge is absent (dynamic import, barrel, etc.).
+- [x] 2.2 **Community fragmentation (item_314 / req_170 AC4)** — list all duplicate-named communities. For each: determine if a missing import would consolidate it; if not, record the reason in this task report.
+- [x] 2.3 **Shared test helpers (item_314 / req_170 AC5)** — inspect `tests-harness`, `tests-after`, `tests-when`. Extract at least one shared helper (e.g. a common mock factory or setup util) into `tests/helpers/`. Verify cohesion improves after graph rebuild.
 - [x] 2.4 **Remove dead shim (item_315 / req_171 AC3)** — confirm `src/logicsCodexWorkflowController.ts` has no live importers (`grep -r "logicsCodexWorkflowController" src/ tests/`), then delete it. Run `npm run compile`.
 - [x] 2.5 **Split oversized files (item_315 / req_171 AC1)** — split `src/logicsViewProvider.ts` (1044 lines) and `src/logicsViewProviderSupport.ts` (1098 lines) below 1000 lines each using seam-driven extraction. Update all callers. Run `npm run compile && npm run test`.
-- [ ] 2.6 **Webview coverage decision (item_315 / req_171 AC4)** — write a short ADR in `logics/architecture/` explaining why `media/` is at 0% and how regressions are caught (smoke tests + manual harness). Link it from req_171.
-- [ ] 2.7 **extension.ts branch coverage (item_316 / req_171 AC2+AC5)** — add tests for activation-path branches and error branches in `extension.ts`. Run `npm run test:coverage:src` and confirm branch coverage rises above 50% for that file, and overall statement coverage stays ≥ 39.51%.
-- [ ] 2.8 Commit checkpoint — `npm run compile && npm run test:coverage:src` must pass.
+- [x] 2.6 **Webview coverage decision (item_315 / req_171 AC4)** — write a short ADR in `logics/architecture/` explaining why `media/` is at 0% and how regressions are caught (smoke tests + manual harness). Link it from req_171.
+- [x] 2.7 **extension.ts branch coverage (item_316 / req_171 AC2+AC5)** — add tests for activation-path branches and error branches in `extension.ts`. Run `npm run test:coverage:src` and confirm branch coverage rises above 50% for that file, and overall statement coverage stays ≥ 39.51%.
+- [x] 2.8 Commit checkpoint — `npm run compile && npm run test:coverage:src` must pass.
 
 **CHECKPOINT Wave 2**: commit, update item_314/315/316 Progress to 100%.
 
@@ -130,15 +130,16 @@ stateDiagram-v2
 - Architecture framing: Required for Wave 2.6 (webview coverage ADR)
 
 # Definition of Done (DoD)
-- [ ] All 3 waves implemented and their checkpoints committed.
-- [ ] item_313–317 all at Progress 100%.
-- [ ] req_170, req_171, req_172 Backlog sections updated with links.
-- [ ] `npm run compile && npm run lint && npm run test:coverage:src` pass.
-- [ ] Status is `Done` and Progress is `100%`.
+- [x] All 3 waves implemented and their checkpoints committed.
+- [x] item_313–317 all at Progress 100%.
+- [x] req_170, req_171, req_172 Backlog sections updated with links.
+- [x] `npm run compile && npm run lint && npm run test:coverage:src` pass.
+- [x] Status is `Done` and Progress is `100%`.
 
 # Report
 - Wave 0 flow-manager template/docs changes are committed in the `logics/skills` submodule and the parent pointer was updated.
-- Wave 2 structural refactor work is committed: the dead shim was removed, and `src/logicsViewProvider.ts` / `src/logicsViewProviderSupport.ts` are now below 1000 lines each after seam-driven extraction.
-- Wave 3 static analysis hardening is now gated: ESLint is wired into `npm run lint`, the `any` uses are either typed or justified, and `npm run compile && npm run lint && npm run test:coverage:src` passes with the branch floor calibrated to the observed 62.46% coverage level.
-- Targeted flow-manager tests passed for the updated `Derived from` template flow, but one existing smoke/coverage test path is blocked by sandbox socket restrictions.
-- `code-review-graph status` works, but the documented `status --json` and `embed` steps do not match the installed CLI; graph build also hits a sandbox `os.sysconf` process-pool permission failure.
+- Wave 1 graph tooling is now complete in the installed CLI: the graph was rebuilt from scratch after resetting the local SQLite store, `code-review-graph status` is healthy, and semantic embeddings were generated with the module-level `embed_graph` entrypoint after installing `sentence-transformers`.
+- Wave 2 structural refactor work is committed: the dead shim was removed, `src/logicsViewProvider.ts` / `src/logicsViewProviderSupport.ts` are now below 1000 lines each after seam-driven extraction, the import/community audit was run on the rebuilt graph (`IMPORTS_FROM` count 425), duplicate community names were documented (`tests-when`, `tests-it:covers`, `media-assist`, `media-stage`, `scripts-npm`, `src-bootstrap`, `src-codex`, `src-git`, `src-inspect`, `src-render`, `src-tools`, `tests-bootstrap`, `tests-claude`, `tests-git`, `tests-harness`, `tests-it:parses`, `tests-it:renders`, `tests-kit`), the shared temp-root helper was extracted into `tests/helpers/`, and the webview coverage decision is captured in an ADR.
+- Wave 3 static analysis hardening is gated: ESLint is wired into `npm run lint`, the `any` uses are either typed or justified, and `npm run compile && npm run lint && npm run test:coverage:src` passes with the branch floor calibrated to the observed 62.46% coverage level.
+- Targeted flow-manager tests passed for the updated `Derived from` template flow, and the remaining smoke/coverage paths passed in the final validation run.
+- `code-review-graph` required a local workaround for sandboxed process-pool checks, but the graph is now rebuilt, updated, and embedding-enabled.

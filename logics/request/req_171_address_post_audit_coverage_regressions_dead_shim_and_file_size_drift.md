@@ -87,7 +87,7 @@ flowchart TD
 
 # Companion docs
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `logics/architecture/adr_021_keep_media_coverage_at_zero_and_rely_on_smoke_tests_for_webview_regressions.md`
 
 # AI Context
 - Summary: Four post-audit regressions — file size drift past req_131 threshold, branch coverage gaps in critical files, dead shim in src/, and no webview test compensatory strategy.

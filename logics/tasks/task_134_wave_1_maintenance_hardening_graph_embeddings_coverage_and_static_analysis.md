@@ -1,10 +1,10 @@
 ## task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis - wave 1 maintenance hardening graph embeddings coverage and static analysis
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -37,12 +37,12 @@ stateDiagram-v2
 ## Wave 0 — Flow manager template and docs fix (item_323, item_324)
 *Scope: req_177 AC1–AC6. Changes only in `logics/skills/` submodule — zero risk to extension code.*
 
-- [ ] 0.1 **Fix task template (item_323 / req_177 AC1)** — in `logics/skills/logics-flow-manager/assets/templates/task.md`, replace `- Backlog item: {{BACKLOG_LINK_PLACEHOLDER}}` with `- Derived from {{BACKLOG_LINK_PLACEHOLDER}}`.
-- [ ] 0.2 **Fix generator placeholder (item_323 / req_177 AC2)** — in `logics_flow_support_workflow_core.py`, update the backlog link placeholder default for `flow new task` to read `(add: Derived from \`logics/backlog/item_XXX_...\`)`.
+- [x] 0.1 **Fix task template (item_323 / req_177 AC1)** — in `logics/skills/logics-flow-manager/assets/templates/task.md`, replace `- Backlog item: {{BACKLOG_LINK_PLACEHOLDER}}` with `- Derived from {{BACKLOG_LINK_PLACEHOLDER}}`.
+- [x] 0.2 **Fix generator placeholder (item_323 / req_177 AC2)** — in `logics_flow_support_workflow_core.py`, update the backlog link placeholder default for `flow new task` to read `(add: Derived from \`logics/backlog/item_XXX_...\`)`.
 - [ ] 0.3 **Run existing tests (req_177 AC6)** — `python3 logics/skills/tests/run_cli_smoke_checks.py` and `python3 logics/skills/tests/run_test_coverage.py` must pass. Fix any test that asserts the old `Backlog item:` label.
-- [ ] 0.4 **Document N:1 pattern in SKILL.md (item_324 / req_177 AC3)** — add a section in `logics/skills/logics-flow-manager/SKILL.md` documenting that orchestration tasks covering multiple backlog items must add one `- Derived from \`...\`` line per item in `# Links`.
-- [ ] 0.5 **Add hint in backlog template (item_324 / req_177 AC4)** — in `logics/skills/logics-flow-manager/assets/templates/backlog.md`, add a `<!-- When creating a task from this item, add: Derived from \`this file path\` in the task # Links section -->` comment in `# Links`.
-- [ ] 0.6 Commit in submodule, then update the submodule pointer in the parent repo. Commit checkpoint.
+- [x] 0.4 **Document N:1 pattern in SKILL.md (item_324 / req_177 AC3)** — add a section in `logics/skills/logics-flow-manager/SKILL.md` documenting that orchestration tasks covering multiple backlog items must add one `- Derived from \`...\`` line per item in `# Links`.
+- [x] 0.5 **Add hint in backlog template (item_324 / req_177 AC4)** — in `logics/skills/logics-flow-manager/assets/templates/backlog.md`, add a `<!-- When creating a task from this item, add: Derived from \`this file path\` in the task # Links section -->` comment in `# Links`.
+- [x] 0.6 Commit in submodule, then update the submodule pointer in the parent repo. Commit checkpoint.
 
 **CHECKPOINT Wave 0**: submodule commit + parent pointer commit, update item_323/324 Progress to 100%.
 
@@ -137,3 +137,6 @@ stateDiagram-v2
 - [ ] Status is `Done` and Progress is `100%`.
 
 # Report
+- Wave 0 flow-manager template/docs changes are committed in the `logics/skills` submodule and the parent pointer was updated.
+- Targeted flow-manager tests passed for the updated `Derived from` template flow, but one existing smoke/coverage test path is blocked by sandbox socket restrictions.
+- `code-review-graph status` works, but the documented `status --json` and `embed` steps do not match the installed CLI; graph build also hits a sandbox `os.sysconf` process-pool permission failure.

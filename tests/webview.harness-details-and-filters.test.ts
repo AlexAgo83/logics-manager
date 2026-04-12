@@ -672,12 +672,10 @@ describe("webview harness filters, details, and docs", () => {
     );
     expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
-    expect(document.querySelector('.column[data-stage="product"] .card__meta')?.textContent).toContain(
-      "product brief • prod_000_plugin_ux"
-    );
     expect(document.querySelector('.column[data-stage="product"] .card__meta--linkage')?.textContent).toContain(
       "For request • req_000_kickoff"
     );
+    expect(document.querySelector('.column[data-stage="product"] .card__meta:not(.card__meta--linkage)')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"] .card__meta--linkage')?.textContent).toContain(
       "Unlinked to primary flow"
     );

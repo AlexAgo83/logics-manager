@@ -204,6 +204,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
+  private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
+    await viewProviderSupport.injectAgentPromptIntoCodexChat.call(this, agent);
+  }
+
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
 
@@ -558,7 +562,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     await viewProviderSupport.setActiveAgent.call(this, pick.agent.id);
-    await viewProviderSupport.injectAgentPromptIntoCodexChat.call(this, pick.agent);
+    await this.injectAgentPromptIntoCodexChat(pick.agent);
     void vscode.window.showInformationMessage(`Active Logics agent: ${pick.agent.displayName} (${pick.agent.id})`);
     await this.refresh();
   }

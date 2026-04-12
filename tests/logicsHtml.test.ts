@@ -262,13 +262,113 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Closed this week");
     expect(html).toContain("Closed this month");
     expect(html).toContain("Delivery timeline");
+    expect(html).toContain("Week");
+    expect(html).toContain("Day");
     expect(html).toContain("Apr 6");
     expect(html).toContain("Done, Archived, Obsolete");
     expect(html).toContain("Distribution snapshots");
+    expect(html).toContain("Status distribution");
+    expect(html).toContain("Theme distribution");
+    expect(html).toContain("Understanding distribution");
+    expect(html).toContain("Confidence distribution");
+    expect(html).toContain("Requests without backlog");
+    expect(html).toContain("Stale open items");
     expect(html).toContain("Getting Started");
     expect(html).toContain("data-action=\"open-onboarding\"");
     expect(html).toContain("data-action=\"about\"");
     expect(html).toContain("<svg viewBox=\"0 0 120 120\"");
+  });
+
+  it("renders the expanded insights sections and timeline period toggles", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-08T12:00:00Z"));
+    const html = buildLogicsCorpusInsightsHtml({
+      webview: createWebview() as never,
+      root: "/workspace/project",
+      items: [
+        {
+          id: "req_010_stale_navigation",
+          title: "Stale navigation request",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_010_stale_navigation.md",
+          relPath: "logics/request/req_010_stale_navigation.md",
+          filename: "req_010_stale_navigation.md",
+          updatedAt: "2026-02-01T10:00:00Z",
+          indicators: { Status: "Draft", Theme: "Navigation", Understanding: "95%", Confidence: "88%" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 48,
+          charCount: 1200,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        },
+        {
+          id: "req_011_open_request",
+          title: "Open request without backlog",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_011_open_request.md",
+          relPath: "logics/request/req_011_open_request.md",
+          filename: "req_011_open_request.md",
+          updatedAt: "2026-04-06T10:00:00Z",
+          indicators: { Status: "Ready", Theme: "Navigation", Understanding: "68%", Confidence: "62%" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 44,
+          charCount: 1100,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        },
+        {
+          id: "item_010_blocked",
+          title: "Blocked backlog item",
+          stage: "backlog",
+          path: "/workspace/project/logics/backlog/item_010_blocked.md",
+          relPath: "logics/backlog/item_010_blocked.md",
+          filename: "item_010_blocked.md",
+          updatedAt: "2026-02-15T10:00:00Z",
+          indicators: { Status: "Blocked", Progress: "45%" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 62,
+          charCount: 1500,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        },
+        {
+          id: "task_010_in_progress",
+          title: "In progress task",
+          stage: "task",
+          path: "/workspace/project/logics/tasks/task_010_in_progress.md",
+          relPath: "logics/tasks/task_010_in_progress.md",
+          filename: "task_010_in_progress.md",
+          updatedAt: "2026-02-14T10:00:00Z",
+          indicators: { Status: "In progress", Progress: "32%" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 90,
+          charCount: 1700,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+
+    expect(html).toContain("data-timeline-period=\"week\"");
+    expect(html).toContain("data-timeline-period=\"day\"");
+    expect(html).toContain("WIP");
+    expect(html).toContain("Blocked");
+    expect(html).toContain("Open request without backlog");
+    expect(html).toContain("Stale navigation request");
+    expect(html).toContain("No closed items in the last 30 days.");
+    expect(html).toContain("Status distribution");
+    expect(html).toContain("Theme distribution");
+    expect(html).toContain("Understanding distribution");
+    expect(html).toContain("Confidence distribution");
+    expect(html).toContain("Requests without backlog");
   });
 
   it("renders an empty logics timeline when no closed items exist in the window", () => {
@@ -300,6 +400,7 @@ describe("logics HTML builders", () => {
 
     expect(html).toContain("Delivery timeline");
     expect(html).toContain("No closed items in the last 6 weeks.");
+    expect(html).toContain("No closed items in the last 30 days.");
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

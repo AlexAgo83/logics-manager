@@ -23,6 +23,8 @@ type TimelinePoint = {
   value: number;
 };
 
+type TimelinePeriod = "day" | "week";
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -299,6 +301,18 @@ function summarizeVelocity(items: LogicsItem[], nowMs: number): { week: number; 
   return counts;
 }
 
+function normalizeStatus(value: unknown): string {
+  return asString(value, "").toLowerCase();
+}
+
+function isTerminalStatus(value: unknown): boolean {
+  return new Set(["done", "archived", "obsolete"]).has(normalizeStatus(value));
+}
+
+function isActiveStatus(value: unknown): boolean {
+  return new Set(["draft", "ready", "in progress", "blocked"]).has(normalizeStatus(value));
+}
+
 function formatTimelineLabel(timestampMs: number): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -307,18 +321,24 @@ function formatTimelineLabel(timestampMs: number): string {
   }).format(new Date(timestampMs));
 }
 
-function summarizeTimeline(items: LogicsItem[], nowMs: number, bucketCount = 6): TimelinePoint[] {
+function summarizeTimeline(
+  items: LogicsItem[],
+  nowMs: number,
+  options: { period?: TimelinePeriod; bucketCount?: number } = {}
+): TimelinePoint[] {
+  const period = options.period ?? "week";
+  const bucketCount = options.bucketCount ?? (period === "day" ? 30 : 6);
   const closedWorkflowItems = items.filter((item) => WORKFLOW_STAGES.has(item.stage) && CLOSED_STATUSES.has(asString(item.indicators.Status, "")));
-  const weekMs = 7 * 24 * 60 * 60 * 1000;
-  const currentWeekStart = getUtcIsoWeekStart(nowMs);
-  const firstBucketStart = currentWeekStart - (bucketCount - 1) * weekMs;
+  const bucketDurationMs = period === "day" ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+  const currentBucketStart = period === "day" ? Date.UTC(new Date(nowMs).getUTCFullYear(), new Date(nowMs).getUTCMonth(), new Date(nowMs).getUTCDate()) : getUtcIsoWeekStart(nowMs);
+  const firstBucketStart = currentBucketStart - (bucketCount - 1) * bucketDurationMs;
   const buckets = Array.from({ length: bucketCount }, (_, index) => {
-    const bucketStart = firstBucketStart + index * weekMs;
+    const bucketStart = firstBucketStart + index * bucketDurationMs;
     return {
       label: formatTimelineLabel(bucketStart),
       value: 0,
       startMs: bucketStart,
-      endMs: bucketStart + weekMs
+      endMs: bucketStart + bucketDurationMs
     };
   });
 
@@ -327,23 +347,17 @@ function summarizeTimeline(items: LogicsItem[], nowMs: number, bucketCount = 6):
     if (timestamp === null || timestamp > nowMs || timestamp < firstBucketStart) {
       continue;
     }
-    const index = Math.min(bucketCount - 1, Math.floor((timestamp - firstBucketStart) / weekMs));
+    const index = Math.min(bucketCount - 1, Math.floor((timestamp - firstBucketStart) / bucketDurationMs));
     buckets[index].value += 1;
   }
 
   return buckets.map(({ label, value }) => ({ label, value }));
 }
 
-function renderTimelineChart(title: string, description: string, points: TimelinePoint[]): string {
+function renderTimelineBody(points: TimelinePoint[], emptyMessage: string): string {
   const total = points.reduce((sum, point) => sum + point.value, 0);
   if (total <= 0) {
-    return `
-      <article class="logics-insights__chart-card">
-        <h3>${escapeHtml(title)}</h3>
-        <p>${escapeHtml(description)}</p>
-        <p class="logics-insights__empty">No closed items in the last 6 weeks.</p>
-      </article>
-    `;
+    return `<p class="logics-insights__empty logics-insights__timeline-empty">${escapeHtml(emptyMessage)}</p>`;
   }
   const maxValue = Math.max(...points.map((point) => point.value), 1);
   const chartWidth = 720;
@@ -357,30 +371,125 @@ function renderTimelineChart(title: string, description: string, points: Timelin
   const xCenterOffset = slotWidth / 2;
 
   return `
+    <svg viewBox="0 0 ${chartWidth} ${chartHeight}" role="img" aria-label="Delivery timeline">
+      <line x1="${chartLeft}" y1="${chartBottom}" x2="${chartWidth - chartLeft}" y2="${chartBottom}" class="logics-insights__timeline-axis"></line>
+      ${points
+        .map((point, index) => {
+          const x = chartLeft + index * slotWidth + xCenterOffset - barWidth / 2;
+          const barHeight = Math.max(4, Math.round((point.value / maxValue) * chartUsableHeight));
+          const y = chartBottom - barHeight;
+          return `
+            <g>
+              <rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth}" height="${barHeight}" rx="6" class="logics-insights__timeline-bar"></rect>
+              <text x="${(x + barWidth / 2).toFixed(2)}" y="${(y - 6).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-count">${point.value}</text>
+              <text x="${(x + barWidth / 2).toFixed(2)}" y="${(chartBottom + 16).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-label">${escapeHtml(point.label)}</text>
+            </g>
+          `;
+        })
+        .join("")}
+    </svg>
+  `;
+}
+
+function renderTimelineChart(title: string, description: string, weekPoints: TimelinePoint[], dayPoints: TimelinePoint[]): string {
+  const weekEmpty = "No closed items in the last 6 weeks.";
+  const dayEmpty = "No closed items in the last 30 days.";
+  return `
     <article class="logics-insights__chart-card">
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(description)}</p>
-      <div class="logics-insights__timeline">
-        <svg viewBox="0 0 ${chartWidth} ${chartHeight}" role="img" aria-label="${escapeHtml(title)}">
-          <line x1="${chartLeft}" y1="${chartBottom}" x2="${chartWidth - chartLeft}" y2="${chartBottom}" class="logics-insights__timeline-axis"></line>
-          ${points
-            .map((point, index) => {
-              const x = chartLeft + index * slotWidth + xCenterOffset - barWidth / 2;
-              const barHeight = Math.max(4, Math.round((point.value / maxValue) * chartUsableHeight));
-              const y = chartBottom - barHeight;
-              return `
-                <g>
-                  <rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth}" height="${barHeight}" rx="6" class="logics-insights__timeline-bar"></rect>
-                  <text x="${(x + barWidth / 2).toFixed(2)}" y="${(y - 6).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-count">${point.value}</text>
-                  <text x="${(x + barWidth / 2).toFixed(2)}" y="${(chartBottom + 16).toFixed(2)}" text-anchor="middle" class="logics-insights__timeline-label">${escapeHtml(point.label)}</text>
-                </g>
-              `;
-            })
-            .join("")}
-        </svg>
+      <div class="logics-insights__timeline-toolbar" role="tablist" aria-label="Timeline period">
+        <button class="logics-insights__button logics-insights__button--active" type="button" data-timeline-period="week" aria-pressed="true">Week</button>
+        <button class="logics-insights__button" type="button" data-timeline-period="day" aria-pressed="false">Day</button>
+      </div>
+      <div
+        class="logics-insights__timeline"
+        data-timeline-root
+        data-timeline-title="${escapeHtml(title)}"
+        data-timeline-week-empty="${escapeHtml(weekEmpty)}"
+        data-timeline-day-empty="${escapeHtml(dayEmpty)}"
+        data-timeline-week="${escapeHtml(JSON.stringify(weekPoints))}"
+        data-timeline-day="${escapeHtml(JSON.stringify(dayPoints))}"
+        data-timeline-active="week"
+      >
+        ${renderTimelineBody(weekPoints, weekEmpty)}
       </div>
     </article>
   `;
+}
+
+function summarizeStatusDistribution(items: LogicsItem[]): Array<[string, number]> {
+  const counts = countBy(items, (item) => asString(item.indicators.Status, "(missing)"));
+  return Object.entries(counts).sort((left, right) => {
+    const leftStatus = normalizeStatus(left[0]);
+    const rightStatus = normalizeStatus(right[0]);
+    const leftRank = isTerminalStatus(leftStatus) ? 1 : 0;
+    const rightRank = isTerminalStatus(rightStatus) ? 1 : 0;
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    return right[1] - left[1] || left[0].localeCompare(right[0]);
+  });
+}
+
+function summarizeThemeDistribution(items: LogicsItem[]): Array<[string, number]> {
+  return Object.entries(countBy(items, (item) => asString(item.indicators.Theme, "(none)")))
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
+}
+
+function summarizeIndicatorBuckets(items: LogicsItem[], key: "Understanding" | "Confidence"): Array<{ label: string; value: string; hint: string }> {
+  const buckets = {
+    "< 70%": 0,
+    "70-90%": 0,
+    "> 90%": 0,
+    missing: 0
+  };
+  for (const item of items) {
+    const parsed = parseProgress(item.indicators[key]);
+    if (parsed === null) {
+      buckets.missing += 1;
+      continue;
+    }
+    if (parsed < 70) {
+      buckets["< 70%"] += 1;
+    } else if (parsed <= 90) {
+      buckets["70-90%"] += 1;
+    } else {
+      buckets["> 90%"] += 1;
+    }
+  }
+  return Object.entries(buckets).map(([label, value]) => ({
+    label,
+    value: String(value),
+    hint: label === "missing" ? "Indicator not present" : `${key} bucket`
+  }));
+}
+
+function summarizeRequestsWithoutBacklog(items: LogicsItem[]): LogicsItem[] {
+  return items.filter((item) => {
+    if (item.stage !== "request") {
+      return false;
+    }
+    const status = asString(item.indicators.Status, "");
+    if (isTerminalStatus(status)) {
+      return false;
+    }
+    return !(item.usedBy || []).some((usage) => usage.stage === "backlog");
+  });
+}
+
+function summarizeStaleOpenItems(items: LogicsItem[], nowMs: number): LogicsItem[] {
+  const thresholdMs = nowMs - 30 * 24 * 60 * 60 * 1000;
+  return items.filter((item) => {
+    if (!WORKFLOW_STAGES.has(item.stage)) {
+      return false;
+    }
+    if (isTerminalStatus(item.indicators.Status)) {
+      return false;
+    }
+    const updatedAt = parseTimestamp(item.updatedAt);
+    return updatedAt !== null && updatedAt < thresholdMs;
+  });
 }
 
 function compareByConnectionStrength(left: LogicsItem, right: LogicsItem): number {
@@ -419,7 +528,17 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const totalChars = items.reduce((sum, item) => sum + item.charCount, 0);
   const averageLines = items.length > 0 ? totalLines / items.length : 0;
   const velocityCounts = summarizeVelocity(items, Date.now());
-  const timelinePoints = summarizeTimeline(items, Date.now());
+  const nowMs = Date.now();
+  const weekTimelinePoints = summarizeTimeline(items, nowMs, { period: "week", bucketCount: 6 });
+  const dayTimelinePoints = summarizeTimeline(items, nowMs, { period: "day", bucketCount: 30 });
+  const blockedItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "Blocked");
+  const wipItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "In progress");
+  const staleItems = summarizeStaleOpenItems(workflowItems, nowMs);
+  const requestsWithoutBacklog = summarizeRequestsWithoutBacklog(items);
+  const statusDistribution = summarizeStatusDistribution(workflowItems);
+  const themeDistribution = summarizeThemeDistribution(items);
+  const understandingDistribution = summarizeIndicatorBuckets(workflowItems, "Understanding");
+  const confidenceDistribution = summarizeIndicatorBuckets(workflowItems, "Confidence");
   const linkedItems = items.filter((item) => item.references.length > 0 || item.usedBy.length > 0);
   const stagePie = buildPieSlices(
     Object.entries(stageCounts)
@@ -500,6 +619,10 @@ export function buildLogicsCorpusInsightsHtml(params: {
         }
         .logics-insights__button:hover {
           background: var(--vscode-button-secondaryHoverBackground);
+        }
+        .logics-insights__button--active {
+          background: var(--vscode-button-primaryBackground);
+          color: var(--vscode-button-primaryForeground);
         }
         .logics-insights__grid,
         .logics-insights__sections {
@@ -703,6 +826,17 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__timeline {
           overflow-x: auto;
         }
+        .logics-insights__timeline-toolbar {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 10px;
+          flex-wrap: wrap;
+        }
+        .logics-insights__timeline-body {
+          min-height: 220px;
+          display: grid;
+          align-items: center;
+        }
         .logics-insights__timeline svg {
           min-width: 100%;
           display: block;
@@ -722,6 +856,9 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__timeline-label {
           fill: var(--vscode-descriptionForeground);
           font-size: 10px;
+        }
+        .logics-insights__stale-card {
+          margin-top: 12px;
         }
         @media (max-width: 920px) {
           .logics-insights__header {
@@ -763,13 +900,20 @@ export function buildLogicsCorpusInsightsHtml(params: {
             <div class="logics-insights__section-grid">
               ${renderStatCard("Closed this week", String(velocityCounts.week), "Done, Archived, Obsolete", velocityCounts.week > 0 ? "good" : "warn")}
               ${renderStatCard("Closed this month", String(velocityCounts.month), "Done, Archived, Obsolete", velocityCounts.month > 0 ? "good" : "warn")}
+              ${renderStatCard("WIP", String(wipItems.length), "Items with Status = In progress", wipItems.length > 5 ? "warn" : "neutral")}
+              ${renderStatCard("Blocked", String(blockedItems.length), "Items with Status = Blocked", blockedItems.length > 0 ? "bad" : "good")}
             </div>
+            ${blockedItems.length > 0 ? renderList(blockedItems.slice(0, 10).map((item) => ({
+              label: item.title,
+              value: item.id,
+              hint: `${item.stage} • ${asString(item.indicators.Status, "Blocked")}`
+            })), "No blocked items.") : ""}
           </div>
 
           <div class="logics-insights__section">
             <h2>Delivery timeline</h2>
             <p>Closed workflow items bucketed by week across the last 6 weeks.</p>
-            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week across the last 6 weeks.", timelinePoints)}
+            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week or day across the last 30 days.", weekTimelinePoints, dayTimelinePoints)}
           </div>
 
           <div class="logics-insights__section">
@@ -795,6 +939,76 @@ export function buildLogicsCorpusInsightsHtml(params: {
                 totalLabel: "docs"
               })}
             </div>
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Status distribution</h2>
+            <p>Workflow items grouped by their current Status, with active items first.</p>
+            <div class="logics-insights__section-grid">
+              ${renderList(
+                statusDistribution.map(([status, count]) => ({
+                  label: status,
+                  value: String(count),
+                  hint: items.length > 0 ? formatPercent(count / workflowItems.length) : "0%"
+                })),
+                "No status data available."
+              )}
+            </div>
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Theme distribution</h2>
+            <p>All docs grouped by Theme, with missing values collected together.</p>
+            ${renderList(
+              themeDistribution.map(([theme, count]) => ({
+                label: theme,
+                value: String(count),
+                hint: items.length > 0 ? formatPercent(count / items.length) : "0%"
+              })),
+              "No theme data available."
+            )}
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Understanding distribution</h2>
+            <p>Workflow items bucketed by Understanding percentage.</p>
+            ${renderList(understandingDistribution, "No Understanding data available.")}
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Confidence distribution</h2>
+            <p>Workflow items bucketed by Confidence percentage.</p>
+            ${renderList(confidenceDistribution, "No Confidence data available.")}
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Requests without backlog</h2>
+            <p>Open requests that do not currently link to any backlog child.</p>
+            ${renderList(
+              requestsWithoutBacklog.map((item) => ({
+                label: item.title,
+                value: item.id,
+                hint: `${item.stage} • ${asString(item.indicators.Status, "open")}`
+              })),
+              "No open requests without backlog links."
+            )}
+          </div>
+
+          <div class="logics-insights__section">
+            <h2>Stale open items</h2>
+            <p>Workflow items that are still open and have not been updated in 30 days.</p>
+            ${renderList(
+              staleItems.slice(0, 10).map((item) => {
+                const updatedAt = parseTimestamp(item.updatedAt) ?? nowMs;
+                const daysOld = Math.max(1, Math.floor((nowMs - updatedAt) / (24 * 60 * 60 * 1000)));
+                return {
+                  label: item.title,
+                  value: `${daysOld}d`,
+                  hint: `${item.stage} • ${asString(item.indicators.Status, "open")}`
+                };
+              }),
+              "No stale open items found."
+            )}
           </div>
 
           <div class="logics-insights__section">
@@ -892,6 +1106,67 @@ export function buildLogicsCorpusInsightsHtml(params: {
       </main>
       <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
+        const timelineData = {
+          week: ${JSON.stringify(weekTimelinePoints)},
+          day: ${JSON.stringify(dayTimelinePoints)}
+        };
+
+        function renderTimelineBody(points, emptyMessage) {
+          const total = points.reduce((sum, point) => sum + point.value, 0);
+          if (total <= 0) {
+            return '<p class="logics-insights__empty logics-insights__timeline-empty">' + emptyMessage + '</p>';
+          }
+          const maxValue = Math.max(...points.map((point) => point.value), 1);
+          const chartWidth = 720;
+          const chartHeight = 200;
+          const chartLeft = 36;
+          const chartTop = 24;
+          const chartBottom = 150;
+          const chartUsableHeight = chartBottom - chartTop;
+          const slotWidth = (chartWidth - chartLeft * 2) / points.length;
+          const barWidth = Math.max(16, Math.min(38, slotWidth - 12));
+          const xCenterOffset = slotWidth / 2;
+          return [
+            '<svg viewBox="0 0 ' + chartWidth + ' ' + chartHeight + '" role="img" aria-label="Delivery timeline">',
+            '<line x1="' + chartLeft + '" y1="' + chartBottom + '" x2="' + (chartWidth - chartLeft) + '" y2="' + chartBottom + '" class="logics-insights__timeline-axis"></line>',
+            points
+              .map((point, index) => {
+                const x = chartLeft + index * slotWidth + xCenterOffset - barWidth / 2;
+                const barHeight = Math.max(4, Math.round((point.value / maxValue) * chartUsableHeight));
+                const y = chartBottom - barHeight;
+                return [
+                  '<g>',
+                  '<rect x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + barWidth + '" height="' + barHeight + '" rx="6" class="logics-insights__timeline-bar"></rect>',
+                  '<text x="' + (x + barWidth / 2).toFixed(2) + '" y="' + (y - 6).toFixed(2) + '" text-anchor="middle" class="logics-insights__timeline-count">' + point.value + '</text>',
+                  '<text x="' + (x + barWidth / 2).toFixed(2) + '" y="' + (chartBottom + 16).toFixed(2) + '" text-anchor="middle" class="logics-insights__timeline-label">' + point.label + '</text>',
+                  '</g>'
+                ].join("");
+              })
+              .join(""),
+            '</svg>'
+          ].join("");
+        }
+
+        function renderTimeline(period) {
+          const root = document.querySelector("[data-timeline-root]");
+          if (!root) {
+            return;
+          }
+          const activePeriod = period === "day" ? "day" : "week";
+          const points = timelineData[activePeriod] || [];
+          const emptyMessage =
+            activePeriod === "day"
+              ? root.getAttribute("data-timeline-day-empty") || "No closed items in the last 30 days."
+              : root.getAttribute("data-timeline-week-empty") || "No closed items in the last 6 weeks.";
+          root.innerHTML = renderTimelineBody(points, emptyMessage);
+          root.setAttribute("data-timeline-active", activePeriod);
+          document.querySelectorAll("[data-timeline-period]").forEach((button) => {
+            const isActive = button.getAttribute("data-timeline-period") === activePeriod;
+            button.classList.toggle("logics-insights__button--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+          });
+        }
+
         document.querySelector('[data-action="refresh-report"]')?.addEventListener('click', () => {
           vscode.postMessage({ type: 'refresh-report' });
         });
@@ -903,6 +1178,13 @@ export function buildLogicsCorpusInsightsHtml(params: {
             }
           });
         });
+        document.querySelectorAll("[data-timeline-period]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const period = button.getAttribute("data-timeline-period") || "week";
+            renderTimeline(period);
+          });
+        });
+        renderTimeline("week");
       </script>
     </body>
   </html>`;

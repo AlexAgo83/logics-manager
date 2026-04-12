@@ -1,7 +1,7 @@
 ## item_294_reorganise_flow_manager_scripts_by_functional_domain - Reorganise flow-manager scripts by functional domain
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 80%
 > Progress: 100%
@@ -70,3 +70,8 @@ flowchart TD
 
 # Notes
 - Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.
+
+# Report
+- The flow-manager `scripts/` tree already exposes the requested domain sub-directories: `workflow/`, `hybrid/`, `transport/`, and `audit/`.
+- The root-level entrypoints are thin shims that redirect execution into the domain folders, so the command surface stays stable while the structure is now domain-oriented.
+- No script logic was changed for this backlog slice.

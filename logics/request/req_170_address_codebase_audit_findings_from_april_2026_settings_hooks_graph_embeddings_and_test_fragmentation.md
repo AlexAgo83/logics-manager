@@ -1,9 +1,9 @@
 ## req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation - address codebase audit findings from april 2026 settings hooks graph embeddings and test fragmentation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
+> Status: In progress
+> Understanding: 96%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -58,7 +58,7 @@ flowchart TD
 - [x] Problem statement is explicit and user impact is clear.
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Dependencies and known risks are listed.
 
 # Known risks
 

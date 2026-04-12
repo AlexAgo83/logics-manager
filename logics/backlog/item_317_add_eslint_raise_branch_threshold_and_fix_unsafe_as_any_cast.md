@@ -1,10 +1,10 @@
 ## item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast - add eslint raise branch threshold and fix unsafe as-any cast
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Status: In progress
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,6 +32,10 @@ flowchart TD
 
 # AC Traceability
 - AC1 -> Scope: Deliver the bounded slice for add eslint raise branch threshold and fix unsafe as-any cast. Proof: capture validation evidence in this doc.
+- AC2 -> Scope: No separate slice beyond the ESLint and branch-threshold hardening work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC3 -> Scope: No separate slice beyond the ESLint and branch-threshold hardening work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC4 -> Scope: No separate slice beyond the ESLint and branch-threshold hardening work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC5 -> Scope: No separate slice beyond the ESLint and branch-threshold hardening work. Proof: the linked request and task keep the scope bounded and traceable.
 
 # Decision framing
 - Product framing: Not needed

@@ -17,7 +17,7 @@ const coverageThresholds =
       lines: 68,
       statements: 68,
       functions: 73,
-      branches: 61
+      branches: 63
       }
     : undefined;
 

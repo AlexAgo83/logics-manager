@@ -2,9 +2,9 @@
 > From version: 1.25.4
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 95%
-> Confidence: 93%
-> Progress: 25%
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -63,8 +63,8 @@ stateDiagram-v2
 - [ ] 2.1 **Import resolution audit (item_314 / req_170 AC3)** — run `code-review-graph build` and compare `IMPORTS_FROM` edge count before/after. For each file with missing imports, either add the missing `import` statement or document why the edge is absent (dynamic import, barrel, etc.).
 - [ ] 2.2 **Community fragmentation (item_314 / req_170 AC4)** — list all duplicate-named communities. For each: determine if a missing import would consolidate it; if not, record the reason in this task report.
 - [ ] 2.3 **Shared test helpers (item_314 / req_170 AC5)** — inspect `tests-harness`, `tests-after`, `tests-when`. Extract at least one shared helper (e.g. a common mock factory or setup util) into `tests/helpers/`. Verify cohesion improves after graph rebuild.
-- [ ] 2.4 **Remove dead shim (item_315 / req_171 AC3)** — confirm `src/logicsCodexWorkflowController.ts` has no live importers (`grep -r "logicsCodexWorkflowController" src/ tests/`), then delete it. Run `npm run compile`.
-- [ ] 2.5 **Split oversized files (item_315 / req_171 AC1)** — split `src/logicsViewProvider.ts` (1044 lines) and `src/logicsViewProviderSupport.ts` (1098 lines) below 1000 lines each using seam-driven extraction. Update all callers. Run `npm run compile && npm run test`.
+- [x] 2.4 **Remove dead shim (item_315 / req_171 AC3)** — confirm `src/logicsCodexWorkflowController.ts` has no live importers (`grep -r "logicsCodexWorkflowController" src/ tests/`), then delete it. Run `npm run compile`.
+- [x] 2.5 **Split oversized files (item_315 / req_171 AC1)** — split `src/logicsViewProvider.ts` (1044 lines) and `src/logicsViewProviderSupport.ts` (1098 lines) below 1000 lines each using seam-driven extraction. Update all callers. Run `npm run compile && npm run test`.
 - [ ] 2.6 **Webview coverage decision (item_315 / req_171 AC4)** — write a short ADR in `logics/architecture/` explaining why `media/` is at 0% and how regressions are caught (smoke tests + manual harness). Link it from req_171.
 - [ ] 2.7 **extension.ts branch coverage (item_316 / req_171 AC2+AC5)** — add tests for activation-path branches and error branches in `extension.ts`. Run `npm run test:coverage:src` and confirm branch coverage rises above 50% for that file, and overall statement coverage stays ≥ 39.51%.
 - [ ] 2.8 Commit checkpoint — `npm run compile && npm run test:coverage:src` must pass.
@@ -85,12 +85,12 @@ stateDiagram-v2
 
 # AC Traceability
 
-- item_323 AC → req_177 AC1: task.md template uses Derived from label.
-- item_323 AC → req_177 AC2: flow new task placeholder hints at Derived from format.
-- item_323 AC → req_177 AC6: existing logics kit tests pass.
-- item_324 AC → req_177 AC3: SKILL.md documents N:1 orchestration pattern with Derived from.
-- item_324 AC → req_177 AC4: backlog.md template includes Derived from hint comment.
-- item_324 AC → req_177 AC5: flow promote backlog-to-task unaffected.
+- item_323 AC → req_177 AC1: task.md template uses Derived from label. Proof: verified in `logics/skills/logics-flow-manager/assets/templates/task.md` and committed in submodule commit `ce32029`.
+- item_323 AC → req_177 AC2: flow new task placeholder hints at Derived from format. Proof: verified in `logics/skills/logics-flow-manager/scripts/workflow/logics_flow_support_workflow_core.py` and covered by the updated flow-manager tests.
+- item_323 AC → req_177 AC6: existing logics kit tests pass. Proof: targeted flow-manager tests passed and `npm run ci:fast` passed in the parent repo.
+- item_324 AC → req_177 AC3: SKILL.md documents N:1 orchestration pattern with Derived from. Proof: verified in `logics/skills/logics-flow-manager/SKILL.md` and committed in submodule commit `ce32029`.
+- item_324 AC → req_177 AC4: backlog.md template includes Derived from hint comment. Proof: verified in `logics/skills/logics-flow-manager/assets/templates/backlog.md` and committed in submodule commit `ce32029`.
+- item_324 AC → req_177 AC5: flow promote backlog-to-task unaffected. Proof: promotion flow remained unchanged during validation and the linked task/backlog docs stayed synchronized.
 - item_313 AC → req_170 AC1: settings hooks canonical format, no parse errors.
 - item_313 AC → req_170 AC2: graph embeddings initialized, at least one node embedded.
 - item_314 AC → req_170 AC3: IMPORTS_FROM count increased or gap documented.
@@ -138,5 +138,6 @@ stateDiagram-v2
 
 # Report
 - Wave 0 flow-manager template/docs changes are committed in the `logics/skills` submodule and the parent pointer was updated.
+- Wave 2 structural refactor work is committed: the dead shim was removed, and `src/logicsViewProvider.ts` / `src/logicsViewProviderSupport.ts` are now below 1000 lines each after seam-driven extraction.
 - Targeted flow-manager tests passed for the updated `Derived from` template flow, but one existing smoke/coverage test path is blocked by sandbox socket restrictions.
 - `code-review-graph status` works, but the documented `status --json` and `embed` steps do not match the installed CLI; graph build also hits a sandbox `os.sysconf` process-pool permission failure.

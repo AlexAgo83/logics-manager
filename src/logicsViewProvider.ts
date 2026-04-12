@@ -26,7 +26,7 @@ import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime"
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import { LogicsHybridAssistController } from "./logicsHybridAssistController";
 import { LogicsCorpusInsightsController } from "./logicsCorpusInsightsController";
-import { LogicsCodexWorkflowController } from "./logicsCodexWorkflowController";
+import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "./logicsCodexWorkflowOperations";
 import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
@@ -41,6 +41,7 @@ import {
   ROOT_OVERRIDE_STATE_KEY
 } from "./logicsViewProviderConstants";
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
+import { installLogicsViewProviderBindings } from "./logicsViewProviderBindings";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
@@ -127,81 +128,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       injectPromptIntoCodexChat: (prompt, options) => viewProviderSupport.injectPromptIntoCodexChat.call(this, prompt, options),
       getReadPreviewPanel: () => viewProviderSupport.getReadPreviewPanel.call(this)
     });
-
-    Object.assign(this, {
-      assessDiffRiskFromTools: () => viewProviderSupport.assessDiffRiskFromTools.call(this),
-      buildLogicsYamlBlocksQuickPickItem: (root: string) =>
-        viewProviderSupport.buildLogicsYamlBlocksQuickPickItem.call(this, root),
-      buildValidationChecklistFromTools: () => viewProviderSupport.buildValidationChecklistFromTools.call(this),
-      buildMissingEnvLocalQuickPickItem: (root: string) =>
-        viewProviderSupport.buildMissingEnvLocalQuickPickItem.call(this, root),
-      canResetProjectRoot: () => viewProviderSupport.canResetProjectRoot.call(this),
-      checkHybridRuntimeFromTools: () => viewProviderSupport.checkHybridRuntimeFromTools.call(this),
-      clearAgentRegistry: () => viewProviderSupport.clearAgentRegistry.call(this),
-      clearStartupKitUpdatePromptState: (root: string) =>
-        viewProviderSupport.clearStartupKitUpdatePromptState.call(this, root),
-      commitAllChangesFromTools: () => viewProviderSupport.commitAllChangesFromTools.call(this),
-      bootstrapLogics: (root: string) => viewProviderSupport.bootstrapLogics.call(this, root),
-      changeItemStatus: (id: string) => viewProviderSupport.changeItemStatus.call(this, id),
-      getActionRoot: () => viewProviderSupport.getActionRoot.call(this),
-      getActiveAgentPayload: () => viewProviderSupport.getActiveAgentPayload.call(this),
-      getRepositoryEnvFiles: (root: string) => viewProviderSupport.getRepositoryEnvFiles.call(this, root),
-      getStartupKitUpdatePromptStateKey: (root: string) =>
-        viewProviderSupport.getStartupKitUpdatePromptStateKey.call(this, root),
-      getValidStatusesForItem: (item: LogicsItem) => viewProviderSupport.getValidStatusesForItem.call(this, item),
-      inspectKitUpdateNeed: (root: string) => inspectKitUpdateNeed(root),
-      injectPromptIntoCodexChat: (prompt: string, options?: { preferNewThread?: boolean }) =>
-        viewProviderSupport.injectPromptIntoCodexChat.call(this, prompt, options),
-      injectAgentPromptIntoCodexChat: (agent: AgentDefinition) =>
-        viewProviderSupport.injectAgentPromptIntoCodexChat.call(this, agent),
-      maybeOfferBootstrap: (root: string) => viewProviderSupport.maybeOfferBootstrap.call(this, root),
-      maybeOfferCodexStartupRemediation: (root: string) =>
-        viewProviderSupport.maybeOfferCodexStartupRemediation.call(this, root),
-      maybeOfferStartupKitUpdate: (root: string, bootstrapState: any) =>
-        viewProviderSupport.maybeOfferStartupKitUpdate.call(this, root, bootstrapState),
-      maybeShowOnboarding: (root: string) => viewProviderSupport.maybeShowOnboarding.call(this, root),
-      maybeShowCodexOverlayHandoff: (root: string, trigger: string) =>
-        viewProviderSupport.maybeShowCodexOverlayHandoff.call(this, root, trigger),
-      notifyInvalidRootOverride: (invalidOverridePath: string | undefined, hasValidRoot: boolean) =>
-        viewProviderSupport.notifyInvalidRootOverride.call(this, invalidOverridePath, hasValidRoot),
-      openOnboardingPanel: () => viewProviderSupport.openOnboardingPanel.call(this),
-      openHybridInsightsFromTools: () => viewProviderSupport.openHybridInsightsFromTools.call(this),
-      openLogicsInsightsFromTools: () => viewProviderSupport.openLogicsInsightsFromTools.call(this),
-      notifyBootstrapCompletion: (
-        root: string,
-        globalKitOutcome?: {
-          attempted: boolean;
-          published: boolean;
-          failed: boolean;
-          failureMessage?: string;
-        }
-      ) => viewProviderSupport.notifyBootstrapCompletion.call(this, root, globalKitOutcome),
-      postData: (payload: Parameters<typeof viewProviderSupport.postData>[0]) =>
-        viewProviderSupport.postData.call(this, payload),
-      prepareReleaseFromTools: () => viewProviderSupport.prepareReleaseFromTools.call(this),
-      publishReleaseFromTools: () => viewProviderSupport.publishReleaseFromTools.call(this),
-      refreshAgents: (mode: "silent" | "notify", root: string) =>
-        viewProviderSupport.refreshAgents.call(this, mode, root),
-      resolveProjectRoot: () => viewProviderSupport.resolveProjectRoot.call(this),
-      repairLogicsKitFromTools: () => viewProviderSupport.repairLogicsKitFromTools.call(this),
-      reviewDocConsistencyFromTools: () => viewProviderSupport.reviewDocConsistencyFromTools.call(this),
-      shouldRecommendCheckEnvironment: (root: string, snapshot: any, bootstrapState: any) =>
-        viewProviderSupport.shouldRecommendCheckEnvironment.call(this, root, snapshot, bootstrapState),
-      summarizeChangelogFromTools: () => viewProviderSupport.summarizeChangelogFromTools.call(this),
-      summarizeValidationFromTools: () => viewProviderSupport.summarizeValidationFromTools.call(this),
-      syncCodexOverlayFromTools: () => viewProviderSupport.syncCodexOverlayFromTools.call(this),
-      suggestNextStepFromTools: () => viewProviderSupport.suggestNextStepFromTools.call(this),
-      triageWorkflowDocFromTools: (preferredId?: string) =>
-        viewProviderSupport.triageWorkflowDocFromTools.call(this, preferredId),
-      updateLogicsKitFromTools: () => viewProviderSupport.updateLogicsKitFromTools.call(this),
-      updateItemLifecycle: (id: string, title: string, progress: string) =>
-        viewProviderSupport.updateItemLifecycle.call(this, id, title, progress),
-      writeAgentScanOutput: (
-        snapshot: AgentRegistrySnapshot,
-        root: string,
-        shouldShowOutput: boolean
-      ) => viewProviderSupport.writeAgentScanOutput.call(this, snapshot, root, shouldShowOutput)
-    });
+    installLogicsViewProviderBindings(this);
   }
 
   private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {

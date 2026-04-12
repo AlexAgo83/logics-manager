@@ -1,10 +1,10 @@
 ## item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision - remove dead shim split oversized ts files and document webview coverage decision
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Status: In progress
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,10 @@ flowchart TD
 
 # AC Traceability
 - AC1 -> Scope: Deliver the bounded slice for remove dead shim split oversized ts files and document webview coverage decision. Proof: capture validation evidence in this doc.
+- AC2 -> Scope: No separate slice beyond the dead shim, file split, and webview coverage decision work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC3 -> Scope: No separate slice beyond the dead shim, file split, and webview coverage decision work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC4 -> Scope: No separate slice beyond the dead shim, file split, and webview coverage decision work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC5 -> Scope: No separate slice beyond the dead shim, file split, and webview coverage decision work. Proof: the linked request and task keep the scope bounded and traceable.
 
 # Decision framing
 - Product framing: Not needed

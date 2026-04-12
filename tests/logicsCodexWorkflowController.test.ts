@@ -96,7 +96,7 @@ vi.mock("../src/pythonRuntime", () => ({
   isMissingPythonFailureDetail: mocks.isMissingPythonFailureDetail
 }));
 
-import { LogicsCodexWorkflowController } from "../src/logicsCodexWorkflowController";
+import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "../src/logicsCodexWorkflowOperations";
 
 describe("LogicsCodexWorkflowController", () => {
   const roots: string[] = [];

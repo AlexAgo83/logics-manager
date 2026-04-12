@@ -1,10 +1,10 @@
 ## item_319_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px - hide view mode toggle button when compact list is forced below 500px
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
+> Status: Done
+> Understanding: 96%
 > Confidence: 96%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,6 +34,10 @@ flowchart TD
 
 # AC Traceability
 - AC1 -> Scope: Deliver the bounded slice for hide view mode toggle button when compact list is forced below 500px. Proof: capture validation evidence in this doc.
+- AC2 -> Scope: No separate slice beyond the compact-mode toggle visibility fix. Proof: the linked request and task keep the scope bounded and traceable.
+- AC3 -> Scope: No separate slice beyond the compact-mode toggle visibility fix. Proof: the linked request and task keep the scope bounded and traceable.
+- AC4 -> Scope: No separate slice beyond the compact-mode toggle visibility fix. Proof: the linked request and task keep the scope bounded and traceable.
+- AC5 -> Scope: No separate slice beyond the compact-mode toggle visibility fix. Proof: the linked request and task keep the scope bounded and traceable.
 
 # Decision framing
 - Product framing: Not needed
@@ -59,3 +63,4 @@ flowchart TD
 - Urgency:
 
 # Notes
+- Task `task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation` was finished via `logics_flow.py finish task` on 2026-04-12.

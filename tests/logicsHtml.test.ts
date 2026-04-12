@@ -264,6 +264,7 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Closed this month");
     expect(html).toContain("Corpus explorer");
     expect(html).toContain("Relationship map");
+    expect(html).toContain("compact family tiles");
     expect(html).toContain("Delivery timeline");
     expect(html).toContain("data-explorer-view=\"map\"");
     expect(html).toContain("data-explorer-view=\"timeline\"");

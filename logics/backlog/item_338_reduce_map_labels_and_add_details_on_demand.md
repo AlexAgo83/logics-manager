@@ -1,10 +1,10 @@
 ## item_338_reduce_map_labels_and_add_details_on_demand - Reduce map labels and add details on demand
 > From version: 1.27.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -75,3 +75,4 @@ flowchart TD
 - Source file: `logics/request/req_187_improve_corpus_map_readability.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_187_improve_corpus_map_readability.md`.
+- Task `task_147_reduce_map_labels_and_add_details_on_demand` was finished via `logics_flow.py finish task` on 2026-04-12.

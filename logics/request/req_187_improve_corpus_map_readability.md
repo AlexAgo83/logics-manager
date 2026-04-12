@@ -1,7 +1,7 @@
 ## req_187_improve_corpus_map_readability - Improve corpus map readability
 > From version: 1.27.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

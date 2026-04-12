@@ -1,10 +1,10 @@
 ## item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons - Fix inverted active state styling for delivery timeline period buttons
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -81,3 +81,7 @@ flowchart TD
 - Source file: `logics/request/req_180_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_180_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`.
+
+# Report
+- Delivered the Delivery timeline period button contrast fix and the compact Day legend formatting.
+- Validation: `npm test -- tests/logicsHtml.test.ts`, `npm run lint:ts`.

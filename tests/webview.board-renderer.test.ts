@@ -712,6 +712,94 @@ describe("webview board renderer behavior", () => {
     );
   });
 
+  it("keeps companion, metric, and linkage badges inside a single badge strip", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...productItem,
+          id: "prod_201_companion",
+          title: "Product companion",
+          relPath: "logics/product/prod_201_companion.md",
+          path: "/workspace/mock/logics/product/prod_201_companion.md"
+        },
+        {
+          ...specItem,
+          id: "spec_201_companion",
+          title: "Spec companion",
+          relPath: "logics/specs/spec_201_companion.md",
+          path: "/workspace/mock/logics/specs/spec_201_companion.md"
+        },
+        {
+          ...baseItem,
+          id: "adr_201_companion",
+          title: "Architecture companion",
+          stage: "architecture",
+          relPath: "logics/architecture/adr_201_companion.md",
+          path: "/workspace/mock/logics/architecture/adr_201_companion.md"
+        },
+        {
+          ...baseItem,
+          id: "task_201_cover",
+          title: "Cover task",
+          stage: "task",
+          relPath: "logics/tasks/task_201_cover.md",
+          path: "/workspace/mock/logics/tasks/task_201_cover.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "req_201_compact",
+          title: "Compact badge request",
+          indicators: {
+            Status: "Draft",
+            Understanding: "92%",
+            Confidence: "88%",
+            Complexity: "High"
+          },
+          references: [
+            { kind: "product", label: "Product", path: "logics/product/prod_201_companion.md" },
+            { kind: "architecture", label: "ADR", path: "logics/architecture/adr_201_companion.md" },
+            { kind: "spec", label: "Spec", path: "logics/specs/spec_201_companion.md" }
+          ],
+          usedBy: [
+            {
+              id: "task_201_cover",
+              title: "Cover task",
+              stage: "task",
+              relPath: "logics/tasks/task_201_cover.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const card = board?.querySelector('[data-id="req_201_compact"]') as HTMLElement | null;
+    const badgeStrip = card?.querySelector(".card__badges--strip");
+    const directBadgeContainers = Array.from(card?.children || []).filter((node) =>
+      (node as HTMLElement).classList?.contains("card__badges")
+    );
+
+    expect(directBadgeContainers.length).toBe(1);
+    expect(badgeStrip).toBeTruthy();
+    expect(badgeStrip?.firstElementChild?.classList.contains("card__badges--metrics")).toBe(true);
+    expect(badgeStrip?.textContent).toContain("PROD");
+    expect(badgeStrip?.textContent).toContain("ADR");
+    expect(badgeStrip?.textContent).toContain("SPEC");
+    expect(badgeStrip?.textContent).toContain("U");
+    expect(badgeStrip?.textContent).toContain("C");
+    expect(badgeStrip?.textContent).toContain("H");
+    expect(card?.querySelector(".card__request-badge")).toBeTruthy();
+    expect(card?.querySelector(".card__task-dot-container")).toBeTruthy();
+    expect(card?.querySelector(".card__request-badge")?.closest(".card__badges--strip")).toBeFalsy();
+    expect(card?.querySelector(".card__task-dot-container")?.closest(".card__badges--strip")).toBeFalsy();
+  });
+
   it("omits request badges when the request reference cannot be resolved", () => {
     const { dom } = bootstrapWebview();
 

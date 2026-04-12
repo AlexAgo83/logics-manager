@@ -456,16 +456,20 @@ describe("webview collapsed details layout behavior", () => {
   it("keeps card badge strips on one row with horizontal overflow instead of wrapping", () => {
     const css = readCssBundle("media/main.css");
     const badgesRule = css.match(/\.card__badges\s*\{[^}]+\}/)?.[0] || "";
+    const stripRule = css.match(/\.card__badges--strip\s*\{[^}]+\}/)?.[0] || "";
     const badgeRule = css.match(/\.card__badge\s*\{[^}]+\}/)?.[0] || "";
     const badgeChildRule = css.match(/\.card__badges > \*\s*\{[^}]+\}/)?.[0] || "";
+    const linkageRule = css.match(/\.card__linkage-indicators\s*\{[^}]+\}/)?.[0] || "";
 
     expect(badgesRule.includes("flex-wrap: nowrap;")).toBe(true);
     expect(badgesRule.includes("overflow-x: auto;")).toBe(true);
     expect(badgesRule.includes("overflow-y: hidden;")).toBe(true);
     expect(badgesRule.includes("scrollbar-width: none;")).toBe(true);
     expect(badgesRule.includes("max-width: 100%;")).toBe(true);
+    expect(stripRule.includes("align-items: center;")).toBe(true);
     expect(badgeRule.includes("white-space: nowrap;")).toBe(true);
     expect(badgeChildRule.includes("flex: 0 0 auto;")).toBe(true);
+    expect(linkageRule.includes("position: absolute;")).toBe(false);
   });
 
   it("clears splitter dragging state when switching from stacked to horizontal layout", () => {

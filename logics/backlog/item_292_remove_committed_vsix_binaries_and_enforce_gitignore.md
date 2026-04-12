@@ -1,7 +1,7 @@
 ## item_292_remove_committed_vsix_binaries_and_enforce_gitignore - Remove committed .vsix binaries and enforce gitignore
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
@@ -67,3 +67,7 @@ flowchart LR
 
 # Notes
 - Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.
+
+# Report
+- `git ls-files '*.vsix'` is empty, `.gitignore` already contains `*.vsix`, and the two local `.vsix` copies were removed from the workspace.
+- No history rewrite was needed, which keeps this cleanup low risk and fully aligned with the item scope.

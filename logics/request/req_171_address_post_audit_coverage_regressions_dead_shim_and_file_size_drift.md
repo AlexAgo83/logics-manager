@@ -1,9 +1,9 @@
 ## req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift - address post audit coverage regressions dead shim and file size drift
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
+> Status: Done
+> Understanding: 97%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.

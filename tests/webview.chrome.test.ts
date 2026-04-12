@@ -71,7 +71,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(attentionToggle?.getAttribute("aria-label")).toContain("Showing");
   });
 
-  it("toggles the workflow panel open and closed with correct ARIA state", () => {
+  it("toggles the tools panel open and closed with correct ARIA state", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -79,21 +79,21 @@ describe("webview chrome toolbar and filter behavior", () => {
       items: [baseItem]
     });
 
-    const workflowToggle = dom.window.document.getElementById("workflow-toggle");
+    const toolsToggle = dom.window.document.getElementById("tools-toggle");
     const toolsPanel = dom.window.document.getElementById("tools-panel");
 
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
 
-    workflowToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    toolsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(true);
     expect(toolsPanel?.getAttribute("aria-hidden")).toBe("false");
-    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(toolsToggle?.getAttribute("aria-expanded")).toBe("true");
 
-    workflowToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    toolsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
-    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(toolsToggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("disables action buttons when no item is selected", () => {

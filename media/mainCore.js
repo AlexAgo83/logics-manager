@@ -25,9 +25,7 @@
       filterPanel,
       toolsPanel,
       filterToggle,
-      workflowToggle,
-      assistToggle,
-      systemToggle,
+      toolsToggle,
       viewModeToggleButton,
       projectGithubUrl,
       stackedQuery,
@@ -471,7 +469,7 @@
     function handleDocumentClick(event) {
       if (state.toolsPanelOpen && toolsPanel) {
         const target = event.target;
-        const toolbarButtons = [workflowToggle, assistToggle, systemToggle].filter(Boolean);
+        const toolbarButtons = [toolsToggle].filter(Boolean);
         const clickedToolbarButton = toolbarButtons.some((button) => button && button.contains(target));
         if (!toolsPanel.contains(target) && !clickedToolbarButton) {
           setToolsPanelOpen(undefined, false);

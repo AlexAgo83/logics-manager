@@ -15,6 +15,14 @@
           ])
         )
       : new Map();
+    const toolViewSwitches = toolsPanel
+      ? new Map(
+          Array.from(toolsPanel.querySelectorAll("[data-tools-view-switch]")).map((button) => [
+            button.getAttribute("data-tools-view-switch"),
+            button
+          ])
+        )
+      : new Map();
     const toolSectionBodies = toolsPanel
       ? new Map(
           Array.from(toolsPanel.querySelectorAll("[data-tools-body]")).map((body) => [body.getAttribute("data-tools-body"), body])
@@ -51,6 +59,12 @@
     function applyActiveToolsView() {
       toolViews.forEach((view, viewName) => {
         view.hidden = viewName !== activeToolsView;
+      });
+      toolViewSwitches.forEach((button, viewName) => {
+        const isActive = viewName === activeToolsView;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.setAttribute("aria-pressed", String(isActive));
       });
     }
 

@@ -269,7 +269,7 @@ describe("logics HTML builders", () => {
     expect(html).toContain("data-explorer-view=\"timeline\"");
     expect(html).toContain("Week");
     expect(html).toContain("Day");
-    expect(html).toContain("Apr 6");
+    expect(html).toContain("A6");
     expect(html).toContain("Done, Archived, Obsolete");
     expect(html).toContain("Distribution snapshots");
     expect(html).toContain("Status distribution");
@@ -536,7 +536,7 @@ describe("logics HTML builders", () => {
     const dayLabels = Array.from(dayPanel?.querySelectorAll(".logics-insights__timeline-label") ?? [])
       .map((node) => node.textContent ?? "");
     expect(dayLabels.length).toBeGreaterThan(0);
-    expect(dayLabels.every((label) => /^[A-Z][a-z]{2}\d{1,2}$/.test(label))).toBe(true);
+    expect(dayLabels.every((label) => /^[A-Z]\d{1,2}$/.test(label))).toBe(true);
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

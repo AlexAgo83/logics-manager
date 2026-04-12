@@ -315,12 +315,25 @@ function isActiveStatus(value: unknown): boolean {
 }
 
 function formatTimelineLabel(timestampMs: number, compact = false): string {
-  const formatted = new Intl.DateTimeFormat("en-US", {
+  const date = new Date(timestampMs);
+  if (compact) {
+    const month = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      timeZone: "UTC"
+    })
+      .format(date)
+      .charAt(0);
+    const day = new Intl.DateTimeFormat("en-US", {
+      day: "numeric",
+      timeZone: "UTC"
+    }).format(date);
+    return `${month}${day}`;
+  }
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     timeZone: "UTC"
-  }).format(new Date(timestampMs));
-  return compact ? formatted.replace(/\s+/g, "") : formatted;
+  }).format(date);
 }
 
 function summarizeTimeline(

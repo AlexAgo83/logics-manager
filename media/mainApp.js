@@ -18,9 +18,7 @@
   const detailsEyebrow = document.getElementById("details-eyebrow");
   const filterToggle = document.getElementById("filter-toggle");
   const filterPanel = document.getElementById("filter-panel");
-  const workflowToggle = document.getElementById("workflow-toggle");
-  const assistToggle = document.getElementById("assist-toggle");
-  const systemToggle = document.getElementById("system-toggle");
+  const toolsToggle = document.getElementById("tools-toggle");
   const toolsPanel = document.getElementById("tools-panel");
   const searchInput = document.getElementById("search-input");
   const groupBySelect = document.getElementById("group-by");
@@ -455,12 +453,12 @@
           activityToggle,
           headerLogicsInsightsButton,
           attentionToggle,
-          assistToggle,
           bootstrapLogicsButton,
           repairLogicsKitButton,
           assistPublishReleaseButton,
           filterPanel,
           filterToggle,
+          toolsToggle,
           groupBySelect,
           helpBanner,
           helpBannerCopy,
@@ -474,13 +472,13 @@
           openButton,
           promoteButton,
           readButton,
+          getToolsPanelView: () => toolsPanelView,
           resetProjectRootButton,
           searchInput,
           showCompanionDocsToggle,
           sortBySelect,
           toolsPanel,
-          workflowToggle,
-          systemToggle,
+          toolsToggle,
           viewModeToggleButton,
           defaultFilterState,
           canPromote,
@@ -801,9 +799,7 @@
           filterPanel,
           toolsPanel,
           filterToggle,
-          workflowToggle,
-          assistToggle,
-          systemToggle,
+          toolsToggle,
           viewModeToggleButton,
           projectGithubUrl,
           stackedQuery,
@@ -958,7 +954,7 @@
           filterPanel,
           filterResetButton,
           filterToggle,
-          assistToggle,
+          toolsToggle,
           groupBySelect,
           helpBannerDismiss,
           hideCompleteToggle,
@@ -984,8 +980,6 @@
           splitter,
           stackedQuery,
           toolsPanel,
-          workflowToggle,
-          systemToggle,
           updateLogicsKitButton,
           viewModeToggleButton,
           aboutButton,

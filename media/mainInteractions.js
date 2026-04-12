@@ -5,7 +5,6 @@
       attentionToggle,
       headerLogicsInsightsButton,
       board,
-      assistToggle,
       assistCommitAllButton,
       assistNextStepButton,
       assistTriageButton,
@@ -99,6 +98,7 @@
       openButton,
       promoteButton,
       readButton,
+      getToolsPanelView,
       resetProjectRootButton,
       searchInput,
       selectAgentButton,
@@ -108,8 +108,7 @@
       splitter,
       stackedQuery,
       toolsPanel,
-      workflowToggle,
-      systemToggle,
+      toolsToggle,
       updateLogicsKitButton,
       viewModeToggleButton,
       aboutButton
@@ -210,14 +209,11 @@
       if (filterToggle) {
         filterToggle.addEventListener("click", (event) => onFilterPanelToggle(event));
       }
-      if (workflowToggle) {
-        workflowToggle.addEventListener("click", (event) => onToolsPanelToggle("workflow", event));
-      }
-      if (assistToggle) {
-        assistToggle.addEventListener("click", (event) => onToolsPanelToggle("assist", event));
-      }
-      if (systemToggle) {
-        systemToggle.addEventListener("click", (event) => onToolsPanelToggle("system", event));
+      if (toolsToggle) {
+        toolsToggle.addEventListener(
+          "click",
+          (event) => onToolsPanelToggle(typeof getToolsPanelView === "function" ? getToolsPanelView() || "workflow" : "workflow", event)
+        );
       }
       if (hideCompleteToggle) {
         hideCompleteToggle.addEventListener("change", (event) => onHideCompleteChange(event));
@@ -282,6 +278,19 @@
       if (changeStatusButton) {
         changeStatusButton.addEventListener("click", () => onChangeStatus());
       }
+      if (toolsPanel) {
+        const toolsPanelCloseButton = toolsPanel.querySelector("[data-tools-panel-close]");
+        if (toolsPanelCloseButton instanceof HTMLElement) {
+          toolsPanelCloseButton.addEventListener("click", () => setToolsPanelOpen(false));
+        }
+        Array.from(toolsPanel.querySelectorAll("[data-tools-view-switch]")).forEach((button) => {
+          if (!(button instanceof HTMLElement)) {
+            return;
+          }
+          const viewName = button.getAttribute("data-tools-view-switch") || "workflow";
+          button.addEventListener("click", (event) => onToolsPanelToggle(viewName, event));
+        });
+      }
 
       window.addEventListener("message", (event) => onWindowMessage(event));
       document.addEventListener("click", (event) => onDocumentClick(event));
@@ -316,9 +325,7 @@
       window.addEventListener("resize", () => onWindowResize());
 
       setControlDescription(filterToggle, "Show view controls");
-      setControlDescription(workflowToggle, "Open workflow menu");
-      setControlDescription(assistToggle, "Open assist menu");
-      setControlDescription(systemToggle, "Open system menu");
+      setControlDescription(toolsToggle, "Open tools menu");
       setControlDescription(viewModeToggleButton, "Switch display mode");
       setControlDescription(selectAgentButton, "Select active agent");
       setControlDescription(newRequestToolButton, "Create a new request document");
@@ -358,14 +365,8 @@
       if (filterToggle && filterPanel && filterPanel.id) {
         filterToggle.setAttribute("aria-controls", filterPanel.id);
       }
-      if (workflowToggle && toolsPanel && toolsPanel.id) {
-        workflowToggle.setAttribute("aria-controls", toolsPanel.id);
-      }
-      if (assistToggle && toolsPanel && toolsPanel.id) {
-        assistToggle.setAttribute("aria-controls", toolsPanel.id);
-      }
-      if (systemToggle && toolsPanel && toolsPanel.id) {
-        systemToggle.setAttribute("aria-controls", toolsPanel.id);
+      if (toolsToggle && toolsPanel && toolsPanel.id) {
+        toolsToggle.setAttribute("aria-controls", toolsPanel.id);
       }
       if (mainPane) {
         mainPane.classList.toggle("layout__main--activity", false);

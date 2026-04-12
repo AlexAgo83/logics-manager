@@ -974,6 +974,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
           data-action="toggle-view-mode"
           aria-label="Switch display mode"
           title="Switch display mode"
+          hidden
         >
           
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

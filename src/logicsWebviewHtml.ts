@@ -269,6 +269,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
           data-action="toggle-view-mode"
           aria-label="Switch display mode"
           title="Switch display mode"
+          hidden
         >
           ${boardViewIcon()}
         </button>

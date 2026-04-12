@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 function toPosixPath(value: string): string {
@@ -401,6 +402,66 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Delivery timeline");
     expect(html).toContain("No closed items in the last 6 weeks.");
     expect(html).toContain("No closed items in the last 30 days.");
+  });
+
+  it("switches the delivery timeline between week and day panels without rebuilding the controls", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-08T12:00:00Z"));
+
+    const html = buildLogicsCorpusInsightsHtml({
+      webview: createWebview() as never,
+      root: "/workspace/project",
+      items: [
+        {
+          id: "task_001_closed",
+          title: "Closed task",
+          stage: "task",
+          path: "/workspace/project/logics/tasks/task_001_closed.md",
+          relPath: "logics/tasks/task_001_closed.md",
+          filename: "task_001_closed.md",
+          updatedAt: "2026-04-07T10:00:00Z",
+          indicators: { Status: "Done" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 42,
+          charCount: 1000,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+
+    const dom = new JSDOM(html, {
+      runScripts: "dangerously",
+      pretendToBeVisual: true,
+      beforeParse(window) {
+        window.acquireVsCodeApi = () => ({
+          postMessage: () => undefined,
+          getState: () => null,
+          setState: () => undefined
+        });
+      }
+    });
+
+    await Promise.resolve();
+
+    const weekButton = dom.window.document.querySelector('[data-timeline-period="week"]') as HTMLButtonElement | null;
+    const dayButton = dom.window.document.querySelector('[data-timeline-period="day"]') as HTMLButtonElement | null;
+    const weekPanel = dom.window.document.getElementById("timeline-week");
+    const dayPanel = dom.window.document.getElementById("timeline-day");
+
+    expect(weekButton?.getAttribute("aria-pressed")).toBe("true");
+    expect(dayButton?.getAttribute("aria-pressed")).toBe("false");
+    expect(weekPanel?.hidden).toBe(false);
+    expect(dayPanel?.hidden).toBe(true);
+
+    dayButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(weekButton?.getAttribute("aria-pressed")).toBe("false");
+    expect(dayButton?.getAttribute("aria-pressed")).toBe("true");
+    expect(weekPanel?.hidden).toBe(true);
+    expect(dayPanel?.hidden).toBe(false);
   });
 
   it("renders actionable efficiency recommendation sections from recent hybrid signals", () => {

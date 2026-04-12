@@ -115,6 +115,8 @@
         viewModeToggleButton.title = "Current mode: list. List mode is required below 500px";
         viewModeToggleButton.disabled = true;
         viewModeToggleButton.hidden = true;
+        viewModeToggleButton.style.display = "none";
+        viewModeToggleButton.setAttribute("aria-hidden", "true");
         return;
       }
       const switchToList = currentMode !== "list";
@@ -132,6 +134,8 @@
         : `Current mode: ${currentMode}. Switch to board mode`;
       viewModeToggleButton.disabled = false;
       viewModeToggleButton.hidden = false;
+      viewModeToggleButton.style.display = "";
+      viewModeToggleButton.removeAttribute("aria-hidden");
     }
 
     function renderActivityPanel() {

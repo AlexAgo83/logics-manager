@@ -394,25 +394,28 @@ function renderTimelineBody(points: TimelinePoint[], emptyMessage: string): stri
 function renderTimelineChart(title: string, description: string, weekPoints: TimelinePoint[], dayPoints: TimelinePoint[]): string {
   const weekEmpty = "No closed items in the last 6 weeks.";
   const dayEmpty = "No closed items in the last 30 days.";
+  const weekBody = renderTimelineBody(weekPoints, weekEmpty);
+  const dayBody = renderTimelineBody(dayPoints, dayEmpty);
   return `
     <article class="logics-insights__chart-card">
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(description)}</p>
       <div class="logics-insights__timeline-toolbar" role="tablist" aria-label="Timeline period">
-        <button class="logics-insights__button logics-insights__button--active" type="button" data-timeline-period="week" aria-pressed="true">Week</button>
-        <button class="logics-insights__button" type="button" data-timeline-period="day" aria-pressed="false">Day</button>
+        <button class="logics-insights__button logics-insights__button--active" type="button" data-timeline-period="week" role="tab" aria-controls="timeline-week" aria-selected="true" aria-pressed="true">Week</button>
+        <button class="logics-insights__button" type="button" data-timeline-period="day" role="tab" aria-controls="timeline-day" aria-selected="false" aria-pressed="false">Day</button>
       </div>
       <div
         class="logics-insights__timeline"
         data-timeline-root
         data-timeline-title="${escapeHtml(title)}"
-        data-timeline-week-empty="${escapeHtml(weekEmpty)}"
-        data-timeline-day-empty="${escapeHtml(dayEmpty)}"
-        data-timeline-week="${escapeHtml(JSON.stringify(weekPoints))}"
-        data-timeline-day="${escapeHtml(JSON.stringify(dayPoints))}"
         data-timeline-active="week"
       >
-        ${renderTimelineBody(weekPoints, weekEmpty)}
+        <div class="logics-insights__timeline-panel" data-timeline-panel="week" id="timeline-week" role="tabpanel">
+          ${weekBody}
+        </div>
+        <div class="logics-insights__timeline-panel" data-timeline-panel="day" id="timeline-day" role="tabpanel" hidden>
+          ${dayBody}
+        </div>
       </div>
     </article>
   `;
@@ -823,14 +826,17 @@ export function buildLogicsCorpusInsightsHtml(params: {
         .logics-insights__footer-button:hover {
           background: var(--vscode-button-secondaryHoverBackground);
         }
-        .logics-insights__timeline {
-          overflow-x: auto;
-        }
-        .logics-insights__timeline-toolbar {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 10px;
-          flex-wrap: wrap;
+      .logics-insights__timeline {
+        overflow-x: auto;
+      }
+      .logics-insights__timeline-panel[hidden] {
+        display: none;
+      }
+      .logics-insights__timeline-toolbar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
         }
         .logics-insights__timeline-body {
           min-height: 220px;
@@ -1106,64 +1112,22 @@ export function buildLogicsCorpusInsightsHtml(params: {
       </main>
       <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
-        const timelineData = {
-          week: ${JSON.stringify(weekTimelinePoints)},
-          day: ${JSON.stringify(dayTimelinePoints)}
-        };
-
-        function renderTimelineBody(points, emptyMessage) {
-          const total = points.reduce((sum, point) => sum + point.value, 0);
-          if (total <= 0) {
-            return '<p class="logics-insights__empty logics-insights__timeline-empty">' + emptyMessage + '</p>';
-          }
-          const maxValue = Math.max(...points.map((point) => point.value), 1);
-          const chartWidth = 720;
-          const chartHeight = 200;
-          const chartLeft = 36;
-          const chartTop = 24;
-          const chartBottom = 150;
-          const chartUsableHeight = chartBottom - chartTop;
-          const slotWidth = (chartWidth - chartLeft * 2) / points.length;
-          const barWidth = Math.max(16, Math.min(38, slotWidth - 12));
-          const xCenterOffset = slotWidth / 2;
-          return [
-            '<svg viewBox="0 0 ' + chartWidth + ' ' + chartHeight + '" role="img" aria-label="Delivery timeline">',
-            '<line x1="' + chartLeft + '" y1="' + chartBottom + '" x2="' + (chartWidth - chartLeft) + '" y2="' + chartBottom + '" class="logics-insights__timeline-axis"></line>',
-            points
-              .map((point, index) => {
-                const x = chartLeft + index * slotWidth + xCenterOffset - barWidth / 2;
-                const barHeight = Math.max(4, Math.round((point.value / maxValue) * chartUsableHeight));
-                const y = chartBottom - barHeight;
-                return [
-                  '<g>',
-                  '<rect x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + barWidth + '" height="' + barHeight + '" rx="6" class="logics-insights__timeline-bar"></rect>',
-                  '<text x="' + (x + barWidth / 2).toFixed(2) + '" y="' + (y - 6).toFixed(2) + '" text-anchor="middle" class="logics-insights__timeline-count">' + point.value + '</text>',
-                  '<text x="' + (x + barWidth / 2).toFixed(2) + '" y="' + (chartBottom + 16).toFixed(2) + '" text-anchor="middle" class="logics-insights__timeline-label">' + point.label + '</text>',
-                  '</g>'
-                ].join("");
-              })
-              .join(""),
-            '</svg>'
-          ].join("");
-        }
-
         function renderTimeline(period) {
           const root = document.querySelector("[data-timeline-root]");
           if (!root) {
             return;
           }
           const activePeriod = period === "day" ? "day" : "week";
-          const points = timelineData[activePeriod] || [];
-          const emptyMessage =
-            activePeriod === "day"
-              ? root.getAttribute("data-timeline-day-empty") || "No closed items in the last 30 days."
-              : root.getAttribute("data-timeline-week-empty") || "No closed items in the last 6 weeks.";
-          root.innerHTML = renderTimelineBody(points, emptyMessage);
           root.setAttribute("data-timeline-active", activePeriod);
+          root.querySelectorAll("[data-timeline-panel]").forEach((panel) => {
+            const isActive = panel.getAttribute("data-timeline-panel") === activePeriod;
+            panel.hidden = !isActive;
+          });
           document.querySelectorAll("[data-timeline-period]").forEach((button) => {
             const isActive = button.getAttribute("data-timeline-period") === activePeriod;
             button.classList.toggle("logics-insights__button--active", isActive);
             button.setAttribute("aria-pressed", String(isActive));
+            button.setAttribute("aria-selected", String(isActive));
           });
         }
 

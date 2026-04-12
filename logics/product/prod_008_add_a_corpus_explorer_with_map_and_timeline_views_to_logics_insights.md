@@ -3,7 +3,7 @@
 > Status: Proposed
 > Related request: `req_184_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
 > Related backlog: `item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
-> Related task: (none yet)
+> Related task: `task_142_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -46,7 +46,9 @@ The current Insights surface shows metrics, but it does not make the corpus rela
 - The view remains readable inside the compact panel without decorative filler.
 
 # References
-{{REFERENCES}}
+- `logics/request/req_184_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`
+- `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`
+- `logics/tasks/task_142_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`
 
 # Open questions
 - Which level of density is optimal for the map before filters or staged expansion are required?

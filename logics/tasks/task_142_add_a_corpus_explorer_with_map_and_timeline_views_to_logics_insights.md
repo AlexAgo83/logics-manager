@@ -1,10 +1,10 @@
 ## task_142_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights - Add a corpus explorer with map and timeline views to Logics Insights
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -114,3 +114,7 @@ stateDiagram-v2
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Delivered a compact corpus explorer inside Logics Insights with a default map view and an in-panel delivery timeline view.
+- Kept the project lens anchored to the active repository root while switching between map and timeline.
+- Added coverage for the explorer entry point and the view switch behavior.
+- Validation: `npm test -- tests/logicsHtml.test.ts`, `npm run lint:ts`.

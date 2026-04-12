@@ -24,6 +24,7 @@ type TimelinePoint = {
 };
 
 type TimelinePeriod = "day" | "week";
+type ExplorerStage = "request" | "backlog" | "task" | "product" | "architecture" | "spec";
 
 function escapeHtml(value: string): string {
   return value
@@ -422,6 +423,247 @@ function renderTimelineChart(title: string, description: string, weekPoints: Tim
   `;
 }
 
+function normalizeManagedLookupValue(value: unknown): string {
+  return asString(value, "")
+    .replace(/\\/g, "/")
+    .replace(/^\.?\//, "");
+}
+
+function buildManagedLookup(items: LogicsItem[]): Map<string, LogicsItem> {
+  const lookup = new Map<string, LogicsItem>();
+  for (const item of items) {
+    const normalizedRelPath = normalizeManagedLookupValue(item.relPath);
+    const baseName = normalizedRelPath.split("/").pop()?.replace(/\.md$/i, "") || "";
+    const keys = [item.id, item.relPath, normalizedRelPath, baseName].filter((value): value is string => Boolean(value && value.trim()));
+    for (const key of keys) {
+      if (!lookup.has(key)) {
+        lookup.set(key, item);
+      }
+    }
+  }
+  return lookup;
+}
+
+function resolveManagedLookupValue(rawValue: unknown, fallbackUsage: { id?: string; relPath?: string }, lookup: Map<string, LogicsItem>): LogicsItem | null {
+  if (fallbackUsage?.id && lookup.has(fallbackUsage.id)) {
+    return lookup.get(fallbackUsage.id) || null;
+  }
+  const normalizedValue = normalizeManagedLookupValue(rawValue);
+  if (!normalizedValue) {
+    return null;
+  }
+  const baseName = normalizedValue.split("/").pop()?.replace(/\.md$/i, "") || "";
+  return lookup.get(normalizedValue) || lookup.get(baseName) || null;
+}
+
+function buildCorpusExplorerMap(items: LogicsItem[]) {
+  const stageOrder: ExplorerStage[] = ["request", "backlog", "task", "product", "architecture", "spec"];
+  const stageLabels: Record<ExplorerStage, string> = {
+    request: "Requests",
+    backlog: "Backlog",
+    task: "Tasks",
+    product: "Product",
+    architecture: "Architecture",
+    spec: "Specs"
+  };
+  const stageColors: Record<ExplorerStage, string> = {
+    request: "var(--vscode-terminal-ansiBlue)",
+    backlog: "var(--vscode-terminal-ansiGreen)",
+    task: "var(--vscode-terminal-ansiYellow)",
+    product: "var(--vscode-terminal-ansiCyan)",
+    architecture: "var(--vscode-terminal-ansiMagenta)",
+    spec: "var(--vscode-terminal-ansiRed)"
+  };
+  const stageNodes: Array<{ stage: ExplorerStage; label: string; count: number; x: number; y: number }> = [
+    { stage: "request", label: stageLabels.request, count: 0, x: 110, y: 58 },
+    { stage: "backlog", label: stageLabels.backlog, count: 0, x: 266, y: 42 },
+    { stage: "task", label: stageLabels.task, count: 0, x: 422, y: 58 },
+    { stage: "product", label: stageLabels.product, count: 0, x: 160, y: 192 },
+    { stage: "architecture", label: stageLabels.architecture, count: 0, x: 360, y: 214 },
+    { stage: "spec", label: stageLabels.spec, count: 0, x: 560, y: 176 }
+  ];
+  const stageCounts = new Map<ExplorerStage, number>(stageOrder.map((stage) => [stage, 0]));
+  const stagePairs = new Map<string, number>();
+  const lookup = buildManagedLookup(items);
+  const relatedCounts = new Map<string, number>();
+
+  for (const item of items) {
+    const stage = item.stage as ExplorerStage;
+    if (stageCounts.has(stage)) {
+      stageCounts.set(stage, (stageCounts.get(stage) || 0) + 1);
+    }
+
+    const seenTargets = new Set<string>();
+    const registerTarget = (rawValue: unknown, fallbackUsage: { id?: string; relPath?: string } = {}) => {
+      const target = resolveManagedLookupValue(rawValue, fallbackUsage, lookup);
+      if (!target || target.id === item.id || seenTargets.has(target.id)) {
+        return;
+      }
+      seenTargets.add(target.id);
+      const targetStage = target.stage as ExplorerStage;
+      const pairKey = `${item.stage}|${target.stage}`;
+      stagePairs.set(pairKey, (stagePairs.get(pairKey) || 0) + 1);
+      relatedCounts.set(item.id, (relatedCounts.get(item.id) || 0) + 1);
+      relatedCounts.set(target.id, (relatedCounts.get(target.id) || 0) + 1);
+    };
+
+    for (const reference of item.references || []) {
+      if (reference && typeof reference === "object") {
+        registerTarget((reference as { path?: unknown }).path);
+      }
+    }
+
+    for (const usage of item.usedBy || []) {
+      if (usage && typeof usage === "object") {
+        registerTarget((usage as { relPath?: unknown; id?: unknown }).relPath || (usage as { relPath?: unknown; id?: unknown }).id, usage as { id?: string; relPath?: string });
+      }
+    }
+  }
+
+  const topConnectedDocs = [...items]
+    .sort((left, right) => (relatedCounts.get(right.id) || 0) - (relatedCounts.get(left.id) || 0) || compareStages(left.stage, right.stage) || left.id.localeCompare(right.id))
+    .slice(0, 5);
+
+  return {
+    stageOrder,
+    stageLabels,
+    stageColors,
+    stageNodes: stageNodes.map((node) => ({
+      ...node,
+      count: stageCounts.get(node.stage) || 0
+    })),
+    stagePairs,
+    topConnectedDocs
+  };
+}
+
+function renderCorpusExplorerMap(mapData: ReturnType<typeof buildCorpusExplorerMap>): string {
+  const { stageNodes, stagePairs, stageColors, stageLabels, stageOrder, topConnectedDocs } = mapData;
+  const width = 720;
+  const height = 280;
+  const nodeWidth = 124;
+  const nodeHeight = 44;
+  const nodes = Object.fromEntries(stageNodes.map((node) => [node.stage, node] as const)) as Record<ExplorerStage, { stage: ExplorerStage; label: string; count: number; x: number; y: number }>;
+  const edges = Array.from(stagePairs.entries())
+    .map(([pairKey, count]) => {
+      const [sourceStage, targetStage] = pairKey.split("|") as [ExplorerStage, ExplorerStage];
+      const source = nodes[sourceStage];
+      const target = nodes[targetStage];
+      if (!source || !target || count <= 0) {
+        return null;
+      }
+      return {
+        source,
+        target,
+        count,
+        color: stageColors[sourceStage] || "var(--vscode-terminal-ansiBlue)"
+      };
+    })
+    .filter((edge): edge is { source: (typeof stageNodes)[number]; target: (typeof stageNodes)[number]; count: number; color: string } => Boolean(edge));
+
+  const stageSummary = stageOrder
+    .map((stage) => ({
+      label: stageLabels[stage],
+      value: String(nodes[stage]?.count || 0),
+      hint: `${Array.from(stagePairs.entries()).reduce((sum, [pairKey, count]) => {
+        const [sourceStage, targetStage] = pairKey.split("|");
+        return sourceStage === stage || targetStage === stage ? sum + count : sum;
+      }, 0)} related link${Array.from(stagePairs.entries()).reduce((sum, [pairKey, count]) => {
+        const [sourceStage, targetStage] = pairKey.split("|");
+        return sourceStage === stage || targetStage === stage ? sum + count : sum;
+      }, 0) === 1 ? "" : "s"}`
+    }))
+    .filter((entry) => Number(entry.value) > 0 || Number(entry.hint.split(" ")[0] || 0) > 0);
+
+  return `
+    <div class="logics-insights__map-layout">
+      <div class="logics-insights__map-stage">
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Corpus relationship map">
+          <defs>
+            <marker id="explorer-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          ${edges
+            .map((edge) => {
+              const sourceX = edge.source.x + nodeWidth / 2;
+              const sourceY = edge.source.y + nodeHeight / 2;
+              const targetX = edge.target.x + nodeWidth / 2;
+              const targetY = edge.target.y + nodeHeight / 2;
+              return `
+                <g>
+                  <line
+                    x1="${sourceX}"
+                    y1="${sourceY}"
+                    x2="${targetX}"
+                    y2="${targetY}"
+                    class="logics-insights__map-edge"
+                    style="color:${edge.color}; stroke:${edge.color}; stroke-width:${Math.min(6, 1.6 + edge.count * 0.4)}; opacity:${Math.min(0.72, 0.24 + edge.count * 0.1)}"
+                    marker-end="url(#explorer-arrow)"
+                  ></line>
+                  <text
+                    x="${((sourceX + targetX) / 2).toFixed(2)}"
+                    y="${((sourceY + targetY) / 2 - 6).toFixed(2)}"
+                    text-anchor="middle"
+                    class="logics-insights__map-edge-count"
+                  >${edge.count}</text>
+                </g>
+              `;
+            })
+            .join("")}
+          ${stageNodes
+            .map((node) => {
+              const color = stageColors[node.stage];
+              return `
+                <g transform="translate(${node.x}, ${node.y})">
+                  <rect width="${nodeWidth}" height="${nodeHeight}" rx="14" class="logics-insights__map-node" style="fill:${color}; fill-opacity:0.14; stroke:${color}; stroke-opacity:0.7"></rect>
+                  <text x="${nodeWidth / 2}" y="18" text-anchor="middle" class="logics-insights__map-node-label">${escapeHtml(node.label)}</text>
+                  <text x="${nodeWidth / 2}" y="32" text-anchor="middle" class="logics-insights__map-node-count">${node.count}</text>
+                </g>
+              `;
+            })
+            .join("")}
+        </svg>
+      </div>
+      <div class="logics-insights__map-side">
+        ${renderList(stageSummary, "No corpus data available.")}
+        ${renderList(
+          topConnectedDocs.map((item) => ({
+            label: `${item.stage} • ${item.title}`,
+            value: String((item.references.length + item.usedBy.length) || 0),
+            hint: `${item.references.length} outgoing, ${item.usedBy.length} incoming`
+          })),
+          "No connected docs found."
+        )}
+      </div>
+    </div>
+  `;
+}
+
+function renderCorpusExplorer(root: string, items: LogicsItem[], weekPoints: TimelinePoint[], dayPoints: TimelinePoint[]): string {
+  const mapData = buildCorpusExplorerMap(items);
+  return `
+    <div class="logics-insights__section">
+      <h2>Corpus explorer</h2>
+      <p>Current project lens: <strong>${escapeHtml(root || "unknown")}</strong>. Switch between a relationship map and the delivery timeline without leaving the current corpus context.</p>
+      <div class="logics-insights__explorer-toolbar" role="tablist" aria-label="Corpus explorer view">
+        <button class="logics-insights__button logics-insights__button--active" type="button" data-explorer-view="map" role="tab" aria-controls="explorer-map" aria-selected="true" aria-pressed="true">Map</button>
+        <button class="logics-insights__button" type="button" data-explorer-view="timeline" role="tab" aria-controls="explorer-timeline" aria-selected="false" aria-pressed="false">Timeline</button>
+      </div>
+      <div class="logics-insights__explorer" data-explorer-root data-explorer-active="map">
+        <div class="logics-insights__explorer-panel" data-explorer-panel="map" id="explorer-map" role="tabpanel">
+          <h3>Relationship map</h3>
+          <p>Requests, backlog items, tasks, and companion docs are grouped by family so the current corpus shape is easy to scan at a glance.</p>
+          ${renderCorpusExplorerMap(mapData)}
+        </div>
+        <div class="logics-insights__explorer-panel" data-explorer-panel="timeline" id="explorer-timeline" role="tabpanel" hidden>
+          ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week or day across the last 30 days.", weekPoints, dayPoints)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function summarizeStatusDistribution(items: LogicsItem[]): Array<[string, number]> {
   const counts = countBy(items, (item) => asString(item.indicators.Status, "(missing)"));
   return Object.entries(counts).sort((left, right) => {
@@ -688,6 +930,75 @@ export function buildLogicsCorpusInsightsHtml(params: {
           gap: 14px;
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         }
+        .logics-insights__explorer-toolbar {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin: 12px 0 14px;
+        }
+        .logics-insights__explorer {
+          display: grid;
+          gap: 14px;
+        }
+        .logics-insights__explorer-panel {
+          border: 1px solid var(--vscode-panel-border, color-mix(in srgb, currentColor 20%, transparent));
+          border-radius: 14px;
+          background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+          padding: 16px 18px;
+        }
+        .logics-insights__explorer-panel h3 {
+          margin: 0 0 6px;
+          font-size: 1rem;
+        }
+        .logics-insights__explorer-panel p {
+          margin: 0 0 12px;
+          line-height: 1.5;
+          opacity: 0.9;
+        }
+        .logics-insights__map-layout {
+          display: grid;
+          gap: 14px;
+          grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
+          align-items: start;
+        }
+        .logics-insights__map-stage {
+          border-radius: 14px;
+          overflow: hidden;
+          background: color-mix(in srgb, currentColor 4%, transparent);
+          border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+          padding: 10px;
+        }
+        .logics-insights__map-stage svg {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        .logics-insights__map-edge {
+          fill: none;
+          stroke-linecap: round;
+        }
+        .logics-insights__map-edge-count {
+          fill: var(--vscode-editor-foreground);
+          font-size: 10px;
+          font-weight: 700;
+          paint-order: stroke;
+          stroke: var(--vscode-sideBar-background, var(--vscode-editor-background));
+          stroke-width: 3px;
+          stroke-linejoin: round;
+        }
+        .logics-insights__map-node-label {
+          fill: var(--vscode-editor-foreground);
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .logics-insights__map-node-count {
+          fill: var(--vscode-descriptionForeground);
+          font-size: 11px;
+        }
+        .logics-insights__map-side {
+          display: grid;
+          gap: 14px;
+        }
         .logics-insights__chart-grid {
           display: grid;
           gap: 14px;
@@ -923,11 +1234,7 @@ export function buildLogicsCorpusInsightsHtml(params: {
             })), "No blocked items.") : ""}
           </div>
 
-          <div class="logics-insights__section">
-            <h2>Delivery timeline</h2>
-            <p>Closed workflow items bucketed by week across the last 6 weeks.</p>
-            ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week or day across the last 30 days.", weekTimelinePoints, dayTimelinePoints)}
-          </div>
+          ${renderCorpusExplorer(root, items, weekTimelinePoints, dayTimelinePoints)}
 
           <div class="logics-insights__section">
             <h2>Distribution snapshots</h2>
@@ -1138,6 +1445,25 @@ export function buildLogicsCorpusInsightsHtml(params: {
           });
         }
 
+        function renderExplorer(view) {
+          const root = document.querySelector("[data-explorer-root]");
+          if (!root) {
+            return;
+          }
+          const activeView = view === "timeline" ? "timeline" : "map";
+          root.setAttribute("data-explorer-active", activeView);
+          root.querySelectorAll("[data-explorer-panel]").forEach((panel) => {
+            const isActive = panel.getAttribute("data-explorer-panel") === activeView;
+            panel.hidden = !isActive;
+          });
+          document.querySelectorAll("[data-explorer-view]").forEach((button) => {
+            const isActive = button.getAttribute("data-explorer-view") === activeView;
+            button.classList.toggle("logics-insights__button--active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+            button.setAttribute("aria-selected", String(isActive));
+          });
+        }
+
         document.querySelector('[data-action="refresh-report"]')?.addEventListener('click', () => {
           vscode.postMessage({ type: 'refresh-report' });
         });
@@ -1155,6 +1481,13 @@ export function buildLogicsCorpusInsightsHtml(params: {
             renderTimeline(period);
           });
         });
+        document.querySelectorAll("[data-explorer-view]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const view = button.getAttribute("data-explorer-view") || "map";
+            renderExplorer(view);
+          });
+        });
+        renderExplorer("map");
         renderTimeline("week");
       </script>
     </body>

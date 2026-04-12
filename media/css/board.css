@@ -240,6 +240,20 @@
   flex: 0 0 auto;
 }
 
+.card__badges--strip {
+  align-items: center;
+}
+
+.card__badges--strip > .card__badges,
+.card__badges--strip > .card__linkage-indicators {
+  margin-top: 0;
+}
+
+.card__badges--strip > .card__badges {
+  max-width: none;
+  overflow: visible;
+}
+
 .card__badges--suggested {
   margin-top: 2px;
 }

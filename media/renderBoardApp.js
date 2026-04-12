@@ -601,6 +601,26 @@
       return badges;
     }
 
+    function createCardBadgeStrip(item, activeTasks) {
+      const badgeStrip = document.createElement("div");
+      badgeStrip.className = "card__badges card__badges--strip";
+
+      const badgeGroups = [
+        createProgressComplexityBadge(item),
+        createCompanionBadges(item),
+        createHealthBadges(item),
+        createSuggestedBadges(item),
+      ];
+
+      badgeGroups.forEach((group) => {
+        if (group) {
+          badgeStrip.appendChild(group);
+        }
+      });
+
+      return badgeStrip.childElementCount > 0 ? badgeStrip : null;
+    }
+
     function createMetricSegment(prefix, value) {
       const segment = document.createElement("span");
       segment.className = "card__badge-metric-segment";
@@ -980,24 +1000,9 @@
 
       card.appendChild(createCardTitle(item));
 
-      const companionBadges = createCompanionBadges(item);
-      if (companionBadges) {
-        card.appendChild(companionBadges);
-      }
-
-      const healthBadges = createHealthBadges(item);
-      if (healthBadges) {
-        card.appendChild(healthBadges);
-      }
-
-      const progressComplexityBadge = createProgressComplexityBadge(item);
-      if (progressComplexityBadge) {
-        card.appendChild(progressComplexityBadge);
-      }
-
-      const suggestedBadges = createSuggestedBadges(item);
-      if (suggestedBadges) {
-        card.appendChild(suggestedBadges);
+      const badgeStrip = createCardBadgeStrip(item, activeTasks);
+      if (badgeStrip) {
+        card.appendChild(badgeStrip);
       }
 
       const linkageBadges = createLinkageBadges(item, activeTasks);

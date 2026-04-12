@@ -654,6 +654,108 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector('[data-id="item_011_dual"]')?.querySelectorAll(".card__task-dot").length).toBe(2);
   });
 
+  it("renders request badges before task dots when an item is linked to both request and task", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "req_201_origin",
+          title: "Origin request",
+          stage: "request",
+          relPath: "logics/request/req_201_origin.md",
+          path: "/workspace/mock/logics/request/req_201_origin.md"
+        },
+        {
+          ...baseItem,
+          id: "task_201_cover",
+          title: "Cover task",
+          stage: "task",
+          relPath: "logics/tasks/task_201_cover.md",
+          path: "/workspace/mock/logics/tasks/task_201_cover.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_201_linked",
+          title: "Linked item",
+          stage: "backlog",
+          relPath: "logics/backlog/item_201_linked.md",
+          path: "/workspace/mock/logics/backlog/item_201_linked.md",
+          references: [{ kind: "request", label: "Request", path: "logics/request/req_201_origin.md" }],
+          usedBy: [
+            {
+              id: "task_201_cover",
+              title: "Cover task",
+              stage: "task",
+              relPath: "logics/tasks/task_201_cover.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const requestCard = board?.querySelector('[data-id="req_201_origin"]');
+    const linkedCard = board?.querySelector('[data-id="item_201_linked"]');
+
+    expect(requestCard?.querySelector(".card__request-badge")).toBeTruthy();
+    expect(linkedCard?.querySelector(".card__request-badge")).toBeTruthy();
+    expect(linkedCard?.querySelector(".card__task-dot")).toBeTruthy();
+    expect(linkedCard?.querySelector(".card__request-badge")?.nextElementSibling?.classList.contains("card__task-dot-container")).toBe(true);
+    expect(linkedCard?.querySelector(".card__request-badge")?.getAttribute("style")).not.toBe(
+      linkedCard?.querySelector(".card__task-dot")?.getAttribute("style")
+    );
+  });
+
+  it("omits request badges when the request reference cannot be resolved", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "task_202_cover",
+          title: "Cover task",
+          stage: "task",
+          relPath: "logics/tasks/task_202_cover.md",
+          path: "/workspace/mock/logics/tasks/task_202_cover.md",
+          indicators: {
+            Status: "Ready"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_202_broken",
+          title: "Broken request link",
+          stage: "backlog",
+          relPath: "logics/backlog/item_202_broken.md",
+          path: "/workspace/mock/logics/backlog/item_202_broken.md",
+          references: [{ kind: "request", label: "Request", path: "logics/request/req_999_missing.md" }],
+          usedBy: [
+            {
+              id: "task_202_cover",
+              title: "Cover task",
+              stage: "task",
+              relPath: "logics/tasks/task_202_cover.md"
+            }
+          ]
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const card = board?.querySelector('[data-id="item_202_broken"]');
+
+    expect(card?.querySelector(".card__request-badge")).toBeFalsy();
+    expect(card?.querySelectorAll(".card__task-dot").length).toBe(1);
+  });
+
   it("resolves task coverage dots from usedBy path values as well as relPath values", () => {
     const { dom } = bootstrapWebview();
 

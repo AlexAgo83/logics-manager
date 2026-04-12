@@ -393,7 +393,7 @@
   border-color: rgba(34, 211, 238, 0.35);
 }
 
-.card__task-dot-container {
+.card__linkage-indicators {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -402,6 +402,22 @@
   gap: 3px;
   pointer-events: none;
   z-index: 2;
+}
+
+.card__task-dot-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.card__request-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0.95;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.16) inset;
+  flex: none;
 }
 
 .card__task-dot {

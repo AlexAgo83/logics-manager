@@ -1,10 +1,10 @@
 ## item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage - Add request color badges to items and requests to visualize request-task linkage
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -87,3 +87,8 @@ flowchart TD
 - Source file: `logics/request/req_185_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_185_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`.
+
+# Report
+- Delivered the request badge layer on request cards and item cards, with request badges resolved from real workflow links and omitted safely when unresolved.
+- Kept task badge rendering intact while widening the task/request palette separation so the two families remain easy to tell apart.
+- Validation: `npm test -- tests/webview.board-renderer.test.ts`, `npm run lint:ts`.

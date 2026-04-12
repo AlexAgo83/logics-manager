@@ -1,5 +1,6 @@
 (() => {
-  const TASK_COLORS = ["#2dd4bf", "#a78bfa", "#fbbf24", "#f87171", "#38bdf8", "#a3e635", "#fb923c", "#f472b6", "#818cf8", "#22d3ee"];
+  const TASK_COLORS = ["#14b8a6", "#2563eb", "#8b5cf6", "#22c55e", "#06b6d4", "#84cc16", "#0ea5e9", "#7c3aed", "#3b82f6", "#0f766e"];
+  const REQUEST_COLORS = ["#f97316", "#f59e0b", "#f43f5e", "#fb7185", "#ef4444", "#d97706", "#ec4899", "#be123c", "#fca5a5", "#fdba74"];
   const CLOSED_TASK_STATUSES = new Set(["done", "archived", "obsolete"]);
 
   function plusIcon() {
@@ -38,6 +39,12 @@
     return TASK_COLORS[n % TASK_COLORS.length];
   }
 
+  function getRequestColor(id) {
+    const match = String(id || "").match(/(\d+)$/);
+    const n = parseInt(match?.[1] ?? "0", 10);
+    return REQUEST_COLORS[n % REQUEST_COLORS.length];
+  }
+
   function isActiveTaskCandidate(item) {
     return Boolean(item && String(item.stage || "").trim() === "task" && !isClosedTaskStatus(item?.indicators?.Status));
   }
@@ -59,6 +66,30 @@
       }
       assignedColors.add(assignedColor);
       colorMap.set(task.id, assignedColor);
+    }
+
+    return colorMap;
+  }
+
+  function buildRequestColorMap(items) {
+    const requests = (items || [])
+      .filter((item) => item && String(item.stage || "").trim() === "request")
+      .sort((left, right) => String(left.id).localeCompare(String(right.id)));
+    const assignedColors = new Set();
+    const colorMap = new Map();
+
+    for (const request of requests) {
+      const preferredIndex = parseInt(String(request.id || "").match(/(\d+)$/)?.[1] ?? "0", 10) % REQUEST_COLORS.length;
+      let assignedColor = REQUEST_COLORS[preferredIndex];
+      for (let offset = 0; offset < REQUEST_COLORS.length; offset += 1) {
+        const candidateColor = REQUEST_COLORS[(preferredIndex + offset) % REQUEST_COLORS.length];
+        if (!assignedColors.has(candidateColor)) {
+          assignedColor = candidateColor;
+          break;
+        }
+      }
+      assignedColors.add(assignedColor);
+      colorMap.set(request.id, assignedColor);
     }
 
     return colorMap;
@@ -105,6 +136,7 @@
       getAttentionOnly
     } = options;
     let activeTaskColorMap = new Map();
+    let activeRequestColorMap = new Map();
 
     function findCardById(id) {
       if (!board || !id) {
@@ -814,7 +846,7 @@
       return preview;
     }
 
-    function normalizeTaskLookupValue(value) {
+    function normalizeLinkLookupValue(value) {
       return String(value || "")
         .trim()
         .replace(/\\/g, "/")
@@ -824,11 +856,11 @@
     function resolveTaskItem(usage) {
       const items = getItems();
       const normalizedId = String(usage?.id || "").trim();
-      const normalizedRelPath = normalizeTaskLookupValue(usage?.relPath || usage?.path);
+      const normalizedRelPath = normalizeLinkLookupValue(usage?.relPath || usage?.path);
       const normalizedBase = normalizedRelPath ? normalizedRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
       return (
         items.find((candidate) => {
-          const candidateRelPath = normalizeTaskLookupValue(candidate?.relPath || candidate?.path);
+          const candidateRelPath = normalizeLinkLookupValue(candidate?.relPath || candidate?.path);
           const candidateBase = candidateRelPath ? candidateRelPath.split("/").pop()?.replace(/\.md$/i, "") || "" : "";
           return (
             candidate?.id === normalizedId ||
@@ -838,6 +870,17 @@
           );
         }) || null
       );
+    }
+
+    function getResolvedRequestItem(item) {
+      if (!item) {
+        return null;
+      }
+      if (String(item.stage || "").trim() === "request") {
+        return item;
+      }
+      const linkedRequests = typeof collectPrimaryFlowItems === "function" ? collectPrimaryFlowItems(item).filter((candidate) => candidate && String(candidate.stage || "").trim() === "request") : [];
+      return linkedRequests.length > 0 ? linkedRequests[0] : null;
     }
 
     function getActiveTaskUsages(item) {
@@ -852,6 +895,51 @@
         activeTasks.push(taskItem);
       }
       return activeTasks;
+    }
+
+    function createLinkageBadges(item, activeTasks) {
+      const requestItem = getResolvedRequestItem(item);
+      if (!requestItem && activeTasks.length === 0) {
+        return null;
+      }
+
+      const badges = document.createElement("div");
+      badges.className = "card__linkage-indicators";
+      badges.setAttribute("aria-hidden", "true");
+
+      if (requestItem) {
+        const requestBadge = document.createElement("span");
+        requestBadge.className = "card__request-badge";
+        requestBadge.style.background = activeRequestColorMap.get(requestItem.id) || getRequestColor(requestItem.id);
+        requestBadge.title = `Request ${requestItem.id}`;
+        badges.appendChild(requestBadge);
+      }
+
+      if (activeTasks.length > 0) {
+        const taskDotContainer = document.createElement("div");
+        taskDotContainer.className = "card__task-dot-container";
+
+        const visibleTaskCount = activeTasks.length > 2 ? 1 : activeTasks.length;
+        for (let index = 0; index < visibleTaskCount; index += 1) {
+          const task = activeTasks[index];
+          const taskDot = document.createElement("span");
+          taskDot.className = "card__task-dot";
+          taskDot.style.background = activeTaskColorMap.get(task.id) || getTaskColor(task.id);
+          taskDot.title = `Task ${task.id}`;
+          taskDotContainer.appendChild(taskDot);
+        }
+
+        if (activeTasks.length > 2) {
+          const overflow = document.createElement("span");
+          overflow.className = "card__task-dot-overflow";
+          overflow.textContent = `+${activeTasks.length - 1}`;
+          taskDotContainer.appendChild(overflow);
+        }
+
+        badges.appendChild(taskDotContainer);
+      }
+
+      return badges;
     }
 
     function createItemCard(item, compact = false) {
@@ -884,7 +972,6 @@
       }
       const preview = createCardPreview(item);
       const activeTasks = item.stage === "task" ? (isActiveTaskCandidate(item) ? [item] : []) : getActiveTaskUsages(item);
-      const resolveTaskColor = (task) => activeTaskColorMap.get(task.id) || getTaskColor(task.id);
 
       function setPreviewOpen(isOpen) {
         preview.hidden = !isOpen;
@@ -913,28 +1000,9 @@
         card.appendChild(suggestedBadges);
       }
 
-      if (activeTasks.length > 0) {
-        const taskDotContainer = document.createElement("div");
-        taskDotContainer.className = "card__task-dot-container";
-        taskDotContainer.setAttribute("aria-hidden", "true");
-
-        const visibleTaskCount = activeTasks.length > 2 ? 1 : activeTasks.length;
-        for (let index = 0; index < visibleTaskCount; index += 1) {
-          const task = activeTasks[index];
-          const taskDot = document.createElement("span");
-          taskDot.className = "card__task-dot";
-          taskDot.style.background = resolveTaskColor(task);
-          taskDotContainer.appendChild(taskDot);
-        }
-
-        if (activeTasks.length > 2) {
-          const overflow = document.createElement("span");
-          overflow.className = "card__task-dot-overflow";
-          overflow.textContent = `+${activeTasks.length - 1}`;
-          taskDotContainer.appendChild(overflow);
-        }
-
-        card.appendChild(taskDotContainer);
+      const linkageBadges = createLinkageBadges(item, activeTasks);
+      if (linkageBadges) {
+        card.appendChild(linkageBadges);
       }
 
       const primaryFlowSummary = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
@@ -1136,6 +1204,7 @@
       board.innerHTML = "";
       const visibleItems = getItems().filter((item) => isVisible(item));
       activeTaskColorMap = buildTaskColorMap(visibleItems);
+      activeRequestColorMap = buildRequestColorMap(visibleItems);
       if (!visibleItems.length) {
         const empty = document.createElement("div");
         empty.className = "state-message";

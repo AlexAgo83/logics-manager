@@ -20,6 +20,7 @@ import {
   getCreateConfig,
   getNextSequence,
   getWorkspaceRoot,
+  inspectLogicsBootstrapConvergence,
   inspectLogicsBootstrapState,
   inspectLogicsKitSubmodule,
   hasMultipleWorkspaceFolders,
@@ -50,6 +51,8 @@ describe("inspectLogicsBootstrapState", () => {
     ]) {
       fs.mkdirSync(path.join(root, rel), { recursive: true });
     }
+    fs.writeFileSync(path.join(root, "AGENTS.md"), "# agents\n", "utf8");
+    fs.writeFileSync(path.join(root, "LOGICS.md"), "# logics\n", "utf8");
     fs.writeFileSync(
       path.join(root, ".gitmodules"),
       '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://github.com/AlexAgo83/cdx-logics-kit\n',
@@ -99,6 +102,27 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.status).toBe("canonical");
     expect(state.canBootstrap).toBe(false);
     expect(state.convergenceNeeded).toBeUndefined();
+  });
+
+  it("reports AGENTS.md and LOGICS.md as required convergence files", () => {
+    const root = makeCanonicalRoot();
+    fs.rmSync(path.join(root, "AGENTS.md"));
+    fs.rmSync(path.join(root, "LOGICS.md"));
+
+    const convergence = inspectLogicsBootstrapConvergence(root);
+
+    expect(convergence.needed).toBe(true);
+    expect(convergence.missingPaths).toContain("AGENTS.md");
+    expect(convergence.missingPaths).toContain("LOGICS.md");
+  });
+
+  it("keeps canonical bootstrap converged when AGENTS.md and LOGICS.md are present", () => {
+    const root = makeCanonicalRoot();
+
+    const convergence = inspectLogicsBootstrapConvergence(root);
+
+    expect(convergence.needed).toBe(false);
+    expect(convergence.missingPaths).toEqual([]);
   });
 
   it("reports every repo env file missing provider placeholders during convergence", () => {

@@ -11,12 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-extension-package-size-and-file-c|reduce-the-number-of-files-and|ac1-the-packaged-vsix-includes-fewer
 flowchart TD
-  A[Start: Identify large JS file count] --> B[Bundle extension files]
-  B --> C[Apply stricter .vscodeignore]
-  C --> D[Verify package:ci success]
-  D --> E[Check no runtime/test files removed]
-  E --> F[Document package layout]
-  F --> G[Release with reduced size]
+    A[Start: Current package size large] --> B[Identify unnecessary files]
+    B --> C[Apply bundling strategy]
+    C --> D[Configure stricter .vscodeignore]
+    D --> E[Validate package:ci success]
+    E --> F[Confirm no runtime/test files removed]
+    F --> G[Document package layout clearly]
+    G --> H[Result: Reduced size and improved quality]
 ```
 
 # Needs

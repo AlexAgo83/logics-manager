@@ -20,12 +20,13 @@ flowchart TD
   BoardListUX[Board/List Mode UX]
   DebugLogs[Debug Observability]
   LayoutState --> SplitterBehavior
+  LayoutState --> Accessibility
   HostAPI --> Accessibility
+  HostAPI --> Bootstrap
   Accessibility --> CIWorkflow
-  CIWorkflow --> Bootstrap
-  Bootstrap --> BoardListUX
+  CIWorkflow --> DebugLogs
   BoardListUX --> DebugLogs
-  SplitterBehavior --> DebugLogs
+  Bootstrap --> BoardListUX
 ```
 
 # Needs

@@ -13,13 +13,12 @@
 flowchart TD
   Header[Header at top]
   DetailsBody[Details body]
-  Actions[Action buttons]
+  Actions[Action buttons at bottom]
   Header --> DetailsBody
   DetailsBody --> Actions
   classDef collapsed fill:#f9f,stroke:#333,stroke-width:2px;
   %% When collapsed, DetailsBody is hidden but Actions remain pinned
-  %% This can be represented by a note or style
-  click Actions "" "Actions remain visible and clickable"
+  click DetailsBody "toggle collapse" "Toggle details body"
 ```
 
 # Needs

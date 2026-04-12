@@ -58,6 +58,8 @@ It is about making the existing workflow:
 flowchart TD
     Request[Request Created] --> Promote1[Promote to Backlog]
     Promote1 --> Backlog[Backlog Item]
+    Backlog --> Split[Split Large Item]
+    Split --> Backlog2[Backlog Item]
     Backlog --> Promote2[Promote to Task]
     Promote2 --> Task[Task Created]
     Task --> Close[Close Task]

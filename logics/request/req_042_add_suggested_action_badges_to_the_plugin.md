@@ -11,13 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|add-suggested-action-badges-to-the-plugi|surface-stronger-visual-cues-about-what|ac1-the-plugin-displays-suggested-action
 flowchart TD
-    A[Start: Current Plugin] --> B[Identify Actionable States]
-    B --> C[Define Badge Types]
-    C --> D[Integrate Badge Rendering]
-    D --> E[Ensure Board & List Mode Support]
-    E --> F[Maintain Existing Flows]
-    F --> G[Add Tests for Badge Rules]
-    G --> H[End: Enhanced Plugin]
+  A[Start] --> B[Identify actionable states]
+  B --> C[Define badge types]
+  C --> D[Design badge visuals]
+  D --> E[Integrate badges in board mode]
+  D --> F[Integrate badges in list mode]
+  E --> G[Test badge rendering]
+  F --> G
+  G --> H[Deploy feature]
 ```
 
 # Needs

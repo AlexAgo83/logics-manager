@@ -17,14 +17,14 @@ flowchart TD
   ListMode[List Mode View]
   SpecColumn[Show SPEC Column]
   SpecSection[Show SPEC Section]
-  Persistence[Filter State Persistence]
+  PersistState[Persist Filter State]
   FilterPanel --> HideSPEC
-  HideSPEC -- enabled --> SpecColumn[Absent in Board Mode]
-  HideSPEC -- enabled --> SpecSection[Absent in List Mode]
-  HideSPEC -- disabled --> SpecColumn[Present in Board Mode]
-  HideSPEC -- disabled --> SpecSection[Present in List Mode]
-  HideSPEC --> Persistence
-  Persistence --> FilterPanel
+  HideSPEC -- enabled --> SpecColumn[Hide SPEC Column in Board Mode]
+  HideSPEC -- enabled --> SpecSection[Hide SPEC Section in List Mode]
+  HideSPEC -- disabled --> SpecColumn[Show SPEC Column]
+  HideSPEC -- disabled --> SpecSection[Show SPEC Section]
+  HideSPEC --> PersistState
+  PersistState --> FilterPanel
 ```
 
 # Needs

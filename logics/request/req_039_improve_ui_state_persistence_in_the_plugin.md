@@ -16,8 +16,8 @@ flowchart TD
     C -- Yes --> D[Restore Selection]
     C -- No --> E[Ignore Global State]
     D --> F[Restore Scroll Position]
-    F --> G[Restore Expanded Groups]
-    G --> H[Restore View Mode & Preferences]
+    F --> G[Restore Expanded Sections]
+    G --> H[Apply View Mode & Preferences]
     H --> I[Complete Restoration]
 ```
 

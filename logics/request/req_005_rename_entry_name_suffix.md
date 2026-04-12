@@ -9,13 +9,11 @@
 %% logics-signature: request|allow-renaming-request-backlog-task-entr|give-users-the-ability-to-rename|ac1-define-a-measurable-outcome
 flowchart TD
   A[Start] --> B[Identify entry with prefix]
-  B --> C[Check if rename allowed]
-  C -->|No| D[Keep original name]
-  C -->|Yes| E[Allow user to rename]
-  E --> F[Save new name]
-  F --> G[Update display and storage]
-  G --> H[End]
-  D --> H
+  B --> C[Allow rename action]
+  C --> D[Validate new name]
+  D --> E[Update entry name]
+  E --> F[Confirm rename success]
+  F --> G[End]
 ```
 
 # Needs

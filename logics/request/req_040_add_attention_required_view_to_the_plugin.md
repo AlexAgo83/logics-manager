@@ -11,16 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-an-attention-required-view-to-the-pl|add-a-focused-way-to-surface|ac1-the-plugin-exposes-an-explicit
 flowchart TD
-  A[Start: Current plugin view]
-  B[Identify items needing attention]
-  C[Apply explicit attention filter]
-  D[Show attention-required view]
-  E[User reviews actionable items]
-  F[Integrate with existing filters]
-  G[No regression to current workflows]
-  H[Tests validate attention classification]
-  A --> B --> C --> D --> E
-  D --> F --> G --> H
+  A[Start] --> B[Detect items needing attention]
+  B --> C[Apply explicit criteria]
+  C --> D[Show attention-required view]
+  D --> E[Integrate with filters/navigation]
+  E --> F[Ensure no regression]
+  F --> G[Run core tests]
+  G --> H[End]
 ```
 
 # Needs

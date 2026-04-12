@@ -16,7 +16,7 @@ flowchart TD
   C --> D[Integrate signals in UI]
   D --> E[Ensure visibility in board/list modes]
   E --> F[Run tests for coverage]
-  F --> G[Deploy and monitor]
+  F --> G[Deploy update]
 ```
 
 # Needs

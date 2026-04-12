@@ -11,13 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|prevent-disposed-file-watchers-from-accu|keep-the-extension-runtime-clean-when|ac1-rebuilding-the-watcher-does-not
 flowchart TD
-  A[Watcher root change or provider reconfig] --> B[Rebuild watcher]
+  A[Watcher root change or provider reconfig] --> B[Rebuild filesystem watcher]
   B --> C[Dispose active watcher]
   C --> D[Add new watcher to context.subscriptions]
-  D --> E[Extension shutdown disposes active watcher]
-  E --> F[No accumulation of disposed watchers]
-  F --> G[Clean extension runtime]
-  G --> H[Easy watcher lifecycle reasoning]
+  D --> E[Ensure no disposed watchers remain]
+  E --> F[Extension shutdown disposes active watcher]
+  E --> G[No regression on file events]
 ```
 
 # Needs

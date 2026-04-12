@@ -15,9 +15,9 @@ flowchart TD
   B --> C[Update results immediately]
   C --> D[Works in board mode]
   C --> E[Works in list mode]
-  B --> F[Combine with existing filters]
-  F --> G[Clear search restores view]
-  B --> H[Responsive with large data]
+  B --> F[Match title, id, stage, refs, status]
+  B --> G[Combine with existing filters]
+  G --> H[Clear search restores view]
 ```
 
 # Needs

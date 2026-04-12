@@ -11,13 +11,9 @@
 %% logics-kind: request
 %% logics-signature: request|add-full-keyboard-navigation-to-the-plug|make-the-plugin-fully-usable-without|ac1-users-can-move-between-visible
 flowchart TD
-  A[Start: Focus on board/list] --> B[Move between items]
-  B --> C[Open selected item]
-  B --> D[Move between groups/columns]
-  C --> E[Operate main toolbar]
-  E --> F[Operate detail panel]
-  F --> G[Maintain visible focus]
-  G --> H[End: Keyboard-first workflow]
+    Trigger[Add full keyboard navigation to the] --> Need[Make the plugin fully usable without]
+    Need --> Outcome[AC1: Users can move between visible]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Needs

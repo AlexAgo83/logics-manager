@@ -11,13 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|logics-references-compatibility-with-cdx|make-logics-references-consistently-pars|ac1-a-documented-reference-contract-is
 flowchart TD
-    A[Start] --> B[Define ref contract]
-    B --> C[Index explicit markers]
-    C --> D[Check lineage markers]
-    D --> E[Detect workflow issues]
-    E --> F[Establish clear contract]
-    F --> G[Improve parsing & visibility]
-    G --> H[Align lineage & promotion]
+  A[Define ref contract] --> B[Plugin-indexed refs]
+  B --> C[Promotion state aligned]
+  C --> D[Migration approach]
+  D --> E[Validation notes]
+  E --> F[Consistent parsing]
+  F --> G[Align lineage & guardrails]
+  G --> H[Reduce ambiguity]
 ```
 
 # Needs

@@ -37,9 +37,11 @@ The desired UX is:
 %% logics-kind: request
 %% logics-signature: request|propose-commit-after-bootstrap-with-gene|at-the-end-of-project-bootstrap|ac1-after-a-successful-bootstrap-the
 flowchart TD
-    Trigger[Propose commit after bootstrap with genera] --> Need[At the end of project bootstrap]
-    Need --> Outcome[AC1: After a successful bootstrap the]
-    Outcome --> Backlog[Backlog slice]
+    Bootstrap[Bootstrap completes successfully] --> Proposal[Assistant proposes commit]
+    Proposal --> Message[Generate commit message]
+    Message --> UserChoice[User accepts or skips commit]
+    UserChoice --> End[Flow ends]
+    Bootstrap -.-> NoProposal[No commit if bootstrap fails]
 ```
 
 # Acceptance criteria

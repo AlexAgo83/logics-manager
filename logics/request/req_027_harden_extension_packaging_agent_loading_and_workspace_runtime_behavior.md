@@ -44,9 +44,13 @@ Related but separate topics already exist:
 %% logics-kind: request
 %% logics-signature: request|harden-extension-packaging-agent-loading|harden-the-main-vs-code-extension|ac1-the-packaged-vsix-excludes-developme
 flowchart TD
-    Trigger[Harden extension packaging agent loading a] --> Need[Harden the main VS Code extension]
-    Need --> Outcome[AC1: The packaged VSIX excludes developmen]
-    Outcome --> Backlog[Backlog slice]
+    Audit[Audit project state] --> Issues[Identify structural issues]
+    Issues --> Harden[Harden packaging hygiene]
+    Harden --> AgentLoad[Improve agent loading]
+    AgentLoad --> PromptInject[Harden prompt injection]
+    PromptInject --> Workspace[Clarify multi-root workspace]
+    Workspace --> SmokeTest[Add integration smoke test]
+    SmokeTest --> Release[Improve release quality]
 ```
 
 # Acceptance criteria

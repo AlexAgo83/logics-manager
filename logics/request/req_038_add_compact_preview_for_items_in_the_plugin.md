@@ -11,13 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-compact-preview-for-items-in-the-plu|let-users-inspect-a-compact-summary|ac1-users-can-trigger-a-compact
 flowchart TD
-    A[User triggers preview] --> B[Show compact preview]
-    B --> C[Display key metadata]
-    C --> D[Indicators/status]
-    C --> E[Key references]
-    C --> F[Used-by summary]
-    C --> G[Recent updates]
-    B --> H[Dismiss preview cleanly]
+  A[User triggers preview] --> B[Show compact preview]
+  B --> C[Display key metadata]
+  C --> D[Indicators/status]
+  C --> E[Key references]
+  C --> F[Used-by summary]
+  C --> G[Recent update info]
+  B --> H[Dismiss preview cleanly]
 ```
 
 # Needs

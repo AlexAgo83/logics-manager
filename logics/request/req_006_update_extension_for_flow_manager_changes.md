@@ -11,18 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|update-extension-for-flow-manager-change|align-the-vs-code-extension-with|ac1-define-a-measurable-outcome
 flowchart TD
-  NewReq[New Request]
-  PromoteReq[Promote Req to Backlog]
-  PromoteBacklog[Promote Backlog to Task]
-  ValidateScripts[Check Required Scripts]
-  ErrorHandle[Error Handling]
-  SmokeTest[Smoke Test]
-  VersionBump[Extension Version Bump]
-  NewReq --> PromoteReq --> PromoteBacklog
-  PromoteBacklog --> ValidateScripts
-  ValidateScripts -->|Fail| ErrorHandle
-  ValidateScripts -->|Pass| SmokeTest
-  SmokeTest --> VersionBump
+  A[Start] --> B[Check updated logics/skills]
+  B --> C[Shell out to flow manager scripts]
+  C --> D[Validate new request flow]
+  D --> E[Validate promote request-to-backlog]
+  E --> F[Validate promote backlog-to-task]
+  F --> G[Check error handling paths]
+  G --> H[Confirm CLI flags and commands]
 ```
 
 # Needs

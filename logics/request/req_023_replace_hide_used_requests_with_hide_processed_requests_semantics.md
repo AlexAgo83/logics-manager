@@ -40,9 +40,11 @@ This request is about both:
 %% logics-kind: request
 %% logics-signature: request|replace-hide-used-requests-with-hide-pro|replace-the-current-plugin-filter-concep|ac1-the-plugin-no-longer-exposes
 flowchart TD
-    Trigger[Replace hide used requests with hide] --> Need[Replace the current plugin filter concept]
-    Need --> Outcome[AC1: The plugin no longer exposes]
-    Outcome --> Backlog[Backlog slice]
+    Replace[Replace hide used requests] --> Concept[New filter concept: Hide processed]
+    Concept --> Rule[Define processed rule]
+    Rule --> Link[Link to backlog/task with status]
+    Link --> Visible[Visible if only Draft or companion docs]
+    Visible --> Outcome[Outcome: Clear UX and tested]
 ```
 
 # Acceptance criteria

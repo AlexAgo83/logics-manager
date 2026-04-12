@@ -68,4 +68,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- `logics/backlog/item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays.md`
+- `logics/backlog/item_327_allow_kit_update_when_unrelated_root_changes_are_uncommitted.md`

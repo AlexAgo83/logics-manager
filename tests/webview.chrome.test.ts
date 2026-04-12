@@ -96,6 +96,27 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(toolsToggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
+  it("closes the tools panel from the compact close button", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const toolsToggle = dom.window.document.getElementById("tools-toggle");
+    const toolsPanel = dom.window.document.getElementById("tools-panel");
+    const closeButton = dom.window.document.querySelector("[data-tools-panel-close]");
+
+    toolsToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(true);
+
+    closeButton?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+
+    expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
+    expect(toolsToggle?.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("disables action buttons when no item is selected", () => {
     const { dom } = bootstrapWebview();
 

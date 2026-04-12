@@ -342,7 +342,7 @@ function summarizeTimeline(
   options: { period?: TimelinePeriod; bucketCount?: number } = {}
 ): TimelinePoint[] {
   const period = options.period ?? "week";
-  const bucketCount = options.bucketCount ?? (period === "day" ? 30 : 6);
+  const bucketCount = options.bucketCount ?? (period === "day" ? 15 : 6);
   const closedWorkflowItems = items.filter((item) => WORKFLOW_STAGES.has(item.stage) && CLOSED_STATUSES.has(asString(item.indicators.Status, "")));
   const bucketDurationMs = period === "day" ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
   const currentBucketStart = period === "day" ? Date.UTC(new Date(nowMs).getUTCFullYear(), new Date(nowMs).getUTCMonth(), new Date(nowMs).getUTCDate()) : getUtcIsoWeekStart(nowMs);
@@ -408,7 +408,7 @@ function renderTimelineBody(points: TimelinePoint[], emptyMessage: string): stri
 
 function renderTimelineChart(title: string, description: string, weekPoints: TimelinePoint[], dayPoints: TimelinePoint[]): string {
   const weekEmpty = "No closed items in the last 6 weeks.";
-  const dayEmpty = "No closed items in the last 30 days.";
+  const dayEmpty = "No closed items in the last 15 days.";
   const weekBody = renderTimelineBody(weekPoints, weekEmpty);
   const dayBody = renderTimelineBody(dayPoints, dayEmpty);
   return `
@@ -670,7 +670,7 @@ function renderCorpusExplorer(root: string, items: LogicsItem[], weekPoints: Tim
           ${renderCorpusExplorerMap(mapData)}
         </div>
         <div class="logics-insights__explorer-panel" data-explorer-panel="timeline" id="explorer-timeline" role="tabpanel" hidden>
-          ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week or day across the last 30 days.", weekPoints, dayPoints)}
+          ${renderTimelineChart("Delivery timeline", "Closed workflow items bucketed by week or day across the last 15 days.", weekPoints, dayPoints)}
         </div>
       </div>
     </div>
@@ -789,7 +789,7 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const velocityCounts = summarizeVelocity(items, Date.now());
   const nowMs = Date.now();
   const weekTimelinePoints = summarizeTimeline(items, nowMs, { period: "week", bucketCount: 6 });
-  const dayTimelinePoints = summarizeTimeline(items, nowMs, { period: "day", bucketCount: 30 });
+  const dayTimelinePoints = summarizeTimeline(items, nowMs, { period: "day", bucketCount: 15 });
   const blockedItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "Blocked");
   const wipItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "In progress");
   const staleItems = summarizeStaleOpenItems(workflowItems, nowMs);

@@ -1,10 +1,10 @@
 ## task_141_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage - Add request color badges to items and requests to visualize request-task linkage
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -91,3 +91,7 @@ stateDiagram-v2
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Implemented request badges on request cards and on items that resolve a real request linkage, with the request badge rendered before task dots when both are present.
+- Kept the task badge surface intact while amplifying the task and request palettes so the two families stay visually distinct.
+- Added board renderer coverage for the resolved-link case and the unresolved-link fallback path.
+- Validation: `npm test -- tests/webview.board-renderer.test.ts`, `npm run lint:ts`.

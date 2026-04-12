@@ -1,10 +1,10 @@
 ## task_140_extend_bootstrap_convergence_checks_to_cover_agents_and_logics_files - Extend bootstrap convergence checks to cover AGENTS and LOGICS files
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -104,3 +104,5 @@ stateDiagram-v2
 - [ ] Status is `Done` and progress is `100%`.
 
 # Report
+- Extended bootstrap convergence checks to include `AGENTS.md` and `LOGICS.md` as required repo-local bootstrap artifacts.
+- Validation: `npm test -- tests/logicsProviderUtils.test.ts`, `npm run lint:ts`.

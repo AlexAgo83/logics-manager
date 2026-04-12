@@ -6,6 +6,19 @@ import { inspectLogicsBootstrapState } from "./logicsProviderUtils";
 import { RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 
+type LogicsViewProviderEnvironmentHost = {
+  hybridAssistController: {
+    buildProviderRemediationQuickPickItem(root: string): Promise<(vscode.QuickPickItem & { action: () => Promise<void> }) | null>;
+  };
+  buildLogicsYamlBlocksQuickPickItem(root: string): (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
+  buildMissingEnvLocalQuickPickItem(root: string): (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
+  environmentOutput: {
+    clear(): void;
+    appendLine(value: string): void;
+    show(preserveFocus?: boolean): void;
+  };
+};
+
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
   codex: {
     available: false,
@@ -22,7 +35,7 @@ const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
 };
 
 export async function shouldRecommendCheckEnvironment(
-  this: any,
+  this: LogicsViewProviderEnvironmentHost,
   root: string,
   snapshot: LogicsEnvironmentSnapshot | null,
   bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
@@ -62,7 +75,7 @@ export async function shouldRecommendCheckEnvironment(
 }
 
 export function getEnvironmentOverallState(
-  this: any,
+  this: LogicsViewProviderEnvironmentHost,
   snapshot: LogicsEnvironmentSnapshot,
   hybridRuntime: NonNullable<LogicsEnvironmentSnapshot["hybridRuntime"]>,
   actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
@@ -93,7 +106,7 @@ export function getEnvironmentOverallState(
 }
 
 export function getEnvironmentSummaryDescription(
-  this: any,
+  this: LogicsViewProviderEnvironmentHost,
   snapshot: LogicsEnvironmentSnapshot,
   hybridRuntime: NonNullable<LogicsEnvironmentSnapshot["hybridRuntime"]>,
   actions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
@@ -130,7 +143,7 @@ export function getEnvironmentSummaryDescription(
 }
 
 export function writeEnvironmentDiagnosticReport(
-  this: any,
+  this: LogicsViewProviderEnvironmentHost,
   root: string | null,
   snapshot: LogicsEnvironmentSnapshot,
   recommendedActions: Array<vscode.QuickPickItem & { action?: () => Promise<void> }>,
@@ -180,7 +193,7 @@ export function writeEnvironmentDiagnosticReport(
   this.environmentOutput.show(true);
 }
 
-export function ensureLogicsCacheDir(this: any, root: string): void {
+export function ensureLogicsCacheDir(this: unknown, root: string): void {
   const cacheDir = path.join(root, "logics", ".cache");
   if (!fs.existsSync(cacheDir)) {
     try {

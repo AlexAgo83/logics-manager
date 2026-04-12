@@ -76,11 +76,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private readPreviewPanel?: vscode.WebviewPanel;
   private onboardingPanel?: vscode.WebviewPanel;
   private readonly documentController: LogicsViewDocumentController;
-  private readonly hybridAssistController: LogicsHybridAssistController;
+  public readonly hybridAssistController: LogicsHybridAssistController;
   private readonly logicsCorpusInsightsController: LogicsCorpusInsightsController;
   private readonly codexWorkflowController: LogicsCodexWorkflowController;
-  private readonly environmentOutput: vscode.OutputChannel;
+  public readonly environmentOutput: vscode.OutputChannel;
   private runtimeLaunchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE;
+  declare buildLogicsYamlBlocksQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
+  declare buildMissingEnvLocalQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
 
   constructor(
     private readonly context: vscode.ExtensionContext,

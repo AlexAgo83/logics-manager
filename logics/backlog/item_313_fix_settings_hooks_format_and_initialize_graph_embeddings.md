@@ -1,10 +1,10 @@
 ## item_313_fix_settings_hooks_format_and_initialize_graph_embeddings - fix settings hooks format and initialize graph embeddings
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 25%
+> Status: Done
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

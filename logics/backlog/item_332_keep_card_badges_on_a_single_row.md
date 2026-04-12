@@ -1,10 +1,10 @@
 ## item_332_keep_card_badges_on_a_single_row - Keep card badges on a single row
 > From version: 1.27.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

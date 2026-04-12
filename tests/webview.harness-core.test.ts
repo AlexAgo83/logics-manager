@@ -108,22 +108,25 @@ describe("webview harness core behaviors", () => {
     const workflowView = dom.window.document.getElementById("tools-view-workflow");
     const systemView = dom.window.document.getElementById("tools-view-system");
     const toolsPanel = dom.window.document.getElementById("tools-panel") as HTMLDivElement | null;
-    const workflowToggle = dom.window.document.getElementById("workflow-toggle") as HTMLButtonElement | null;
-    const systemToggle = dom.window.document.getElementById("system-toggle") as HTMLButtonElement | null;
+    const toolsToggle = dom.window.document.getElementById("tools-toggle") as HTMLButtonElement | null;
+    const workflowSwitch = dom.window.document.querySelector('[data-tools-view-switch="workflow"]') as HTMLButtonElement | null;
+    const systemSwitch = dom.window.document.querySelector('[data-tools-view-switch="system"]') as HTMLButtonElement | null;
 
     expect(workflowView?.hidden).toBe(false);
     expect(systemView?.hidden).toBe(true);
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(false);
-    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(systemToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(toolsToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(workflowSwitch?.getAttribute("aria-selected")).toBe("true");
+    expect(systemSwitch?.getAttribute("aria-selected")).toBe("false");
 
-    systemToggle?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    systemSwitch?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
 
     expect(workflowView?.hidden).toBe(true);
     expect(systemView?.hidden).toBe(false);
     expect(toolsPanel?.classList.contains("tools-panel--open")).toBe(true);
-    expect(workflowToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(systemToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(toolsToggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(workflowSwitch?.getAttribute("aria-selected")).toBe("false");
+    expect(systemSwitch?.getAttribute("aria-selected")).toBe("true");
   });
 
   it("opens selected item in harness mode without posting open message", async () => {

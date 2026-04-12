@@ -811,9 +811,10 @@ describe("webview harness filters, details, and docs", () => {
 
     const document = dom.window.document;
     const filterToggle = document.getElementById("filter-toggle");
-    const workflowToggle = document.getElementById("workflow-toggle");
-    const assistToggle = document.getElementById("assist-toggle");
-    const systemToggle = document.getElementById("system-toggle");
+    const toolsToggle = document.getElementById("tools-toggle");
+    const workflowSwitch = document.querySelector('[data-tools-view-switch="workflow"]');
+    const assistSwitch = document.querySelector('[data-tools-view-switch="assist"]');
+    const systemSwitch = document.querySelector('[data-tools-view-switch="system"]');
     const newRequestButton = document.querySelector('[data-action="new-request"]');
     const createCompanionDocButton = document.querySelector('[data-action="create-companion-doc"]');
     const addButton = document.querySelector(".column__add") as HTMLButtonElement | null;
@@ -821,9 +822,10 @@ describe("webview harness filters, details, and docs", () => {
     const detailsToggle = document.getElementById("details-toggle");
 
     expect(filterToggle?.getAttribute("title")).toBe("Show view controls");
-    expect(workflowToggle?.getAttribute("title")).toBe("Open workflow menu");
-    expect(assistToggle?.getAttribute("title")).toBe("Open assist menu");
-    expect(systemToggle?.getAttribute("title")).toBe("Open system menu");
+    expect(toolsToggle?.getAttribute("title")).toContain("Open tools menu");
+    expect(workflowSwitch?.getAttribute("aria-selected")).toBe("true");
+    expect(assistSwitch?.getAttribute("aria-selected")).toBe("false");
+    expect(systemSwitch?.getAttribute("aria-selected")).toBe("false");
     expect(document.querySelector('[data-action="launch-codex-overlay"]')).toBeNull();
     expect(document.querySelector('[data-action="launch-claude"]')).toBeNull();
     expect(newRequestButton?.getAttribute("title")).toBe("Create a new request document");

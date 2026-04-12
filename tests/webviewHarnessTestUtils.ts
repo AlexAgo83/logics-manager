@@ -26,10 +26,17 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
         <div class="toolbar">
           <div class="toolbar__row toolbar__row--primary">
             <button id="filter-toggle" class="toolbar__filter"></button>
-            <button id="workflow-toggle" class="toolbar__filter"></button>
-            <button id="assist-toggle" class="toolbar__filter"></button>
-            <button id="system-toggle" class="toolbar__filter"></button>
+            <button id="tools-toggle" class="toolbar__filter"></button>
             <div id="tools-panel">
+              <div class="tools-panel__header">
+                <div class="tools-panel__header-label">Tools</div>
+                <button type="button" data-tools-panel-close></button>
+              </div>
+              <div class="tools-panel__switcher">
+                <button class="tools-panel__switch is-active" data-tools-view-switch="workflow"></button>
+                <button class="tools-panel__switch" data-tools-view-switch="assist"></button>
+                <button class="tools-panel__switch" data-tools-view-switch="system"></button>
+              </div>
               <div data-tools-section="recommended">
                 <div>Recommended</div>
                 <div data-tools-body="recommended">

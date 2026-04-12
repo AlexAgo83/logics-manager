@@ -4,7 +4,6 @@
       activityPanel,
       activityToggle,
       attentionToggle,
-      assistToggle,
       bootstrapLogicsButton,
       repairLogicsKitButton,
       assistPublishReleaseButton,
@@ -28,8 +27,7 @@
       showCompanionDocsToggle,
       sortBySelect,
       toolsPanel,
-      workflowToggle,
-      systemToggle,
+      toolsToggle,
       viewModeToggleButton,
       defaultFilterState,
       canPromote,
@@ -78,6 +76,13 @@
         return;
       }
       button.innerHTML = svgMarkup;
+    }
+
+    function formatToolsViewLabel(viewName) {
+      if (!viewName) {
+        return "Tools";
+      }
+      return String(viewName).replace(/^[a-z]/, (value) => value.toUpperCase());
     }
 
     function listModeIcon() {
@@ -358,18 +363,20 @@
         toolsPanel.classList.toggle("tools-panel--open", isOpen);
         toolsPanel.setAttribute("aria-hidden", String(!isOpen));
       }
-      if (isOpen && viewName && toolsPanelLayout && typeof toolsPanelLayout.setActiveToolsView === "function") {
+      if (viewName && toolsPanelLayout && typeof toolsPanelLayout.setActiveToolsView === "function") {
         toolsPanelLayout.setActiveToolsView(viewName);
       }
       const activeToolsView = getActiveToolsView();
-      if (workflowToggle) {
-        workflowToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "workflow"));
-      }
-      if (assistToggle) {
-        assistToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "assist"));
-      }
-      if (systemToggle) {
-        systemToggle.setAttribute("aria-expanded", String(isOpen && activeToolsView === "system"));
+      if (toolsToggle) {
+        toolsToggle.classList.toggle("toolbar__filter--active", isOpen);
+        toolsToggle.setAttribute("aria-expanded", String(isOpen));
+        toolsToggle.setAttribute(
+          "aria-label",
+          isOpen ? `Close tools menu (${formatToolsViewLabel(activeToolsView)})` : `Open tools menu (${formatToolsViewLabel(activeToolsView)})`
+        );
+        toolsToggle.title = isOpen
+          ? `Close tools menu (${formatToolsViewLabel(activeToolsView)})`
+          : `Open tools menu (${formatToolsViewLabel(activeToolsView)})`;
       }
     }
 

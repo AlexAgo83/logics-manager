@@ -59,6 +59,16 @@ function workflowIcon() {
   `;
 }
 
+function toolsIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="5" y="6" width="14" height="2" rx="1" fill="currentColor" />
+      <rect x="5" y="11" width="14" height="2" rx="1" fill="currentColor" />
+      <rect x="5" y="16" width="14" height="2" rx="1" fill="currentColor" />
+    </svg>
+  `;
+}
+
 function assistIcon() {
   return `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -136,38 +146,29 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
         <div class="toolbar__tools">
           <button
             class="toolbar__filter"
-            id="workflow-toggle"
-            aria-label="Open workflow menu"
+            id="tools-toggle"
+            aria-label="Open tools menu"
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls="tools-panel"
-            title="Open workflow menu"
+            title="Open tools menu"
           >
-            ${workflowIcon()}
-          </button>
-          <button
-            class="toolbar__filter"
-            id="assist-toggle"
-            aria-label="Open assist menu"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            aria-controls="tools-panel"
-            title="Open assist menu"
-          >
-            ${assistIcon()}
-          </button>
-          <button
-            class="toolbar__filter"
-            id="system-toggle"
-            aria-label="Open system menu"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            aria-controls="tools-panel"
-            title="Open system menu"
-          >
-            ${systemIcon()}
+            ${toolsIcon()}
           </button>
           <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <div class="tools-panel__header">
+              <div class="tools-panel__header-label">Tools</div>
+              <button class="tools-panel__close" type="button" data-tools-panel-close aria-label="Close tools menu" title="Close tools menu">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="tools-panel__switcher" role="tablist" aria-label="Tools view">
+              <button class="tools-panel__switch is-active" type="button" role="tab" aria-selected="true" aria-pressed="true" data-tools-view-switch="workflow">${workflowIcon()}<span>Workflow</span></button>
+              <button class="tools-panel__switch" type="button" role="tab" aria-selected="false" aria-pressed="false" data-tools-view-switch="assist">${assistIcon()}<span>Assist</span></button>
+              <button class="tools-panel__switch" type="button" role="tab" aria-selected="false" aria-pressed="false" data-tools-view-switch="system">${systemIcon()}<span>System</span></button>
+            </div>
             <div class="tools-panel__section" data-tools-section="recommended">
               <div class="tools-panel__section-label">Recommended</div>
               <div class="tools-panel__section-body" data-tools-body="recommended">

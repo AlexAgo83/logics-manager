@@ -1,7 +1,7 @@
 ## req_177_fix_flow_manager_to_guide_derived_from_link_pattern_when_a_task_covers_a_backlog_item - fix flow manager to guide derived from link pattern when a task covers a backlog item
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Complexity: Low

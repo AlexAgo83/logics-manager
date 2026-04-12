@@ -1,10 +1,10 @@
 ## item_324_document_n_to_1_orchestration_pattern_in_skill_md_and_add_derived_from_hint_in_backlog_template - document n to 1 orchestration pattern in skill md and add derived from hint in backlog template
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

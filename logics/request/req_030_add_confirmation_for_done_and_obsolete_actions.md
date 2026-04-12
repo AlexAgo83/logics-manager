@@ -11,26 +11,26 @@
 %% logics-kind: request
 %% logics-signature: request|add-confirmation-before-done-and-obsolet|add-an-explicit-confirmation-step-before|ac1-clicking-done-requires-explicit-conf
 flowchart TD
-  Start[Start]
-  ClickDone[Click Done]
-  ClickObsolete[Click Obsolete]
-  ConfirmDone{Confirm Done?}
-  ConfirmObsolete{Confirm Obsolete?}
-  Cancel[Cancel]
-  ApplyDone[Apply Done]
-  ApplyObsolete[Apply Obsolete]
-  Feedback[Show Feedback]
-  Start --> ClickDone
-  Start --> ClickObsolete
-  ClickDone --> ConfirmDone
-  ClickObsolete --> ConfirmObsolete
-  ConfirmDone -- Yes --> ApplyDone
-  ConfirmDone -- No --> Cancel
-  ConfirmObsolete -- Yes --> ApplyObsolete
-  ConfirmObsolete -- No --> Cancel
-  ApplyDone --> Feedback
-  ApplyObsolete --> Feedback
-  Cancel --> Start
+    Start[Start]
+    ClickDone[Click Done]
+    ClickObsolete[Click Obsolete]
+    ConfirmDone{Confirm Done?}
+    ConfirmObsolete{Confirm Obsolete?}
+    Cancel[Cancel]
+    ApplyDone[Apply Done]
+    ApplyObsolete[Apply Obsolete]
+    Feedback[Show Feedback]
+    Start --> ClickDone
+    Start --> ClickObsolete
+    ClickDone --> ConfirmDone
+    ClickObsolete --> ConfirmObsolete
+    ConfirmDone -- Yes --> ApplyDone
+    ConfirmDone -- No --> Cancel
+    ConfirmObsolete -- Yes --> ApplyObsolete
+    ConfirmObsolete -- No --> Cancel
+    ApplyDone --> Feedback
+    ApplyObsolete --> Feedback
+    Cancel --> Start
 ```
 
 # Needs

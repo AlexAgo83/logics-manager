@@ -11,13 +11,9 @@
 %% logics-kind: request
 %% logics-signature: request|apply-hide-empty-columns-consistently-in|make-the-hide-empty-columns-option|ac1-when-hide-empty-columns-is
 flowchart TD
-    A[Enable Hide Empty Columns] --> B{View Mode}
-    B -->|Board| C[Hide Empty Stages]
-    B -->|List| D[Hide Empty Groups]
-    C --> E[Consistent Filter Behavior]
-    D --> E
-    E --> F[Remove Visual Noise]
-    F --> G[Improve User Trust]
+    Trigger[Apply hide empty columns consistently in] --> Need[Make the Hide empty columns option]
+    Need --> Outcome[AC1: When Hide empty columns is]
+    Outcome --> Backlog[Backlog slice]
 ```
 
 # Needs

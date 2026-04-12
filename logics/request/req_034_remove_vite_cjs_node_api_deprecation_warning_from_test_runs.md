@@ -11,9 +11,14 @@
 %% logics-kind: request
 %% logics-signature: request|remove-the-vite-cjs-node-api-deprecation|remove-the-vite-deprecation-warning-curr|ac1-running-the-project-test-suite
 flowchart TD
-    Trigger[Remove the Vite CJS Node API] --> Need[Remove the Vite deprecation warning curren]
-    Need --> Outcome[AC1: Running the project test suite]
-    Outcome --> Backlog[Backlog slice]
+    A[Start: Current test runs emit Vite CJS warning] --> B[Identify deprecated CJS Node API usage]
+    B --> C[Update to supported Vite/Vitest config path]
+    C --> D[Run test suite]
+    D --> E{Warning present?}
+    E -- No --> F[Confirm no breakage in tests and workflows]
+    F --> G[Document config changes]
+    G --> H[End: Cleaner test output without warnings]
+    E -- Yes --> C
 ```
 
 # Needs

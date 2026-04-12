@@ -11,12 +11,15 @@
 %% logics-kind: request
 %% logics-signature: request|keep-detail-panel-actions-fixed-at-the-b|keep-the-primary-actions-of-the|ac1-the-details-panel-separates-its
 flowchart TD
-  A[Board/Activity Region] --> B[Detail Panel]
-  B --> C[Scrollable Detail Content]
-  B --> D[Fixed Action Area]
-  A -.-> B
-  C -->|scrolls| C
-  D -.->|fixed height| D
+    A[Board/Activity Region] --> B[Detail Panel]
+    B --> C[Scrollable Detail Content]
+    B --> D[Fixed Action Area]
+    A -.-> B
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:1px
+    style A fill:#afa,stroke:#333,stroke-width:1px
+    classDef fixedArea fill:#f9f,stroke:#333,stroke-width:2px
+    class D fixedArea
 ```
 
 # Needs

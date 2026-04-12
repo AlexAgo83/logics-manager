@@ -15,9 +15,10 @@ flowchart TD
     ToolsMenu[Tools menu]
     RefreshBtn[Refresh button]
     UseWorkspace[Use workspace]
-    Toolbar -->|Remove Refresh| RefreshBtn
-    ToolsMenu --> UseWorkspace --> RefreshBtn
-    RefreshBtn -->|Preserve behavior| RefreshBtn
+    RefreshAction[Refresh action]
+    Toolbar -->|remove RefreshBtn| RefreshBtn
+    ToolsMenu --> UseWorkspace --> RefreshAction
+    RefreshAction -->|preserve behavior| RefreshBtn
 ```
 
 # Needs

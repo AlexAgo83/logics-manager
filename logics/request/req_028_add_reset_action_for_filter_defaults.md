@@ -16,8 +16,8 @@ flowchart TD
     C --> D[Restore default filter states]
     D --> E[Update UI and content immediately]
     E --> F[Persist reset state]
-    F --> G[Maintain unrelated UI state]
-    G --> H[Webview harness verifies behavior]
+    F --> G[Reload webview keeps defaults]
+    B -.-> H[Unrelated UI state unchanged]
 ```
 
 # Needs

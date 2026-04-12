@@ -33,9 +33,11 @@ The desired direction is therefore a bridge, not a migration:
 %% logics-kind: request
 %% logics-signature: request|add-a-minimal-claude-code-bridge-for-log|make-logics-more-natively-usable-from|ac1-the-solution-defines-a-minimal
 flowchart TD
-    Trigger[Add a minimal Claude Code bridge] --> Need[Make Logics more natively usable from]
-    Need --> Outcome[AC1: The solution defines a minimal]
-    Outcome --> Backlog[Backlog slice]
+    Trigger[Add minimal Claude bridge] --> Need[Make Logics usable from Claude]
+    Need --> Bridge[Keep .claude thin layer]
+    Bridge --> Point[Point to logics sources]
+    Point --> Preserve[Preserve logics as source of truth]
+    Preserve --> Outcome[Reduce duplication and drift]
 ```
 
 # Acceptance criteria

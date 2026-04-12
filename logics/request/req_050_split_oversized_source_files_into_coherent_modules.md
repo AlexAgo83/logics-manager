@@ -11,13 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|split-oversized-source-files-into-cohere|reduce-the-maintenance-cost-of-a|ac1-each-targeted-oversized-file-is
 flowchart TD
-    A[Identify oversized files] --> B[Analyze responsibilities]
-    B --> C[Define coherent modules]
-    C --> D[Split files into modules]
-    D --> E[Ensure module size 500-1000 lines]
-    E --> F[Verify no behavior change]
-    F --> G[Clarify ownership and interfaces]
-    G --> H[Run and add tests]
+  A[Identify oversized files] --> B[Analyze responsibilities]
+  B --> C[Define coherent modules]
+  C --> D[Refactor files into modules]
+  D --> E[Verify no behavior change]
+  E --> F[Ensure module size 500-1000 lines]
+  F --> G[Update tests and interfaces]
+  G --> H[Review and finalize refactor]
 ```
 
 # Needs

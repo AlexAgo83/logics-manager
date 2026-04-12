@@ -12,11 +12,12 @@
 %% logics-signature: request|move-secondary-view-controls-into-a-togg|reduce-the-visual-clutter-and-interactio|ac1-the-plugin-exposes-a-primary
 flowchart TD
     A[Primary Toolbar] -->|Focus on main actions| B[Secondary Toolbar Row]
-    B --> C[Toggle Button]
+    B --> C{Toggle Button}
     C -->|Show/Hide| B
-    B --> D[Persist State per Workspace]
-    B --> E[Usable in Narrow Widths]
+    B --> D[Secondary Controls]
+    C --> E[Persist State per Workspace]
     A --> F[Signal Active Filters When Closed]
+    B --> G[Responsive Layout]
 ```
 
 # Needs

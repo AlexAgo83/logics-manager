@@ -37,6 +37,8 @@ flowchart LR
 - AC3: The generated views can be refreshed deterministically from repository data, with a documented command or script entry point.
 - AC4: The navigation surface makes it faster to find related docs than browsing the raw directory tree, especially for large request/backlog/task clusters.
 - AC5: The generated output includes validation or guardrails for stale links, missing refs, or docs that are not yet represented in the views.
+- AC6: The corpus explorer surface stays readable in the compact Insights panel and avoids fake data or decorative filler.
+- AC7: Tests or snapshots cover the explorer entry point and representative map/timeline states so the visual surface does not regress silently.
 
 # AC Traceability
 - AC1 -> Scope: A generated `logics/INDEX.md` or equivalent exists and lists the core workflow document families with titles, status or progress, and direct repo-relative paths.. Proof: capture validation evidence in this doc.
@@ -44,6 +46,8 @@ flowchart LR
 - AC3 -> Scope: The generated views can be refreshed deterministically from repository data, with a documented command or script entry point.. Proof: capture validation evidence in this doc.
 - AC4 -> Scope: The navigation surface makes it faster to find related docs than browsing the raw directory tree, especially for large request/backlog/task clusters.. Proof: capture validation evidence in this doc.
 - AC5 -> Scope: The generated output includes validation or guardrails for stale links, missing refs, or docs that are not yet represented in the views.. Proof: capture validation evidence in this doc.
+- AC6 -> Scope: The corpus explorer surface stays readable in the compact Insights panel and avoids fake data or decorative filler.. Proof: capture validation evidence in this doc.
+- AC7 -> Scope: Tests or snapshots cover the explorer entry point and representative map/timeline states so the visual surface does not regress silently.. Proof: capture validation evidence in this doc.
 
 # Decision framing
 - Product framing: Consider

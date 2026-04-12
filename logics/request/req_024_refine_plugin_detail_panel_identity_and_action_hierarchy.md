@@ -38,8 +38,9 @@ It should preserve the current workflow behavior while improving:
 %% logics-kind: request
 %% logics-signature: request|refine-plugin-detail-panel-identity-and-|refine-the-vs-code-plugin-detail|ac1-the-detail-panel-title-area
 flowchart TD
-    Trigger[Start refinement] --> Readability[Improve readability]
-    Readability --> Hierarchy[Enhance visual hierarchy]
+    Start[Start refinement] --> Readability[Improve readability]
+    Readability --> ReduceWeight[Reduce low-value metadata weight]
+    ReduceWeight --> Hierarchy[Enhance visual hierarchy]
     Hierarchy --> Actions[Distinguish action semantics]
     Actions --> Preserve[Preserve companion-doc workflow]
     Preserve --> Outcome[Deliver stable, clear panel]

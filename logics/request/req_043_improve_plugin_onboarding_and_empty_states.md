@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|improve-plugin-onboarding-and-empty-stat|make-the-plugin-easier-to-understand|ac1-empty-states-provide-actionable-guid
 flowchart TD
-    Trigger[Improve plugin onboarding and empty states] --> Need[Make the plugin easier to understand]
-    Need --> Outcome[AC1: Empty states provide actionable guida]
-    Outcome --> Backlog[Backlog slice]
+    A[Start] --> B[Identify key concepts]
+    B --> C[Design clear first-use guidance]
+    C --> D[Implement actionable empty states]
+    D --> E[Ensure context-aware help]
+    E --> F[Keep UI uncluttered]
+    F --> G[Test onboarding and empty states]
+    G --> H[Release improved plugin]
 ```
 
 # Needs

@@ -11,12 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|web-debug-harness-for-cdx-logics-vscode-|debug-and-iterate-webview-rendering-in|ac1-a-browser-accessible-debug-entrypoin
 flowchart TD
-  A[Browser Debug Entrypoint] --> B[Mock acquireVsCodeApi]
-  B --> C[Support getState/setState/postMessage]
-  C --> D[Push type:data payloads]
-  D --> E[Reproduce board/details rendering]
-  E --> F[Reusable scenarios: empty, error, populated]
-  F --> G[Document limits vs real VS Code runtime]
+    A[Browser Debug Entrypoint] --> B[Mock acquireVsCodeApi]
+    B --> C[Support getState/setState/postMessage]
+    C --> D[Push type:data payloads]
+    D --> E[Reproduce board/details rendering]
+    E --> F[Reusable scenarios: empty, error, populated]
+    F --> G[Document limits vs real VS Code runtime]
 ```
 
 # Needs

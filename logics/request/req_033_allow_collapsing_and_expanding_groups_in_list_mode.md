@@ -11,14 +11,16 @@
 %% logics-kind: request
 %% logics-signature: request|allow-collapsing-and-expanding-groups-in|allow-each-group-section-in-list|ac1-each-visible-group-in-list
 flowchart TD
-    A[List Mode] --> B[Groups Visible]
-    B --> C[Collapse Control]
-    C --> D[Collapse Group]
-    C --> E[Expand Group]
-    D --> F[Hide Items]
-    E --> G[Show Items]
-    F --> H[Keep Header Visible]
-    G --> H
+    A[Start: List mode with groups] --> B[Show collapse/expand control on each group]
+    B --> C{User clicks collapse?}
+    C -- Yes --> D[Hide group items, keep header visible]
+    C -- No --> E[Keep group expanded]
+    D --> F{User clicks expand?}
+    F -- Yes --> G[Restore group items in place]
+    F -- No --> H[Keep group collapsed]
+    G --> B
+    E --> B
+    H --> B
 ```
 
 # Needs

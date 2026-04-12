@@ -30,14 +30,16 @@ flowchart TD
 
 # Acceptance criteria
 - AC1: Confirm add day and week period selector to delivery timeline in logics insights delivers one coherent backlog slice.
+- AC2: Tests or snapshots cover the active and inactive presentation of the Day / Week buttons and the compact Day-mode legend so the visual behavior does not regress silently.
 
 # AC Traceability
 - AC1 -> Scope: Deliver the bounded slice for add day and week period selector to delivery timeline in logics insights. Proof: capture validation evidence in this doc.
-- AC2 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC2 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable, and the visual test coverage guards the selected state and compact legend.
 - AC3 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
 - AC4 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
 - AC5 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
 - AC6 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC7 -> Scope: The visual test coverage keeps the active state, inactive state, and compact day legend from regressing silently. Proof: the linked request and task keep the scope bounded and traceable.
 
 # Decision framing
 - Product framing: Not needed

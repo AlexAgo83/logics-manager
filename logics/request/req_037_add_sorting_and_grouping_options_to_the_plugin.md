@@ -11,9 +11,13 @@
 %% logics-kind: request
 %% logics-signature: request|add-sorting-and-grouping-options-to-the-|add-richer-ways-to-order-and|ac1-the-plugin-exposes-at-least
 flowchart TD
-    Trigger[Add sorting and grouping options to] --> Need[Add richer ways to order and]
-    Need --> Outcome[AC1: The plugin exposes at least]
-    Outcome --> Backlog[Backlog slice]
+    A[Start: Current Stage-Based View] --> B[Add Sort Control]
+    B --> C[Add Grouping Mode]
+    C --> D[Sort by Recency, Priority, Progress]
+    D --> E[Group by Urgency or Status]
+    E --> F[Ensure Visibility of Active Sort/Group]
+    F --> G[Allow Clear/Change to Default]
+    G --> H[Tests Cover Main Paths]
 ```
 
 # Needs

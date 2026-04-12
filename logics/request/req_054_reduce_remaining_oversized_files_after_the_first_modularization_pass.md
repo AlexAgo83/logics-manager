@@ -11,14 +11,12 @@
 %% logics-kind: request
 %% logics-signature: request|reduce-remaining-oversized-files-after-t|finish-the-modularization-effort-by-redu|ac1-each-targeted-file-is-reduced
 flowchart TD
-  A[Start: Identify oversized files] --> B[Extract coherent modules]
-  B --> C[Check file size reduction]
-  C -->|Below threshold| D[Preserve entry-point readability]
-  C -->|Still large| E[Justify exceptions]
-  D --> F[Update tests and validation]
-  E --> F
-  F --> G[Maintain architecture clarity]
-  G --> H[End: Modularization complete]
+  A[Identify oversized files] --> B[Extract responsibility modules]
+  B --> C[Reduce file size to 500-1000 lines]
+  C --> D[Preserve entry-point readability]
+  D --> E[Maintain user-visible behavior]
+  E --> F[Keep imports and boundaries clear]
+  F --> G[Update validation and tests]
 ```
 
 # Needs

@@ -16,7 +16,7 @@ flowchart TD
   C --> D[Add License badge reflecting repo license]
   D --> E[Add Version badge aligned with package.json]
   E --> F[Add relevant additional badges]
-  F --> G[Validate badge links render correctly]
+  F --> G[Validate badge links]
   G --> H[End]
 ```
 

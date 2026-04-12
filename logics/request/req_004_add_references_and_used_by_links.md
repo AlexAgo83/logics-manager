@@ -8,17 +8,12 @@
 %% logics-kind: request
 %% logics-signature: request|add-references-and-used-by-links-on-requ|allow-adding-and-editing-references-and|ac1-define-a-measurable-outcome
 flowchart TD
-  Req[Request Entry]
-  Backlog[Backlog Entry]
-  Task[Task Entry]
-  Ref[References]
-  UsedBy[Used By]
-  Req -->|add/edit| Ref
-  Req -->|add/edit| UsedBy
-  Backlog -->|add/edit| Ref
-  Backlog -->|add/edit| UsedBy
-  Task -->|add/edit| Ref
-  Task -->|add/edit| UsedBy
+  Request -->|add/edit refs| Backlog
+  Backlog -->|add/edit refs| Task
+  Task -->|add/edit refs| Request
+  Request -->|used by| Backlog
+  Backlog -->|used by| Task
+  Task -->|used by| Request
 ```
 
 # Needs

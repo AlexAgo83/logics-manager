@@ -10,10 +10,9 @@
 flowchart TD
     A[Toolbar with inline toggles] --> B[Click filter icon]
     B --> C[Open filter panel]
-    C --> D[Show regrouped options]
-    D --> E[User selects options]
-    E --> F[Apply filters]
-    F --> G[Decluttered header with quick access]
+    C --> D[Grouped options inside panel]
+    D --> E[Quick access maintained]
+    E --> F[Header decluttered]
 ```
 
 # Needs

@@ -61,7 +61,7 @@ flowchart TD
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 - Request: `req_186_keep_card_badges_on_a_single_row`
-- Primary task(s): `task_XXX_example`
+- Primary task(s): `task_144_handle_badge_overflow_and_wrapping_on_cards`
 <!-- When creating a task from this item, add: Derived from `this file path` in the task # Links section -->
 
 # AI Context

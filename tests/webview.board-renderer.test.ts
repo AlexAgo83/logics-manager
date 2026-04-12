@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { baseItem, bootstrapWebview, pushData, specItem } from "./webviewHarnessTestUtils";
+import { baseItem, bootstrapWebview, productItem, pushData, specItem } from "./webviewHarnessTestUtils";
 
 describe("webview board renderer behavior", () => {
   function installIntersectionObserverMock(dom: ReturnType<typeof bootstrapWebview>["dom"]) {
@@ -324,6 +324,43 @@ describe("webview board renderer behavior", () => {
     const board = dom.window.document.getElementById("board");
     const card = board?.querySelector(".card");
     expect(card?.classList.contains("card--compact")).toBe(true);
+    expect(card?.querySelector(".card__meta")).toBeFalsy();
+  });
+
+  it("keeps linkage metadata while dropping filename subtitles from cards", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...productItem,
+          id: "prod_010_linked",
+          title: "Linked product",
+          usedBy: [
+            {
+              id: "req_010_linked_request",
+              stage: "request",
+              title: "Linked request",
+              relPath: "logics/request/req_010_linked_request.md"
+            }
+          ]
+        },
+        {
+          ...baseItem,
+          id: "req_010_linked_request",
+          title: "Linked request",
+          relPath: "logics/request/req_010_linked_request.md",
+          path: "/workspace/mock/logics/request/req_010_linked_request.md",
+          indicators: { Status: "Ready" }
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const card = board?.querySelector('[data-id="prod_010_linked"]');
+    expect(card?.querySelector(".card__meta--linkage")).toBeTruthy();
+    expect(card?.querySelector(".card__meta:not(.card__meta--linkage)")).toBeFalsy();
   });
 
   it("renders the compact document prefix before the card title", () => {
@@ -338,6 +375,29 @@ describe("webview board renderer behavior", () => {
     const title = dom.window.document.querySelector(".card__title-text");
     expect(prefix?.textContent).toBe("R000");
     expect(title?.textContent).toBe("Kickoff");
+  });
+
+  it("shows Theme first in the hover preview when available", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          indicators: {
+            Status: "Ready",
+            Theme: "Navigation",
+            Updated: "2026-04-12T00:00:00.000Z"
+          }
+        }
+      ]
+    });
+
+    const previewRows = Array.from(dom.window.document.querySelectorAll(".card__preview-row"));
+    expect(previewRows[0]?.textContent).toContain("Theme");
+    expect(previewRows[0]?.textContent).toContain("Navigation");
+    expect(previewRows[1]?.textContent).toContain("Status");
   });
 
   it("omits primary-flow text from spec cards in board and list renderings", () => {

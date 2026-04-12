@@ -160,6 +160,11 @@ const REQUIRED_BOOTSTRAP_DIRS = [
   "logics/external"
 ] as const;
 
+const REQUIRED_BOOTSTRAP_FILES = [
+  "AGENTS.md",
+  "LOGICS.md"
+] as const;
+
 const REQUIRED_GITIGNORE_ENTRIES = [
   ".env.local",
   "logics/.cache/",
@@ -303,6 +308,12 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
   const missingPaths: string[] = [];
 
   for (const rel of REQUIRED_BOOTSTRAP_DIRS) {
+    if (!fs.existsSync(path.join(root, rel))) {
+      missingPaths.push(rel);
+    }
+  }
+
+  for (const rel of REQUIRED_BOOTSTRAP_FILES) {
     if (!fs.existsSync(path.join(root, rel))) {
       missingPaths.push(rel);
     }

@@ -467,22 +467,26 @@
     }
 
     function handleDocumentClick(event) {
+      const clickTarget = event.target;
+      if (clickTarget instanceof Element && clickTarget.closest("[data-tools-panel-close]")) {
+        setToolsPanelOpen(undefined, false);
+        return;
+      }
       if (state.toolsPanelOpen && toolsPanel) {
-        const target = event.target;
         const toolbarButtons = [toolsToggle].filter(Boolean);
-        const clickedToolbarButton = toolbarButtons.some((button) => button && button.contains(target));
-        if (!toolsPanel.contains(target) && !clickedToolbarButton) {
+        const clickedToolbarButton = toolbarButtons.some((button) => button && button.contains(clickTarget));
+        if (!toolsPanel.contains(clickTarget) && !clickedToolbarButton) {
           setToolsPanelOpen(undefined, false);
         }
       }
       if (!state.activeColumnMenu) {
         return;
       }
-      const target = event.target;
-      if (state.activeColumnMenu.contains(target)) {
+      const menuTarget = event.target;
+      if (state.activeColumnMenu.contains(menuTarget)) {
         return;
       }
-      if (state.activeColumnMenuButton && state.activeColumnMenuButton.contains(target)) {
+      if (state.activeColumnMenuButton && state.activeColumnMenuButton.contains(menuTarget)) {
         return;
       }
       closeColumnMenu();

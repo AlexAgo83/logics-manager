@@ -368,7 +368,7 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Blocked");
     expect(html).toContain("Open request without backlog");
     expect(html).toContain("Stale navigation request");
-    expect(html).toContain("No closed items in the last 30 days.");
+    expect(html).toContain("No closed items in the last 15 days.");
     expect(html).toContain("Status distribution");
     expect(html).toContain("Theme distribution");
     expect(html).toContain("Understanding distribution");
@@ -467,7 +467,7 @@ describe("logics HTML builders", () => {
 
     expect(html).toContain("Delivery timeline");
     expect(html).toContain("No closed items in the last 6 weeks.");
-    expect(html).toContain("No closed items in the last 30 days.");
+    expect(html).toContain("No closed items in the last 15 days.");
   });
 
   it("switches the delivery timeline between week and day panels without rebuilding the controls", async () => {

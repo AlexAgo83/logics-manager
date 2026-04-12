@@ -1,9 +1,9 @@
 ## req_175_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights - add day and week period selector to delivery timeline in logics insights
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -85,4 +85,4 @@ flowchart LR
 - Skip when: Work targets other sections of the insights panel or unrelated surfaces.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`

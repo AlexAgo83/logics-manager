@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|remove-dead-shim-split-oversized-ts-file|remove-dead-shim-split-oversized-ts|deliver-the-bounded-slice-for-remove|ac1-confirm-remove-dead-shim-split
+%% logics-signature: backlog|remove-dead-shim-split-oversized-ts-file|req-171-address-post-audit-coverage-regr|deliver-the-bounded-slice-for-remove|ac1-confirm-remove-dead-shim-split
 flowchart TD
     A[Start] --> B[Remove dead shim]
     B --> C[Split oversized TS files]
@@ -43,8 +43,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift.md`
+- Primary task(s): `logics/tasks/task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis.md`
 
 # AI Context
 - Summary: remove dead shim split oversized ts files and document webview coverage decision

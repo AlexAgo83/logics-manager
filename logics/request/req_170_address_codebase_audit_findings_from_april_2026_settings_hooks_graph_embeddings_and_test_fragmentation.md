@@ -1,9 +1,9 @@
 ## req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation - address codebase audit findings from april 2026 settings hooks graph embeddings and test fragmentation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -77,4 +77,5 @@ flowchart TD
 - Skip when: Work targets unrelated features or a different audit cycle.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_313_fix_settings_hooks_format_and_initialize_graph_embeddings.md`
+- `logics/backlog/item_314_audit_graph_import_resolution_community_fragmentation_and_extract_shared_test_helpers.md`

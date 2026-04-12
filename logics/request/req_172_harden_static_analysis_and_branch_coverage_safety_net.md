@@ -1,9 +1,9 @@
 ## req_172_harden_static_analysis_and_branch_coverage_safety_net - harden static analysis and branch coverage safety net
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -86,4 +86,4 @@ flowchart TD
 - Skip when: Work targets feature delivery or unrelated modules.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast.md`

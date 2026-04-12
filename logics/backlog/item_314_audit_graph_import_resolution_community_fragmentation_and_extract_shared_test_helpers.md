@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 90%
-> Confidence: 80%
+> Confidence: 81%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|audit-graph-import-resolution-community-|audit-graph-import-resolution-community-|deliver-the-bounded-slice-for-audit|ac1-confirm-audit-graph-import-resolutio
+%% logics-signature: backlog|audit-graph-import-resolution-community-|req-170-address-codebase-audit-findings-|deliver-the-bounded-slice-for-audit|ac1-confirm-audit-graph-import-resolutio
 flowchart TD
     A[Start] --> B[Confirm audit graph import resolution]
     B --> C[Check community fragmentation]
@@ -44,8 +44,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation.md`
+- Primary task(s): `logics/tasks/task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis.md`
 
 # AI Context
 - Summary: audit graph import resolution community fragmentation and extract shared test helpers

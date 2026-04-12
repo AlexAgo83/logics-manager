@@ -1,9 +1,9 @@
 ## req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift - address post audit coverage regressions dead shim and file size drift
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -96,4 +96,5 @@ flowchart TD
 - Skip when: Work targets new features or unrelated modules.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision.md`
+- `logics/backlog/item_316_improve_extension_ts_branch_coverage_and_maintain_overall_coverage_floor.md`

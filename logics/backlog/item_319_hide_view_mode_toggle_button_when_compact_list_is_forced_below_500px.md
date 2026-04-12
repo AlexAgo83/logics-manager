@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 95%
+> Confidence: 96%
 > Progress: 0%
 > Complexity: Low
 > Theme: UI
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|hide-view-mode-toggle-button-when-compac|hide-view-mode-toggle-button-when|deliver-the-bounded-slice-for-hide|ac1-confirm-hide-view-mode-toggle
+%% logics-signature: backlog|hide-view-mode-toggle-button-when-compac|req-174-hide-view-mode-toggle-button-whe|deliver-the-bounded-slice-for-hide|ac1-confirm-hide-view-mode-toggle
 flowchart TD
     A[Start] --> B{Screen width < 500px?}
     B -- Yes --> C[Force compact list]
@@ -46,8 +46,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_174_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px.md`
+- Primary task(s): `logics/tasks/task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation.md`
 
 # AI Context
 - Summary: hide view mode toggle button when compact list is forced below 500px

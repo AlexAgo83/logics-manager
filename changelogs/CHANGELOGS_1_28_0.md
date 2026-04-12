@@ -2,8 +2,8 @@
 
 ## Major Highlights
 
-- Generated from 9 commit(s) between `v1.27.0` and `HEAD` on 2026-04-12.
-- Touched areas: Workflow and Skills, Validation and CI.
+- Generated from 11 commit(s) between `v1.27.0` and `HEAD` on 2026-04-12.
+- Touched areas: Workflow and Skills, Validation and CI, Release and Changelog Automation.
 - Cards now keep all metadata badges on a single row, while the request/task marker stays as a separate corner cue.
 - The corpus explorer map now favors compact family tiles instead of a dense relationship graph, which makes the overview easier to scan.
 - The tools menu and timeline labels were tightened so the top-level UI stays compact and predictable.
@@ -16,6 +16,7 @@
 - The request/task marker remains outside the main badge strip
 - The corpus explorer map now uses compact family tiles
 - Workflow docs for the badge-row and corpus-map cleanup were closed
+- Release audit blockers were closed and the corpus workflow docs were normalized
 
 ## Validation and CI
 
@@ -24,6 +25,10 @@
 - Keep card badges on one row
 - Simplify corpus map readability
 - Unify card badge strip layout
+
+## Release and Changelog Automation
+
+- Prepare release 1.28.0
 
 ## Validation and Regression Evidence
 
@@ -34,3 +39,5 @@
 - `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle` -> skipped because the VS Code `code` CLI is unavailable in this environment
 - `npm run test:coverage:src` -> passed
 - `npm run test:coverage:media` -> passed
+- `npm run release:changelog:validate` -> passed
+- `npm run audit:logics` -> passed after closing the superseded badge request parent and checking the corpus request DoR

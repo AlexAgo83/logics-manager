@@ -1,7 +1,7 @@
 ## item_293_reduce_src_bootstrap_hub_coupling_by_extracting_a_dedicated_module - Reduce src-bootstrap hub coupling by extracting a dedicated module
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 80%
 > Progress: 100%
@@ -72,3 +72,8 @@ flowchart TD
 
 # Notes
 - Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.
+
+# Report
+- The bootstrap kit-install / convergence responsibilities were extracted into `src/logicsCodexWorkflowKitSupport.ts`.
+- `src/logicsCodexWorkflowBootstrapSupport.ts` and `src/logicsCodexWorkflowOperations.ts` now delegate canonical `.gitmodules` repair, fallback kit installation, and convergence-note formatting to that helper module.
+- Validation passes with `npm run lint:ts`, `npm run test:smoke`, `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle` (CLI unavailable in this workspace), and `npm run test:coverage:src`.

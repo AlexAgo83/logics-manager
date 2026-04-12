@@ -191,6 +191,40 @@ describe("extension.activate", () => {
     expect(provider.refresh).toHaveBeenCalledTimes(3);
   });
 
+  it("accepts git.path configured as a string array", async () => {
+    mocks.getConfiguration.mockReturnValue({
+      get: vi.fn(() => ["C:\\Tools\\Git\\bin\\git.exe", "C:\\Tools\\Git\\cmd\\git.exe"])
+    });
+
+    const { activate } = await import("../src/extension");
+    const context = { subscriptions: [] } as never;
+
+    activate(context);
+
+    expect(mocks.configureGitPathSettingReader).toHaveBeenCalledTimes(1);
+    expect(mocks.configureGitPathSettingReader.mock.calls[0]?.[0]()).toEqual([
+      "C:\\Tools\\Git\\bin\\git.exe",
+      "C:\\Tools\\Git\\cmd\\git.exe"
+    ]);
+  });
+
+  it("returns undefined for invalid git.path values and skips watcher setup when no root is available", async () => {
+    provider.getWatcherRoot.mockReturnValue(undefined);
+    mocks.getConfiguration.mockReturnValue({
+      get: vi.fn(() => ["C:\\Tools\\Git\\bin\\git.exe", 42])
+    });
+
+    const { activate } = await import("../src/extension");
+    const context = { subscriptions: [] } as never;
+
+    activate(context);
+
+    expect(mocks.configureGitPathSettingReader).toHaveBeenCalledTimes(1);
+    expect(mocks.configureGitPathSettingReader.mock.calls[0]?.[0]()).toBeUndefined();
+    expect(mocks.createFileSystemWatcher).not.toHaveBeenCalled();
+    expect(provider.refresh).toHaveBeenCalledTimes(1);
+  });
+
   it("rebuilds watchers when workspace folders change", async () => {
     const { activate } = await import("../src/extension");
     const context = { subscriptions: [] } as never;
@@ -201,6 +235,19 @@ describe("extension.activate", () => {
     workspaceFoldersChanged?.();
 
     expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(8);
+    expect(provider.refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("clears an existing refresh timer when watcher changes happen back-to-back", async () => {
+    const { activate } = await import("../src/extension");
+    const context = { subscriptions: [] } as never;
+
+    activate(context);
+
+    watchers[0]?.didChange?.();
+    watchers[0]?.didChange?.();
+    vi.advanceTimersByTime(300);
+
     expect(provider.refresh).toHaveBeenCalledTimes(2);
   });
 });

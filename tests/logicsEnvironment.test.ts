@@ -223,4 +223,78 @@ describe("branch-state transitions", () => {
     expect(snapshot.capabilities.readOnly.summary).toMatch(/branch/i);
     expect(snapshot.capabilities.readOnly.summary).not.toMatch(/repository/i);
   });
+
+  it("covers no-root, missing kit, and bootstrap repair capability branches", async () => {
+    const localRoots: string[] = [];
+    const makeRoot = () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-branches-"));
+      localRoots.push(root);
+      return root;
+    };
+
+    try {
+      const noRoot = await inspectLogicsEnvironment(null, undefined, {
+        detectGit: async () => false,
+        detectPython: async () => null
+      });
+      expect(noRoot.repositoryState).toBe("no-root");
+      expect(noRoot.capabilities.readOnly.status).toBe("unavailable");
+      expect(noRoot.capabilities.bootstrapRepair.status).toBe("unavailable");
+      expect(noRoot.capabilities.codexRuntime.status).toBe("unavailable");
+      expect(noRoot.capabilities.hybridAssist?.status).toBe("unavailable");
+
+      const missingLogicsRoot = makeRoot();
+      const missingLogics = await inspectLogicsEnvironment(missingLogicsRoot, undefined, {
+        detectGit: async () => true,
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+      });
+      expect(missingLogics.repositoryState).toBe("missing-logics");
+      expect(missingLogics.capabilities.workflowMutation.status).toBe("unavailable");
+      expect(missingLogics.capabilities.readOnly.summary).toContain("logics/");
+
+      const missingFlowManagerRoot = makeRoot();
+      fs.mkdirSync(path.join(missingFlowManagerRoot, "logics", "skills"), { recursive: true });
+      const missingFlowManager = await inspectLogicsEnvironment(missingFlowManagerRoot, undefined, {
+        detectGit: async () => true,
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+      });
+      expect(missingFlowManager.repositoryState).toBe("missing-flow-manager");
+      expect(missingFlowManager.capabilities.workflowMutation.status).toBe("unavailable");
+
+      const bootstrapRoot = makeRoot();
+      fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+      fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-bootstrapper", "scripts"), { recursive: true });
+      fs.writeFileSync(
+        path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
+        "#!/usr/bin/env python\n",
+        "utf8"
+      );
+      fs.writeFileSync(
+        path.join(bootstrapRoot, "logics", "skills", "logics-bootstrapper", "scripts", "logics_bootstrap.py"),
+        "#!/usr/bin/env python\n",
+        "utf8"
+      );
+      fs.mkdirSync(path.join(bootstrapRoot, "logics", "request"), { recursive: true });
+      fs.mkdirSync(path.join(bootstrapRoot, "logics", "backlog"), { recursive: true });
+      fs.mkdirSync(path.join(bootstrapRoot, "logics", "tasks"), { recursive: true });
+
+      const bootstrapUnavailable = await inspectLogicsEnvironment(bootstrapRoot, undefined, {
+        detectGit: async () => true,
+        detectPython: async () => null
+      });
+      expect(bootstrapUnavailable.capabilities.bootstrapRepair.status).toBe("unavailable");
+      expect(bootstrapUnavailable.capabilities.bootstrapRepair.summary).toContain("Python 3");
+
+      const gitUnavailable = await inspectLogicsEnvironment(bootstrapRoot, undefined, {
+        detectGit: async () => false,
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+      });
+      expect(gitUnavailable.capabilities.bootstrapRepair.status).toBe("unavailable");
+      expect(gitUnavailable.capabilities.bootstrapRepair.summary).toContain("Git on PATH");
+    } finally {
+      for (const root of localRoots.reverse()) {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    }
+  });
 });

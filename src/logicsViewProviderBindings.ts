@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- this file installs dynamic method bindings onto the provider instance at construction time. */
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 

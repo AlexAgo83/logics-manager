@@ -1,7 +1,7 @@
 ## req_174_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px - hide view mode toggle button when compact list is forced below 500px
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 96%
 > Complexity: Low

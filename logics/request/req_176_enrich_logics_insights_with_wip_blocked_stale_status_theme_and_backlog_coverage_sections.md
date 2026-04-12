@@ -1,7 +1,7 @@
 ## req_176_enrich_logics_insights_with_wip_blocked_stale_status_theme_and_backlog_coverage_sections - enrich logics insights with wip blocked stale status theme and backlog coverage sections
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Medium

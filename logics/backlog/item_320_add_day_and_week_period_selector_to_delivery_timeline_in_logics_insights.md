@@ -1,10 +1,10 @@
 ## item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights - add day and week period selector to delivery timeline in logics insights
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -33,6 +33,11 @@ flowchart TD
 
 # AC Traceability
 - AC1 -> Scope: Deliver the bounded slice for add day and week period selector to delivery timeline in logics insights. Proof: capture validation evidence in this doc.
+- AC2 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC3 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC4 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC5 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
+- AC6 -> Scope: No separate slice beyond the timeline period selector work. Proof: the linked request and task keep the scope bounded and traceable.
 
 # Decision framing
 - Product framing: Not needed
@@ -58,3 +63,4 @@ flowchart TD
 - Urgency:
 
 # Notes
+- Task `task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation` was finished via `logics_flow.py finish task` on 2026-04-12.

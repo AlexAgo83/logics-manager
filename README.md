@@ -37,6 +37,9 @@ If you already use the extension but want to inspect the workflow scripts, templ
 - Keep requests, backlog items, tasks, and specs connected in one workspace.
 - Preview Logics docs with clickable references, Mermaid rendering, and cleaner read views.
 - Move from triage to execution with board, list, search, and recent-activity views that stay aligned.
+- See richer card metadata and hover previews, including Theme, while the compact-list toggle stays hidden when forced.
+- Explore Logics Insights with day/week timelines plus WIP, Blocked, Stale, Status, Theme, Understanding, Confidence, and backlog-coverage sections.
+- Keep the extension on a tighter quality bar with ESLint, stronger coverage checks, and CI validation.
 - Create, promote, bootstrap, and review workflow items without leaving the editor.
 - Reuse shared project context for faster AI handoffs and lower-token sessions.
 - Prepare releases and keep workflow docs synchronized from the same toolchain.

@@ -1,10 +1,10 @@
 ## item_322_add_status_theme_confidence_and_requests_without_backlog_sections_to_logics_insights - add status theme confidence and requests without backlog sections to logics insights
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -59,3 +59,4 @@ flowchart TD
 - Urgency:
 
 # Notes
+- Task `task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation` was finished via `logics_flow.py finish task` on 2026-04-12.

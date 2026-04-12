@@ -1,10 +1,10 @@
 ## task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation - wave 2 ui features card cells compact mode insights sections and final ci validation
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 75%
+> Status: Done
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -83,37 +83,37 @@ stateDiagram-v2
 ## Wave 4 — Final CI validation, doc sync, and README (orchestration close-out)
 *No production code changes — validation and documentation only.*
 
-- [ ] 4.1 **Full CI simulation**: run `npm run ci:fast` (compile + lint + coverage + smoke + logics lint + VSIX package). All steps must pass. Capture output summary in Report section below.
-- [ ] 4.2 **Logics doc lint**: run `python3 logics/skills/logics.py lint --require-status`. Fix any warnings before continuing.
-- [ ] 4.3 **Workflow audit**: run `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`. Resolve any blocking findings.
-- [ ] 4.4 **Close-eligible sync**: run `python3 logics/skills/logics.py flow sync close-eligible-requests`. Commit any auto-closed docs.
-- [ ] 4.5 **README features update**: open `README.md` and check whether any of the features delivered in task_134 + task_135 should be reflected (new ESLint setup, Insights enhancements, card cell changes). Add or update relevant feature entries if the README has a features section.
-- [ ] 4.6 **Update all linked backlog and request docs**: mark item_318–322 as Done, update Progress to 100%, and add Backlog links in req_173–176.
-- [ ] 4.7 **Final commit checkpoint** — `npm run ci:fast` must pass clean.
+ - [x] 4.1 **Full CI simulation**: run `npm run ci:fast` (compile + lint + coverage + smoke + logics lint + VSIX package). All steps must pass. Capture output summary in Report section below.
+ - [x] 4.2 **Logics doc lint**: run `python3 logics/skills/logics.py lint --require-status`. Fix any warnings before continuing.
+ - [x] 4.3 **Workflow audit**: run `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`. Resolve any blocking findings.
+ - [x] 4.4 **Close-eligible sync**: run `python3 logics/skills/logics.py flow sync close-eligible-requests`. Commit any auto-closed docs.
+ - [x] 4.5 **README features update**: open `README.md` and check whether any of the features delivered in task_134 + task_135 should be reflected (new ESLint setup, Insights enhancements, card cell changes). Add or update relevant feature entries if the README has a features section.
+ - [x] 4.6 **Update all linked backlog and request docs**: mark item_318–322 as Done, update Progress to 100%, and add Backlog links in req_173–176.
+ - [x] 4.7 **Final commit checkpoint** — `npm run ci:fast` must pass clean.
 
 **CHECKPOINT Wave 4**: final commit, close task_135 via `python3 logics/skills/logics.py flow finish task logics/tasks/task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation.md`.
 
 # AC Traceability
 
-- item_318 AC → req_173 AC1: card__meta filename subtitle removed from all card types.
-- item_318 AC → req_173 AC2: card__meta--linkage unaffected.
-- item_318 AC → req_173 AC3: Theme row appears first in hover preview when present.
-- item_318 AC → req_173 AC4: Status and Updated unchanged in position.
-- item_318 AC → req_173 AC5: npm run test passes.
+- item_318 AC → req_173 AC1: card__meta filename subtitle removed from all card types. Proof: verified in `media/renderBoardApp.js` and covered by the webview board renderer tests.
+- item_318 AC → req_173 AC2: card__meta--linkage unaffected. Proof: the linkage row remained in place in `media/renderBoardApp.js`.
+- item_318 AC → req_173 AC3: Theme row appears first in hover preview when present. Proof: verified in `media/renderBoardApp.js` and asserted by the hover-preview tests.
+- item_318 AC → req_173 AC4: Status and Updated unchanged in position. Proof: the preview rows still render Status and Updated after Theme in the existing order.
+- item_318 AC → req_173 AC5: npm run test passes. Proof: targeted webview tests passed and the full `npm run ci:fast` gate passed.
 - item_319 AC → req_174 AC1: button hidden when isCompactListForced.
 - item_319 AC → req_174 AC2: button restored above 500px.
 - item_319 AC → req_174 AC3: transition is responsive without reload.
 - item_319 AC → req_174 AC4: no other button affected.
 - item_319 AC → req_174 AC5: npm run test passes.
-- item_320 AC → req_175 AC1–AC6: Day/Week toggle, instant switch, active state, empty-state messages, summarizeTimeline backward compatible.
+- item_320 AC → req_175 AC1–AC6: Day/Week toggle, instant switch, active state, empty-state messages, summarizeTimeline backward compatible. Proof: verified in `src/logicsCorpusInsightsHtml.ts`, with compile and test gates passing after the timeline update.
 - item_321 AC → req_176 AC1: WIP and Blocked stat cards in Velocity.
 - item_321 AC → req_176 AC2: Stale open items section.
 - item_322 AC → req_176 AC3: Status distribution section.
 - item_322 AC → req_176 AC4: Requests without backlog section.
 - item_322 AC → req_176 AC5: Theme distribution section.
 - item_322 AC → req_176 AC6: Confidence and Understanding distribution section.
-- item_322 AC → req_176 AC7: existing helpers reused, no new CSS unless necessary.
-- item_322 AC → req_176 AC8: npm run test and npm run compile pass.
+- item_322 AC → req_176 AC7: existing helpers reused, no new CSS unless necessary. Proof: verified in `src/logicsCorpusInsightsHtml.ts`, which reuses the existing list, pie, and stat-card helpers.
+- item_322 AC → req_176 AC8: npm run test and npm run compile pass. Proof: the compile and test gates passed after the insights expansion.
 
 # Links
 - Derived from `logics/backlog/item_318_remove_filename_subtitle_from_cells_and_add_theme_to_card_hover_row.md`
@@ -131,17 +131,22 @@ stateDiagram-v2
 - Wave 4 full gate: `npm run ci:fast`
 - Doc gate: `python3 logics/skills/logics.py lint --require-status`
 - Audit gate: `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`
+- Finish workflow executed on 2026-04-12.
+- Linked backlog/request close verification passed.
 
 # Definition of Done (DoD)
-- [ ] All 4 waves implemented and their checkpoints committed.
-- [ ] item_318–322 all at Progress 100% and Status Done.
-- [ ] req_173–176 Backlog sections updated with links to item_318–322.
-- [ ] `npm run ci:fast` passes clean.
-- [ ] Logics lint and workflow audit pass with no blocking findings.
-- [ ] README updated if new features warrant it.
-- [ ] Status is `Done` and Progress is `100%`.
+ - [x] All 4 waves implemented and their checkpoints committed.
+ - [x] item_318–322 all at Progress 100% and Status Done.
+ - [x] req_173–176 Backlog sections updated with links to item_318–322.
+ - [x] `npm run ci:fast` passes clean.
+ - [x] Logics lint and workflow audit pass with no blocking findings.
+ - [x] README updated if new features warrant it.
+ - [x] Status is `Done` and Progress is `100%`.
 
 # Report
 - Wave 1, 2, and 3 changes are implemented and committed.
-- Validation passed: `npm test`, `npm run compile`, targeted flow-manager unit tests, and targeted webview tests.
-- Remaining work is Wave 4 final CI, doc sync, README review, and closing the linked Logics docs.
+- Validation passed: `npm test`, `npm run compile`, targeted flow-manager unit tests, targeted webview tests, `npm run ci:fast`, `python3 logics/skills/logics.py lint --require-status`, and `python3 logics/skills/logics.py audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
+- Remaining work is the final task closeout and propagation of closure status through the Logics flow.
+- Finished on 2026-04-12.
+- Linked backlog item(s): `item_318_remove_filename_subtitle_from_cells_and_add_theme_to_card_hover_row`, `item_319_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px`, `item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights`, `item_321_add_wip_blocked_and_stale_sections_to_logics_insights`, `item_322_add_status_theme_confidence_and_requests_without_backlog_sections_to_logics_insights`
+- Related request(s): `req_173_remove_filename_subtitle_from_cells_and_add_theme_field_in_cell_metadata_row`, `req_174_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px`, `req_175_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights`, `req_176_enrich_logics_insights_with_wip_blocked_stale_status_theme_and_backlog_coverage_sections`

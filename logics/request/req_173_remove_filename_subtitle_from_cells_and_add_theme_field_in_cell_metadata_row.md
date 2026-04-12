@@ -1,7 +1,7 @@
 ## req_173_remove_filename_subtitle_from_cells_and_add_theme_field_in_cell_metadata_row - remove filename subtitle from cells and add theme field in cell metadata row
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Low

@@ -1,9 +1,9 @@
 ## req_173_remove_filename_subtitle_from_cells_and_add_theme_field_in_cell_metadata_row - remove filename subtitle from cells and add theme field in cell metadata row
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -93,4 +93,4 @@ flowchart LR
 - Skip when: Work targets non-UI or non-card surfaces.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_318_remove_filename_subtitle_from_cells_and_add_theme_to_card_hover_row.md`

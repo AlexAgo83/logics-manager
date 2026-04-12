@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Low
 > Theme: Maintenance
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|fix-settings-hooks-format-and-initialize|fix-settings-hooks-format-and-initialize|deliver-the-bounded-slice-for-fix|ac1-confirm-fix-settings-hooks-format
+%% logics-signature: backlog|fix-settings-hooks-format-and-initialize|req-170-address-codebase-audit-findings-|deliver-the-bounded-slice-for-fix|ac1-confirm-fix-settings-hooks-format
 flowchart TD
     A[Start] --> B[Fix settings hooks format]
     B --> C[Initialize graph embeddings]
@@ -43,8 +43,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation.md`
+- Primary task(s): `logics/tasks/task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis.md`
 
 # AI Context
 - Summary: fix settings hooks format and initialize graph embeddings

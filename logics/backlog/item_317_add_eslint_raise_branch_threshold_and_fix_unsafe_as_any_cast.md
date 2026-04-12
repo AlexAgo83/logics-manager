@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-eslint-raise-branch-threshold-and-fi|add-eslint-raise-branch-threshold-and|deliver-the-bounded-slice-for-add|ac1-confirm-add-eslint-raise-branch
+%% logics-signature: backlog|add-eslint-raise-branch-threshold-and-fi|req-172-harden-static-analysis-and-branc|deliver-the-bounded-slice-for-add|ac1-confirm-add-eslint-raise-branch
 flowchart TD
     A[Start] --> B[Add eslint raise branch threshold]
     B --> C[Fix unsafe as-any cast]
@@ -44,8 +44,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_172_harden_static_analysis_and_branch_coverage_safety_net.md`
+- Primary task(s): `logics/tasks/task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis.md`
 
 # AI Context
 - Summary: add eslint raise branch threshold and fix unsafe as-any cast

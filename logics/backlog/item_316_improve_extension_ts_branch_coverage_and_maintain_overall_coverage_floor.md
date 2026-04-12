@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|improve-extension-ts-branch-coverage-and|improve-extension-ts-branch-coverage-and|deliver-the-bounded-slice-for-improve|ac1-confirm-improve-extension-ts-branch
+%% logics-signature: backlog|improve-extension-ts-branch-coverage-and|req-171-address-post-audit-coverage-regr|deliver-the-bounded-slice-for-improve|ac1-confirm-improve-extension-ts-branch
 flowchart TD
     A[Start] --> B[Define scope]
     B --> C[Identify coverage targets]
@@ -46,8 +46,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift.md`
+- Primary task(s): `logics/tasks/task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis.md`
 
 # AI Context
 - Summary: improve extension ts branch coverage and maintain overall coverage floor

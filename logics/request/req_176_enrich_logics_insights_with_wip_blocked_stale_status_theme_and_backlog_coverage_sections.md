@@ -1,9 +1,9 @@
 ## req_176_enrich_logics_insights_with_wip_blocked_stale_status_theme_and_backlog_coverage_sections - enrich logics insights with wip blocked stale status theme and backlog coverage sections
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -114,4 +114,5 @@ flowchart TD
 - Skip when: Work targets other panels, the board, or non-insights surfaces.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_321_add_wip_blocked_and_stale_sections_to_logics_insights.md`
+- `logics/backlog/item_322_add_status_theme_confidence_and_requests_without_backlog_sections_to_logics_insights.md`

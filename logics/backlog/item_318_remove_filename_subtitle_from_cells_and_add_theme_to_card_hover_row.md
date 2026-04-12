@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 95%
+> Confidence: 96%
 > Progress: 0%
 > Complexity: Low
 > Theme: UI
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|remove-filename-subtitle-from-cells-and-|remove-filename-subtitle-from-cells-and|deliver-the-bounded-slice-for-remove|ac1-confirm-remove-filename-subtitle-fro
+%% logics-signature: backlog|remove-filename-subtitle-from-cells-and-|req-173-remove-filename-subtitle-from-ce|deliver-the-bounded-slice-for-remove|ac1-confirm-remove-filename-subtitle-fro
 flowchart TD
     A[Start] --> B[Remove filename subtitle from cells]
     B --> C[Add theme to card hover row]
@@ -43,8 +43,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_173_remove_filename_subtitle_from_cells_and_add_theme_field_in_cell_metadata_row.md`
+- Primary task(s): `logics/tasks/task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation.md`
 
 # AI Context
 - Summary: remove filename subtitle from cells and add theme to card hover row

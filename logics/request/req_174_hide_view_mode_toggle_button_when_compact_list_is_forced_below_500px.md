@@ -1,9 +1,9 @@
 ## req_174_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px - hide view mode toggle button when compact list is forced below 500px
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
-> Confidence: 95%
+> Confidence: 96%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -76,4 +76,4 @@ flowchart LR
 - Skip when: Work targets features unrelated to the compact/responsive layout.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_319_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px.md`

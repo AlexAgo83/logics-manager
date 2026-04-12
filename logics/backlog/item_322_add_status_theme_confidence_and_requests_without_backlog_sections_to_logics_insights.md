@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Low
 > Theme: UI
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-status-theme-confidence-and-requests|add-status-theme-confidence-and-requests|deliver-the-bounded-slice-for-add|ac1-confirm-add-status-theme-confidence
+%% logics-signature: backlog|add-status-theme-confidence-and-requests|req-176-enrich-logics-insights-with-wip-|deliver-the-bounded-slice-for-add|ac1-confirm-add-status-theme-confidence
 flowchart TD
     A[Start] --> B[Add status]
     B --> C[Add theme]
@@ -46,8 +46,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: (none yet)
-- Primary task(s): (none yet)
+- Request: `logics/request/req_176_enrich_logics_insights_with_wip_blocked_stale_status_theme_and_backlog_coverage_sections.md`
+- Primary task(s): `logics/tasks/task_135_wave_2_ui_features_card_cells_compact_mode_insights_sections_and_final_ci_validation.md`
 
 # AI Context
 - Summary: add status theme confidence and requests without backlog sections to logics insights

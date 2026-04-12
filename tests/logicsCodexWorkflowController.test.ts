@@ -241,6 +241,90 @@ describe("LogicsCodexWorkflowController", () => {
     expect(mocks.showWarningMessage).toHaveBeenCalled();
   });
 
+  it("allows canonical kit updates when unrelated root changes are uncommitted", async () => {
+    const root = makeRoot();
+    mocks.detectKitInstallType.mockReturnValue("submodule");
+    mocks.inspectLogicsKitSubmodule.mockReturnValue({
+      exists: true,
+      isCanonical: true,
+      reason: "canonical"
+    });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Canonical cdx-logics-kit submodule detected."
+    });
+    mocks.inspectLogicsEnvironment.mockResolvedValue(healthySnapshot());
+    let submoduleStatusCalls = 0;
+    mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
+      const key = args.join(" ");
+      if (key === "--version") {
+        return { stdout: "git version 2.0", stderr: "" };
+      }
+      if (key === "rev-parse --is-inside-work-tree") {
+        return { stdout: "true", stderr: "" };
+      }
+      if (key === "status --porcelain") {
+        return { stdout: "?? README.md\n", stderr: "" };
+      }
+      if (key === "submodule status -- logics/skills") {
+        submoduleStatusCalls += 1;
+        return {
+          stdout: submoduleStatusCalls === 1 ? " abc123 logics/skills\n" : " def456 logics/skills\n",
+          stderr: ""
+        };
+      }
+      if (key === "submodule update --init --remote --merge -- logics/skills") {
+        return { stdout: "Updated.\n", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+
+    const updated = await controller.updateLogicsKit(root, "manual repair");
+
+    expect(updated).toBe(true);
+    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["status", "--porcelain"]);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      expect.stringContaining("Unrelated root changes were left untouched.")
+    );
+  });
+
+  it("blocks canonical kit updates when logics/skills is dirty", async () => {
+    const root = makeRoot();
+    mocks.detectKitInstallType.mockReturnValue("submodule");
+    mocks.inspectLogicsKitSubmodule.mockReturnValue({
+      exists: true,
+      isCanonical: true,
+      reason: "canonical"
+    });
+    mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
+      const key = args.join(" ");
+      if (key === "--version") {
+        return { stdout: "git version 2.0", stderr: "" };
+      }
+      if (key === "rev-parse --is-inside-work-tree") {
+        return { stdout: "true", stderr: "" };
+      }
+      if (key === "status --porcelain") {
+        return { stdout: "?? README.md\n M logics/skills\n", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+
+    const updated = await controller.updateLogicsKit(root, "manual repair");
+
+    expect(updated).toBe(false);
+    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
+      expect.stringContaining("logics/skills submodule has uncommitted changes"),
+      "Copy Update Command"
+    );
+    expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(
+      root,
+      ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]
+    );
+  });
+
   it("returns false early when Git is unavailable for Logics kit updates", async () => {
     const root = makeRoot();
     mocks.runGitWithOutput.mockResolvedValue({

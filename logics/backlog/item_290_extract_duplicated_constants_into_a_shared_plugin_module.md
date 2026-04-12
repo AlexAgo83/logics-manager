@@ -1,7 +1,7 @@
 ## item_290_extract_duplicated_constants_into_a_shared_plugin_module - Extract duplicated constants into a shared plugin module
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
@@ -71,4 +71,9 @@ flowchart LR
 - Urgency: High — must precede any change to those constants.
 
 # Notes
+- Wave 1 of task_127 delivered this extraction alongside the other April 2026 audit remediation safe wins.
+- Validation was captured in the parent task and remains green for the shared constants module.
+
+# Report
+- This backlog slice was delivered during the audit remediation wave and now matches the existing code state.
 - Task `task_127_orchestrate_april_2026_audit_remediation_across_plugin_and_logics_kit` was finished via `logics_flow.py finish task` on 2026-04-11.

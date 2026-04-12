@@ -1,7 +1,7 @@
 ## req_183_make_mermaid_refresh_the_last_step_in_logics_doc_maintenance - Make Mermaid refresh the last step in Logics doc maintenance
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

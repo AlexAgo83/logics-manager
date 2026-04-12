@@ -1,7 +1,7 @@
 ## req_182_allow_logics_indicators_to_stay_unchanged_for_non_semantic_document_edits - Allow Logics indicators to stay unchanged for non-semantic document edits
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

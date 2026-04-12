@@ -1,7 +1,7 @@
 ## req_181_consolidate_the_tools_menu_into_a_single_mode_switcher_with_explicit_close_behavior - Consolidate the tools menu into a single mode switcher with explicit close behavior
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

@@ -1,7 +1,7 @@
 ## req_186_keep_card_badges_on_a_single_row - Keep card badges on a single row
 > From version: 1.27.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 94%
 > Confidence: 88%
 > Complexity: Medium

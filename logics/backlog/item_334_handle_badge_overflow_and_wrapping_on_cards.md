@@ -1,10 +1,10 @@
 ## item_334_handle_badge_overflow_and_wrapping_on_cards - Handle Badge Overflow and Wrapping on Cards
 > From version: 1.27.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -81,3 +81,4 @@ flowchart TD
 - Source file: `logics/request/req_186_keep_card_badges_on_a_single_row.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_186_keep_card_badges_on_a_single_row.md`.
+- Task `task_144_handle_badge_overflow_and_wrapping_on_cards` was finished via `logics_flow.py finish task` on 2026-04-12.

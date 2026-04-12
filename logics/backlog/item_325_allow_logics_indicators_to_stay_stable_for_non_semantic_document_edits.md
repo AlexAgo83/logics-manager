@@ -1,10 +1,10 @@
 ## item_325_allow_logics_indicators_to_stay_stable_for_non_semantic_document_edits - Allow Logics indicators to stay stable for non-semantic document edits
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -56,3 +56,9 @@ flowchart TD
 - Urgency:
 
 # Notes
+- Added an explicit maintenance-edit marker path in the workflow doc linter so non-semantic edits can stay stable without forcing indicator churn.
+- The linter still blocks semantic edits that omit indicator updates.
+
+# Report
+- Delivered the bounded slice for the maintenance-edit rule and validated it with end-to-end linter coverage.
+- Validation: `npm test -- tests/logicsDocLinter.test.ts`, `npm run lint:ts`.

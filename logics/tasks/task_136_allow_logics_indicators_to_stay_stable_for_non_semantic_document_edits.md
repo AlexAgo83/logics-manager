@@ -1,10 +1,10 @@
 ## task_136_allow_logics_indicators_to_stay_stable_for_non_semantic_document_edits - Allow Logics indicators to stay stable for non-semantic document edits
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -71,6 +71,11 @@ stateDiagram-v2
 - Run the relevant automated tests for the changed surface before closing the current wave or step.
 - Run the relevant lint or quality checks before closing the current wave or step.
 - Confirm the completed wave leaves the repository in a commit-ready state.
+
+# Report
+- Added an explicit maintenance-edit marker that lets non-semantic workflow doc edits keep indicators stable.
+- Kept indicator enforcement in place for real workflow edits and backed the rule with end-to-end lint coverage.
+- Validation: `npm test -- tests/logicsDocLinter.test.ts`, `npm run lint:ts`.
 
 # Definition of Done (DoD)
 - [ ] Scope implemented and acceptance criteria covered.

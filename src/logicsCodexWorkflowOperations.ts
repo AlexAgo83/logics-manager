@@ -6,6 +6,11 @@ import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime"
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import { detectDangerousGitignorePatterns, inspectLogicsKitSubmodule, runGitWithOutput } from "./logicsProviderUtils";
 import { buildLogicsKitUpdateCommand, detectKitInstallType } from "./logicsProviderUtils";
+import {
+  appendBootstrapConvergenceNote,
+  ensureCanonicalGitmodules,
+  fallbackInstallKit
+} from "./logicsCodexWorkflowKitSupport";
 import { publishClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
 import { maybeShowReadyCodexOverlayHandoff, launchClaudeTerminal, launchCodexOverlayTerminal } from "./logicsOverlaySupport";
@@ -216,12 +221,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       }
 
       if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
-        this.ensureCanonicalGitmodules(root);
+        ensureCanonicalGitmodules(root);
       }
       await this.options.refresh();
       const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
       const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
-      const messageWithConvergence = this.appendBootstrapConvergenceNote(
+      const messageWithConvergence = appendBootstrapConvergenceNote(
         `Logics kit updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.${rootChangeNote}`,
         bootstrapConvergence
       );
@@ -256,7 +261,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         return false;
       }
 
-      const fallbackResult = await this.fallbackInstallKit(root);
+      const fallbackResult = await fallbackInstallKit(root);
       if (!fallbackResult.installed) {
         const failureMessage = fallbackResult.failureMessage || "The fallback install could not complete.";
         void vscode.window.showErrorMessage(`Failed to install the fallback Logics kit. ${failureMessage}`);
@@ -270,7 +275,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         fallbackResult.method === "copy"
           ? `Logics kit updated after ${trigger} from the ${fallbackResult.sourceLabel || "global"} kit.`
           : `Logics kit updated after ${trigger} by cloning the canonical kit repository.`;
-      const messageWithConvergence = this.appendBootstrapConvergenceNote(message, bootstrapConvergence);
+      const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
       if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
         void vscode.window.showInformationMessage(messageWithConvergence);
       } else {
@@ -329,7 +334,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const message = updated
       ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.${rootChangeNote}`
       : `The Logics kit is already up to date on the tracked submodule revision.${rootChangeNote}`;
-    const messageWithConvergence = this.appendBootstrapConvergenceNote(message, bootstrapConvergence);
+    const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"
         ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Kit")

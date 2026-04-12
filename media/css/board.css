@@ -222,8 +222,22 @@
 
 .card__badges {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.card__badges::-webkit-scrollbar {
+  display: none;
+}
+
+.card__badges > * {
+  flex: 0 0 auto;
 }
 
 .card__badges--suggested {
@@ -299,6 +313,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
 .card__badge--metric {

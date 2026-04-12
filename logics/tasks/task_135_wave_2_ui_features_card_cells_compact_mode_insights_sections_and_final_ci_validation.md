@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Medium
 > Theme: UI
@@ -116,11 +116,11 @@ stateDiagram-v2
 - item_322 AC → req_176 AC8: npm run test and npm run compile pass.
 
 # Links
-- Backlog item: `logics/backlog/item_318_remove_filename_subtitle_from_cells_and_add_theme_to_card_hover_row.md`
-- Backlog item: `logics/backlog/item_319_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px.md`
-- Backlog item: `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`
-- Backlog item: `logics/backlog/item_321_add_wip_blocked_and_stale_sections_to_logics_insights.md`
-- Backlog item: `logics/backlog/item_322_add_status_theme_confidence_and_requests_without_backlog_sections_to_logics_insights.md`
+- Derived from `logics/backlog/item_318_remove_filename_subtitle_from_cells_and_add_theme_to_card_hover_row.md`
+- Derived from `logics/backlog/item_319_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px.md`
+- Derived from `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`
+- Derived from `logics/backlog/item_321_add_wip_blocked_and_stale_sections_to_logics_insights.md`
+- Derived from `logics/backlog/item_322_add_status_theme_confidence_and_requests_without_backlog_sections_to_logics_insights.md`
 - Request(s): `logics/request/req_173_remove_filename_subtitle_from_cells_and_add_theme_field_in_cell_metadata_row.md`
 - Request(s): `logics/request/req_174_hide_view_mode_toggle_button_when_compact_list_is_forced_below_500px.md`
 - Request(s): `logics/request/req_175_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`

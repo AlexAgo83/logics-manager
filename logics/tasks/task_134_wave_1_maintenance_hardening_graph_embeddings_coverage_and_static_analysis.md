@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Maintenance
@@ -88,11 +88,11 @@ stateDiagram-v2
 - item_317 AC → req_172 AC5: npm run lint and test:coverage:src pass.
 
 # Links
-- Backlog item: `logics/backlog/item_313_fix_settings_hooks_format_and_initialize_graph_embeddings.md`
-- Backlog item: `logics/backlog/item_314_audit_graph_import_resolution_community_fragmentation_and_extract_shared_test_helpers.md`
-- Backlog item: `logics/backlog/item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision.md`
-- Backlog item: `logics/backlog/item_316_improve_extension_ts_branch_coverage_and_maintain_overall_coverage_floor.md`
-- Backlog item: `logics/backlog/item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast.md`
+- Derived from `logics/backlog/item_313_fix_settings_hooks_format_and_initialize_graph_embeddings.md`
+- Derived from `logics/backlog/item_314_audit_graph_import_resolution_community_fragmentation_and_extract_shared_test_helpers.md`
+- Derived from `logics/backlog/item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision.md`
+- Derived from `logics/backlog/item_316_improve_extension_ts_branch_coverage_and_maintain_overall_coverage_floor.md`
+- Derived from `logics/backlog/item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast.md`
 - Request(s): `logics/request/req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation.md`
 - Request(s): `logics/request/req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift.md`
 - Request(s): `logics/request/req_172_harden_static_analysis_and_branch_coverage_safety_net.md`

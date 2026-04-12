@@ -5,4 +5,4 @@ export const STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX = "logics.startupKitUpdatePr
 export const MIN_LOGICS_KIT_MAJOR = 1;
 export const MIN_LOGICS_KIT_MINOR = 7;
 export const MAX_LOGICS_KIT_MAJOR = 1;
-export const MAX_LOGICS_KIT_MINOR = 12;
+export const MAX_LOGICS_KIT_MINOR = 13;

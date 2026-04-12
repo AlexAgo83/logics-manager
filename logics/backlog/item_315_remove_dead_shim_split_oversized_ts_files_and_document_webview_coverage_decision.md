@@ -1,10 +1,10 @@
 ## item_315_remove_dead_shim_split_oversized_ts_files_and_document_webview_coverage_decision - remove dead shim split oversized ts files and document webview coverage decision
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 25%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

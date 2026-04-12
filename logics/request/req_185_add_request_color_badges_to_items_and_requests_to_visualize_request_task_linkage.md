@@ -77,15 +77,14 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`
-
+- `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`
 # AC Traceability
-- AC1 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: the request-card badge uses a compact deterministic color family distinct from task coverage and keeps request colors visually separated.
-- AC2 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: item cards show request badge first and task badge second when both exist.
-- AC3 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: the badge derives from resolved managed relationships, not guessed lineage.
-- AC4 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: the fallback path omits the request badge instead of rendering incorrect lineage.
-- AC5 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: the established task badge remains intact and visually clear, with colors strong enough to distinguish different active tasks.
-- AC6 -> `logics/backlog/item_309_task_color_badge_on_cards_to_visualize_active_task_coverage_at_a_glance.md`. Proof: the badge rendering tests cover request and item cases plus fallback behavior and palette differentiation.
+- AC1 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: the request-card badge uses a compact deterministic color family distinct from task coverage and keeps request colors visually separated.
+- AC2 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: item cards show request badge first and task badge second when both exist.
+- AC3 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: the badge derives from resolved managed relationships, not guessed lineage.
+- AC4 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: the fallback path omits the request badge instead of rendering incorrect lineage.
+- AC5 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: the established task badge remains intact and visually clear, with colors strong enough to distinguish different active tasks.
+- AC6 -> `logics/backlog/item_329_add_request_color_badges_to_items_and_requests_to_visualize_request_task_linkage.md`. Proof: the badge rendering tests cover request and item cases plus fallback behavior and palette differentiation.
 
 # AI Context
 - Summary: Add request badges to request cards and item cards so the request lineage appears beside the existing task badge, with safe fallback when references cannot be resolved.

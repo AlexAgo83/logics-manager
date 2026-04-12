@@ -64,4 +64,4 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- `logics/backlog/item_278_extend_bootstrap_repair_to_create_and_maintain_agents_md_and_logics_md.md`
+- `logics/backlog/item_328_extend_bootstrap_convergence_checks_to_cover_agents_and_logics_files.md`

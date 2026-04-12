@@ -72,21 +72,18 @@ flowchart LR
 - This request should likely reuse the generated index and relationship primitives already present in the corpus/navigation work rather than inventing a parallel data model.
 
 # Companion docs
-- Product brief(s): (none yet)
+- Product brief(s): `prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
 - Architecture decision(s): (none yet)
-
 # Backlog
-- `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`
-- `logics/backlog/item_288_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`
-
+- `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`
 # AC Traceability
-- AC1 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`. Proof: the explorer entry point is tied to the current repository corpus.
-- AC2 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`. Proof: the map view shows corpus relationships across requests, backlog items, tasks, and companion docs.
-- AC3 -> `logics/backlog/item_288_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`. Proof: the timeline view shows corpus activity over time.
-- AC4 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md` and `logics/backlog/item_288_add_a_timeline_view_in_logics_insights_showing_delivery_activity_over_time.md`. Proof: map and timeline are complementary and keep the same project context.
-- AC5 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`. Proof: the default view uses the current repository corpus without extra setup.
-- AC6 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`. Proof: the corpus explorer surface stays readable in the compact Insights panel and avoids fake data or decorative filler.
-- AC7 -> `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`. Proof: tests or snapshots cover the explorer entry point and representative map/timeline states so the visual surface does not regress silently.
+- AC1 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: the explorer entry point is tied to the current repository corpus.
+- AC2 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: the map view shows corpus relationships across requests, backlog items, tasks, and companion docs.
+- AC3 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: the timeline view shows corpus activity over time.
+- AC4 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: map and timeline are complementary and keep the same project context.
+- AC5 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: the default view uses the current repository corpus without extra setup.
+- AC6 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: the corpus explorer surface stays readable in the compact Insights panel and avoids fake data or decorative filler.
+- AC7 -> `logics/backlog/item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`. Proof: tests or snapshots cover the explorer entry point and representative map/timeline states so the visual surface does not regress silently.
 
 # AI Context
 - Summary: Add a corpus explorer inside Logics Insights with map and timeline views for the current project corpus.

@@ -70,16 +70,15 @@ flowchart TD
 - Architecture decision(s): (none yet)
 
 # Backlog
-- `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`
-
+- `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`
 # AC Traceability
-- AC1 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: the selected Day or Week button reads as the active filter.
-- AC2 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: the inactive button stays visibly subdued.
-- AC3 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: styling changes do not alter selector behavior or timeline data.
-- AC4 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: the active state remains stable on initial render and after toggles.
-- AC5 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: the compact legend keeps the day view readable.
-- AC6 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: the labels remain interpretable at a glance.
-- AC7 -> `logics/backlog/item_320_add_day_and_week_period_selector_to_delivery_timeline_in_logics_insights.md`. Proof: snapshot and interaction tests can cover both button states and the compact day legend.
+- AC1 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: the selected Day or Week button reads as the active filter.
+- AC2 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: the inactive button stays visibly subdued.
+- AC3 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: styling changes do not alter selector behavior or timeline data.
+- AC4 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: the active state remains stable on initial render and after toggles.
+- AC5 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: the compact legend keeps the day view readable.
+- AC6 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: the labels remain interpretable at a glance.
+- AC7 -> `logics/backlog/item_326_fix_inverted_active_state_styling_for_delivery_timeline_period_buttons.md`. Proof: snapshot and interaction tests can cover both button states and the compact day legend.
 
 # AI Context
 - Summary: Fix the visual active/inactive state styling for the Delivery timeline period buttons in Logics Insights and compact the Day-mode legend.

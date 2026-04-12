@@ -3,19 +3,17 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
+import { createTempRootTracker } from "./helpers/tempRootTracker";
 
 describe("inspectLogicsEnvironment", () => {
-  const roots: string[] = [];
+  const tracker = createTempRootTracker("logics-env-");
 
   afterEach(() => {
-    for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
-    }
+    tracker.cleanup();
   });
 
   it("distinguishes a partial bootstrap from a broken kit", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     fs.writeFileSync(
       path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
@@ -44,8 +42,7 @@ describe("inspectLogicsEnvironment", () => {
   });
 
   it("marks workflow mutation unavailable when python is missing even if the kit is present", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
@@ -77,8 +74,7 @@ describe("inspectLogicsEnvironment", () => {
   });
 
   it("surfaces hybrid runtime readiness and capability state", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
@@ -118,8 +114,7 @@ describe("inspectLogicsEnvironment", () => {
   });
 
   it("detects both supported Claude bridge variants with a stable preference order", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
     fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
 
@@ -145,17 +140,14 @@ describe("inspectLogicsEnvironment", () => {
 });
 
 describe("branch-state transitions", () => {
-  const roots: string[] = [];
+  const tracker = createTempRootTracker("logics-branch-");
 
   afterEach(() => {
-    for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
-    }
+    tracker.cleanup();
   });
 
   function makeReadyRoot(): string {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-branch-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     fs.writeFileSync(
       path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
@@ -215,8 +207,7 @@ describe("branch-state transitions", () => {
   });
 
   it("missing-logics readOnly summary uses branch-local copy, not generic repository message", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-branch-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
 
     const snapshot = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
     expect(snapshot.repositoryState).toBe("missing-logics");
@@ -225,13 +216,6 @@ describe("branch-state transitions", () => {
   });
 
   it("covers no-root, missing kit, and bootstrap repair capability branches", async () => {
-    const localRoots: string[] = [];
-    const makeRoot = () => {
-      const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-env-branches-"));
-      localRoots.push(root);
-      return root;
-    };
-
     try {
       const noRoot = await inspectLogicsEnvironment(null, undefined, {
         detectGit: async () => false,
@@ -243,7 +227,7 @@ describe("branch-state transitions", () => {
       expect(noRoot.capabilities.codexRuntime.status).toBe("unavailable");
       expect(noRoot.capabilities.hybridAssist?.status).toBe("unavailable");
 
-      const missingLogicsRoot = makeRoot();
+      const missingLogicsRoot = tracker.makeRoot();
       const missingLogics = await inspectLogicsEnvironment(missingLogicsRoot, undefined, {
         detectGit: async () => true,
         detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
@@ -252,7 +236,7 @@ describe("branch-state transitions", () => {
       expect(missingLogics.capabilities.workflowMutation.status).toBe("unavailable");
       expect(missingLogics.capabilities.readOnly.summary).toContain("logics/");
 
-      const missingFlowManagerRoot = makeRoot();
+      const missingFlowManagerRoot = tracker.makeRoot();
       fs.mkdirSync(path.join(missingFlowManagerRoot, "logics", "skills"), { recursive: true });
       const missingFlowManager = await inspectLogicsEnvironment(missingFlowManagerRoot, undefined, {
         detectGit: async () => true,
@@ -261,7 +245,7 @@ describe("branch-state transitions", () => {
       expect(missingFlowManager.repositoryState).toBe("missing-flow-manager");
       expect(missingFlowManager.capabilities.workflowMutation.status).toBe("unavailable");
 
-      const bootstrapRoot = makeRoot();
+      const bootstrapRoot = tracker.makeRoot();
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-bootstrapper", "scripts"), { recursive: true });
       fs.writeFileSync(
@@ -292,9 +276,7 @@ describe("branch-state transitions", () => {
       expect(gitUnavailable.capabilities.bootstrapRepair.status).toBe("unavailable");
       expect(gitUnavailable.capabilities.bootstrapRepair.summary).toContain("Git on PATH");
     } finally {
-      for (const root of localRoots.reverse()) {
-        fs.rmSync(root, { recursive: true, force: true });
-      }
+      tracker.cleanup();
     }
   });
 });

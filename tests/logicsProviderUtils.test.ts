@@ -26,19 +26,17 @@ import {
   normalizeRelationPath,
   updateIndicatorsOnDisk
 } from "../src/logicsProviderUtils";
+import { createTempRootTracker } from "./helpers/tempRootTracker";
 
 describe("inspectLogicsBootstrapState", () => {
-  const roots: string[] = [];
+  const tracker = createTempRootTracker("logics-bootstrap-state-");
 
   afterEach(() => {
-    for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
-    }
+    tracker.cleanup();
   });
 
   function makeCanonicalRoot(): string {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-state-"));
-    roots.push(root);
+    const root = tracker.makeRoot();
     for (const rel of [
       "logics",
       "logics/skills",

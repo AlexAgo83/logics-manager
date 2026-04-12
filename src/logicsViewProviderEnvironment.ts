@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- environment helpers operate through dynamic provider bindings and output channels. */
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";

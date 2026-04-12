@@ -31,6 +31,7 @@ import {
   openAbout,
   openItem,
   notifyInvalidRootOverride,
+  pickItem,
   postData,
   promoteItem,
   readItem,
@@ -421,6 +422,7 @@ describe("logicsViewProviderSupport more coverage", () => {
   });
 
   it("covers webview and root-sensitive wrappers", async () => {
+    const rootWithoutLogics = fs.mkdtempSync(path.join(os.tmpdir(), "logics-support-root-"));
     const host = {
       context: {
         extensionUri: {} as never
@@ -441,10 +443,27 @@ describe("logicsViewProviderSupport more coverage", () => {
     await refreshAgentsFromCommand.call(host);
     host.getActionRoot.mockResolvedValueOnce(process.cwd());
     await refreshAgentsFromCommand.call(host);
+    host.getActionRoot.mockResolvedValueOnce(rootWithoutLogics);
+    await refreshAgentsFromCommand.call(host);
     await openAbout.call(host);
 
     expect(host.refreshAgents).toHaveBeenCalledWith("notify", process.cwd());
     expect(vi.mocked(vscode.env.openExternal)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(vscode.window.showErrorMessage)).toHaveBeenCalledWith(
+      expect.stringContaining(`No logics/ folder found in: ${rootWithoutLogics}.`)
+    );
+    fs.rmSync(rootWithoutLogics, { recursive: true, force: true });
+  });
+
+  it("returns undefined when pickItem receives no items", async () => {
+    const host = {
+      context: {
+        extensionUri: {} as never
+      }
+    };
+
+    await expect(pickItem.call(host, [], "Choose one")).resolves.toBeUndefined();
+    expect(vi.mocked(vscode.window.showInformationMessage)).toHaveBeenCalledWith("No Logics items found.");
   });
 
   it("covers environment file helpers and cache directory creation", async () => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- the support host is assembled dynamically on the provider instance. */
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";

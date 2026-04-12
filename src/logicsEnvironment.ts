@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- JSON payload boundaries and runtime probe parsing are intentionally loose at this integration layer. */
 import * as fs from "fs";
 import * as path from "path";
 import { detectGitCommand } from "./gitRuntime";

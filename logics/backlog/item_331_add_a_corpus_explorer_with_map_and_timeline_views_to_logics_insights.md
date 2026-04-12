@@ -1,10 +1,10 @@
 ## item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights - Add a corpus explorer with map and timeline views to Logics Insights
 > From version: 1.26.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -81,3 +81,8 @@ flowchart TD
 - Source file: `logics/request/req_184_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`.
 - Keep this backlog item as one bounded delivery slice; create sibling backlog items for the remaining request coverage instead of widening this doc.
 - Request context seeded into this backlog item from `logics/request/req_184_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md`.
+
+# Report
+- Delivered the corpus explorer entry point inside Logics Insights with switchable map and timeline panels.
+- Kept the explorer tied to the current repository root so the view stays contextual rather than generic.
+- Validation: `npm test -- tests/logicsHtml.test.ts`, `npm run lint:ts`.

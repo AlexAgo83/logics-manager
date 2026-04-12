@@ -262,7 +262,11 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Velocity");
     expect(html).toContain("Closed this week");
     expect(html).toContain("Closed this month");
+    expect(html).toContain("Corpus explorer");
+    expect(html).toContain("Relationship map");
     expect(html).toContain("Delivery timeline");
+    expect(html).toContain("data-explorer-view=\"map\"");
+    expect(html).toContain("data-explorer-view=\"timeline\"");
     expect(html).toContain("Week");
     expect(html).toContain("Day");
     expect(html).toContain("Apr 6");
@@ -370,6 +374,68 @@ describe("logics HTML builders", () => {
     expect(html).toContain("Understanding distribution");
     expect(html).toContain("Confidence distribution");
     expect(html).toContain("Requests without backlog");
+  });
+
+  it("switches the corpus explorer between map and timeline panels without losing the project lens", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-08T12:00:00Z"));
+
+    const html = buildLogicsCorpusInsightsHtml({
+      webview: createWebview() as never,
+      root: "/workspace/project",
+      items: [
+        {
+          id: "req_001_explore",
+          title: "Explorer request",
+          stage: "request",
+          path: "/workspace/project/logics/request/req_001_explore.md",
+          relPath: "logics/request/req_001_explore.md",
+          filename: "req_001_explore.md",
+          updatedAt: "2026-04-07T10:00:00Z",
+          indicators: { Status: "Ready", Theme: "Navigation" },
+          summaryPoints: [],
+          acceptanceCriteria: [],
+          lineCount: 52,
+          charCount: 1200,
+          isPromoted: false,
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+
+    const dom = new JSDOM(html, {
+      runScripts: "dangerously",
+      pretendToBeVisual: true,
+      beforeParse(window) {
+        window.acquireVsCodeApi = () => ({
+          postMessage: () => undefined,
+          getState: () => null,
+          setState: () => undefined
+        });
+      }
+    });
+
+    await Promise.resolve();
+
+    const mapButton = dom.window.document.querySelector('[data-explorer-view="map"]') as HTMLButtonElement | null;
+    const timelineButton = dom.window.document.querySelector('[data-explorer-view="timeline"]') as HTMLButtonElement | null;
+    const mapPanel = dom.window.document.getElementById("explorer-map");
+    const timelinePanel = dom.window.document.getElementById("explorer-timeline");
+
+    expect(dom.window.document.body.textContent).toContain("/workspace/project");
+    expect(mapButton?.classList.contains("logics-insights__button--active")).toBe(true);
+    expect(timelineButton?.classList.contains("logics-insights__button--active")).toBe(false);
+    expect(mapPanel?.hidden).toBe(false);
+    expect(timelinePanel?.hidden).toBe(true);
+
+    timelineButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(mapButton?.classList.contains("logics-insights__button--active")).toBe(false);
+    expect(timelineButton?.classList.contains("logics-insights__button--active")).toBe(true);
+    expect(mapPanel?.hidden).toBe(true);
+    expect(timelinePanel?.hidden).toBe(false);
+    expect(timelinePanel?.textContent).toContain("Delivery timeline");
   });
 
   it("renders an empty logics timeline when no closed items exist in the window", () => {

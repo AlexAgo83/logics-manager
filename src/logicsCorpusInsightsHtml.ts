@@ -552,91 +552,41 @@ function buildCorpusExplorerMap(items: LogicsItem[]) {
 
 function renderCorpusExplorerMap(mapData: ReturnType<typeof buildCorpusExplorerMap>): string {
   const { stageNodes, stagePairs, stageColors, stageLabels, stageOrder, topConnectedDocs } = mapData;
-  const width = 720;
-  const height = 280;
-  const nodeWidth = 124;
-  const nodeHeight = 44;
   const nodes = Object.fromEntries(stageNodes.map((node) => [node.stage, node] as const)) as Record<ExplorerStage, { stage: ExplorerStage; label: string; count: number; x: number; y: number }>;
-  const edges = Array.from(stagePairs.entries())
-    .map(([pairKey, count]) => {
+  const relatedLinkCount = (stage: ExplorerStage) =>
+    Array.from(stagePairs.entries()).reduce((sum, [pairKey, count]) => {
       const [sourceStage, targetStage] = pairKey.split("|") as [ExplorerStage, ExplorerStage];
-      const source = nodes[sourceStage];
-      const target = nodes[targetStage];
-      if (!source || !target || count <= 0) {
-        return null;
-      }
-      return {
-        source,
-        target,
-        count,
-        color: stageColors[sourceStage] || "var(--vscode-terminal-ansiBlue)"
-      };
-    })
-    .filter((edge): edge is { source: (typeof stageNodes)[number]; target: (typeof stageNodes)[number]; count: number; color: string } => Boolean(edge));
+      return sourceStage === stage || targetStage === stage ? sum + count : sum;
+    }, 0);
 
   const stageSummary = stageOrder
     .map((stage) => ({
       label: stageLabels[stage],
       value: String(nodes[stage]?.count || 0),
-      hint: `${Array.from(stagePairs.entries()).reduce((sum, [pairKey, count]) => {
-        const [sourceStage, targetStage] = pairKey.split("|");
-        return sourceStage === stage || targetStage === stage ? sum + count : sum;
-      }, 0)} related link${Array.from(stagePairs.entries()).reduce((sum, [pairKey, count]) => {
-        const [sourceStage, targetStage] = pairKey.split("|");
-        return sourceStage === stage || targetStage === stage ? sum + count : sum;
-      }, 0) === 1 ? "" : "s"}`
+      hint: `${relatedLinkCount(stage)} related link${relatedLinkCount(stage) === 1 ? "" : "s"}`
     }))
     .filter((entry) => Number(entry.value) > 0 || Number(entry.hint.split(" ")[0] || 0) > 0);
 
   return `
     <div class="logics-insights__map-layout">
       <div class="logics-insights__map-stage">
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Corpus relationship map">
-          <defs>
-            <marker id="explorer-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
-            </marker>
-          </defs>
-          ${edges
-            .map((edge) => {
-              const sourceX = edge.source.x + nodeWidth / 2;
-              const sourceY = edge.source.y + nodeHeight / 2;
-              const targetX = edge.target.x + nodeWidth / 2;
-              const targetY = edge.target.y + nodeHeight / 2;
-              return `
-                <g>
-                  <line
-                    x1="${sourceX}"
-                    y1="${sourceY}"
-                    x2="${targetX}"
-                    y2="${targetY}"
-                    class="logics-insights__map-edge"
-                    style="color:${edge.color}; stroke:${edge.color}; stroke-width:${Math.min(6, 1.6 + edge.count * 0.4)}; opacity:${Math.min(0.72, 0.24 + edge.count * 0.1)}"
-                    marker-end="url(#explorer-arrow)"
-                  ></line>
-                  <text
-                    x="${((sourceX + targetX) / 2).toFixed(2)}"
-                    y="${((sourceY + targetY) / 2 - 6).toFixed(2)}"
-                    text-anchor="middle"
-                    class="logics-insights__map-edge-count"
-                  >${edge.count}</text>
-                </g>
-              `;
-            })
-            .join("")}
+        <div class="logics-insights__map-grid" role="list" aria-label="Corpus families">
           ${stageNodes
             .map((node) => {
               const color = stageColors[node.stage];
+              const links = relatedLinkCount(node.stage);
               return `
-                <g transform="translate(${node.x}, ${node.y})">
-                  <rect width="${nodeWidth}" height="${nodeHeight}" rx="14" class="logics-insights__map-node" style="fill:${color}; fill-opacity:0.14; stroke:${color}; stroke-opacity:0.7"></rect>
-                  <text x="${nodeWidth / 2}" y="18" text-anchor="middle" class="logics-insights__map-node-label">${escapeHtml(node.label)}</text>
-                  <text x="${nodeWidth / 2}" y="32" text-anchor="middle" class="logics-insights__map-node-count">${node.count}</text>
-                </g>
+                <article class="logics-insights__map-family" role="listitem" style="--map-family-color:${color}">
+                  <span class="logics-insights__map-family-label">${escapeHtml(node.label)}</span>
+                  <strong class="logics-insights__map-family-count">${node.count}</strong>
+                  <span class="logics-insights__map-family-subtitle">doc${node.count === 1 ? "" : "s"}</span>
+                  <span class="logics-insights__map-family-links">${links} related link${links === 1 ? "" : "s"}</span>
+                </article>
               `;
             })
             .join("")}
-        </svg>
+        </div>
+        <p class="logics-insights__map-note">This overview keeps the corpus shape readable at a glance. Use the side panel for exact counts and the most connected docs.</p>
       </div>
       <div class="logics-insights__map-side">
         ${renderList(stageSummary, "No corpus data available.")}
@@ -666,7 +616,7 @@ function renderCorpusExplorer(root: string, items: LogicsItem[], weekPoints: Tim
       <div class="logics-insights__explorer" data-explorer-root data-explorer-active="map">
         <div class="logics-insights__explorer-panel" data-explorer-panel="map" id="explorer-map" role="tabpanel">
           <h3>Relationship map</h3>
-          <p>Requests, backlog items, tasks, and companion docs are grouped by family so the current corpus shape is easy to scan at a glance.</p>
+          <p>Requests, backlog items, tasks, and companion docs are grouped into compact family tiles so the current corpus shape stays readable at a glance.</p>
           ${renderCorpusExplorerMap(mapData)}
         </div>
         <div class="logics-insights__explorer-panel" data-explorer-panel="timeline" id="explorer-timeline" role="tabpanel" hidden>
@@ -981,32 +931,39 @@ export function buildLogicsCorpusInsightsHtml(params: {
           border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
           padding: 10px;
         }
-        .logics-insights__map-stage svg {
-          width: 100%;
-          height: auto;
-          display: block;
+        .logics-insights__map-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 12px;
         }
-        .logics-insights__map-edge {
-          fill: none;
-          stroke-linecap: round;
+        .logics-insights__map-family {
+          display: grid;
+          gap: 6px;
+          padding: 14px 14px 13px;
+          border-radius: 14px;
+          border: 1px solid color-mix(in srgb, var(--map-family-color, currentColor) 55%, transparent);
+          background: color-mix(in srgb, var(--map-family-color, currentColor) 10%, transparent);
+          min-height: 104px;
         }
-        .logics-insights__map-edge-count {
-          fill: var(--vscode-editor-foreground);
-          font-size: 10px;
-          font-weight: 700;
-          paint-order: stroke;
-          stroke: var(--vscode-sideBar-background, var(--vscode-editor-background));
-          stroke-width: 3px;
-          stroke-linejoin: round;
-        }
-        .logics-insights__map-node-label {
-          fill: var(--vscode-editor-foreground);
-          font-size: 11px;
+        .logics-insights__map-family-label {
+          color: var(--vscode-editor-foreground);
+          font-size: 0.96rem;
           font-weight: 700;
         }
-        .logics-insights__map-node-count {
-          fill: var(--vscode-descriptionForeground);
-          font-size: 11px;
+        .logics-insights__map-family-count {
+          font-size: 1.8rem;
+          line-height: 1;
+          color: var(--vscode-editor-foreground);
+        }
+        .logics-insights__map-family-subtitle,
+        .logics-insights__map-family-links,
+        .logics-insights__map-note {
+          color: var(--vscode-descriptionForeground);
+          font-size: 0.9rem;
+          line-height: 1.45;
+        }
+        .logics-insights__map-note {
+          margin: 12px 2px 0;
         }
         .logics-insights__map-side {
           display: grid;

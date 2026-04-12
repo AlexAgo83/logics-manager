@@ -800,6 +800,10 @@
       const preview = document.createElement("div");
       preview.className = "card__preview";
       preview.hidden = true;
+      const theme = String(item?.indicators?.Theme || "").trim();
+      if (theme) {
+        preview.appendChild(createPreviewRow("Theme", theme));
+      }
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
 
@@ -933,13 +937,6 @@
         card.appendChild(taskDotContainer);
       }
 
-      if (!compact && !isPrimaryFlowStage(item.stage)) {
-        const supportMeta = document.createElement("div");
-        supportMeta.className = "card__meta";
-        supportMeta.textContent = `${getStageLabel(item.stage)} • ${item.id}`;
-        card.appendChild(supportMeta);
-      }
-
       const primaryFlowSummary = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
       if (primaryFlowSummary) {
         const linkage = document.createElement("div");
@@ -948,13 +945,6 @@
           (primaryFlowSummary === "Unlinked to primary flow" ? " card__meta--orphan" : "");
         linkage.textContent = primaryFlowSummary;
         card.appendChild(linkage);
-      }
-
-      if (compact) {
-        const meta = document.createElement("div");
-        meta.className = "card__meta";
-        meta.textContent = `${getStageLabel(item.stage)} • ${item.id}`;
-        card.appendChild(meta);
       }
 
       card.appendChild(preview);

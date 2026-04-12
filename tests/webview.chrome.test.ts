@@ -184,6 +184,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]') as HTMLButtonElement | null;
 
     expect(viewModeToggle?.disabled).toBe(true);
+    expect(viewModeToggle?.hidden).toBe(true);
     expect(viewModeToggle?.dataset.currentMode).toBe("list");
     expect(viewModeToggle?.getAttribute("aria-label")).toContain("required");
 
@@ -197,6 +198,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     });
 
     expect(viewModeToggle?.disabled).toBe(false);
+    expect(viewModeToggle?.hidden).toBe(false);
   });
 
   it("shows help banner when no items are loaded", () => {

@@ -1,10 +1,10 @@
 ## item_317_add_eslint_raise_branch_threshold_and_fix_unsafe_as_any_cast - add eslint raise branch threshold and fix unsafe as-any cast
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 96%
-> Confidence: 94%
-> Progress: 25%
+> Status: Done
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

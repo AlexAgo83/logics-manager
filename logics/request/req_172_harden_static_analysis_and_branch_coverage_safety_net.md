@@ -1,9 +1,9 @@
 ## req_172_harden_static_analysis_and_branch_coverage_safety_net - harden static analysis and branch coverage safety net
 > From version: 1.25.4
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 92%
+> Status: Done
+> Understanding: 96%
+> Confidence: 94%
 > Complexity: Medium
 > Theme: Maintenance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.

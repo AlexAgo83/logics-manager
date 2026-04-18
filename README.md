@@ -1,5 +1,14 @@
 # cdx-logics-vscode
 
+> Deprecated: this repository is superseded by [`AlexAgo83/logics-manager`](https://github.com/AlexAgo83/logics-manager).
+>
+> New development for Logics v2 now happens in the monorepo:
+> - Python core: `core/`
+> - CLI: `cli/`
+> - VS Code plugin: `vscode/`
+>
+> If you are starting fresh, use `logics-manager` instead of this repository.
+
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
 ![Version](https://img.shields.io/badge/version-v1.28.0-4C8BF5)
@@ -160,8 +169,8 @@ code --install-extension cdx-logics-vscode-<version>.vsix --force
 ```
 
 If you don't have the `code` CLI on PATH:
-- Windows: either use the VS Code installer option that adds `code` to PATH, or install the `.vsix` from the VS Code UI via **Extensions → ... → Install from VSIX...**.
-- macOS/Linux: you can enable it from **Command Palette → Shell Command: Install 'code' command in PATH**.
+- Windows: either use the VS Code installer option that adds `code` to PATH, or install the `.vsix` from the VS Code UI via **Extensions -> ... -> Install from VSIX...**.
+- macOS/Linux: you can enable it from **Command Palette -> Shell Command: Install 'code' command in PATH**.
 
 ### Install from source (dev)
 
@@ -172,9 +181,9 @@ npm run test
 ```
 
 Run the extension:
-- In VS Code: **Run → Start Debugging** (F5)
+- In VS Code: **Run -> Start Debugging** (F5)
 - The Extension Development Host opens.
-- Open the **Logics** panel at the bottom → **Orchestrator**.
+- Open the **Logics** panel at the bottom -> **Orchestrator**.
 
 If you prefer the terminal helper:
 
@@ -325,7 +334,6 @@ Plugin remediation path:
 - stale legacy overlay artifacts are no longer part of the normal operator path and should be treated as deprecated compatibility state.
 
 Legacy compatibility:
-
 - `logics_codex_workspace.py` remains available as a legacy overlay manager for transitional troubleshooting or older flows.
 - overlays are no longer the primary runtime contract for the plugin or the recommended default operator path.
 

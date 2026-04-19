@@ -1,14 +1,5 @@
 # cdx-logics-vscode
 
-> Deprecated: this repository is superseded by [`AlexAgo83/logics-manager`](https://github.com/AlexAgo83/logics-manager).
->
-> New development for Logics v2 now happens in the monorepo:
-> - Python core: `core/`
-> - CLI: `cli/`
-> - VS Code plugin: `vscode/`
->
-> If you are starting fresh, use `logics-manager` instead of this repository.
-
 [![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
 ![Version](https://img.shields.io/badge/version-v1.28.0-4C8BF5)

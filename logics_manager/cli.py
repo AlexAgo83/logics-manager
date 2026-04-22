@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+from .audit import audit_payload, build_parser as build_audit_parser
+from .audit import render_audit
 from .config import ConfigError, find_repo_root, render_config_show
 from .doctor import render_doctor
 
@@ -15,7 +17,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ROUTES = {
     "bootstrap": REPO_ROOT / "logics" / "skills" / "logics-bootstrapper" / "scripts" / "logics_bootstrap.py",
     "flow": REPO_ROOT / "logics" / "skills" / "logics-flow-manager" / "scripts" / "logics_flow.py",
-    "audit": REPO_ROOT / "logics" / "skills" / "logics-flow-manager" / "scripts" / "workflow_audit.py",
     "index": REPO_ROOT / "logics" / "skills" / "logics-indexer" / "scripts" / "generate_index.py",
     "lint": REPO_ROOT / "logics" / "skills" / "logics-doc-linter" / "scripts" / "logics_lint.py",
 }
@@ -80,4 +81,44 @@ def main(argv: list[str]) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0
+    if args.command == "audit":
+        audit_parser = build_audit_parser()
+        parsed, _unknown = audit_parser.parse_known_args(rest)
+        repo_root = find_repo_root(Path.cwd())
+        try:
+            payload = audit_payload(
+                repo_root,
+                stale_days=parsed.stale_days,
+                skip_ac_traceability=parsed.skip_ac_traceability,
+                skip_gates=parsed.skip_gates,
+                legacy_cutoff_version=parsed.legacy_cutoff_version,
+                group_by_doc=parsed.group_by_doc,
+                autofix_ac_traceability=parsed.autofix_ac_traceability,
+                paths=parsed.paths,
+                refs=parsed.refs,
+                since_version=parsed.since_version,
+                token_hygiene=parsed.token_hygiene,
+                autofix_structure=parsed.autofix_structure,
+                governance_profile=parsed.governance_profile,
+            )
+            output = render_audit(
+                repo_root,
+                stale_days=parsed.stale_days,
+                skip_ac_traceability=parsed.skip_ac_traceability,
+                skip_gates=parsed.skip_gates,
+                legacy_cutoff_version=parsed.legacy_cutoff_version,
+                output_format=parsed.format,
+                group_by_doc=parsed.group_by_doc,
+                autofix_ac_traceability=parsed.autofix_ac_traceability,
+                paths=parsed.paths,
+                refs=parsed.refs,
+                since_version=parsed.since_version,
+                token_hygiene=parsed.token_hygiene,
+                autofix_structure=parsed.autofix_structure,
+                governance_profile=parsed.governance_profile,
+            )
+        except ConfigError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(output)
+        return 0 if payload["ok"] else 1
     return _run(ROUTES[args.command], rest)

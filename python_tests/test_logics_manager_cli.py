@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
+from logics_manager.audit import audit_payload, render_audit
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.cli import main
 
@@ -34,6 +36,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
     [
         (["flow", "new", "request", "--title", "Demo"], "logics_flow.py", ["new", "request", "--title", "Demo"]),
         (["doctor", "--format", "json"], None, None),
+        (["audit", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],
 )
@@ -115,3 +118,77 @@ def test_render_doctor_reports_missing_workflow_dirs(tmp_path: Path) -> None:
     output = render_doctor(repo_root, output_format="text")
     assert "Logics doctor: FAILED" in output
     assert "missing_directory" in output
+
+
+def _write_minimal_workflow_doc(path: Path, *, title: str, kind: str, status: str, links: list[str]) -> None:
+    links_text = "\n".join(f"- {ref}" for ref in links) if links else "- none"
+    path.write_text(
+        "\n".join(
+            [
+                f"## {path.stem} - {title}",
+                f"> Status: {status}",
+                "> Schema version: 1.0",
+                "# Links",
+                links_text,
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=["item_001_demo_item"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo_item.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=["req_001_demo"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_001_demo_task.md",
+        title="Demo task",
+        kind="task",
+        status="Ready",
+        links=["item_001_demo_item"],
+    )
+
+    payload = audit_payload(repo_root)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+    assert payload["workflow_doc_count"] == 3
+    assert '"ok": true' in render_audit(repo_root, output_format="json")
+
+
+def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_workflow_doc(
+        doc_path,
+        title="Demo request",
+        kind="request",
+        status="Ready",
+        links=[],
+    )
+    past = 1_600_000_000
+    os.utime(doc_path, (past, past))
+
+    payload = audit_payload(repo_root, stale_days=30, skip_ac_traceability=True, skip_gates=True)
+
+    assert payload["ok"] is False
+    assert payload["issue_count"] == 1
+    assert payload["issues"][0]["code"] == "stale_pending_doc"

@@ -1,0 +1,12 @@
+*
+
+!package.json
+!README.md
+!LICENSE
+!pyproject.toml
+!scripts/
+!scripts/logics-manager.py
+!scripts/npm/
+!scripts/npm/logics-manager.mjs
+!logics_manager/
+!logics_manager/**

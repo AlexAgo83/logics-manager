@@ -2,6 +2,7 @@ node_modules/
 out/
 dist/
 build/
+*.tgz
 .vscode-test/
 *.vsix
 .DS_Store

@@ -9,6 +9,7 @@ from textwrap import dedent
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
 from .config import ConfigError, find_repo_root, render_config_show
+from .index import index_payload, render_index
 from .doctor import render_doctor
 
 
@@ -17,7 +18,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ROUTES = {
     "bootstrap": REPO_ROOT / "logics" / "skills" / "logics-bootstrapper" / "scripts" / "logics_bootstrap.py",
     "flow": REPO_ROOT / "logics" / "skills" / "logics-flow-manager" / "scripts" / "logics_flow.py",
-    "index": REPO_ROOT / "logics" / "skills" / "logics-indexer" / "scripts" / "generate_index.py",
     "lint": REPO_ROOT / "logics" / "skills" / "logics-doc-linter" / "scripts" / "logics_lint.py",
 }
 
@@ -119,6 +119,19 @@ def main(argv: list[str]) -> int:
             )
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
+        print(output)
+        return 0 if payload["ok"] else 1
+    if args.command == "index":
+        parser = argparse.ArgumentParser(prog="logics-manager index", add_help=False)
+        parser.add_argument("--out", default="logics/INDEX.md")
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed, _unknown = parser.parse_known_args(rest)
+        repo_root = find_repo_root(Path.cwd())
+        try:
+            payload = index_payload(repo_root, out=parsed.out)
+        except ConfigError as exc:
+            raise SystemExit(str(exc)) from exc
+        output = render_index(repo_root, out=parsed.out, output_format=parsed.format) if parsed.format == "json" else f"Wrote {payload['output_path']}"
         print(output)
         return 0 if payload["ok"] else 1
     return _run(ROUTES[args.command], rest)

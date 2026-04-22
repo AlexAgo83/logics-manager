@@ -9,6 +9,7 @@ import pytest
 
 from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
 from logics_manager.audit import audit_payload, render_audit
+from logics_manager.index import index_payload, render_index
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.cli import main
 
@@ -37,6 +38,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["flow", "new", "request", "--title", "Demo"], "logics_flow.py", ["new", "request", "--title", "Demo"]),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
+        (["index", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],
 )
@@ -192,3 +194,34 @@ def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
     assert payload["ok"] is False
     assert payload["issue_count"] == 1
     assert payload["issues"][0]["code"] == "stale_pending_doc"
+
+
+def test_render_index_builds_markdown_and_json(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo_item.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=[],
+    )
+
+    payload = index_payload(repo_root, out="logics/INDEX.md")
+
+    assert payload["ok"] is True
+    assert payload["counts"]["request"] == 1
+    assert payload["counts"]["backlog"] == 1
+    assert "Wrote logics/INDEX.md" == render_index(repo_root, output_format="text")
+    json_output = render_index(repo_root, output_format="json")
+    assert '"ok": true' in json_output

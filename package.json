@@ -16,6 +16,9 @@
     "Other"
   ],
   "main": "./dist/extension.js",
+  "bin": {
+    "logics-manager": "./scripts/npm/logics-manager.mjs"
+  },
   "contributes": {
     "viewsContainers": {
       "panel": [

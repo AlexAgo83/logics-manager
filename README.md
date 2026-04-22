@@ -25,6 +25,8 @@ python3.11 -m pip install .
 logics-manager --help
 ```
 
+The repository also exposes a `logics-manager` npm bin when installed through npm, which delegates to the same Python CLI.
+
 For the editor client, build and install the VSIX:
 
 ```bash

@@ -23,9 +23,41 @@ describe("pythonRuntime behavior", () => {
     const runtime = await import("../src/pythonRuntime");
     const result = await runtime.runPythonCommand("/workspace", "scripts/logics.py", ["flow"]);
 
-    expect(result.error?.message).toContain("Python 3 interpreter not found");
-    expect(result.stderr).toContain("Python 3 interpreter not found");
+    expect(result.error?.message).toContain("Python 3.10+ interpreter not found");
+    expect(result.stderr).toContain("Python 3.10+ interpreter not found");
     expect(execFileMock).toHaveBeenCalledTimes(candidates.length);
+  });
+
+  it("skips python versions older than 3.10", async () => {
+    const candidates = getPythonCommandCandidates();
+    const calls: Array<{ command: string; args: string[] }> = [];
+
+    execFileMock.mockImplementation((command: string, args: string[], options: unknown, callback: (...args: any[]) => void) => {
+      const actualArgs = Array.isArray(args) ? args : [];
+      const cb = typeof options === "function" ? options : callback;
+      calls.push({ command, args: actualArgs });
+
+      if (actualArgs.includes("--version")) {
+        if (calls.length === 1) {
+          cb(null, "Python 3.9.6\n", "");
+          return;
+        }
+        cb(null, "Python 3.11.0\n", "");
+        return;
+      }
+
+      cb(null, "ok\n", "");
+    });
+
+    const runtime = await import("../src/pythonRuntime");
+    const result = await runtime.runPythonCommand("/workspace", "scripts/logics.py", ["flow"]);
+
+    expect(result.stdout).toBe("ok\n");
+    expect(calls).toEqual([
+      { command: candidates[0].command, args: [...candidates[0].argsPrefix, "--version"] },
+      { command: candidates[1].command, args: [...candidates[1].argsPrefix, "--version"] },
+      { command: candidates[1].command, args: [...candidates[1].argsPrefix, "scripts/logics.py", "flow"] }
+    ]);
   });
 
   it("retries with a fresh interpreter candidate when the resolved command starts failing", async () => {

@@ -37,14 +37,14 @@ describe("webview harness core behaviors", () => {
     pushData(dom, {
       root: "/workspace/mock",
       canBootstrapLogics: false,
-      bootstrapLogicsTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+      bootstrapLogicsTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
       items: [baseItem]
     });
 
     const bootstrapButton = dom.window.document.querySelector('[data-action="bootstrap-logics"]') as HTMLButtonElement | null;
     expect(bootstrapButton?.disabled).toBe(true);
     expect(bootstrapButton?.title).toBe(
-      "Bootstrap unavailable until the current logics/skills setup is repaired"
+      "Bootstrap unavailable until the current Logics runtime setup is repaired"
     );
   });
 

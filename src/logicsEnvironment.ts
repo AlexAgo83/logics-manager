@@ -7,7 +7,7 @@ import { CodexOverlaySnapshot, inspectCodexWorkspaceOverlay } from "./logicsCode
 import { detectPythonRuntime, PythonCommand, runPythonCommand } from "./pythonRuntime";
 
 export type CapabilityStatus = "available" | "unavailable";
-export type RepositoryState = "no-root" | "missing-logics" | "missing-kit" | "missing-flow-manager" | "partial-bootstrap" | "ready";
+export type RepositoryState = "no-root" | "missing-logics" | "partial-bootstrap" | "ready";
 export type HybridRuntimeState = "unavailable" | "degraded" | "ready";
 
 export type Capability = {
@@ -225,12 +225,6 @@ function computeRepositoryState(input: {
   if (!input.hasLogicsDir) {
     return "missing-logics";
   }
-  if (!input.hasSkillsDir) {
-    return "missing-kit";
-  }
-  if (!input.hasFlowManagerScript) {
-    return "missing-flow-manager";
-  }
   if (input.missingWorkflowDirs.length > 0) {
     return "partial-bootstrap";
   }
@@ -271,12 +265,6 @@ function buildWorkflowMutationCapability(
       summary: "Requires a logics/ folder in the selected project root."
     };
   }
-  if (!hasFlowManagerScript) {
-    return {
-      status: "unavailable",
-      summary: "Requires logics/skills plus the flow-manager scripts. Run Bootstrap Logics to repair the kit."
-    };
-  }
   if (!pythonAvailable) {
     return {
       status: "unavailable",
@@ -304,13 +292,13 @@ function buildBootstrapCapability(
   if (!gitAvailable) {
     return {
       status: "unavailable",
-      summary: "Requires Git on PATH to initialize repositories and add or repair the kit submodule."
+      summary: "Requires Git on PATH to initialize repositories and repair the local runtime."
     };
   }
   if (hasBootstrapScript && !pythonAvailable) {
     return {
       status: "unavailable",
-      summary: "Git is available, but Python 3 is still required to finish the bootstrap script after the kit is present."
+      summary: "Git is available, but Python 3 is still required to finish the bootstrap script after the runtime is present."
     };
   }
   return {
@@ -332,7 +320,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["no-root"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
   }
 
@@ -346,7 +334,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["missing-logics-runtime"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
   }
 
@@ -362,7 +350,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["missing-python"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
   }
 
@@ -376,7 +364,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-probe-failed"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
   }
 
@@ -392,7 +380,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-invalid-json"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
   }
 
@@ -425,6 +413,6 @@ async function inspectHybridAssistRuntime(
     windowsSafeEntrypoint:
       typeof payload.windows_safe_entrypoint === "string" && payload.windows_safe_entrypoint.trim()
         ? payload.windows_safe_entrypoint
-        : "python scripts/logics-manager.py flow assist ..."
+        : "python -m logics_manager flow assist ..."
   };
 }

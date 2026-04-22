@@ -14,7 +14,7 @@ export async function maybeShowReadyCodexOverlayHandoff(
   const launchAction = "Launch Codex in Terminal";
   const copyAction = "Copy Codex Launch Command";
   const choice = await vscode.window.showInformationMessage(
-    `Global Codex kit is ready after ${trigger}. Launch Codex normally to use the published Logics skills.`,
+    `Global Codex runtime is ready after ${trigger}. Launch Codex normally to use the published Logics skills.`,
     launchAction,
     copyAction
   );

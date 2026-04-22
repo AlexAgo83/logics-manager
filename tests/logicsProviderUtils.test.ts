@@ -333,7 +333,7 @@ describe("catalog helpers", () => {
     expect(fs.readFileSync(markdownPath, "utf8")).toContain("> Progress: 50%");
   });
 
-  it("exposes the kit update command string", () => {
+  it("exposes the runtime update command string", () => {
     expect(buildLogicsKitUpdateCommand()).toContain("git submodule update");
   });
 });

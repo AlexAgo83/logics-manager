@@ -93,7 +93,7 @@ export class LogicsViewDocumentController {
     if (!agent) {
       const registry = this.options.getAgentRegistry();
       const issueHint = registry.issues.length > 0 ? " Check 'Logics Agents' output for validation errors." : "";
-      void vscode.window.showWarningMessage(`No request-authoring agent found in logics/skills.${issueHint}`);
+      void vscode.window.showWarningMessage(`No request-authoring agent found for the current Logics runtime.${issueHint}`);
       if (registry.issues.length > 0) {
         this.options.agentsOutput.show(true);
       }
@@ -489,7 +489,7 @@ export class LogicsViewDocumentController {
   }
 
   private buildMissingLogicsMessage(root: string, actionLabel: string): string {
-    return `${actionLabel} requires a logics/ folder in: ${root}. Bootstrap Logics to install the kit and workflow docs. ${this.buildRecoveryGuidance()}`;
+    return `${actionLabel} requires a logics/ folder in: ${root}. Bootstrap Logics to install the local runtime and workflow docs. ${this.buildRecoveryGuidance()}`;
   }
 
   private buildMissingPythonActionMessage(actionLabel: string): string {

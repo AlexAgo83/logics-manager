@@ -23,6 +23,7 @@ vitest.config.ts
 vitest.config.mts
 logics/**
 scripts/**
+!scripts/logics-manager.py
 changelogs/**
 !dist/**
 !media/**

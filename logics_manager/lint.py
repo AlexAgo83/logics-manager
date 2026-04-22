@@ -4,18 +4,12 @@ import argparse
 import json
 import re
 import subprocess
-import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 from .config import find_repo_root
-
-FLOW_MANAGER_SCRIPTS = Path(__file__).resolve().parents[1] / "logics" / "skills" / "logics-flow-manager" / "scripts"
-if str(FLOW_MANAGER_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(FLOW_MANAGER_SCRIPTS))
-
-from logics_flow_support import expected_workflow_mermaid_signature  # type: ignore  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -60,6 +54,45 @@ BLOCKING_TRACEABILITY_PLACEHOLDER_SNIPPETS = (
     "Proof: TODO",
     "TODO: map this acceptance criterion",
 )
+MERMAID_LABEL_MAX_WORDS = 6
+MERMAID_LABEL_MAX_CHARS = 42
+MERMAID_FALLBACKS = {
+    "request_backlog": "Backlog slice",
+    "backlog_task": "Execution task",
+    "task_report": "Done report",
+}
+REF_PREFIXES = {
+    "request": "req",
+    "backlog": "item",
+    "task": "task",
+}
+MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
+MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
+AI_CONTEXT_FIELD_PATTERN = re.compile(r"^\s*-\s*([^:]+)\s*:\s*(.+?)\s*$")
+AI_KEYWORD_STOPWORDS = {
+    "about",
+    "after",
+    "before",
+    "being",
+    "between",
+    "define",
+    "deliver",
+    "delivery",
+    "focus",
+    "from",
+    "have",
+    "into",
+    "needs",
+    "review",
+    "scope",
+    "should",
+    "task",
+    "that",
+    "this",
+    "through",
+    "when",
+    "with",
+}
 
 
 def _read_lines(path: Path) -> list[str]:
@@ -107,6 +140,238 @@ def _section_lines(lines: list[str], heading: str) -> list[str]:
 def _extract_refs(text: str, prefix: str) -> list[str]:
     pattern = re.compile(rf"\b{re.escape(prefix)}_\d{{3}}_[a-z0-9_]+\b")
     return sorted({match.group(0) for match in pattern.finditer(text)})
+
+
+def _strip_mermaid_blocks(text: str) -> str:
+    return MERMAID_BLOCK_PATTERN.sub("", text)
+
+
+def _plain_text(value: str) -> str:
+    text = unicodedata.normalize("NFKD", value)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"`+", "", text)
+    text = text.replace("&", " and ")
+    text = re.sub(r"[/{}[\]()+*#]", " ", text)
+    text = re.sub(r"[^A-Za-z0-9:._ -]+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip(" .:-")
+    return text
+
+
+def _safe_mermaid_label(value: str, fallback: str) -> str:
+    text = _plain_text(value)
+    if not text:
+        text = fallback
+    words = text.split()
+    if len(words) > MERMAID_LABEL_MAX_WORDS:
+        text = " ".join(words[:MERMAID_LABEL_MAX_WORDS])
+    if len(text) > MERMAID_LABEL_MAX_CHARS:
+        text = text[:MERMAID_LABEL_MAX_CHARS].rstrip(" .:-")
+    return text or fallback
+
+
+def _rendered_list_items(text: str) -> list[str]:
+    items: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        stripped = re.sub(r"^- \[[ xX]\]\s*", "", stripped)
+        if stripped.startswith("- "):
+            stripped = stripped[2:].strip()
+        items.append(stripped)
+    return items
+
+
+def _pick_mermaid_summary(candidates: list[str], fallback: str) -> str:
+    for candidate in candidates:
+        label = _safe_mermaid_label(candidate, "")
+        if label:
+            return label
+    return fallback
+
+
+def _mermaid_signature_part(value: str) -> str:
+    text = _plain_text(value).lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return text[:40]
+
+
+def _compose_mermaid_signature(kind_name: str, *parts: str) -> str:
+    signature_parts = [_mermaid_signature_part(kind_name)]
+    for part in parts:
+        rendered = _mermaid_signature_part(part)
+        if rendered:
+            signature_parts.append(rendered)
+    return "|".join(signature_parts)
+
+
+def _extract_title(lines: list[str]) -> str:
+    for line in lines:
+        if line.startswith("## "):
+            match = re.match(r"^##\s+\S+\s*-\s*(.+?)\s*$", line)
+            if match:
+                return match.group(1).strip()
+            return line.removeprefix("## ").strip()
+    return ""
+
+
+def _section_block(text: str, heading: str, fallback: str = "") -> str:
+    cleaned = [line.rstrip() for line in _section_lines(text.splitlines(), heading) if line.strip()]
+    if cleaned:
+        return "\n".join(cleaned)
+    return fallback
+
+
+def _ref_placeholder(text: str, prefix: str, fallback: str = "(none yet)") -> str:
+    refs = sorted(_extract_refs(text, prefix))
+    if refs:
+        return ", ".join(f"`{ref}`" for ref in refs)
+    return fallback
+
+
+def _workflow_mermaid_values_from_doc(text: str, kind_name: str) -> dict[str, str]:
+    ref_text = _strip_mermaid_blocks(text)
+    if kind_name == "request":
+        return {
+            "NEEDS_PLACEHOLDER": _section_block(text, "Needs", "- Describe the need"),
+            "CONTEXT_PLACEHOLDER": _section_block(text, "Context", "- Add the relevant context"),
+            "ACCEPTANCE_PLACEHOLDER": _section_block(text, "Acceptance criteria", "- AC1: Define a measurable outcome"),
+        }
+
+    if kind_name == "backlog":
+        return {
+            "PROBLEM_PLACEHOLDER": _section_block(text, "Problem", "- Describe the problem and user impact"),
+            "ACCEPTANCE_BLOCK": _section_block(text, "Acceptance criteria", "- AC1: Define an objective acceptance check"),
+            "REQUEST_LINK_PLACEHOLDER": _ref_placeholder(ref_text, REF_PREFIXES["request"]),
+            "TASK_LINK_PLACEHOLDER": _ref_placeholder(ref_text, REF_PREFIXES["task"]),
+        }
+
+    if kind_name == "task":
+        return {
+            "PLAN_BLOCK": _section_block(
+                text,
+                "Plan",
+                "- [ ] 1. Confirm scope\n- [ ] 2. Implement scope\n- [ ] 3. Validate result",
+            ),
+            "VALIDATION_BLOCK": _section_block(
+                text,
+                "Validation",
+                "- Run the relevant automated tests before closing the current wave or step.",
+            ),
+            "BACKLOG_LINK_PLACEHOLDER": _ref_placeholder(
+                ref_text,
+                REF_PREFIXES["backlog"],
+                "(add: Derived from `logics/backlog/item_XXX_...`)",
+            ),
+        }
+
+    raise ValueError(f"Unsupported Mermaid workflow kind: {kind_name}")
+
+
+def _render_request_mermaid(title: str, values: dict[str, str]) -> str:
+    need_items = _rendered_list_items(values.get("NEEDS_PLACEHOLDER", ""))
+    context_items = _rendered_list_items(values.get("CONTEXT_PLACEHOLDER", ""))
+    acceptance_items = _rendered_list_items(values.get("ACCEPTANCE_PLACEHOLDER", ""))
+    title_label = _safe_mermaid_label(title, "Request need")
+    need_label = _pick_mermaid_summary([*need_items, *context_items, title], "Need scope")
+    outcome_label = _pick_mermaid_summary([*acceptance_items, *context_items], "Acceptance target")
+    feedback_label = _safe_mermaid_label(MERMAID_FALLBACKS["request_backlog"], MERMAID_FALLBACKS["request_backlog"])
+    signature = _compose_mermaid_signature("request", title, need_label, outcome_label)
+    return "\n".join(
+        [
+            "```mermaid",
+            "%% logics-kind: request",
+            f"%% logics-signature: {signature}",
+            "flowchart TD",
+            f"    Trigger[{title_label}] --> Need[{need_label}]",
+            f"    Need --> Outcome[{outcome_label}]",
+            f"    Outcome --> Backlog[{feedback_label}]",
+            "```",
+        ]
+    )
+
+
+def _render_backlog_mermaid(title: str, values: dict[str, str]) -> str:
+    request_refs = _extract_refs(values.get("REQUEST_LINK_PLACEHOLDER", ""), REF_PREFIXES["request"])
+    task_refs = _extract_refs(values.get("TASK_LINK_PLACEHOLDER", ""), REF_PREFIXES["task"])
+    problem_items = _rendered_list_items(values.get("PROBLEM_PLACEHOLDER", ""))
+    acceptance_items = _rendered_list_items(values.get("ACCEPTANCE_BLOCK", ""))
+    source_label = _pick_mermaid_summary([*request_refs, title], "Request source")
+    problem_label = _pick_mermaid_summary([*problem_items, title], "Problem scope")
+    scope_label = _safe_mermaid_label(title, "Scoped delivery")
+    acceptance_label = _pick_mermaid_summary(acceptance_items, "Acceptance check")
+    task_label = _pick_mermaid_summary(task_refs, MERMAID_FALLBACKS["backlog_task"])
+    signature = _compose_mermaid_signature("backlog", title, source_label, problem_label, acceptance_label)
+    return "\n".join(
+        [
+            "```mermaid",
+            "%% logics-kind: backlog",
+            f"%% logics-signature: {signature}",
+            "flowchart TD",
+            f"    Request[{source_label}] --> Problem[{problem_label}]",
+            f"    Problem --> Scope[{scope_label}]",
+            f"    Scope --> Acceptance[{acceptance_label}]",
+            f"    Acceptance --> Tasks[{task_label}]",
+            "```",
+        ]
+    )
+
+
+def _render_task_mermaid(title: str, values: dict[str, str]) -> str:
+    backlog_refs = _extract_refs(values.get("BACKLOG_LINK_PLACEHOLDER", ""), REF_PREFIXES["backlog"])
+    plan_items = [
+        item
+        for item in _rendered_list_items(values.get("PLAN_BLOCK", ""))
+        if not item.lower().startswith("final:")
+    ]
+    validation_items = _rendered_list_items(values.get("VALIDATION_BLOCK", ""))
+    source_label = _pick_mermaid_summary([*backlog_refs, title], "Backlog source")
+    step_one = _pick_mermaid_summary(plan_items[:1], "Confirm scope")
+    step_two = _pick_mermaid_summary(plan_items[1:2], "Implement change")
+    step_three = _pick_mermaid_summary(plan_items[2:3], "Validate result")
+    validation_label = _pick_mermaid_summary(validation_items, "Validation")
+    report_label = _safe_mermaid_label(MERMAID_FALLBACKS["task_report"], MERMAID_FALLBACKS["task_report"])
+    signature = _compose_mermaid_signature("task", title, source_label, step_one, validation_label)
+    return "\n".join(
+        [
+            "```mermaid",
+            "%% logics-kind: task",
+            f"%% logics-signature: {signature}",
+            "stateDiagram-v2",
+            f'    state "{source_label}" as Backlog',
+            f'    state "{step_one}" as Scope',
+            f'    state "{step_two}" as Build',
+            f'    state "{step_three}" as Verify',
+            f'    state "{validation_label}" as Validation',
+            f'    state "{report_label}" as Report',
+            "    [*] --> Backlog",
+            "    Backlog --> Scope",
+            "    Scope --> Build",
+            "    Build --> Verify",
+            "    Verify --> Validation",
+            "    Validation --> Report",
+            "    Report --> [*]",
+            "```",
+        ]
+    )
+
+
+def expected_workflow_mermaid_signature(kind_name: str, lines: list[str]) -> str:
+    text = "\n".join(lines)
+    title = _extract_title(lines)
+    if not title:
+        return ""
+    values = _workflow_mermaid_values_from_doc(text, kind_name)
+    if kind_name == "request":
+        rendered = _render_request_mermaid(title, values)
+    elif kind_name == "backlog":
+        rendered = _render_backlog_mermaid(title, values)
+    elif kind_name == "task":
+        rendered = _render_task_mermaid(title, values)
+    else:
+        return ""
+    match = MERMAID_SIGNATURE_PATTERN.search(rendered)
+    return match.group(1) if match is not None else ""
 
 
 def _run_git(repo_root: Path, args: list[str]) -> str:

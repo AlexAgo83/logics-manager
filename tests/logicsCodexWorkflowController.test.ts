@@ -173,7 +173,7 @@ describe("LogicsCodexWorkflowController", () => {
     expect(mocks.clipboardWriteText).not.toHaveBeenCalled();
   });
 
-  it("offers to copy the kit update command when startup remediation is blocked by a missing manager", async () => {
+  it("offers to copy the runtime update command when startup remediation is blocked by a missing manager", async () => {
     const root = makeRoot();
     mocks.inspectLogicsEnvironment.mockResolvedValue({
       ...healthySnapshot(),
@@ -290,7 +290,7 @@ describe("LogicsCodexWorkflowController", () => {
     );
   });
 
-  it("blocks canonical kit updates when logics/skills is dirty", async () => {
+  it("blocks canonical runtime updates when logics/skills is dirty", async () => {
     const root = makeRoot();
     mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
@@ -316,7 +316,7 @@ describe("LogicsCodexWorkflowController", () => {
 
     expect(updated).toBe(false);
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      expect.stringContaining("logics/skills submodule has uncommitted changes"),
+      expect.stringContaining("local Logics tooling has uncommitted changes"),
       "Copy Update Command"
     );
     expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(
@@ -325,7 +325,7 @@ describe("LogicsCodexWorkflowController", () => {
     );
   });
 
-  it("returns false early when Git is unavailable for Logics kit updates", async () => {
+  it("returns false early when Git is unavailable for Logics runtime updates", async () => {
     const root = makeRoot();
     mocks.runGitWithOutput.mockResolvedValue({
       error: new Error("git not found"),

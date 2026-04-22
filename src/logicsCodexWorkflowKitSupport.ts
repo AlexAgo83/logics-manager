@@ -90,7 +90,7 @@ function copyFallbackKitSource(root: string, sourcePath: string, label: string):
   fs.mkdirSync(path.dirname(skillsDir), { recursive: true });
   fs.cpSync(sourcePath, skillsDir, { recursive: true, force: true, dereference: false });
   ensureCanonicalGitmodules(root);
-  void vscode.window.showInformationMessage(`Logics kit restored from the ${label} global kit.`);
+  void vscode.window.showInformationMessage(`Logics runtime restored from the ${label} global runtime.`);
 }
 
 export async function fallbackInstallKit(root: string): Promise<FallbackKitInstallResult> {
@@ -106,7 +106,7 @@ export async function fallbackInstallKit(root: string): Promise<FallbackKitInsta
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const choice = await vscode.window.showWarningMessage(
-        `Copying the Logics kit from the ${source.label} global kit failed: ${message}. Try a direct clone instead?`,
+        `Copying the Logics runtime from the ${source.label} global runtime failed: ${message}. Try a direct clone instead?`,
         "Clone"
       );
       if (choice !== "Clone") {
@@ -135,7 +135,7 @@ export async function fallbackInstallKit(root: string): Promise<FallbackKitInsta
   }
 
   ensureCanonicalGitmodules(root);
-  void vscode.window.showInformationMessage("Logics kit restored by cloning the canonical kit repository.");
+  void vscode.window.showInformationMessage("Logics runtime restored by cloning the canonical runtime repository.");
   return {
     installed: true,
     method: "clone"
@@ -154,7 +154,7 @@ export function appendBootstrapConvergenceNote(
     return message;
   }
   if (convergence.applied) {
-    return `${message} Repo-local bootstrap files were reconciled with the current kit.`;
+    return `${message} Repo-local bootstrap files were reconciled with the current runtime.`;
   }
   if (convergence.failureMessage) {
     return `${message} Repo-local bootstrap convergence still needs attention: ${convergence.failureMessage}`;

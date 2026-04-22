@@ -1,6 +1,6 @@
 ## prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api - Logics CLI as the primary operator surface and unified runtime API
-> Date: 2026-04-22
-> Status: Proposed
+> Date: 2026-04-23
+> Status: Active
 > Related request: `req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime`
 > Related backlog: `item_339_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout`, `item_340_package_logics_manager_as_a_polished_installable_cli`, `item_341_generate_assistant_bridges_and_instructions_from_the_integrated_runtime`
 > Related task: `task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout`, `task_149_package_logics_manager_as_a_polished_installable_cli`, `task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime`

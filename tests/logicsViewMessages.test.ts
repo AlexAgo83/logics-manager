@@ -12,7 +12,7 @@ describe("logicsViewMessages", () => {
     expect(
       parseLogicsWebviewMessage({
         type: "inject-prompt",
-        prompt: "Use the Logics kit.",
+        prompt: "Use the Logics runtime.",
         options: {
           codexCopiedMessage: "Copied",
           fallbackCopiedMessage: "Fallback copied"
@@ -20,7 +20,7 @@ describe("logicsViewMessages", () => {
       })
     ).toEqual({
       type: "inject-prompt",
-      prompt: "Use the Logics kit.",
+      prompt: "Use the Logics runtime.",
       options: {
         codexCopiedMessage: "Copied",
         fallbackCopiedMessage: "Fallback copied"

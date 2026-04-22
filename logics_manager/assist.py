@@ -10,7 +10,7 @@ import subprocess
 from shutil import which
 from typing import Any
 
-from .config import find_repo_root, load_repo_config
+from .config import ConfigError, find_repo_root, load_repo_config
 from .doctor import doctor_payload
 from .lint import lint_payload
 
@@ -22,16 +22,47 @@ DEFAULT_HYBRID_ROI_WINDOW_DAYS = 14
 DEFAULT_ESTIMATED_REMOTE_TOKENS_PER_LOCAL_RUN = 1200
 
 
-CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, str], ...] = (
+CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, object], ...] = (
     {
         "id": "hybrid-assist",
+        "title": "Logics Assist",
         "command_path": ".claude/commands/logics-assist.md",
         "agent_path": ".claude/agents/logics-hybrid-delivery-assistant.md",
+        "fallback_prompt": "Use $logics-hybrid-delivery-assistant for commit-all, summaries, next-step, triage, handoff, or split-suggestion requests.",
     },
     {
         "id": "flow-manager",
+        "title": "Logics Flow",
         "command_path": ".claude/commands/logics-flow.md",
         "agent_path": ".claude/agents/logics-flow-manager.md",
+        "fallback_prompt": "Use $logics-flow-manager to manage this repository's Logics workflow: create new request/backlog/task docs, promote between stages, keep From version/Understanding/Confidence/Progress indicators consistent.",
+    },
+    {
+        "id": "request-draft",
+        "title": "Logics Request Draft",
+        "command_path": ".claude/commands/logics-request-draft.md",
+        "agent_path": ".claude/agents/logics-request-draft.md",
+        "fallback_prompt": "Use $logics-hybrid-delivery-assistant for bounded request-draft proposals from a short intent; keep the output proposal-only and do not create files directly.",
+        "prompt_override": "Use $logics-hybrid-delivery-assistant for bounded request-draft proposals from a short intent; keep the output proposal-only and do not create files directly.",
+        "reviewer_nudge": "Validate the generated Needs and Context blocks before promoting them into a real request doc or committing follow-up work.",
+    },
+    {
+        "id": "spec-first-pass",
+        "title": "Logics Spec First Pass",
+        "command_path": ".claude/commands/logics-spec-first-pass.md",
+        "agent_path": ".claude/agents/logics-spec-first-pass.md",
+        "fallback_prompt": "Use $logics-hybrid-delivery-assistant for bounded spec-first-pass outlines from a backlog item; keep the output proposal-only and operator-reviewed.",
+        "prompt_override": "Use $logics-hybrid-delivery-assistant for bounded spec-first-pass outlines from a backlog item; keep the output proposal-only and operator-reviewed.",
+        "reviewer_nudge": "Validate the proposed spec sections, constraints, and open questions before turning them into a real spec file.",
+    },
+    {
+        "id": "backlog-groom",
+        "title": "Logics Backlog Groom",
+        "command_path": ".claude/commands/logics-backlog-groom.md",
+        "agent_path": ".claude/agents/logics-backlog-groom.md",
+        "fallback_prompt": "Use $logics-hybrid-delivery-assistant for bounded backlog-groom proposals from a request doc; keep the output proposal-only and reviewable.",
+        "prompt_override": "Use $logics-hybrid-delivery-assistant for bounded backlog-groom proposals from a request doc; keep the output proposal-only and reviewable.",
+        "reviewer_nudge": "Validate the scoped title, complexity, and acceptance-criteria proposal before creating or committing a backlog item.",
     },
 )
 
@@ -1257,6 +1288,14 @@ def build_parser() -> argparse.ArgumentParser:
     roi.add_argument("--dry-run", action="store_true")
     roi.set_defaults(func=cmd_roi_report)
 
+    claude_bridges = sub.add_parser(
+        "claude-bridges",
+        help="Render the canonical Claude bridge files and prompts derived from the integrated runtime.",
+    )
+    claude_bridges.add_argument("--format", choices=("text", "json"), default="text")
+    claude_bridges.add_argument("--dry-run", action="store_true")
+    claude_bridges.set_defaults(func=cmd_claude_bridges)
+
     context = sub.add_parser("context", help="Build a shared assist context bundle for a flow.")
     context.add_argument("flow_name", choices=tuple(sorted(ASSIST_FLOW_DEFAULTS.keys())))
     context.add_argument("ref", nargs="?", help="Optional workflow ref for flows that target a doc.")
@@ -1269,6 +1308,14 @@ def build_parser() -> argparse.ArgumentParser:
     context.add_argument("--out", help="Write the JSON context bundle to this relative path.")
     context.add_argument("--dry-run", action="store_true")
     context.set_defaults(func=cmd_context)
+
+    claude_instructions = sub.add_parser(
+        "claude-instructions",
+        help="Render the canonical assistant instructions derived from the integrated runtime.",
+    )
+    claude_instructions.add_argument("--format", choices=("text", "json"), default="text")
+    claude_instructions.add_argument("--dry-run", action="store_true")
+    claude_instructions.set_defaults(func=cmd_claude_instructions)
 
     next_step = sub.add_parser("next-step", help="Suggest the next bounded Logics step for a target doc.")
     next_step.add_argument("ref", nargs="?", help="Optional workflow ref for a target doc.")
@@ -1319,12 +1366,145 @@ def _claude_bridge_status(repo_root: Path) -> dict[str, object]:
     }
 
 
+def _render_claude_bridge_lines(variant: dict[str, object], prompt: str) -> tuple[str, str]:
+    title = str(variant["title"])
+    command_path = str(variant["command_path"])
+    agent_path = str(variant["agent_path"])
+    reviewer_nudge = variant.get("reviewer_nudge")
+
+    command_lines = [
+        f"# {title}",
+        "",
+        f"Use the repository-local {title.lower()} bridge for this project.",
+        "",
+        "Primary prompt:",
+        prompt,
+        "",
+    ]
+    agent_lines = [
+        f"# {title} Agent",
+        "",
+        f"Use the repository-local {title.lower()} agent for this project.",
+        "",
+        "Default prompt:",
+        prompt,
+        "",
+    ]
+    if reviewer_nudge:
+        command_lines.extend(["Reviewer nudge:", str(reviewer_nudge), ""])
+        agent_lines.extend(["Reviewer nudge:", str(reviewer_nudge), ""])
+    command_lines.extend(["References:", f"- `{agent_path}`", "- `logics_manager`", ""])
+    agent_lines.extend(["References:", f"- `{command_path}`", "- `logics_manager`", ""])
+    return "\n".join(command_lines), "\n".join(agent_lines)
+
+
+def _build_claude_bridge_manifest(repo_root: Path) -> dict[str, object]:
+    bridges: list[dict[str, object]] = []
+    for variant in CLAUDE_BRIDGE_VARIANTS:
+        prompt = str(variant.get("prompt_override") or variant["fallback_prompt"])
+        command_content, agent_content = _render_claude_bridge_lines(variant, prompt)
+        bridges.append(
+            {
+                "id": variant["id"],
+                "title": variant["title"],
+                "command_path": variant["command_path"],
+                "agent_path": variant["agent_path"],
+                "prompt": prompt,
+                "command_content": command_content,
+                "agent_content": agent_content,
+            }
+        )
+    return {
+        "command": "assist",
+        "kind": "claude-bridge-manifest",
+        "repo_root": repo_root.as_posix(),
+        "bridge_count": len(bridges),
+        "bridges": bridges,
+    }
+
+
+def _build_claude_instructions(repo_root: Path) -> dict[str, object]:
+    content = "\n".join(
+        [
+            "# Codex Context",
+            "",
+            "This file defines the working context for Codex in this repository.",
+            "",
+            "## Workflow",
+            "",
+            "Use the canonical `logics-manager` CLI to create, promote, and finish Logics docs:",
+            "",
+            "- `python3 -m logics_manager flow new request --title \"...\"`",
+            "- `python3 -m logics_manager flow promote request-to-backlog logics/request/req_NNN_*.md`",
+            "- `python3 -m logics_manager flow finish task logics/tasks/task_NNN_*.md`",
+            "- `python3 -m logics_manager lint --require-status`",
+            "- `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`",
+            "",
+            "Repository-local Claude bridge files and assistant instructions are generated from the integrated runtime.",
+            "Do not edit `.claude/` bridge files by hand unless you are deliberately repairing a generated artifact.",
+            "",
+            "Do not edit indicator lines or workflow links by hand.",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return {
+        "command": "assist",
+        "kind": "claude-instructions",
+        "repo_root": repo_root.as_posix(),
+        "path": "logics/instructions.md",
+        "content": content,
+        "line_count": len(content.splitlines()),
+    }
+
+
 def _select_backend(requested_backend: str | None, bridge_status: dict[str, object]) -> tuple[str, list[str]]:
     if requested_backend and requested_backend != "auto":
         return requested_backend, []
     if bridge_status.get("available"):
         return "codex", ["claude bridge files detected"]
     return "deterministic", ["no bridge files detected"]
+
+
+def cmd_claude_bridges(args: argparse.Namespace) -> dict[str, object]:
+    try:
+        repo_root = find_repo_root(Path.cwd())
+    except ConfigError:
+        repo_root = Path.cwd().resolve()
+    try:
+        _, config_path = load_repo_config(repo_root)
+    except ConfigError:
+        config_path = None
+    payload = {
+        "command": "assist",
+        "kind": "claude-bridge-manifest",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_claude_bridge_manifest(repo_root),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Claude bridge manifest: OK")
+        for bridge in payload["bridges"]:
+            print(f"- {bridge['command_path']}")
+            print(f"- {bridge['agent_path']}")
+    return payload
+
+
+def cmd_claude_instructions(args: argparse.Namespace) -> dict[str, object]:
+    try:
+        repo_root = find_repo_root(Path.cwd())
+    except ConfigError:
+        repo_root = Path.cwd().resolve()
+    payload = {
+        **_build_claude_instructions(repo_root),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Claude instructions: OK")
+        print(payload["path"])
+    return payload
 
 
 def _workflow_docs(repo_root: Path) -> list[Path]:

@@ -83,8 +83,6 @@ export function getEnvironmentOverallState(
   const hasBlockingIssue =
     !snapshot.root ||
     snapshot.repositoryState === "missing-logics" ||
-    snapshot.repositoryState === "missing-kit" ||
-    snapshot.repositoryState === "missing-flow-manager" ||
     !snapshot.git.available ||
     !snapshot.python.available ||
     hybridRuntime.state === "unavailable";
@@ -114,8 +112,6 @@ export function getEnvironmentSummaryDescription(
   const blockedCount = [
     !snapshot.root,
     snapshot.repositoryState === "missing-logics",
-    snapshot.repositoryState === "missing-kit",
-    snapshot.repositoryState === "missing-flow-manager",
     !snapshot.git.available,
     !snapshot.python.available,
     hybridRuntime.state === "unavailable"

@@ -289,7 +289,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     });
     this.onboardingPanel = panel;
   }
-  export function buildKitVersionQuickPickItem(this: LogicsViewProviderSupportHost,
+  export function buildRuntimeVersionQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
     const updateNeed = inspectKitUpdateNeed(root);
@@ -298,16 +298,16 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     }
     if (updateNeed.kind === "too-new") {
       return {
-        label: `Warn: Logics Kit is newer than the tested maximum v${updateNeed.maximumVersion}`,
-        description: `Local kit v${updateNeed.currentVersion} exceeds the tested upper bound. Review compatibility before relying on the kit.`,
+        label: `Warn: Logics Runtime is newer than the tested maximum v${updateNeed.maximumVersion}`,
+        description: `Local runtime v${updateNeed.currentVersion} exceeds the tested upper bound. Review compatibility before relying on it.`,
         action: async () => {
           await this.checkEnvironmentFromCommand();
         }
       };
     }
     return {
-      label: `Run: Update Logics Kit (local kit is v${updateNeed.currentVersion}, minimum recommended v${updateNeed.minimumVersion})`,
-      description: "Older kit missing environment convergence, bootstrap credential scaffolding, and current repair support.",
+      label: `Run: Update Logics Runtime (local runtime is v${updateNeed.currentVersion}, minimum recommended v${updateNeed.minimumVersion})`,
+      description: "Older runtime missing environment convergence, bootstrap credential scaffolding, and current repair support.",
       action: async () => {
         await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
       }
@@ -750,7 +750,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     await this.context.globalState.update(promptKey, updateNeed.signature);
     if (updateNeed.kind === "too-new") {
       const choice = await vscode.window.showWarningMessage(
-        `Newer Logics kit detected in this repository (v${updateNeed.currentVersion}). The plugin has only been tested up to v${updateNeed.maximumVersion}. Check compatibility before proceeding.`,
+        `Newer Logics runtime detected in this repository (v${updateNeed.currentVersion}). The plugin has only been tested up to v${updateNeed.maximumVersion}. Check compatibility before proceeding.`,
         "Check Environment",
         "Not now"
       );
@@ -761,13 +761,13 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
       return true;
     }
     const choice = await vscode.window.showInformationMessage(
-      `Older Logics kit detected in this repository (v${updateNeed.currentVersion}). Update now to restore migration, repair, and environment convergence support.`,
-      "Update Logics Kit",
+      `Older Logics runtime detected in this repository (v${updateNeed.currentVersion}). Update now to restore migration, repair, and environment convergence support.`,
+      "Update Logics Runtime",
       "Check Environment",
       "Not now"
     );
-    if (choice === "Update Logics Kit") {
-      await this.codexWorkflowController.updateLogicsKit(root, "startup kit remediation");
+    if (choice === "Update Logics Runtime") {
+      await this.codexWorkflowController.updateLogicsKit(root, "startup runtime remediation");
       return true;
     }
     if (choice === "Check Environment") {

@@ -40,7 +40,7 @@ export async function inspectRuntimeLaunchers(
         : !hasCodex
           ? "Codex CLI not found on PATH"
           : codexOverlay.status === "healthy" || codexOverlay.status === "warning"
-            ? "Launch Codex with the globally published Logics kit"
+            ? "Launch Codex with the globally published Logics runtime"
             : codexOverlay.summary,
       command: "codex"
     },
@@ -48,14 +48,14 @@ export async function inspectRuntimeLaunchers(
       available: Boolean(root) && hasClaude && claudeGlobalKit.status === "healthy",
       title: !root
         ? "Select a project root first"
-        : !hasClaude
+          : !hasClaude
           ? "Claude CLI not found on PATH"
           : claudeGlobalKit.status === "healthy"
-            ? "Launch Claude with the globally published Logics kit"
-            : claudeGlobalKit.summary ||
+            ? "Launch Claude with the globally published Logics runtime"
+              : claudeGlobalKit.summary ||
               (claudeBridge?.available
-                ? "Global Claude Logics kit needs re-publication before it is reliable."
-                : "Claude bridge files are missing. Run Repair Logics Kit to restore the bridge."),
+                ? "Global Claude Logics runtime needs re-publication before it is reliable."
+                : "Claude bridge files are missing. Run Repair Logics runtime repair to restore the bridge."),
       command: "claude"
     }
   };

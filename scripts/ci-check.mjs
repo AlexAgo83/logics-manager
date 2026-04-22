@@ -9,33 +9,22 @@ const steps = [
   {
     label: "Logics docs lint (strict status)",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "logics/skills/logics-doc-linter/scripts/logics_lint.py", "--require-status"]
+    args: [...pythonInvocation.argsPrefix, "-m", "logics_manager", "lint", "--require-status"]
   },
   {
     label: "Workflow audit (blocking, grouped)",
     command: pythonInvocation.command,
-    args: [
-      ...pythonInvocation.argsPrefix,
-      "logics/skills/logics-flow-manager/scripts/workflow_audit.py",
-      "--legacy-cutoff-version",
-      "1.1.0",
-      "--group-by-doc"
-    ]
+    args: [...pythonInvocation.argsPrefix, "-m", "logics_manager", "audit", "--legacy-cutoff-version", "1.1.0", "--group-by-doc"]
   },
   {
     label: "Workflow audit (JSON report)",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "logics/skills/logics-flow-manager/scripts/workflow_audit.py", "--format", "json"]
+    args: [...pythonInvocation.argsPrefix, "-m", "logics_manager", "audit", "--format", "json"]
   },
   {
-    label: "Logics kit Python coverage",
+    label: "Logics manager CLI tests",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "logics/skills/tests/run_test_coverage.py"]
-  },
-  {
-    label: "Logics kit CLI smoke checks",
-    command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "logics/skills/tests/run_cli_smoke_checks.py"]
+    args: [...pythonInvocation.argsPrefix, "-m", "pytest", "python_tests/test_logics_manager_cli.py", "-q"]
   },
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },
@@ -51,7 +40,7 @@ const requestSnapshot = captureRequestSnapshot();
 runStep(
   "Logics flow sync close-eligible requests",
   pythonInvocation.command,
-  [...pythonInvocation.argsPrefix, "logics/skills/logics-flow-manager/scripts/logics_flow.py", "sync", "close-eligible-requests"]
+  [...pythonInvocation.argsPrefix, "-m", "logics_manager", "sync", "close-eligible-requests"]
 );
 ensureRequestsUnchanged(requestSnapshot);
 
@@ -82,15 +71,26 @@ function resolvePythonInvocation() {
 
   for (const candidate of candidates) {
     const result = spawnSync(candidate.command, [...candidate.argsPrefix, "--version"], {
-      cwd: repoRoot,
-      stdio: "ignore"
+      encoding: "utf8",
+      cwd: repoRoot
     });
-    if (result.status === 0) {
+    if (result.status === 0 && isSupportedPythonVersion(result.stdout, result.stderr)) {
       return candidate;
     }
   }
-  console.error("Python 3 interpreter not found. Install Python 3 and ensure a supported launcher is available on PATH.");
+  console.error("Python 3.10+ interpreter not found. Install Python 3.10 or newer and ensure a supported launcher is available on PATH.");
   process.exit(1);
+}
+
+function isSupportedPythonVersion(stdout, stderr) {
+  const versionText = `${stdout || ""}\n${stderr || ""}`.trim();
+  const match = versionText.match(/Python\s+(\d+)\.(\d+)(?:\.(\d+))?/i);
+  if (!match) {
+    return false;
+  }
+  const major = Number.parseInt(match[1], 10);
+  const minor = Number.parseInt(match[2], 10);
+  return major > 3 || (major === 3 && minor >= 10);
 }
 
 function runStep(label, command, args) {

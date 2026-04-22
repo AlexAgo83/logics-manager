@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 from textwrap import dedent
@@ -16,19 +15,9 @@ from .lint import lint_payload, render_lint
 from .doctor import render_doctor
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-
-ROUTES = {
-    "flow": REPO_ROOT / "logics" / "skills" / "logics-flow-manager" / "scripts" / "logics_flow.py",
-}
-
-
-def _run(script: Path, argv: list[str]) -> int:
-    completed = subprocess.run([sys.executable, str(script), *argv], check=False)
-    return completed.returncode
-
-
-def main(argv: list[str]) -> int:
+def main(argv: list[str] | None = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
     parser = argparse.ArgumentParser(
         prog="logics-manager",
         description="Canonical Logics CLI for workflow, validation, and runtime operations.",
@@ -105,7 +94,7 @@ def main(argv: list[str]) -> int:
 
         return sync_main(rest)
     if args.command == "assist":
-        if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["request-draft"], ["spec-first-pass"], ["backlog-groom"], ["closure-summary"], ["context"]):
+        if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["claude-bridges"], ["claude-instructions"], ["request-draft"], ["spec-first-pass"], ["backlog-groom"], ["closure-summary"], ["context"]):
             raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
         return assist_main(rest)
     if args.command == "audit":
@@ -174,4 +163,4 @@ def main(argv: list[str]) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0 if payload["ok"] else 1
-    return _run(ROUTES[args.command], rest)
+    raise SystemExit(f"Unsupported command: {args.command}")

@@ -69,7 +69,7 @@ const MANIFEST_SCHEMA_VERSION = 1;
 const MANIFEST_KIND = "logics-global-kit";
 
 export function buildCodexOverlaySyncCommand(): string {
-  return "Logics plugin auto-publishes the global Codex kit for compatible repositories.";
+  return "Logics plugin auto-publishes the global Codex runtime for compatible repositories.";
 }
 
 export function buildCodexOverlayRunCommand(): string {
@@ -80,7 +80,7 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
   if (!root) {
     return {
       status: "unavailable",
-      summary: "Select a project root before checking the global Codex Logics kit state.",
+      summary: "Select a project root before checking the global Codex runtime state.",
       issues: [],
       warnings: []
     };
@@ -92,7 +92,7 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
   const manifestPath = path.join(globalHome, MANIFEST_NAME);
   const base: CodexOverlaySnapshot = {
     status: "healthy",
-    summary: "Global Codex Logics kit is ready.",
+    summary: "Global Codex runtime is ready.",
     issues: [],
     warnings: [],
     codexHome: globalHome,
@@ -106,7 +106,7 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     validateManifest: (manifest) =>
       (manifest.manifest_kind && manifest.manifest_kind !== MANIFEST_KIND) ||
       (manifest.schema_version && manifest.schema_version !== MANIFEST_SCHEMA_VERSION)
-        ? ["Global Logics kit manifest schema is unsupported."]
+        ? ["Global Logics runtime manifest schema is unsupported."]
         : [],
     validateEntries: (entries) => {
       const issues: string[] = [];
@@ -135,18 +135,18 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     publishedSkillNames: (entries) => entries.map((entry) => entry.name).sort(),
     versionChangeSeverity: "warning",
     versionChangeMessage: (repoVersion, installedVersion) =>
-      `Repo-local kit version ${repoVersion} is newer than the published global version ${installedVersion || "unknown"}.`,
+      `Repo-local runtime version ${repoVersion} is newer than the published global version ${installedVersion || "unknown"}.`,
     revisionChangeSeverity: "warning",
-    revisionChangeMessage: () => "Repo-local kit revision differs from the published revision for this repository.",
+    revisionChangeMessage: () => "Repo-local runtime revision differs from the published revision for this repository.",
     missingVersionSeverity: "issue",
-    missingVersionMessage: "Published global kit version is missing from the manifest."
+    missingVersionMessage: "Published global runtime version is missing from the manifest."
   });
 
   if (inspection.kind === "missing-manager") {
     return {
       ...base,
       status: "missing-manager",
-      summary: "This repository does not expose a compatible repo-local Logics kit source for global publication.",
+      summary: "This repository does not expose a compatible repo-local Logics runtime source for global publication.",
       issues: inspection.issues
     };
   }
@@ -155,7 +155,7 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     return {
       ...base,
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
+      summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
       issues: inspection.issues,
       installedVersion: inspection.context.repoVersion,
       sourceRepo: inspection.context.resolvedRoot,
@@ -169,7 +169,7 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     return {
       ...base,
       status: "stale",
-      summary: "Global Logics kit manifest is unreadable. Re-publish the global kit to recover deterministic state.",
+      summary: "Global Logics runtime manifest is unreadable. Re-publish the global runtime to recover deterministic state.",
       issues: inspection.issues,
       needsPublish: true
     };
@@ -179,10 +179,10 @@ export function inspectCodexWorkspaceOverlay(root: string | null): CodexOverlayS
     inspection.issues.length > 0 ? "stale" : inspection.warnings.length > 0 ? "warning" : "healthy";
   const summary =
     status === "healthy"
-      ? `Global Codex Logics kit is ready (${inspection.installedVersion || "unknown version"}). Launch Codex normally to use it.`
+      ? `Global Codex runtime is ready (${inspection.installedVersion || "unknown version"}). Launch Codex normally to use it.`
       : status === "warning"
-        ? "Global Codex Logics kit is usable, but a newer or different repo-local source is available."
-        : "Global Codex Logics kit needs repair or re-publication before it is reliable.";
+        ? "Global Codex runtime is usable, but a newer or different repo-local source is available."
+        : "Global Codex runtime needs repair or re-publication before it is reliable.";
 
   return {
     ...base,

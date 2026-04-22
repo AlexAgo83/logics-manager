@@ -8,6 +8,7 @@ import {
   detectDangerousGitignorePatterns,
   inspectLogicsBootstrapState,
   inspectLogicsKitSubmodule,
+  getBundledLogicsManagerScriptPath,
   runGitWithOutput,
   runPythonWithOutput,
   buildLogicsKitUpdateCommand
@@ -23,7 +24,6 @@ import { maybeShowReadyCodexOverlayHandoff, launchClaudeTerminal, launchCodexOve
 import { inspectCodexWorkspaceOverlay, publishCodexWorkspaceOverlay, shouldPublishRepoKit } from "./logicsCodexWorkspace";
 import { publishClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
-import { CANONICAL_LOGICS_KIT_BRANCH, CANONICAL_LOGICS_KIT_URL, LOGICS_SKILLS_SUBMODULE_PATH } from "./logicsCodexWorkflowKitSupport";
 
 type BootstrapConvergenceOutcome = {
   attempted: boolean;
@@ -95,7 +95,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     }
     this.gitignoreWarningPromptedKeys.add(key);
     void vscode.window.showWarningMessage(
-      `Broad .gitignore pattern(s) detected for logics/skills: ${result.matchedPatterns.join(", ")}. ` +
+      `Broad .gitignore pattern(s) detected for Logics runtime paths: ${result.matchedPatterns.join(", ")}. ` +
         "This can break the submodule update path, but the extension can fall back to a copy or direct clone if you confirm."
     );
   }
@@ -120,7 +120,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
 
     if (bootstrapState.status === "noncanonical") {
       void vscode.window.showWarningMessage(
-        `This repository already has a non-canonical or malformed logics/skills setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
+        `This repository already has a non-canonical or malformed Logics runtime setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
       );
       return false;
     }
@@ -128,7 +128,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     const action = "Bootstrap Logics";
     const message =
       bootstrapState.promptMessage ??
-      "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?";
+      "No logics/ folder found. Bootstrap Logics by provisioning the local runtime?";
     const choice = await vscode.window.showInformationMessage(message, action, "Not now");
     if (choice !== action) {
       return false;
@@ -149,7 +149,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     const globalKit = snapshot.codexOverlay;
     if ((globalKit.status === "healthy" || globalKit.status === "warning") && !this.codexKitNeedsRepublish(root, globalKit)) {
       if (!globalKit.runCommand) {
-        void vscode.window.showWarningMessage("Codex launch command is unavailable for the published global kit.");
+        void vscode.window.showWarningMessage("Codex launch command is unavailable for the published global runtime.");
         return;
       }
       launchCodexOverlayTerminal(root, globalKit.runCommand);
@@ -160,19 +160,19 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
       const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
       const choice = await vscode.window.showWarningMessage(
-        `Global Codex kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${snapshot.codexOverlay.summary}`,
+        `Global Codex runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${snapshot.codexOverlay.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, "launch request");
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
     }
@@ -198,19 +198,19 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
       const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
       const choice = await vscode.window.showWarningMessage(
-        `Global Claude kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${globalKit.summary}`,
+        `Global Claude runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${globalKit.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, "launch request");
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
     }
@@ -223,9 +223,8 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     this.bootstrapInProgressRoots.add(normalizedRoot);
     this.clearBootstrapPromptState(root);
     try {
-      const scriptPath = path.join(root, "logics", "skills", "logics.py");
+      const scriptPath = getBundledLogicsManagerScriptPath();
       const scriptArgs = ["bootstrap"];
-      const bootstrapState = inspectLogicsBootstrapState(root);
       const beforeBootstrapStatus = await this.inspectGlobalCodexKitPublishability(root);
       if (beforeBootstrapStatus.snapshot.git.available) {
         const gitStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
@@ -291,61 +290,15 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
       }
 
       if (!fs.existsSync(scriptPath)) {
-        const submoduleInspection = inspectLogicsKitSubmodule(root);
-        const bootstrapCommand =
-          submoduleInspection.exists && submoduleInspection.isCanonical
-            ? "git submodule update --init --recursive -- logics/skills"
-            : `git submodule add -b ${CANONICAL_LOGICS_KIT_BRANCH} ${CANONICAL_LOGICS_KIT_URL} ${LOGICS_SKILLS_SUBMODULE_PATH}`;
-        const gitArgs =
-          submoduleInspection.exists && submoduleInspection.isCanonical
-            ? ["submodule", "update", "--init", "--recursive", "--", LOGICS_SKILLS_SUBMODULE_PATH]
-            : ["submodule", "add", "-b", CANONICAL_LOGICS_KIT_BRANCH, CANONICAL_LOGICS_KIT_URL, LOGICS_SKILLS_SUBMODULE_PATH];
-
-        if (bootstrapState.status === "noncanonical") {
-          const choice = await vscode.window.showWarningMessage(
-            `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`,
-            "Copy Bootstrap Command"
-          );
-          if (choice === "Copy Bootstrap Command") {
-            await vscode.env.clipboard.writeText(bootstrapCommand);
-            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
-          }
-          return;
-        }
-
-        fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-        const installResult = await vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: "Bootstrap Logics",
-            cancellable: false
-          },
-          async () => runGitWithOutput(root, gitArgs)
+        const choice = await vscode.window.showErrorMessage(
+          `Bootstrap prepared the bundled Logics runtime, but the canonical runtime entrypoint is missing from the extension installation in: ${root}.`,
+          "Copy Bootstrap Command"
         );
-        if (installResult.error) {
-          const detail = `${installResult.stderr}\n${installResult.stdout}\n${installResult.error.message}`.trim();
-          const choice = await vscode.window.showErrorMessage(
-            `Bootstrap Logics failed while preparing the Logics kit. ${detail || installResult.error.message}`,
-            "Copy Bootstrap Command"
-          );
-          if (choice === "Copy Bootstrap Command") {
-            await vscode.env.clipboard.writeText(bootstrapCommand);
-            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
-          }
-          return;
+        if (choice === "Copy Bootstrap Command") {
+          await vscode.env.clipboard.writeText("python3 -m logics_manager bootstrap");
+          void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
         }
-
-        if (!fs.existsSync(scriptPath)) {
-          const choice = await vscode.window.showErrorMessage(
-            `Bootstrap prepared the bundled Logics runtime, but scripts/logics-manager.py is still missing in: ${root}.`,
-            "Copy Bootstrap Command"
-          );
-          if (choice === "Copy Bootstrap Command") {
-            await vscode.env.clipboard.writeText(bootstrapCommand);
-            void vscode.window.showInformationMessage("Bootstrap command copied to clipboard.");
-          }
-          return;
-        }
+        return;
       }
 
       const bootstrapResult = await vscode.window.withProgress(
@@ -455,32 +408,32 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
     if ((overlay.status === "healthy" || overlay.status === "warning") && !shouldPublishRepoKit(root, overlay)) {
-      const detail = globalKitOutcome?.published ? " Global Codex kit publication completed during bootstrap." : "";
-      void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local kit and the global Codex kit are ready.${detail} Refreshing.`);
+      const detail = globalKitOutcome?.published ? " Global Codex runtime publication completed during bootstrap." : "";
+      void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local runtime and the global Codex runtime are ready.${detail} Refreshing.`);
       return;
     }
     const actions: string[] = [];
     if (overlay.status === "missing-manager") {
       const inspection = inspectLogicsKitSubmodule(root);
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
     } else {
-      actions.push("Publish Global Codex Kit");
+      actions.push("Publish Global Codex Runtime");
     }
     const outcomeNote =
       globalKitOutcome?.failed && globalKitOutcome.failureMessage
         ? ` Automatic publication failed during bootstrap: ${globalKitOutcome.failureMessage}.`
         : globalKitOutcome?.attempted
-          ? " Automatic publication ran during bootstrap, but the global kit still needs attention."
+          ? " Automatic publication ran during bootstrap, but the global runtime still needs attention."
           : "";
-    const message = `Logics bootstrapped partially. Repo-local kit is ready, but the global Codex kit is not ready yet. ${overlay.summary}${outcomeNote}`;
+    const message = `Logics bootstrapped partially. Repo-local runtime is ready, but the global Codex runtime is not ready yet. ${overlay.summary}${outcomeNote}`;
     const choice = actions.length > 0 ? await vscode.window.showInformationMessage(message, ...actions) : undefined;
-    if (choice === "Publish Global Codex Kit") {
+    if (choice === "Publish Global Codex Runtime") {
       await this.syncCodexOverlay(root, "bootstrap completion");
       return;
     }
-    if (choice === "Update Logics Kit") {
+    if (choice === "Update Logics Runtime") {
       await this.updateLogicsKit(root, "bootstrap completion");
       return;
     }
@@ -540,12 +493,12 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
       return { attempted: false, applied: false };
     }
 
-    const scriptPath = path.join(root, "logics", "skills", "logics.py");
+    const scriptPath = getBundledLogicsManagerScriptPath();
     if (!fs.existsSync(scriptPath)) {
       return {
         attempted: true,
         applied: false,
-        failureMessage: "Bootstrap script is missing after the kit update."
+        failureMessage: "Canonical runtime entrypoint is missing after the runtime update."
       };
     }
 

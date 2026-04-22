@@ -14,22 +14,38 @@ Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code
 
 This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
 
-## Logics Kit Repository
+## Logics Runtime and CLI
 
-This extension is designed to work with the Logics kit repository:
+`logics-manager` is the canonical CLI surface for the Logics runtime. The VS Code extension uses the bundled Python runtime for local workflow operations and packaging checks.
 
-- Kit repo: `https://github.com/AlexAgo83/cdx-logics-kit`
-- Kit releases: `https://github.com/AlexAgo83/cdx-logics-kit/releases`
-- Kit README and install guide: `https://github.com/AlexAgo83/cdx-logics-kit/blob/main/README.md`
+Install it locally with `pip`:
 
-Recommended project setup keeps the kit as a submodule at `logics/skills`:
+```bash
+python3.11 -m pip install .
+logics-manager --help
+```
+
+For the editor client, build and install the VSIX:
+
+```bash
+npm run package
+npm run install:vsix
+```
+
+This extension can still interoperate with the historical Logics runtime repository for compatibility:
+
+- Runtime repo: `https://github.com/AlexAgo83/cdx-logics-kit`
+- Runtime releases: `https://github.com/AlexAgo83/cdx-logics-kit/releases`
+- Runtime README and install guide: `https://github.com/AlexAgo83/cdx-logics-kit/blob/main/README.md`
+
+Legacy compatibility setup keeps the runtime source as a submodule at `logics/skills`:
 
 ```bash
 git submodule add -b main https://github.com/AlexAgo83/cdx-logics-kit.git logics/skills
 git submodule update --init --recursive
 ```
 
-If you already use the extension but want to inspect the workflow scripts, templates, release notes, or track kit updates independently from the plugin, start from that repository.
+If you already use the extension but want to inspect the workflow scripts, templates, release notes, or track runtime updates independently from the plugin, start from that repository.
 
 ## Features
 
@@ -115,9 +131,9 @@ Use these as quick starting points when you want the plugin or the shared Logics
 
 - To use the extension:
   - A workspace folder open in VS Code.
-  - Git on PATH for bootstrap and submodule operations.
-  - `logics/` is recommended if the project is already initialized; otherwise the extension can bootstrap it for you.
-  - Logics skills kit at `logics/skills/` is required for create/promote/fix flows after initialization, and can be installed via `Bootstrap Logics`.
+  - Git on PATH for bootstrap and update compatibility flows.
+  - `logics/` is bootstrapped automatically when needed.
+  - `logics/skills/` is legacy compatibility only; the normal path uses the bundled runtime and `logics-manager`.
   - Python 3 on PATH for script-backed workflow actions. The extension accepts `python3`, `python`, `py -3`, or `py`.
 - To build, package, or test the extension locally:
   - Node.js + npm.
@@ -131,15 +147,15 @@ Windows notes:
 
 ## Flow Manager Compatibility
 
-- Supported Logics kit range: `v1.0.4+` through the tested `v1.13.x` line.
-- Canonical Logics kit repo: `https://github.com/AlexAgo83/cdx-logics-kit`
-- Required script path: `logics/skills/logics-flow-manager/scripts/logics_flow.py`.
-- If the script is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
+- Supported Logics runtime range: `v1.0.4+` through the tested `v1.13.x` line.
+- Canonical Logics runtime repo: `https://github.com/AlexAgo83/cdx-logics-kit`
+- Canonical CLI: `logics-manager`
+- If the bundled runtime is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
 
 ### Flow-manager smoke checklist
 
 - Create a request from UI (`New Request`) and confirm markdown is generated.
-- Create a fixture request with `python logics/skills/logics.py flow new request --title "Smoke test"` and confirm the compact synthetic request shape is generated.
+- Create a fixture request with `logics-manager flow new request --title "Smoke test"` and confirm the compact synthetic request shape is generated.
 - Create a backlog item and a task from the UI and confirm markdown is generated.
 - Open `Read` on a Mermaid-bearing doc and confirm the graph is rendered.
 - Promote request -> backlog and confirm links are updated.
@@ -210,7 +226,7 @@ npm run install:vsix
 
 6. Distribute the `.vsix` and use the curated file in `changelogs/` for the GitHub release body when publishing.
 
-If the current plugin version is already published, `python logics/skills/logics.py flow assist prepare-release --execution-mode execute` can now bump the next patch version, update `package.json`, `package-lock.json`, and `VERSION`, then re-check readiness instead of stalling on an already-live tag.
+If the current plugin version is already published, `logics-manager assist next-step` can now propose the next release step instead of stalling on an already-live tag.
 
 ## Curated Changelogs
 
@@ -244,17 +260,17 @@ Contract:
 - The Tools menu is split into `Workflow` and `System` views, with a `Recommended` section surfaced first for common day-to-day actions.
 - `Select Agent` picks the active Logics agent and prepares assistant chat context.
 - `Getting Started` opens the onboarding guide inside the extension.
-- `Companion Doc` creates a linked product brief or ADR from the current workflow context when the kit supports it.
+- `Companion Doc` creates a linked product brief or ADR from the current workflow context when the runtime supports it.
 - `New Request` opens a guided request-drafting flow using the request-authoring agent.
-- `Bootstrap Logics` installs the Logics kit into a project that is not initialized yet.
-- `Update Logics Kit` runs the supported submodule update flow when the repository uses the canonical `logics/skills` kit submodule and Git state is safe for automation.
-- `Publish Global Codex Kit` publishes or repairs the shared global Logics kit in `~/.codex` from the current canonical repo-local source when needed.
-- `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex kit health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
-- `Environment` can also surface direct remediation actions when the plugin detects a stale kit, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
+- `Bootstrap Logics` installs the Logics runtime into a project that is not initialized yet.
+- `Update Logics Runtime` runs the supported compatibility update flow when a historical `logics/skills` runtime source is still present and Git state is safe for automation.
+- `Publish Global Codex Runtime` publishes or repairs the shared global Logics runtime in `~/.codex` from the current canonical repo-local source when needed.
+- `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex runtime health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
+- `Environment` can also surface direct remediation actions when the plugin detects a stale runtime, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
 - `Environment` now uses a clearer hierarchy with summary, recommended actions, current status, and technical details, plus hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - `Check Environment` can be promoted into `Recommended` when the current repo state actually warrants operator attention.
-- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global-kit state still requires an explicit refresh because it lives outside the workspace.
-- `Launch Codex` starts Codex using the globally published Logics kit when the shared runtime is healthy.
+- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global runtime state still requires an explicit refresh because it lives outside the workspace.
+- `Launch Codex` starts Codex using the globally published Logics runtime when the shared runtime is healthy.
 - `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
 - `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
 - `Logics Insights` opens a repository-level corpus stats panel with stage counts, progress buckets, relationship hot spots, large docs, and recent updates.
@@ -267,22 +283,22 @@ Contract:
 - `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
 - `Prepare Release` checks release readiness and can run the bounded prep step that generates a missing changelog, refreshes the README version badge, syncs local version artifacts, and commits the release-prep changes.
 - When the current version is already published, `Prepare Release` can now propose the next patch version instead of leaving the operator with a no-op.
-- `Publish Release` checks readiness, can publish through the shared kit flow, stays disabled with an explicit reason outside GitHub-compatible repositories, and warns when a local `release` branch exists but is behind the current branch.
-- On load, the extension can proactively publish or upgrade the global Codex kit from a compatible repository without requiring an explicit migration action in the normal path.
+- `Publish Release` checks readiness, can publish through the shared runtime flow, stays disabled with an explicit reason outside GitHub-compatible repositories, and warns when a local `release` branch exists but is behind the current branch.
+- On load, the extension can proactively publish or upgrade the global Codex runtime from a compatible repository without requiring an explicit migration action in the normal path.
 - Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
 - After successful bootstrap, the extension can propose a git commit with a generated message.
-- Bootstrap completion messaging now distinguishes repo-local kit readiness from global Codex kit readiness.
+- Bootstrap completion messaging now distinguishes repo-local runtime readiness from global Codex runtime readiness.
 - `Change Project Root` / `Reset Project Root` control which repository root the extension operates on.
 - `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
 - `Fix Logics` runs Logics doc-fix flows when available.
 - `About` opens the project repository information.
 
 The plugin remains a thin client over the shared runtime:
-- shared hybrid actions call `python logics/skills/logics.py flow assist ...`;
-- hybrid ROI aggregation and semantics also stay in the kit through `python logics/skills/logics.py flow assist roi-report --format json`;
+- shared hybrid actions call `python -m logics_manager flow assist ...`;
+- hybrid ROI aggregation and semantics also stay in the runtime through `python -m logics_manager flow assist roi-report --format json`;
 - the shared runtime now distinguishes deterministic helpers such as `changed-surface-summary`, `release-changelog-status`, `test-impact-summary`, and `hybrid-insights-explainer` from Ollama-first proposal flows such as `windows-compat-risk`, `review-checklist`, and `doc-link-suggestion`;
-- backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics kit;
-- global Codex kit actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
+- backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics runtime;
+- global Codex runtime actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
 
 ## Assistant Handoffs
 
@@ -296,10 +312,10 @@ The plugin now builds a lighter assistant handoff directly from the selected Log
 
 These flows are designed to reduce token waste without hiding the underlying Logics docs. The Markdown corpus in `logics/*` remains the source of truth; the plugin only shapes a smaller handoff from it.
 
-## Global Codex Kit Publication
+## Global Codex Runtime Publication
 
-The primary Codex runtime model is now a globally published Logics kit under `~/.codex`.
-Repositories still keep `logics/skills/` as the canonical source of truth, but the plugin auto-publishes or upgrades that kit into the shared Codex home when it detects a compatible canonical submodule.
+The primary Codex runtime model is now a globally published Logics runtime under `~/.codex`.
+Repositories may still keep `logics/skills/` for legacy compatibility, but the plugin auto-publishes or upgrades the runtime into the shared Codex home when it detects a compatible source.
 
 Examples:
 
@@ -310,18 +326,18 @@ cat ~/.codex/logics-global-kit.json
 
 Runtime contract:
 
-- `logics/skills/` stays canonical inside each compatible repository.
+- `logics/skills/` is only needed for legacy compatibility and transitional troubleshooting.
 - the active shared runtime is published into the main Codex home under `~/.codex/skills`.
 - the publication manifest `~/.codex/logics-global-kit.json` records installed version, source repo, source revision, publish time, and published skills.
-- the plugin can auto-upgrade the shared runtime when a newer compatible repo-local kit is detected.
+- the plugin can auto-upgrade the shared runtime when a newer compatible repo-local source is detected.
 - repo-owned workflow documents under `logics/request`, `logics/backlog`, `logics/tasks`, product briefs, and ADRs stay inside the repository and are never globalized.
 
 Plugin remediation path:
 
-- if the kit is too old to act as a publication source and the repository uses the canonical `logics/skills` submodule, the plugin can run the supported kit update flow directly.
-- if the global kit is missing or stale, opening a compatible repository can auto-publish it without a separate migration action in the normal path.
+- if the runtime source is too old to act as a publication source and a historical `logics/skills` source is still present, the plugin can run the supported compatibility update flow directly.
+- if the global runtime is missing or stale, opening a compatible repository can auto-publish it without a separate migration action in the normal path.
 - if publication is unavailable or broken, the plugin exposes direct diagnostics and repair actions through `Check Environment`.
-- when the global kit is healthy, the plugin can launch Codex directly and still keeps a clipboard fallback for prompt handoff flows.
+- when the global runtime is healthy, the plugin can launch Codex directly and still keeps a clipboard fallback for prompt handoff flows.
 - stale legacy overlay artifacts are no longer part of the normal operator path and should be treated as deprecated compatibility state.
 
 Legacy compatibility:
@@ -334,7 +350,7 @@ Legacy compatibility:
 - Lint TS: `npm run lint`
 - Unit tests: `npm run test`
 - Plugin coverage: `npm run test:coverage`
-- Kit coverage: `npm run coverage:kit`
+- VSIX package validation: `npm run package:ci`
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
 - Fast extension-focused local check: `npm run ci:fast`
@@ -364,13 +380,13 @@ Suggested VM checklist:
 1. Install VS Code, Git, Python 3, and Node.js inside the VM.
 2. Confirm launchers from the Windows shell you actually care about (`git --version`, `py -3 --version` or `python --version`, `node --version`, `npm --version`).
 3. Clone the repo, initialize submodules, and run `npm ci`.
-4. Run the automated baseline first: `npm run ci:check` and `python logics/skills/tests/run_cli_smoke_checks.py`.
+4. Run the automated baseline first: `npm run ci:check` and `python -m logics_manager lint`.
 5. Smoke the real Windows-only paths:
    - install the `.vsix` from VS Code or with `code --install-extension ...`
    - trigger `Bootstrap Logics`
    - run `Logics: Check Environment`
-   - run `python logics/skills/logics.py flow assist runtime-status --format json` and confirm `windows_safe_entrypoint` still points to `python logics/skills/logics.py flow assist ...`
-   - run `python logics/skills/logics.py flow assist diff-risk --backend auto --format json` and `python logics/skills/logics.py flow assist validation-checklist --backend auto --format json`
+   - run `logics-manager assist runtime-status --format json` and confirm `windows_safe_entrypoint` still points to `python -m logics_manager flow assist ...`
+   - run `logics-manager assist diff-risk --backend auto --format json` and `logics-manager assist validation-checklist --format json`
    - confirm those shared-runtime commands still work without relying on any repo-local Codex overlay path
    - create a request, backlog item, and task
    - promote request -> backlog and backlog -> task
@@ -386,7 +402,7 @@ Use the flow-manager guarded finish command so closure propagates correctly from
 npm run logics:finish:task -- logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md
 ```
 
-This uses the kit-native command:
+This uses the runtime-native command:
 - `logics_flow.py finish task ...`
 
 If you want a full repository-wide check afterward, run:
@@ -435,5 +451,5 @@ For new UI controls in this project:
   - `# Backlog` section in requests
   - `# References` and `# Used by` sections with backticked relative paths
 - For companion docs (`prod_*`, `adr_*`), `Related request/backlog/task/architecture` indicators are also indexed as managed-doc links.
-- Companion docs should still mirror those links under `# References` with canonical relative paths so the kit and plugin stay aligned.
+- Companion docs should still mirror those links under `# References` with canonical relative paths so the runtime and plugin stay aligned.
 - Legacy nested list blocks (`- References:` / `- Used by:`) are also parsed for backward compatibility.

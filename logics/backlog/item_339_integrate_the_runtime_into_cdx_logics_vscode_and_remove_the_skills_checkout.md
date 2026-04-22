@@ -1,10 +1,10 @@
 ## item_339_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout - Integrate the runtime into cdx-logics-vscode and remove the skills checkout
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

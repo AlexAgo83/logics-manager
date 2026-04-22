@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -378,3 +379,49 @@ def test_main_runs_native_flow_promote_request_to_backlog(
     created = repo_root / "logics" / "backlog" / "item_000_demo_request.md"
     assert created.is_file()
     assert "Created backlog slice from request" in captured.out
+
+
+def test_main_runs_native_flow_split_request(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    source_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    source_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Draft",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Clarify scope",
+                "# Context",
+                "- Context note",
+                "# Acceptance criteria",
+                "- AC1: Validate scope",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def fake_create_backlog(repo_root_arg: Path, source: Path, title: str, args: object) -> SimpleNamespace:
+        created = repo_root_arg / "logics" / "backlog" / f"item_999_{title.lower().replace(' ', '_')}.md"
+        created.write_text(f"## {created.stem} - {title}\n", encoding="utf-8")
+        return SimpleNamespace(ref=created.stem, path=created)
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.flow._create_backlog_from_request", fake_create_backlog)
+
+    exit_code = main(["flow", "split", "request", str(source_path), "--title", "Child A"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert (repo_root / "logics" / "backlog" / "item_999_child_a.md").is_file()
+    assert "Split request into 1 backlog item(s)" in captured.out

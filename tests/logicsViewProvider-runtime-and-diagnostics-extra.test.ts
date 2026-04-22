@@ -529,7 +529,7 @@ describe("LogicsViewProvider", () => {
         codexOverlay: {
           status: "missing-manager",
           summary: "This repository does not expose a compatible repo-local Logics runtime source for global publication.",
-          issues: ["No repo-local Logics skills were found under logics/skills."],
+          issues: ["No bundled runtime content was found in the repository."],
           warnings: [],
           runCommand: "codex"
         }

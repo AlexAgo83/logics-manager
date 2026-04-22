@@ -22,6 +22,7 @@
   "files": [
     "README.md",
     "LICENSE",
+    "VERSION",
     "pyproject.toml",
     "scripts/logics-manager.py",
     "scripts/npm/",

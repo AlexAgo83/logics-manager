@@ -26,6 +26,7 @@ describe("npm package surface", () => {
     const filePaths = packed.files.map((entry) => entry.path);
 
     expect(packed.entryCount).toBeLessThan(40);
+    expect(filePaths).toContain("VERSION");
     expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
     expect(filePaths).toContain("scripts/logics-manager.py");
     expect(filePaths).toContain("logics_manager/cli.py");

@@ -33,7 +33,8 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
 
     captured = capsys.readouterr()
     assert exc_info.value.code == 0
-    assert "logics-manager 0.0.0" in captured.out
+    version = (Path(__file__).resolve().parents[1] / "VERSION").read_text(encoding="utf-8").strip()
+    assert f"logics-manager {version}" in captured.out
 
 
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:

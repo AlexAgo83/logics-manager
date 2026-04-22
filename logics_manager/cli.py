@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from importlib import metadata
 import sys
 from pathlib import Path
 from textwrap import dedent
@@ -13,6 +14,22 @@ from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .lint import lint_payload, render_lint
 from .doctor import render_doctor
+
+
+def get_cli_version() -> str:
+    version_file = Path(__file__).resolve().parents[1] / "VERSION"
+    try:
+        version = version_file.read_text(encoding="utf-8").strip()
+    except OSError:
+        version = ""
+    if version:
+        return version
+
+    try:
+        return metadata.version("logics-manager")
+    except metadata.PackageNotFoundError:
+        pass
+    return "0.0.0"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -31,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
             """
         ).strip(),
     )
-    parser.add_argument("--version", action="version", version="logics-manager 0.0.0")
+    parser.add_argument("--version", action="version", version=f"logics-manager {get_cli_version()}")
     parser.add_argument(
         "command",
         nargs="?",

@@ -32,7 +32,7 @@ npm run package
 npm run install:vsix
 ```
 
-The bundled runtime is the normal path. Historical `cdx-logics-kit` compatibility is retained only for older repositories that still need transitional repair, not for normal setup.
+The bundled runtime is the normal path. Transitional repair flows remain available for older repositories when needed, but they are not part of normal setup.
 
 ## Features
 

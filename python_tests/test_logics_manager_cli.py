@@ -45,6 +45,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["sync", "schema-status"], None, None),
         (["sync", "context-pack", "req_001_demo"], None, None),
         (["sync", "export-graph"], None, None),
+        (["assist", "runtime-status"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -74,9 +75,11 @@ def test_main_dispatches_to_expected_underlying_script(
         ["sync", "schema-status"],
         ["sync", "context-pack"],
         ["sync", "export-graph"],
+        ["assist", "runtime-status"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
+        monkeypatch.setattr("logics_manager.assist.main", lambda _argv: 0)
 
     exit_code = main(argv)
 
@@ -661,3 +664,44 @@ def test_main_runs_native_sync_export_graph(
 
     assert exit_code == 0
     assert "Graph: 1 node(s), 1 edge(s)." in captured.out
+
+
+def test_main_runs_native_assist_runtime_status(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / ".claude" / "commands").mkdir(parents=True)
+    (repo_root / ".claude" / "agents").mkdir(parents=True)
+    (repo_root / ".claude" / "commands" / "logics-assist.md").write_text("", encoding="utf-8")
+    (repo_root / ".claude" / "agents" / "logics-hybrid-delivery-assistant.md").write_text("", encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "hybrid_assist:",
+                "  default_backend: auto",
+                "  default_model_profile: deepseek-coder",
+                "  default_model: deepseek-coder-v2:16b",
+                "  ollama_host: http://127.0.0.1:11434",
+                "  timeout_seconds: 20.0",
+                "  model_profiles:",
+                "    deepseek-coder:",
+                "      model: deepseek-coder-v2:16b",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "runtime-status"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Assist runtime status:" in captured.out
+    assert "- selected backend:" in captured.out

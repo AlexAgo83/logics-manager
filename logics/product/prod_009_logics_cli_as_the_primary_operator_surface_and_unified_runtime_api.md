@@ -132,4 +132,6 @@ The product needs a single command surface that:
 - `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path.md`
+- `logics/backlog/item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime.md`
+- `logics/backlog/item_344_add_an_npm_distribution_surface_for_logics_manager.md`

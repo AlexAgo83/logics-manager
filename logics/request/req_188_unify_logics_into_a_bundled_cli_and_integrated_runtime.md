@@ -87,3 +87,6 @@ flowchart TD
 - `logics/backlog/item_339_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md`
 - `logics/backlog/item_340_package_logics_manager_as_a_polished_installable_cli.md`
 - `logics/backlog/item_341_generate_assistant_bridges_and_instructions_from_the_integrated_runtime.md`
+- `logics/backlog/item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path.md`
+- `logics/backlog/item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime.md`
+- `logics/backlog/item_344_add_an_npm_distribution_surface_for_logics_manager.md`

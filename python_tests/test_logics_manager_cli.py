@@ -405,35 +405,8 @@ def test_main_runs_native_flow_new_request(
     (repo_root / "logics" / "request").mkdir(parents=True)
     (repo_root / "logics" / "backlog").mkdir(parents=True)
     (repo_root / "logics" / "tasks").mkdir(parents=True)
-    (repo_root / "logics" / "skills" / "logics-flow-manager" / "assets" / "templates").mkdir(parents=True)
-    (repo_root / "logics" / "skills" / "logics-flow-manager" / "assets" / "templates" / "request.md").write_text(
-        "\n".join(
-            [
-                "## {{DOC_REF}} - {{TITLE}}",
-                "> Status: {{STATUS}}",
-                "> Schema version: {{SCHEMA_VERSION}}",
-                "# Needs",
-                "{{NEEDS_PLACEHOLDER}}",
-                "# Context",
-                "{{CONTEXT_PLACEHOLDER}}",
-                "# Acceptance criteria",
-                "{{ACCEPTANCE_PLACEHOLDER}}",
-                "# AI Context",
-                "- Summary: {{AI_SUMMARY_PLACEHOLDER}}",
-                "- Keywords: {{AI_KEYWORDS_PLACEHOLDER}}",
-                "- Use when: {{AI_USE_WHEN_PLACEHOLDER}}",
-                "- Skip when: {{AI_SKIP_WHEN_PLACEHOLDER}}",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
 
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
-    monkeypatch.setattr("logics_manager.flow._generate_workflow_mermaid", lambda *_args, **_kwargs: "```mermaid\nflowchart LR\nA-->B\n```")
-    monkeypatch.setattr("logics_manager.flow.refresh_ai_context_text", lambda text, kind: (text, False))
-    monkeypatch.setattr("logics_manager.flow.refresh_workflow_mermaid_signature_text", lambda text, kind, **_kwargs: (text, False))
-    monkeypatch.setattr("logics_manager.flow.validate_generated_workflow_doc_text", lambda *_args, **_kwargs: None)
 
     exit_code = main(["flow", "new", "request", "--title", "Demo Request"])
     captured = capsys.readouterr()

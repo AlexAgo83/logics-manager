@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
+from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
 from logics_manager.cli import main
 
 
@@ -31,14 +33,14 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
     [
         (["flow", "new", "request", "--title", "Demo"], "logics_flow.py", ["new", "request", "--title", "Demo"]),
         (["doctor", "--format", "json"], "logics_flow.py", ["sync", "doctor", "--format", "json"]),
-        (["config", "show", "--format", "json"], "logics_flow.py", ["sync", "show-config", "--format", "json"]),
+        (["config", "show", "--format", "json"], None, None),
     ],
 )
 def test_main_dispatches_to_expected_underlying_script(
     monkeypatch: pytest.MonkeyPatch,
     argv: list[str],
-    expected_script_suffix: str,
-    expected_args: list[str],
+    expected_script_suffix: str | None,
+    expected_args: list[str] | None,
 ) -> None:
     recorded: dict[str, object] = {}
 
@@ -52,6 +54,9 @@ def test_main_dispatches_to_expected_underlying_script(
     exit_code = main(argv)
 
     assert exit_code == 0
+    if expected_script_suffix is None:
+        assert "command" not in recorded
+        return
     command = recorded["command"]
     assert isinstance(command, list)
     assert command[0] == sys.executable
@@ -63,3 +68,29 @@ def test_main_dispatches_to_expected_underlying_script(
 def test_main_rejects_invalid_config_subcommand() -> None:
     with pytest.raises(SystemExit, match="Usage: logics-manager config show"):
         main(["config", "list"])
+
+
+def test_render_config_show_merges_overrides(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text(
+        "version: 2\nworkflow:\n  split:\n    max_children_without_override: 6\n",
+        encoding="utf-8",
+    )
+
+    payload = render_config_show(repo_root, output_format="json")
+
+    assert '"version": 2' in payload
+    assert '"max_children_without_override": 6' in payload
+
+
+def test_load_repo_config_uses_defaults_when_missing(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+
+    config, config_path = load_repo_config(repo_root)
+
+    assert config_path is None
+    assert config["version"] == DEFAULT_LOGICS_CONFIG["version"]

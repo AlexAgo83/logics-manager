@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+from .config import ConfigError, find_repo_root, render_config_show
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,7 +56,17 @@ def main(argv: list[str]) -> int:
     if args.command == "config":
         if not rest or rest[0] != "show":
             raise SystemExit("Usage: logics-manager config show [args...]")
-        return _run(ROUTES["flow"], ["sync", "show-config", *rest[1:]])
+        config_args = rest[1:]
+        parser = argparse.ArgumentParser(prog="logics-manager config show", add_help=False)
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed, _unknown = parser.parse_known_args(config_args)
+        repo_root = find_repo_root(Path.cwd())
+        try:
+            output = render_config_show(repo_root, output_format=parsed.format)
+        except ConfigError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(output)
+        return 0
     if args.command == "doctor":
         return _run(ROUTES["flow"], ["sync", "doctor", *rest])
     return _run(ROUTES[args.command], rest)

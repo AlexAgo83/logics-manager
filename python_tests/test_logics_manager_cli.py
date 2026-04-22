@@ -502,6 +502,90 @@ def test_main_runs_native_flow_split_request(
     assert "item_001_child_a" in source_path.read_text(encoding="utf-8")
 
 
+def test_main_runs_native_flow_promote_backlog_to_task(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    source_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    source_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Problem",
+                "- Clarify scope",
+                "# Acceptance criteria",
+                "- AC1: Validate scope",
+                "- AC2: Keep it executable",
+                "# Tasks",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "promote", "backlog-to-task", str(source_path)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    created = repo_root / "logics" / "tasks" / "task_001_demo_backlog.md"
+    assert created.is_file()
+    assert "Created task from backlog" in captured.out
+    assert created.stem in source_path.read_text(encoding="utf-8")
+
+
+def test_main_runs_native_flow_split_backlog(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    source_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    source_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Problem",
+                "- Clarify scope",
+                "# Acceptance criteria",
+                "- AC1: Validate scope",
+                "# Tasks",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "split", "backlog", str(source_path), "--title", "Child A"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert (repo_root / "logics" / "tasks" / "task_001_child_a.md").is_file()
+    assert "Split backlog item into 1 task(s)" in captured.out
+    assert "task_001_child_a" in source_path.read_text(encoding="utf-8")
+
+
 def test_main_runs_native_flow_finish_task(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

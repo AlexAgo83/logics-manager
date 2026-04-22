@@ -10,6 +10,7 @@ import pytest
 from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
 from logics_manager.audit import audit_payload, render_audit
 from logics_manager.index import index_payload, render_index
+from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.cli import main
 
@@ -139,6 +140,19 @@ def _write_minimal_workflow_doc(path: Path, *, title: str, kind: str, status: st
     )
 
 
+def _write_minimal_lint_doc(path: Path, *, title: str, status: str, include_progress: bool) -> None:
+    lines = [
+        f"## {path.stem} - {title}",
+        f"> Status: {status}",
+        "> From version: 1.0.0",
+        "> Understanding: 100%",
+        "> Confidence: 100%",
+    ]
+    if include_progress:
+        lines.append("> Progress: 0%")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)
@@ -225,3 +239,48 @@ def test_render_index_builds_markdown_and_json(tmp_path: Path) -> None:
     assert "Wrote logics/INDEX.md" == render_index(repo_root, output_format="text")
     json_output = render_index(repo_root, output_format="json")
     assert '"ok": true' in json_output
+
+
+def test_render_lint_reports_ok_for_minimal_consistent_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    _write_minimal_lint_doc(repo_root / "logics" / "request" / "req_001_demo.md", title="Demo request", status="Draft", include_progress=False)
+    _write_minimal_lint_doc(repo_root / "logics" / "backlog" / "item_001_demo.md", title="Demo backlog", status="Ready", include_progress=True)
+    _write_minimal_lint_doc(repo_root / "logics" / "tasks" / "task_001_demo.md", title="Demo task", status="Ready", include_progress=True)
+
+    monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: set())
+    monkeypatch.setattr("logics_manager.lint._git_untracked_paths", lambda _repo_root: set())
+
+    payload = lint_payload(repo_root)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+    assert "Logics lint: OK" in render_lint(repo_root, output_format="text")
+
+
+def test_main_runs_native_lint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    _write_minimal_lint_doc(repo_root / "logics" / "request" / "req_001_demo.md", title="Demo request", status="Draft", include_progress=False)
+    _write_minimal_lint_doc(repo_root / "logics" / "backlog" / "item_001_demo.md", title="Demo backlog", status="Ready", include_progress=True)
+    _write_minimal_lint_doc(repo_root / "logics" / "tasks" / "task_001_demo.md", title="Demo task", status="Ready", include_progress=True)
+
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: set())
+    monkeypatch.setattr("logics_manager.lint._git_untracked_paths", lambda _repo_root: set())
+
+    exit_code = main(["lint", "--format", "json"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert '"ok": true' in captured.out

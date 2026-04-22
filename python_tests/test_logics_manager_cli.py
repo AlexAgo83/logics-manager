@@ -40,6 +40,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["flow", "new", "request", "--title", "Demo"], None, None),
         (["flow", "close", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
         (["flow", "finish", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
+        (["bootstrap", "--check"], None, None),
         (["sync", "close-eligible-requests"], None, None),
         (["sync", "refresh-mermaid-signatures"], None, None),
         (["sync", "schema-status"], None, None),
@@ -1206,6 +1207,45 @@ def test_main_runs_native_assist_backlog_groom_execute(
     assert "Hybrid rationale:" in text
     request_text = request.read_text(encoding="utf-8")
     assert created.stem in request_text
+
+
+def test_main_runs_native_bootstrap_check_reports_missing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    monkeypatch.chdir(repo_root)
+
+    exit_code = main(["bootstrap", "--check"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "Bootstrap check: actions required" in captured.out
+    assert "missing: logics/" in captured.out
+    assert not (repo_root / "logics").exists()
+
+
+def test_main_runs_native_bootstrap_creates_scaffold(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    monkeypatch.chdir(repo_root)
+
+    exit_code = main(["bootstrap"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Bootstrap: OK" in captured.out
+    assert (repo_root / "logics").is_dir()
+    assert (repo_root / "logics" / "instructions.md").is_file()
+    for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
+        assert (repo_root / "logics" / directory).is_dir()
+        assert (repo_root / "logics" / directory / ".gitkeep").is_file()
 
 
 def test_main_runs_native_assist_closure_summary(

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+from .bootstrap import bootstrap_payload, render_bootstrap
 from .assist import main as assist_main
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
@@ -18,7 +19,6 @@ from .doctor import render_doctor
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 ROUTES = {
-    "bootstrap": REPO_ROOT / "logics" / "skills" / "logics-bootstrapper" / "scripts" / "logics_bootstrap.py",
     "flow": REPO_ROOT / "logics" / "skills" / "logics-flow-manager" / "scripts" / "logics_flow.py",
 }
 
@@ -82,6 +82,18 @@ def main(argv: list[str]) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0
+    if args.command == "bootstrap":
+        parser = argparse.ArgumentParser(prog="logics-manager bootstrap", add_help=False)
+        parser.add_argument("--check", action="store_true")
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed, _unknown = parser.parse_known_args(rest)
+        try:
+            repo_root = find_repo_root(Path.cwd())
+        except ConfigError:
+            repo_root = Path.cwd().resolve()
+        payload = bootstrap_payload(repo_root, check=parsed.check)
+        print(render_bootstrap(payload, output_format=parsed.format))
+        return 0 if payload["ok"] else 1
     if args.command == "flow" and rest[:1] in (["new"], ["promote"], ["split"], ["close"], ["finish"]):
         from .flow import main as flow_main
 

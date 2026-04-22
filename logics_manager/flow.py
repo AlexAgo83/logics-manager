@@ -192,6 +192,19 @@ def _next_backlog_ref(repo_root: Path, title: str) -> str:
     return f"item_{highest + 1:03d}_{_slugify(title)}"
 
 
+def _next_task_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "tasks"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("task_*.md"):
+            stem = path.stem
+            if stem.startswith("task_"):
+                parts = stem.split("_", 2)
+                if len(parts) >= 2 and parts[1].isdigit():
+                    highest = max(highest, int(parts[1]))
+    return f"task_{highest + 1:03d}_{_slugify(title)}"
+
+
 def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
     if dry_run:
         return
@@ -283,6 +296,60 @@ def _build_native_backlog_from_request(repo_root: Path, request_path: Path, titl
             f"- Hybrid rationale: Derived from request `{request_path.stem}` and kept bounded to one coherent delivery slice.",
             f"- Source file: `{request_path.relative_to(repo_root).as_posix()}`.",
             "- Generated locally by logics-manager.",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return ref, content
+
+
+def _build_native_task_from_backlog(repo_root: Path, backlog_path: Path, title: str | None = None) -> tuple[str, str]:
+    backlog_lines = backlog_path.read_text(encoding="utf-8").splitlines()
+    backlog_title = title or _extract_doc_title(backlog_path)
+    ref = _next_task_ref(repo_root, backlog_title)
+    from_version = next((line.split(":", 1)[1].strip() for line in backlog_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
+    backlog_ref = backlog_path.stem
+    acceptance = _bullet_values(_section_lines(backlog_lines, "Acceptance criteria"))
+    if not acceptance:
+        acceptance = [
+            "AC1: The task remains bounded and executable.",
+            "AC2: The task preserves the backlog item's delivery intent.",
+        ]
+    content = "\n".join(
+        [
+            f"## {ref} - {backlog_title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            "> Complexity: Medium",
+            "> Theme: Implementation delivery",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
+            "",
+            "# Definition of Done (DoD)",
+            "- [ ] The backlog scope is implemented.",
+            "- [ ] Acceptance criteria are covered.",
+            "- [ ] Validation passes.",
+            "",
+            "# Backlog",
+            f"- `{backlog_ref}`",
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance],
+            "",
+            "# Validation",
+            "- Run `python3 -m logics_manager lint --require-status`.",
+            f"- Run `python3 -m logics_manager flow finish task {ref}.md` after implementation.",
+            "",
+            "# Report",
+            "- Implementation complete.",
+            "",
+            "# AI Context",
+            f"- Summary: Implement {backlog_title.lower()}.",
+            "- Keywords: task, implementation, backlog, runtime, python",
+            "- Use when: You need a bounded implementation task for a backlog item.",
+            "- Skip when: The work is still at the request or backlog shaping stage.",
             "",
         ]
     ).rstrip() + "\n"
@@ -496,14 +563,19 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     source_path = Path(args.source).resolve()
     if not source_path.is_file():
         raise SystemExit(f"Source not found: {source_path}")
-    title = _parse_title_from_source(source_path) or "Implementation task"
-    planned = _create_task_from_backlog(repo_root, source_path, title, args)
+    title = _extract_doc_title(source_path)
+    ref, content = _build_native_task_from_backlog(repo_root, source_path, title)
+    planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
+    if not args.dry_run:
+        planned_path.parent.mkdir(parents=True, exist_ok=True)
+        planned_path.write_text(content, encoding="utf-8")
+        _append_doc_section_bullets(source_path, "Tasks", [f"`{ref}`"], dry_run=False)
     payload = {
         "command": "promote",
         "promotion": "backlog-to-task",
         "source": source_path.relative_to(repo_root).as_posix(),
-        "created_ref": planned.ref,
-        "created_path": planned.path.relative_to(repo_root).as_posix(),
+        "created_ref": ref,
+        "created_path": planned_path.relative_to(repo_root).as_posix(),
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -550,8 +622,13 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
-        planned = _create_task_from_backlog(repo_root, source_path, title, args)
-        created_refs.append(planned.ref)
+        ref, content = _build_native_task_from_backlog(repo_root, source_path, title)
+        planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
+        if not args.dry_run:
+            planned_path.parent.mkdir(parents=True, exist_ok=True)
+            planned_path.write_text(content, encoding="utf-8")
+            _append_doc_section_bullets(source_path, "Tasks", [f"`{ref}`"], dry_run=False)
+        created_refs.append(ref)
     payload = {
         "command": "split",
         "kind": "backlog",

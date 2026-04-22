@@ -4,7 +4,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -440,6 +439,8 @@ def test_main_runs_native_flow_promote_request_to_backlog(
                 "- Context note",
                 "# Acceptance criteria",
                 "- AC1: Validate scope",
+                "# Backlog",
+                "- none",
             ]
         )
         + "\n",
@@ -447,18 +448,15 @@ def test_main_runs_native_flow_promote_request_to_backlog(
     )
 
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
-    monkeypatch.setattr("logics_flow_support_workflow_core._generate_workflow_mermaid", lambda *_args, **_kwargs: "```mermaid\nflowchart LR\nA-->B\n```")
-    monkeypatch.setattr("logics_flow_support_workflow_extra._generate_workflow_mermaid", lambda *_args, **_kwargs: "```mermaid\nflowchart LR\nA-->B\n```")
-    monkeypatch.setattr("logics_flow_support_workflow_extra.validate_generated_workflow_doc_text", lambda *_args, **_kwargs: None)
-    monkeypatch.setattr("logics_manager.flow.validate_generated_workflow_doc_text", lambda *_args, **_kwargs: None)
 
     exit_code = main(["flow", "promote", "request-to-backlog", str(source_path)])
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    created = repo_root / "logics" / "backlog" / "item_000_demo_request.md"
+    created = repo_root / "logics" / "backlog" / "item_001_demo_request.md"
     assert created.is_file()
     assert "Created backlog slice from request" in captured.out
+    assert created.stem in source_path.read_text(encoding="utf-8")
 
 
 def test_main_runs_native_flow_split_request(
@@ -485,26 +483,23 @@ def test_main_runs_native_flow_split_request(
                 "- Context note",
                 "# Acceptance criteria",
                 "- AC1: Validate scope",
+                "# Backlog",
+                "- none",
             ]
         )
         + "\n",
         encoding="utf-8",
     )
 
-    def fake_create_backlog(repo_root_arg: Path, source: Path, title: str, args: object) -> SimpleNamespace:
-        created = repo_root_arg / "logics" / "backlog" / f"item_999_{title.lower().replace(' ', '_')}.md"
-        created.write_text(f"## {created.stem} - {title}\n", encoding="utf-8")
-        return SimpleNamespace(ref=created.stem, path=created)
-
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
-    monkeypatch.setattr("logics_manager.flow._create_backlog_from_request", fake_create_backlog)
 
     exit_code = main(["flow", "split", "request", str(source_path), "--title", "Child A"])
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert (repo_root / "logics" / "backlog" / "item_999_child_a.md").is_file()
+    assert (repo_root / "logics" / "backlog" / "item_001_child_a.md").is_file()
     assert "Split request into 1 backlog item(s)" in captured.out
+    assert "item_001_child_a" in source_path.read_text(encoding="utf-8")
 
 
 def test_main_runs_native_flow_finish_task(

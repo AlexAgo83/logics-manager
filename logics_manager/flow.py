@@ -53,6 +53,12 @@ def _split_titles(raw_titles: list[str]) -> list[str]:
     return titles
 
 
+def _slugify(text: str) -> str:
+    cleaned = "".join(ch.lower() if ch.isalnum() else "_" for ch in text)
+    cleaned = "_".join(part for part in cleaned.split("_") if part)
+    return cleaned or "request"
+
+
 def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
     parser.add_argument("--from-version")
     parser.add_argument("--understanding", default="90%")
@@ -132,6 +138,155 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
             "",
         ]
     ).rstrip() + "\n"
+
+
+def _extract_doc_title(path: Path) -> str:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            payload = line.removeprefix("## ").strip()
+            if " - " in payload:
+                return payload.split(" - ", 1)[1].strip()
+            return payload
+    return path.stem
+
+
+def _section_lines(lines: list[str], heading: str) -> list[str]:
+    target = heading.strip().lower()
+    start_idx = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == target:
+            start_idx = idx + 1
+            break
+    if start_idx is None:
+        return []
+    out: list[str] = []
+    for idx in range(start_idx, len(lines)):
+        line = lines[idx]
+        if line.startswith("# "):
+            break
+        out.append(line)
+    return out
+
+
+def _bullet_values(lines: list[str]) -> list[str]:
+    values: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            value = stripped[2:].strip()
+            if value:
+                values.append(value)
+    return values
+
+
+def _next_backlog_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "backlog"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("item_*.md"):
+            stem = path.stem
+            if stem.startswith("item_"):
+                parts = stem.split("_", 2)
+                if len(parts) >= 2 and parts[1].isdigit():
+                    highest = max(highest, int(parts[1]))
+    return f"item_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
+            insert_at = idx + 1
+            while insert_at < len(lines) and lines[insert_at].strip().startswith("- "):
+                insert_at += 1
+            existing = {line.strip() for line in lines[idx + 1 : insert_at] if line.strip().startswith("- ")}
+            for bullet in bullets:
+                rendered = f"- {bullet}"
+                if rendered not in existing:
+                    lines.insert(insert_at, rendered)
+                    insert_at += 1
+            path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+            return
+    lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _build_native_backlog_from_request(repo_root: Path, request_path: Path, title: str | None = None) -> tuple[str, str]:
+    request_lines = request_path.read_text(encoding="utf-8").splitlines()
+    request_title = title or _extract_doc_title(request_path)
+    ref = _next_backlog_ref(repo_root, request_title)
+    from_version = next((line.split(":", 1)[1].strip() for line in request_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
+    needs = _bullet_values(_section_lines(request_lines, "Needs"))
+    acceptance = _bullet_values(_section_lines(request_lines, "Acceptance criteria"))
+    if not needs:
+        needs = [f"Deliver a bounded slice for {request_title.lower()}."]
+    if not acceptance:
+        acceptance = [
+            "AC1: The backlog slice stays bounded and reviewable.",
+            "AC2: The backlog slice preserves the request's core acceptance criteria.",
+        ]
+    content = "\n".join(
+        [
+            f"## {ref} - {request_title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            "> Complexity: High",
+            "> Theme: Operator workflow and runtime integration",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.",
+            "",
+            "# Problem",
+            *needs,
+            "",
+            "# Scope",
+            "- In:",
+            "  - one coherent delivery slice from the source request",
+            "- Out:",
+            "  - unrelated sibling slices that should stay in separate backlog items instead of widening this doc",
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance],
+            "",
+            "# AC Traceability",
+            *[f"- request-AC{idx + 1} -> This backlog slice. Proof: {item}" for idx, item in enumerate(acceptance)],
+            "",
+            "# Decision framing",
+            "- Product framing: Not needed",
+            "- Product signals: (none detected)",
+            "- Product follow-up: No product brief follow-up is expected based on current signals.",
+            "- Architecture framing: Not needed",
+            "- Architecture signals: (none detected)",
+            "- Architecture follow-up: No architecture decision follow-up is expected based on current signals.",
+            "",
+            "# Links",
+            "- Product brief(s): `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+            "- Architecture decision(s): (none yet)",
+            f"- Request: `{request_path.relative_to(repo_root).as_posix()}`",
+            "- Primary task(s): (none yet)",
+            "",
+            "# AI Context",
+            f"- Summary: {request_title}",
+            f"- Keywords: backlog-groom, request, {request_title.lower()}, bounded slice",
+            f"- Use when: Use when implementing or reviewing the delivery slice for {request_title}.",
+            "- Skip when: Skip when the change is unrelated to this delivery slice or its linked request.",
+            "",
+            "# Priority",
+            "- Impact:",
+            "- Urgency:",
+            "",
+            "# Notes",
+            f"- Hybrid rationale: Derived from request `{request_path.stem}` and kept bounded to one coherent delivery slice.",
+            f"- Source file: `{request_path.relative_to(repo_root).as_posix()}`.",
+            "- Generated locally by logics-manager.",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return ref, content
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -314,14 +469,19 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
     source_path = Path(args.source).resolve()
     if not source_path.is_file():
         raise SystemExit(f"Source not found: {source_path}")
-    title = _parse_title_from_source(source_path) or "Promoted backlog item"
-    planned = _create_backlog_from_request(repo_root, source_path, title, args)
+    title = _extract_doc_title(source_path)
+    ref, content = _build_native_backlog_from_request(repo_root, source_path, title)
+    planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
+    if not args.dry_run:
+        planned_path.parent.mkdir(parents=True, exist_ok=True)
+        planned_path.write_text(content, encoding="utf-8")
+        _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
     payload = {
         "command": "promote",
         "promotion": "request-to-backlog",
         "source": source_path.relative_to(repo_root).as_posix(),
-        "created_ref": planned.ref,
-        "created_path": planned.path.relative_to(repo_root).as_posix(),
+        "created_ref": ref,
+        "created_path": planned_path.relative_to(repo_root).as_posix(),
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -361,8 +521,13 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
-        planned = _create_backlog_from_request(repo_root, source_path, title, args)
-        created_refs.append(planned.ref)
+        ref, content = _build_native_backlog_from_request(repo_root, source_path, title)
+        planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
+        if not args.dry_run:
+            planned_path.parent.mkdir(parents=True, exist_ok=True)
+            planned_path.write_text(content, encoding="utf-8")
+            _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
+        created_refs.append(ref)
     payload = {
         "command": "split",
         "kind": "request",

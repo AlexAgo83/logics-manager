@@ -4,12 +4,15 @@ import argparse
 import json
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+import re
 from pathlib import Path
 import subprocess
 from shutil import which
 from typing import Any
 
 from .config import find_repo_root, load_repo_config
+from .doctor import doctor_payload
+from .lint import lint_payload
 
 
 DEFAULT_HYBRID_AUDIT_LOG = "logics/.cache/hybrid_assist_audit.jsonl"
@@ -60,6 +63,111 @@ def _hybrid_measurement_log(config: dict[str, object]) -> str:
 
 def _repo_path(repo_root: Path, value: str | None, default: str) -> Path:
     return (repo_root / (value or default)).resolve()
+
+
+def _parse_package_version(repo_root: Path) -> str:
+    package_json = repo_root / "package.json"
+    if not package_json.is_file():
+        return "1.0.0"
+    try:
+        payload = json.loads(package_json.read_text(encoding="utf-8"))
+    except Exception:
+        return "1.0.0"
+    version = payload.get("version") if isinstance(payload, dict) else None
+    return str(version).strip() if version else "1.0.0"
+
+
+def _slugify(text: str) -> str:
+    cleaned = re.sub(r"[^a-z0-9]+", "_", text.lower())
+    return cleaned.strip("_") or "request"
+
+
+def _title_from_request_intent(intent: str) -> str:
+    cleaned = " ".join(intent.split()).strip()
+    cleaned = re.sub(r"^(draft|create|add|write|prepare)\s+(a|an)?\s*request\s*(for|about)?\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = cleaned.strip(" .:-")
+    if not cleaned:
+        return "Request draft"
+    return cleaned[:1].upper() + cleaned[1:120]
+
+
+def _next_request_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "request"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("req_*.md"):
+            match = re.match(r"^req_(\d{3})_", path.stem)
+            if match:
+                highest = max(highest, int(match.group(1)))
+    return f"req_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _build_request_draft(repo_root: Path, *, intent: str) -> dict[str, object]:
+    title = _title_from_request_intent(intent)
+    ref = _next_request_ref(repo_root, title)
+    from_version = _parse_package_version(repo_root)
+    needs = [f"Deliver {title.lower()}"]
+    context = [
+        "Draft generated locally by logics-manager.",
+        "No manual skills bootstrap or bridge editing is required.",
+    ]
+    acceptance = [
+        f"AC1: The request clearly states the bounded need for {title.lower()}.",
+        "AC2: Scope boundaries and operator impact are explicit.",
+        "AC3: The request is ready to be promoted into a backlog slice.",
+    ]
+    content = "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            "> Status: Draft",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Complexity: Medium",
+            "> Theme: Operator workflow",
+            "> Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.",
+            "",
+            "# Needs",
+            *[f"- {item}" for item in needs],
+            "",
+            "# Context",
+            *[f"- {item}" for item in context],
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance],
+            "",
+            "# Definition of Ready (DoR)",
+            "- [ ] Problem statement is explicit and user impact is clear.",
+            "- [ ] Scope boundaries (in/out) are explicit.",
+            "- [ ] Acceptance criteria are testable.",
+            "- [ ] Dependencies and known risks are listed.",
+            "",
+            "# Companion docs",
+            "- Product brief(s): (none yet)",
+            "- Architecture decision(s): (none yet)",
+            "",
+            "# AI Context",
+            f"- Summary: Draft a bounded request for {title.lower()}.",
+            "- Keywords: request-draft, logics-manager, python runtime, bundled CLI",
+            "- Use when: You need a new bounded request doc for the Logics workflow.",
+            "- Skip when: The work already has an existing request or should go straight to a backlog slice.",
+            "",
+            "# Backlog",
+            "- none",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return {
+        "ref": ref,
+        "title": title,
+        "from_version": from_version,
+        "path": f"logics/request/{ref}.md",
+        "content": content,
+        "needs": needs,
+        "context": context,
+        "acceptance": acceptance,
+    }
 
 
 def _load_jsonl_records(path: Path) -> tuple[list[dict[str, Any]], int]:
@@ -341,6 +449,215 @@ def _build_commit_plan(changed_paths: list[str]) -> dict[str, object]:
     }
 
 
+def _build_changed_surface_summary(changed_paths: list[str]) -> dict[str, object]:
+    category_counter: Counter[str] = Counter()
+    for path in changed_paths:
+        normalized = path.replace("\\", "/")
+        if normalized.startswith("src/"):
+            category_counter["plugin"] += 1
+        elif normalized.startswith("logics_manager/"):
+            category_counter["python-runtime"] += 1
+        elif normalized.startswith("logics/"):
+            category_counter["workflow-docs"] += 1
+        elif normalized.startswith("tests/") or "/tests/" in normalized or normalized.startswith("python_tests/"):
+            category_counter["tests"] += 1
+        elif normalized.endswith(".md"):
+            category_counter["docs"] += 1
+        else:
+            category_counter["other"] += 1
+    primary = category_counter.most_common(1)[0][0] if category_counter else "clean"
+    summary = {
+        "clean": "No changed surface was detected.",
+        "plugin": "The plugin surface is the dominant change area.",
+        "python-runtime": "The native Python runtime is the dominant change area.",
+        "workflow-docs": "Workflow documentation is the dominant change area.",
+        "tests": "Tests are the dominant change area.",
+        "docs": "Markdown documentation is the dominant change area.",
+        "other": "Mixed repository changes are present.",
+    }.get(primary, "Mixed repository changes are present.")
+    return {
+        "summary": summary,
+        "primary_category": primary,
+        "counts": dict(sorted(category_counter.items())),
+        "changed_paths": changed_paths,
+        "review_recommended": primary not in {"clean", "docs"} and bool(changed_paths),
+    }
+
+
+def _build_validation_checklist(changed_paths: list[str]) -> dict[str, object]:
+    surface = _build_changed_surface_summary(changed_paths)
+    checks: list[str] = [
+        "Run `python3 -m pytest python_tests/test_logics_manager_cli.py -q`.",
+        "Run `python3 -m compileall logics_manager`.",
+        "Run `npm run lint:logics`.",
+    ]
+    if any(path.startswith("src/") for path in changed_paths):
+        checks.append("Run the plugin test suite that exercises the VS Code entrypoints.")
+    if any(path.startswith("logics_manager/") for path in changed_paths):
+        checks.append("Smoke-test `python3 -m logics_manager --help` and the affected native subcommands.")
+    if any(path.startswith("logics/") for path in changed_paths):
+        checks.append("Run `python3 -m logics_manager lint --require-status` and inspect the workflow docs manually.")
+    if any(path.startswith("tests/") or path.startswith("python_tests/") for path in changed_paths):
+        checks.append("Run the focused affected tests before broad regression sweeps.")
+    if not changed_paths:
+        checks.append("No validation needed beyond a clean smoke check; there are no tracked changes.")
+    return {
+        "profile": "deterministic",
+        "checks": checks,
+        "confidence": 0.91 if changed_paths else 1.0,
+        "rationale": surface["summary"],
+    }
+
+
+def _build_test_impact_summary(changed_paths: list[str]) -> dict[str, object]:
+    categories = _build_changed_surface_summary(changed_paths)["counts"]
+    recommended: list[str] = []
+    if "python-runtime" in categories:
+        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+    if "plugin" in categories:
+        recommended.append("npm run lint")
+    if "workflow-docs" in categories:
+        recommended.append("npm run lint:logics")
+    if "tests" in categories:
+        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+    if not recommended:
+        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+    return {
+        "summary": "Recommended test order derived from the current change surface.",
+        "categories": categories,
+        "recommended_commands": list(dict.fromkeys(recommended)),
+        "confidence": 0.88 if changed_paths else 1.0,
+    }
+
+
+def _build_doc_consistency(repo_root: Path) -> dict[str, object]:
+    doctor = doctor_payload(repo_root)
+    lint = lint_payload(repo_root, require_status=True)
+    issues: list[dict[str, object]] = []
+    for issue in doctor["issues"]:
+        issues.append(
+            {
+                "source": "doctor",
+                "path": issue["path"],
+                "message": issue["message"],
+                "remediation": issue["remediation"],
+                "code": issue["code"],
+            }
+        )
+    for issue in lint["issues"]:
+        issues.append(
+            {
+                "source": "lint",
+                "path": issue["path"],
+                "message": issue["message"],
+                "remediation": "Update the doc so lint and workflow conventions stay aligned.",
+                "code": "lint_issue",
+            }
+        )
+    for warning in lint["warnings"]:
+        issues.append(
+            {
+                "source": "lint",
+                "path": warning["path"],
+                "message": warning["message"],
+                "remediation": "Review the warning and confirm it is intentional.",
+                "code": "lint_warning",
+            }
+        )
+    overall = "clean" if not issues else "issues-found"
+    summary = "Workflow docs are consistent across doctor and lint checks." if overall == "clean" else "Workflow docs have consistency issues that should be reviewed."
+    follow_up: list[str] = []
+    if doctor["issue_count"]:
+        follow_up.append("Fix the doctor issues first because they affect workflow shape and required indicators.")
+    if lint["issue_count"]:
+        follow_up.append("Fix lint issues next so changed docs preserve indicators and status conventions.")
+    if lint["warning_count"]:
+        follow_up.append("Review lint warnings to confirm they are intentional.")
+    if not follow_up:
+        follow_up.append("No follow-up required.")
+    return {
+        "overall": overall,
+        "summary": summary,
+        "issues": issues,
+        "follow_up": follow_up,
+        "confidence": 1.0 if overall == "clean" else 0.86,
+        "doctor": {
+            "ok": doctor["ok"],
+            "issue_count": doctor["issue_count"],
+            "workflow_doc_count": doctor["workflow_doc_count"],
+            "missing_schema_version_count": doctor["missing_schema_version_count"],
+        },
+        "lint": {
+            "ok": lint["ok"],
+            "issue_count": lint["issue_count"],
+            "warning_count": lint["warning_count"],
+        },
+    }
+
+
+def _build_review_checklist(repo_root: Path) -> dict[str, object]:
+    changed_paths = _git_changed_paths(repo_root)
+    surface = _build_changed_surface_summary(changed_paths)
+    consistency = _build_doc_consistency(repo_root)
+    checklist: list[str] = [
+        "Read the diff with the native `diff-risk` summary before approving.",
+        "Verify the impacted docs or code paths match the intended scope.",
+    ]
+    if surface["primary_category"] == "python-runtime":
+        checklist.append("Run the Python CLI smoke tests for the modified runtime paths.")
+    if surface["primary_category"] == "plugin":
+        checklist.append("Run the plugin command paths touched by the change and confirm the UI still delegates correctly.")
+    if surface["primary_category"] == "workflow-docs":
+        checklist.append("Check `lint` and `doctor` output for workflow doc consistency.")
+    if consistency["overall"] != "clean":
+        checklist.append("Resolve doc consistency issues before merging.")
+    else:
+        checklist.append("Document checks are clean; confirm no hidden workflow regressions remain.")
+    checklist.extend([
+        "Confirm the change does not reintroduce a manual `skills/` bootstrap step.",
+        "Confirm the change does not add a new compatibility residue for the old kit boundary.",
+    ])
+    return {
+        "summary": surface["summary"],
+        "surface": surface,
+        "doc_consistency": {
+            "overall": consistency["overall"],
+            "confidence": consistency["confidence"],
+            "doctor_issues": consistency["doctor"]["issue_count"],
+            "lint_issues": consistency["lint"]["issue_count"],
+        },
+        "checklist": checklist,
+        "confidence": 0.84 if changed_paths else 1.0,
+    }
+
+
+def _build_validation_summary(repo_root: Path) -> dict[str, object]:
+    changed_paths = _git_changed_paths(repo_root)
+    doc_consistency = _build_doc_consistency(repo_root)
+    validation_checklist = _build_validation_checklist(changed_paths)
+    test_impact = _build_test_impact_summary(changed_paths)
+    overall = "ok" if doc_consistency["overall"] == "clean" else "needs-attention"
+    summary = "Repository validations look healthy." if overall == "ok" else "Repository validations need attention."
+    next_actions = list(validation_checklist["checks"][:3])
+    if doc_consistency["overall"] != "clean":
+        next_actions.insert(0, "Fix doc consistency issues before moving forward.")
+    if test_impact["recommended_commands"]:
+        next_actions.append(f"Primary test command: {test_impact['recommended_commands'][0]}")
+    return {
+        "overall": overall,
+        "summary": summary,
+        "doc_consistency": {
+            "overall": doc_consistency["overall"],
+            "doctor_issues": doc_consistency["doctor"]["issue_count"],
+            "lint_issues": doc_consistency["lint"]["issue_count"],
+        },
+        "validation_checklist": validation_checklist,
+        "test_impact": test_impact,
+        "next_actions": next_actions,
+        "confidence": 0.9 if overall == "ok" else 0.82,
+    }
+
+
 def _build_hybrid_roi_report(
     repo_root: Path,
     *,
@@ -611,6 +928,36 @@ def build_parser() -> argparse.ArgumentParser:
     commit_plan.add_argument("--dry-run", action="store_true")
     commit_plan.set_defaults(func=cmd_commit_plan)
 
+    changed_surface = sub.add_parser("changed-surface-summary", help="Summarize the current changed repository surface.")
+    changed_surface.add_argument("--format", choices=("text", "json"), default="text")
+    changed_surface.add_argument("--dry-run", action="store_true")
+    changed_surface.set_defaults(func=cmd_changed_surface_summary)
+
+    doc_consistency = sub.add_parser("doc-consistency", help="Review workflow docs for consistency issues without mutating them.")
+    doc_consistency.add_argument("--format", choices=("text", "json"), default="text")
+    doc_consistency.add_argument("--dry-run", action="store_true")
+    doc_consistency.set_defaults(func=cmd_doc_consistency)
+
+    review_checklist = sub.add_parser("review-checklist", help="Generate a bounded review checklist for the current change surface.")
+    review_checklist.add_argument("--format", choices=("text", "json"), default="text")
+    review_checklist.add_argument("--dry-run", action="store_true")
+    review_checklist.set_defaults(func=cmd_review_checklist)
+
+    validation_checklist = sub.add_parser("validation-checklist", help="Generate a deterministic validation checklist from the current change surface.")
+    validation_checklist.add_argument("--format", choices=("text", "json"), default="text")
+    validation_checklist.add_argument("--dry-run", action="store_true")
+    validation_checklist.set_defaults(func=cmd_validation_checklist)
+
+    validation_summary = sub.add_parser("validation-summary", help="Summarize lint, doctor, and validation impact signals.")
+    validation_summary.add_argument("--format", choices=("text", "json"), default="text")
+    validation_summary.add_argument("--dry-run", action="store_true")
+    validation_summary.set_defaults(func=cmd_validation_summary)
+
+    test_impact = sub.add_parser("test-impact-summary", help="Summarize the likely test impact of the current change surface.")
+    test_impact.add_argument("--format", choices=("text", "json"), default="text")
+    test_impact.add_argument("--dry-run", action="store_true")
+    test_impact.set_defaults(func=cmd_test_impact_summary)
+
     roi = sub.add_parser("roi-report", help="Summarize hybrid assist ROI from local audit and measurement logs.")
     roi.add_argument("--audit-log")
     roi.add_argument("--measurement-log")
@@ -633,6 +980,25 @@ def build_parser() -> argparse.ArgumentParser:
     context.add_argument("--out", help="Write the JSON context bundle to this relative path.")
     context.add_argument("--dry-run", action="store_true")
     context.set_defaults(func=cmd_context)
+
+    next_step = sub.add_parser("next-step", help="Suggest the next bounded Logics step for a target doc.")
+    next_step.add_argument("ref", nargs="?", help="Optional workflow ref for a target doc.")
+    next_step.add_argument("--format", choices=("text", "json"), default="text")
+    next_step.add_argument("--dry-run", action="store_true")
+    next_step.set_defaults(func=cmd_next_step)
+
+    request_draft = sub.add_parser("request-draft", help="Draft a bounded request doc from an intent.")
+    request_draft.add_argument("--intent", required=True, help="Short operator intent to draft the request from.")
+    request_draft.add_argument("--format", choices=("text", "json"), default="text")
+    request_draft.add_argument("--execution-mode", choices=("suggestion-only", "execute"), default="suggestion-only")
+    request_draft.add_argument("--dry-run", action="store_true")
+    request_draft.set_defaults(func=cmd_request_draft)
+
+    closure_summary = sub.add_parser("closure-summary", help="Summarize a delivered request, backlog item, or task.")
+    closure_summary.add_argument("ref", nargs="?", help="Optional workflow ref for a delivered doc.")
+    closure_summary.add_argument("--format", choices=("text", "json"), default="text")
+    closure_summary.add_argument("--dry-run", action="store_true")
+    closure_summary.set_defaults(func=cmd_closure_summary)
 
     return parser
 
@@ -663,6 +1029,154 @@ def _workflow_docs(repo_root: Path) -> list[Path]:
     for directory in ("request", "backlog", "tasks"):
         docs.extend(sorted((repo_root / "logics" / directory).glob("*.md")))
     return docs
+
+
+def _resolve_workflow_doc(repo_root: Path, ref: str) -> Path | None:
+    for path in _workflow_docs(repo_root):
+        if path.stem == ref or path.name == f"{ref}.md":
+            return path
+    return None
+
+
+def _doc_status(path: Path) -> str:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("> Status:"):
+            return stripped.split(":", 1)[1].strip()
+    return "Unknown"
+
+
+def _extract_doc_links(path: Path) -> list[str]:
+    links: list[str] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            candidate = stripped[2:].strip().strip("`")
+            if candidate:
+                links.append(candidate)
+    return links
+
+
+def _build_next_step(repo_root: Path, ref: str | None) -> dict[str, object]:
+    if ref:
+        doc_path = _resolve_workflow_doc(repo_root, ref)
+        if doc_path is not None:
+            kind = doc_path.parent.name
+            status = _doc_status(doc_path)
+            if kind == "request":
+                if status.lower() in {"draft", "ready"}:
+                    action = "promote request to backlog"
+                    rationale = "The request is ready to be split into bounded backlog slices."
+                    checklist = [
+                        f"Run `python3 -m logics_manager flow promote request-to-backlog {doc_path.relative_to(repo_root).as_posix()}`.",
+                        "Validate the generated backlog slice for scope and acceptance criteria.",
+                    ]
+                else:
+                    action = "review request status"
+                    rationale = "The request is not in a promotion-friendly state yet."
+                    checklist = [
+                        "Inspect the request status and linked backlog coverage.",
+                        "Resolve any missing indicators before promotion.",
+                    ]
+            elif kind == "backlog":
+                if status.lower() in {"draft", "ready"}:
+                    action = "promote backlog to task"
+                    rationale = "The backlog item is ready to become an executable task."
+                    checklist = [
+                        f"Run `python3 -m logics_manager flow promote backlog-to-task {doc_path.relative_to(repo_root).as_posix()}`.",
+                        "Confirm the task scope remains bounded and executable.",
+                    ]
+                else:
+                    action = "review backlog status"
+                    rationale = "The backlog item is not ready for task promotion yet."
+                    checklist = [
+                        "Inspect the backlog status and task linkage.",
+                        "Resolve any missing indicators before promotion.",
+                    ]
+            else:
+                action = "finish task"
+                rationale = "Tasks are usually the last step in the Logics chain."
+                checklist = [
+                    f"Run `python3 -m logics_manager flow finish task {doc_path.relative_to(repo_root).as_posix()}`.",
+                    "Verify the linked backlog and request moved to Done if appropriate.",
+                ]
+            return {
+                "ref": ref,
+                "doc_path": doc_path.relative_to(repo_root).as_posix(),
+                "kind": kind,
+                "status": status,
+                "action": action,
+                "rationale": rationale,
+                "checklist": checklist,
+                "confidence": 0.92,
+            }
+    return {
+        "ref": ref,
+        "doc_path": None,
+        "kind": None,
+        "status": None,
+        "action": "run validation-summary",
+        "rationale": "No target doc was resolved, so the safest next step is to inspect repository validation health.",
+        "checklist": [
+            "Run `python3 -m logics_manager assist validation-summary`.",
+            "Then decide whether the next step is a request promotion, backlog promotion, or task finish.",
+        ],
+        "confidence": 0.74,
+    }
+
+
+def _build_closure_summary(repo_root: Path, ref: str | None) -> dict[str, object]:
+    if not ref:
+        return {
+            "ref": None,
+            "doc_path": None,
+            "kind": None,
+            "status": None,
+            "summary": "No target doc was provided.",
+            "delivered": [],
+            "validations": [],
+            "remaining_risks": ["Resolve the target doc reference first."],
+            "confidence": 0.6,
+        }
+    doc_path = _resolve_workflow_doc(repo_root, ref)
+    if doc_path is None:
+        return {
+            "ref": ref,
+            "doc_path": None,
+            "kind": None,
+            "status": None,
+            "summary": "Target doc could not be resolved.",
+            "delivered": [],
+            "validations": [],
+            "remaining_risks": [f"Unknown workflow ref `{ref}`."],
+            "confidence": 0.55,
+        }
+    kind = doc_path.parent.name
+    status = _doc_status(doc_path)
+    title = next((line.split(" - ", 1)[1].strip() for line in doc_path.read_text(encoding="utf-8").splitlines() if line.startswith("## ")), doc_path.stem)
+    links = _extract_doc_links(doc_path)
+    delivered = [f"{kind} doc `{doc_path.stem}`", f"title: {title}", f"status: {status}"]
+    validations = [
+        "Check that the linked request/backlog/task chain is complete.",
+        "Run the relevant lint/doctor validation before treating the closure as final.",
+    ]
+    remaining_risks: list[str] = []
+    if status.lower() != "done":
+        remaining_risks.append("The doc is not marked Done yet.")
+    if not links:
+        remaining_risks.append("No linked workflow references were found in the document.")
+    return {
+        "ref": ref,
+        "doc_path": doc_path.relative_to(repo_root).as_posix(),
+        "kind": kind,
+        "status": status,
+        "summary": f"{kind.title()} closure summary for {title}.",
+        "delivered": delivered,
+        "validations": validations,
+        "remaining_risks": remaining_risks or ["No obvious remaining risks detected from the local doc shape."],
+        "linked_refs": links,
+        "confidence": 0.9 if status.lower() == "done" else 0.76,
+    }
 
 
 def _build_context_pack(repo_root: Path, seed_ref: str, *, mode: str, profile: str) -> dict[str, object]:
@@ -736,6 +1250,142 @@ def cmd_commit_plan(args: argparse.Namespace) -> dict[str, object]:
         print(f"- scope: {payload['scope']}")
         print(f"- confidence: {payload['confidence']}")
         print(f"- review recommended: {'yes' if payload['review_recommended'] else 'no'}")
+    return payload
+
+
+def cmd_changed_surface_summary(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    changed_paths = _git_changed_paths(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "changed-surface-summary",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_changed_surface_summary(changed_paths),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Changed surface: {payload['primary_category']}")
+        print(f"- summary: {payload['summary']}")
+        print(f"- changed paths: {len(changed_paths)}")
+        if payload["counts"]:
+            for label, count in payload["counts"].items():
+                print(f"- {label}: {count}")
+    return payload
+
+
+def cmd_doc_consistency(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "doc-consistency",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_doc_consistency(repo_root),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Doc consistency: {payload['overall'].upper()}")
+        print(f"- summary: {payload['summary']}")
+        print(f"- confidence: {payload['confidence']}")
+        print(f"- doctor issues: {payload['doctor']['issue_count']}")
+        print(f"- lint issues: {payload['lint']['issue_count']}")
+        for follow_up in payload["follow_up"]:
+            print(f"- {follow_up}")
+    return payload
+
+
+def cmd_review_checklist(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "review-checklist",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_review_checklist(repo_root),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Review checklist:")
+        print(f"- confidence: {payload['confidence']}")
+        print(f"- summary: {payload['summary']}")
+        print(f"- doc consistency: {payload['doc_consistency']['overall']}")
+        for item in payload["checklist"]:
+            print(f"- {item}")
+    return payload
+
+
+def cmd_validation_checklist(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    changed_paths = _git_changed_paths(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "validation-checklist",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_validation_checklist(changed_paths),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Validation checklist:")
+        print(f"- profile: {payload['profile']}")
+        print(f"- confidence: {payload['confidence']}")
+        for check in payload["checks"]:
+            print(f"- {check}")
+    return payload
+
+
+def cmd_validation_summary(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "validation-summary",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_validation_summary(repo_root),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Validation summary:")
+        print(f"- overall: {payload['overall']}")
+        print(f"- confidence: {payload['confidence']}")
+        print(f"- summary: {payload['summary']}")
+        print(f"- doc consistency: {payload['doc_consistency']['overall']}")
+        print(f"- test commands: {len(payload['test_impact']['recommended_commands'])}")
+        for action in payload["next_actions"]:
+            print(f"- {action}")
+    return payload
+
+
+def cmd_test_impact_summary(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    changed_paths = _git_changed_paths(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "test-impact-summary",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_test_impact_summary(changed_paths),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Test impact summary:")
+        print(f"- confidence: {payload['confidence']}")
+        print(f"- summary: {payload['summary']}")
+        for command in payload["recommended_commands"]:
+            print(f"- {command}")
     return payload
 
 
@@ -830,6 +1480,101 @@ def cmd_runtime_status(args: argparse.Namespace) -> dict[str, object]:
         print(f"- bridge available: {'yes' if bridge_status['available'] else 'no'}")
         if bridge_status["preferred_variant"]:
             print(f"- bridge variant: {bridge_status['preferred_variant']}")
+    return payload
+
+
+def cmd_next_step(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "next-step",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_next_step(repo_root, args.ref),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Next step: {payload['action']}")
+        print(f"- ref: {payload['ref'] or '<none>'}")
+        print(f"- doc path: {payload['doc_path'] or '<none>'}")
+        print(f"- status: {payload['status'] or '<none>'}")
+        print(f"- rationale: {payload['rationale']}")
+        for item in payload["checklist"]:
+            print(f"- {item}")
+    return payload
+
+
+def cmd_request_draft(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "request-draft",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        "execution_mode": args.execution_mode,
+        "intent": args.intent,
+        **_build_request_draft(repo_root, intent=args.intent),
+    }
+    if args.execution_mode == "execute":
+        out_path = repo_root / payload["path"]
+        if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(payload["content"], encoding="utf-8")
+            payload["written"] = True
+        else:
+            payload["written"] = False
+        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+    else:
+        payload["written"] = False
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Request draft: {payload['title']}")
+        print(f"- ref: {payload['ref']}")
+        print(f"- path: {payload['path']}")
+        print(f"- execution mode: {args.execution_mode}")
+        print(f"- from version: {payload['from_version']}")
+        print("- needs:")
+        for item in payload["needs"]:
+            print(f"  - {item}")
+        print("- acceptance:")
+        for item in payload["acceptance"]:
+            print(f"  - {item}")
+        if args.execution_mode == "suggestion-only":
+            print("- suggestion only: no file written")
+        elif args.dry_run:
+            print("- dry run: file not written")
+        else:
+            print(f"- written: {'yes' if payload['written'] else 'no'}")
+    return payload
+
+
+def cmd_closure_summary(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "closure-summary",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_closure_summary(repo_root, args.ref),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Closure summary: {payload['summary']}")
+        print(f"- ref: {payload['ref'] or '<none>'}")
+        print(f"- doc path: {payload['doc_path'] or '<none>'}")
+        print(f"- status: {payload['status'] or '<none>'}")
+        for item in payload["delivered"]:
+            print(f"- delivered: {item}")
+        for item in payload["validations"]:
+            print(f"- validation: {item}")
+        for item in payload["remaining_risks"]:
+            print(f"- risk: {item}")
     return payload
 
 

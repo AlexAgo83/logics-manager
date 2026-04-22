@@ -48,7 +48,16 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["assist", "runtime-status"], None, None),
         (["assist", "diff-risk"], None, None),
         (["assist", "commit-plan"], None, None),
+        (["assist", "changed-surface-summary"], None, None),
+        (["assist", "doc-consistency"], None, None),
+        (["assist", "review-checklist"], None, None),
+        (["assist", "validation-checklist"], None, None),
+        (["assist", "validation-summary"], None, None),
+        (["assist", "test-impact-summary"], None, None),
         (["assist", "roi-report"], None, None),
+        (["assist", "next-step"], None, None),
+        (["assist", "request-draft", "--intent", "Draft a request for runtime bundling"], None, None),
+        (["assist", "closure-summary"], None, None),
         (["assist", "context", "request-draft"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
@@ -82,7 +91,16 @@ def test_main_dispatches_to_expected_underlying_script(
         ["assist", "runtime-status"],
         ["assist", "diff-risk"],
         ["assist", "commit-plan"],
+        ["assist", "changed-surface-summary"],
+        ["assist", "doc-consistency"],
+        ["assist", "review-checklist"],
+        ["assist", "validation-checklist"],
+        ["assist", "validation-summary"],
+        ["assist", "test-impact-summary"],
         ["assist", "roi-report"],
+        ["assist", "next-step"],
+        ["assist", "request-draft"],
+        ["assist", "closure-summary"],
         ["assist", "context"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
@@ -92,6 +110,27 @@ def test_main_dispatches_to_expected_underlying_script(
         monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
     if argv[:2] == ["assist", "commit-plan"]:
         monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
+    if argv[:2] == ["assist", "changed-surface-summary"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
+    if argv[:2] == ["assist", "doc-consistency"]:
+        monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": True, "issue_count": 0, "issues": [], "workflow_doc_count": 1, "missing_schema_version_count": 0})
+        monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": True, "issue_count": 0, "warning_count": 0, "issues": [], "warnings": []})
+    if argv[:2] == ["assist", "review-checklist"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+        monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": True, "issue_count": 0, "issues": [], "workflow_doc_count": 1, "missing_schema_version_count": 0})
+        monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": True, "issue_count": 0, "warning_count": 0, "issues": [], "warnings": []})
+    if argv[:2] == ["assist", "validation-checklist"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+    if argv[:2] == ["assist", "validation-summary"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+        monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": True, "issue_count": 0, "issues": [], "workflow_doc_count": 1, "missing_schema_version_count": 0})
+        monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": True, "issue_count": 0, "warning_count": 0, "issues": [], "warnings": []})
+    if argv[:2] == ["assist", "test-impact-summary"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["logics_manager/assist.py"])
+    if argv[:2] == ["assist", "next-step"]:
+        monkeypatch.setattr("logics_manager.assist._resolve_workflow_doc", lambda _repo_root, ref: None)
+    if argv[:2] == ["assist", "closure-summary"]:
+        monkeypatch.setattr("logics_manager.assist._resolve_workflow_doc", lambda _repo_root, ref: None)
 
     exit_code = main(argv)
 
@@ -759,6 +798,244 @@ def test_main_runs_native_assist_commit_plan(
     assert exit_code == 0
     assert "Commit plan: feat: extend native logics-manager runtime" in captured.out
     assert "- scope: python-runtime" in captured.out
+
+
+def test_main_runs_native_assist_changed_surface_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "app.ts").write_text("console.log('demo')\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts", "logics_manager/assist.py"])
+
+    exit_code = main(["assist", "changed-surface-summary"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Changed surface:" in captured.out
+    assert "- changed paths: 2" in captured.out
+
+
+def test_main_runs_native_assist_doc_consistency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": False, "issue_count": 1, "issues": [{"code": "missing_directory", "path": "logics/request", "message": "Missing required directory `logics/request`.", "remediation": "Create `logics/request`."}], "workflow_doc_count": 0, "missing_schema_version_count": 0})
+    monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": False, "issue_count": 1, "warning_count": 0, "issues": [{"path": "logics/request/req_001.md", "message": "missing status"}], "warnings": []})
+
+    exit_code = main(["assist", "doc-consistency"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Doc consistency: ISSUES-FOUND" in captured.out
+    assert "- doctor issues: 1" in captured.out
+    assert "- lint issues: 1" in captured.out
+
+
+def test_main_runs_native_assist_review_checklist(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+    monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": True, "issue_count": 0, "issues": [], "workflow_doc_count": 1, "missing_schema_version_count": 0})
+    monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": True, "issue_count": 0, "warning_count": 0, "issues": [], "warnings": []})
+
+    exit_code = main(["assist", "review-checklist"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Review checklist:" in captured.out
+    assert "- doc consistency: clean" in captured.out
+
+
+def test_main_runs_native_assist_validation_checklist(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "app.ts").write_text("console.log('demo')\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+
+    exit_code = main(["assist", "validation-checklist"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Validation checklist:" in captured.out
+    assert "- profile: deterministic" in captured.out
+
+
+def test_main_runs_native_assist_validation_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+    monkeypatch.setattr("logics_manager.assist.doctor_payload", lambda _repo_root: {"ok": True, "issue_count": 0, "issues": [], "workflow_doc_count": 1, "missing_schema_version_count": 0})
+    monkeypatch.setattr("logics_manager.assist.lint_payload", lambda _repo_root, require_status=False: {"ok": True, "issue_count": 0, "warning_count": 0, "issues": [], "warnings": []})
+
+    exit_code = main(["assist", "validation-summary"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Validation summary:" in captured.out
+    assert "- overall: ok" in captured.out
+    assert "- test commands: 1" in captured.out
+
+
+def test_main_runs_native_assist_test_impact_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "logics_manager").mkdir()
+    (repo_root / "logics_manager" / "assist.py").write_text("# demo\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["logics_manager/assist.py"])
+
+    exit_code = main(["assist", "test-impact-summary"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Test impact summary:" in captured.out
+    assert "- python3 -m pytest python_tests/test_logics_manager_cli.py -q" in captured.out
+
+
+def test_main_runs_native_assist_next_step(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._resolve_workflow_doc", lambda _repo_root, ref: repo_root / "logics" / "request" / "req_001_demo.md")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join([
+            "## req_001_demo - Demo Request",
+            "> Status: Ready",
+            "> Schema version: 1.0",
+        ]) + "\n",
+        encoding="utf-8",
+    )
+
+    exit_code = main(["assist", "next-step", "req_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Next step: promote request to backlog" in captured.out
+    assert "- ref: req_001_demo" in captured.out
+
+
+def test_main_runs_native_assist_request_draft(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "package.json").write_text('{"version":"1.2.3"}\n', encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "request").mkdir(parents=True)
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "request-draft", "--intent", "Draft a request for runtime bundling"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Request draft:" in captured.out
+    assert "- suggestion only: no file written" in captured.out
+    assert "runtime bundling" in captured.out.lower()
+
+
+def test_main_runs_native_assist_request_draft_execute(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "package.json").write_text('{"version":"1.2.3"}\n', encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "request").mkdir(parents=True)
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "request-draft", "--intent", "Draft a request for runtime bundling", "--execution-mode", "execute"])
+
+    assert exit_code == 0
+    created = next((repo_root / "logics" / "request").glob("req_*.md"))
+    assert created.is_file()
+    text = created.read_text(encoding="utf-8")
+    assert "> Status: Draft" in text
+    assert "runtime bundling" in text.lower()
+
+
+def test_main_runs_native_assist_closure_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join([
+            "## req_001_demo - Demo Request",
+            "> Status: Done",
+            "> Schema version: 1.0",
+            "# Links",
+            "- item_001_demo_item",
+        ]) + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "closure-summary", "req_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Closure summary:" in captured.out
+    assert "- status: Done" in captured.out
 
 
 def test_main_runs_native_assist_roi_report(

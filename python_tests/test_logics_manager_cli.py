@@ -43,6 +43,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["sync", "close-eligible-requests"], None, None),
         (["sync", "refresh-mermaid-signatures"], None, None),
         (["sync", "schema-status"], None, None),
+        (["sync", "context-pack", "req_001_demo"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -70,6 +71,7 @@ def test_main_dispatches_to_expected_underlying_script(
         ["sync", "close-eligible-requests"],
         ["sync", "refresh-mermaid-signatures"],
         ["sync", "schema-status"],
+        ["sync", "context-pack"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
@@ -606,3 +608,33 @@ def test_main_runs_native_sync_schema_status(
     assert exit_code == 0
     assert "Schema status: 1 workflow doc(s) scanned." in captured.out
     assert "- 1.0: 1" in captured.out
+
+
+def test_main_runs_native_sync_context_pack(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.sync._build_context_pack",
+        lambda _repo_root, ref, mode, profile, config=None: {
+            "ref": ref,
+            "mode": mode,
+            "profile": profile,
+            "estimates": {"doc_count": 1, "char_count": 10},
+            "docs": [{"ref": ref}],
+            "changed_paths": [],
+            "budgets": {"max_docs": 1},
+        },
+    )
+
+    exit_code = main(["sync", "context-pack", "req_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Context pack: req_001_demo (summary-only, normal)" in captured.out
+    assert "- docs: 1" in captured.out

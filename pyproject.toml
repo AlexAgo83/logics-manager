@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "logics-manager"
+version = "0.0.0"
+description = "Canonical Logics CLI"
+requires-python = ">=3.10"
+
+[project.scripts]
+logics-manager = "logics_manager.cli:main"
+
+[tool.setuptools]
+packages = ["logics_manager"]

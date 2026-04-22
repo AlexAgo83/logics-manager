@@ -40,6 +40,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["flow", "new", "request", "--title", "Demo"], None, None),
         (["flow", "close", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
         (["flow", "finish", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
+        (["sync", "close-eligible-requests"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -60,8 +61,9 @@ def test_main_dispatches_to_expected_underlying_script(
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.setattr(subprocess, "run", fake_run)
-    if argv[:2] in (["flow", "new"], ["flow", "close"], ["flow", "finish"]):
+    if argv[:2] in (["flow", "new"], ["flow", "close"], ["flow", "finish"], ["sync", "close-eligible-requests"]):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
+        monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
 
     exit_code = main(argv)
 
@@ -496,4 +498,52 @@ def test_main_runs_native_flow_finish_task(
     assert "Finish verification: OK" in captured.out
     assert "> Status: Done" in task_path.read_text(encoding="utf-8")
     assert "> Status: Done" in (repo_root / "logics" / "backlog" / "item_001_demo_item.md").read_text(encoding="utf-8")
+    assert "> Status: Done" in (repo_root / "logics" / "request" / "req_001_demo.md").read_text(encoding="utf-8")
+
+
+def test_main_runs_native_sync_close_eligible_requests(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Backlog",
+                "- `item_001_demo_item`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / "item_001_demo_item.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo_item - Demo Backlog",
+                "> Status: Done",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Request",
+                "- `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "close-eligible-requests"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Scanned 1 request(s); closed 1." in captured.out
     assert "> Status: Done" in (repo_root / "logics" / "request" / "req_001_demo.md").read_text(encoding="utf-8")

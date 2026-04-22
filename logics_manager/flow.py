@@ -162,9 +162,9 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     if fixture_mode and doc_kind.kind == "request":
         reference_items.extend(
             [
-                "logics/skills/logics-flow-manager/scripts/logics_flow.py",
-                "logics/skills/logics-flow-manager/scripts/workflow_audit.py",
-                "logics/skills/tests/run_cli_smoke_checks.py",
+                "logics_manager/flow.py",
+                "logics_manager/assist.py",
+                "python_tests/test_logics_manager_cli.py",
             ]
         )
     values["REFERENCES_SECTION"] = _render_references_section(reference_items)

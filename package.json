@@ -19,6 +19,14 @@
   "bin": {
     "logics-manager": "./scripts/npm/logics-manager.mjs"
   },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+    "scripts/logics-manager.py",
+    "scripts/npm/",
+    "logics_manager/"
+  ],
   "contributes": {
     "viewsContainers": {
       "panel": [

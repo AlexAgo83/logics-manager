@@ -108,7 +108,7 @@ export function inspectPublicationLifecycle<TManifest extends CommonManifest<TEn
     return {
       kind: "missing-manager",
       context,
-      issues: ["No repo-local Logics skills were found under logics/skills."],
+      issues: ["No bundled runtime content was found in the repository."],
       warnings: [],
       publishedSkillNames: [],
       needsPublish: false
@@ -191,7 +191,7 @@ export function runPublicationLifecycle<TManifest extends CommonManifest<TEntry>
 }): TResult {
   const context = buildRepoKitSource(options.root);
   if (context.repoSkillNames.length === 0) {
-    throw new Error("No repo-local Logics skills found under logics/skills.");
+    throw new Error("No bundled runtime content found in the repository.");
   }
 
   options.prepareDestinations();

@@ -44,6 +44,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["sync", "refresh-mermaid-signatures"], None, None),
         (["sync", "schema-status"], None, None),
         (["sync", "context-pack", "req_001_demo"], None, None),
+        (["sync", "export-graph"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -72,6 +73,7 @@ def test_main_dispatches_to_expected_underlying_script(
         ["sync", "refresh-mermaid-signatures"],
         ["sync", "schema-status"],
         ["sync", "context-pack"],
+        ["sync", "export-graph"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
@@ -638,3 +640,24 @@ def test_main_runs_native_sync_context_pack(
     assert exit_code == 0
     assert "Context pack: req_001_demo (summary-only, normal)" in captured.out
     assert "- docs: 1" in captured.out
+
+
+def test_main_runs_native_sync_export_graph(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.sync._graph_payload",
+        lambda _repo_root, config=None: {"nodes": [{"ref": "req_001_demo"}], "edges": [{"from": "req_001_demo", "to": "item_001_demo"}]},
+    )
+
+    exit_code = main(["sync", "export-graph"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Graph: 1 node(s), 1 edge(s)." in captured.out

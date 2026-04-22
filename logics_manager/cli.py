@@ -86,7 +86,7 @@ def main(argv: list[str]) -> int:
 
         return flow_main(rest)
     if args.command == "sync":
-        if rest[:1] not in (["close-eligible-requests"], ["refresh-mermaid-signatures"], ["schema-status"], ["context-pack"]):
+        if rest[:1] not in (["close-eligible-requests"], ["refresh-mermaid-signatures"], ["schema-status"], ["context-pack"], ["export-graph"]):
             raise SystemExit("Unsupported sync subcommand for the native CLI slice.")
         from .sync import main as sync_main
 

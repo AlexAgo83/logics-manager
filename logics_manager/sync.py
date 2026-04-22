@@ -5,7 +5,7 @@ import json
 import re
 from pathlib import Path
 
-from logics_flow_core import _build_context_pack  # noqa: E402
+from logics_flow_core import _build_context_pack, _graph_payload  # noqa: E402
 from logics_flow_support_workflow_core import DOC_KINDS, _find_repo_root, refresh_workflow_mermaid_signature_file  # noqa: E402
 from logics_flow_support_workflow_extra import _close_doc, _collect_docs_linking_ref, _is_doc_done  # noqa: E402
 
@@ -52,6 +52,15 @@ def build_parser() -> argparse.ArgumentParser:
     context_pack.add_argument("--format", choices=("text", "json"), default="text")
     context_pack.add_argument("--dry-run", action="store_true")
     context_pack.set_defaults(func=cmd_context_pack)
+
+    export_graph = sub.add_parser(
+        "export-graph",
+        help="Export workflow relationships as a machine-readable graph.",
+    )
+    export_graph.add_argument("--out", help="Write the JSON graph to this relative path.")
+    export_graph.add_argument("--format", choices=("text", "json"), default="text")
+    export_graph.add_argument("--dry-run", action="store_true")
+    export_graph.set_defaults(func=cmd_export_graph)
 
     return parser
 
@@ -200,6 +209,26 @@ def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
             print(f"Context pack: {payload['ref']} ({payload['mode']}, {payload['profile']})")
             print(f"- docs: {payload['estimates']['doc_count']}")
     return {"command": "sync", "kind": "context-pack", "repo_root": repo_root.as_posix(), **payload}
+
+
+def cmd_export_graph(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = _graph_payload(repo_root, config=None)
+    payload["repo_root"] = repo_root.as_posix()
+    if args.out:
+        out_path = (repo_root / args.out).resolve()
+        serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if not args.dry_run:
+            out_path.write_text(serialized, encoding="utf-8")
+        print(f"Wrote {out_path.relative_to(repo_root)}")
+        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+    else:
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Graph: {len(payload['nodes'])} node(s), {len(payload['edges'])} edge(s).")
+    return {"command": "sync", "kind": "export-graph", "repo_root": repo_root.as_posix(), **payload}
 
 
 def main(argv: list[str]) -> int:

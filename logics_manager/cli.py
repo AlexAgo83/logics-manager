@@ -93,7 +93,7 @@ def main(argv: list[str]) -> int:
 
         return sync_main(rest)
     if args.command == "assist":
-        if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["request-draft"], ["spec-first-pass"], ["closure-summary"], ["context"]):
+        if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["request-draft"], ["spec-first-pass"], ["backlog-groom"], ["closure-summary"], ["context"]):
             raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
         return assist_main(rest)
     if args.command == "audit":

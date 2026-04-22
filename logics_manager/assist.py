@@ -220,6 +220,49 @@ def _next_spec_ref(repo_root: Path, title: str) -> str:
     return f"spec_{highest + 1:03d}_{_slugify(title)}"
 
 
+def _next_backlog_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "backlog"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("item_*.md"):
+            match = re.match(r"^item_(\d{3})_", path.stem)
+            if match:
+                highest = max(highest, int(match.group(1)))
+    return f"item_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _split_backlog_problem(lines: list[str]) -> list[str]:
+    return _bullet_values(_section_lines(lines, "Problem"))
+
+
+def _split_request_acceptance(lines: list[str]) -> list[str]:
+    return _bullet_values(_section_lines(lines, "Acceptance criteria"))
+
+
+def _append_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start_idx = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
+            start_idx = idx + 1
+            break
+    if start_idx is None:
+        lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
+    else:
+        insert_at = start_idx
+        while insert_at < len(lines) and lines[insert_at].strip().startswith("- "):
+            insert_at += 1
+        existing = {line.strip() for line in lines[start_idx:insert_at] if line.strip().startswith("- ")}
+        for bullet in bullets:
+            rendered = f"- {bullet}"
+            if rendered not in existing:
+                lines.insert(insert_at, rendered)
+                insert_at += 1
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
 def _build_spec_first_pass(repo_root: Path, backlog_ref: str) -> dict[str, object]:
     backlog_path = _resolve_workflow_doc(repo_root, backlog_ref)
     if backlog_path is None:
@@ -311,6 +354,108 @@ def _build_spec_first_pass(repo_root: Path, backlog_ref: str) -> dict[str, objec
         "goals": goals,
         "acceptance": acs,
         "validation": validation,
+    }
+
+
+def _build_backlog_groom(repo_root: Path, request_ref: str) -> dict[str, object]:
+    request_path = _resolve_workflow_doc(repo_root, request_ref)
+    if request_path is None:
+        raise SystemExit(f"Unknown request ref `{request_ref}`.")
+    if request_path.parent.name != "request":
+        raise SystemExit(f"`backlog-groom` requires a request ref. Got `{request_ref}`.")
+
+    lines = request_path.read_text(encoding="utf-8").splitlines()
+    title = _extract_title_from_doc(request_path)
+    backlog_title = title
+    ref = _next_backlog_ref(repo_root, backlog_title)
+    problem = _split_backlog_problem(lines)
+    acceptance = _split_request_acceptance(lines)
+    complexity = "High" if len(acceptance) >= 4 or "runtime" in title.lower() or "plugin" in title.lower() else "Medium"
+    theme = "Operator workflow and runtime integration"
+    scope_in = [
+        "one coherent delivery slice from the source request",
+    ]
+    scope_out = [
+        "unrelated sibling slices that should stay in separate backlog items instead of widening this doc",
+    ]
+    decision_product = "Not needed"
+    decision_architecture = "Not needed"
+    product_brief = "logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md"
+    content = "\n".join(
+        [
+            f"## {ref} - {backlog_title}",
+            f"> From version: {_parse_package_version(repo_root)}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            f"> Complexity: {complexity}",
+            f"> Theme: {theme}",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.",
+            "",
+            "# Problem",
+            *(problem or [f"Deliver the bounded slice for {backlog_title} without widening scope."]),
+            "",
+            "# Scope",
+            "- In:",
+            *[f"  - {item}" for item in scope_in],
+            "- Out:",
+            *[f"  - {item}" for item in scope_out],
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance or [
+                "AC1: The backlog slice stays bounded and reviewable.",
+                "AC2: The backlog slice preserves the request's core acceptance criteria.",
+            ]],
+            "",
+            "# AC Traceability",
+            *(f"- request-AC{idx + 1} -> This backlog slice. Proof: {item}" for idx, item in enumerate(acceptance or ["The request remains bounded and reviewable."])),
+            "",
+            "# Decision framing",
+            f"- Product framing: {decision_product}",
+            "- Product signals: (none detected)",
+            "- Product follow-up: No product brief follow-up is expected based on current signals.",
+            f"- Architecture framing: {decision_architecture}",
+            "- Architecture signals: (none detected)",
+            "- Architecture follow-up: No architecture decision follow-up is expected based on current signals.",
+            "",
+            "# Links",
+            f"- Product brief(s): `{product_brief}`",
+            "- Architecture decision(s): (none yet)",
+            f"- Request: `logics/request/{request_ref}.md`",
+            "- Primary task(s): (none yet)",
+            "",
+            "# AI Context",
+            f"- Summary: {backlog_title}",
+            f"- Keywords: backlog-groom, request, {backlog_title.lower()}, bounded slice",
+            f"- Use when: Use when implementing or reviewing the delivery slice for {backlog_title}.",
+            "- Skip when: Skip when the change is unrelated to this delivery slice or its linked request.",
+            "",
+            "# Priority",
+            "- Impact:",
+            "- Urgency:",
+            "",
+            "# Notes",
+            f"- Hybrid rationale: Derived from request `{request_ref}` and kept bounded to one coherent delivery slice.",
+            f"- Source file: `logics/request/{request_ref}.md`.",
+            "- Generated locally by logics-manager.",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return {
+        "ref": ref,
+        "title": backlog_title,
+        "path": f"logics/backlog/{ref}.md",
+        "request_ref": request_ref,
+        "request_path": request_path.relative_to(repo_root).as_posix(),
+        "content": content,
+        "problem": problem,
+        "acceptance": acceptance or [
+            "AC1: The backlog slice stays bounded and reviewable.",
+            "AC2: The backlog slice preserves the request's core acceptance criteria.",
+        ],
+        "complexity": complexity,
     }
 
 
@@ -1145,6 +1290,13 @@ def build_parser() -> argparse.ArgumentParser:
     spec_first_pass.add_argument("--dry-run", action="store_true")
     spec_first_pass.set_defaults(func=cmd_spec_first_pass)
 
+    backlog_groom = sub.add_parser("backlog-groom", help="Draft a bounded backlog proposal from a request doc.")
+    backlog_groom.add_argument("ref", help="Request ref for the backlog source.")
+    backlog_groom.add_argument("--format", choices=("text", "json"), default="text")
+    backlog_groom.add_argument("--execution-mode", choices=("suggestion-only", "execute"), default="suggestion-only")
+    backlog_groom.add_argument("--dry-run", action="store_true")
+    backlog_groom.set_defaults(func=cmd_backlog_groom)
+
     closure_summary = sub.add_parser("closure-summary", help="Summarize a delivered request, backlog item, or task.")
     closure_summary.add_argument("ref", nargs="?", help="Optional workflow ref for a delivered doc.")
     closure_summary.add_argument("--format", choices=("text", "json"), default="text")
@@ -1737,6 +1889,51 @@ def cmd_spec_first_pass(args: argparse.Namespace) -> dict[str, object]:
         print("- goals:")
         for item in payload["goals"]:
             print(f"  - {item}")
+        print("- acceptance:")
+        for item in payload["acceptance"]:
+            print(f"  - {item}")
+        if args.execution_mode == "suggestion-only":
+            print("- suggestion only: no file written")
+        elif args.dry_run:
+            print("- dry run: file not written")
+        else:
+            print(f"- written: {'yes' if payload['written'] else 'no'}")
+    return payload
+
+
+def cmd_backlog_groom(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "backlog-groom",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        "execution_mode": args.execution_mode,
+        "source_ref": args.ref,
+        **_build_backlog_groom(repo_root, args.ref),
+    }
+    if args.execution_mode == "execute":
+        out_path = repo_root / payload["path"]
+        if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(payload["content"], encoding="utf-8")
+            payload["written"] = True
+            request_path = repo_root / payload["request_path"]
+            _append_section_bullets(request_path, "Backlog", [f"`{payload['ref']}`"], dry_run=False)
+        else:
+            payload["written"] = False
+        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+    else:
+        payload["written"] = False
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Backlog groom: {payload['title']}")
+        print(f"- source ref: {payload['source_ref']}")
+        print(f"- path: {payload['path']}")
+        print(f"- execution mode: {args.execution_mode}")
+        print(f"- complexity: {payload['complexity']}")
         print("- acceptance:")
         for item in payload["acceptance"]:
             print(f"  - {item}")

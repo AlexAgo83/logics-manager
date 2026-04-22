@@ -32,20 +32,7 @@ npm run package
 npm run install:vsix
 ```
 
-This extension can still interoperate with the historical Logics runtime repository for compatibility:
-
-- Runtime repo: `https://github.com/AlexAgo83/cdx-logics-kit`
-- Runtime releases: `https://github.com/AlexAgo83/cdx-logics-kit/releases`
-- Runtime README and install guide: `https://github.com/AlexAgo83/cdx-logics-kit/blob/main/README.md`
-
-Legacy compatibility setup keeps the runtime source as a submodule at `logics/skills`:
-
-```bash
-git submodule add -b main https://github.com/AlexAgo83/cdx-logics-kit.git logics/skills
-git submodule update --init --recursive
-```
-
-If you already use the extension but want to inspect the workflow scripts, templates, release notes, or track runtime updates independently from the plugin, start from that repository.
+The bundled runtime is the normal path. Historical `cdx-logics-kit` compatibility is retained only for older repositories that still need transitional repair, not for normal setup.
 
 ## Features
 
@@ -131,9 +118,9 @@ Use these as quick starting points when you want the plugin or the shared Logics
 
 - To use the extension:
   - A workspace folder open in VS Code.
-  - Git on PATH for bootstrap and update compatibility flows.
+  - Git on PATH for workspace and repository repair flows.
   - `logics/` is bootstrapped automatically when needed.
-  - `logics/skills/` is legacy compatibility only; the normal path uses the bundled runtime and `logics-manager`.
+  - The normal path uses the bundled runtime and `logics-manager`.
   - Python 3 on PATH for script-backed workflow actions. The extension accepts `python3`, `python`, `py -3`, or `py`.
 - To build, package, or test the extension locally:
   - Node.js + npm.
@@ -147,8 +134,6 @@ Windows notes:
 
 ## Flow Manager Compatibility
 
-- Supported Logics runtime range: `v1.0.4+` through the tested `v1.13.x` line.
-- Canonical Logics runtime repo: `https://github.com/AlexAgo83/cdx-logics-kit`
 - Canonical CLI: `logics-manager`
 - If the bundled runtime is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
 
@@ -263,8 +248,8 @@ Contract:
 - `Companion Doc` creates a linked product brief or ADR from the current workflow context when the runtime supports it.
 - `New Request` opens a guided request-drafting flow using the request-authoring agent.
 - `Bootstrap Logics` installs the Logics runtime into a project that is not initialized yet.
-- `Update Logics Runtime` runs the supported compatibility update flow when a historical `logics/skills` runtime source is still present and Git state is safe for automation.
-- `Publish Global Codex Runtime` publishes or repairs the shared global Logics runtime in `~/.codex` from the current canonical repo-local source when needed.
+- `Update Logics Runtime` runs the bundled-runtime repair/update flow when Git state is safe for automation.
+- `Publish Global Codex Runtime` publishes or repairs the shared global Logics runtime in `~/.codex` from the current bundled source when needed.
 - `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex runtime health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
 - `Environment` can also surface direct remediation actions when the plugin detects a stale runtime, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
 - `Environment` now uses a clearer hierarchy with summary, recommended actions, current status, and technical details, plus hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
@@ -315,7 +300,7 @@ These flows are designed to reduce token waste without hiding the underlying Log
 ## Global Codex Runtime Publication
 
 The primary Codex runtime model is now a globally published Logics runtime under `~/.codex`.
-Repositories may still keep `logics/skills/` for legacy compatibility, but the plugin auto-publishes or upgrades the runtime into the shared Codex home when it detects a compatible source.
+The plugin auto-publishes or upgrades the runtime into the shared Codex home when it detects a compatible bundled source.
 
 Examples:
 
@@ -326,15 +311,14 @@ cat ~/.codex/logics-global-kit.json
 
 Runtime contract:
 
-- `logics/skills/` is only needed for legacy compatibility and transitional troubleshooting.
+- Bundled runtime paths are the default.
 - the active shared runtime is published into the main Codex home under `~/.codex/skills`.
-- the publication manifest `~/.codex/logics-global-kit.json` records installed version, source repo, source revision, publish time, and published skills.
+- the publication manifest `~/.codex/logics-global-kit.json` records installed version, source repo, source revision, publish time, and published runtime state.
 - the plugin can auto-upgrade the shared runtime when a newer compatible repo-local source is detected.
 - repo-owned workflow documents under `logics/request`, `logics/backlog`, `logics/tasks`, product briefs, and ADRs stay inside the repository and are never globalized.
 
 Plugin remediation path:
 
-- if the runtime source is too old to act as a publication source and a historical `logics/skills` source is still present, the plugin can run the supported compatibility update flow directly.
 - if the global runtime is missing or stale, opening a compatible repository can auto-publish it without a separate migration action in the normal path.
 - if publication is unavailable or broken, the plugin exposes direct diagnostics and repair actions through `Check Environment`.
 - when the global runtime is healthy, the plugin can launch Codex directly and still keeps a clipboard fallback for prompt handoff flows.
@@ -379,7 +363,7 @@ Suggested VM checklist:
 
 1. Install VS Code, Git, Python 3, and Node.js inside the VM.
 2. Confirm launchers from the Windows shell you actually care about (`git --version`, `py -3 --version` or `python --version`, `node --version`, `npm --version`).
-3. Clone the repo, initialize submodules, and run `npm ci`.
+3. Clone the repo and run `npm ci`.
 4. Run the automated baseline first: `npm run ci:check` and `python -m logics_manager lint`.
 5. Smoke the real Windows-only paths:
    - install the `.vsix` from VS Code or with `code --install-extension ...`

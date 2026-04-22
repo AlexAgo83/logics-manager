@@ -28,14 +28,14 @@ Use the following indicators in request/backlog/task items:
 
 ## Automation
 
-This repository uses a reusable Logics skills kit (usually imported as a submodule under `logics/skills/`).
-Canonical examples use `python ...`; if your environment only exposes `python3` or `py -3`, use that equivalent launcher instead.
+This repository uses the canonical `logics-manager` CLI for workflow operations.
+Canonical examples use `python3 -m logics_manager ...`; if your environment exposes the installed `logics-manager` binary, you can use that instead.
 
-- Create/promote request/backlog/task docs: `python logics/skills/logics.py flow ...`
-- Finish completed tasks through the workflow manager, not by editing indicators manually: `python logics/skills/logics.py flow finish task <task.md>`
-- Audit workflow closure consistency: `python logics/skills/logics.py audit`
-- Lint Logics docs: `python logics/skills/logics.py lint --require-status`
-- Bootstrap folders (this script): `python logics/skills/logics.py bootstrap`
+- Create/promote request/backlog/task docs: `python3 -m logics_manager flow ...`
+- Finish completed tasks through the workflow manager, not by editing indicators manually: `python3 -m logics_manager flow finish task <task.md>`
+- Audit workflow closure consistency: `python3 -m logics_manager audit`
+- Lint Logics docs: `python3 -m logics_manager lint --require-status`
+- Bootstrap folders or repair missing workflow scaffolding: `python3 -m logics_manager bootstrap`
 
 When a task is completed, run `finish task` first so backlog/request parents are synchronized automatically, then run broader audit/lint commands when needed.
 

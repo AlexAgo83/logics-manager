@@ -4,6 +4,7 @@ import argparse
 import io
 import json
 import sys
+from datetime import date
 from pathlib import Path
 from contextlib import redirect_stdout
 
@@ -16,11 +17,15 @@ from logics_flow_runtime_support import _resolved_from_version, _seed_new_doc_va
 from logics_flow_support_workflow_core import (  # noqa: E402
     DOC_KINDS,
     STATUS_BY_KIND_DEFAULT,
+    _append_section_bullets,
     _copy_indicator_defaults,
     _find_repo_root,
     _generate_workflow_mermaid,
+    _extract_refs,
     _plan_doc,
     _render_template,
+    _mark_section_checkboxes_done,
+    _resolve_doc_path,
     _strip_mermaid_blocks,
     _template_path,
     refresh_workflow_mermaid_signature_text,
@@ -29,8 +34,11 @@ from logics_flow_support_workflow_extra import (  # noqa: E402
     _auto_create_companion_docs,
     _build_template_values,
     _collect_reference_items,
+    _collect_docs_linking_ref,
     _create_backlog_from_request,
     _create_task_from_backlog,
+    _close_doc,
+    _is_doc_done,
     _parse_title_from_source,
     _render_references_section,
     refresh_ai_context_text,
@@ -109,6 +117,23 @@ def build_parser() -> argparse.ArgumentParser:
     split_backlog.add_argument("--title", action="append", nargs="+", required=True)
     _add_common_doc_args(split_backlog, "task")
     split_backlog.set_defaults(func=cmd_split_backlog)
+
+    close_parser = sub.add_parser("close", help="Close a request, backlog item, or task and propagate transitions.")
+    close_sub = close_parser.add_subparsers(dest="kind", required=True)
+    for kind in ("request", "backlog", "task"):
+        kind_parser = close_sub.add_parser(kind, help=f"Close a {kind} doc.")
+        kind_parser.add_argument("source")
+        kind_parser.add_argument("--format", choices=("text", "json"), default="text")
+        kind_parser.add_argument("--dry-run", action="store_true")
+        kind_parser.set_defaults(func=cmd_close)
+
+    finish_parser = sub.add_parser("finish", help="Finish a task and verify the closure chain.")
+    finish_sub = finish_parser.add_subparsers(dest="kind", required=True)
+    finish_task = finish_sub.add_parser("task", help="Finish a task.")
+    finish_task.add_argument("source")
+    finish_task.add_argument("--format", choices=("text", "json"), default="text")
+    finish_task.add_argument("--dry-run", action="store_true")
+    finish_task.set_defaults(func=cmd_finish_task)
 
     return parser
 
@@ -300,10 +325,198 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def cmd_close(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    kind = DOC_KINDS[args.kind]
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    if not source_path.stem.startswith(f"{kind.prefix}_"):
+        raise SystemExit(f"Expected a `{kind.prefix}_...` file for kind `{kind.kind}`. Got: {source_path.name}")
+
+    _close_doc(source_path, kind, args.dry_run)
+    print(f"Closed {kind.kind}: {source_path.relative_to(repo_root)}")
+
+    text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
+    processed_request_refs: set[str] = set()
+
+    if kind.kind == "task":
+        linked_item_refs = sorted(_extract_refs(text, "item"))
+        for item_ref in linked_item_refs:
+            item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+            if item_path is None:
+                continue
+            linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
+            if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
+                if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+                    _close_doc(item_path, DOC_KINDS["backlog"], args.dry_run)
+                    print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
+
+            item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+            for request_ref in sorted(_extract_refs(item_text, "req")):
+                if request_ref in processed_request_refs:
+                    continue
+                processed_request_refs.add(request_ref)
+                _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
+
+    if kind.kind == "backlog":
+        for request_ref in sorted(_extract_refs(text, "req")):
+            if request_ref in processed_request_refs:
+                continue
+            processed_request_refs.add(request_ref)
+            _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
+
+    if kind.kind == "request":
+        _maybe_close_request_chain(repo_root, source_path.stem, args.dry_run)
+
+    payload = {
+        "command": "close",
+        "kind": kind.kind,
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    return payload
+
+
+def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
+    issues: list[str] = []
+    task_ref = task_path.stem
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    item_refs = sorted(_extract_refs(task_text, "item"))
+
+    if not item_refs:
+        return [f"task `{task_ref}` has no linked backlog item reference"]
+
+    processed_request_refs: set[str] = set()
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            issues.append(f"task `{task_ref}` references missing backlog item `{item_ref}`")
+            continue
+        if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+            issues.append(f"linked backlog item `{item_ref}` is not closed after finishing task `{task_ref}`")
+
+        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+        request_refs = sorted(_extract_refs(item_text, "req"))
+        if not request_refs:
+            issues.append(f"linked backlog item `{item_ref}` has no request reference")
+            continue
+
+        for request_ref in request_refs:
+            if request_ref in processed_request_refs:
+                continue
+            processed_request_refs.add(request_ref)
+            request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
+            if request_path is None:
+                issues.append(f"backlog item `{item_ref}` references missing request `{request_ref}`")
+                continue
+
+            linked_items = _collect_docs_linking_ref(repo_root, DOC_KINDS["backlog"], request_ref)
+            if linked_items and all(_is_doc_done(linked_item, DOC_KINDS["backlog"]) for linked_item in linked_items):
+                if not _is_doc_done(request_path, DOC_KINDS["request"]):
+                    issues.append(f"request `{request_ref}` should be closed because all linked backlog items are done")
+
+    return issues
+
+
+def _record_finished_task_follow_up(repo_root: Path, task_path: Path, dry_run: bool) -> None:
+    task_ref = task_path.stem
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    item_refs = sorted(_extract_refs(task_text, "item"))
+    request_refs: set[str] = set()
+
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            continue
+        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+        request_refs.update(_extract_refs(item_text, "req"))
+        _append_section_bullets(
+            item_path,
+            "Notes",
+            [f"- Task `{task_ref}` was finished via `logics-manager flow finish task` on {date.today().isoformat()}."],
+            dry_run,
+        )
+
+    validation_bullets = [
+        f"- Finish workflow executed on {date.today().isoformat()}.",
+        "- Linked backlog/request close verification passed.",
+    ]
+    report_bullets = [
+        f"- Finished on {date.today().isoformat()}.",
+        f"- Linked backlog item(s): {', '.join(f'`{ref}`' for ref in item_refs) if item_refs else '(none)'}",
+        f"- Related request(s): {', '.join(f'`{ref}`' for ref in sorted(request_refs)) if request_refs else '(none)'}",
+    ]
+    _append_section_bullets(task_path, "Validation", validation_bullets, dry_run)
+    _append_section_bullets(task_path, "Report", report_bullets, dry_run)
+
+
+def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool) -> None:
+    request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
+    if request_path is None:
+        return
+
+    linked_items = _collect_docs_linking_ref(repo_root, DOC_KINDS["backlog"], request_ref)
+    if not linked_items:
+        return
+
+    if all(_is_doc_done(item_path, DOC_KINDS["backlog"]) for item_path in linked_items):
+        if not _is_doc_done(request_path, DOC_KINDS["request"]):
+            _close_doc(request_path, DOC_KINDS["request"], dry_run)
+            print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
+
+
+def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    if not source_path.stem.startswith(f"{DOC_KINDS['task'].prefix}_"):
+        raise SystemExit(f"Expected a `{DOC_KINDS['task'].prefix}_...` task file. Got: {source_path.name}")
+
+    _close_doc(source_path, DOC_KINDS["task"], args.dry_run)
+    _mark_section_checkboxes_done(source_path, "Definition of Done (DoD)", args.dry_run)
+    _record_finished_task_follow_up(repo_root, source_path, args.dry_run)
+
+    task_text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
+    for item_ref in sorted(_extract_refs(task_text, "item")):
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            continue
+        linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
+        if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
+            if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+                _close_doc(item_path, DOC_KINDS["backlog"], args.dry_run)
+                print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
+
+        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+        for request_ref in sorted(_extract_refs(item_text, "req")):
+            _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
+
+    if args.dry_run:
+        payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": True}
+        print("Dry run: skipped post-close verification.")
+        return payload
+
+    issues = _verify_finished_task_chain(repo_root, source_path)
+    if issues:
+        details = "\n".join(f"- {issue}" for issue in issues)
+        raise SystemExit(f"Finish verification failed:\n{details}")
+
+    payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": False}
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Finish verification: OK for {source_path.relative_to(repo_root)}")
+    return payload
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "promote", "split"}:
+    if args.command not in {"new", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

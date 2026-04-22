@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
+from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.cli import main
 
 
@@ -32,7 +33,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
     ("argv", "expected_script_suffix", "expected_args"),
     [
         (["flow", "new", "request", "--title", "Demo"], "logics_flow.py", ["new", "request", "--title", "Demo"]),
-        (["doctor", "--format", "json"], "logics_flow.py", ["sync", "doctor", "--format", "json"]),
+        (["doctor", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],
 )
@@ -94,3 +95,23 @@ def test_load_repo_config_uses_defaults_when_missing(tmp_path: Path) -> None:
 
     assert config_path is None
     assert config["version"] == DEFAULT_LOGICS_CONFIG["version"]
+
+
+def test_render_doctor_reports_missing_workflow_dirs(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "request").mkdir()
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "## req_001_demo - Demo\n> Schema version: 1.0\n",
+        encoding="utf-8",
+    )
+
+    payload = doctor_payload(repo_root)
+
+    assert payload["ok"] is False
+    assert payload["issue_count"] == 2
+    assert payload["missing_schema_version_count"] == 0
+    output = render_doctor(repo_root, output_format="text")
+    assert "Logics doctor: FAILED" in output
+    assert "missing_directory" in output

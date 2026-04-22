@@ -333,3 +333,48 @@ def test_main_runs_native_flow_new_request(
     assert exit_code == 0
     assert (repo_root / "logics" / "request" / "req_000_demo_request.md").is_file()
     assert "Created request:" in captured.out
+
+
+def test_main_runs_native_flow_promote_request_to_backlog(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    source_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    source_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Draft",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Clarify scope",
+                "# Context",
+                "- Context note",
+                "# Acceptance criteria",
+                "- AC1: Validate scope",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_flow_support_workflow_core._generate_workflow_mermaid", lambda *_args, **_kwargs: "```mermaid\nflowchart LR\nA-->B\n```")
+    monkeypatch.setattr("logics_flow_support_workflow_extra._generate_workflow_mermaid", lambda *_args, **_kwargs: "```mermaid\nflowchart LR\nA-->B\n```")
+    monkeypatch.setattr("logics_flow_support_workflow_extra.validate_generated_workflow_doc_text", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr("logics_manager.flow.validate_generated_workflow_doc_text", lambda *_args, **_kwargs: None)
+
+    exit_code = main(["flow", "promote", "request-to-backlog", str(source_path)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    created = repo_root / "logics" / "backlog" / "item_000_demo_request.md"
+    assert created.is_file()
+    assert "Created backlog slice from request" in captured.out

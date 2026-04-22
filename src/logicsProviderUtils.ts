@@ -54,7 +54,7 @@ function normalizeComparablePath(value: string): string {
 }
 
 export function hasLogicsSubmodule(root: string): boolean {
-  const inspection = inspectLogicsKitSubmodule(root);
+  const inspection = inspectLogicsRuntimeSource(root);
   return inspection.exists && inspection.isCanonical;
 }
 
@@ -102,7 +102,7 @@ export function detectDangerousGitignorePatterns(root: string): DangerousGitigno
   };
 }
 
-export function detectKitInstallType(root: string): LogicsKitInstallType {
+export function detectRuntimeInstallType(root: string): LogicsRuntimeInstallType {
   const skillsDir = path.join(root, "logics", "skills");
   const gitPath = path.join(skillsDir, ".git");
 
@@ -125,12 +125,14 @@ export function detectKitInstallType(root: string): LogicsKitInstallType {
   return "plain-copy";
 }
 
-export type LogicsKitSubmoduleInspection = {
+export type LogicsRuntimeSourceInspection = {
   exists: boolean;
   isCanonical: boolean;
   remoteUrl?: string;
   reason: string;
 };
+
+export type LogicsKitSubmoduleInspection = LogicsRuntimeSourceInspection;
 
 export type DangerousGitignorePatternInspection = {
   hasDangerousPatterns: boolean;
@@ -138,7 +140,8 @@ export type DangerousGitignorePatternInspection = {
   reason: string;
 };
 
-export type LogicsKitInstallType = "submodule" | "standalone-clone" | "plain-copy";
+export type LogicsRuntimeInstallType = "submodule" | "standalone-clone" | "plain-copy";
+export type LogicsKitInstallType = LogicsRuntimeInstallType;
 
 export type LogicsBootstrapState = {
   status: "missing" | "incomplete" | "canonical" | "noncanonical";
@@ -183,7 +186,7 @@ type BootstrapConvergenceInspection = {
   reason: string;
 };
 
-export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspection {
+export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceInspection {
   const skillsDir = path.join(root, "logics", "skills");
   if (!fs.existsSync(skillsDir)) {
     return {
@@ -252,7 +255,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
 export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState {
   const logicsDir = path.join(root, "logics");
   const skillsDir = path.join(logicsDir, "skills");
-  const inspection = inspectLogicsKitSubmodule(root);
+  const inspection = inspectLogicsRuntimeSource(root);
 
   if (!fs.existsSync(logicsDir)) {
     return {
@@ -436,9 +439,13 @@ function readBootstrapEnvKeys(filePath: string): string[] {
   }
 }
 
-export function buildLogicsKitUpdateCommand(): string {
+export function buildLogicsRuntimeUpdateCommand(): string {
   return "git submodule update --init --remote --merge -- logics/skills";
 }
+
+export const inspectLogicsKitSubmodule = inspectLogicsRuntimeSource;
+export const detectKitInstallType = detectRuntimeInstallType;
+export const buildLogicsKitUpdateCommand = buildLogicsRuntimeUpdateCommand;
 
 export type CreateItemConfig = { dir: string; prefix: string; label: string };
 

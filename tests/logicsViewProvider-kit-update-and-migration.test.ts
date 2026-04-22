@@ -25,6 +25,7 @@ const mocks = vi.hoisted(() => ({
   detectKitInstallType: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
   inspectLogicsBootstrapState: vi.fn(),
+  getBundledLogicsManagerScriptPath: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   indexLogics: vi.fn(),
@@ -90,6 +91,7 @@ vi.mock("../src/logicsProviderUtils", () => ({
   getWorkspaceRoot: mocks.getWorkspaceRoot,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
   inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
+  getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   inspectLogicsKitSubmodule: mocks.inspectLogicsKitSubmodule,
   isExistingDirectory: mocks.isExistingDirectory,
   runGitWithOutput: mocks.runGitWithOutput,
@@ -184,7 +186,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
@@ -289,6 +291,9 @@ describe("LogicsViewProvider", () => {
       isCanonical: true,
       reason: "Canonical cdx-logics-kit submodule detected."
     });
+    mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
       stderr: ""

@@ -337,7 +337,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
 
         if (!fs.existsSync(scriptPath)) {
           const choice = await vscode.window.showErrorMessage(
-            `Bootstrap prepared logics/skills, but logics/skills/logics.py is still missing in: ${root}.`,
+            `Bootstrap prepared the bundled Logics runtime, but scripts/logics-manager.py is still missing in: ${root}.`,
             "Copy Bootstrap Command"
           );
           if (choice === "Copy Bootstrap Command") {

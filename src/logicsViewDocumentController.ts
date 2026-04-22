@@ -9,10 +9,10 @@ import { canPromote, isRequestProcessed, LogicsItem, promotionCommand } from "./
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import {
   addLinkToSectionOnDisk,
+  getCanonicalCompanionDocScriptPath,
+  getCanonicalLogicsManagerScriptPath,
   findCreatedDocPathFromOutput,
-  getCompanionDocScriptPath,
   getCreateConfig,
-  getFlowManagerScriptPath,
   normalizeRelationPath,
   openCreatedDocFromOutput,
   runPythonWithOutput,
@@ -67,7 +67,7 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const result = await runPythonWithOutput(root, scriptPath, ["new", "request", "--title", title]);
+    const result = await runPythonWithOutput(root, scriptPath, ["flow", "new", "request", "--title", title]);
     if (result.error) {
       void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Request creation", result));
       return;
@@ -135,7 +135,7 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const result = await runPythonWithOutput(root, scriptPath, ["new", kind, "--title", title]);
+    const result = await runPythonWithOutput(root, scriptPath, ["flow", "new", kind, "--title", title]);
     if (result.error) {
       void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage("Logics document creation", result));
       return;
@@ -204,10 +204,10 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = getCompanionDocScriptPath(root, kindPick.value);
-    if (!scriptPath) {
+    const scriptPath = getCanonicalCompanionDocScriptPath(this.options.context.extensionPath, kindPick.value);
+    if (!fs.existsSync(scriptPath)) {
       void vscode.window.showErrorMessage(
-        `Companion doc creation is blocked because the ${kindPick.label.toLowerCase()} script is missing from logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
+        `Companion doc creation is blocked because the ${kindPick.label.toLowerCase()} script is missing from the bundled runtime. Repair or reinstall the extension runtime. ${this.buildRecoveryGuidance()}`
       );
       return;
     }
@@ -263,10 +263,10 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = path.join(root, "logics", "skills", "logics-doc-fixer", "scripts", "fix_logics_docs.py");
+    const scriptPath = path.join(this.options.context.extensionPath, "logics", "skills", "logics-doc-fixer", "scripts", "fix_logics_docs.py");
     if (!fs.existsSync(scriptPath)) {
       void vscode.window.showErrorMessage(
-        `Logics doc fixer script not found in logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
+        `Logics doc fixer script not found in the bundled runtime. Repair or reinstall the extension runtime. ${this.buildRecoveryGuidance()}`
       );
       return;
     }
@@ -462,37 +462,17 @@ export class LogicsViewDocumentController {
       void vscode.window.showErrorMessage(this.buildMissingPythonActionMessage(actionLabel));
       return null;
     }
-    return this.ensureFlowManagerScript(root);
+    return this.ensureCanonicalLogicsManagerScript(root);
   }
 
-  private async ensureFlowManagerScript(root: string): Promise<string | null> {
-    let scriptPath = getFlowManagerScriptPath(root);
-    if (scriptPath) {
+  private async ensureCanonicalLogicsManagerScript(root: string): Promise<string | null> {
+    const scriptPath = getCanonicalLogicsManagerScriptPath(this.options.context.extensionPath);
+    if (fs.existsSync(scriptPath)) {
       return scriptPath;
-    }
-
-    await this.options.maybeOfferBootstrap(root);
-    scriptPath = getFlowManagerScriptPath(root);
-    if (scriptPath) {
-      return scriptPath;
-    }
-
-    const environment = await inspectLogicsEnvironment(root);
-    if (!environment.hasSkillsDir) {
-      void vscode.window.showErrorMessage(
-        `Workflow actions are blocked because logics/skills is missing. Run Bootstrap Logics to install the kit. ${this.buildRecoveryGuidance()}`
-      );
-      return null;
-    }
-    if (!environment.hasFlowManagerScript) {
-      void vscode.window.showErrorMessage(
-        `Workflow actions are blocked because the flow manager script is missing from logics/skills. Repair the kit with Bootstrap Logics. ${this.buildRecoveryGuidance()}`
-      );
-      return null;
     }
 
     void vscode.window.showErrorMessage(
-      `Logics flow script not found at logics/skills/logics-flow-manager/scripts/logics_flow.py. Run Bootstrap Logics to repair the kit. ${this.buildRecoveryGuidance()}`
+      `The bundled Logics manager runtime is missing from the extension installation. Reinstall the extension to restore it. ${this.buildRecoveryGuidance()}`
     );
     return null;
   }

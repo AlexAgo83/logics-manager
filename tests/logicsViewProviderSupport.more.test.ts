@@ -114,7 +114,7 @@ describe("logicsViewProviderSupport more coverage", () => {
         degraded: false,
         degradedReasons: [],
         claudeBridgeAvailable: true,
-        windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+        windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
       },
       capabilities: {
         readOnly: { status: "available", summary: "ok" },
@@ -199,7 +199,7 @@ describe("logicsViewProviderSupport more coverage", () => {
             degraded: true,
             degradedReasons: ["missing bridge"],
             claudeBridgeAvailable: false,
-            windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+            windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
           }
         }) as never,
         null,

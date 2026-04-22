@@ -39,7 +39,7 @@ Canonical examples use `python3 -m logics_manager ...`; if your environment expo
 
 Repository-local Claude bridge files and assistant instructions are generated from the integrated runtime.
 Do not edit `.claude/` bridge files by hand unless you are deliberately repairing a generated artifact.
-Do not instruct operators to add a `logics/skills` submodule manually; the bundled runtime is the default path.
+Do not instruct operators to bootstrap a separate runtime checkout manually; the bundled runtime is the default path.
 
 When a task is completed, run `finish task` first so backlog/request parents are synchronized automatically, then run broader audit/lint commands when needed.
 

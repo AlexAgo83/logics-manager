@@ -45,7 +45,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("bootstrap", "flow", "audit", "index", "lint", "config", "doctor"),
+        choices=("bootstrap", "flow", "sync", "audit", "index", "lint", "config", "doctor"),
     )
     parser.add_argument("rest", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv[:1])
@@ -85,6 +85,12 @@ def main(argv: list[str]) -> int:
         from .flow import main as flow_main
 
         return flow_main(rest)
+    if args.command == "sync":
+        if rest[:1] != ["close-eligible-requests"]:
+            raise SystemExit("Unsupported sync subcommand for the native CLI slice.")
+        from .sync import main as sync_main
+
+        return sync_main(rest)
     if args.command == "audit":
         audit_parser = build_audit_parser()
         parsed, _unknown = audit_parser.parse_known_args(rest)

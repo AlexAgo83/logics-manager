@@ -41,6 +41,8 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["flow", "close", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
         (["flow", "finish", "task", "logics/tasks/task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout.md"], None, None),
         (["sync", "close-eligible-requests"], None, None),
+        (["sync", "refresh-mermaid-signatures"], None, None),
+        (["sync", "schema-status"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -61,7 +63,14 @@ def test_main_dispatches_to_expected_underlying_script(
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.setattr(subprocess, "run", fake_run)
-    if argv[:2] in (["flow", "new"], ["flow", "close"], ["flow", "finish"], ["sync", "close-eligible-requests"]):
+    if argv[:2] in (
+        ["flow", "new"],
+        ["flow", "close"],
+        ["flow", "finish"],
+        ["sync", "close-eligible-requests"],
+        ["sync", "refresh-mermaid-signatures"],
+        ["sync", "schema-status"],
+    ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
 
@@ -547,3 +556,53 @@ def test_main_runs_native_sync_close_eligible_requests(
     assert exit_code == 0
     assert "Scanned 1 request(s); closed 1." in captured.out
     assert "> Status: Done" in (repo_root / "logics" / "request" / "req_001_demo.md").read_text(encoding="utf-8")
+
+
+def test_main_runs_native_sync_refresh_mermaid_signatures(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text("## req_001_demo - Demo Request\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync.refresh_workflow_mermaid_signature_file", lambda path, kind, dry_run, repo_root=None: path.name == "req_001_demo.md")
+
+    exit_code = main(["sync", "refresh-mermaid-signatures"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Refreshed Mermaid signatures in 1 workflow doc(s)." in captured.out
+    assert "- logics/request/req_001_demo.md" in captured.out
+
+
+def test_main_runs_native_sync_schema_status(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Schema version: 1.0",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "schema-status"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Schema status: 1 workflow doc(s) scanned." in captured.out
+    assert "- 1.0: 1" in captured.out

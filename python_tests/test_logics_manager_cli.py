@@ -46,6 +46,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["sync", "context-pack", "req_001_demo"], None, None),
         (["sync", "export-graph"], None, None),
         (["assist", "runtime-status"], None, None),
+        (["assist", "context", "request-draft"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -76,6 +77,7 @@ def test_main_dispatches_to_expected_underlying_script(
         ["sync", "context-pack"],
         ["sync", "export-graph"],
         ["assist", "runtime-status"],
+        ["assist", "context"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
@@ -705,3 +707,24 @@ def test_main_runs_native_assist_runtime_status(
     assert exit_code == 0
     assert "Assist runtime status:" in captured.out
     assert "- selected backend:" in captured.out
+
+
+def test_main_runs_native_assist_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._build_context_pack", lambda *args, **kwargs: {"ref": "req_001_demo", "mode": "summary-only", "profile": "normal", "budgets": {"max_docs": 1}, "changed_paths": [], "docs": [], "estimates": {"doc_count": 1, "char_count": 10}})
+
+    exit_code = main(["assist", "context", "request-draft", "req_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Assist context: request-draft" in captured.out
+    assert "- ref: req_001_demo" in captured.out

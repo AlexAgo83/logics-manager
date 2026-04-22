@@ -21,6 +21,14 @@ CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, str], ...] = (
     },
 )
 
+ASSIST_FLOW_DEFAULTS: dict[str, dict[str, object]] = {
+    "context-pack": {"mode": "summary-only", "profile": "normal", "include_graph": False, "include_registry": False, "include_doctor": False},
+    "request-draft": {"mode": "summary-only", "profile": "normal", "include_graph": False, "include_registry": False, "include_doctor": False},
+    "next-step": {"mode": "diff-first", "profile": "deep", "include_graph": True, "include_registry": True, "include_doctor": True},
+    "diff-risk": {"mode": "diff-first", "profile": "tiny", "include_graph": False, "include_registry": False, "include_doctor": False},
+    "commit-plan": {"mode": "summary-only", "profile": "normal", "include_graph": False, "include_registry": False, "include_doctor": False},
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -39,6 +47,19 @@ def build_parser() -> argparse.ArgumentParser:
     runtime.add_argument("--out", help="Write the JSON status payload to this relative path.")
     runtime.add_argument("--dry-run", action="store_true")
     runtime.set_defaults(func=cmd_runtime_status)
+
+    context = sub.add_parser("context", help="Build a shared assist context bundle for a flow.")
+    context.add_argument("flow_name", choices=tuple(sorted(ASSIST_FLOW_DEFAULTS.keys())))
+    context.add_argument("ref", nargs="?", help="Optional workflow ref for flows that target a doc.")
+    context.add_argument("--context-mode", choices=("summary-only", "diff-first", "full"))
+    context.add_argument("--profile", choices=("tiny", "normal", "deep"))
+    context.add_argument("--include-graph", action="store_true", default=None)
+    context.add_argument("--include-registry", action="store_true", default=None)
+    context.add_argument("--include-doctor", action="store_true", default=None)
+    context.add_argument("--format", choices=("text", "json"), default="text")
+    context.add_argument("--out", help="Write the JSON context bundle to this relative path.")
+    context.add_argument("--dry-run", action="store_true")
+    context.set_defaults(func=cmd_context)
 
     return parser
 
@@ -62,6 +83,45 @@ def _select_backend(requested_backend: str | None, bridge_status: dict[str, obje
     if bridge_status.get("available"):
         return "codex", ["claude bridge files detected"]
     return "deterministic", ["no bridge files detected"]
+
+
+def _workflow_docs(repo_root: Path) -> list[Path]:
+    docs: list[Path] = []
+    for directory in ("request", "backlog", "tasks"):
+        docs.extend(sorted((repo_root / "logics" / directory).glob("*.md")))
+    return docs
+
+
+def _build_context_pack(repo_root: Path, seed_ref: str, *, mode: str, profile: str) -> dict[str, object]:
+    docs = _workflow_docs(repo_root)
+    selected: list[Path] = []
+    for path in docs:
+        text = path.read_text(encoding="utf-8")
+        if seed_ref in path.stem or seed_ref in text:
+            selected.append(path)
+    if not selected:
+        selected = docs[:4]
+    selected = selected[: {"tiny": 2, "normal": 4, "deep": 8}.get(profile, 4)]
+    return {
+        "ref": seed_ref,
+        "mode": mode,
+        "profile": profile,
+        "budgets": {"max_docs": {"tiny": 2, "normal": 4, "deep": 8}.get(profile, 4)},
+        "changed_paths": [],
+        "docs": [
+            {
+                "ref": path.stem,
+                "path": path.relative_to(repo_root).as_posix(),
+                "kind": path.parent.name,
+                "title": path.read_text(encoding="utf-8").splitlines()[0].replace("#", "").strip() if path.read_text(encoding="utf-8").splitlines() else path.stem,
+            }
+            for path in selected
+        ],
+        "estimates": {
+            "doc_count": len(selected),
+            "char_count": sum(len(path.read_text(encoding="utf-8")) for path in selected),
+        },
+    }
 
 
 def cmd_runtime_status(args: argparse.Namespace) -> dict[str, object]:
@@ -120,6 +180,65 @@ def cmd_runtime_status(args: argparse.Namespace) -> dict[str, object]:
         print(f"- bridge available: {'yes' if bridge_status['available'] else 'no'}")
         if bridge_status["preferred_variant"]:
             print(f"- bridge variant: {bridge_status['preferred_variant']}")
+    return payload
+
+
+def cmd_context(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    spec = ASSIST_FLOW_DEFAULTS[args.flow_name]
+    context_mode = args.context_mode or spec["mode"]
+    profile = args.profile or spec["profile"]
+    bridge_status = _claude_bridge_status(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "context",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        "flow_name": args.flow_name,
+        "seed_ref": args.ref,
+        "context_profile": {
+            "mode": context_mode,
+            "profile": profile,
+            "include_graph": args.include_graph if args.include_graph is not None else spec["include_graph"],
+            "include_registry": args.include_registry if args.include_registry is not None else spec["include_registry"],
+            "include_doctor": args.include_doctor if args.include_doctor is not None else spec["include_doctor"],
+        },
+        "contract": spec,
+        "assist_schema_version": "1.0",
+        "bridge_status": bridge_status,
+        "context_pack": _build_context_pack(
+            repo_root,
+            args.ref,
+            mode=context_mode,
+            profile=profile,
+        ) if args.ref else {
+            "ref": None,
+            "mode": context_mode,
+            "profile": profile,
+            "budgets": {"max_docs": 0},
+            "changed_paths": [],
+            "docs": [],
+            "estimates": {"doc_count": 0, "char_count": 0},
+        },
+    }
+
+    if args.out:
+        out_path = (repo_root / args.out).resolve()
+        serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+        if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(serialized, encoding="utf-8")
+        print(f"Wrote {out_path.relative_to(repo_root)}")
+        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+    elif args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Assist context: {args.flow_name}")
+        print(f"- ref: {args.ref or '<flow-default>'}")
+        print(f"- mode: {context_mode}")
+        print(f"- profile: {profile}")
+        print(f"- bridge available: {'yes' if bridge_status['available'] else 'no'}")
     return payload
 
 

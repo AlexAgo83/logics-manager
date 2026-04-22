@@ -38,6 +38,13 @@ from logics_flow_support_workflow_extra import (  # noqa: E402
 )
 
 
+def _split_titles(raw_titles: list[str]) -> list[str]:
+    titles = [title.strip() for title in raw_titles if title and title.strip()]
+    if not titles:
+        raise SystemExit("Provide at least one non-empty --title value.")
+    return titles
+
+
 def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
     parser.add_argument("--from-version")
     parser.add_argument("--understanding", default="90%")
@@ -87,6 +94,21 @@ def build_parser() -> argparse.ArgumentParser:
     b2t.add_argument("source")
     _add_common_doc_args(b2t, "task")
     b2t.set_defaults(func=cmd_promote_backlog_to_task)
+
+    split_parser = sub.add_parser("split", help="Split a request or backlog into bounded children.")
+    split_sub = split_parser.add_subparsers(dest="split_kind", required=True)
+
+    split_request = split_sub.add_parser("request", help="Split a request into multiple backlog items.")
+    split_request.add_argument("source")
+    split_request.add_argument("--title", action="append", nargs="+", required=True)
+    _add_common_doc_args(split_request, "backlog")
+    split_request.set_defaults(func=cmd_split_request)
+
+    split_backlog = split_sub.add_parser("backlog", help="Split a backlog item into multiple tasks.")
+    split_backlog.add_argument("source")
+    split_backlog.add_argument("--title", action="append", nargs="+", required=True)
+    _add_common_doc_args(split_backlog, "task")
+    split_backlog.set_defaults(func=cmd_split_backlog)
 
     return parser
 
@@ -230,10 +252,58 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    titles = _split_titles([title for group in args.title for title in group])
+    created_refs: list[str] = []
+    for title in titles:
+        planned = _create_backlog_from_request(repo_root, source_path, title, args)
+        created_refs.append(planned.ref)
+    payload = {
+        "command": "split",
+        "kind": "request",
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "created_refs": created_refs,
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Split request into {len(created_refs)} backlog item(s): {', '.join(created_refs)}")
+    return payload
+
+
+def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    titles = _split_titles([title for group in args.title for title in group])
+    created_refs: list[str] = []
+    for title in titles:
+        planned = _create_task_from_backlog(repo_root, source_path, title, args)
+        created_refs.append(planned.ref)
+    payload = {
+        "command": "split",
+        "kind": "backlog",
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "created_refs": created_refs,
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Split backlog item into {len(created_refs)} task(s): {', '.join(created_refs)}")
+    return payload
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "promote"}:
+    if args.command not in {"new", "promote", "split"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

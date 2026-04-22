@@ -652,40 +652,8 @@ def cmd_close(args: argparse.Namespace) -> dict[str, object]:
     if not source_path.stem.startswith(f"{kind.prefix}_"):
         raise SystemExit(f"Expected a `{kind.prefix}_...` file for kind `{kind.kind}`. Got: {source_path.name}")
 
-    _close_doc(source_path, kind, args.dry_run)
+    _close_chain_for_kind(repo_root, source_path, kind, dry_run=args.dry_run)
     print(f"Closed {kind.kind}: {source_path.relative_to(repo_root)}")
-
-    text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
-    processed_request_refs: set[str] = set()
-
-    if kind.kind == "task":
-        linked_item_refs = sorted(_extract_refs(text, "item"))
-        for item_ref in linked_item_refs:
-            item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
-            if item_path is None:
-                continue
-            linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
-            if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
-                if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
-                    _close_doc(item_path, DOC_KINDS["backlog"], args.dry_run)
-                    print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
-
-            item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-            for request_ref in sorted(_extract_refs(item_text, "req")):
-                if request_ref in processed_request_refs:
-                    continue
-                processed_request_refs.add(request_ref)
-                _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
-
-    if kind.kind == "backlog":
-        for request_ref in sorted(_extract_refs(text, "req")):
-            if request_ref in processed_request_refs:
-                continue
-            processed_request_refs.add(request_ref)
-            _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
-
-    if kind.kind == "request":
-        _maybe_close_request_chain(repo_root, source_path.stem, args.dry_run)
 
     payload = {
         "command": "close",
@@ -786,6 +754,45 @@ def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool)
             print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
 
 
+def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, dry_run: bool) -> None:
+    _close_doc(source_path, kind, dry_run)
+
+    text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
+    processed_request_refs: set[str] = set()
+
+    if kind.kind == "task":
+        _mark_section_checkboxes_done(source_path, "Definition of Done (DoD)", dry_run)
+        _record_finished_task_follow_up(repo_root, source_path, dry_run)
+
+        linked_item_refs = sorted(_extract_refs(text, DOC_KINDS["backlog"].prefix))
+        for item_ref in linked_item_refs:
+            item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+            if item_path is None:
+                continue
+            linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
+            if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
+                if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+                    _close_doc(item_path, DOC_KINDS["backlog"], dry_run)
+                    print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
+
+            item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+            for request_ref in sorted(_extract_refs(item_text, DOC_KINDS["request"].prefix)):
+                if request_ref in processed_request_refs:
+                    continue
+                processed_request_refs.add(request_ref)
+                _maybe_close_request_chain(repo_root, request_ref, dry_run)
+
+    if kind.kind == "backlog":
+        for request_ref in sorted(_extract_refs(text, DOC_KINDS["request"].prefix)):
+            if request_ref in processed_request_refs:
+                continue
+            processed_request_refs.add(request_ref)
+            _maybe_close_request_chain(repo_root, request_ref, dry_run)
+
+    if kind.kind == "request":
+        _maybe_close_request_chain(repo_root, source_path.stem, dry_run)
+
+
 def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = Path(args.source).resolve()
@@ -794,24 +801,7 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
     if not source_path.stem.startswith(f"{DOC_KINDS['task'].prefix}_"):
         raise SystemExit(f"Expected a `{DOC_KINDS['task'].prefix}_...` task file. Got: {source_path.name}")
 
-    _close_doc(source_path, DOC_KINDS["task"], args.dry_run)
-    _mark_section_checkboxes_done(source_path, "Definition of Done (DoD)", args.dry_run)
-    _record_finished_task_follow_up(repo_root, source_path, args.dry_run)
-
-    task_text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
-    for item_ref in sorted(_extract_refs(task_text, "item")):
-        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
-        if item_path is None:
-            continue
-        linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
-        if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
-            if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
-                _close_doc(item_path, DOC_KINDS["backlog"], args.dry_run)
-                print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
-
-        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        for request_ref in sorted(_extract_refs(item_text, "req")):
-            _maybe_close_request_chain(repo_root, request_ref, args.dry_run)
+    _close_chain_for_kind(repo_root, source_path, DOC_KINDS["task"], dry_run=args.dry_run)
 
     if args.dry_run:
         payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": True}

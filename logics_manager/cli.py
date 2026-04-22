@@ -7,6 +7,7 @@ from pathlib import Path
 from textwrap import dedent
 
 from .config import ConfigError, find_repo_root, render_config_show
+from .doctor import render_doctor
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -68,5 +69,15 @@ def main(argv: list[str]) -> int:
         print(output)
         return 0
     if args.command == "doctor":
-        return _run(ROUTES["flow"], ["sync", "doctor", *rest])
+        doctor_args = rest
+        parser = argparse.ArgumentParser(prog="logics-manager doctor", add_help=False)
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed, _unknown = parser.parse_known_args(doctor_args)
+        repo_root = find_repo_root(Path.cwd())
+        try:
+            output = render_doctor(repo_root, output_format=parsed.format)
+        except ConfigError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(output)
+        return 0
     return _run(ROUTES[args.command], rest)

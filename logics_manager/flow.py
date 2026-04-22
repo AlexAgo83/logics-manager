@@ -29,6 +29,8 @@ from logics_flow_support_workflow_extra import (  # noqa: E402
     _auto_create_companion_docs,
     _build_template_values,
     _collect_reference_items,
+    _create_backlog_from_request,
+    _create_task_from_backlog,
     _parse_title_from_source,
     _render_references_section,
     refresh_ai_context_text,
@@ -72,6 +74,19 @@ def build_parser() -> argparse.ArgumentParser:
             kind_parser.add_argument("--smoke-test", action="store_true", dest="fixture", help="Alias for --fixture.")
         _add_common_doc_args(kind_parser, kind)
         kind_parser.set_defaults(func=cmd_new)
+
+    promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
+    promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
+
+    r2b = promote_sub.add_parser("request-to-backlog", help="Create a backlog slice from a request.")
+    r2b.add_argument("source")
+    _add_common_doc_args(r2b, "backlog")
+    r2b.set_defaults(func=cmd_promote_request_to_backlog)
+
+    b2t = promote_sub.add_parser("backlog-to-task", help="Create a task from a backlog item.")
+    b2t.add_argument("source")
+    _add_common_doc_args(b2t, "task")
+    b2t.set_defaults(func=cmd_promote_backlog_to_task)
 
     return parser
 
@@ -171,10 +186,54 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    title = _parse_title_from_source(source_path) or "Promoted backlog item"
+    planned = _create_backlog_from_request(repo_root, source_path, title, args)
+    payload = {
+        "command": "promote",
+        "promotion": "request-to-backlog",
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "created_ref": planned.ref,
+        "created_path": planned.path.relative_to(repo_root).as_posix(),
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Created backlog slice from request: {payload['created_path']}")
+    return payload
+
+
+def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path = Path(args.source).resolve()
+    if not source_path.is_file():
+        raise SystemExit(f"Source not found: {source_path}")
+    title = _parse_title_from_source(source_path) or "Implementation task"
+    planned = _create_task_from_backlog(repo_root, source_path, title, args)
+    payload = {
+        "command": "promote",
+        "promotion": "backlog-to-task",
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "created_ref": planned.ref,
+        "created_path": planned.path.relative_to(repo_root).as_posix(),
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Created task from backlog: {payload['created_path']}")
+    return payload
+
+
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command != "new":
+    if args.command not in {"new", "promote"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
-    payload = cmd_new(args)
+    payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

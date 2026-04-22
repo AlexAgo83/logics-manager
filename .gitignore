@@ -1,6 +1,7 @@
 node_modules/
 out/
 dist/
+build/
 .vscode-test/
 *.vsix
 .DS_Store
@@ -14,6 +15,7 @@ htmlcov/
 # Python bytecode caches
 __pycache__/
 *.pyc
+*.egg-info/
 
 # Generated Logics runtime artifacts
 logics/.cache/

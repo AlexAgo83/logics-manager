@@ -170,6 +170,150 @@ def _build_request_draft(repo_root: Path, *, intent: str) -> dict[str, object]:
     }
 
 
+def _section_lines(lines: list[str], heading: str) -> list[str]:
+    start_idx = None
+    target = heading.strip().lower()
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == target:
+            start_idx = idx + 1
+            break
+    if start_idx is None:
+        return []
+    out: list[str] = []
+    for idx in range(start_idx, len(lines)):
+        line = lines[idx]
+        if line.startswith("# "):
+            break
+        out.append(line)
+    return out
+
+
+def _bullet_values(lines: list[str]) -> list[str]:
+    values: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            value = stripped[2:].strip()
+            if value:
+                values.append(value)
+    return values
+
+
+def _extract_title_from_doc(path: Path) -> str:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            payload = line.removeprefix("## ").strip()
+            if " - " in payload:
+                return payload.split(" - ", 1)[1].strip()
+            return payload
+    return path.stem
+
+
+def _next_spec_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "specs"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("spec_*.md"):
+            match = re.match(r"^spec_(\d{3})_", path.stem)
+            if match:
+                highest = max(highest, int(match.group(1)))
+    return f"spec_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _build_spec_first_pass(repo_root: Path, backlog_ref: str) -> dict[str, object]:
+    backlog_path = _resolve_workflow_doc(repo_root, backlog_ref)
+    if backlog_path is None:
+        raise SystemExit(f"Unknown backlog ref `{backlog_ref}`.")
+    if backlog_path.parent.name != "backlog":
+        raise SystemExit(f"`spec-first-pass` requires a backlog ref. Got `{backlog_ref}`.")
+    lines = backlog_path.read_text(encoding="utf-8").splitlines()
+    title = _extract_title_from_doc(backlog_path)
+    spec_title = f"{title} first-pass spec"
+    ref = _next_spec_ref(repo_root, spec_title)
+    problem = _bullet_values(_section_lines(lines, "Problem"))
+    acceptance = _bullet_values(_section_lines(lines, "Acceptance criteria"))
+    summary = problem[0] if problem else f"Derive a first-pass spec for {title.lower()}."
+    goals = [
+        f"Capture the bounded delivery scope for {title.lower()}.",
+        "Keep the spec proposal-only and concise.",
+    ]
+    non_goals = [
+        "Do not add implementation details that belong in a task.",
+    ]
+    use_cases = [
+        f"Operators need a concise spec for `{backlog_ref}` before implementation starts.",
+    ]
+    reqs = [
+        f"Summarize the bounded scope of `{backlog_ref}`.",
+        "Translate backlog acceptance criteria into a short functional spec.",
+    ]
+    acs = acceptance or [
+        "AC1: The outline stays bounded and proposal-only.",
+        "AC2: The spec highlights the core user-facing behavior.",
+    ]
+    validation = [
+        f"Check the backlog item `{backlog_ref}` and ensure the spec follows it closely.",
+        "Run `python3 -m logics_manager lint --require-status` after saving the spec.",
+    ]
+    questions = [
+        "Which acceptance criterion needs the deepest traceability?",
+    ]
+    content = "\n".join(
+        [
+            f"## {ref} - {spec_title}",
+            f"> From version: {_parse_package_version(repo_root)}",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "",
+            "# Overview",
+            summary,
+            "",
+            "# Goals",
+            *[f"- {item}" for item in goals],
+            "",
+            "# Non-goals",
+            *[f"- {item}" for item in non_goals],
+            "",
+            "# Users & use cases",
+            *[f"- {item}" for item in use_cases],
+            "",
+            "# Scope",
+            "- In:",
+            f"  - Deliver a spec for `{backlog_ref}` that stays bounded.",
+            "- Out:",
+            "  - Implementation details and unrelated sibling slices.",
+            "",
+            "# Requirements",
+            *[f"- {item}" for item in reqs],
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acs],
+            "",
+            "# Validation / test plan",
+            *[f"- {item}" for item in validation],
+            "",
+            "# Open questions",
+            *[f"- {item}" for item in questions],
+            "",
+            "# Backlog",
+            f"- source backlog: `{backlog_ref}`",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return {
+        "ref": ref,
+        "title": spec_title,
+        "path": f"logics/specs/{ref}.md",
+        "backlog_ref": backlog_ref,
+        "backlog_path": backlog_path.relative_to(repo_root).as_posix(),
+        "content": content,
+        "overview": summary,
+        "goals": goals,
+        "acceptance": acs,
+        "validation": validation,
+    }
+
+
 def _load_jsonl_records(path: Path) -> tuple[list[dict[str, Any]], int]:
     if not path.is_file():
         return [], 0
@@ -994,6 +1138,13 @@ def build_parser() -> argparse.ArgumentParser:
     request_draft.add_argument("--dry-run", action="store_true")
     request_draft.set_defaults(func=cmd_request_draft)
 
+    spec_first_pass = sub.add_parser("spec-first-pass", help="Draft a first-pass spec outline from a backlog item.")
+    spec_first_pass.add_argument("ref", help="Backlog ref for the spec source.")
+    spec_first_pass.add_argument("--format", choices=("text", "json"), default="text")
+    spec_first_pass.add_argument("--execution-mode", choices=("suggestion-only", "execute"), default="suggestion-only")
+    spec_first_pass.add_argument("--dry-run", action="store_true")
+    spec_first_pass.set_defaults(func=cmd_spec_first_pass)
+
     closure_summary = sub.add_parser("closure-summary", help="Summarize a delivered request, backlog item, or task.")
     closure_summary.add_argument("ref", nargs="?", help="Optional workflow ref for a delivered doc.")
     closure_summary.add_argument("--format", choices=("text", "json"), default="text")
@@ -1539,6 +1690,52 @@ def cmd_request_draft(args: argparse.Namespace) -> dict[str, object]:
         print(f"- from version: {payload['from_version']}")
         print("- needs:")
         for item in payload["needs"]:
+            print(f"  - {item}")
+        print("- acceptance:")
+        for item in payload["acceptance"]:
+            print(f"  - {item}")
+        if args.execution_mode == "suggestion-only":
+            print("- suggestion only: no file written")
+        elif args.dry_run:
+            print("- dry run: file not written")
+        else:
+            print(f"- written: {'yes' if payload['written'] else 'no'}")
+    return payload
+
+
+def cmd_spec_first_pass(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "spec-first-pass",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        "execution_mode": args.execution_mode,
+        "source_ref": args.ref,
+        **_build_spec_first_pass(repo_root, args.ref),
+    }
+    if args.execution_mode == "execute":
+        out_path = repo_root / payload["path"]
+        if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(payload["content"], encoding="utf-8")
+            payload["written"] = True
+        else:
+            payload["written"] = False
+        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+    else:
+        payload["written"] = False
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Spec first pass: {payload['title']}")
+        print(f"- source ref: {payload['source_ref']}")
+        print(f"- path: {payload['path']}")
+        print(f"- execution mode: {args.execution_mode}")
+        print(f"- overview: {payload['overview']}")
+        print("- goals:")
+        for item in payload["goals"]:
             print(f"  - {item}")
         print("- acceptance:")
         for item in payload["acceptance"]:

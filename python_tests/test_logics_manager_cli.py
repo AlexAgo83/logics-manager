@@ -57,6 +57,7 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["assist", "roi-report"], None, None),
         (["assist", "next-step"], None, None),
         (["assist", "request-draft", "--intent", "Draft a request for runtime bundling"], None, None),
+        (["assist", "spec-first-pass", "item_001_demo"], None, None),
         (["assist", "closure-summary"], None, None),
         (["assist", "context", "request-draft"], None, None),
         (["doctor", "--format", "json"], None, None),
@@ -100,6 +101,7 @@ def test_main_dispatches_to_expected_underlying_script(
         ["assist", "roi-report"],
         ["assist", "next-step"],
         ["assist", "request-draft"],
+        ["assist", "spec-first-pass"],
         ["assist", "closure-summary"],
         ["assist", "context"],
     ):
@@ -131,6 +133,22 @@ def test_main_dispatches_to_expected_underlying_script(
         monkeypatch.setattr("logics_manager.assist._resolve_workflow_doc", lambda _repo_root, ref: None)
     if argv[:2] == ["assist", "closure-summary"]:
         monkeypatch.setattr("logics_manager.assist._resolve_workflow_doc", lambda _repo_root, ref: None)
+    if argv[:2] == ["assist", "spec-first-pass"]:
+        monkeypatch.setattr(
+            "logics_manager.assist._build_spec_first_pass",
+            lambda _repo_root, _ref: {
+                "ref": "spec_001_demo",
+                "title": "Demo first-pass spec",
+                "path": "logics/specs/spec_001_demo.md",
+                "backlog_ref": "item_001_demo",
+                "backlog_path": "logics/backlog/item_001_demo.md",
+                "content": "# demo\n",
+                "overview": "Demo overview",
+                "goals": ["Demo goal"],
+                "acceptance": ["Demo AC"],
+                "validation": ["Demo validation"],
+            },
+        )
 
     exit_code = main(argv)
 
@@ -1005,6 +1023,86 @@ def test_main_runs_native_assist_request_draft_execute(
     text = created.read_text(encoding="utf-8")
     assert "> Status: Draft" in text
     assert "runtime bundling" in text.lower()
+
+
+def test_main_runs_native_assist_spec_first_pass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "package.json").write_text('{"version":"1.2.3"}\n', encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo backlog",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "",
+                "# Problem",
+                "- Deliver a bounded spec generation slice.",
+                "",
+                "# Acceptance criteria",
+                "- AC1: Stay bounded.",
+                "- AC2: Remain proposal-only.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "spec-first-pass", "item_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Spec first pass:" in captured.out
+    assert "- source ref: item_001_demo" in captured.out
+    assert "- suggestion only: no file written" in captured.out
+
+
+def test_main_runs_native_assist_spec_first_pass_execute(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "package.json").write_text('{"version":"1.2.3"}\n', encoding="utf-8")
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo backlog",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "",
+                "# Problem",
+                "- Deliver a bounded spec generation slice.",
+                "",
+                "# Acceptance criteria",
+                "- AC1: Stay bounded.",
+                "- AC2: Remain proposal-only.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "spec-first-pass", "item_001_demo", "--execution-mode", "execute"])
+
+    assert exit_code == 0
+    created = next((repo_root / "logics" / "specs").glob("spec_*.md"))
+    assert created.is_file()
+    text = created.read_text(encoding="utf-8")
+    assert "# Overview" in text
+    assert "Deliver a bounded spec generation slice." in text
 
 
 def test_main_runs_native_assist_closure_summary(

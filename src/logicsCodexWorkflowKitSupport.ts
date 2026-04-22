@@ -8,6 +8,7 @@ import { runGitWithOutput } from "./logicsProviderUtils";
 export const CANONICAL_LOGICS_KIT_URL = "https://github.com/AlexAgo83/cdx-logics-kit.git";
 export const CANONICAL_LOGICS_KIT_BRANCH = "main";
 export const LOGICS_SKILLS_SUBMODULE_PATH = "logics/skills";
+export const LOGICS_RUNTIME_SOURCE_PATH = LOGICS_SKILLS_SUBMODULE_PATH;
 const CANONICAL_LOGICS_GITMODULES = [
   '[submodule "logics/skills"]',
   "\tpath = logics/skills",
@@ -85,7 +86,7 @@ function getFallbackKitSource(root: string): { sourcePath: string; label: string
 }
 
 function copyFallbackKitSource(root: string, sourcePath: string, label: string): void {
-  const skillsDir = path.join(root, LOGICS_SKILLS_SUBMODULE_PATH);
+  const skillsDir = path.join(root, LOGICS_RUNTIME_SOURCE_PATH);
   fs.rmSync(skillsDir, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(skillsDir), { recursive: true });
   fs.cpSync(sourcePath, skillsDir, { recursive: true, force: true, dereference: false });
@@ -118,13 +119,13 @@ export async function fallbackInstallKit(root: string): Promise<FallbackKitInsta
     }
   }
 
-  fs.rmSync(path.join(root, LOGICS_SKILLS_SUBMODULE_PATH), { recursive: true, force: true });
+  fs.rmSync(path.join(root, LOGICS_RUNTIME_SOURCE_PATH), { recursive: true, force: true });
   const cloneResult = await runGitWithOutput(root, [
     "clone",
     "--branch",
     CANONICAL_LOGICS_KIT_BRANCH,
     CANONICAL_LOGICS_KIT_URL,
-    LOGICS_SKILLS_SUBMODULE_PATH
+    LOGICS_RUNTIME_SOURCE_PATH
   ]);
   if (cloneResult.error) {
     const detail = `${cloneResult.stderr}\n${cloneResult.stdout}\n${cloneResult.error.message}`.trim();

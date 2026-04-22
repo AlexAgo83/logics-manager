@@ -81,6 +81,10 @@ def main(argv: list[str]) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0
+    if args.command == "flow" and rest[:1] == ["new"]:
+        from .flow import main as flow_main
+
+        return flow_main(rest)
     if args.command == "audit":
         audit_parser = build_audit_parser()
         parsed, _unknown = audit_parser.parse_known_args(rest)

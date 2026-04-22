@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   showInformationMessage: vi.fn(),
   showWarningMessage: vi.fn(),
   withProgress: vi.fn(),
+  getBundledLogicsManagerScriptPath: vi.fn(),
   runPythonWithOutput: vi.fn(),
   inspectGitHubReleaseCapability: vi.fn(),
   runGitCommand: vi.fn()
@@ -27,6 +28,7 @@ vi.mock("vscode", () => ({
 }));
 
 vi.mock("../src/logicsProviderUtils", () => ({
+  getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   runPythonWithOutput: mocks.runPythonWithOutput
 }));
 
@@ -76,10 +78,12 @@ describe("LogicsHybridAssistController — provider remediation", () => {
     mocks.showErrorMessage.mockReset();
     mocks.showWarningMessage.mockReset();
     mocks.withProgress.mockReset();
+    mocks.getBundledLogicsManagerScriptPath.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.inspectGitHubReleaseCapability.mockReset();
     mocks.runGitCommand.mockReset();
     mocks.withProgress.mockImplementation(async (_options, task) => task());
+    mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     mocks.inspectGitHubReleaseCapability.mockResolvedValue({
       available: true,
       title: "Create the release tag, push, and publish the GitHub release"
@@ -104,8 +108,8 @@ describe("LogicsHybridAssistController — provider remediation", () => {
   }
 
   function ensureRuntimeEntry() {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf-8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf-8");
   }
 
   describe("buildProviderRemediationQuickPickItem", () => {

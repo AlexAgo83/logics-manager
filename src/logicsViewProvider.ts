@@ -624,7 +624,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       degraded: true,
       degradedReasons: ["hybrid-runtime-unreported"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
     const claudeGlobalKit = snapshot.claudeGlobalKit ?? {
       status: "missing-overlay",

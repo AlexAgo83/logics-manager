@@ -22,7 +22,7 @@ import {
   type HybridPublishReleaseResult
 } from "./logicsHybridAssistTypes";
 import { LogicsItem } from "./logicsIndexer";
-import { runPythonWithOutput } from "./logicsProviderUtils";
+import { getBundledLogicsManagerScriptPath, runPythonWithOutput } from "./logicsProviderUtils";
 import { assertNever, parseHybridInsightsPanelMessage } from "./logicsViewMessages";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import {
@@ -728,10 +728,10 @@ export class LogicsHybridAssistController {
       actionLabel: string;
     }
   ): Promise<HybridAssistPayload | null> {
-    const runtimeEntry = path.join(root, "logics", "skills", "logics.py");
+    const runtimeEntry = getBundledLogicsManagerScriptPath();
     if (!fs.existsSync(runtimeEntry)) {
       void vscode.window.showErrorMessage(
-        `${options.actionLabel} is unavailable because logics/skills/logics.py is missing.`
+        `${options.actionLabel} is unavailable because the bundled Logics manager runtime is missing.`
       );
       return null;
     }

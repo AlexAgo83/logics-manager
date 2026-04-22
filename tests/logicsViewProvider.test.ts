@@ -27,6 +27,7 @@ const mocks = vi.hoisted(() => ({
   detectKitInstallType: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
   inspectLogicsBootstrapState: vi.fn(),
+  getBundledLogicsManagerScriptPath: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   indexLogics: vi.fn(),
@@ -92,6 +93,7 @@ vi.mock("../src/logicsProviderUtils", () => ({
   getWorkspaceRoot: mocks.getWorkspaceRoot,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
   inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
+  getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   inspectLogicsKitSubmodule: mocks.inspectLogicsKitSubmodule,
   isExistingDirectory: mocks.isExistingDirectory,
   runGitWithOutput: mocks.runGitWithOutput,
@@ -186,7 +188,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",

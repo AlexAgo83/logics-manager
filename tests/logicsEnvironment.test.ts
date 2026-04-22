@@ -103,7 +103,7 @@ describe("inspectLogicsEnvironment", () => {
         degraded: false,
         degradedReasons: [],
         claudeBridgeAvailable: true,
-        windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+        windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
       })
     });
 
@@ -170,8 +170,8 @@ describe("branch-state transitions", () => {
         summary: "Overlay missing.",
         issues: [],
         warnings: [],
-        syncCommand: "python logics/skills/logics.py ...",
-        runCommand: "python logics/skills/logics.py ..."
+        syncCommand: "python scripts/logics-manager.py ...",
+        runCommand: "python scripts/logics-manager.py ..."
       })
   };
 

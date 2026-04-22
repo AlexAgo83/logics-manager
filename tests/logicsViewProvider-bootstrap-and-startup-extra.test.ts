@@ -25,6 +25,7 @@ const mocks = vi.hoisted(() => ({
   detectKitInstallType: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
   inspectLogicsBootstrapState: vi.fn(),
+  getBundledLogicsManagerScriptPath: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   indexLogics: vi.fn(),
@@ -90,6 +91,7 @@ vi.mock("../src/logicsProviderUtils", () => ({
   getWorkspaceRoot: mocks.getWorkspaceRoot,
   hasMultipleWorkspaceFolders: mocks.hasMultipleWorkspaceFolders,
   inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
+  getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   inspectLogicsKitSubmodule: mocks.inspectLogicsKitSubmodule,
   isExistingDirectory: mocks.isExistingDirectory,
   runGitWithOutput: mocks.runGitWithOutput,
@@ -184,7 +186,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
@@ -289,6 +291,7 @@ describe("LogicsViewProvider", () => {
       isCanonical: true,
       reason: "Canonical cdx-logics-kit submodule detected."
     });
+    mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
       stderr: ""
@@ -403,8 +406,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("shows an action-specific error when a hybrid assist command returns invalid JSON", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.runPythonWithOutput.mockResolvedValue({
       stdout: "not-json",
       stderr: ""
@@ -424,8 +427,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("can generate a changelog summary from the shared runtime and copy it to the clipboard", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.showInformationMessage.mockResolvedValueOnce("Copy Changelog").mockResolvedValueOnce(undefined);
     mocks.runPythonWithOutput.mockResolvedValue({
       stdout: JSON.stringify({
@@ -454,7 +457,7 @@ describe("LogicsViewProvider", () => {
       }),
       expect.any(Function)
     );
-    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "scripts", "logics-manager.py"), [
       "flow",
       "assist",
       "summarize-changelog",
@@ -473,8 +476,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("can surface the shared diff-risk flow from tools", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.runPythonWithOutput.mockResolvedValue({
       stdout: JSON.stringify({
         ok: true,
@@ -493,7 +496,7 @@ describe("LogicsViewProvider", () => {
 
     await (provider as any).assessDiffRiskFromTools();
 
-    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "scripts", "logics-manager.py"), [
       "flow",
       "assist",
       "diff-risk",
@@ -534,8 +537,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("opens the hybrid insights panel from the shared roi-report runtime command", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     const onDidDispose = vi.fn();
     const onDidReceiveMessage = vi.fn();
     const reveal = vi.fn();
@@ -619,7 +622,7 @@ describe("LogicsViewProvider", () => {
 
     await provider.openHybridInsightsFromCommand();
 
-    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "logics", "skills", "logics.py"), [
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(root, path.join(root, "scripts", "logics-manager.py"), [
       "flow",
       "assist",
       "roi-report",

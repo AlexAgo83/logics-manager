@@ -46,6 +46,10 @@ const CLAUDE_BRIDGE_VARIANTS = [
   }
 ] as const;
 
+function getBundledLogicsManagerScriptPath(): string {
+  return path.join(__dirname, "..", "scripts", "logics-manager.py");
+}
+
 export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
   const detectedVariants = CLAUDE_BRIDGE_VARIANTS.filter(
     (variant) =>
@@ -328,21 +332,21 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["no-root"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
   }
 
-  const runtimeEntry = path.join(root, "logics", "skills", "logics.py");
+  const runtimeEntry = getBundledLogicsManagerScriptPath();
   if (!fs.existsSync(runtimeEntry)) {
     return {
       state: "unavailable",
-      summary: "Repo-local Logics runtime entrypoint is missing, so hybrid assist commands are unavailable.",
+      summary: "Bundled Logics manager runtime entrypoint is missing, so hybrid assist commands are unavailable.",
       backend: null,
       requestedBackend: null,
       degraded: true,
       degradedReasons: ["missing-logics-runtime"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
   }
 
@@ -358,7 +362,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["missing-python"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
   }
 
@@ -372,7 +376,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-probe-failed"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
   }
 
@@ -388,7 +392,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-invalid-json"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python logics/skills/logics.py flow assist ..."
+      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
     };
   }
 
@@ -421,6 +425,6 @@ async function inspectHybridAssistRuntime(
     windowsSafeEntrypoint:
       typeof payload.windows_safe_entrypoint === "string" && payload.windows_safe_entrypoint.trim()
         ? payload.windows_safe_entrypoint
-        : "python logics/skills/logics.py flow assist ..."
+        : "python scripts/logics-manager.py flow assist ..."
   };
 }

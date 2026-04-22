@@ -449,7 +449,7 @@ describe("LogicsViewProvider", () => {
     await (provider as any).maybeOfferBootstrap(root);
 
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Broad .gitignore pattern(s) detected for Logics runtime paths: logics/. This can break the submodule update path, but the extension can fall back to a copy or direct clone if you confirm."
+      "Broad .gitignore pattern(s) detected for Logics runtime paths: logics/. This can break the runtime update path, but the extension can fall back to a copy or direct clone if you confirm."
     );
   });
 

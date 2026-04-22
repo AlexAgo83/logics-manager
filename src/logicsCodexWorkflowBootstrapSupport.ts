@@ -96,7 +96,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     this.gitignoreWarningPromptedKeys.add(key);
     void vscode.window.showWarningMessage(
       `Broad .gitignore pattern(s) detected for Logics runtime paths: ${result.matchedPatterns.join(", ")}. ` +
-        "This can break the submodule update path, but the extension can fall back to a copy or direct clone if you confirm."
+        "This can break the runtime update path, but the extension can fall back to a copy or direct clone if you confirm."
     );
   }
 

@@ -283,7 +283,7 @@ describe("LogicsViewProvider", () => {
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
-      reason: "No broad .gitignore pattern covering logics/skills was detected."
+      reason: "No broad .gitignore pattern covering the runtime source was detected."
     });
     mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({

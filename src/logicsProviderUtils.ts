@@ -97,8 +97,8 @@ export function detectDangerousGitignorePatterns(root: string): DangerousGitigno
     hasDangerousPatterns: matches.length > 0,
     matchedPatterns: matches,
     reason: matches.length > 0
-      ? `Broad .gitignore pattern(s) cover logics/skills: ${matches.join(", ")}.`
-      : "No broad .gitignore pattern covering logics/skills was detected."
+      ? `Broad .gitignore pattern(s) cover the runtime source: ${matches.join(", ")}.`
+      : "No broad .gitignore pattern covering the runtime source was detected."
   };
 }
 
@@ -189,7 +189,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
     return {
       exists: false,
       isCanonical: false,
-      reason: "logics/skills is missing from the selected repository."
+      reason: "The runtime source is missing from the selected repository."
     };
   }
 
@@ -198,7 +198,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
     return {
       exists: true,
       isCanonical: false,
-      reason: "The repository does not declare logics/skills in .gitmodules."
+      reason: "The repository does not declare the runtime source in .gitmodules."
     };
   }
 
@@ -225,7 +225,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
       return {
         exists: true,
         isCanonical: false,
-        reason: "The Logics runtime submodule is missing a configured URL in .gitmodules."
+        reason: "The Logics runtime source is missing a configured URL in .gitmodules."
       };
     }
     const normalized = remoteUrl.toLowerCase();
@@ -237,15 +237,15 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
       isCanonical,
       remoteUrl,
       reason: isCanonical
-        ? "Canonical Logics runtime submodule detected."
-        : `logics/skills points to a non-canonical submodule URL: ${remoteUrl}`
+        ? "Canonical Logics runtime source detected."
+        : `The runtime source points to a non-canonical URL: ${remoteUrl}`
     };
   }
 
   return {
     exists: true,
     isCanonical: false,
-    reason: "The repository does not declare a Logics runtime submodule entry in .gitmodules."
+    reason: "The repository does not declare a Logics runtime source entry in .gitmodules."
   };
 }
 
@@ -269,8 +269,8 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but logics/skills is still missing."
+      promptMessage: "This branch has an incomplete Logics setup (runtime source is missing). Repair by provisioning the local runtime?",
+      reason: "The active branch has logics/ but the runtime source is still missing."
     };
   }
 

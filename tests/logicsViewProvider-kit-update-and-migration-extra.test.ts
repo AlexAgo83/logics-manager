@@ -283,7 +283,7 @@ describe("LogicsViewProvider", () => {
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
-      reason: "No broad .gitignore pattern covering logics/skills was detected."
+      reason: "No broad .gitignore pattern covering the runtime source was detected."
     });
     mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
@@ -519,7 +519,7 @@ describe("LogicsViewProvider", () => {
       mocks.detectDangerousGitignorePatterns.mockReturnValue({
         hasDangerousPatterns: true,
         matchedPatterns: ["logics/"],
-        reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+        reason: "Broad .gitignore pattern(s) cover the runtime source: logics/."
       });
       mocks.showWarningMessage.mockResolvedValue("Install Fallback");
       (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
@@ -586,7 +586,7 @@ describe("LogicsViewProvider", () => {
       mocks.detectDangerousGitignorePatterns.mockReturnValue({
         hasDangerousPatterns: true,
         matchedPatterns: ["logics/"],
-        reason: "Broad .gitignore pattern(s) cover logics/skills: logics/."
+        reason: "Broad .gitignore pattern(s) cover the runtime source: logics/."
       });
       mocks.showWarningMessage.mockResolvedValue("Install Fallback");
       (provider as any).refresh = vi.fn().mockResolvedValue(undefined);

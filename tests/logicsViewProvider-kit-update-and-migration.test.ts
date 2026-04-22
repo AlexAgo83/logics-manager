@@ -283,13 +283,13 @@ describe("LogicsViewProvider", () => {
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
-      reason: "No broad .gitignore pattern covering logics/skills was detected."
+      reason: "No broad .gitignore pattern covering the runtime source was detected."
     });
     mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Canonical cdx-logics-kit submodule detected."
+      reason: "Canonical Logics runtime source detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
@@ -478,14 +478,14 @@ describe("LogicsViewProvider", () => {
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but logics/skills is still missing."
+      promptMessage: "This branch has an incomplete Logics setup (runtime source is missing). Repair by provisioning the local runtime?",
+      reason: "The active branch has logics/ but the runtime source is still missing."
     });
 
     await (provider as any).maybeOfferBootstrap(root);
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(2);
     expect(mocks.showInformationMessage).toHaveBeenLastCalledWith(
-      "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
+      "This branch has an incomplete Logics setup (runtime source is missing). Repair by provisioning the local runtime?",
       "Bootstrap Logics",
       "Not now"
     );
@@ -532,7 +532,7 @@ describe("LogicsViewProvider", () => {
       status: "noncanonical",
       canBootstrap: false,
       actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
-      reason: "logics/skills points to a non-canonical submodule URL: https://example.com/fork.git"
+      reason: "The runtime source points to a non-canonical URL: https://example.com/fork.git"
     });
 
     await (provider as any).maybeOfferBootstrap(root);

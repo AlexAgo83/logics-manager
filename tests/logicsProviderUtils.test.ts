@@ -184,7 +184,7 @@ describe("inspectLogicsKitSubmodule", () => {
     const missingSkills = inspectLogicsKitSubmodule(missingSkillsRoot);
     expect(missingSkills.exists).toBe(false);
     expect(missingSkills.isCanonical).toBe(false);
-    expect(missingSkills.reason).toContain("logics/skills");
+    expect(missingSkills.reason).toContain("runtime source");
 
     const missingGitmodulesRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-gitmodules-"));
     roots.push(missingGitmodulesRoot);
@@ -196,7 +196,7 @@ describe("inspectLogicsKitSubmodule", () => {
     expect(missingGitmodules.reason).toContain(".gitmodules");
   });
 
-  it("flags non-canonical submodule URLs", () => {
+  it("flags non-canonical runtime source URLs", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-noncanonical-"));
     roots.push(root);
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
@@ -366,7 +366,7 @@ describe("detectDangerousGitignorePatterns", () => {
 
     expect(inspection.hasDangerousPatterns).toBe(true);
     expect(inspection.matchedPatterns).toEqual(["logics/", "logics/*", "logics/**"]);
-    expect(inspection.reason).toContain("logics/skills");
+    expect(inspection.reason).toContain("runtime source");
   });
 
   it("ignores harmless .gitignore entries", () => {

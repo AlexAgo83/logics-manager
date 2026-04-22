@@ -46,6 +46,9 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["sync", "context-pack", "req_001_demo"], None, None),
         (["sync", "export-graph"], None, None),
         (["assist", "runtime-status"], None, None),
+        (["assist", "diff-risk"], None, None),
+        (["assist", "commit-plan"], None, None),
+        (["assist", "roi-report"], None, None),
         (["assist", "context", "request-draft"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
@@ -77,11 +80,18 @@ def test_main_dispatches_to_expected_underlying_script(
         ["sync", "context-pack"],
         ["sync", "export-graph"],
         ["assist", "runtime-status"],
+        ["assist", "diff-risk"],
+        ["assist", "commit-plan"],
+        ["assist", "roi-report"],
         ["assist", "context"],
     ):
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.assist.main", lambda _argv: 0)
+    if argv[:2] == ["assist", "diff-risk"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
+    if argv[:2] == ["assist", "commit-plan"]:
+        monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
 
     exit_code = main(argv)
 
@@ -707,6 +717,90 @@ def test_main_runs_native_assist_runtime_status(
     assert exit_code == 0
     assert "Assist runtime status:" in captured.out
     assert "- selected backend:" in captured.out
+
+
+def test_main_runs_native_assist_diff_risk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "app.ts").write_text("console.log('demo')\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["src/app.ts"])
+
+    exit_code = main(["assist", "diff-risk"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Diff risk: medium" in captured.out
+    assert "- changed paths: 1" in captured.out
+
+
+def test_main_runs_native_assist_commit_plan(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: ["logics_manager/assist.py"])
+
+    exit_code = main(["assist", "commit-plan"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Commit plan: feat: extend native logics-manager runtime" in captured.out
+    assert "- scope: python-runtime" in captured.out
+
+
+def test_main_runs_native_assist_roi_report(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / ".cache").mkdir(parents=True)
+    (repo_root / "logics" / ".cache" / "hybrid_assist_measurements.jsonl").write_text(
+        "\n".join(
+            [
+                '{"recorded_at":"2026-04-22T10:00:00+00:00","flow":"request-draft","backend_requested":"auto","backend_used":"ollama","execution_path":"local","result_status":"ok","confidence":0.92,"degraded_reasons":[],"review_recommended":false}',
+                '{"recorded_at":"2026-04-22T11:00:00+00:00","flow":"request-draft","backend_requested":"auto","backend_used":"codex","execution_path":"fallback","result_status":"degraded","confidence":0.61,"degraded_reasons":["backend fallback"],"review_recommended":true}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / ".cache" / "hybrid_assist_audit.jsonl").write_text(
+        "\n".join(
+            [
+                '{"recorded_at":"2026-04-22T10:00:00+00:00","flow":"request-draft","result_status":"ok","backend":{"requested_backend":"auto","selected_backend":"ollama","reasons":[]},"safety_class":"proposal-only","context_summary":{"seed_ref":"req_001_demo"},"transport":{"reason":"local"}}',
+                '{"recorded_at":"2026-04-22T11:00:00+00:00","flow":"request-draft","result_status":"degraded","backend":{"requested_backend":"auto","selected_backend":"codex","reasons":["bridge missing"]},"safety_class":"proposal-only","context_summary":{"seed_ref":"req_001_demo"},"transport":{"reason":"fallback"}}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "roi-report"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Assist ROI report: OK" in captured.out
+    assert "- runs: 2" in captured.out
+    assert "- local offload rate: 0.5" in captured.out
 
 
 def test_main_runs_native_assist_context(

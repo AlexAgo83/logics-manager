@@ -63,7 +63,7 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
   if (!root) {
     return {
       status: "unavailable",
-      summary: "Select a project root before checking the global Claude Logics kit state.",
+      summary: "Select a project root before checking the global Claude runtime state.",
       issues: [],
       warnings: []
     };
@@ -76,7 +76,7 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
   const manifestPath = path.join(claudeHome, MANIFEST_NAME);
   const base: ClaudeKitSnapshot = {
     status: "healthy",
-    summary: "Global Claude Logics kit is ready.",
+    summary: "Global Claude runtime is ready.",
     issues: [],
     warnings: [],
     claudeHome,
@@ -90,17 +90,17 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     validateManifest: (manifest) =>
       (manifest.manifest_kind && manifest.manifest_kind !== MANIFEST_KIND) ||
       (manifest.schema_version && manifest.schema_version !== MANIFEST_SCHEMA_VERSION)
-        ? ["Global Claude kit manifest schema is unsupported."]
+        ? ["Global Claude runtime manifest schema is unsupported."]
         : [],
     validateEntries: (entries) => {
       const issues: string[] = [];
       for (const entry of entries) {
         if (!fs.existsSync(entry.source_path)) {
-          issues.push(`Published Claude kit source is missing for \`${entry.name}\` (${entry.kind}).`);
+          issues.push(`Published Claude runtime source is missing for \`${entry.name}\` (${entry.kind}).`);
           continue;
         }
         if (!fs.existsSync(entry.destination_path)) {
-          issues.push(`Published Claude kit destination is missing for \`${entry.name}\` (${entry.kind}).`);
+          issues.push(`Published Claude runtime destination is missing for \`${entry.name}\` (${entry.kind}).`);
           continue;
         }
         const currentSourceMtime = readSkillMtime(entry.source_path, ["SKILL.md", path.join("agents", "openai.yaml")]);
@@ -109,7 +109,7 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
           typeof currentSourceMtime === "number" &&
           entry.source_mtime_ns !== currentSourceMtime
         ) {
-          issues.push(`Published Claude kit entry is stale for \`${entry.name}\` (${entry.kind}).`);
+          issues.push(`Published Claude runtime entry is stale for \`${entry.name}\` (${entry.kind}).`);
         }
       }
       return issues;
@@ -117,18 +117,18 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     publishedSkillNames: (entries) => Array.from(new Set(entries.map((entry) => entry.name))).sort(),
     versionChangeSeverity: "issue",
     versionChangeMessage: (repoVersion, installedVersion) =>
-      `Repo-local kit version ${repoVersion} is newer than the published Claude version ${installedVersion || "unknown"}.`,
+      `Repo-local runtime version ${repoVersion} is newer than the published Claude version ${installedVersion || "unknown"}.`,
     revisionChangeSeverity: "issue",
-    revisionChangeMessage: () => "Repo-local kit revision differs from the published Claude revision for this repository.",
+    revisionChangeMessage: () => "Repo-local runtime revision differs from the published Claude revision for this repository.",
     missingVersionSeverity: "issue",
-    missingVersionMessage: "Published global Claude kit version is missing from the manifest."
+    missingVersionMessage: "Published global Claude runtime version is missing from the manifest."
   });
 
   if (inspection.kind === "missing-manager") {
     return {
       ...base,
       status: "missing-manager",
-      summary: "This repository does not expose a compatible repo-local Logics kit source for Claude publication.",
+      summary: "This repository does not expose a compatible repo-local Logics runtime source for Claude publication.",
       issues: inspection.issues
     };
   }
@@ -137,7 +137,7 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     return {
       ...base,
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
+      summary: "No global Claude runtime is published yet.",
       issues: inspection.issues,
       installedVersion: inspection.context.repoVersion,
       sourceRepo: inspection.context.resolvedRoot,
@@ -151,7 +151,7 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     return {
       ...base,
       status: "stale",
-      summary: "Global Claude Logics kit manifest is unreadable.",
+      summary: "Global Claude runtime manifest is unreadable.",
       issues: inspection.issues,
       needsPublish: true
     };
@@ -160,8 +160,8 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
   const status: ClaudeKitStatus = inspection.issues.length > 0 ? "stale" : "healthy";
   const summary =
     status === "healthy"
-      ? `Global Claude Logics kit is ready (${inspection.installedVersion || "unknown version"}). Launch Claude normally to use it.`
-      : "Global Claude Logics kit needs re-publication before it is reliable.";
+      ? `Global Claude runtime is ready (${inspection.installedVersion || "unknown version"}). Launch Claude normally to use it.`
+      : "Global Claude runtime needs re-publication before it is reliable.";
 
   return {
     ...base,

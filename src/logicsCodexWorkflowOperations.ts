@@ -55,20 +55,20 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (overlay.status === "missing-manager") {
       const inspection = inspectLogicsKitSubmodule(root);
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command", "Not now");
       const choice = await vscode.window.showInformationMessage(
-        `This repository already has Logics, but it cannot act as a healthy global Codex kit source yet. ${overlay.summary}`,
+        `This repository already has Logics, but it cannot act as a healthy global Codex runtime source yet. ${overlay.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, "startup remediation");
         return;
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
     }
@@ -79,26 +79,26 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         this.clearCodexRemediationPromptState(root);
         return;
       }
-      void vscode.window.showWarningMessage(`Global Codex kit still needs attention. ${overlay.summary}`);
+      void vscode.window.showWarningMessage(`Global Codex runtime still needs attention. ${overlay.summary}`);
       return;
     }
 
     const inspection = inspectLogicsKitSubmodule(root);
     if (inspection.exists && inspection.isCanonical) {
-      actions.push("Update Logics Kit");
+      actions.push("Update Logics Runtime");
     }
     actions.push("Copy Update Command");
     const choice = await vscode.window.showInformationMessage(
-      `Global Codex kit needs attention for this repository. ${overlay.summary}`,
+      `Global Codex runtime needs attention for this repository. ${overlay.summary}`,
       ...actions
     );
-    if (choice === "Update Logics Kit") {
+    if (choice === "Update Logics Runtime") {
       await this.updateLogicsKit(root, "startup remediation");
       return;
     }
     if (choice === "Copy Update Command") {
       await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-      void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+      void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
     }
   }
 
@@ -114,30 +114,30 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       const updateCommand = buildLogicsKitUpdateCommand();
       actions.push("Copy Update Command");
       const choice = await vscode.window.showInformationMessage(
-        `Repo-local Logics is ready after ${trigger}, but the current kit cannot yet publish a healthy global Codex kit. ${overlay.summary}`,
+        `Repo-local Logics is ready after ${trigger}, but the current runtime cannot yet publish a healthy global Codex runtime. ${overlay.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, trigger);
         return;
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
     }
 
     const choice = await vscode.window.showInformationMessage(
-      `Repo-local Logics is ready after ${trigger}, but the global Codex kit still needs publication or repair. ${overlay.summary}`,
-      "Publish Global Codex Kit"
+      `Repo-local Logics is ready after ${trigger}, but the global Codex runtime still needs publication or repair. ${overlay.summary}`,
+      "Publish Global Codex Runtime"
     );
-    if (choice === "Publish Global Codex Kit") {
+    if (choice === "Publish Global Codex Runtime") {
       await this.syncCodexOverlay(root, trigger);
     }
   }
@@ -148,7 +148,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const detail = `${gitVersion.stderr}\n${gitVersion.stdout}\n${gitVersion.error.message}`.trim();
       if (isMissingGitFailureDetail(detail)) {
         void vscode.window.showErrorMessage(
-          `Updating the Logics kit requires Git. ${buildMissingGitMessage()} The extension cannot install Git automatically. Use \`Logics: Check Environment\` for details.`
+          `Updating the Logics runtime requires Git. ${buildMissingGitMessage()} The extension cannot install Git automatically. Use \`Logics: Check Environment\` for details.`
         );
         return false;
       }
@@ -163,12 +163,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
       const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics kit update requires a git worktree rooted at the selected project. Use the canonical submodule update command manually if needed.",
+        "Automatic Logics runtime update requires a git worktree rooted at the selected project. Use the canonical submodule update command manually if needed.",
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -176,7 +176,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const rootStatus = await runGitWithOutput(root, ["status", "--porcelain"]);
     if (rootStatus.error) {
       void vscode.window.showErrorMessage(
-        `Failed to inspect repository state before updating the Logics kit: ${rootStatus.stderr || rootStatus.error.message}`
+        `Failed to inspect repository state before updating the Logics runtime: ${rootStatus.stderr || rootStatus.error.message}`
       );
       return false;
     }
@@ -187,12 +187,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const hasOtherRootChanges = rootStatusEntries.some((entry) => !entry.path.startsWith("logics/skills"));
     if (hasSkillsChangesInRoot) {
       const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics kit update is blocked because the logics/skills submodule has uncommitted changes. Commit or stash them first, or run the submodule update manually.",
+        "Automatic Logics runtime update is blocked because the local Logics tooling has uncommitted changes. Commit or stash them first, or run the update manually.",
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -201,7 +201,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const skillsStatus = await runGitWithOutput(root, ["-C", "logics/skills", "status", "--porcelain"]);
       if (!skillsStatus.error && skillsStatus.stdout.trim()) {
         void vscode.window.showWarningMessage(
-          "Automatic Logics kit update is blocked: the standalone kit clone has uncommitted changes. Commit or stash them first."
+        "Automatic Logics runtime update is blocked: the standalone runtime clone has uncommitted changes. Commit or stash them first."
         );
         return false;
       }
@@ -210,12 +210,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       if (pullResult.error) {
         const detail = `${pullResult.stderr}\n${pullResult.stdout}\n${pullResult.error.message}`.trim();
         const choice = await vscode.window.showErrorMessage(
-          `Failed to update the standalone Logics kit clone. ${detail || pullResult.error.message}`,
+          `Failed to update the standalone Logics runtime clone. ${detail || pullResult.error.message}`,
           "Copy Update Command"
         );
         if (choice === "Copy Update Command") {
           await vscode.env.clipboard.writeText(updateCommand);
-          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+          void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
         }
         return false;
       }
@@ -227,7 +227,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
       const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
       const messageWithConvergence = appendBootstrapConvergenceNote(
-        `Logics kit updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.${rootChangeNote}`,
+        `Logics runtime updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.${rootChangeNote}`,
         bootstrapConvergence
       );
       void vscode.window.showInformationMessage(messageWithConvergence);
@@ -237,24 +237,24 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (installType === "plain-copy" || !inspection.exists || !inspection.isCanonical) {
       if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
         const choice = await vscode.window.showWarningMessage(
-          `Automatic Logics kit update is only supported for the canonical logics/skills submodule. ${inspection.reason}`,
+          `Automatic Logics runtime update is only supported for the canonical local runtime. ${inspection.reason}`,
           "Copy Update Command"
         );
         if (choice === "Copy Update Command") {
           await vscode.env.clipboard.writeText(updateCommand);
-          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+          void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
         }
         return false;
       }
 
       const choice = await vscode.window.showWarningMessage(
-        `logics/ appears to be gitignored and the canonical submodule is not functional. ${inspection.reason} Install or refresh the kit via fallback copy or clone?`,
+          `logics/ appears to be gitignored and the canonical submodule is not functional. ${inspection.reason} Install or refresh the runtime via fallback copy or clone?`,
         "Install Fallback",
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
         return false;
       }
       if (choice !== "Install Fallback") {
@@ -264,7 +264,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const fallbackResult = await fallbackInstallKit(root);
       if (!fallbackResult.installed) {
         const failureMessage = fallbackResult.failureMessage || "The fallback install could not complete.";
-        void vscode.window.showErrorMessage(`Failed to install the fallback Logics kit. ${failureMessage}`);
+      void vscode.window.showErrorMessage(`Failed to install the fallback Logics runtime. ${failureMessage}`);
         return false;
       }
 
@@ -273,15 +273,15 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const snapshot = await inspectLogicsEnvironment(root);
       const message =
         fallbackResult.method === "copy"
-          ? `Logics kit updated after ${trigger} from the ${fallbackResult.sourceLabel || "global"} kit.`
-          : `Logics kit updated after ${trigger} by cloning the canonical kit repository.`;
+          ? `Logics runtime updated after ${trigger} from the ${fallbackResult.sourceLabel || "global"} runtime.`
+          : `Logics runtime updated after ${trigger} by cloning the canonical runtime repository.`;
       const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
       if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
         void vscode.window.showInformationMessage(messageWithConvergence);
       } else {
-        const choice = await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Kit");
-        if (choice === "Publish Global Codex Kit") {
-          await this.syncCodexOverlay(root, "kit update");
+        const choice = await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime");
+        if (choice === "Publish Global Codex Runtime") {
+          await this.syncCodexOverlay(root, "runtime update");
         }
       }
       return true;
@@ -290,12 +290,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const beforeStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
     if (beforeStatus.error) {
       const choice = await vscode.window.showWarningMessage(
-        `The plugin could not confirm the canonical logics/skills submodule before updating it. ${beforeStatus.stderr || beforeStatus.error.message}`,
+        `The plugin could not confirm the canonical local Logics runtime before updating it. ${beforeStatus.stderr || beforeStatus.error.message}`,
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -304,12 +304,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (updateResult.error) {
       const detail = `${updateResult.stderr}\n${updateResult.stdout}`.trim();
       const choice = await vscode.window.showErrorMessage(
-        `Failed to update the Logics kit. ${detail || updateResult.error.message}`,
+        `Failed to update the Logics runtime. ${detail || updateResult.error.message}`,
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -325,22 +325,22 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (snapshot.codexOverlay.status === "missing-manager") {
       void vscode.window.showWarningMessage(
         updated
-          ? "The Logics kit submodule updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older kit branch or tag."
-          : "The Logics kit is already at the current tracked submodule revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older kit branch or tag."
+          ? "The Logics runtime submodule updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
+          : "The Logics runtime is already at the current tracked submodule revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
       );
       return true;
     }
 
     const message = updated
-      ? `Logics kit updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.${rootChangeNote}`
-      : `The Logics kit is already up to date on the tracked submodule revision.${rootChangeNote}`;
+      ? `Logics runtime updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.${rootChangeNote}`
+      : `The Logics runtime is already up to date on the tracked submodule revision.${rootChangeNote}`;
     const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"
-        ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Kit")
+        ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime")
         : undefined;
-    if (choice === "Publish Global Codex Kit") {
-      await this.syncCodexOverlay(root, "kit update");
+    if (choice === "Publish Global Codex Runtime") {
+      await this.syncCodexOverlay(root, "runtime update");
     } else {
       void vscode.window.showInformationMessage(messageWithConvergence);
     }
@@ -363,7 +363,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         launchCodexOverlayTerminal(root, overlay.runCommand);
         return true;
       }
-      void vscode.window.showInformationMessage("Global Codex kit is already ready for this repository.");
+      void vscode.window.showInformationMessage("Global Codex runtime is already ready for this repository.");
       return true;
     }
 
@@ -371,19 +371,19 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
       const choice = await vscode.window.showWarningMessage(
-        `Global Codex kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${overlay.summary}`,
+        `Global Codex runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${overlay.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, trigger);
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -392,7 +392,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       publishCodexWorkspaceOverlay(root);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Global Codex kit publish failed: ${message}`);
+      void vscode.window.showErrorMessage(`Global Codex runtime publish failed: ${message}`);
       return false;
     }
 
@@ -401,7 +401,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (refreshed.codexOverlay.status === "healthy" || refreshed.codexOverlay.status === "warning") {
       if (options?.autoLaunchOnSuccess && refreshed.codexOverlay.runCommand) {
         launchCodexOverlayTerminal(root, refreshed.codexOverlay.runCommand);
-        void vscode.window.showInformationMessage(`Global Codex kit published after ${trigger}. Launching Codex in Terminal.`);
+        void vscode.window.showInformationMessage(`Global Codex runtime published after ${trigger}. Launching Codex in Terminal.`);
         return true;
       }
       const actions = refreshed.codexOverlay.runCommand
@@ -409,7 +409,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         : [];
       const choice = actions.length > 0
         ? await vscode.window.showInformationMessage(
-            `Global Codex kit published after ${trigger}. ${refreshed.codexOverlay.summary}`,
+            `Global Codex runtime published after ${trigger}. ${refreshed.codexOverlay.summary}`,
             ...actions
           )
         : undefined;
@@ -422,13 +422,13 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         void vscode.window.showInformationMessage("Codex launch command copied to clipboard.");
       }
       if (!choice) {
-        void vscode.window.showInformationMessage(`Global Codex kit published. ${refreshed.codexOverlay.summary}`);
+        void vscode.window.showInformationMessage(`Global Codex runtime published. ${refreshed.codexOverlay.summary}`);
       }
       return true;
     }
 
     void vscode.window.showWarningMessage(
-      `Global Codex kit publish completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
+      `Global Codex runtime publish completed, but the runtime still needs attention. ${refreshed.codexOverlay.summary}`
     );
     return false;
   }
@@ -444,7 +444,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const snapshot = await inspectLogicsEnvironment(root);
     const globalKit = snapshot.claudeGlobalKit;
     if (!globalKit) {
-      void vscode.window.showWarningMessage("Global Claude kit state is unavailable for this repository.");
+      void vscode.window.showWarningMessage("Global Claude runtime state is unavailable for this repository.");
       return false;
     }
 
@@ -453,7 +453,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         launchClaudeTerminal(root, "claude");
         return true;
       }
-      void vscode.window.showInformationMessage("Global Claude kit is already ready for this repository.");
+      void vscode.window.showInformationMessage("Global Claude runtime is already ready for this repository.");
       return true;
     }
 
@@ -461,19 +461,19 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
       if (inspection.exists && inspection.isCanonical) {
-        actions.push("Update Logics Kit");
+        actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
       const choice = await vscode.window.showWarningMessage(
-        `Global Claude kit publication is unavailable because the Logics kit in this repository is not a healthy publication source yet. ${globalKit.summary}`,
+        `Global Claude runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${globalKit.summary}`,
         ...actions
       );
-      if (choice === "Update Logics Kit") {
+      if (choice === "Update Logics Runtime") {
         await this.updateLogicsKit(root, trigger);
       }
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-        void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return false;
     }
@@ -482,7 +482,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       publishClaudeGlobalKit(root);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Global Claude kit publish failed: ${message}`);
+      void vscode.window.showErrorMessage(`Global Claude runtime publish failed: ${message}`);
       return false;
     }
 
@@ -491,23 +491,23 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (refreshed.claudeGlobalKit?.status === "healthy") {
       if (options?.autoLaunchOnSuccess) {
         launchClaudeTerminal(root, "claude");
-        void vscode.window.showInformationMessage(`Global Claude kit published after ${trigger}. Launching Claude in Terminal.`);
+        void vscode.window.showInformationMessage(`Global Claude runtime published after ${trigger}. Launching Claude in Terminal.`);
         return true;
       }
       const choice = await vscode.window.showInformationMessage(
-        `Global Claude kit published after ${trigger}. ${refreshed.claudeGlobalKit.summary}`,
+        `Global Claude runtime published after ${trigger}. ${refreshed.claudeGlobalKit.summary}`,
         "Launch Claude in Terminal"
       );
       if (choice === "Launch Claude in Terminal") {
         launchClaudeTerminal(root, "claude");
         return true;
       }
-      void vscode.window.showInformationMessage(`Global Claude kit published. ${refreshed.claudeGlobalKit.summary}`);
+      void vscode.window.showInformationMessage(`Global Claude runtime published. ${refreshed.claudeGlobalKit.summary}`);
       return true;
     }
 
     void vscode.window.showWarningMessage(
-      `Global Claude kit publish completed, but the runtime still needs attention. ${refreshed.claudeGlobalKit?.summary || "Unknown state."}`
+      `Global Claude runtime publish completed, but the runtime still needs attention. ${refreshed.claudeGlobalKit?.summary || "Unknown state."}`
     );
     return false;
   }
@@ -518,12 +518,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (snapshot.codexOverlay.status === "missing-manager" || snapshot.claudeGlobalKit?.status === "missing-manager") {
       if (!inspection.exists || !inspection.isCanonical) {
         const choice = await vscode.window.showWarningMessage(
-          `Repair Logics Kit requires the canonical logics/skills submodule. ${inspection.reason}`,
+          `Repair Logics runtime requires the canonical local workflow runtime. ${inspection.reason}`,
           "Copy Update Command"
         );
         if (choice === "Copy Update Command") {
           await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
-          void vscode.window.showInformationMessage("Logics kit update command copied to clipboard.");
+          void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
         }
         return false;
       }
@@ -535,7 +535,11 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       snapshot = await inspectLogicsEnvironment(root);
     }
 
-    const bridgeRepair = repairClaudeBridgeFiles(root);
+    const bridgeRepair = await repairClaudeBridgeFiles(root);
+    if (bridgeRepair.failureMessage) {
+      void vscode.window.showErrorMessage(`Failed to restore Claude bridge files from the bundled runtime. ${bridgeRepair.failureMessage}`);
+      return false;
+    }
     if (bridgeRepair.writtenPaths.length > 0) {
       await this.options.refresh();
       snapshot = await inspectLogicsEnvironment(root);
@@ -551,7 +555,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         snapshot = await inspectLogicsEnvironment(root);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`Global Codex kit publish failed: ${message}`);
+        void vscode.window.showErrorMessage(`Global Codex runtime publish failed: ${message}`);
         return false;
       }
     }
@@ -564,7 +568,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         snapshot = await inspectLogicsEnvironment(root);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`Global Claude kit publish failed: ${message}`);
+        void vscode.window.showErrorMessage(`Global Claude runtime publish failed: ${message}`);
         return false;
       }
     }
@@ -574,21 +578,21 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (codexReady && claudeReady) {
       if (bridgeRepair.writtenPaths.length > 0) {
         void vscode.window.showInformationMessage(
-          `Repair Logics Kit restored Claude bridge files: ${bridgeRepair.writtenPaths.join(", ")}`
+          `Repair Logics runtime restored Claude bridge files: ${bridgeRepair.writtenPaths.join(", ")}`
         );
         return true;
       }
       if (changed) {
-        void vscode.window.showInformationMessage("Logics kit runtime repair completed for Codex and Claude.");
+        void vscode.window.showInformationMessage("Logics runtime repair completed for Codex and Claude.");
         return true;
       }
       if (bridgeRepair.skippedVariants.length > 0) {
         void vscode.window.showWarningMessage(
-          `Repair Logics Kit could not restore Claude bridge files because required skill packages are missing for: ${bridgeRepair.skippedVariants.join(", ")}.`
+          `Repair Logics runtime could not restore Claude bridge files for: ${bridgeRepair.skippedVariants.join(", ")}.`
         );
         return false;
       }
-      void vscode.window.showInformationMessage("Logics kit runtime is already healthy for this repository.");
+      void vscode.window.showInformationMessage("Logics runtime is already healthy for this repository.");
       return true;
     }
 
@@ -616,7 +620,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       const key = `${path.resolve(root)}::global-kit-autopublish-failed`;
       if (!this.codexRemediationPromptedKeys.has(key)) {
         this.codexRemediationPromptedKeys.add(key);
-        void vscode.window.showWarningMessage(`Automatic global Codex kit publish failed: ${message}`);
+        void vscode.window.showWarningMessage(`Automatic global Codex runtime publish failed: ${message}`);
       }
       return false;
     }

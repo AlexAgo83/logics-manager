@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { discoverKitSkills, inspectClaudeGlobalKit, publishClaudeGlobalKit } from "../src/logicsClaudeGlobalKit";
 
-describe("Claude global kit", () => {
+describe("Claude global runtime", () => {
   const roots: string[] = [];
   const originalClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
 
@@ -36,7 +36,7 @@ describe("Claude global kit", () => {
     );
   }
 
-  it("reports a missing Claude kit when repo-local skills exist but nothing is published yet", () => {
+  it("reports a missing Claude runtime when repo-local skills exist but nothing is published yet", () => {
     const root = makeRoot("logics-claude-kit-");
     writeSkill(root, "demo-skill", "Use $demo-skill.");
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
@@ -45,10 +45,10 @@ describe("Claude global kit", () => {
     const snapshot = inspectClaudeGlobalKit(root);
 
     expect(snapshot.status).toBe("missing-overlay");
-    expect(snapshot.summary).toContain("No global Claude Logics kit is published yet");
+    expect(snapshot.summary).toContain("No global Claude runtime is published yet");
   });
 
-  it("publishes a global Claude kit and reports it healthy", () => {
+  it("publishes a global Claude runtime and reports it healthy", () => {
     const root = makeRoot("logics-claude-kit-");
     writeSkill(root, "demo-skill", "Use $demo-skill.");
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
@@ -68,7 +68,7 @@ describe("Claude global kit", () => {
     expect(snapshot.publishedSkillNames).toEqual(["demo-skill"]);
   });
 
-  it("discovers kit skill names from SKILL.md frontmatter", () => {
+  it("discovers runtime skill names from SKILL.md frontmatter", () => {
     const root = makeRoot("logics-claude-kit-discovery-");
     fs.mkdirSync(path.join(root, "logics", "skills", "alpha-skill"), { recursive: true });
     fs.writeFileSync(

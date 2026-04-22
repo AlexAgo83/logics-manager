@@ -98,9 +98,9 @@ describe("workflowSupport", () => {
   });
 
   it("generates specific bootstrap commit messages from changed paths", () => {
-    expect(buildBootstrapCommitMessage([".gitmodules", "logics/skills"])).toBe("Bootstrap Logics kit");
+    expect(buildBootstrapCommitMessage([".gitmodules", "logics/skills"])).toBe("Bootstrap Logics runtime");
     expect(buildBootstrapCommitMessage([".gitmodules", "logics/request/req_001_demo.md"])).toBe(
-      "Bootstrap Logics kit and initialize workflow docs"
+      "Bootstrap Logics runtime and initialize workflow docs"
     );
     expect(buildBootstrapCommitMessage(["logics/request/req_001_demo.md"])).toBe("Initialize Logics workflow docs");
   });

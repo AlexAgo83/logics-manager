@@ -175,7 +175,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       },
       codexRuntime: {
         status: "unavailable",
-        summary: "Repo-local Logics is ready, but the global Codex kit still needs publication."
+        summary: "Repo-local Logics is ready, but the global Codex runtime still needs publication."
       }
     },
     hybridRuntime: {
@@ -186,12 +186,12 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
-      issues: ["Global Claude kit manifest is missing."],
+      summary: "No global Claude runtime is published yet.",
+      issues: ["Global Claude runtime manifest is missing."],
       warnings: [],
       sourceRepo: "/workspace/mock",
       publishedSkillNames: [],
@@ -199,8 +199,8 @@ vi.mock("../src/logicsEnvironment", () => ({
     },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
-      issues: ["Global Logics kit manifest is missing."],
+      summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: [],
       runCommand: "codex",
       installedVersion: "1.4.0",
@@ -269,7 +269,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics in this project",
-      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found in the selected repository."
     });
     mocks.indexLogics.mockReturnValue([]);
@@ -318,7 +318,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReturnValue(false);
     mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet.",
+      summary: "No global Codex runtime is published yet.",
       issues: [],
       warnings: [],
       overlayRoot: path.join(root, ".codex", "skills"),
@@ -328,7 +328,7 @@ describe("LogicsViewProvider", () => {
     });
     mocks.inspectClaudeGlobalKit.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
+      summary: "No global Claude runtime is published yet.",
       issues: [],
       warnings: [],
       claudeHome: path.join(root, ".claude"),
@@ -347,12 +347,12 @@ describe("LogicsViewProvider", () => {
       hasClaude: true,
       codex: {
         available: true,
-        title: "Launch Codex with the globally published Logics kit",
+        title: "Launch Codex with the globally published Logics runtime",
         command: "codex"
       },
       claude: {
         available: true,
-        title: "Launch Claude with the globally published Logics kit",
+        title: "Launch Claude with the globally published Logics runtime",
         command: "claude"
       }
     });
@@ -435,8 +435,8 @@ describe("LogicsViewProvider", () => {
       },
       codexOverlay: {
         status: "missing-manager",
-        summary: "This repository does not expose a compatible repo-local Logics kit source for global publication.",
-        issues: ["No compatible repo-local Logics kit source is available for global publication."],
+        summary: "This repository does not expose a compatible repo-local Logics runtime source for global publication.",
+        issues: ["No compatible repo-local Logics runtime source is available for global publication."],
         warnings: [],
         runCommand: "codex"
       }
@@ -448,8 +448,8 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "This repository already has Logics, but it cannot act as a healthy global Codex kit source yet. This repository does not expose a compatible repo-local Logics kit source for global publication.",
-      "Update Logics Kit",
+      "This repository already has Logics, but it cannot act as a healthy global Codex runtime source yet. This repository does not expose a compatible repo-local Logics runtime source for global publication.",
+      "Update Logics Runtime",
       "Copy Update Command",
       "Not now"
     );
@@ -461,7 +461,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics on this branch",
-      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found on the active branch."
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
@@ -478,14 +478,14 @@ describe("LogicsViewProvider", () => {
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
       reason: "The active branch has logics/ but logics/skills is still missing."
     });
 
     await (provider as any).maybeOfferBootstrap(root);
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(2);
     expect(mocks.showInformationMessage).toHaveBeenLastCalledWith(
-      "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
       "Bootstrap Logics",
       "Not now"
     );
@@ -496,7 +496,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics on this branch",
-      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found on the active branch."
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
@@ -520,7 +520,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics on this branch",
-      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found on the active branch."
     });
     await (provider as any).maybeOfferBootstrap(root);
@@ -531,7 +531,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "noncanonical",
       canBootstrap: false,
-      actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+      actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
       reason: "logics/skills points to a non-canonical submodule URL: https://example.com/fork.git"
     });
 
@@ -568,12 +568,12 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "unavailable", summary: "Global kit missing." }
+          codexRuntime: { status: "unavailable", summary: "Global runtime missing." }
         },
         codexOverlay: {
           status: "missing-overlay",
-          summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
-          issues: ["Global Logics kit manifest is missing."],
+          summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
+          issues: ["Global Logics runtime manifest is missing."],
           warnings: [],
           runCommand: "codex"
         }
@@ -583,11 +583,11 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.showWarningMessage).toHaveBeenCalledTimes(1);
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Global Codex kit still needs attention. No global Codex Logics kit is published yet. Opening this repository can publish it automatically."
+      "Global Codex runtime still needs attention. No global Codex runtime is published yet. Opening this repository can publish it automatically."
     );
   });
 
-  it("proactively offers Logics kit update on refresh when the canonical repo kit is below the minimum version", async () => {
+  it("proactively offers Logics runtime update on refresh when the canonical repo kit is below the minimum version", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
@@ -603,14 +603,14 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Older Logics kit detected in this repository (v1.5.0). Update now to restore migration, repair, and environment convergence support.",
-      "Update Logics Kit",
+      "Older Logics runtime detected in this repository (v1.5.0). Update now to restore migration, repair, and environment convergence support.",
+      "Update Logics Runtime",
       "Check Environment",
       "Not now"
     );
   });
 
-  it("runs Update Logics Kit directly from the startup remediation prompt", async () => {
+  it("runs Update Logics Runtime directly from the startup remediation prompt", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
@@ -619,12 +619,12 @@ describe("LogicsViewProvider", () => {
       actionTitle: "Bootstrap already completed",
       reason: "Canonical cdx-logics-kit submodule detected."
     });
-    mocks.showInformationMessage.mockResolvedValue("Update Logics Kit");
+    mocks.showInformationMessage.mockResolvedValue("Update Logics Runtime");
     const updateSpy = vi.spyOn((provider as any).codexWorkflowController, "updateLogicsKit").mockResolvedValue(true);
 
     await provider.refresh();
 
-    expect(updateSpy).toHaveBeenCalledWith(root, "startup kit remediation");
+    expect(updateSpy).toHaveBeenCalledWith(root, "startup runtime remediation");
   });
 
 });

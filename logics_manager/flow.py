@@ -1,49 +1,38 @@
 from __future__ import annotations
 
 import argparse
-import io
 import json
-import sys
+import re
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from contextlib import redirect_stdout
 
-FLOW_MANAGER_SCRIPTS = Path(__file__).resolve().parents[1] / "logics" / "skills" / "logics-flow-manager" / "scripts" / "workflow"
-if str(FLOW_MANAGER_SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(FLOW_MANAGER_SCRIPTS))
 
-from logics_flow_decision_support import _apply_decision_assessment, _assess_decision_framing, _print_decision_summary  # noqa: E402
-from logics_flow_runtime_support import _resolved_from_version, _seed_new_doc_values  # noqa: E402
-from logics_flow_support_workflow_core import (  # noqa: E402
-    DOC_KINDS,
-    STATUS_BY_KIND_DEFAULT,
-    _append_section_bullets,
-    _copy_indicator_defaults,
-    _find_repo_root,
-    _generate_workflow_mermaid,
-    _extract_refs,
-    _plan_doc,
-    _render_template,
-    _mark_section_checkboxes_done,
-    _resolve_doc_path,
-    _strip_mermaid_blocks,
-    _template_path,
-    refresh_workflow_mermaid_signature_text,
-)
-from logics_flow_support_workflow_extra import (  # noqa: E402
-    _auto_create_companion_docs,
-    _build_template_values,
-    _collect_reference_items,
-    _collect_docs_linking_ref,
-    _create_backlog_from_request,
-    _create_task_from_backlog,
-    _close_doc,
-    _is_doc_done,
-    _parse_title_from_source,
-    _render_references_section,
-    refresh_ai_context_text,
-    validate_generated_workflow_doc_text,
-)
+@dataclass(frozen=True)
+class DocKind:
+    kind: str
+    directory: str
+    prefix: str
+    include_progress: bool
+
+
+@dataclass(frozen=True)
+class PlannedDoc:
+    ref: str
+    path: Path
+
+
+DOC_KINDS = {
+    "request": DocKind("request", "logics/request", "req", False),
+    "backlog": DocKind("backlog", "logics/backlog", "item", True),
+    "task": DocKind("task", "logics/tasks", "task", True),
+}
+
+STATUS_BY_KIND_DEFAULT = {
+    "request": "Draft",
+    "backlog": "Ready",
+    "task": "Ready",
+}
 
 
 def _split_titles(raw_titles: list[str]) -> list[str]:
@@ -57,6 +46,151 @@ def _slugify(text: str) -> str:
     cleaned = "".join(ch.lower() if ch.isalnum() else "_" for ch in text)
     cleaned = "_".join(part for part in cleaned.split("_") if part)
     return cleaned or "request"
+
+
+def _resolved_from_version(repo_root: Path, from_version: str | None) -> str:
+    if from_version:
+        return from_version
+    package_json = repo_root / "package.json"
+    if not package_json.is_file():
+        return "1.0.0"
+    try:
+        payload = json.loads(package_json.read_text(encoding="utf-8"))
+    except Exception:
+        return "1.0.0"
+    version = payload.get("version") if isinstance(payload, dict) else None
+    return str(version).strip() if version else "1.0.0"
+
+
+def _find_repo_root(start: Path) -> Path:
+    current = start.resolve()
+    for candidate in [current, *current.parents]:
+        if (candidate / "logics").is_dir():
+            return candidate
+    raise SystemExit("Could not locate repo root (missing 'logics/' directory). Run from inside the repo.")
+
+
+def _plan_doc(repo_root: Path, directory: str, prefix: str, title: str, dry_run: bool = False) -> PlannedDoc:
+    target_dir = repo_root / directory
+    target_dir.mkdir(parents=True, exist_ok=True)
+    slug = _slugify(title)
+    highest = -1
+    pattern = re.compile(rf"^{re.escape(prefix)}_(\d+)_.*\.md$")
+    for path in target_dir.glob(f"{prefix}_*.md"):
+        match = pattern.match(path.name)
+        if match:
+            highest = max(highest, int(match.group(1)))
+    ref = f"{prefix}_{highest + 1:03d}_{slug}"
+    path = target_dir / f"{ref}.md"
+    return PlannedDoc(ref=ref, path=path)
+
+
+def _extract_refs(text: str, prefix: str) -> list[str]:
+    pattern = re.compile(rf"\b{re.escape(prefix)}_\d{{3}}_[a-z0-9_]+\b")
+    return sorted({match.group(0) for match in pattern.finditer(text)})
+
+
+def _strip_mermaid_blocks(text: str) -> str:
+    return re.sub(r"```mermaid\s*\n.*?\n```", "", text, flags=re.DOTALL)
+
+
+def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
+    path = repo_root / kind.directory / f"{ref}.md"
+    return path if path.is_file() else None
+
+
+def _append_section_bullets(path: Path, heading: str, bullets: list[str], dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start_idx = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
+            start_idx = idx + 1
+            break
+    if start_idx is None:
+        lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
+    else:
+        insert_at = start_idx
+        while insert_at < len(lines) and lines[insert_at].strip().startswith("- "):
+            insert_at += 1
+        existing = {line.strip() for line in lines[start_idx:insert_at] if line.strip().startswith("- ")}
+        for bullet in bullets:
+            rendered = f"- {bullet}"
+            if rendered not in existing:
+                lines.insert(insert_at, rendered)
+                insert_at += 1
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _mark_section_checkboxes_done(path: Path, heading: str, dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start_idx = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
+            start_idx = idx + 1
+            break
+    if start_idx is None:
+        return
+    changed = False
+    for idx in range(start_idx, len(lines)):
+        line = lines[idx]
+        if line.startswith("# "):
+            break
+        if "- [ ]" in line:
+            lines[idx] = line.replace("- [ ]", "- [x]", 1)
+            changed = True
+    if changed:
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _collect_docs_linking_ref(repo_root: Path, kind: DocKind, ref: str) -> list[Path]:
+    directory = repo_root / kind.directory
+    linked: list[Path] = []
+    if not directory.is_dir():
+        return linked
+    for path in sorted(directory.glob("*.md")):
+        if ref in path.read_text(encoding="utf-8"):
+            linked.append(path)
+    return linked
+
+
+def _close_doc(path: Path, kind: DocKind, dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = path.read_text(encoding="utf-8").splitlines()
+    updated: list[str] = []
+    saw_status = False
+    saw_progress = False
+    for line in lines:
+        if line.startswith("> Status:"):
+            updated.append("> Status: Done")
+            saw_status = True
+        elif kind.include_progress and line.startswith("> Progress:"):
+            updated.append("> Progress: 100%")
+            saw_progress = True
+        else:
+            updated.append(line)
+    if not saw_status:
+        updated.insert(1, "> Status: Done")
+    if kind.include_progress and not saw_progress:
+        insert_at = 2 if saw_status else 3
+        updated.insert(insert_at, "> Progress: 100%")
+    path.write_text("\n".join(updated).rstrip() + "\n", encoding="utf-8")
+
+
+def _is_doc_done(path: Path, kind: DocKind) -> bool:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    status_value = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Status:")), None)
+    if status_value is not None and " ".join(status_value.split()).lower() in {"done", "archived"}:
+        return True
+    if kind.include_progress:
+        progress_value = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Progress:")), None)
+        if progress_value == "100%":
+            return True
+    return False
 
 
 def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
@@ -140,6 +274,153 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
     ).rstrip() + "\n"
 
 
+def _build_native_backlog_doc(
+    repo_root: Path,
+    planned_ref: str,
+    title: str,
+    args: argparse.Namespace,
+    *,
+    request_ref: str | None = None,
+    product_refs: list[str] | None = None,
+    architecture_refs: list[str] | None = None,
+) -> str:
+    from_version = _resolved_from_version(repo_root, getattr(args, "from_version", None))
+    product_refs = product_refs or []
+    architecture_refs = architecture_refs or []
+    product_line = ", ".join(f"`{ref}`" for ref in product_refs) if product_refs else "(none yet)"
+    architecture_line = ", ".join(f"`{ref}`" for ref in architecture_refs) if architecture_refs else "(none yet)"
+    request_line = f"`{request_ref}`" if request_ref else "(to be linked)"
+    acceptance = [
+        f"AC1: The backlog slice stays bounded for {title.lower()}.",
+        "AC2: The backlog slice is reviewable and promotable into a task.",
+    ]
+    return "\n".join(
+        [
+            f"## {planned_ref} - {title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            f"> Status: {getattr(args, 'status', 'Ready')}",
+            f"> Understanding: {getattr(args, 'understanding', '90%')}",
+            f"> Confidence: {getattr(args, 'confidence', '85%')}",
+            f"> Progress: {getattr(args, 'progress', '0%')}",
+            f"> Complexity: {getattr(args, 'complexity', 'Medium')}",
+            f"> Theme: {getattr(args, 'theme', 'General')}",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.",
+            "",
+            "# Problem",
+            f"- Deliver a bounded backlog slice for {title.lower()}.",
+            "",
+            "# Scope",
+            "- In:",
+            "  - one coherent delivery slice from the operator request.",
+            "- Out:",
+            "  - unrelated sibling slices.",
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance],
+            "",
+            "# AC Traceability",
+            "- request-AC1 -> This backlog slice. Proof: bounded delivery slice.",
+            "- request-AC2 -> This backlog slice. Proof: promotable backlog item.",
+            "",
+            "# Decision framing",
+            "- Product framing: Not needed",
+            "- Architecture framing: Not needed",
+            "",
+            "# Links",
+            f"- Product brief(s): {product_line}",
+            f"- Architecture decision(s): {architecture_line}",
+            f"- Request: {request_line}",
+            "- Primary task(s): (none yet)",
+            "",
+            "# AI Context",
+            f"- Summary: {title}",
+            f"- Keywords: backlog, promote, slice, {title.lower()}",
+            f"- Use when: You need a bounded backlog item for {title}.",
+            "- Skip when: The change should go straight to implementation detail.",
+            "",
+            "# Priority",
+            "- Impact:",
+            "- Urgency:",
+            "",
+            "# Notes",
+            "- Generated locally by logics-manager.",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def _build_native_task_doc(
+    repo_root: Path,
+    planned_ref: str,
+    title: str,
+    args: argparse.Namespace,
+    *,
+    backlog_ref: str | None = None,
+    request_refs: list[str] | None = None,
+    product_refs: list[str] | None = None,
+    architecture_refs: list[str] | None = None,
+) -> str:
+    from_version = _resolved_from_version(repo_root, getattr(args, "from_version", None))
+    request_refs = request_refs or []
+    product_refs = product_refs or []
+    architecture_refs = architecture_refs or []
+    backlog_line = f"`{backlog_ref}`" if backlog_ref else "(to be linked)"
+    request_line = ", ".join(f"`{ref}`" for ref in request_refs) if request_refs else "(none yet)"
+    product_line = ", ".join(f"`{ref}`" for ref in product_refs) if product_refs else "(none yet)"
+    architecture_line = ", ".join(f"`{ref}`" for ref in architecture_refs) if architecture_refs else "(none yet)"
+    return "\n".join(
+        [
+            f"## {planned_ref} - {title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            f"> Status: {getattr(args, 'status', 'Ready')}",
+            f"> Understanding: {getattr(args, 'understanding', '90%')}",
+            f"> Confidence: {getattr(args, 'confidence', '85%')}",
+            f"> Progress: {getattr(args, 'progress', '0%')}",
+            f"> Complexity: {getattr(args, 'complexity', 'Medium')}",
+            f"> Theme: {getattr(args, 'theme', 'General')}",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
+            "",
+            "# Context",
+            f"- Execute the bounded delivery slice for {title}.",
+            "",
+            "# Plan",
+            "- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.",
+            "- [ ] 2. Implement the next coherent delivery wave.",
+            "- [ ] 3. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.",
+            "- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.",
+            "",
+            "# Backlog",
+            f"- {backlog_line}",
+            "",
+            "# Definition of Done (DoD)",
+            "- [ ] Code is implemented and reviewed.",
+            "- [ ] Validation passes.",
+            "- [ ] Linked docs are synchronized.",
+            "",
+            "# Validation",
+            "- Run `python3 -m logics_manager lint --require-status`.",
+            "- Run the task-specific automated tests.",
+            "",
+            "# Report",
+            "- Implementation complete.",
+            "",
+            "# AI Context",
+            f"- Summary: Implement {title.lower()}.",
+            "- Keywords: task, implementation, backlog, runtime, python",
+            "- Use when: You need a bounded implementation task for a backlog item.",
+            "- Skip when: The work is still at the request or backlog shaping stage.",
+            "",
+            "# Links",
+            f"- Request: {request_line}",
+            f"- Product brief(s): {product_line}",
+            f"- Architecture decision(s): {architecture_line}",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
 def _extract_doc_title(path: Path) -> str:
     for line in path.read_text(encoding="utf-8").splitlines():
         if line.startswith("## "):
@@ -205,6 +486,32 @@ def _next_task_ref(repo_root: Path, title: str) -> str:
     return f"task_{highest + 1:03d}_{_slugify(title)}"
 
 
+def _next_product_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "product"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("prod_*.md"):
+            stem = path.stem
+            if stem.startswith("prod_"):
+                parts = stem.split("_", 2)
+                if len(parts) >= 2 and parts[1].isdigit():
+                    highest = max(highest, int(parts[1]))
+    return f"prod_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _next_adr_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "architecture"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("adr_*.md"):
+            stem = path.stem
+            if stem.startswith("adr_"):
+                parts = stem.split("_", 2)
+                if len(parts) >= 2 and parts[1].isdigit():
+                    highest = max(highest, int(parts[1]))
+    return f"adr_{highest + 1:03d}_{_slugify(title)}"
+
+
 def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
     if dry_run:
         return
@@ -226,11 +533,170 @@ def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *,
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
-def _build_native_backlog_from_request(repo_root: Path, request_path: Path, title: str | None = None) -> tuple[str, str]:
+def _build_native_product_brief(
+    repo_root: Path,
+    title: str,
+    *,
+    request_ref: str | None = None,
+    backlog_ref: str | None = None,
+    task_ref: str | None = None,
+    architecture_refs: list[str] | None = None,
+) -> tuple[str, str]:
+    ref = _next_product_ref(repo_root, title)
+    architecture_refs = architecture_refs or []
+    related_request = f"`{request_ref}`" if request_ref else "(none yet)"
+    related_backlog = f"`{backlog_ref}`" if backlog_ref else "(none yet)"
+    related_task = f"`{task_ref}`" if task_ref else "(none yet)"
+    related_architecture = ", ".join(f"`{item}`" for item in architecture_refs) if architecture_refs else "(none yet)"
+    content = "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> Date: {date.today().isoformat()}",
+            "> Status: Proposed",
+            f"> Related request: {related_request}",
+            f"> Related backlog: {related_backlog}",
+            f"> Related task: {related_task}",
+            f"> Related architecture: {related_architecture}",
+            "> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.",
+            "",
+            "# Overview",
+            f"Logics should keep a single, predictable product surface for {title.lower()}.",
+            "",
+            "# Goals",
+            "- Keep the operator experience bounded and easy to reason about.",
+            "- Preserve the CLI as the canonical workflow entrypoint.",
+            "",
+            "# Non-goals",
+            "- Rebuilding the VS Code plugin UI in this document.",
+            "- Adding a remote runtime boundary.",
+            "",
+            "# Scope and guardrails",
+            "- In: user-facing workflow shape, CLI contract, and migration boundaries.",
+            "- Out: unrelated UI redesign or cloud-hosted orchestration.",
+            "",
+            "# Key product decisions",
+            "- Keep the runtime integrated and local.",
+            "- Keep assistant-facing instructions derived from the runtime.",
+            "",
+            "# Success signals",
+            "- The change can be used without extra manual setup.",
+            "- The product can be explained from a single reference surface.",
+            "",
+            "# References",
+            f"- Product back-reference: {related_backlog}",
+            f"- Task back-reference: {related_task}",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return ref, content
+
+
+def _build_native_adr(
+    repo_root: Path,
+    title: str,
+    *,
+    request_ref: str | None = None,
+    backlog_ref: str | None = None,
+    task_ref: str | None = None,
+) -> tuple[str, str]:
+    ref = _next_adr_ref(repo_root, title)
+    related_request = f"`{request_ref}`" if request_ref else "(none yet)"
+    related_backlog = f"`{backlog_ref}`" if backlog_ref else "(none yet)"
+    related_task = f"`{task_ref}`" if task_ref else "(none yet)"
+    content = "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> Date: {date.today().isoformat()}",
+            "> Status: Proposed",
+            f"> Related request: {related_request}",
+            f"> Related backlog: {related_backlog}",
+            f"> Related task: {related_task}",
+            "> Reminder: Update status, linked refs, decision rationale, consequences, and follow-up work when you edit this doc.",
+            "",
+            "# Overview",
+            f"This ADR captures the native direction for {title.lower()}.",
+            "",
+            "# Context",
+            "- The runtime is being consolidated into the main repo.",
+            "- Legacy skill/bootstrap boundaries are being retired.",
+            "",
+            "# Decision",
+            "- Prefer a native Python runtime with a minimal plugin shell.",
+            "",
+            "# Consequences",
+            "- The CLI becomes the primary operational surface.",
+            "- Companion docs can be generated from the same runtime contract.",
+            "",
+            "# References",
+            f"- Related request: {related_request}",
+            f"- Related backlog: {related_backlog}",
+            f"- Related task: {related_task}",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return ref, content
+
+
+def _create_native_companion_docs(
+    repo_root: Path,
+    title: str,
+    *,
+    request_ref: str | None = None,
+    backlog_ref: str | None = None,
+    task_ref: str | None = None,
+    args: argparse.Namespace,
+) -> tuple[list[str], list[str]]:
+    created_product_refs: list[str] = []
+    created_architecture_refs: list[str] = []
+
+    if getattr(args, "auto_create_adr", False):
+        adr_ref, adr_content = _build_native_adr(
+            repo_root,
+            title,
+            request_ref=request_ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+        )
+        adr_path = repo_root / "logics" / "architecture" / f"{adr_ref}.md"
+        if not args.dry_run:
+            adr_path.parent.mkdir(parents=True, exist_ok=True)
+            adr_path.write_text(adr_content, encoding="utf-8")
+        created_architecture_refs.append(adr_ref)
+
+    if getattr(args, "auto_create_product_brief", False):
+        product_ref, product_content = _build_native_product_brief(
+            repo_root,
+            title,
+            request_ref=request_ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+            architecture_refs=created_architecture_refs,
+        )
+        product_path = repo_root / "logics" / "product" / f"{product_ref}.md"
+        if not args.dry_run:
+            product_path.parent.mkdir(parents=True, exist_ok=True)
+            product_path.write_text(product_content, encoding="utf-8")
+        created_product_refs.append(product_ref)
+
+    return created_product_refs, created_architecture_refs
+
+
+def _build_native_backlog_from_request(
+    repo_root: Path,
+    request_path: Path,
+    title: str | None = None,
+    *,
+    product_refs: list[str] | None = None,
+    architecture_refs: list[str] | None = None,
+) -> tuple[str, str]:
     request_lines = request_path.read_text(encoding="utf-8").splitlines()
     request_title = title or _extract_doc_title(request_path)
     ref = _next_backlog_ref(repo_root, request_title)
     from_version = next((line.split(":", 1)[1].strip() for line in request_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
+    product_refs = product_refs or []
+    architecture_refs = architecture_refs or []
+    product_line = ", ".join(f"`{item}`" for item in product_refs) if product_refs else "(none yet)"
+    architecture_line = ", ".join(f"`{item}`" for item in architecture_refs) if architecture_refs else "(none yet)"
     needs = _bullet_values(_section_lines(request_lines, "Needs"))
     acceptance = _bullet_values(_section_lines(request_lines, "Acceptance criteria"))
     if not needs:
@@ -277,8 +743,8 @@ def _build_native_backlog_from_request(repo_root: Path, request_path: Path, titl
             "- Architecture follow-up: No architecture decision follow-up is expected based on current signals.",
             "",
             "# Links",
-            "- Product brief(s): `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
-            "- Architecture decision(s): (none yet)",
+            f"- Product brief(s): {product_line}",
+            f"- Architecture decision(s): {architecture_line}",
             f"- Request: `{request_path.relative_to(repo_root).as_posix()}`",
             "- Primary task(s): (none yet)",
             "",
@@ -302,12 +768,26 @@ def _build_native_backlog_from_request(repo_root: Path, request_path: Path, titl
     return ref, content
 
 
-def _build_native_task_from_backlog(repo_root: Path, backlog_path: Path, title: str | None = None) -> tuple[str, str]:
+def _build_native_task_from_backlog(
+    repo_root: Path,
+    backlog_path: Path,
+    title: str | None = None,
+    *,
+    request_refs: list[str] | None = None,
+    product_refs: list[str] | None = None,
+    architecture_refs: list[str] | None = None,
+) -> tuple[str, str]:
     backlog_lines = backlog_path.read_text(encoding="utf-8").splitlines()
     backlog_title = title or _extract_doc_title(backlog_path)
     ref = _next_task_ref(repo_root, backlog_title)
     from_version = next((line.split(":", 1)[1].strip() for line in backlog_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
     backlog_ref = backlog_path.stem
+    request_refs = request_refs or []
+    product_refs = product_refs or []
+    architecture_refs = architecture_refs or []
+    request_line = ", ".join(f"`{item}`" for item in request_refs) if request_refs else "(none yet)"
+    product_line = ", ".join(f"`{item}`" for item in product_refs) if product_refs else "(none yet)"
+    architecture_line = ", ".join(f"`{item}`" for item in architecture_refs) if architecture_refs else "(none yet)"
     acceptance = _bullet_values(_section_lines(backlog_lines, "Acceptance criteria"))
     if not acceptance:
         acceptance = [
@@ -350,6 +830,11 @@ def _build_native_task_from_backlog(repo_root: Path, backlog_path: Path, title: 
             "- Keywords: task, implementation, backlog, runtime, python",
             "- Use when: You need a bounded implementation task for a backlog item.",
             "- Skip when: The work is still at the request or backlog shaping stage.",
+            "",
+            "# Links",
+            f"- Request: {request_line}",
+            f"- Product brief(s): {product_line}",
+            f"- Architecture decision(s): {architecture_line}",
             "",
         ]
     ).rstrip() + "\n"
@@ -426,9 +911,7 @@ def build_parser() -> argparse.ArgumentParser:
 def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     doc_kind = DOC_KINDS[args.kind]
     repo_root = _find_repo_root(Path.cwd())
-    fixture_mode = bool(getattr(args, "fixture", False))
     planned = _plan_doc(repo_root, doc_kind.directory, doc_kind.prefix, args.slug or args.title, dry_run=args.dry_run)
-
     payload: dict[str, object] = {
         "command": "new",
         "kind": doc_kind.kind,
@@ -448,73 +931,45 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
             print(preview)
         print(f"Created {doc_kind.kind}: {payload['path']}")
         return payload
-
-    template_text = (
-        repo_root / "logics" / "skills" / "logics-flow-manager" / "assets" / "templates" / doc_kind.template_name
-    ).read_text(encoding="utf-8")
-    args.from_version = _resolved_from_version(repo_root, getattr(args, "from_version", None))
-    values = _build_template_values(
-        args,
-        planned.ref,
-        args.title,
-        doc_kind.include_progress,
-        doc_kind.kind,
-        fixture_mode=fixture_mode,
-    )
-    _seed_new_doc_values(doc_kind.kind, args.title, values, fixture_mode=fixture_mode)
-
-    reference_items = _collect_reference_items(args.title)
-    if fixture_mode and doc_kind.kind == "request":
-        reference_items.extend(
-            [
-                "logics_manager/flow.py",
-                "logics_manager/assist.py",
-                "python_tests/test_logics_manager_cli.py",
-            ]
-        )
-    values["REFERENCES_SECTION"] = _render_references_section(reference_items)
-
-    assessment = _assess_decision_framing(args.title, "")
-    product_refs: list[str] = []
-    architecture_refs: list[str] = []
-    if doc_kind.kind in {"backlog", "task"}:
-        product_refs, architecture_refs = _auto_create_companion_docs(
+    if doc_kind.kind == "backlog":
+        product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             args.title,
             request_ref=None,
-            backlog_ref=planned.ref if doc_kind.kind == "backlog" else None,
-            task_ref=planned.ref if doc_kind.kind == "task" else None,
-            assessment=assessment,
-            product_refs=product_refs,
-            architecture_refs=architecture_refs,
+            backlog_ref=planned.ref,
+            task_ref=None,
             args=args,
         )
-        _apply_decision_assessment(values, assessment)
-        if product_refs:
-            values["PRODUCT_LINK_PLACEHOLDER"] = ", ".join(f"`{ref}`" for ref in product_refs)
-        if architecture_refs:
-            values["ARCHITECTURE_LINK_PLACEHOLDER"] = ", ".join(f"`{ref}`" for ref in architecture_refs)
-
-    if args.format == "json":
-        with redirect_stdout(io.StringIO()):
-            values["MERMAID_BLOCK"] = _generate_workflow_mermaid(repo_root, doc_kind.kind, args.title, values, dry_run=args.dry_run)
-            content = _render_template(template_text, values).rstrip() + "\n"
-            content, _changed = refresh_ai_context_text(content, doc_kind.kind)
-            content, _changed = refresh_workflow_mermaid_signature_text(content, doc_kind.kind, repo_root=repo_root, dry_run=args.dry_run)
-            validate_generated_workflow_doc_text(content, doc_kind.kind)
-            if not args.dry_run:
-                planned.path.parent.mkdir(parents=True, exist_ok=True)
-                planned.path.write_text(content, encoding="utf-8")
-            if doc_kind.kind in {"backlog", "task"}:
-                _print_decision_summary(planned.ref, assessment, product_refs, architecture_refs)
-        print(json.dumps(payload, indent=2, sort_keys=True))
-        return payload
-
-    values["MERMAID_BLOCK"] = _generate_workflow_mermaid(repo_root, doc_kind.kind, args.title, values, dry_run=args.dry_run)
-    content = _render_template(template_text, values).rstrip() + "\n"
-    content, _changed = refresh_ai_context_text(content, doc_kind.kind)
-    content, _changed = refresh_workflow_mermaid_signature_text(content, doc_kind.kind, repo_root=repo_root, dry_run=args.dry_run)
-    validate_generated_workflow_doc_text(content, doc_kind.kind)
+        content = _build_native_backlog_doc(
+            repo_root,
+            planned.ref,
+            args.title,
+            args,
+            request_ref=None,
+            product_refs=product_refs,
+            architecture_refs=architecture_refs,
+        )
+    elif doc_kind.kind == "task":
+        product_refs, architecture_refs = _create_native_companion_docs(
+            repo_root,
+            args.title,
+            request_ref=None,
+            backlog_ref=None,
+            task_ref=planned.ref,
+            args=args,
+        )
+        content = _build_native_task_doc(
+            repo_root,
+            planned.ref,
+            args.title,
+            args,
+            backlog_ref=None,
+            request_refs=[],
+            product_refs=product_refs,
+            architecture_refs=architecture_refs,
+        )
+    else:
+        raise SystemExit(f"Unsupported doc kind `{doc_kind.kind}` for native creation.")
 
     if not args.dry_run:
         planned.path.parent.mkdir(parents=True, exist_ok=True)
@@ -525,8 +980,6 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         print(f"[dry-run] would write: {planned.path}")
         print(preview)
 
-    if doc_kind.kind in {"backlog", "task"}:
-        _print_decision_summary(planned.ref, assessment, product_refs, architecture_refs)
     print(f"Created {doc_kind.kind}: {payload['path']}")
     return payload
 
@@ -537,7 +990,22 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
     if not source_path.is_file():
         raise SystemExit(f"Source not found: {source_path}")
     title = _extract_doc_title(source_path)
-    ref, content = _build_native_backlog_from_request(repo_root, source_path, title)
+    ref, _ = _build_native_backlog_from_request(repo_root, source_path, title)
+    product_refs, architecture_refs = _create_native_companion_docs(
+        repo_root,
+        title,
+        request_ref=source_path.stem,
+        backlog_ref=ref,
+        task_ref=None,
+        args=args,
+    )
+    _, content = _build_native_backlog_from_request(
+        repo_root,
+        source_path,
+        title,
+        product_refs=product_refs,
+        architecture_refs=architecture_refs,
+    )
     planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
     if not args.dry_run:
         planned_path.parent.mkdir(parents=True, exist_ok=True)
@@ -564,7 +1032,25 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     if not source_path.is_file():
         raise SystemExit(f"Source not found: {source_path}")
     title = _extract_doc_title(source_path)
-    ref, content = _build_native_task_from_backlog(repo_root, source_path, title)
+    source_text = source_path.read_text(encoding="utf-8")
+    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
+    ref, _ = _build_native_task_from_backlog(repo_root, source_path, title)
+    product_refs, architecture_refs = _create_native_companion_docs(
+        repo_root,
+        title,
+        request_ref=request_refs[0] if request_refs else None,
+        backlog_ref=source_path.stem,
+        task_ref=ref,
+        args=args,
+    )
+    _, content = _build_native_task_from_backlog(
+        repo_root,
+        source_path,
+        title,
+        request_refs=request_refs,
+        product_refs=product_refs,
+        architecture_refs=architecture_refs,
+    )
     planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
     if not args.dry_run:
         planned_path.parent.mkdir(parents=True, exist_ok=True)
@@ -593,7 +1079,26 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
-        ref, content = _build_native_backlog_from_request(repo_root, source_path, title)
+        ref, _ = _build_native_backlog_from_request(
+            repo_root,
+            source_path,
+            title,
+        )
+        product_refs, architecture_refs = _create_native_companion_docs(
+            repo_root,
+            title,
+            request_ref=source_path.stem,
+            backlog_ref=ref,
+            task_ref=None,
+            args=args,
+        )
+        _, content = _build_native_backlog_from_request(
+            repo_root,
+            source_path,
+            title,
+            product_refs=product_refs,
+            architecture_refs=architecture_refs,
+        )
         planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
         if not args.dry_run:
             planned_path.parent.mkdir(parents=True, exist_ok=True)
@@ -619,10 +1124,28 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     source_path = Path(args.source).resolve()
     if not source_path.is_file():
         raise SystemExit(f"Source not found: {source_path}")
+    source_text = source_path.read_text(encoding="utf-8")
+    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
-        ref, content = _build_native_task_from_backlog(repo_root, source_path, title)
+        ref, _ = _build_native_task_from_backlog(repo_root, source_path, title)
+        product_refs, architecture_refs = _create_native_companion_docs(
+            repo_root,
+            title,
+            request_ref=request_refs[0] if request_refs else None,
+            backlog_ref=source_path.stem,
+            task_ref=ref,
+            args=args,
+        )
+        _, content = _build_native_task_from_backlog(
+            repo_root,
+            source_path,
+            title,
+            request_refs=request_refs,
+            product_refs=product_refs,
+            architecture_refs=architecture_refs,
+        )
         planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
         if not args.dry_run:
             planned_path.parent.mkdir(parents=True, exist_ok=True)

@@ -103,7 +103,7 @@ describe("inspectLogicsEnvironment", () => {
         degraded: false,
         degradedReasons: [],
         claudeBridgeAvailable: true,
-        windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+        windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
       })
     });
 
@@ -170,8 +170,8 @@ describe("branch-state transitions", () => {
         summary: "Overlay missing.",
         issues: [],
         warnings: [],
-        syncCommand: "python scripts/logics-manager.py ...",
-        runCommand: "python scripts/logics-manager.py ..."
+        syncCommand: "python -m logics_manager ...",
+        runCommand: "python -m logics_manager ..."
       })
   };
 
@@ -242,8 +242,8 @@ describe("branch-state transitions", () => {
         detectGit: async () => true,
         detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
       });
-      expect(missingFlowManager.repositoryState).toBe("missing-flow-manager");
-      expect(missingFlowManager.capabilities.workflowMutation.status).toBe("unavailable");
+      expect(missingFlowManager.repositoryState).toBe("partial-bootstrap");
+      expect(missingFlowManager.capabilities.workflowMutation.status).toBe("available");
 
       const bootstrapRoot = tracker.makeRoot();
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });

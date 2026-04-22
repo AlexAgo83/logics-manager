@@ -379,10 +379,10 @@ export function buildBootstrapCommitMessage(changedPaths: string[]): string {
   );
 
   if (hasSubmodule && hasWorkflowDocs) {
-    return "Bootstrap Logics kit and initialize workflow docs";
+    return "Bootstrap Logics runtime and initialize workflow docs";
   }
   if (hasSubmodule) {
-    return "Bootstrap Logics kit";
+    return "Bootstrap Logics runtime";
   }
   if (hasWorkflowDocs) {
     return "Initialize Logics workflow docs";

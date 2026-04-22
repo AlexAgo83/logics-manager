@@ -43,9 +43,9 @@ export function isMissingPythonFailureDetail(detail: string): boolean {
 
 export function buildMissingPythonMessage(platform: NodeJS.Platform = process.platform): string {
   if (platform === "win32") {
-    return "Python 3 interpreter not found. Install Python 3 and ensure `python3`, `python`, or `py` is available on PATH, then retry.";
+    return "Python 3.10+ interpreter not found. Install Python 3.10 or newer and ensure `python3`, `python`, or `py` is available on PATH, then retry.";
   }
-  return "Python 3 interpreter not found. Install Python 3 and ensure `python3` or `python` is available on PATH, then retry.";
+  return "Python 3.10+ interpreter not found. Install Python 3.10 or newer and ensure `python3` or `python` is available on PATH, then retry.";
 }
 
 export async function runPythonCommand(cwd: string, scriptPath: string, args: string[]): Promise<ExecResult> {
@@ -90,7 +90,8 @@ async function resolvePythonCommand(): Promise<PythonCommand | null> {
 async function detectPythonCommand(): Promise<PythonCommand | null> {
   for (const candidate of getPythonCommandCandidates()) {
     const result = await execFileWithOutput(candidate.command, [...candidate.argsPrefix, "--version"]);
-    if (!result.error) {
+    const version = parseSupportedPythonVersion(result.stdout, result.stderr);
+    if (!result.error && version) {
       return candidate;
     }
   }
@@ -116,4 +117,18 @@ function isMissingPythonError(result: ExecResult): boolean {
 
 function isSamePythonCommand(left: PythonCommand, right: PythonCommand): boolean {
   return left.command === right.command && left.argsPrefix.join("\u0000") === right.argsPrefix.join("\u0000");
+}
+
+function parseSupportedPythonVersion(stdout: string, stderr: string): { major: number; minor: number } | null {
+  const versionText = `${stdout || ""}\n${stderr || ""}`.trim();
+  const match = versionText.match(/Python\s+(\d+)\.(\d+)(?:\.(\d+))?/i);
+  if (!match) {
+    return null;
+  }
+  const major = Number.parseInt(match[1], 10);
+  const minor = Number.parseInt(match[2], 10);
+  if (major > 3 || (major === 3 && minor >= 10)) {
+    return { major, minor };
+  }
+  return null;
 }

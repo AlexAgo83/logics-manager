@@ -175,7 +175,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       },
       codexRuntime: {
         status: "unavailable",
-        summary: "Repo-local Logics is ready, but the global Codex kit still needs publication."
+        summary: "Repo-local Logics is ready, but the global Codex runtime still needs publication."
       }
     },
     hybridRuntime: {
@@ -186,12 +186,12 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
-      issues: ["Global Claude kit manifest is missing."],
+      summary: "No global Claude runtime is published yet.",
+      issues: ["Global Claude runtime manifest is missing."],
       warnings: [],
       sourceRepo: "/workspace/mock",
       publishedSkillNames: [],
@@ -199,8 +199,8 @@ vi.mock("../src/logicsEnvironment", () => ({
     },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
-      issues: ["Global Logics kit manifest is missing."],
+      summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: [],
       runCommand: "codex",
       installedVersion: "1.4.0",
@@ -269,7 +269,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics in this project",
-      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found in the selected repository."
     });
     mocks.indexLogics.mockReturnValue([]);
@@ -318,7 +318,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReturnValue(false);
     mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet.",
+      summary: "No global Codex runtime is published yet.",
       issues: [],
       warnings: [],
       overlayRoot: path.join(root, ".codex", "skills"),
@@ -328,7 +328,7 @@ describe("LogicsViewProvider", () => {
     });
     mocks.inspectClaudeGlobalKit.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
+      summary: "No global Claude runtime is published yet.",
       issues: [],
       warnings: [],
       claudeHome: path.join(root, ".claude"),
@@ -347,12 +347,12 @@ describe("LogicsViewProvider", () => {
       hasClaude: true,
       codex: {
         available: true,
-        title: "Launch Codex with the globally published Logics kit",
+        title: "Launch Codex with the globally published Logics runtime",
         command: "codex"
       },
       claude: {
         available: true,
-        title: "Launch Claude with the globally published Logics kit",
+        title: "Launch Claude with the globally published Logics runtime",
         command: "claude"
       }
     });
@@ -415,7 +415,7 @@ describe("LogicsViewProvider", () => {
       ...defaultEnvironmentSnapshot(root),
       codexOverlay: {
         status: "healthy",
-        summary: "Global kit ready.",
+        summary: "Global runtime ready.",
         issues: [],
         warnings: [],
         runCommand: "codex"
@@ -488,7 +488,7 @@ describe("LogicsViewProvider", () => {
       fs.writeFileSync(path.join(globalHome, "skills", "SKILL.md"), "# logics\n", "utf8");
       mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
         status: "healthy",
-        summary: "Global Codex Logics kit is ready.",
+        summary: "Global Codex runtime is ready.",
         issues: [],
         warnings: [],
         codexHome: globalHome,
@@ -508,7 +508,7 @@ describe("LogicsViewProvider", () => {
       });
       mocks.inspectClaudeGlobalKit.mockReturnValue({
         status: "missing-overlay",
-        summary: "No global Claude Logics kit is published yet.",
+        summary: "No global Claude runtime is published yet.",
         issues: [],
         warnings: [],
         claudeHome: claudeHome,
@@ -527,7 +527,7 @@ describe("LogicsViewProvider", () => {
         ...defaultEnvironmentSnapshot(root),
         codexOverlay: {
           status: "healthy",
-          summary: "Global kit ready.",
+          summary: "Global runtime ready.",
           issues: [],
           warnings: [],
           runCommand: "codex"
@@ -560,7 +560,7 @@ describe("LogicsViewProvider", () => {
       ]);
       expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
         root,
-        path.join(root, "logics", "skills", "logics.py"),
+        path.join(root, "scripts", "logics-manager.py"),
         ["bootstrap"]
       );
     } finally {
@@ -602,7 +602,7 @@ describe("LogicsViewProvider", () => {
         ...defaultEnvironmentSnapshot(root),
         codexOverlay: {
           status: "healthy",
-          summary: "Global kit ready.",
+          summary: "Global runtime ready.",
           issues: [],
           warnings: [],
           runCommand: "codex"
@@ -639,7 +639,7 @@ describe("LogicsViewProvider", () => {
       ]);
       expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
         root,
-        path.join(root, "logics", "skills", "logics.py"),
+        path.join(root, "scripts", "logics-manager.py"),
         ["bootstrap"]
       );
     } finally {
@@ -664,14 +664,14 @@ describe("LogicsViewProvider", () => {
       return mocks.showQuickPick.mock.calls[0][0];
     }
 
-    it("surfaces an Update Kit action when logics/skills/VERSION is below minimum", async () => {
+    it("surfaces an Update Runtime action when logics/skills/VERSION is below minimum", async () => {
       fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
       fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0", "utf-8");
 
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Update Logics Kit") && i.label.includes("v1.5.0"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Update Logics Runtime") && i.label.includes("v1.5.0"))).toBe(true);
     });
 
     it("does not surface kit version item when version meets minimum", async () => {
@@ -682,7 +682,7 @@ describe("LogicsViewProvider", () => {
 
       const items = quickPickItems();
       const kitVersionItems = items.filter(
-        (i) => i.label.includes("Update Logics Kit") && i.label.includes("minimum recommended")
+        (i) => i.label.includes("Update Logics Runtime") && i.label.includes("minimum recommended")
       );
       expect(kitVersionItems).toHaveLength(0);
     });
@@ -813,7 +813,7 @@ describe("LogicsViewProvider", () => {
       expect(items.some((i) => i.label.includes("Fix now: Update environment credential placeholders"))).toBe(true);
     });
 
-    it("surfaces a Logics kit repair action when bridge files are missing", async () => {
+    it("surfaces a Logics runtime repair action when bridge files are missing", async () => {
       vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
         ...defaultEnvironmentSnapshot(root),
         hybridRuntime: {
@@ -824,7 +824,7 @@ describe("LogicsViewProvider", () => {
           degraded: true,
           degradedReasons: ["ollama-unreachable"],
           claudeBridgeAvailable: false,
-          windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+          windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
         }
       } as never);
       mocks.detectClaudeBridgeStatus.mockReturnValue({
@@ -837,21 +837,21 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Logics Kit"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Repair Logics runtime"))).toBe(true);
     });
 
     it("surfaces a Claude global kit publish action when the Claude kit is missing", async () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Publish Global Claude Kit"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Publish Global Claude Runtime"))).toBe(true);
     });
 
     it("does not surface Claude bridge repair when bridge is available", async () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Logics Kit"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Repair Logics runtime"))).toBe(false);
     });
 
     it("creates logics/.cache directory when absent during Check Environment", async () => {

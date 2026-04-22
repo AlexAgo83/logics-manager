@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -12,6 +14,7 @@ from logics_manager.audit import audit_payload, render_audit
 from logics_manager.index import index_payload, render_index
 from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
+from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 
 
@@ -31,6 +34,36 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
     captured = capsys.readouterr()
     assert exc_info.value.code == 0
     assert "logics-manager 0.0.0" in captured.out
+
+
+def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = main(["assist", "claude-bridges", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["kind"] == "claude-bridge-manifest"
+    assert payload["bridge_count"] == 5
+    assert [bridge["id"] for bridge in payload["bridges"]] == [
+        "hybrid-assist",
+        "flow-manager",
+        "request-draft",
+        "spec-first-pass",
+        "backlog-groom",
+    ]
+    assert "Reviewer nudge:" in payload["bridges"][2]["command_content"]
+
+
+def test_main_renders_the_canonical_claude_instructions_manifest(capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = main(["assist", "claude-instructions", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["kind"] == "claude-instructions"
+    assert payload["path"] == "logics/instructions.md"
+    assert payload["line_count"] > 0
+    assert "python3 -m logics_manager flow finish task" in payload["content"]
 
 
 @pytest.mark.parametrize(
@@ -56,6 +89,8 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
         (["assist", "test-impact-summary"], None, None),
         (["assist", "roi-report"], None, None),
         (["assist", "next-step"], None, None),
+        (["assist", "claude-bridges"], None, None),
+        (["assist", "claude-instructions"], None, None),
         (["assist", "request-draft", "--intent", "Draft a request for runtime bundling"], None, None),
         (["assist", "spec-first-pass", "item_001_demo"], None, None),
         (["assist", "backlog-groom", "req_001_demo"], None, None),
@@ -101,6 +136,8 @@ def test_main_dispatches_to_expected_underlying_script(
         ["assist", "test-impact-summary"],
         ["assist", "roi-report"],
         ["assist", "next-step"],
+        ["assist", "claude-bridges"],
+        ["assist", "claude-instructions"],
         ["assist", "request-draft"],
         ["assist", "spec-first-pass"],
         ["assist", "backlog-groom"],
@@ -110,6 +147,14 @@ def test_main_dispatches_to_expected_underlying_script(
         monkeypatch.setattr("logics_manager.flow.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.sync.main", lambda _argv: 0)
         monkeypatch.setattr("logics_manager.assist.main", lambda _argv: 0)
+    if argv[:2] == ["bootstrap", "--check"]:
+        repo_root = Path(tempfile.mkdtemp(prefix="logics-bootstrap-dispatch-"))
+        (repo_root / "logics").mkdir()
+        for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
+            (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+            (repo_root / "logics" / directory / ".gitkeep").write_text("", encoding="utf-8")
+        bootstrap_payload(repo_root, check=False)
+        monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
     if argv[:2] == ["assist", "diff-risk"]:
         monkeypatch.setattr("logics_manager.assist._git_changed_paths", lambda _repo_root: [])
     if argv[:2] == ["assist", "commit-plan"]:
@@ -413,6 +458,40 @@ def test_main_runs_native_flow_new_request(
     assert exit_code == 0
     assert (repo_root / "logics" / "request" / "req_000_demo_request.md").is_file()
     assert "Created request:" in captured.out
+
+
+def test_main_runs_native_flow_new_backlog_with_companions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "architecture").mkdir(parents=True)
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "flow",
+            "new",
+            "backlog",
+            "--title",
+            "Demo Backlog",
+            "--auto-create-product-brief",
+            "--auto-create-adr",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert len(list((repo_root / "logics" / "backlog").glob("item_*.md"))) == 1
+    assert len(list((repo_root / "logics" / "product").glob("prod_*.md"))) == 1
+    assert len(list((repo_root / "logics" / "architecture").glob("adr_*.md"))) == 1
+    assert "Created backlog:" in captured.out
 
 
 def test_main_runs_native_flow_promote_request_to_backlog(
@@ -1295,9 +1374,47 @@ def test_main_runs_native_bootstrap_creates_scaffold(
     assert "Bootstrap: OK" in captured.out
     assert (repo_root / "logics").is_dir()
     assert (repo_root / "logics" / "instructions.md").is_file()
+    assert (repo_root / ".claude" / "commands" / "logics-assist.md").is_file()
+    assert (repo_root / ".claude" / "agents" / "logics-request-draft.md").is_file()
     for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
         assert (repo_root / "logics" / directory).is_dir()
         assert (repo_root / "logics" / directory / ".gitkeep").is_file()
+
+
+def test_main_runs_native_bootstrap_repairs_stale_instructions(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "instructions.md").write_text("stale instructions\n", encoding="utf-8")
+
+    payload = bootstrap_payload(repo_root, check=False)
+
+    assert payload["ok"] is True
+    assert payload["claude_instruction_line_count"] > 0
+    instructions_text = (repo_root / "logics" / "instructions.md").read_text(encoding="utf-8")
+    assert "# Codex Context" in instructions_text
+    assert "python3 -m logics_manager flow finish task" in instructions_text
+
+
+def test_main_runs_native_bootstrap_check_reports_stale_instructions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics" / "instructions.md").write_text("stale instructions\n", encoding="utf-8")
+    monkeypatch.chdir(repo_root)
+
+    exit_code = main(["bootstrap", "--check"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "Bootstrap check: actions required" in captured.out
+    assert "missing: logics/instructions.md" in captured.out
 
 
 def test_main_runs_native_assist_closure_summary(

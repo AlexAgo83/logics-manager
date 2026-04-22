@@ -364,7 +364,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         canLaunchClaude: false,
         launchClaudeTitle: "Unavailable",
         canRepairLogicsKit: true,
-        repairLogicsKitTitle: "Check current Logics runtime state and repair the shared kit publication or bridge files.",
+        repairLogicsKitTitle: "Check current Logics runtime state and repair the shared runtime publication or bridge files.",
         canPublishRelease: false,
         publishReleaseTitle: "Unavailable",
         shouldRecommendCheckEnvironment: true,
@@ -412,7 +412,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       canLaunchClaude: launchers.claude.available,
       launchClaudeTitle: launchers.claude.title,
       canRepairLogicsKit: true,
-      repairLogicsKitTitle: "Check current Logics runtime state and repair the shared kit publication or bridge files.",
+      repairLogicsKitTitle: "Check current Logics runtime state and repair the shared runtime publication or bridge files.",
       canPublishRelease: publishReleaseCapability.available,
       publishReleaseTitle: publishReleaseCapability.title,
       shouldRecommendCheckEnvironment,
@@ -467,7 +467,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await viewProviderSupport.refreshAgents.call(this, "silent", root);
     if (!this.agentRegistry.agents.length) {
       const issueHint = this.agentRegistry.issues.length > 0 ? " Check 'Logics Agents' output for validation errors." : "";
-      void vscode.window.showWarningMessage(`No agents found in logics/skills/*/agents/openai.yaml.${issueHint}`);
+      void vscode.window.showWarningMessage(`No Logics agent manifests were found for the current runtime.${issueHint}`);
       if (this.agentRegistry.issues.length > 0) {
         this.agentsOutput.show(true);
       }
@@ -599,7 +599,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
     if (bootstrapState.status === "noncanonical") {
       void vscode.window.showWarningMessage(
-        `Bootstrap Logics is unavailable until the current logics/skills setup is repaired. ${bootstrapState.reason}`
+        `Bootstrap Logics is unavailable until the current Logics runtime setup is repaired. ${bootstrapState.reason}`
       );
       return;
     }
@@ -624,11 +624,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       degraded: true,
       degradedReasons: ["hybrid-runtime-unreported"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     };
     const claudeGlobalKit = snapshot.claudeGlobalKit ?? {
       status: "missing-overlay",
-      summary: "Global Claude Logics kit has not been published yet.",
+      summary: "Global Claude Logics runtime has not been published yet.",
       issues: [],
       warnings: []
     };
@@ -642,11 +642,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     const detailItems: Array<vscode.QuickPickItem & { action?: () => Promise<void> }> = [];
 
     if (root) {
-      const kitVersionItem = viewProviderSupport.buildKitVersionQuickPickItem.call(this, root);
-      if (kitVersionItem) {
+      const runtimeVersionItem = viewProviderSupport.buildRuntimeVersionQuickPickItem.call(this, root);
+      if (runtimeVersionItem) {
         recommendedActions.push({
-          ...kitVersionItem,
-          label: kitVersionItem.label.replace(/^Run:\s*/, "Fix now: ")
+          ...runtimeVersionItem,
+          label: runtimeVersionItem.label.replace(/^Run:\s*/, "Fix now: ")
         });
       }
     }
@@ -657,8 +657,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         (launchers.hasClaude && claudeGlobalKit.status === "missing-manager"))
     ) {
       recommendedActions.push({
-        label: "Fix now: Update Logics Kit",
-        description: "Local kit is missing required manager support, so runtime publication and repair cannot complete cleanly yet.",
+        label: "Fix now: Update Logics Runtime",
+        description: "Local runtime is missing required manager support, so publication and repair cannot complete cleanly yet.",
         action: async () => {
           await this.codexWorkflowController.updateLogicsKit(root, "environment diagnostics");
         }
@@ -703,7 +703,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       const dangerousGitignore = detectDangerousGitignorePatterns(root);
       if (dangerousGitignore.hasDangerousPatterns) {
         detailItems.push({
-          label: "Gitignore warning: logics/skills may be hidden",
+          label: "Gitignore warning: Logics runtime paths may be hidden",
           description: `${dangerousGitignore.reason} The extension can still recover via fallback copy or clone after confirmation.`
         });
       }
@@ -737,7 +737,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       snapshot.codexOverlay.status !== "missing-manager"
     ) {
       recommendedActions.push({
-        label: "Fix now: Publish Global Codex Kit",
+        label: "Fix now: Publish Global Codex Runtime",
         description: "Codex-specific runtime support needs repair before direct Codex launch can be trusted from this repository.",
         action: async () => {
           await this.codexWorkflowController.syncCodexOverlay(root, "environment diagnostics");
@@ -747,8 +747,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (root && launchers.hasClaude && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager") {
       recommendedActions.push({
-        label: "Fix now: Publish Global Claude Kit",
-        description: "Claude launch readiness depends on a healthy global Claude Logics kit, not only repo-local bridge files.",
+        label: "Fix now: Publish Global Claude Runtime",
+        description: "Claude launch readiness depends on a healthy global Claude runtime, not only repo-local bridge files.",
         action: async () => {
           await this.codexWorkflowController.syncClaudeGlobalKit(root, "environment diagnostics");
         }
@@ -767,11 +767,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           : "No project root is currently selected."
       },
       {
-        label: `Global Codex kit: ${codexKitStatusLabel}`,
+        label: `Global Codex runtime: ${codexKitStatusLabel}`,
         description: snapshot.codexOverlay.summary
       },
       {
-        label: `Global Claude kit: ${claudeKitStatusLabel}`,
+        label: `Global Claude runtime: ${claudeKitStatusLabel}`,
         description: claudeGlobalKit.summary
       },
       {
@@ -840,7 +840,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           return missing;
         });
       recommendedActions.push({
-        label: "Fix now: Repair Logics Kit",
+        label: "Fix now: Repair Logics runtime",
         description: missingFiles.length > 0
           ? `Claude bridge files are missing: ${missingFiles.join(", ")}`
           : "Bridge files are incomplete — run the repair flow to restore shared runtime wiring.",
@@ -859,28 +859,28 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (snapshot.codexOverlay.installedVersion) {
       detailItems.push({
-        label: "Global Codex kit version",
+        label: "Global Codex runtime version",
         description: snapshot.codexOverlay.installedVersion
       });
     }
 
     if (snapshot.codexOverlay.sourceRepo) {
       detailItems.push({
-        label: "Global Codex kit source",
+        label: "Global Codex runtime source",
         description: snapshot.codexOverlay.sourceRepo
       });
     }
 
     if (claudeGlobalKit.installedVersion) {
       detailItems.push({
-        label: "Global Claude kit version",
+        label: "Global Claude runtime version",
         description: claudeGlobalKit.installedVersion
       });
     }
 
     if (claudeGlobalKit.sourceRepo) {
       detailItems.push({
-        label: "Global Claude kit source",
+        label: "Global Claude runtime source",
         description: claudeGlobalKit.sourceRepo
       });
     }
@@ -908,7 +908,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (launchers.hasCodex) {
       for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
         detailItems.push({
-          label: "Global Codex kit note",
+          label: "Global Codex runtime note",
           description: issue
         });
       }
@@ -917,7 +917,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (launchers.hasClaude) {
       for (const issue of claudeGlobalKit.issues.slice(0, 3)) {
         detailItems.push({
-          label: "Global Claude kit note",
+          label: "Global Claude runtime note",
           description: issue
         });
       }

@@ -175,7 +175,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       },
       codexRuntime: {
         status: "unavailable",
-        summary: "Repo-local Logics is ready, but the global Codex kit still needs publication."
+        summary: "Repo-local Logics is ready, but the global Codex runtime still needs publication."
       }
     },
     hybridRuntime: {
@@ -186,12 +186,12 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
-      issues: ["Global Claude kit manifest is missing."],
+      summary: "No global Claude runtime is published yet.",
+      issues: ["Global Claude runtime manifest is missing."],
       warnings: [],
       sourceRepo: "/workspace/mock",
       publishedSkillNames: [],
@@ -199,8 +199,8 @@ vi.mock("../src/logicsEnvironment", () => ({
     },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
-      issues: ["Global Logics kit manifest is missing."],
+      summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: [],
       runCommand: "codex",
       installedVersion: "1.4.0",
@@ -269,7 +269,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics in this project",
-      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found in the selected repository."
     });
     mocks.indexLogics.mockReturnValue([]);
@@ -316,7 +316,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReturnValue(false);
     mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet.",
+      summary: "No global Codex runtime is published yet.",
       issues: [],
       warnings: [],
       overlayRoot: path.join(root, ".codex", "skills"),
@@ -326,7 +326,7 @@ describe("LogicsViewProvider", () => {
     });
     mocks.inspectClaudeGlobalKit.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
+      summary: "No global Claude runtime is published yet.",
       issues: [],
       warnings: [],
       claudeHome: path.join(root, ".claude"),
@@ -345,12 +345,12 @@ describe("LogicsViewProvider", () => {
       hasClaude: true,
       codex: {
         available: true,
-        title: "Launch Codex with the globally published Logics kit",
+        title: "Launch Codex with the globally published Logics runtime",
         command: "codex"
       },
       claude: {
         available: true,
-        title: "Launch Claude with the globally published Logics kit",
+        title: "Launch Claude with the globally published Logics runtime",
         command: "claude"
       }
     });

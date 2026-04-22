@@ -175,7 +175,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       },
       codexRuntime: {
         status: "unavailable",
-        summary: "Repo-local Logics is ready, but the global Codex kit still needs publication."
+        summary: "Repo-local Logics is ready, but the global Codex runtime still needs publication."
       }
     },
     hybridRuntime: {
@@ -186,12 +186,12 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     },
     claudeGlobalKit: {
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
-      issues: ["Global Claude kit manifest is missing."],
+      summary: "No global Claude runtime is published yet.",
+      issues: ["Global Claude runtime manifest is missing."],
       warnings: [],
       sourceRepo: "/workspace/mock",
       publishedSkillNames: [],
@@ -199,8 +199,8 @@ vi.mock("../src/logicsEnvironment", () => ({
     },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet. Opening this repository can publish it automatically.",
-      issues: ["Global Logics kit manifest is missing."],
+      summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: [],
       runCommand: "codex",
       installedVersion: "1.4.0",
@@ -269,7 +269,7 @@ describe("LogicsViewProvider", () => {
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics in this project",
-      promptMessage: "No logics/ folder found. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "No logics/ folder found. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found in the selected repository."
     });
     mocks.indexLogics.mockReturnValue([]);
@@ -316,7 +316,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReturnValue(false);
     mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Codex Logics kit is published yet.",
+      summary: "No global Codex runtime is published yet.",
       issues: [],
       warnings: [],
       overlayRoot: path.join(root, ".codex", "skills"),
@@ -326,7 +326,7 @@ describe("LogicsViewProvider", () => {
     });
     mocks.inspectClaudeGlobalKit.mockReturnValue({
       status: "missing-overlay",
-      summary: "No global Claude Logics kit is published yet.",
+      summary: "No global Claude runtime is published yet.",
       issues: [],
       warnings: [],
       claudeHome: path.join(root, ".claude"),
@@ -345,12 +345,12 @@ describe("LogicsViewProvider", () => {
       hasClaude: true,
       codex: {
         available: true,
-        title: "Launch Codex with the globally published Logics kit",
+        title: "Launch Codex with the globally published Logics runtime",
         command: "codex"
       },
       claude: {
         available: true,
-        title: "Launch Claude with the globally published Logics kit",
+        title: "Launch Claude with the globally published Logics runtime",
         command: "claude"
       }
     });
@@ -405,7 +405,7 @@ describe("LogicsViewProvider", () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
-  it("re-publishes the global Codex kit when the current repo is newer than a warning-state publication", async () => {
+  it("re-publishes the global Codex runtime when the current repo is newer than a warning-state publication", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
@@ -432,13 +432,13 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Global kit older than repo-local source." }
+          codexRuntime: { status: "available", summary: "Global runtime older than repo-local source." }
         },
         codexOverlay: {
           status: "warning",
-          summary: "Global Codex Logics kit is usable, but a newer or different repo-local source is available.",
+          summary: "Global Codex runtime is usable, but a newer or different repo-local source is available.",
           issues: [],
-          warnings: ["Repo-local kit version 1.9.1 is newer than the published global version 1.9.0."],
+          warnings: ["Repo-local runtime version 1.9.1 is newer than the published global version 1.9.0."],
           runCommand: "codex",
           installedVersion: "1.9.0",
           sourceRepo: "/Users/alexandreagostini/Documents/emberwake"
@@ -459,11 +459,11 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Global kit ready." }
+          codexRuntime: { status: "available", summary: "Global runtime ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Global kit ready.",
+          summary: "Global runtime ready.",
           issues: [],
           warnings: [],
           runCommand: "codex",
@@ -486,11 +486,11 @@ describe("LogicsViewProvider", () => {
           workflowMutation: { status: "available", summary: "ok" },
           bootstrapRepair: { status: "available", summary: "ok" },
           diagnostics: { status: "available", summary: "ok" },
-          codexRuntime: { status: "available", summary: "Global kit ready." }
+          codexRuntime: { status: "available", summary: "Global runtime ready." }
         },
         codexOverlay: {
           status: "healthy",
-          summary: "Global kit ready.",
+          summary: "Global runtime ready.",
           issues: [],
           warnings: [],
           runCommand: "codex",
@@ -523,12 +523,12 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+        codexRuntime: { status: "unavailable", summary: "Global runtime pending publication." }
       },
       codexOverlay: {
         status: "missing-overlay",
-        summary: "Global kit pending publication.",
-        issues: ["Global Logics kit manifest is missing."],
+        summary: "Global runtime pending publication.",
+        issues: ["Global Logics runtime manifest is missing."],
         warnings: [],
         runCommand: "codex"
       }
@@ -557,12 +557,12 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-        codexRuntime: { status: "unavailable", summary: "Global kit pending publication." }
+        codexRuntime: { status: "unavailable", summary: "Global runtime pending publication." }
       },
       codexOverlay: {
         status: "missing-overlay",
-        summary: "Global kit pending publication.",
-        issues: ["Global Logics kit manifest is missing."],
+        summary: "Global runtime pending publication.",
+        issues: ["Global Logics runtime manifest is missing."],
         warnings: [],
         runCommand: "codex"
       }
@@ -587,7 +587,7 @@ describe("LogicsViewProvider", () => {
         stderr: ""
       })
       .mockResolvedValueOnce({
-        stdout: "[main 1234567] Bootstrap Logics kit and initialize workflow docs\n",
+        stdout: "[main 1234567] Bootstrap Logics runtime and initialize workflow docs\n",
         stderr: ""
       });
     vi.mocked(parseGitStatusEntries).mockReturnValue([
@@ -596,14 +596,14 @@ describe("LogicsViewProvider", () => {
       { indexStatus: "?", workTreeStatus: "?", path: "logics/request/req_001_demo.md" }
     ]);
     vi.mocked(isBootstrapScopedPath).mockImplementation((filePath: string) => filePath === ".gitmodules" || filePath.startsWith("logics/"));
-    vi.mocked(buildBootstrapCommitMessage).mockReturnValue("Bootstrap Logics kit and initialize workflow docs");
+    vi.mocked(buildBootstrapCommitMessage).mockReturnValue("Bootstrap Logics runtime and initialize workflow docs");
     mocks.showInformationMessage.mockResolvedValueOnce("Commit Bootstrap Changes").mockResolvedValueOnce(undefined);
 
     const controller = (provider as any).codexWorkflowController;
     await controller.maybeOfferBootstrapCommit(root, []);
 
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Bootstrap updated Logics files in this repository. Commit the bootstrap changes now with message: Bootstrap Logics kit and initialize workflow docs",
+      "Bootstrap updated Logics files in this repository. Commit the bootstrap changes now with message: Bootstrap Logics runtime and initialize workflow docs",
       "Commit Bootstrap Changes",
       "Copy Commit Message"
     );
@@ -618,7 +618,7 @@ describe("LogicsViewProvider", () => {
     expect(mocks.runGitWithOutput).toHaveBeenNthCalledWith(3, root, [
       "commit",
       "-m",
-      "Bootstrap Logics kit and initialize workflow docs",
+      "Bootstrap Logics runtime and initialize workflow docs",
       "--only",
       "--",
       ".gitmodules",
@@ -667,11 +667,11 @@ describe("LogicsViewProvider", () => {
         workflowMutation: { status: "available", summary: "ok" },
         bootstrapRepair: { status: "available", summary: "ok" },
         diagnostics: { status: "available", summary: "ok" },
-        codexRuntime: { status: "unavailable", summary: "Global kit needs repair." }
+        codexRuntime: { status: "unavailable", summary: "Global runtime needs repair." }
       },
       codexOverlay: {
         status: "stale",
-        summary: "Global Codex Logics kit needs repair or re-publication before it is reliable.",
+        summary: "Global Codex runtime needs repair or re-publication before it is reliable.",
         issues: ["Manifest unreadable."],
         warnings: [],
         runCommand: "codex"
@@ -686,8 +686,8 @@ describe("LogicsViewProvider", () => {
     });
 
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics bootstrapped partially. Repo-local kit is ready, but the global Codex kit is not ready yet. Global Codex Logics kit needs repair or re-publication before it is reliable. Automatic publication failed during bootstrap: permission denied.",
-      "Publish Global Codex Kit"
+      "Logics bootstrapped partially. Repo-local runtime is ready, but the global Codex runtime is not ready yet. Global Codex runtime needs repair or re-publication before it is reliable. Automatic publication failed during bootstrap: permission denied.",
+      "Publish Global Codex Runtime"
     );
   });
 
@@ -733,8 +733,8 @@ describe("LogicsViewProvider", () => {
     expect(items.some((item: { label: string }) => item.label.includes("Environment: Blocked"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Workflow editing: Blocked"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Workflow folders: Incomplete but recoverable"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Global Codex kit: Needs attention"))).toBe(true);
-    expect(items.some((item: { label: string }) => item.label.includes("Global Claude kit: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Global Codex runtime: Needs attention"))).toBe(true);
+    expect(items.some((item: { label: string }) => item.label.includes("Global Claude runtime: Needs attention"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("AI assistant runtime: Degraded"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Codex launch command"))).toBe(true);
     expect(items.some((item: { label: string }) => item.label.includes("Open detailed diagnostic report"))).toBe(true);

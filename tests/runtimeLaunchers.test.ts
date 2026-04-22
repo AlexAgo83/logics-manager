@@ -130,7 +130,7 @@ describe("inspectRuntimeLaunchers", () => {
     });
 
     expect(snapshot.codex.available).toBe(true);
-    expect(snapshot.codex.title).toContain("globally published Logics kit");
+    expect(snapshot.codex.title).toContain("globally published Logics runtime");
   });
 
   it("shows the bridge repair title when Claude global kit is unhealthy and bridge files are missing", async () => {

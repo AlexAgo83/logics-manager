@@ -225,7 +225,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
       return {
         exists: true,
         isCanonical: false,
-        reason: "The logics/skills submodule is missing a configured URL in .gitmodules."
+        reason: "The Logics runtime submodule is missing a configured URL in .gitmodules."
       };
     }
     const normalized = remoteUrl.toLowerCase();
@@ -237,7 +237,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
       isCanonical,
       remoteUrl,
       reason: isCanonical
-        ? "Canonical cdx-logics-kit submodule detected."
+        ? "Canonical Logics runtime submodule detected."
         : `logics/skills points to a non-canonical submodule URL: ${remoteUrl}`
     };
   }
@@ -245,7 +245,7 @@ export function inspectLogicsKitSubmodule(root: string): LogicsKitSubmoduleInspe
   return {
     exists: true,
     isCanonical: false,
-    reason: "The repository does not declare a logics/skills submodule entry in .gitmodules."
+    reason: "The repository does not declare a Logics runtime submodule entry in .gitmodules."
   };
 }
 
@@ -259,7 +259,7 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
       status: "missing",
       canBootstrap: true,
       actionTitle: "Bootstrap Logics on this branch",
-      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?",
       reason: "No logics/ folder found on the active branch."
     };
   }
@@ -269,7 +269,7 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by adding the cdx-logics-kit submodule?",
+      promptMessage: "This branch has an incomplete Logics setup (logics/skills is missing). Repair by provisioning the local runtime?",
       reason: "The active branch has logics/ but logics/skills is still missing."
     };
   }
@@ -282,7 +282,7 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
         canBootstrap: true,
         actionTitle: "Reconcile Logics bootstrap on this branch",
         promptMessage:
-          "This branch already has the canonical Logics kit, but repo-local bootstrap files are incomplete. Run Bootstrap Logics to converge them?",
+          "This branch already has the canonical Logics runtime, but repo-local bootstrap files are incomplete. Run Bootstrap Logics to converge them?",
         reason: convergence.reason,
         missingPaths: convergence.missingPaths,
         convergenceNeeded: true
@@ -299,7 +299,7 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
   return {
     status: "noncanonical",
     canBootstrap: false,
-    actionTitle: "Bootstrap unavailable until the current logics/skills setup is repaired",
+    actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
     reason: inspection.reason
   };
 }

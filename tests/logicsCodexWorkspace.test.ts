@@ -37,7 +37,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     }
   });
 
-  it("reports a missing global kit when repo-local skills exist but nothing is published yet", () => {
+  it("reports a missing global runtime when repo-local skills exist but nothing is published yet", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
     roots.push(root);
     const repoSkillDir = path.join(root, "logics", "skills", "demo-skill");
@@ -50,11 +50,11 @@ describe("inspectCodexWorkspaceOverlay", () => {
     const snapshot = inspectCodexWorkspaceOverlay(root);
 
     expect(snapshot.status).toBe("missing-overlay");
-    expect(snapshot.summary).toContain("No global Codex Logics kit is published yet");
+    expect(snapshot.summary).toContain("No global Codex runtime is published yet");
     expect(snapshot.runCommand).toBe("codex");
   });
 
-  it("reports a healthy global kit when manifest and published skills are aligned", () => {
+  it("reports a healthy global runtime when manifest and published skills are aligned", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
     const globalHome = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
     roots.push(root, globalHome);
@@ -105,7 +105,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
   });
 
   it("builds global runtime commands", () => {
-    expect(buildCodexOverlaySyncCommand()).toContain("auto-publishes the global Codex kit");
+    expect(buildCodexOverlaySyncCommand()).toContain("auto-publishes the global Codex runtime");
     expect(buildCodexOverlayRunCommand()).toBe("codex");
   });
 

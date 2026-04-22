@@ -23,14 +23,14 @@ function buildSnapshot() {
     python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } },
     codexOverlay: {
       status: "missing-overlay",
-      summary: "Global Codex Logics kit has not been published yet.",
-      issues: ["Global Logics kit manifest is missing."],
+      summary: "Global Codex runtime has not been published yet.",
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: []
     },
     claudeGlobalKit: {
       status: "missing-overlay",
-      summary: "Global Claude Logics kit has not been published yet.",
-      issues: ["Global Claude kit manifest is missing."],
+      summary: "Global Claude Logics runtime has not been published yet.",
+      issues: ["Global Claude runtime manifest is missing."],
       warnings: []
     },
     hybridRuntime: {
@@ -41,7 +41,7 @@ function buildSnapshot() {
       degraded: false,
       degradedReasons: [],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
     },
     capabilities: {
       readOnly: { status: "available", summary: "ok" },

@@ -34,6 +34,8 @@ def build_vsix(output_path: Path) -> None:
                 add_file(archive, optional_path, f"{EXTENSION_ROOT}/{optional_name}")
         add_directory(archive, ROOT / "dist", f"{EXTENSION_ROOT}/dist")
         add_directory(archive, ROOT / "media", f"{EXTENSION_ROOT}/media")
+        add_directory(archive, ROOT / "logics_manager", f"{EXTENSION_ROOT}/logics_manager")
+        add_file(archive, ROOT / "scripts" / "logics-manager.py", f"{EXTENSION_ROOT}/scripts/logics-manager.py")
 
 
 def main() -> int:

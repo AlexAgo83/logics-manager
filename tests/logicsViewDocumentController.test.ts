@@ -296,7 +296,9 @@ describe("LogicsViewDocumentController", () => {
     await controller.startGuidedRequestFromTools();
     expect(refreshAgents).toHaveBeenCalledWith("silent", root);
     expect(agentsOutput.show).toHaveBeenCalledWith(true);
-    expect(mocks.showWarningMessage.mock.calls.at(-1)?.[0]).toContain("No request-authoring agent found in logics/skills.");
+    expect(mocks.showWarningMessage.mock.calls.at(-1)?.[0]).toContain(
+      "No request-authoring agent found for the current Logics runtime."
+    );
 
     registryState.issues = [];
     agentState.agent = { id: "agent-007", displayName: "Requester", defaultPrompt: "Write concise requests" };

@@ -114,7 +114,7 @@ describe("logicsViewProviderSupport more coverage", () => {
         degraded: false,
         degradedReasons: [],
         claudeBridgeAvailable: true,
-        windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+        windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
       },
       capabilities: {
         readOnly: { status: "available", summary: "ok" },
@@ -150,7 +150,7 @@ describe("logicsViewProviderSupport more coverage", () => {
       shouldRecommendCheckEnvironment.call(
         host,
         "/workspace",
-        makeSnapshot({ repositoryState: "missing-flow-manager" }) as never,
+        makeSnapshot({ repositoryState: "partial-bootstrap" }) as never,
         null,
         launchers
       )
@@ -199,7 +199,7 @@ describe("logicsViewProviderSupport more coverage", () => {
             degraded: true,
             degradedReasons: ["missing bridge"],
             claudeBridgeAvailable: false,
-            windowsSafeEntrypoint: "python scripts/logics-manager.py flow assist ..."
+            windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
           }
         }) as never,
         null,

@@ -37,6 +37,9 @@ Canonical examples use `python3 -m logics_manager ...`; if your environment expo
 - Lint Logics docs: `python3 -m logics_manager lint --require-status`
 - Bootstrap folders or repair missing workflow scaffolding: `python3 -m logics_manager bootstrap`
 
+Repository-local Claude bridge files and assistant instructions are generated from the integrated runtime.
+Do not edit `.claude/` bridge files by hand unless you are deliberately repairing a generated artifact.
+
 When a task is completed, run `finish task` first so backlog/request parents are synchronized automatically, then run broader audit/lint commands when needed.
 
 ## Hybrid Vs Interactive

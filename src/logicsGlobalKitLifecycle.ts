@@ -119,7 +119,7 @@ export function inspectPublicationLifecycle<TManifest extends CommonManifest<TEn
     return {
       kind: "missing-overlay",
       context,
-      issues: ["Global Logics kit manifest is missing."],
+      issues: ["Global Logics runtime manifest is missing."],
       warnings: [],
       publishedSkillNames: [],
       needsPublish: true
@@ -131,7 +131,7 @@ export function inspectPublicationLifecycle<TManifest extends CommonManifest<TEn
     return {
       kind: "stale",
       context,
-      issues: ["Global Logics kit manifest is unreadable."],
+      issues: ["Global Logics runtime manifest is unreadable."],
       warnings: [],
       publishedSkillNames: [],
       needsPublish: true

@@ -30,6 +30,7 @@ const steps = [
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },
   { label: "Unit tests + coverage", command: npmCommand(), args: ["run", "test:coverage"] },
   { label: "Extension smoke checks", command: npmCommand(), args: ["run", "test:smoke"] },
+  { label: "npm CLI smoke checks", command: npmCommand(), args: ["run", "test:npm-cli"] },
   { label: "Logics docs lint", command: npmCommand(), args: ["run", "lint:logics"] },
   { label: "VSIX package validation", command: npmCommand(), args: ["run", "package:ci"] }
 ];

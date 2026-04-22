@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+from .assist import main as assist_main
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
 from .config import ConfigError, find_repo_root, render_config_show
@@ -45,7 +46,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("bootstrap", "flow", "sync", "audit", "index", "lint", "config", "doctor"),
+        choices=("bootstrap", "flow", "sync", "assist", "audit", "index", "lint", "config", "doctor"),
     )
     parser.add_argument("rest", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv[:1])
@@ -91,6 +92,10 @@ def main(argv: list[str]) -> int:
         from .sync import main as sync_main
 
         return sync_main(rest)
+    if args.command == "assist":
+        if rest[:1] != ["runtime-status"]:
+            raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
+        return assist_main(rest)
     if args.command == "audit":
         audit_parser = build_audit_parser()
         parsed, _unknown = audit_parser.parse_known_args(rest)

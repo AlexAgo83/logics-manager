@@ -582,7 +582,7 @@ describe("LogicsViewProvider", () => {
       ["bootstrap"]
     );
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics runtime updated after environment diagnostics. Review and commit the submodule pointer change in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
+      "Logics runtime updated after environment diagnostics. Review and commit the runtime source change in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
     );
   });
 

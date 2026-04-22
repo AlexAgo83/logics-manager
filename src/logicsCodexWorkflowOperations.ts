@@ -163,7 +163,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
       const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics runtime update requires a git worktree rooted at the selected project. Use the canonical submodule update command manually if needed.",
+        "Automatic Logics runtime update requires a git worktree rooted at the selected project. Use the canonical runtime update command manually if needed.",
         "Copy Update Command"
       );
       if (choice === "Copy Update Command") {
@@ -248,7 +248,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       }
 
       const choice = await vscode.window.showWarningMessage(
-          `logics/ appears to be gitignored and the canonical submodule is not functional. ${inspection.reason} Install or refresh the runtime via fallback copy or clone?`,
+          `logics/ appears to be gitignored and the canonical runtime source is not functional. ${inspection.reason} Install or refresh the runtime via fallback copy or clone?`,
         "Install Fallback",
         "Copy Update Command"
       );
@@ -325,15 +325,15 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (snapshot.codexOverlay.status === "missing-manager") {
       void vscode.window.showWarningMessage(
         updated
-          ? "The Logics runtime submodule updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
-          : "The Logics runtime is already at the current tracked submodule revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
+          ? "The Logics runtime source updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
+          : "The Logics runtime is already at the current tracked runtime revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
       );
       return true;
     }
 
     const message = updated
-      ? `Logics runtime updated after ${trigger}. Review and commit the submodule pointer change in your repository when ready.${rootChangeNote}`
-      : `The Logics runtime is already up to date on the tracked submodule revision.${rootChangeNote}`;
+      ? `Logics runtime updated after ${trigger}. Review and commit the runtime source change in your repository when ready.${rootChangeNote}`
+      : `The Logics runtime is already up to date on the tracked runtime revision.${rootChangeNote}`;
     const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"

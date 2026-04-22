@@ -71,6 +71,69 @@ def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
     parser.add_argument("--dry-run", action="store_true")
 
 
+def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, args: argparse.Namespace) -> str:
+    from_version = _resolved_from_version(repo_root, getattr(args, "from_version", None))
+    fixture_mode = bool(getattr(args, "fixture", False))
+    context = [
+        "Generated locally by logics-manager.",
+        "No manual skills bootstrap or bridge editing is required.",
+    ]
+    if fixture_mode:
+        context.append("Synthetic fixture for request generation smoke tests.")
+    references = [
+        "`logics_manager/flow.py`",
+        "`logics_manager/assist.py`",
+        "`python_tests/test_logics_manager_cli.py`",
+    ]
+    return "\n".join(
+        [
+            f"## {planned_ref} - {title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            "> Status: Draft",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Complexity: Medium",
+            "> Theme: Operator workflow",
+            "> Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.",
+            "",
+            "# Needs",
+            f"- Deliver a bounded request for {title.lower()}.",
+            "",
+            "# Context",
+            *[f"- {item}" for item in context],
+            "",
+            "# Acceptance criteria",
+            f"- AC1: The request states the bounded need for {title.lower()}.",
+            "- AC2: Scope boundaries and operator impact are explicit.",
+            "- AC3: The request is ready to be promoted into a backlog slice.",
+            "",
+            "# Definition of Ready (DoR)",
+            "- [ ] Problem statement is explicit and user impact is clear.",
+            "- [ ] Scope boundaries (in/out) are explicit.",
+            "- [ ] Acceptance criteria are testable.",
+            "- [ ] Dependencies and known risks are listed.",
+            "",
+            "# Companion docs",
+            "- Product brief(s): (none yet)",
+            "- Architecture decision(s): (none yet)",
+            "",
+            "# References",
+            *[f"- {item}" for item in references],
+            "",
+            "# AI Context",
+            f"- Summary: Draft a bounded request for {title.lower()}.",
+            "- Keywords: request-draft, logics-manager, python runtime, bundled CLI",
+            "- Use when: You need a new bounded request doc for the Logics workflow.",
+            "- Skip when: The work already has an existing request or should go straight to a backlog slice.",
+            "",
+            "# Backlog",
+            "- none",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="logics-manager flow",
@@ -144,6 +207,26 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     fixture_mode = bool(getattr(args, "fixture", False))
     planned = _plan_doc(repo_root, doc_kind.directory, doc_kind.prefix, args.slug or args.title, dry_run=args.dry_run)
 
+    payload: dict[str, object] = {
+        "command": "new",
+        "kind": doc_kind.kind,
+        "ref": planned.ref,
+        "path": planned.path.relative_to(repo_root).as_posix(),
+        "dry_run": args.dry_run,
+    }
+    if doc_kind.kind == "request":
+        content = _build_native_request_doc(repo_root, planned.ref, args.title, args)
+        if not args.dry_run:
+            planned.path.parent.mkdir(parents=True, exist_ok=True)
+            planned.path.write_text(content, encoding="utf-8")
+            print(f"Wrote {planned.path}")
+        else:
+            preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+            print(f"[dry-run] would write: {planned.path}")
+            print(preview)
+        print(f"Created {doc_kind.kind}: {payload['path']}")
+        return payload
+
     template_text = (
         repo_root / "logics" / "skills" / "logics-flow-manager" / "assets" / "templates" / doc_kind.template_name
     ).read_text(encoding="utf-8")
@@ -190,13 +273,6 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         if architecture_refs:
             values["ARCHITECTURE_LINK_PLACEHOLDER"] = ", ".join(f"`{ref}`" for ref in architecture_refs)
 
-    payload: dict[str, object] = {
-        "command": "new",
-        "kind": doc_kind.kind,
-        "ref": planned.ref,
-        "path": planned.path.relative_to(repo_root).as_posix(),
-        "dry_run": args.dry_run,
-    }
     if args.format == "json":
         with redirect_stdout(io.StringIO()):
             values["MERMAID_BLOCK"] = _generate_workflow_mermaid(repo_root, doc_kind.kind, args.title, values, dry_run=args.dry_run)

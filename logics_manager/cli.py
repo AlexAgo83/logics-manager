@@ -93,7 +93,7 @@ def main(argv: list[str]) -> int:
 
         return sync_main(rest)
     if args.command == "assist":
-        if rest[:1] != ["runtime-status"]:
+        if rest[:1] not in (["runtime-status"], ["context"]):
             raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
         return assist_main(rest)
     if args.command == "audit":

@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+from textwrap import dedent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -26,7 +27,17 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="logics-manager",
         description="Canonical Logics CLI for workflow, validation, and runtime operations.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=dedent(
+            """
+            Examples:
+              logics-manager flow new request --title "My request"
+              logics-manager audit
+              logics-manager config show --format json
+            """
+        ).strip(),
     )
+    parser.add_argument("--version", action="version", version="logics-manager 0.0.0")
     parser.add_argument(
         "command",
         nargs="?",

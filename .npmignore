@@ -3,6 +3,7 @@
 !package.json
 !README.md
 !LICENSE
+!VERSION
 !pyproject.toml
 !scripts/
 !scripts/logics-manager.py

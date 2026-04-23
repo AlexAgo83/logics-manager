@@ -175,21 +175,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
     const rootStatusEntries = parseGitStatusEntries(rootStatus.stdout);
-    const hasSkillsChangesInRoot = rootStatusEntries.some(
-      (entry) => entry.path === "logics/skills" || entry.path.startsWith("logics/skills/")
-    );
-    const hasOtherRootChanges = rootStatusEntries.some((entry) => !entry.path.startsWith("logics/skills"));
-    if (hasSkillsChangesInRoot) {
-      const choice = await vscode.window.showWarningMessage(
-        "Automatic Logics runtime update is blocked because the local Logics tooling has uncommitted changes. Commit or stash them first, or run the update manually.",
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-      }
-      return false;
-    }
+    const hasUnrelatedRootChanges = rootStatusEntries.length > 0;
 
     const fallbackResult = await fallbackInstallKit(root);
     if (!fallbackResult.installed) {
@@ -202,8 +188,8 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
     const snapshot = await inspectLogicsEnvironment(root);
-    const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
-    const message = `Logics runtime updated after ${trigger} by running the bundled bootstrap. Review and commit the runtime source change in your repository when ready.${rootChangeNote}`;
+    const rootChangeNote = hasUnrelatedRootChanges ? " Existing repository changes were left untouched." : "";
+    const message = `Logics runtime updated after ${trigger} by running the bundled bootstrap. Review and commit the bootstrap changes in your repository when ready.${rootChangeNote}`;
     const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"

@@ -445,7 +445,7 @@ describe("LogicsViewProvider", () => {
     );
   });
 
-  it("blocks bootstrap updates when the runtime tree has uncommitted changes", async () => {
+  it("allows bootstrap updates to continue even when legacy runtime paths are dirty", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
     mocks.runGitWithOutput.mockImplementation(async (_cwd: string, args: string[]) => {
       if (args[0] === "--version") {
@@ -462,15 +462,20 @@ describe("LogicsViewProvider", () => {
     vi.mocked(parseGitStatusEntries).mockReturnValue([
       { indexStatus: " ", workTreeStatus: "M", path: "logics/skills" }
     ]);
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue(defaultEnvironmentSnapshot(root) as never);
 
     const updated = await (provider as any).codexWorkflowController.updateLogicsKit(root, "manual update");
 
-    expect(updated).toBe(false);
-    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Automatic Logics runtime update is blocked because the local Logics tooling has uncommitted changes. Commit or stash them first, or run the update manually.",
-      "Copy Update Command"
+    expect(updated).toBe(true);
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(root, "scripts", "logics-manager.py"),
+      ["bootstrap"]
     );
-    expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      expect.stringContaining("Existing repository changes were left untouched.")
+    );
   });
 
   it("bootstraps the runtime when no global kit copy is available", async () => {

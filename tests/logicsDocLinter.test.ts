@@ -75,7 +75,7 @@ function initRepoWithRequestDoc(markedMaintenance = false) {
 }
 
 function runLinter(root: string) {
-  return spawnSync("python3", [path.join(process.cwd(), "logics/skills/logics-doc-linter/scripts/logics_lint.py"), "--require-status", "--format", "json"], {
+  return spawnSync("python3", [path.join(process.cwd(), "scripts", "logics-manager.py"), "lint", "--require-status", "--format", "json"], {
     cwd: root,
     encoding: "utf8",
     env: process.env

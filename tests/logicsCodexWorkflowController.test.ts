@@ -303,14 +303,8 @@ describe("LogicsCodexWorkflowController", () => {
     );
   });
 
-  it("blocks canonical runtime updates when logics/skills is dirty", async () => {
+  it("runs the bundled bootstrap without treating legacy logics/skills changes as a blocking update path", async () => {
     const root = makeRoot();
-    mocks.detectKitInstallType.mockReturnValue("submodule");
-    mocks.inspectLogicsKitSubmodule.mockReturnValue({
-      exists: true,
-      isCanonical: true,
-      reason: "canonical"
-    });
     mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
       const key = args.join(" ");
       if (key === "--version") {
@@ -324,15 +318,25 @@ describe("LogicsCodexWorkflowController", () => {
       }
       return { stdout: "", stderr: "" };
     });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Repo-local Logics bootstrap is converged."
+    });
+    mocks.inspectLogicsEnvironment.mockResolvedValue(healthySnapshot());
 
     const updated = await controller.updateLogicsKit(root, "manual repair");
 
-    expect(updated).toBe(false);
-    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      expect.stringContaining("local Logics tooling has uncommitted changes"),
-      "Copy Update Command"
+    expect(updated).toBe(true);
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(process.cwd(), "scripts", "logics-manager.py"),
+      ["bootstrap"]
     );
-    expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      expect.stringContaining("Existing repository changes were left untouched.")
+    );
   });
 
   it("returns false early when Git is unavailable for Logics runtime updates", async () => {

@@ -111,13 +111,13 @@ export async function inspectLogicsEnvironment(
   const inspectHybridRuntime = options.inspectHybridRuntime ?? inspectHybridAssistRuntime;
   const projectRoot = root ?? "";
   const hasLogicsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics"));
+  const hasBundledManagerScript = Boolean(root) && fs.existsSync(path.join(projectRoot, "scripts", "logics-manager.py"));
   const hasSkillsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics", "skills"));
   const hasFlowManagerScript =
-    Boolean(root) &&
-    fs.existsSync(path.join(projectRoot, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"));
-  const hasBootstrapScript =
-    Boolean(root) &&
-    fs.existsSync(path.join(projectRoot, "logics", "skills", "logics-bootstrapper", "scripts", "logics_bootstrap.py"));
+    hasBundledManagerScript ||
+    (Boolean(root) &&
+      fs.existsSync(path.join(projectRoot, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py")));
+  const hasBootstrapScript = hasBundledManagerScript;
   const missingWorkflowDirs = root ? getMissingWorkflowDirs(root) : [];
   const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
   const pythonAvailable = Boolean(pythonCommand);

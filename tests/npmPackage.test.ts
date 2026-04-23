@@ -58,7 +58,15 @@ describe("npm package surface", () => {
         }
       );
 
-      const wrapperPath = path.join(tempRoot, "node_modules", "logics-manager", "scripts", "npm", "logics-manager.mjs");
+      const wrapperPath = path.join(
+        tempRoot,
+        "node_modules",
+        "@grifhinz",
+        "logics-manager",
+        "scripts",
+        "npm",
+        "logics-manager.mjs"
+      );
       execFileSync("node", [wrapperPath, "--help"], {
         cwd: tempRoot,
         encoding: "utf8",

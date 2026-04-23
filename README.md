@@ -29,6 +29,12 @@ logics-manager --help
 
 The repository also exposes a `logics-manager` npm bin when installed through npm, which delegates to the same Python CLI.
 
+Install the npm package with:
+
+```bash
+npm install -g @grifhinz/logics-manager
+```
+
 For the editor client, build and install the VSIX:
 
 ```bash

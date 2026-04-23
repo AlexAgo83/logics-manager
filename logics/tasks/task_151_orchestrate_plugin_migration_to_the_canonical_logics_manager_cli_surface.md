@@ -1,16 +1,19 @@
 ## task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
-> From version: 1.28.0
+> From version: 1.28.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 89%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 91%
+> Progress: 20%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Context
 - Execute the orchestration lane for `req_189` by sequencing the linked backlog slices and keeping the plugin migration aligned with the canonical `logics-manager` runtime contract.
+- Keep the 2026-04-23 assistant-surface audit findings synchronized with implementation:
+  - canonical assistant instructions are already in place;
+  - generated bridge labels, fallback prompts, request-authoring defaults, and some docs/tests still expose a hybrid `flow-manager` contract that must either converge or be explicitly downgraded to compatibility labeling.
 
 ```mermaid
 %% logics-kind: task
@@ -37,6 +40,7 @@ stateDiagram-v2
 - [ ] 3. Deliver the legacy diagnostics and gating cleanup slice.
 - [ ] 4. Deliver the contract documentation and validation slice.
 - [ ] 5. Checkpoint the migration in a commit-ready state, validate it, and update the linked Logics docs.
+- [ ] CROSS-CHECK: after each wave, compare assistant-visible instructions versus bridge labels and plugin agent defaults so the migration does not leave a hybrid operator contract behind.
 - [ ] CHECKPOINT: keep each completed wave commit-ready and update the linked Logics docs during the wave.
 - [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 - [ ] FINAL: report which `req_189` gaps were closed, which remain, and any residual justified exceptions.

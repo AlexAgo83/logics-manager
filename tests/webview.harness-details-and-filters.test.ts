@@ -45,7 +45,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 
-  it("hides done requests by default and can reveal them when disabled", () => {
+  it("hides closed requests by default and can reveal them when completed and processed filters are disabled", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -66,6 +66,14 @@ describe("webview harness filters, details, and docs", () => {
           relPath: "logics/request/req_002_draft_linked.md",
           path: "/workspace/mock/logics/request/req_002_draft_linked.md",
           references: [{ kind: "backlog", label: "Backlog", path: "logics/backlog/item_002_draft_linked.md" }]
+        },
+        {
+          ...baseItem,
+          id: "req_003_obsolete",
+          title: "Obsolete request",
+          relPath: "logics/request/req_003_obsolete.md",
+          path: "/workspace/mock/logics/request/req_003_obsolete.md",
+          indicators: { Status: "Obsolete", Progress: "20%" }
         },
         {
           ...baseItem,
@@ -90,19 +98,28 @@ describe("webview harness filters, details, and docs", () => {
 
     const document = dom.window.document;
     const processedToggle = document.getElementById("hide-processed-requests") as HTMLInputElement | null;
+    const completeToggle = document.getElementById("hide-complete") as HTMLInputElement | null;
 
     expect(processedToggle?.checked).toBe(true);
     expect(document.querySelector('[data-id="req_001_processed"]')).toBeNull();
+    expect(document.querySelector('[data-id="req_003_obsolete"]')).toBeNull();
     expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
 
     if (processedToggle) {
       processedToggle.checked = false;
       processedToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
+    if (completeToggle) {
+      completeToggle.checked = false;
+      completeToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
 
     expect(document.querySelector('[data-id="req_001_processed"]')).not.toBeNull();
+    expect(document.querySelector('[data-id="req_003_obsolete"]')).not.toBeNull();
     expect(document.querySelector('[data-id="req_002_draft_linked"]')).not.toBeNull();
-    expect(persistedStates.some((state) => state.hideProcessedRequests === false)).toBe(true);
+    expect(persistedStates.some((state) => state.hideProcessedRequests === false && state.hideCompleted === false)).toBe(
+      true
+    );
   });
 
   it("hides processed requests when the linked backlog reference is stored as an id", () => {

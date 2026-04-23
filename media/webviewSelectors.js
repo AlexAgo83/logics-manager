@@ -150,6 +150,18 @@
       return normalized === "ready" || normalized === "done" || normalized === "complete" || normalized === "completed" || normalized === "archived";
     }
 
+    function isClosedWorkflowStatus(value) {
+      const normalized = normalizeStatus(value);
+      return (
+        normalized === "done" ||
+        normalized === "complete" ||
+        normalized === "completed" ||
+        normalized === "archived" ||
+        normalized === "obsolete" ||
+        normalized === "superseded"
+      );
+    }
+
     function isRequestProcessed(item) {
       return typeof modelApi.isRequestProcessed === "function" ? modelApi.isRequestProcessed(item, getItems()) : false;
     }
@@ -209,6 +221,7 @@
 
     function getActivityEntries() {
       return [...getItems()]
+        .filter((item) => !(getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))))
         .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
         .slice(0, 12)
         .map((item) => {
@@ -346,7 +359,7 @@
       if (getAttentionOnly() && !needsAttention(item)) {
         return false;
       }
-      if (getHideCompleted() && isComplete(item)) {
+      if (getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))) {
         return false;
       }
       if (getHideProcessedRequests() && item.stage === "request" && isRequestProcessed(item)) {
@@ -462,6 +475,7 @@
       formatDate,
       normalizeStatus,
       isProcessedWorkflowStatus,
+      isClosedWorkflowStatus,
       collectLinkedWorkflowItems,
       isRequestProcessed,
       getEffectiveSortMode,

@@ -1,22 +1,24 @@
 ## item_347_remove_legacy_runtime_compatibility_surfaces_from_plugin_diagnostics_and_gating - Remove legacy runtime compatibility surfaces from plugin diagnostics and gating
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 88%
-> Progress: 0%
+> Status: In progress
+> Understanding: 98%
+> Confidence: 90%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 
 # Problem
 - The extension still exposes residual diagnostics, gating logic, and migration messages that model `logics/skills` or `cdx-logics-kit` as a normal runtime shape instead of a historical migration concern.
+- The assistant/runtime-global layer still exposes adjacent legacy cues as well, including bridge IDs, prompt wording, and supported-variant naming that make `flow-manager` and `skills` appear closer to the product contract than `logics-manager`.
 
 # Scope
 - In:
   - remove or narrow legacy compatibility branches from runtime checks, environment diagnostics, and repair/gating messages;
   - preserve only clearly justified migration or troubleshooting handling where it is still needed;
-  - update tests so the supported steady-state model is the integrated `logics-manager` runtime.
+  - update tests so the supported steady-state model is the integrated `logics-manager` runtime;
+  - treat assistant-facing compatibility labels and bridge naming as part of the same supported-state cleanup when they misrepresent the canonical runtime model.
 - Out:
   - workflow-action routing work that belongs to the canonical CLI entrypoint slice;
   - general documentation and packaging updates that do not affect diagnostics or gating behavior.
@@ -35,6 +37,7 @@ flowchart TD
 - AC1: Normal plugin diagnostics and gating no longer describe legacy kit compatibility as a supported steady-state runtime requirement.
 - AC2: Any retained legacy messaging is explicitly framed as migration/troubleshooting support rather than the normal product path.
 - AC3: Automated tests validate the supported integrated-runtime diagnostics contract.
+- AC4: Assistant/runtime-global labels that still mention historical `flow-manager` or `skills` behavior are either removed, explicitly marked as compatibility naming, or justified as non-product aliases.
 
 # AC Traceability
 - Request AC2 -> This backlog slice. Proof: legacy runtime compatibility stops being treated as a normal operational contract.
@@ -65,3 +68,6 @@ flowchart TD
 
 # Notes
 - This slice is the main cleanup lane for the residual `item_343` style gaps that still leak into plugin behavior.
+- Audit note: current examples include `CLAUDE_BRIDGE_VARIANTS` still publishing a `flow-manager` bridge with a `$logics-flow-manager` fallback prompt, plus plugin-side request-authoring selection still preferring that historical agent id.
+- Closure note: recent runtime messaging cleanup already reduced the product-facing emphasis on `cdx-logics-kit` and old runtime-source wording, but the assistant/runtime-global layer still leaks a legacy supported-state model.
+- Remaining proof target: legacy naming that survives for compatibility must be explicitly labeled as such; otherwise it still fails the supported-state contract even if the underlying runtime behavior is already canonical.

@@ -123,6 +123,38 @@ describe("webview selectors behavior", () => {
     expect(cardIds).not.toContain("req_complete");
   });
 
+  it("hides obsolete and superseded items when hideCompleted is true even without 100 percent progress", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        {
+          ...baseItem,
+          id: "item_obsolete",
+          stage: "backlog",
+          title: "Obsolete backlog",
+          indicators: { Status: "Obsolete", Progress: "25%" }
+        },
+        {
+          ...baseItem,
+          id: "task_superseded",
+          stage: "task",
+          title: "Superseded task",
+          indicators: { Status: "Superseded", Progress: "60%" }
+        }
+      ]
+    });
+
+    const board = dom.window.document.getElementById("board");
+    const cards = Array.from(board?.querySelectorAll(".card") || []);
+    const cardIds = cards.map((c) => (c as HTMLElement).dataset.id);
+    expect(cardIds).toContain("req_000_kickoff");
+    expect(cardIds).not.toContain("item_obsolete");
+    expect(cardIds).not.toContain("task_superseded");
+  });
+
   it("searches across title, id, stage, references, and indicators", () => {
     const { dom } = bootstrapWebview();
 

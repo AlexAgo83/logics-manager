@@ -7,8 +7,14 @@ import { createTempRootTracker } from "./helpers/tempRootTracker";
 
 describe("inspectLogicsEnvironment", () => {
   const tracker = createTempRootTracker("logics-env-");
+  const originalClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
 
   afterEach(() => {
+    if (typeof originalClaudeHome === "string") {
+      process.env.LOGICS_CLAUDE_GLOBAL_HOME = originalClaudeHome;
+    } else {
+      delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
+    }
     tracker.cleanup();
   });
 
@@ -68,6 +74,7 @@ describe("inspectLogicsEnvironment", () => {
 
   it("surfaces hybrid runtime readiness and capability state", async () => {
     const root = tracker.makeRoot();
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
@@ -97,22 +104,23 @@ describe("inspectLogicsEnvironment", () => {
     });
 
     expect(snapshot.hybridRuntime?.state).toBe("ready");
-    expect(snapshot.claudeGlobalKit?.status).toBe("missing-manager");
+    expect(snapshot.claudeGlobalKit?.status).toBe("missing-overlay");
     expect(snapshot.capabilities.hybridAssist?.status).toBe("available");
     expect(snapshot.capabilities.hybridAssist?.summary).toContain("Hybrid assist runtime ready");
   });
 
   it("detects the canonical Claude bridge variant", () => {
     const root = tracker.makeRoot();
-    fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
-    fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = root;
+    fs.mkdirSync(path.join(root, "commands"), { recursive: true });
+    fs.mkdirSync(path.join(root, "agents"), { recursive: true });
 
     let status = detectClaudeBridgeStatus(root);
     expect(status.available).toBe(false);
     expect(status.detectedVariants).toEqual([]);
 
-    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-assist.md"), "bridge\n", "utf8");
-    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"), "bridge\n", "utf8");
+    fs.writeFileSync(path.join(root, "commands", "logics-assist.md"), "bridge\n", "utf8");
+    fs.writeFileSync(path.join(root, "agents", "logics-hybrid-delivery-assistant.md"), "bridge\n", "utf8");
     status = detectClaudeBridgeStatus(root);
     expect(status.available).toBe(true);
     expect(status.detectedVariants).toEqual(["hybrid-assist"]);
@@ -121,6 +129,7 @@ describe("inspectLogicsEnvironment", () => {
 
   it("reports no Claude bridge when the canonical bridge files are absent", async () => {
     const root = tracker.makeRoot();
+    process.env.LOGICS_CLAUDE_GLOBAL_HOME = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });

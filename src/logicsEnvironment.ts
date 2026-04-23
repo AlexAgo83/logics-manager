@@ -2,6 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { detectGitCommand } from "./gitRuntime";
+import { getGlobalClaudeHome } from "./claudeBridgeSupport";
 import { ClaudeKitSnapshot, inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { CodexOverlaySnapshot, inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 import { detectPythonRuntime, PythonCommand, runPythonCommand } from "./pythonRuntime";
@@ -52,11 +53,12 @@ function getHybridAssistRuntimeStatusArgs(): string[] {
   return ["assist", "runtime-status", "--format", "json"];
 }
 
-export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
+export function detectClaudeBridgeStatus(_root: string): ClaudeBridgeStatus {
+  const globalClaudeHome = getGlobalClaudeHome();
   const detectedVariants = CLAUDE_BRIDGE_VARIANTS.filter(
     (variant) =>
-      fs.existsSync(path.join(root, ...variant.commandPath)) &&
-      fs.existsSync(path.join(root, ...variant.agentPath))
+      fs.existsSync(path.join(globalClaudeHome, ...variant.commandPath.slice(1))) &&
+      fs.existsSync(path.join(globalClaudeHome, ...variant.agentPath.slice(1)))
   ).map((variant) => variant.id);
   return {
     available: detectedVariants.length > 0,

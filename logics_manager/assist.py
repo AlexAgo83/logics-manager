@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 import re
@@ -1283,7 +1284,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     claude_bridges = sub.add_parser(
         "claude-bridges",
-        help="Render the canonical Claude bridge files and prompts derived from the integrated runtime.",
+        help="Render the canonical Claude runtime publication manifest and prompts derived from the integrated runtime.",
     )
     claude_bridges.add_argument("--format", choices=("text", "json"), default="text")
     claude_bridges.add_argument("--dry-run", action="store_true")
@@ -1346,10 +1347,17 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _claude_bridge_status(repo_root: Path) -> dict[str, object]:
+def _get_global_claude_home() -> Path:
+    return Path(os.environ.get("LOGICS_CLAUDE_GLOBAL_HOME") or (Path.home() / ".claude")).resolve()
+
+
+def _claude_bridge_status(_repo_root: Path) -> dict[str, object]:
+    global_home = _get_global_claude_home()
     detected_variants: list[str] = []
     for variant in CLAUDE_BRIDGE_VARIANTS:
-        if (repo_root / variant["command_path"]).is_file() and (repo_root / variant["agent_path"]).is_file():
+        command_path = global_home / str(variant["command_path"]).replace(".claude/", "")
+        agent_path = global_home / str(variant["agent_path"]).replace(".claude/", "")
+        if command_path.is_file() and agent_path.is_file():
             detected_variants.append(variant["id"])
     return {
         "available": bool(detected_variants),
@@ -1368,7 +1376,7 @@ def _render_claude_bridge_lines(variant: dict[str, object], prompt: str) -> tupl
     command_lines = [
         f"# {title}",
         "",
-        f"Use the repository-local {title.lower()} bridge for this project.",
+        f"Use the published global {title.lower()} bridge for this project.",
         "",
         "Primary prompt:",
         prompt,
@@ -1377,7 +1385,7 @@ def _render_claude_bridge_lines(variant: dict[str, object], prompt: str) -> tupl
     agent_lines = [
         f"# {title} Agent",
         "",
-        f"Use the repository-local {title.lower()} agent for this project.",
+        f"Use the published global {title.lower()} agent for this project.",
         "",
         "Default prompt:",
         prompt,
@@ -1433,8 +1441,8 @@ def _build_claude_instructions(repo_root: Path) -> dict[str, object]:
             "- `python3 -m logics_manager lint --require-status`",
             "- `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`",
             "",
-            "Repository-local Claude bridge files and assistant instructions are generated from the integrated runtime.",
-            "Do not edit `.claude/` bridge files by hand unless you are deliberately repairing a generated artifact.",
+            "Claude runtime artifacts are generated outside the repository from the integrated runtime.",
+            "Do not edit generated runtime artifacts by hand unless you are deliberately repairing a generated artifact.",
             "",
             "Do not edit indicator lines or workflow links by hand.",
             "",
@@ -1454,8 +1462,8 @@ def _select_backend(requested_backend: str | None, bridge_status: dict[str, obje
     if requested_backend and requested_backend != "auto":
         return requested_backend, []
     if bridge_status.get("available"):
-        return "codex", ["claude bridge files detected"]
-    return "deterministic", ["no bridge files detected"]
+        return "codex", ["global Claude runtime published"]
+    return "deterministic", ["no global Claude runtime published"]
 
 
 def cmd_claude_bridges(args: argparse.Namespace) -> dict[str, object]:
@@ -1953,9 +1961,9 @@ def cmd_runtime_status(args: argparse.Namespace) -> dict[str, object]:
         print(f"- selected backend: {selected_backend}")
         print(f"- model profile: {default_profile}")
         print(f"- model: {resolved_model}")
-        print(f"- bridge available: {'yes' if bridge_status['available'] else 'no'}")
+        print(f"- global Claude runtime available: {'yes' if bridge_status['available'] else 'no'}")
         if bridge_status["preferred_variant"]:
-            print(f"- bridge variant: {bridge_status['preferred_variant']}")
+            print(f"- runtime variant: {bridge_status['preferred_variant']}")
     return payload
 
 
@@ -2200,7 +2208,7 @@ def cmd_context(args: argparse.Namespace) -> dict[str, object]:
         print(f"- ref: {args.ref or '<flow-default>'}")
         print(f"- mode: {context_mode}")
         print(f"- profile: {profile}")
-        print(f"- bridge available: {'yes' if bridge_status['available'] else 'no'}")
+        print(f"- global Claude runtime available: {'yes' if bridge_status['available'] else 'no'}")
     return payload
 
 

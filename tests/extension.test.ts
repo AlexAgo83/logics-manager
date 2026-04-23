@@ -167,10 +167,9 @@ describe("extension.activate", () => {
       provider,
       { webviewOptions: { retainContextWhenHidden: true } }
     );
-    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(4);
+    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(3);
     expect(watchers.map((watcher) => watcher.pattern.pattern)).toEqual([
       "logics/**/*.{md,markdown,yaml,yml}",
-      ".claude/**/*.{md,markdown,yml,yaml}",
       "logics.yaml",
       ".git/HEAD"
     ]);
@@ -230,11 +229,11 @@ describe("extension.activate", () => {
     const context = { subscriptions: [] } as never;
 
     activate(context);
-    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(4);
+    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(3);
 
     workspaceFoldersChanged?.();
 
-    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(8);
+    expect(mocks.createFileSystemWatcher).toHaveBeenCalledTimes(6);
     expect(provider.refresh).toHaveBeenCalledTimes(2);
   });
 

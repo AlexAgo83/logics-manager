@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .assist import _build_claude_bridge_manifest, _build_claude_instructions
+from .assist import _build_claude_instructions
 
 
 WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache")
@@ -15,7 +15,6 @@ def _workflow_directories(repo_root: Path) -> list[Path]:
 
 def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
     logics_root = repo_root / "logics"
-    bridge_manifest = _build_claude_bridge_manifest(repo_root)
     instructions_manifest = _build_claude_instructions(repo_root)
     directory_actions: list[dict[str, object]] = []
     created_paths: list[str] = []
@@ -71,24 +70,6 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
             instructions_path.write_text(instructions_content, encoding="utf-8")
             created_paths.append("logics/instructions.md")
 
-    for bridge in bridge_manifest["bridges"]:
-        for rel_path, content in (
-            (str(bridge["command_path"]), str(bridge["command_content"])),
-            (str(bridge["agent_path"]), str(bridge["agent_content"])),
-        ):
-            bridge_path = repo_root / rel_path
-            if bridge_path.exists():
-                try:
-                    if bridge_path.read_text(encoding="utf-8") == content:
-                        continue
-                except Exception:
-                    pass
-            missing_paths.append(rel_path)
-            if not check:
-                bridge_path.parent.mkdir(parents=True, exist_ok=True)
-                bridge_path.write_text(content, encoding="utf-8")
-                created_paths.append(rel_path)
-
     ok = not missing_paths if check else True
     return {
         "command": "bootstrap",
@@ -98,7 +79,6 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
         "missing_paths": missing_paths,
         "created_paths": created_paths,
         "directory_actions": directory_actions,
-        "claude_bridge_count": bridge_manifest["bridge_count"],
         "claude_instruction_line_count": instructions_manifest["line_count"],
     }
 

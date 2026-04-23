@@ -837,10 +837,10 @@ describe("LogicsViewProvider", () => {
 
     await (provider as any).repairLogicsKitFromTools();
 
-    expect(fs.existsSync(path.join(root, ".claude", "commands", "logics-assist.md"))).toBe(true);
-    expect(fs.existsSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"))).toBe(true);
+    expect(fs.existsSync(path.join(root, ".claude-global", "commands", "logics-assist.md"))).toBe(true);
+    expect(fs.existsSync(path.join(root, ".claude-global", "agents", "logics-hybrid-delivery-assistant.md"))).toBe(true);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      expect.stringContaining("Repair Logics runtime restored Claude bridge files:")
+      expect.stringContaining("Repair Logics runtime restored global Claude runtime files:")
     );
   });
 

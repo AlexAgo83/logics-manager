@@ -351,7 +351,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     try {
-      publishClaudeGlobalKit(root);
+      await publishClaudeGlobalKit(root);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       void vscode.window.showErrorMessage(`Global Claude runtime publish failed: ${message}`);
@@ -434,7 +434,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     if (snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
       try {
-        publishClaudeGlobalKit(root);
+        await publishClaudeGlobalKit(root);
         changed = true;
         await this.options.refresh();
         snapshot = await inspectLogicsEnvironment(root);
@@ -450,7 +450,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     if (codexReady && claudeReady) {
       if (bridgeRepair.writtenPaths.length > 0) {
         void vscode.window.showInformationMessage(
-          `Repair Logics runtime restored Claude bridge files: ${bridgeRepair.writtenPaths.join(", ")}`
+          `Repair Logics runtime restored global Claude runtime files: ${bridgeRepair.writtenPaths.join(", ")}`
         );
         return true;
       }
@@ -460,7 +460,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       }
       if (bridgeRepair.skippedVariants.length > 0) {
         void vscode.window.showWarningMessage(
-          `Repair Logics runtime could not restore Claude bridge files for: ${bridgeRepair.skippedVariants.join(", ")}.`
+          `Repair Logics runtime could not restore global Claude runtime files for: ${bridgeRepair.skippedVariants.join(", ")}.`
         );
         return false;
       }

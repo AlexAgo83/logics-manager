@@ -7,7 +7,6 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), 
 const packageName = packageJson.name;
 const version = packageJson.version;
 const packageRef = `${packageName}@${version}`;
-const publishToken = process.env.NODE_AUTH_TOKEN || process.env.NPM_TOKEN;
 
 function npmViewExists() {
   try {
@@ -27,17 +26,12 @@ if (npmViewExists()) {
   process.exit(0);
 }
 
-if (!publishToken) {
-  process.stderr.write("Missing NODE_AUTH_TOKEN or NPM_TOKEN for npm publish.\n");
-  process.exit(1);
+if (process.env.GITHUB_ACTIONS === "true") {
+  process.stdout.write("Publishing via GitHub Actions trusted publishing/OIDC.\n");
 }
 
 execFileSync("npm", ["publish", "--access", "public"], {
   cwd: root,
   encoding: "utf8",
-  stdio: "inherit",
-  env: {
-    ...process.env,
-    NODE_AUTH_TOKEN: publishToken
-  }
+  stdio: "inherit"
 });

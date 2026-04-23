@@ -52,7 +52,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     const actions: string[] = [];
     if (overlay.status === "missing-manager") {
-      if (inspectLogicsBootstrapState(root).canBootstrap) {
+      if (snapshot.hasBootstrapScript && inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command", "Not now");
@@ -188,13 +188,23 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
     const snapshot = await inspectLogicsEnvironment(root);
+    const canPublishGlobalCodex = shouldPublishRepoKit(root, snapshot.codexOverlay);
     const rootChangeNote = hasUnrelatedRootChanges ? " Existing repository changes were left untouched." : "";
     const message = `Logics runtime updated after ${trigger} by running the bundled bootstrap. Review and commit the bootstrap changes in your repository when ready.${rootChangeNote}`;
     const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
-    const choice =
-      snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"
-        ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime")
-        : undefined;
+    const canOfferPublish =
+      canPublishGlobalCodex &&
+      snapshot.codexOverlay.status !== "healthy" &&
+      snapshot.codexOverlay.status !== "warning";
+    if (!canPublishGlobalCodex && snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
+      void vscode.window.showInformationMessage(
+        `${messageWithConvergence} Global Codex runtime publication is unavailable for this checkout because ${snapshot.codexOverlay.summary}`
+      );
+      return true;
+    }
+    const choice = canOfferPublish
+      ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime")
+      : undefined;
     if (choice === "Publish Global Codex Runtime") {
       await this.syncCodexOverlay(root, "runtime update");
     } else {
@@ -225,10 +235,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     if (overlay.status === "missing-manager") {
       const actions: string[] = [];
-      if (inspectLogicsBootstrapState(root).canBootstrap) {
+      if (snapshot.hasBootstrapScript && inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
-      actions.push("Copy Update Command");
+      if (actions.length > 0) {
+        actions.push("Copy Update Command");
+      }
       const choice = await vscode.window.showWarningMessage(
         `Global Codex runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${overlay.summary}`,
         ...actions
@@ -239,6 +251,11 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
+      }
+      if (actions.length === 0) {
+        void vscode.window.showWarningMessage(
+          `Global Codex runtime publication is unavailable for this checkout because ${overlay.summary}`
+        );
       }
       return false;
     }
@@ -314,10 +331,12 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     if (globalKit.status === "missing-manager") {
       const actions: string[] = [];
-      if (inspectLogicsBootstrapState(root).canBootstrap) {
+      if (snapshot.hasBootstrapScript && inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
-      actions.push("Copy Update Command");
+      if (actions.length > 0) {
+        actions.push("Copy Update Command");
+      }
       const choice = await vscode.window.showWarningMessage(
         `Global Claude runtime publication is unavailable because the Logics runtime in this repository is not a healthy publication source yet. ${globalKit.summary}`,
         ...actions
@@ -328,6 +347,11 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       if (choice === "Copy Update Command") {
         await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
+      }
+      if (actions.length === 0) {
+        void vscode.window.showWarningMessage(
+          `Global Claude runtime publication is unavailable for this checkout because ${globalKit.summary}`
+        );
       }
       return false;
     }

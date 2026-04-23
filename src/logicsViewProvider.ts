@@ -618,7 +618,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       degraded: true,
       degradedReasons: ["hybrid-runtime-unreported"],
       claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     };
     const claudeGlobalKit = snapshot.claudeGlobalKit ?? {
       status: "missing-overlay",
@@ -647,6 +647,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (
       root &&
+      snapshot.hasBootstrapScript &&
       ((launchers.hasCodex && snapshot.codexOverlay.status === "missing-manager") ||
         (launchers.hasClaude && claudeGlobalKit.status === "missing-manager"))
     ) {
@@ -716,19 +717,24 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         ? "Ready"
         : snapshot.codexOverlay.status === "warning"
           ? "Ready with warnings"
-          : "Needs attention";
+          : snapshot.codexOverlay.status === "unavailable"
+            ? "Unavailable"
+            : "Needs attention";
     const claudeKitStatusLabel = !launchers.hasClaude
       ? "Not installed"
       : claudeGlobalKit.status === "healthy"
         ? "Ready"
-        : "Needs attention";
+        : claudeGlobalKit.status === "unavailable"
+          ? "Unavailable"
+          : "Needs attention";
 
     if (
       root &&
       launchers.hasCodex &&
       snapshot.codexOverlay.status !== "healthy" &&
       snapshot.codexOverlay.status !== "warning" &&
-      snapshot.codexOverlay.status !== "missing-manager"
+      snapshot.codexOverlay.status !== "missing-manager" &&
+      snapshot.codexOverlay.status !== "unavailable"
     ) {
       recommendedActions.push({
         label: "Fix now: Publish Global Codex Runtime",
@@ -739,7 +745,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       });
     }
 
-    if (root && launchers.hasClaude && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager") {
+    if (root && launchers.hasClaude && claudeGlobalKitNeedsAttention && claudeGlobalKit.status !== "missing-manager" && claudeGlobalKit.status !== "unavailable") {
       recommendedActions.push({
         label: "Fix now: Publish Global Claude Runtime",
         description: "Claude launch readiness depends on a healthy global Claude runtime, not only repo-local bridge files.",
@@ -785,7 +791,15 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: snapshot.capabilities.codexRuntime.summary
       },
       {
-        label: `AI assistant runtime: ${hybridRuntime.state === "ready" ? "Ready" : hybridRuntime.state === "degraded" ? "Degraded" : "Blocked"}`,
+        label: `AI assistant runtime: ${
+          hybridRuntime.state === "ready"
+            ? "Ready"
+            : hybridRuntime.state === "degraded"
+              ? "Degraded"
+              : snapshot.hasBootstrapScript
+                ? "Blocked"
+                : "Unavailable"
+        }`,
         description: hybridRuntime.summary
       },
       {
@@ -899,7 +913,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       description: hybridRuntime.windowsSafeEntrypoint
     });
 
-    if (launchers.hasCodex) {
+    if (launchers.hasCodex && snapshot.codexOverlay.status !== "unavailable") {
       for (const issue of snapshot.codexOverlay.issues.slice(0, 3)) {
         detailItems.push({
           label: "Global Codex runtime note",
@@ -908,7 +922,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
-    if (launchers.hasClaude) {
+    if (launchers.hasClaude && claudeGlobalKit.status !== "unavailable") {
       for (const issue of claudeGlobalKit.issues.slice(0, 3)) {
         detailItems.push({
           label: "Global Claude runtime note",

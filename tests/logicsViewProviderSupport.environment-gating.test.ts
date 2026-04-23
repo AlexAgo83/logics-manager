@@ -39,7 +39,7 @@ function buildSnapshot() {
       degraded: false,
       degradedReasons: [],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     },
     capabilities: {
       readOnly: { status: "available", summary: "ok" },

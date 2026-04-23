@@ -41,7 +41,9 @@ const mocks = vi.hoisted(() => ({
   inspectClaudeGlobalKit: vi.fn(),
   detectClaudeBridgeStatus: vi.fn(),
   inspectRuntimeLaunchers: vi.fn(),
-  inspectGitHubReleaseCapability: vi.fn()
+  inspectGitHubReleaseCapability: vi.fn(),
+  fallbackInstallKit: vi.fn(),
+  appendBootstrapConvergenceNote: vi.fn((message: string) => message)
 }));
 
 vi.mock("vscode", () => ({
@@ -128,6 +130,11 @@ vi.mock("../src/logicsCodexWorkspace", () => ({
   shouldPublishRepoKit: mocks.shouldPublishRepoKit
 }));
 
+vi.mock("../src/logicsCodexWorkflowKitSupport", () => ({
+  appendBootstrapConvergenceNote: mocks.appendBootstrapConvergenceNote,
+  fallbackInstallKit: mocks.fallbackInstallKit
+}));
+
 vi.mock("../src/logicsClaudeGlobalKit", () => ({
   inspectClaudeGlobalKit: mocks.inspectClaudeGlobalKit
 }));
@@ -184,7 +191,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     },
     claudeGlobalKit: {
       status: "missing-overlay",
@@ -256,6 +263,8 @@ describe("LogicsViewProvider", () => {
     mocks.detectClaudeBridgeStatus.mockReset();
     mocks.inspectRuntimeLaunchers.mockReset();
     mocks.inspectGitHubReleaseCapability.mockReset();
+    mocks.fallbackInstallKit.mockReset();
+    mocks.appendBootstrapConvergenceNote.mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
       detectedVariants: ["hybrid-assist"],
@@ -293,6 +302,11 @@ describe("LogicsViewProvider", () => {
       stdout: "",
       stderr: ""
     });
+    mocks.fallbackInstallKit.mockResolvedValue({
+      installed: true,
+      failureMessage: undefined
+    });
+    mocks.appendBootstrapConvergenceNote.mockImplementation((message: string) => message);
     mocks.withProgress.mockImplementation(async (_options, task) => task({ report: vi.fn() }, {} as never));
     mocks.createWebviewPanel.mockReturnValue({
       title: "",
@@ -637,6 +651,7 @@ describe("LogicsViewProvider", () => {
 
   it("reports a partial bootstrap outcome when automatic global publication fails", async () => {
     mocks.showInformationMessage.mockResolvedValue(undefined);
+    mocks.shouldPublishRepoKit.mockReturnValue(true);
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       root,
@@ -673,6 +688,54 @@ describe("LogicsViewProvider", () => {
       "Logics bootstrapped partially. Repo-local runtime is ready, but the global Codex runtime is not ready yet. Global Codex runtime needs repair or re-publication before it is reliable. Automatic publication failed during bootstrap: permission denied.",
       "Publish Global Codex Runtime"
     );
+  });
+
+  it("does not offer a publish action after bootstrap when the repo cannot publish a global Codex runtime", async () => {
+    const bootstrapRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-"));
+    fs.mkdirSync(path.join(bootstrapRoot, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(bootstrapRoot, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
+
+    mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
+      if (args[0] === "--version") {
+        return { stdout: "git version 2.0.0", stderr: "" };
+      }
+      if (args[0] === "rev-parse") {
+        return { stdout: "true\n", stderr: "" };
+      }
+      if (args[0] === "status") {
+        return { stdout: "", stderr: "" };
+      }
+      return { stdout: "", stderr: "" };
+    });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Repo-local bootstrap is converged."
+    });
+    vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+      ...defaultEnvironmentSnapshot(bootstrapRoot),
+      codexOverlay: {
+        status: "missing-manager",
+        summary: "This repository does not expose a compatible repo-local Logics runtime source for global publication.",
+        issues: ["No bundled runtime content was found in the repository."],
+        warnings: []
+      }
+    } as never);
+    mocks.fallbackInstallKit.mockResolvedValueOnce({
+      installed: true,
+      failureMessage: undefined
+    });
+    mocks.showInformationMessage.mockResolvedValue(undefined);
+
+    const controller = (provider as any).codexWorkflowController;
+    await controller.updateLogicsKit(bootstrapRoot, "manual repair");
+
+    expect(
+      mocks.showInformationMessage.mock.calls.some((call) => call.includes("Publish Global Codex Runtime"))
+    ).toBe(false);
+    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
+    fs.rmSync(bootstrapRoot, { recursive: true, force: true });
   });
 
   it("selects an agent, copies its prompt, and does not trigger Codex handoff", async () => {

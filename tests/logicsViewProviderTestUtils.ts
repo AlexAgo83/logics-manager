@@ -41,7 +41,7 @@ export function defaultEnvironmentSnapshot(currentRoot: string) {
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     },
     claudeGlobalKit: {
       status: "missing-overlay",

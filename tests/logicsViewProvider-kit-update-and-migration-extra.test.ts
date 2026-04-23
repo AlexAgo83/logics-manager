@@ -184,7 +184,7 @@ vi.mock("../src/logicsEnvironment", () => ({
       degraded: true,
       degradedReasons: ["ollama-unreachable"],
       claudeBridgeAvailable: true,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     },
     claudeGlobalKit: {
       status: "missing-overlay",
@@ -698,7 +698,7 @@ describe("LogicsViewProvider", () => {
           degraded: true,
           degradedReasons: ["ollama-unreachable"],
           claudeBridgeAvailable: false,
-          windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+          windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
         }
       } as never);
       mocks.detectClaudeBridgeStatus.mockReturnValue({

@@ -48,6 +48,10 @@ function getBundledLogicsManagerScriptPath(): string {
   return path.join(__dirname, "..", "scripts", "logics-manager.py");
 }
 
+function getHybridAssistRuntimeStatusArgs(): string[] {
+  return ["assist", "runtime-status", "--format", "json"];
+}
+
 export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
   const detectedVariants = CLAUDE_BRIDGE_VARIANTS.filter(
     (variant) =>
@@ -113,6 +117,22 @@ export async function inspectLogicsEnvironment(
   const pythonAvailable = Boolean(pythonCommand);
   const codexOverlay = inspectOverlay(root, pythonCommand);
   const claudeGlobalKit = inspectClaudeGlobalKit(root);
+  const codexRuntimeSnapshot =
+    !hasBundledManagerScript && codexOverlay.status === "missing-manager"
+      ? {
+          ...codexOverlay,
+          status: "unavailable" as const,
+          summary: "This repository does not expose a compatible repo-local Logics runtime source for global publication."
+        }
+      : codexOverlay;
+  const claudeRuntimeSnapshot =
+    !hasBundledManagerScript && claudeGlobalKit?.status === "missing-manager"
+      ? {
+          ...claudeGlobalKit,
+          status: "unavailable" as const,
+          summary: "This repository does not expose a compatible repo-local Logics runtime source for Claude publication."
+        }
+      : claudeGlobalKit;
   const hybridRuntime = await inspectHybridRuntime(root, pythonCommand);
   const repositoryState = computeRepositoryState({
     root,
@@ -134,8 +154,8 @@ export async function inspectLogicsEnvironment(
       available: pythonAvailable,
       command: pythonCommand
     },
-    codexOverlay,
-    claudeGlobalKit,
+    codexOverlay: codexRuntimeSnapshot,
+    claudeGlobalKit: claudeRuntimeSnapshot,
     hybridRuntime,
     capabilities: {
       readOnly: buildReadOnlyCapability(repositoryState, root, invalidOverridePath),
@@ -278,6 +298,12 @@ function buildBootstrapCapability(
       summary: "Requires Git on PATH to initialize repositories and repair the local runtime."
     };
   }
+  if (!hasBootstrapScript) {
+    return {
+      status: "unavailable",
+      summary: "This repository does not bundle the Logics bootstrap runtime entrypoint."
+    };
+  }
   if (hasBootstrapScript && !pythonAvailable) {
     return {
       status: "unavailable",
@@ -295,49 +321,49 @@ async function inspectHybridAssistRuntime(
   pythonCommand?: PythonCommand | null
 ): Promise<HybridRuntimeSnapshot> {
   if (!root) {
-    return {
-      state: "unavailable",
-      summary: "Select a project root before checking the hybrid assist runtime.",
-      backend: null,
-      requestedBackend: null,
-      degraded: true,
-      degradedReasons: ["no-root"],
-      claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
-    };
+      return {
+        state: "unavailable",
+        summary: "Select a project root before checking the hybrid assist runtime.",
+        backend: null,
+        requestedBackend: null,
+        degraded: true,
+        degradedReasons: ["no-root"],
+        claudeBridgeAvailable: false,
+        windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
+      };
   }
 
   const runtimeEntry = getBundledLogicsManagerScriptPath();
   if (!fs.existsSync(runtimeEntry)) {
-    return {
-      state: "unavailable",
-      summary: "Bundled Logics manager runtime entrypoint is missing, so hybrid assist commands are unavailable.",
-      backend: null,
-      requestedBackend: null,
-      degraded: true,
-      degradedReasons: ["missing-logics-runtime"],
-      claudeBridgeAvailable: false,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
-    };
+      return {
+        state: "unavailable",
+        summary: "Bundled Logics manager runtime entrypoint is missing, so hybrid assist commands are unavailable.",
+        backend: null,
+        requestedBackend: null,
+        degraded: true,
+        degradedReasons: ["missing-logics-runtime"],
+        claudeBridgeAvailable: false,
+        windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
+      };
   }
 
   const claudeBridgeStatus = detectClaudeBridgeStatus(root);
   const claudeBridgeAvailable = hasCanonicalClaudeBridge(claudeBridgeStatus);
 
   if (!pythonCommand) {
-    return {
-      state: "unavailable",
-      summary: "Python 3 is required to inspect or run the hybrid assist runtime.",
-      backend: null,
-      requestedBackend: null,
-      degraded: true,
-      degradedReasons: ["missing-python"],
-      claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
-    };
-  }
+      return {
+        state: "unavailable",
+        summary: "Python 3 is required to inspect or run the hybrid assist runtime.",
+        backend: null,
+        requestedBackend: null,
+        degraded: true,
+        degradedReasons: ["missing-python"],
+        claudeBridgeAvailable,
+        windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
+      };
+    }
 
-  const result = await runPythonCommand(root, runtimeEntry, ["flow", "assist", "runtime-status", "--format", "json"]);
+  const result = await runPythonCommand(root, runtimeEntry, getHybridAssistRuntimeStatusArgs());
   if (result.error) {
     return {
       state: "unavailable",
@@ -347,7 +373,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-probe-failed"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     };
   }
 
@@ -363,7 +389,7 @@ async function inspectHybridAssistRuntime(
       degraded: true,
       degradedReasons: ["runtime-invalid-json"],
       claudeBridgeAvailable,
-      windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
     };
   }
 
@@ -392,10 +418,10 @@ async function inspectHybridAssistRuntime(
     requestedBackend,
     degraded,
     degradedReasons,
-    claudeBridgeAvailable: Boolean(payload.claude_bridge_available) || claudeBridgeAvailable,
-    windowsSafeEntrypoint:
-      typeof payload.windows_safe_entrypoint === "string" && payload.windows_safe_entrypoint.trim()
-        ? payload.windows_safe_entrypoint
-        : "python -m logics_manager flow assist ..."
+      claudeBridgeAvailable: Boolean(payload.claude_bridge_available) || claudeBridgeAvailable,
+      windowsSafeEntrypoint:
+        typeof payload.windows_safe_entrypoint === "string" && payload.windows_safe_entrypoint.trim()
+          ? payload.windows_safe_entrypoint
+        : "python -m logics_manager assist runtime-status --format json"
   };
 }

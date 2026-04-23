@@ -390,17 +390,14 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
   ): Promise<void> {
     const snapshot = await inspectLogicsEnvironment(root);
     const overlay = snapshot.codexOverlay;
-    if ((overlay.status === "healthy" || overlay.status === "warning") && !shouldPublishRepoKit(root, overlay)) {
+    const canPublishGlobalCodex = shouldPublishRepoKit(root, overlay);
+    if ((overlay.status === "healthy" || overlay.status === "warning") && !canPublishGlobalCodex) {
       const detail = globalKitOutcome?.published ? " Global Codex runtime publication completed during bootstrap." : "";
       void vscode.window.showInformationMessage(`Logics bootstrapped. Repo-local runtime and the global Codex runtime are ready.${detail} Refreshing.`);
       return;
     }
     const actions: string[] = [];
-    if (overlay.status === "missing-manager") {
-      if (inspectLogicsBootstrapState(root).canBootstrap) {
-        actions.push("Update Logics Runtime");
-      }
-    } else {
+    if (overlay.status !== "missing-manager" && canPublishGlobalCodex) {
       actions.push("Publish Global Codex Runtime");
     }
     const outcomeNote =

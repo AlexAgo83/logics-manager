@@ -67,7 +67,7 @@ export function runLogicsManager(argv = process.argv.slice(2), platform = proces
       continue;
     }
 
-    const result = spawn(launcher.command, [...launcher.argsPrefix, "-m", "logics_manager", ...argv], {
+    const result = spawn(launcher.command, [...launcher.argsPrefix, "scripts/logics-manager.py", ...argv], {
       stdio: "inherit"
     });
     if (result.status === 0) {

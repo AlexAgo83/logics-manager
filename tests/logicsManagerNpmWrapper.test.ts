@@ -49,7 +49,7 @@ describe("logics-manager npm wrapper", () => {
     expect(exitCode).toBe(0);
     expect(calls).toEqual([
       { command: "python3", args: ["--version"] },
-      { command: "python3", args: ["-m", "logics_manager", "--help"] }
+      { command: "python3", args: ["scripts/logics-manager.py", "--help"] }
     ]);
   });
 
@@ -72,7 +72,7 @@ describe("logics-manager npm wrapper", () => {
     expect(calls).toEqual([
       { command: "python3", args: ["--version"] },
       { command: "python", args: ["--version"] },
-      { command: "python", args: ["-m", "logics_manager", "--help"] }
+      { command: "python", args: ["scripts/logics-manager.py", "--help"] }
     ]);
   });
 });

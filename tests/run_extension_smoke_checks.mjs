@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { promisify } from "node:util";
 import yauzl from "yauzl";
+import { packageVsix } from "../scripts/build/package-vscode-extension.mjs";
 
 const openZip = promisify(yauzl.open);
 const root = process.cwd();
@@ -22,7 +22,7 @@ if (!/deactivate:\s*\(\)\s*=>\s*deactivate/.test(compiledBundle) || !/module\.ex
 }
 
 const vsixPath = path.join(os.tmpdir(), `logics-manager-smoke-${Date.now()}.vsix`);
-runVscePackage(vsixPath, "ignore");
+packageVsix(vsixPath);
 
 const entries = await listZipEntries(vsixPath);
 const packageJson = JSON.parse(await readZipEntry(vsixPath, "extension/package.json"));
@@ -60,7 +60,7 @@ assertMissing(entries, "extension/vitest.config.ts");
 assertMissing(entries, "extension/vitest.config.mts");
 
 const releaseVsixPath = path.join(os.tmpdir(), `logics-manager-release-${Date.now()}.vsix`);
-runReleasePackage(releaseVsixPath);
+packageVsix(releaseVsixPath);
 
 const releaseEntries = await listZipEntries(releaseVsixPath);
 const releasePackageJson = JSON.parse(await readZipEntry(releaseVsixPath, "extension/package.json"));
@@ -146,18 +146,4 @@ function assertMissing(entries, unexpected) {
   if (entries.includes(unexpected)) {
     throw new Error(`Expected VSIX to exclude ${unexpected}`);
   }
-}
-
-function runVscePackage(outputPath, stdio) {
-  execFileSync("node", ["--input-type=module", "-e", `import { packageVsix } from "./scripts/build/package-vscode-extension.mjs"; packageVsix(${JSON.stringify(outputPath)});`], {
-    cwd: root,
-    stdio
-  });
-}
-
-function runReleasePackage(outputPath) {
-  execFileSync("node", ["--input-type=module", "-e", `import { packageVsix } from "./scripts/build/package-vscode-extension.mjs"; packageVsix(${JSON.stringify(outputPath)});`], {
-    cwd: root,
-    stdio: "ignore"
-  });
 }

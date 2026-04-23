@@ -18,7 +18,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { packageVsix as buildVsix } from "../scripts/build/package-vscode-extension.mjs";
 
 const root = process.cwd();
 const extensionId = "cdx-logics.logics-manager";
@@ -79,17 +80,7 @@ function listExtensions(sandbox) {
 
 function packageVsix() {
   const vsixPath = path.join(os.tmpdir(), `cdx-logics-lifecycle-${Date.now()}.vsix`);
-  if (process.platform === "win32") {
-    execFileSync("cmd.exe", ["/d", "/s", "/c", "npx", "@vscode/vsce", "package", "--out", vsixPath], {
-      cwd: root,
-      stdio: "pipe",
-    });
-  } else {
-    execFileSync("npx", ["@vscode/vsce", "package", "--out", vsixPath], {
-      cwd: root,
-      stdio: "pipe",
-    });
-  }
+  buildVsix(vsixPath);
   if (!fs.existsSync(vsixPath)) {
     throw new Error(`Failed to package VSIX at ${vsixPath}`);
   }

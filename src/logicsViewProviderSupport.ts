@@ -602,8 +602,7 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   export function findRequestAuthoringAgent(this: LogicsViewProviderSupportHost): AgentDefinition | undefined {
     const preferredAgentIds = [
       "$logics-request-draft",
-      "$logics-hybrid-delivery-assistant",
-      "$logics-flow-manager"
+      "$logics-hybrid-delivery-assistant"
     ];
     for (const agentId of preferredAgentIds) {
       const agent = this.agentRegistry.agents.find((entry: AgentDefinition) => entry.id === agentId);

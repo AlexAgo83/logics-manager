@@ -660,18 +660,6 @@ export function updateIndicatorsOnDisk(filePath: string, updates: Record<string,
   return changed;
 }
 
-export function getFlowManagerScriptPath(root: string): string | null {
-  const scriptPath = path.join(
-    root,
-    "logics",
-    "skills",
-    "logics-flow-manager",
-    "scripts",
-    "logics_flow.py"
-  );
-  return fs.existsSync(scriptPath) ? scriptPath : null;
-}
-
 export function getCanonicalLogicsManagerScriptPath(extensionPath: string): string {
   return path.join(extensionPath, "scripts", "logics-manager.py");
 }

@@ -47,7 +47,6 @@ import {
   detectDangerousGitignorePatterns,
   detectKitInstallType,
   findCreatedDocPathFromOutput,
-  getFlowManagerScriptPath,
   hasLogicsSubmodule,
   isExistingDirectory,
   runGitWithOutput,
@@ -167,7 +166,7 @@ describe("logicsProviderUtils extra coverage", () => {
     expect(fs.readFileSync(requestDoc, "utf8")).toContain("logics/request/req_001_new.md");
   });
 
-  it("covers link insertion, script discovery, and process wrappers", async () => {
+  it("covers link insertion and process wrappers", async () => {
     const root = makeRoot("logics-utils-scripts-");
     const referencesDoc = path.join(root, "refs.md");
     fs.writeFileSync(referencesDoc, "# References\n- (none yet)\n", "utf8");
@@ -176,12 +175,6 @@ describe("logicsProviderUtils extra coverage", () => {
       changed: true
     });
     expect(fs.readFileSync(referencesDoc, "utf8")).toContain("`logics/request/req_001.md`");
-
-    const flowManagerScript = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py");
-    fs.mkdirSync(path.dirname(flowManagerScript), { recursive: true });
-    fs.writeFileSync(flowManagerScript, "", "utf8");
-
-    expect(getFlowManagerScriptPath(root)).toBe(flowManagerScript);
 
     mocks.runGitCommand.mockResolvedValue({ stdout: "git ok", stderr: "" });
     mocks.runPythonCommand.mockResolvedValue({ stdout: "python ok", stderr: "" });

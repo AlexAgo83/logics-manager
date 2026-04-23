@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 90%
-> Progress: 93%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -78,3 +78,5 @@ flowchart TD
 - 2026-04-23 runtime-contract note: `LogicsEnvironmentSnapshot` no longer exposes `hasSkillsDir` and `hasFlowManagerScript` in production code, removing two legacy runtime-shape fields that were no longer needed for capability decisions.
 - 2026-04-23 snapshot note: the production Claude bridge snapshot no longer exposes `supportedVariants`; runtime and plugin code now depend on detected and canonical variants only.
 - 2026-04-23 fixture note: the main extension/runtime test fixtures now match the reduced production snapshot contract instead of carrying dead `skills` / `flow-manager-script` booleans forward by inertia.
+- 2026-04-23 cleanup note: the dead `getFlowManagerScriptPath` helper has been removed, and canonical-Claude health fixtures no longer advertise `logics-flow-manager` as the default healthy publication shape.
+- 2026-04-23 closure note: the explicit `flow-manager` bridge compatibility surface has been removed from production code and test coverage; diagnostics and runtime gating now model only the canonical bridge/runtime path.

@@ -35,8 +35,6 @@ describe("repairClaudeBridgeFiles", () => {
     expect(result.writtenPaths).toEqual([
       ".claude/commands/logics-assist.md",
       ".claude/agents/logics-hybrid-delivery-assistant.md",
-      ".claude/commands/logics-flow.md",
-      ".claude/agents/logics-flow-manager.md",
       ".claude/commands/logics-request-draft.md",
       ".claude/agents/logics-request-draft.md",
       ".claude/commands/logics-spec-first-pass.md",
@@ -52,12 +50,6 @@ describe("repairClaudeBridgeFiles", () => {
     );
     expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-spec-first-pass.md"), "utf8")).toContain(
       "Validate the proposed spec sections, constraints, and open questions before turning them into a real spec file."
-    );
-    expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "utf8")).toContain(
-      "Use the canonical `logics-manager` workflow surface for this repository"
-    );
-    expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "utf8")).toContain(
-      "treat `$logics-flow-manager` only as a compatibility alias"
     );
   });
 });

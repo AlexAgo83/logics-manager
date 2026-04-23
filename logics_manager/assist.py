@@ -31,13 +31,6 @@ CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, object], ...] = (
         "fallback_prompt": "Use $logics-hybrid-delivery-assistant for commit-all, summaries, next-step, triage, handoff, or split-suggestion requests.",
     },
     {
-        "id": "flow-manager",
-        "title": "Logics Manager Workflow",
-        "command_path": ".claude/commands/logics-flow.md",
-        "agent_path": ".claude/agents/logics-flow-manager.md",
-        "fallback_prompt": "Use the canonical `logics-manager` workflow surface for this repository: prefer `python3 -m logics_manager flow ...` for request/backlog/task work, and treat `$logics-flow-manager` only as a compatibility alias when a legacy assistant bridge still exposes it.",
-    },
-    {
         "id": "request-draft",
         "title": "Logics Request Draft",
         "command_path": ".claude/commands/logics-request-draft.md",

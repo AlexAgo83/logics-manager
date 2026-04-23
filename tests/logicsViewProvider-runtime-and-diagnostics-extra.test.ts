@@ -405,7 +405,6 @@ describe("LogicsViewProvider", () => {
   });
 
   it("publishes the global runtime from Tools when the global runtime is missing", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     const show = vi.fn();
     const sendText = vi.fn();
     mocks.createTerminal.mockReturnValue({ show, sendText });

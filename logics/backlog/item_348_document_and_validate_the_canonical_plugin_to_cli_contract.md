@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 89%
-> Progress: 87%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -78,3 +78,5 @@ flowchart TD
 - 2026-04-23 validation note: the production environment snapshot contract is now smaller and more canonical; legacy `skills`/`flow-manager-script` booleans survive only in test fixtures for now, not in the runtime surface consumed by the extension.
 - 2026-04-23 validation note: the production bridge snapshot now omits `supportedVariants`, confirming that reviewers only need to reason about detected variants and explicitly canonical variants in the supported runtime path.
 - 2026-04-23 validation note: the major plugin/runtime fixtures now mirror the reduced production snapshot contract, so reviewers no longer need to mentally discount dead bridge/runtime fields that only existed in tests.
+- 2026-04-23 validation note: dead legacy helper coverage was removed and healthy-Claude fixture coverage now points to the canonical assistant publication instead of the historical `flow-manager` shape.
+- 2026-04-23 closure note: generated assistant bridges, runtime snapshots, guided request prompts, and test evidence now expose one explicit canonical contract only: `logics-manager` for workflow commands and `logics-hybrid-delivery-assistant` for assistant-facing bridge prompts.

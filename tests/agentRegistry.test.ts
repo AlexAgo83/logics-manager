@@ -43,12 +43,12 @@ describe("agentRegistry", () => {
     );
     writeYaml(
       root,
-      "logics-flow-manager",
+      "logics-hybrid-delivery-assistant",
       [
         "interface:",
-        "  display_name: \"Flow Manager\"",
-        "  short_description: \"Manage workflow docs\"",
-        "  default_prompt: \"Use $logics-flow-manager\""
+        "  display_name: \"Hybrid Delivery Assistant\"",
+        "  short_description: \"Handle bounded delivery tasks\"",
+        "  default_prompt: \"Use $logics-hybrid-delivery-assistant\""
       ].join("\n")
     );
 
@@ -56,7 +56,7 @@ describe("agentRegistry", () => {
     expect(snapshot.scannedFiles).toBe(2);
     expect(snapshot.issues).toHaveLength(0);
     expect(snapshot.agents).toHaveLength(2);
-    expect(snapshot.agents.map((agent) => agent.id)).toEqual(["$logics-flow-manager", "$logics-spec-writer"]);
+    expect(snapshot.agents.map((agent) => agent.id)).toEqual(["$logics-hybrid-delivery-assistant", "$logics-spec-writer"]);
   });
 
   it("reports missing or invalid required fields", () => {
@@ -83,14 +83,14 @@ describe("agentRegistry", () => {
     const root = mkRepo();
     writeYaml(
       root,
-      "logics-flow-manager",
+      "logics-hybrid-delivery-assistant",
       [
         "# Agent file",
         "interface:",
-        "  display_name: \"Flow Manager\"",
-        "  short_description: \"Manage workflow docs\"",
+        "  display_name: \"Hybrid Delivery Assistant\"",
+        "  short_description: \"Handle bounded delivery tasks\"",
         "  default_prompt: |",
-        "    Use $logics-flow-manager",
+        "    Use $logics-hybrid-delivery-assistant",
         "    Keep the workflow clean."
       ].join("\n")
     );
@@ -105,12 +105,12 @@ describe("agentRegistry", () => {
     const root = mkRepo();
     writeYaml(
       root,
-      "logics-flow-manager",
+      "logics-hybrid-delivery-assistant",
       [
         "interface:",
-        "  display_name: \"Flow Manager\"",
-        "  short_description: \"Manage workflow docs\"",
-        "  default_prompt: \"Use $logics-flow-manager\"",
+        "  display_name: \"Hybrid Delivery Assistant\"",
+        "  short_description: \"Handle bounded delivery tasks\"",
+        "  default_prompt: \"Use $logics-hybrid-delivery-assistant\"",
         "  preferred_context_profile: \"tiny\"",
         "  allowed_doc_stages:",
         "    - request",
@@ -162,7 +162,7 @@ describe("agentRegistry", () => {
 
   it("extracts explicit $logics invocation from a chat draft", () => {
     expect(extractExplicitAgentInvocation("$logics-spec-writer please draft ACs")).toBe("$logics-spec-writer");
-    expect(extractExplicitAgentInvocation("Use $LOGICS-FLOW-MANAGER now")).toBe("$logics-flow-manager");
+    expect(extractExplicitAgentInvocation("Use $LOGICS-HYBRID-DELIVERY-ASSISTANT now")).toBe("$logics-hybrid-delivery-assistant");
     expect(extractExplicitAgentInvocation("No explicit invocation")).toBeNull();
   });
 
@@ -170,16 +170,16 @@ describe("agentRegistry", () => {
     const root = mkRepo();
     const nestedLines = [
       "interface:",
-      "  display_name: \"Flow Manager\"",
-      "  short_description: \"Manage workflow docs\"",
-      "  default_prompt: \"Use $logics-flow-manager\"",
+      "  display_name: \"Hybrid Delivery Assistant\"",
+      "  short_description: \"Handle bounded delivery tasks\"",
+      "  default_prompt: \"Use $logics-hybrid-delivery-assistant\"",
       "  metadata:"
     ];
     for (let depth = 0; depth < 45; depth += 1) {
       nestedLines.push(`${"  ".repeat(depth + 2)}level_${depth}:`);
     }
     nestedLines.push(`${"  ".repeat(47)}leaf: true`);
-    writeYaml(root, "logics-flow-manager", nestedLines.join("\n"));
+    writeYaml(root, "logics-hybrid-delivery-assistant", nestedLines.join("\n"));
 
     const snapshot = loadAgentRegistry(root);
     expect(snapshot.agents).toHaveLength(0);
@@ -193,12 +193,12 @@ describe("agentRegistry", () => {
     const deeplyNested = `${"[".repeat(45)}0${"]".repeat(45)}`;
     writeYaml(
       root,
-      "logics-flow-manager",
+      "logics-hybrid-delivery-assistant",
       [
         "interface:",
-        "  display_name: \"Flow Manager\"",
-        "  short_description: \"Manage workflow docs\"",
-        "  default_prompt: \"Use $logics-flow-manager\"",
+        "  display_name: \"Hybrid Delivery Assistant\"",
+        "  short_description: \"Handle bounded delivery tasks\"",
+        "  default_prompt: \"Use $logics-hybrid-delivery-assistant\"",
         `  allowed_doc_stages: ${deeplyNested}`
       ].join("\n")
     );

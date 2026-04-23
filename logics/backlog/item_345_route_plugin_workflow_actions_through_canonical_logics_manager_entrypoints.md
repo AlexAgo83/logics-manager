@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 90%
-> Progress: 70%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -69,3 +69,4 @@ flowchart TD
 - Audit note: request-authoring still prefers the historical `$logics-flow-manager` agent id in `src/logicsViewProviderSupport.ts`, so assistant-triggered workflow entrypoints are not yet fully converged on the canonical CLI naming/contract.
 - Remaining proof target: close the gap between plugin-triggered CLI routing and assistant-triggered workflow routing so the extension does not advertise one naming contract in its agent layer and a different one in its runtime commands.
 - 2026-04-23 implementation note: guided request handoff now prefers non-legacy request-authoring agents before falling back to `$logics-flow-manager`, and the copied prompt now frames `logics-manager` as the canonical workflow surface with any flow-manager mention downgraded to compatibility wording.
+- 2026-04-23 closure note: the plugin and generated assistant bridges no longer route through or advertise the historical `flow-manager` contract; canonical `logics-manager` / `hybrid-assist` surfaces are now the only assistant-facing workflow path in the extension.

@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 82%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -74,6 +74,8 @@ stateDiagram-v2
   - removed legacy `hasSkillsDir` and `hasFlowManagerScript` fields from the production environment snapshot contract because capability gating no longer depends on those historical runtime-shape probes.
   - removed `supportedVariants` from the production Claude bridge snapshot contract so runtime consumers only depend on the canonical-vs-detected bridge distinction.
   - aligned the main extension/runtime fixtures with the reduced production snapshot contract by removing dead legacy bridge/runtime fields from the tests that no longer exist in production code.
+  - removed the dead `getFlowManagerScriptPath` helper and aligned healthy-Claude fixture coverage with the canonical assistant publication shape rather than the historical `flow-manager` one.
+  - removed the remaining explicit `flow-manager` bridge compatibility surface from production code, guided prompts, and test coverage so the extension now teaches and validates one assistant/runtime workflow contract only.
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

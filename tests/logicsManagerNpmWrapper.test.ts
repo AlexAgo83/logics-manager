@@ -1,3 +1,4 @@
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildCandidates,
@@ -8,7 +9,11 @@ import {
   runLogicsManager
 } from "../scripts/npm/logics-manager.mjs";
 
+const root = process.cwd();
+
 describe("logics-manager npm wrapper", () => {
+  const expectedScriptPath = path.resolve(root, "scripts", "logics-manager.py");
+
   it("builds platform-specific candidate launchers", () => {
     expect(buildCandidates("linux")).toEqual([
       { command: "python3", argsPrefix: [] },
@@ -49,7 +54,7 @@ describe("logics-manager npm wrapper", () => {
     expect(exitCode).toBe(0);
     expect(calls).toEqual([
       { command: "python3", args: ["--version"] },
-      { command: "python3", args: ["scripts/logics-manager.py", "--help"] }
+      { command: "python3", args: [expectedScriptPath, "--help"] }
     ]);
   });
 
@@ -72,7 +77,7 @@ describe("logics-manager npm wrapper", () => {
     expect(calls).toEqual([
       { command: "python3", args: ["--version"] },
       { command: "python", args: ["--version"] },
-      { command: "python", args: ["scripts/logics-manager.py", "--help"] }
+      { command: "python", args: [expectedScriptPath, "--help"] }
     ]);
   });
 });

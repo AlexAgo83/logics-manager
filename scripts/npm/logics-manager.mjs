@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export function buildCandidates(platform = process.platform) {
   return platform === "win32"
@@ -61,13 +62,16 @@ export function resolvePythonLauncher(candidate, spawn = spawnSync) {
 
 export function runLogicsManager(argv = process.argv.slice(2), platform = process.platform, spawn = spawnSync) {
   const candidates = buildCandidates(platform);
+  const wrapperDir = dirname(fileURLToPath(import.meta.url));
+  const packageRoot = resolve(wrapperDir, "..", "..");
+  const scriptPath = resolve(packageRoot, "scripts", "logics-manager.py");
   for (const candidate of candidates) {
     const launcher = resolvePythonLauncher(candidate, spawn);
     if (!launcher) {
       continue;
     }
 
-    const result = spawn(launcher.command, [...launcher.argsPrefix, "scripts/logics-manager.py", ...argv], {
+    const result = spawn(launcher.command, [...launcher.argsPrefix, scriptPath, ...argv], {
       stdio: "inherit"
     });
     if (result.status === 0) {

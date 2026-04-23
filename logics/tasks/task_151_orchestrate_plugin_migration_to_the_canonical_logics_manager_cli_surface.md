@@ -1,9 +1,9 @@
 ## task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
-> From version: 1.28.1
+> From version: 1.28.2
 > Schema version: 1.0
 > Status: Done
-> Understanding: 99%
-> Confidence: 92%
+> Understanding: 100%
+> Confidence: 94%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
@@ -37,13 +37,13 @@ stateDiagram-v2
 # Plan
 - [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.
 - [ ] 2. Deliver the canonical workflow-entrypoint migration slice.
-- [ ] 3. Deliver the legacy diagnostics and gating cleanup slice.
-- [ ] 4. Deliver the contract documentation and validation slice.
-- [ ] 5. Checkpoint the migration in a commit-ready state, validate it, and update the linked Logics docs.
-- [ ] CROSS-CHECK: after each wave, compare assistant-visible instructions versus bridge labels and plugin agent defaults so the migration does not leave a hybrid operator contract behind.
-- [ ] CHECKPOINT: keep each completed wave commit-ready and update the linked Logics docs during the wave.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
-- [ ] FINAL: report which `req_189` gaps were closed, which remain, and any residual justified exceptions.
+- [x] 3. Deliver the legacy diagnostics and gating cleanup slice.
+- [x] 4. Deliver the contract documentation and validation slice.
+- [x] 5. Checkpoint the migration in a commit-ready state, validate it, and update the linked Logics docs.
+- [x] CROSS-CHECK: after each wave, compare assistant-visible instructions versus bridge labels and plugin agent defaults so the migration does not leave a hybrid operator contract behind.
+- [x] CHECKPOINT: keep each completed wave commit-ready and update the linked Logics docs during the wave.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] FINAL: report which `req_189` gaps were closed, which remain, and any residual justified exceptions.
 
 # Backlog
 - `logics/backlog/item_345_route_plugin_workflow_actions_through_canonical_logics_manager_entrypoints.md`

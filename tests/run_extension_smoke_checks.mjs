@@ -59,6 +59,24 @@ assertMissing(entries, "extension/tsconfig.json");
 assertMissing(entries, "extension/vitest.config.ts");
 assertMissing(entries, "extension/vitest.config.mts");
 
+const releaseVsixPath = path.join(os.tmpdir(), `logics-manager-release-${Date.now()}.vsix`);
+runReleasePackage(releaseVsixPath);
+
+const releaseEntries = await listZipEntries(releaseVsixPath);
+const releasePackageJson = JSON.parse(await readZipEntry(releaseVsixPath, "extension/package.json"));
+const releaseManifest = await readZipEntry(releaseVsixPath, "extension.vsixmanifest");
+assertHas(releaseEntries, "[Content_Types].xml");
+assertHas(releaseEntries, "extension.vsixmanifest");
+if (releasePackageJson.name !== "logics-manager") {
+  throw new Error(`Expected release VSIX package name to be logics-manager, got ${releasePackageJson.name || "undefined"}.`);
+}
+if (!releaseManifest.includes('Identity Id="cdx-logics.logics-manager"')) {
+  throw new Error("Expected release VSIX manifest to declare the Marketplace identity.");
+}
+if (!releaseManifest.includes('Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true"')) {
+  throw new Error("Expected release VSIX manifest to expose the extension package.json asset.");
+}
+
 console.log("Extension smoke checks: OK");
 
 async function listZipEntries(vsixFile) {
@@ -131,5 +149,12 @@ function runVscePackage(outputPath, stdio) {
   execFileSync("node", ["scripts/run-python.mjs", "scripts/build/package-vsix.py", "--out", outputPath], {
     cwd: root,
     stdio
+  });
+}
+
+function runReleasePackage(outputPath) {
+  execFileSync("node", ["scripts/run-python.mjs", "scripts/build/package-vsix.py", "--out", outputPath], {
+    cwd: root,
+    stdio: "ignore"
   });
 }

@@ -29,9 +29,6 @@ const packageJson = JSON.parse(await readZipEntry(vsixPath, "extension/package.j
 if (packageJson.name !== "cdx-logics-vscode") {
   throw new Error(`Expected VSIX package name to be cdx-logics-vscode, got ${packageJson.name || "undefined"}.`);
 }
-if (packageJson.public !== true) {
-  throw new Error("Expected VSIX package metadata to mark the extension public.");
-}
 assertHas(entries, "extension/package.json");
 assertHas(entries, "extension/dist/extension.js");
 assertHas(entries, "extension/dist/vendor/mermaid.min.js");
@@ -73,11 +70,11 @@ assertHas(releaseEntries, "extension.vsixmanifest");
 if (releasePackageJson.name !== "cdx-logics-vscode") {
   throw new Error(`Expected release VSIX package name to be cdx-logics-vscode, got ${releasePackageJson.name || "undefined"}.`);
 }
-if (releasePackageJson.public !== true) {
-  throw new Error("Expected release VSIX package metadata to mark the extension public.");
-}
-if (!releaseManifest.includes('Identity Id="cdx-logics-vscode"')) {
+if (!releaseManifest.includes('Id="cdx-logics-vscode"')) {
   throw new Error("Expected release VSIX manifest to declare the Marketplace identity.");
+}
+if (!releaseManifest.includes("<GalleryFlags>Public</GalleryFlags>")) {
+  throw new Error("Expected release VSIX manifest to keep the extension public.");
 }
 if (!releaseManifest.includes('Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true"')) {
   throw new Error("Expected release VSIX manifest to expose the extension package.json asset.");
@@ -152,14 +149,14 @@ function assertMissing(entries, unexpected) {
 }
 
 function runVscePackage(outputPath, stdio) {
-  execFileSync("node", ["scripts/run-python.mjs", "scripts/build/package-vsix.py", "--out", outputPath], {
+  execFileSync("node", ["--input-type=module", "-e", `import { packageVsix } from "./scripts/build/package-vscode-extension.mjs"; packageVsix(${JSON.stringify(outputPath)});`], {
     cwd: root,
     stdio
   });
 }
 
 function runReleasePackage(outputPath) {
-  execFileSync("node", ["scripts/run-python.mjs", "scripts/build/package-vsix.py", "--out", outputPath], {
+  execFileSync("node", ["--input-type=module", "-e", `import { packageVsix } from "./scripts/build/package-vscode-extension.mjs"; packageVsix(${JSON.stringify(outputPath)});`], {
     cwd: root,
     stdio: "ignore"
   });

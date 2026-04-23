@@ -40,7 +40,7 @@ export async function shouldRecommendCheckEnvironment(
   bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
   launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
 ): Promise<boolean> {
-  if (bootstrapState?.canBootstrap && snapshot?.hasBootstrapScript) {
+  if (bootstrapState?.canBootstrap) {
     return true;
   }
   if (!snapshot) {

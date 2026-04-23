@@ -97,8 +97,12 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     if (this.bootstrapInProgressRoots.has(normalizedRoot)) {
       return false;
     }
-    const bootstrapState = inspectLogicsBootstrapState(root);
+    const hasBootstrapScript = fs.existsSync(path.join(root, "scripts", "logics-manager.py"));
+    const bootstrapState = inspectLogicsBootstrapState(root, hasBootstrapScript);
     if (bootstrapState.status === "canonical") {
+      return false;
+    }
+    if (!bootstrapState.canBootstrap) {
       return false;
     }
 

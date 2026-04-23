@@ -90,6 +90,18 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.actionTitle).toContain("Repair");
   });
 
+  it("keeps incomplete repos non-bootstrappable when the bundled runtime entrypoint is absent", () => {
+    const root = makeCanonicalRoot();
+    fs.rmSync(path.join(root, "logics.yaml"));
+
+    const state = inspectLogicsBootstrapState(root, false);
+
+    expect(state.status).toBe("incomplete");
+    expect(state.canBootstrap).toBe(false);
+    expect(state.actionTitle).toBe("Bootstrap unavailable");
+    expect(state.promptMessage).toContain("does not bundle the Logics bootstrap runtime entrypoint");
+  });
+
   it("keeps canonical repos non-bootstrappable once repo-local bootstrap is converged", () => {
     const root = makeCanonicalRoot();
 

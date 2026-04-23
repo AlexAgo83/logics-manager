@@ -298,7 +298,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   async refresh(selectedId?: string): Promise<void> {
     const { root, invalidOverridePath } = viewProviderSupport.resolveProjectRoot.call(this);
     const canResetProjectRoot = viewProviderSupport.canResetProjectRoot.call(this);
-    const bootstrapState = root ? inspectLogicsBootstrapState(root) : null;
+    const bootstrapState = root
+      ? inspectLogicsBootstrapState(root, fs.existsSync(path.join(root, "scripts", "logics-manager.py")))
+      : null;
     const canBootstrapLogics = Boolean(bootstrapState?.canBootstrap);
     viewProviderSupport.notifyInvalidRootOverride.call(this, invalidOverridePath, Boolean(root));
     if (!root) {
@@ -337,8 +339,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         launchCodexTitle: "This branch does not have a logics/ folder yet",
         canLaunchClaude: false,
         launchClaudeTitle: "This branch does not have a logics/ folder yet",
-        canRepairLogicsKit: true,
-        repairLogicsKitTitle: "Bootstrap or repair Logics in this branch first.",
+        canRepairLogicsKit: canBootstrapLogics,
+        repairLogicsKitTitle: bootstrapState?.actionTitle ?? "Bootstrap unavailable",
         canPublishRelease: false,
         publishReleaseTitle: "Publish Release requires a bootstrapped Logics project.",
         shouldRecommendCheckEnvironment: true,
@@ -363,8 +365,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         launchCodexTitle: "Unavailable",
         canLaunchClaude: false,
         launchClaudeTitle: "Unavailable",
-        canRepairLogicsKit: true,
-        repairLogicsKitTitle: "Check current Logics runtime state and repair the shared runtime publication or bridge files.",
+        canRepairLogicsKit: canBootstrapLogics,
+        repairLogicsKitTitle: bootstrapState?.actionTitle ?? "Bootstrap unavailable",
         canPublishRelease: false,
         publishReleaseTitle: "Unavailable",
         shouldRecommendCheckEnvironment: true,
@@ -411,8 +413,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       launchCodexTitle: launchers.codex.title,
       canLaunchClaude: launchers.claude.available,
       launchClaudeTitle: launchers.claude.title,
-      canRepairLogicsKit: true,
-      repairLogicsKitTitle: "Check current Logics runtime state and repair the shared runtime publication or bridge files.",
+      canRepairLogicsKit: Boolean(bootstrapState?.canBootstrap),
+      repairLogicsKitTitle: bootstrapState?.actionTitle ?? "Bootstrap unavailable",
       canPublishRelease: publishReleaseCapability.available,
       publishReleaseTitle: publishReleaseCapability.title,
       shouldRecommendCheckEnvironment,
@@ -592,9 +594,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     if (!root) {
       return;
     }
-    const bootstrapState = inspectLogicsBootstrapState(root);
-    if (bootstrapState.status === "canonical" && !bootstrapState.canBootstrap) {
-      void vscode.window.showInformationMessage("Logics bootstrap already configured.");
+    const bootstrapState = inspectLogicsBootstrapState(root, fs.existsSync(path.join(root, "scripts", "logics-manager.py")));
+    if (!bootstrapState.canBootstrap) {
+      void vscode.window.showInformationMessage(bootstrapState.promptMessage ?? "Bootstrap is unavailable for this repository.");
       return;
     }
     await this.codexWorkflowController.bootstrapLogics(root);
@@ -661,7 +663,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (root) {
-      const bootstrapState = inspectLogicsBootstrapState(root);
+      const bootstrapState = inspectLogicsBootstrapState(root, snapshot.hasBootstrapScript);
       if (bootstrapState.canBootstrap) {
         recommendedActions.push({
           label: `Fix now: ${bootstrapState.actionTitle}`,

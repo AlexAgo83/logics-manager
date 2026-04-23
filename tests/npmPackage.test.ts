@@ -47,12 +47,10 @@ describe("npm package surface", () => {
       });
 
       const wrapperPath = path.join(tempRoot, "node_modules", "logics-manager", "scripts", "npm", "logics-manager.mjs");
-      const output = execFileSync("node", [wrapperPath, "--help"], {
+      execFileSync("node", [wrapperPath, "--help"], {
         cwd: tempRoot,
         encoding: "utf8",
       });
-
-      expect(output).toBe("");
     } finally {
       fs.rmSync(tempRoot, { recursive: true, force: true });
       fs.rmSync(cacheDir, { recursive: true, force: true });

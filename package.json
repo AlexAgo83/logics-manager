@@ -2,7 +2,7 @@
   "name": "logics-manager",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
-  "version": "1.28.0",
+  "version": "2.0.0",
   "publisher": "cdx-logics",
   "icon": "media/icon.png",
   "repository": {

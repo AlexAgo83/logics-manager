@@ -1,11 +1,11 @@
-# cdx-logics-vscode Changelogs
+# logics-manager Changelogs
 
 Versioned changelog artifacts live in this folder.
 
 Contract:
 - filename pattern: `CHANGELOGS_x_y_z.md`
 - version source of truth: repository `package.json`
-- generation moment: at delivery closure time, using the real current project version at that moment
+- generation moment: at release preparation time, using the real current project version at that moment
 
 Release workflow contract:
 - tag format: `vX.Y.Z`

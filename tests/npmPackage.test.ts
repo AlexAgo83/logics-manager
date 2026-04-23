@@ -6,9 +6,13 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 
+function npmCommand() {
+  return process.platform === "win32" ? "npm.cmd" : "npm";
+}
+
 function packPackage() {
   const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
-  const output = execFileSync("npm", ["pack", "--json"], {
+  const output = execFileSync(npmCommand(), ["pack", "--json"], {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: cacheDir }
@@ -40,7 +44,7 @@ describe("npm package surface", () => {
     const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
 
     try {
-      execFileSync("npm", ["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)], {
+      execFileSync(npmCommand(), ["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)], {
         cwd: tempRoot,
         encoding: "utf8",
         env: { ...process.env, npm_config_cache: cacheDir }

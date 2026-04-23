@@ -25,6 +25,10 @@ const vsixPath = path.join(os.tmpdir(), `logics-manager-smoke-${Date.now()}.vsix
 runVscePackage(vsixPath, "ignore");
 
 const entries = await listZipEntries(vsixPath);
+const packageJson = JSON.parse(await readZipEntry(vsixPath, "extension/package.json"));
+if (packageJson.name !== "logics-manager") {
+  throw new Error(`Expected VSIX package name to be logics-manager, got ${packageJson.name || "undefined"}.`);
+}
 assertHas(entries, "extension/package.json");
 assertHas(entries, "extension/dist/extension.js");
 assertHas(entries, "extension/dist/vendor/mermaid.min.js");
@@ -70,6 +74,39 @@ async function listZipEntries(vsixFile) {
     zip.once("error", reject);
   });
   return names;
+}
+
+async function readZipEntry(vsixFile, entryName) {
+  const zip = await openZip(vsixFile, { lazyEntries: true });
+  return await new Promise((resolve, reject) => {
+    let resolved = false;
+    zip.readEntry();
+    zip.on("entry", (entry) => {
+      if (entry.fileName !== entryName) {
+        zip.readEntry();
+        return;
+      }
+      zip.openReadStream(entry, (error, stream) => {
+        if (error || !stream) {
+          reject(error || new Error(`Missing read stream for ${entryName}.`));
+          return;
+        }
+        const chunks = [];
+        stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+        stream.once("error", reject);
+        stream.once("end", () => {
+          resolved = true;
+          resolve(Buffer.concat(chunks).toString("utf8"));
+        });
+      });
+    });
+    zip.once("end", () => {
+      if (!resolved) {
+        reject(new Error(`Expected VSIX to include ${entryName}.`));
+      }
+    });
+    zip.once("error", reject);
+  });
 }
 
 function assertHas(entries, expected) {

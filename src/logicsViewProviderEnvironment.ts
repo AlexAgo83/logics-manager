@@ -40,7 +40,7 @@ export async function shouldRecommendCheckEnvironment(
   bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null,
   launchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE
 ): Promise<boolean> {
-  if (bootstrapState?.canBootstrap) {
+  if (bootstrapState?.canBootstrap && snapshot?.hasBootstrapScript) {
     return true;
   }
   if (!snapshot) {
@@ -52,10 +52,20 @@ export async function shouldRecommendCheckEnvironment(
   if (!snapshot.git.available || !snapshot.python.available) {
     return true;
   }
-  if (launchers.hasCodex && snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
+  if (
+    launchers.hasCodex &&
+    snapshot.codexOverlay.status !== "healthy" &&
+    snapshot.codexOverlay.status !== "warning" &&
+    snapshot.codexOverlay.status !== "unavailable"
+  ) {
     return true;
   }
-  if (launchers.hasClaude && snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
+  if (
+    launchers.hasClaude &&
+    snapshot.claudeGlobalKit?.status &&
+    snapshot.claudeGlobalKit.status !== "healthy" &&
+    snapshot.claudeGlobalKit.status !== "unavailable"
+  ) {
     return true;
   }
   if (
@@ -85,18 +95,19 @@ export function getEnvironmentOverallState(
     snapshot.repositoryState === "missing-logics" ||
     !snapshot.git.available ||
     !snapshot.python.available ||
-    hybridRuntime.state === "unavailable";
+    (snapshot.hasBootstrapScript && hybridRuntime.state === "unavailable");
   if (hasBlockingIssue) {
     return "Blocked";
   }
   const hasDegradedIssue =
     snapshot.missingWorkflowDirs.length > 0 ||
-    (launchers.hasCodex && snapshot.codexOverlay.status !== "healthy") ||
+    (launchers.hasCodex &&
+      snapshot.codexOverlay.status !== "healthy" &&
+      snapshot.codexOverlay.status !== "unavailable") ||
     (launchers.hasClaude &&
-      (snapshot.claudeGlobalKit?.status === "stale" ||
-        snapshot.claudeGlobalKit?.status === "missing-overlay" ||
-        snapshot.claudeGlobalKit?.status === "missing-manager")) ||
+      (snapshot.claudeGlobalKit?.status === "stale" || snapshot.claudeGlobalKit?.status === "missing-overlay")) ||
     hybridRuntime.state === "degraded" ||
+    (snapshot.hasBootstrapScript && hybridRuntime.state === "unavailable") ||
     (launchers.hasClaude && !hybridRuntime.claudeBridgeAvailable) ||
     actions.length > 0;
   return hasDegradedIssue ? "Degraded" : "Healthy";
@@ -114,16 +125,15 @@ export function getEnvironmentSummaryDescription(
     snapshot.repositoryState === "missing-logics",
     !snapshot.git.available,
     !snapshot.python.available,
-    hybridRuntime.state === "unavailable"
+    snapshot.hasBootstrapScript && hybridRuntime.state === "unavailable"
   ].filter(Boolean).length;
   const degradedCount = [
     snapshot.missingWorkflowDirs.length > 0,
-    launchers.hasCodex && snapshot.codexOverlay.status !== "healthy",
+    launchers.hasCodex && snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "unavailable",
     launchers.hasClaude &&
-      (snapshot.claudeGlobalKit?.status === "stale" ||
-        snapshot.claudeGlobalKit?.status === "missing-overlay" ||
-        snapshot.claudeGlobalKit?.status === "missing-manager"),
+      (snapshot.claudeGlobalKit?.status === "stale" || snapshot.claudeGlobalKit?.status === "missing-overlay"),
     hybridRuntime.state === "degraded",
+    snapshot.hasBootstrapScript && hybridRuntime.state === "unavailable",
     launchers.hasClaude && !hybridRuntime.claudeBridgeAvailable
   ].filter(Boolean).length;
   if (blockedCount === 0 && degradedCount === 0 && actions.length === 0) {

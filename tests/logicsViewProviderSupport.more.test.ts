@@ -112,7 +112,7 @@ describe("logicsViewProviderSupport more coverage", () => {
         degraded: false,
         degradedReasons: [],
         claudeBridgeAvailable: true,
-        windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+        windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
       },
       capabilities: {
         readOnly: { status: "available", summary: "ok" },
@@ -197,7 +197,7 @@ describe("logicsViewProviderSupport more coverage", () => {
             degraded: true,
             degradedReasons: ["missing bridge"],
             claudeBridgeAvailable: false,
-            windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+            windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
           }
         }) as never,
         null,

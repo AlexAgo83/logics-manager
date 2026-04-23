@@ -70,7 +70,7 @@ assertHas(releaseEntries, "extension.vsixmanifest");
 if (releasePackageJson.name !== "cdx-logics-vscode") {
   throw new Error(`Expected release VSIX package name to be cdx-logics-vscode, got ${releasePackageJson.name || "undefined"}.`);
 }
-if (!releaseManifest.includes('Identity Id="cdx-logics.cdx-logics-vscode"')) {
+if (!releaseManifest.includes('Identity Id="cdx-logics-vscode"')) {
   throw new Error("Expected release VSIX manifest to declare the Marketplace identity.");
 }
 if (!releaseManifest.includes('Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true"')) {

@@ -11,7 +11,7 @@ from xml.sax.saxutils import escape
 ROOT = Path.cwd()
 EXTENSION_ROOT = "extension"
 EXTENSION_NAME = "cdx-logics-vscode"
-EXTENSION_ID = "cdx-logics.cdx-logics-vscode"
+EXTENSION_ID = "cdx-logics-vscode"
 
 
 def add_file(archive: zipfile.ZipFile, source: Path, target: str) -> None:

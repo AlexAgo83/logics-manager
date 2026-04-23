@@ -53,7 +53,7 @@ function normalizeComparablePath(value: string): string {
   return normalized.replace(/[\\/]+$/, "");
 }
 
-export function hasLogicsSubmodule(root: string): boolean {
+export function hasLogicsRuntimeSource(root: string): boolean {
   const inspection = inspectLogicsRuntimeSource(root);
   return inspection.exists && inspection.isCanonical;
 }
@@ -103,26 +103,8 @@ export function detectDangerousGitignorePatterns(root: string): DangerousGitigno
 }
 
 export function detectRuntimeInstallType(root: string): LogicsRuntimeInstallType {
-  const skillsDir = path.join(root, "logics", "skills");
-  const gitPath = path.join(skillsDir, ".git");
-
-  if (!fs.existsSync(skillsDir) || !fs.existsSync(gitPath)) {
-    return "plain-copy";
-  }
-
-  try {
-    const stat = fs.lstatSync(gitPath);
-    if (stat.isDirectory()) {
-      return "standalone-clone";
-    }
-    if (stat.isFile() || stat.isSymbolicLink()) {
-      return "submodule";
-    }
-  } catch {
-    return "plain-copy";
-  }
-
-  return "plain-copy";
+  const bundledEntryPoint = path.join(root, "scripts", "logics-manager.py");
+  return fs.existsSync(bundledEntryPoint) ? "bundled-runtime" : "plain-copy";
 }
 
 export type LogicsRuntimeSourceInspection = {
@@ -140,7 +122,7 @@ export type DangerousGitignorePatternInspection = {
   reason: string;
 };
 
-export type LogicsRuntimeInstallType = "submodule" | "standalone-clone" | "plain-copy";
+export type LogicsRuntimeInstallType = "bundled-runtime" | "plain-copy";
 export type LogicsKitInstallType = LogicsRuntimeInstallType;
 
 export type LogicsBootstrapState = {
@@ -187,68 +169,19 @@ type BootstrapConvergenceInspection = {
 };
 
 export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceInspection {
-  const skillsDir = path.join(root, "logics", "skills");
-  if (!fs.existsSync(skillsDir)) {
+  const bundledEntryPoint = path.join(root, "scripts", "logics-manager.py");
+  if (!fs.existsSync(bundledEntryPoint)) {
     return {
       exists: false,
       isCanonical: false,
-      reason: "No repo-local Logics runtime checkout was detected in the selected repository."
-    };
-  }
-
-  const gitmodulesPath = path.join(root, ".gitmodules");
-  if (!fs.existsSync(gitmodulesPath)) {
-    return {
-      exists: true,
-      isCanonical: false,
-      reason: "A repo-local Logics runtime checkout exists, but the repository does not declare it in .gitmodules."
-    };
-  }
-
-  let content = "";
-  try {
-    content = fs.readFileSync(gitmodulesPath, "utf8");
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      exists: true,
-      isCanonical: false,
-      reason: `Could not read .gitmodules: ${message}`
-    };
-  }
-
-  const sections = content.split(/\r?\n(?=\[submodule )/);
-  for (const section of sections) {
-    if (!section.includes("path = logics/skills")) {
-      continue;
-    }
-    const urlMatch = section.match(/^\s*url\s*=\s*(.+)\s*$/m);
-    const remoteUrl = urlMatch ? urlMatch[1].trim() : undefined;
-    if (!remoteUrl) {
-      return {
-        exists: true,
-        isCanonical: false,
-        reason: "The repo-local Logics runtime checkout is missing a configured URL in .gitmodules."
-      };
-    }
-    const normalized = remoteUrl.toLowerCase();
-    const isCanonical =
-      normalized.includes("alexago83/cdx-logics-kit") ||
-      normalized.includes("github.com:alexago83/cdx-logics-kit");
-    return {
-      exists: true,
-      isCanonical,
-      remoteUrl,
-      reason: isCanonical
-        ? "Repo-local Logics runtime checkout detected."
-        : `The legacy repo-local runtime checkout points to a non-canonical URL: ${remoteUrl}`
+      reason: "No bundled Logics runtime entrypoint was detected in the selected repository."
     };
   }
 
   return {
     exists: true,
-    isCanonical: false,
-    reason: "The repository does not declare a repo-local Logics runtime checkout entry in .gitmodules."
+    isCanonical: true,
+    reason: "Bundled Logics runtime entrypoint detected."
   };
 }
 

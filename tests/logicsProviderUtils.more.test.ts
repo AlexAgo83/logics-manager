@@ -45,9 +45,9 @@ import {
   buildMinimalTemplate,
   collectManagedMarkdownFiles,
   detectDangerousGitignorePatterns,
-  detectKitInstallType,
   findCreatedDocPathFromOutput,
-  hasLogicsSubmodule,
+  detectRuntimeInstallType,
+  hasLogicsRuntimeSource,
   isExistingDirectory,
   runGitWithOutput,
   runPythonWithOutput,
@@ -117,25 +117,20 @@ describe("logicsProviderUtils extra coverage", () => {
       matchedPatterns: ["logics/**"]
     });
 
-    expect(detectKitInstallType(root)).toBe("plain-copy");
+    expect(detectRuntimeInstallType(root)).toBe("plain-copy");
 
     const standaloneRoot = makeRoot("logics-utils-standalone-");
-    fs.mkdirSync(path.join(standaloneRoot, "logics", "skills", ".git"), { recursive: true });
-    expect(detectKitInstallType(standaloneRoot)).toBe("standalone-clone");
+    fs.mkdirSync(path.join(standaloneRoot, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(standaloneRoot, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
+    expect(detectRuntimeInstallType(standaloneRoot)).toBe("bundled-runtime");
 
     const submoduleRoot = makeRoot("logics-utils-submodule-");
-    fs.mkdirSync(path.join(submoduleRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(submoduleRoot, "logics", "skills", ".git"), "gitdir: ../.git/modules/skills\n", "utf8");
-    expect(detectKitInstallType(submoduleRoot)).toBe("submodule");
+    expect(detectRuntimeInstallType(submoduleRoot)).toBe("plain-copy");
 
     const canonicalRoot = makeRoot("logics-utils-canonical-");
-    fs.mkdirSync(path.join(canonicalRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(
-      path.join(canonicalRoot, ".gitmodules"),
-      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://github.com/AlexAgo83/cdx-logics-kit\n',
-      "utf8"
-    );
-    expect(hasLogicsSubmodule(canonicalRoot)).toBe(true);
+    fs.mkdirSync(path.join(canonicalRoot, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(canonicalRoot, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
+    expect(hasLogicsRuntimeSource(canonicalRoot)).toBe(true);
   });
 
   it("covers managed markdown traversal and reference updates", () => {

@@ -5,7 +5,7 @@ Thanks for helping improve `cdx-logics-vscode`.
 ## Getting Started
 
 - Install dependencies with `npm ci`.
-- If you are working on the bundled Logics kit, keep `logics/skills` initialized and up to date.
+- If you are working on the bundled Logics runtime, keep the local entrypoint and repo versioning in sync.
 - Use a recent Node.js and Python 3 environment that matches the repo tooling.
 
 ## Development Workflow
@@ -46,4 +46,3 @@ If your change touches Logics docs or workflow behavior, also validate the relev
 ## Code Of Conduct
 
 Be respectful, precise, and constructive in reviews and issue discussion.
-

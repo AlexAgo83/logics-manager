@@ -427,7 +427,7 @@ describe("LogicsViewProvider", () => {
     );
   });
 
-  it("warns once at startup when a broad gitignore pattern hides logics/skills", async () => {
+  it("warns once at startup when a broad gitignore pattern hides the bundled runtime", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "incomplete",

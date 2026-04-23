@@ -303,7 +303,7 @@ describe("LogicsCodexWorkflowController", () => {
     );
   });
 
-  it("runs the bundled bootstrap without treating legacy logics/skills changes as a blocking update path", async () => {
+  it("runs the bundled bootstrap without treating legacy runtime changes as a blocking update path", async () => {
     const root = makeRoot();
     mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
       const key = args.join(" ");
@@ -314,7 +314,7 @@ describe("LogicsCodexWorkflowController", () => {
         return { stdout: "true", stderr: "" };
       }
       if (key === "status --porcelain") {
-        return { stdout: "?? README.md\n M logics/skills\n", stderr: "" };
+        return { stdout: "?? README.md\n M scripts/logics-manager.py\n", stderr: "" };
       }
       return { stdout: "", stderr: "" };
     });

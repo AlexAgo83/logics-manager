@@ -39,7 +39,7 @@ describe("Claude global runtime", () => {
   it("reports a missing Claude runtime when repo-local skills exist but nothing is published yet", () => {
     const root = makeRoot("logics-claude-kit-");
     writeSkill(root, "demo-skill", "Use $demo-skill.");
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.21.1\n", "utf8");
     process.env.LOGICS_CLAUDE_GLOBAL_HOME = makeRoot("claude-global-");
 
     const snapshot = inspectClaudeGlobalKit(root);
@@ -51,7 +51,7 @@ describe("Claude global runtime", () => {
   it("publishes a global Claude runtime and reports it healthy", () => {
     const root = makeRoot("logics-claude-kit-");
     writeSkill(root, "demo-skill", "Use $demo-skill.");
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.21.1\n", "utf8");
     process.env.LOGICS_CLAUDE_GLOBAL_HOME = makeRoot("claude-global-");
 
     const result = publishClaudeGlobalKit(root);

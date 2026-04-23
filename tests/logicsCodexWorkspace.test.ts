@@ -43,7 +43,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     const repoSkillDir = path.join(root, "logics", "skills", "demo-skill");
     fs.mkdirSync(repoSkillDir, { recursive: true });
     fs.writeFileSync(path.join(repoSkillDir, "SKILL.md"), "# demo\n", "utf8");
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.4.0\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.4.0\n", "utf8");
     process.env.LOGICS_CODEX_GLOBAL_HOME = fs.mkdtempSync(path.join(os.tmpdir(), "codex-global-"));
     roots.push(process.env.LOGICS_CODEX_GLOBAL_HOME);
 
@@ -63,7 +63,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     const repoSkillDir = path.join(root, "logics", "skills", "demo-skill");
     fs.mkdirSync(repoSkillDir, { recursive: true });
     fs.writeFileSync(path.join(repoSkillDir, "SKILL.md"), "# demo\n", "utf8");
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.4.0\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.4.0\n", "utf8");
 
     const publishedSkillDir = path.join(globalHome, "skills", "demo-skill");
     fs.mkdirSync(publishedSkillDir, { recursive: true });
@@ -159,7 +159,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-overlay-"));
     roots.push(root);
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.4.0\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.4.0\n", "utf8");
     fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", ".git", "HEAD"), "0123456789abcdef0123456789abcdef01234567\n", "utf8");
 

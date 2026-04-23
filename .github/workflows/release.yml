@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -26,28 +24,6 @@ jobs:
       - name: Install Python coverage tooling
         run: python -m pip install --upgrade coverage
 
-      - name: Logics docs lint (strict status)
-        run: python -m logics_manager lint --require-status
-
-      - name: Logics flow sync close-eligible requests
-        run: python -m logics_manager flow sync close-eligible-requests
-
-      - name: Ensure requests unchanged after sync
-        run: git diff --exit-code -- logics/request
-
-      - name: Workflow audit (blocking, grouped)
-        run: python -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc
-
-      - name: Workflow audit (JSON report)
-        continue-on-error: true
-        run: python -m logics_manager audit --format json
-
-      - name: Logics kit Python coverage
-        run: python logics/skills/tests/run_test_coverage.py
-
-      - name: Logics kit CLI smoke checks
-        run: python logics/skills/tests/run_cli_smoke_checks.py
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
@@ -56,6 +32,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Supported CI validation
+        run: node scripts/ci-check.mjs
 
       - name: Ensure tag matches package version
         run: |
@@ -88,8 +67,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -99,28 +76,6 @@ jobs:
       - name: Install Python coverage tooling
         run: python -m pip install --upgrade coverage
 
-      - name: Logics docs lint (strict status)
-        run: python -m logics_manager lint --require-status
-
-      - name: Logics flow sync close-eligible requests
-        run: python -m logics_manager flow sync close-eligible-requests
-
-      - name: Ensure requests unchanged after sync
-        run: git diff --exit-code -- logics/request
-
-      - name: Workflow audit (blocking, grouped)
-        run: python -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc
-
-      - name: Workflow audit (JSON report)
-        continue-on-error: true
-        run: python -m logics_manager audit --format json
-
-      - name: Logics kit Python coverage
-        run: python logics/skills/tests/run_test_coverage.py
-
-      - name: Logics kit CLI smoke checks
-        run: python logics/skills/tests/run_cli_smoke_checks.py
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
@@ -129,6 +84,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Supported CI validation
+        run: node scripts/ci-check.mjs
 
       - name: Compile
         run: npm run compile
@@ -156,8 +114,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
 
       - name: Setup Node
         uses: actions/setup-node@v6

@@ -371,15 +371,13 @@ export function parseGitStatusEntries(stdout: string): GitStatusEntry[] {
 }
 
 export function isBootstrapScopedPath(filePath: string): boolean {
-  return filePath === ".gitmodules" || filePath === "logics" || filePath.startsWith("logics/");
+  return filePath === "scripts/logics-manager.py" || filePath === "logics" || filePath.startsWith("logics/");
 }
 
 export function buildBootstrapCommitMessage(changedPaths: string[]): string {
   const normalized = changedPaths.map((entry) => entry.replace(/\\/g, "/"));
-  const hasSubmodule = normalized.some((entry) => entry === ".gitmodules" || entry.startsWith("logics/skills"));
-  const hasWorkflowDocs = normalized.some(
-    (entry) => entry.startsWith("logics/") && !entry.startsWith("logics/skills")
-  );
+  const hasSubmodule = normalized.some((entry) => entry === "scripts/logics-manager.py");
+  const hasWorkflowDocs = normalized.some((entry) => entry.startsWith("logics/") && entry !== "scripts/logics-manager.py");
 
   if (hasSubmodule && hasWorkflowDocs) {
     return "Bootstrap Logics runtime and initialize workflow docs";

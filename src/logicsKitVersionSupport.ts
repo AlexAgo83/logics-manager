@@ -16,7 +16,7 @@ export type LogicsKitUpdateNeed = {
 };
 
 export function inspectKitUpdateNeed(root: string): LogicsKitUpdateNeed | null {
-  const versionPath = path.join(root, "logics", "skills", "VERSION");
+  const versionPath = path.join(root, "VERSION");
   if (!fs.existsSync(versionPath)) {
     return null;
   }

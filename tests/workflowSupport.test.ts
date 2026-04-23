@@ -93,14 +93,14 @@ describe("workflowSupport", () => {
   it("parses git porcelain output and recognizes bootstrap-scoped paths", () => {
     const entries = parseGitStatusEntries([" M README.md", "?? .gitmodules", "?? logics/request/req_001_demo.md"].join("\n"));
     expect(entries.map((entry) => entry.path)).toEqual(["README.md", ".gitmodules", "logics/request/req_001_demo.md"]);
-    expect(isBootstrapScopedPath(".gitmodules")).toBe(true);
+    expect(isBootstrapScopedPath("scripts/logics-manager.py")).toBe(true);
     expect(isBootstrapScopedPath("logics/request/req_001_demo.md")).toBe(true);
     expect(isBootstrapScopedPath("README.md")).toBe(false);
   });
 
   it("generates specific bootstrap commit messages from changed paths", () => {
-    expect(buildBootstrapCommitMessage([".gitmodules", "logics/skills"])).toBe("Bootstrap Logics runtime");
-    expect(buildBootstrapCommitMessage([".gitmodules", "logics/request/req_001_demo.md"])).toBe(
+    expect(buildBootstrapCommitMessage(["scripts/logics-manager.py"])).toBe("Bootstrap Logics runtime");
+    expect(buildBootstrapCommitMessage(["scripts/logics-manager.py", "logics/request/req_001_demo.md"])).toBe(
       "Bootstrap Logics runtime and initialize workflow docs"
     );
     expect(buildBootstrapCommitMessage(["logics/request/req_001_demo.md"])).toBe("Initialize Logics workflow docs");

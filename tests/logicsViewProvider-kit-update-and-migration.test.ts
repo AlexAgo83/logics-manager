@@ -595,8 +595,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("proactively offers Logics runtime update on refresh when the canonical repo kit is below the minimum version", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    fs.writeFileSync(path.join(root, "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: true,
@@ -621,8 +621,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("runs Update Logics Runtime directly from the startup remediation prompt", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    fs.writeFileSync(path.join(root, "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: true,

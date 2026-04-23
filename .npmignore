@@ -11,3 +11,5 @@
 !scripts/npm/logics-manager.mjs
 !logics_manager/
 !logics_manager/**
+**/__pycache__/
+**/*.pyc

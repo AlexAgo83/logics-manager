@@ -42,7 +42,7 @@ export function packageVsix(outputPath) {
       path.join(stageDir, "scripts", "logics-manager.py"),
     );
 
-    execFileSync(resolveVsceCommand(root), ["package", "--out", outputPath], {
+    execFileSync(process.execPath, [resolveVsceEntrypoint(root), "package", "--out", outputPath], {
       cwd: stageDir,
       stdio: "inherit",
     });
@@ -51,12 +51,20 @@ export function packageVsix(outputPath) {
   }
 }
 
-function resolveVsceCommand(root) {
-  const commandPath = path.join(root, "node_modules", ".bin", process.platform === "win32" ? "vsce.cmd" : "vsce");
-  if (!fs.existsSync(commandPath)) {
-    throw new Error(`Missing local VSCE CLI at ${commandPath}. Run npm install before packaging the extension.`);
+function resolveVsceEntrypoint(root) {
+  const packageDirectory = path.join(root, "node_modules", "@vscode", "vsce");
+  const packageManifestPath = path.join(packageDirectory, "package.json");
+  if (!fs.existsSync(packageManifestPath)) {
+    throw new Error(`Missing local VSCE package at ${packageDirectory}. Run npm install before packaging the extension.`);
   }
-  return commandPath;
+
+  const packageManifest = JSON.parse(fs.readFileSync(packageManifestPath, "utf8"));
+  const binField = typeof packageManifest.bin === "string" ? packageManifest.bin : packageManifest.bin?.vsce;
+  if (typeof binField !== "string" || binField.length === 0) {
+    throw new Error(`Invalid VSCE bin entry in ${packageManifestPath}.`);
+  }
+
+  return path.join(packageDirectory, binField);
 }
 
 function copyTree(sourceDir, targetDir) {

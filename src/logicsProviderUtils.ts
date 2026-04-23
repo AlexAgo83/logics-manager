@@ -192,7 +192,7 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
     return {
       exists: false,
       isCanonical: false,
-      reason: "No legacy repo-local Logics runtime checkout was detected in the selected repository."
+      reason: "No repo-local Logics runtime checkout was detected in the selected repository."
     };
   }
 
@@ -201,7 +201,7 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
     return {
       exists: true,
       isCanonical: false,
-      reason: "A legacy repo-local Logics runtime checkout exists, but the repository does not declare it in .gitmodules."
+      reason: "A repo-local Logics runtime checkout exists, but the repository does not declare it in .gitmodules."
     };
   }
 
@@ -228,7 +228,7 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
       return {
         exists: true,
         isCanonical: false,
-        reason: "The legacy repo-local Logics runtime checkout is missing a configured URL in .gitmodules."
+        reason: "The repo-local Logics runtime checkout is missing a configured URL in .gitmodules."
       };
     }
     const normalized = remoteUrl.toLowerCase();
@@ -240,7 +240,7 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
       isCanonical,
       remoteUrl,
       reason: isCanonical
-        ? "Legacy repo-local Logics runtime checkout detected."
+        ? "Repo-local Logics runtime checkout detected."
         : `The legacy repo-local runtime checkout points to a non-canonical URL: ${remoteUrl}`
     };
   }
@@ -248,7 +248,7 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
   return {
     exists: true,
     isCanonical: false,
-    reason: "The repository does not declare a legacy Logics runtime checkout entry in .gitmodules."
+    reason: "The repository does not declare a repo-local Logics runtime checkout entry in .gitmodules."
   };
 }
 

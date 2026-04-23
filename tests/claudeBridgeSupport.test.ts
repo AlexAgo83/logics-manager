@@ -54,7 +54,10 @@ describe("repairClaudeBridgeFiles", () => {
       "Validate the proposed spec sections, constraints, and open questions before turning them into a real spec file."
     );
     expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "utf8")).toContain(
-      "Use $logics-flow-manager to manage this repository's Logics workflow: create new request/backlog/task docs, promote between stages, keep From version/Understanding/Confidence/Progress indicators consistent."
+      "Use the canonical `logics-manager` workflow surface for this repository"
+    );
+    expect(fs.readFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "utf8")).toContain(
+      "treat `$logics-flow-manager` only as a compatibility alias"
     );
   });
 });

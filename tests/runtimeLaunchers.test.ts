@@ -153,6 +153,6 @@ describe("inspectRuntimeLaunchers", () => {
     });
 
     expect(snapshot.claude.available).toBe(false);
-    expect(snapshot.claude.title).toContain("bridge files are missing");
+    expect(snapshot.claude.title).toContain("Canonical Claude bridge files are missing");
   });
 });

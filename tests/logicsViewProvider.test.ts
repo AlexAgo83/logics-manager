@@ -295,7 +295,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Legacy repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime checkout detected."
     });
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
@@ -777,7 +777,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: false,
       isCanonical: false,
-      reason: "No legacy repo-local Logics runtime checkout was detected in the selected repository."
+      reason: "No repo-local Logics runtime checkout was detected in the selected repository."
     });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "missing",

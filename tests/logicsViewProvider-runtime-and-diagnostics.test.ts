@@ -276,12 +276,12 @@ describe("LogicsViewProvider", () => {
           },
           {
             id: "flow-manager",
-            title: "Logics Flow",
+            title: "Logics Manager Workflow",
             command_path: ".claude/commands/logics-flow.md",
             agent_path: ".claude/agents/logics-flow-manager.md",
-            prompt: "Use $logics-flow-manager to manage this repository's Logics workflow: create new request/backlog/task docs, promote between stages, keep From version/Understanding/Confidence/Progress indicators consistent.",
-            command_content: "# Logics Flow\n",
-            agent_content: "# Logics Flow Agent\n"
+            prompt: "Use the canonical `logics-manager` workflow surface for this repository: prefer `python3 -m logics_manager flow ...` for request/backlog/task work, and treat `$logics-flow-manager` only as a compatibility alias when a legacy assistant bridge still exposes it.",
+            command_content: "# Logics Manager Workflow\n",
+            agent_content: "# Logics Manager Workflow Agent\n"
           },
           {
             id: "request-draft",
@@ -345,7 +345,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Legacy repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime checkout detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
@@ -469,7 +469,7 @@ describe("LogicsViewProvider", () => {
       status: "canonical",
       canBootstrap: false,
       actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      reason: "Repo-local Logics runtime checkout detected."
     });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
@@ -839,7 +839,7 @@ describe("LogicsViewProvider", () => {
       status: "canonical",
       canBootstrap: false,
       actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      reason: "Repo-local Logics runtime checkout detected."
     });
     vi.mocked(inspectLogicsEnvironment)
       .mockResolvedValueOnce({

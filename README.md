@@ -382,14 +382,14 @@ Suggested VM checklist:
 ## Closing Logics Work
 
 Do not mark a Logics task as `Done` by editing markdown indicators manually.
-Use the flow-manager guarded finish command so closure propagates correctly from task -> backlog -> request and the linked chain is verified.
+Use the canonical `logics-manager` guarded finish command so closure propagates correctly from task -> backlog -> request and the linked chain is verified.
 
 ```bash
 npm run logics:finish:task -- logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md
 ```
 
 This uses the runtime-native command:
-- `logics_flow.py finish task ...`
+- `logics-manager flow finish task ...`
 
 If you want a full repository-wide check afterward, run:
 - `npm run audit:logics`

@@ -126,6 +126,43 @@ describe("inspectLogicsEnvironment", () => {
     expect(status.detectedVariants).toEqual(["hybrid-assist", "flow-manager"]);
     expect(status.supportedVariants).toEqual(["hybrid-assist", "flow-manager"]);
   });
+
+  it("does not treat a compatibility-only Claude bridge as the canonical bridge runtime", async () => {
+    const root = tracker.makeRoot();
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
+    fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
+    fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-flow.md"), "bridge\n", "utf8");
+    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "bridge\n", "utf8");
+
+    const snapshot = await inspectLogicsEnvironment(root, undefined, {
+      detectGit: async () => true,
+      detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+      inspectOverlay: () => ({
+        status: "healthy",
+        summary: "Overlay ready.",
+        issues: [],
+        warnings: [],
+        runCommand: "python -m logics_manager codex run -- codex"
+      }),
+      inspectHybridRuntime: async () => ({
+        state: "ready",
+        summary: "Hybrid assist runtime ready (codex).",
+        backend: "codex",
+        requestedBackend: "auto",
+        degraded: false,
+        degradedReasons: [],
+        claudeBridgeAvailable: false,
+        windowsSafeEntrypoint: "python -m logics_manager flow assist ..."
+      })
+    });
+
+    expect(snapshot.hybridRuntime?.claudeBridgeAvailable).toBe(false);
+  });
 });
 
 describe("branch-state transitions", () => {

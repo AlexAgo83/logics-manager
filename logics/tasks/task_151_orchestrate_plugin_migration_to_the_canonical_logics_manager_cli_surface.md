@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 20%
+> Progress: 63%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -64,7 +64,12 @@ stateDiagram-v2
 - Run `python3 -m logics_manager lint --require-status`.
 
 # Report
-- Orchestration report pending implementation.
+- 2026-04-23 wave:
+  - aligned generated Claude workflow bridge prompts with canonical `logics-manager` wording;
+  - changed guided request handoff to prefer non-legacy request-authoring agents before `$logics-flow-manager` fallback;
+  - updated request-authoring prompt copy and README contract wording so `flow-manager` is treated as compatibility naming instead of the primary operator surface.
+  - normalized runtime-source/bootstrap wording away from `cdx-logics-kit`-as-canonical phrasing in `src/logicsProviderUtils.ts` and the related plugin diagnostic tests.
+  - tightened bridge diagnostics so only the canonical Claude bridge counts as the normal supported bridge state; compatibility-only `flow-manager` bridge files now trigger canonical repair wording instead of silently satisfying the check.
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

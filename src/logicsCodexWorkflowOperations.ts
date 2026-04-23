@@ -196,12 +196,6 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       canPublishGlobalCodex &&
       snapshot.codexOverlay.status !== "healthy" &&
       snapshot.codexOverlay.status !== "warning";
-    if (!canPublishGlobalCodex && snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning") {
-      void vscode.window.showInformationMessage(
-        `${messageWithConvergence} Global Codex runtime publication is unavailable for this checkout because ${snapshot.codexOverlay.summary}`
-      );
-      return true;
-    }
     const choice = canOfferPublish
       ? await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime")
       : undefined;

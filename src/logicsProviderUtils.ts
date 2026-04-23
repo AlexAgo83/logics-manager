@@ -185,21 +185,34 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
   };
 }
 
-export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState {
+export function inspectLogicsBootstrapState(root: string, hasBootstrapScript = true): LogicsBootstrapState {
   const logicsDir = path.join(root, "logics");
 
   if (!fs.existsSync(logicsDir)) {
     return {
       status: "missing",
-      canBootstrap: true,
-      actionTitle: "Bootstrap Logics on this branch",
-      promptMessage: "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?",
+      canBootstrap: hasBootstrapScript,
+      actionTitle: hasBootstrapScript ? "Bootstrap Logics on this branch" : "Bootstrap unavailable",
+      promptMessage: hasBootstrapScript
+        ? "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?"
+        : "This repository does not bundle the Logics bootstrap runtime entrypoint.",
       reason: "No logics/ folder found on the active branch."
     };
   }
 
   const convergence = inspectLogicsBootstrapConvergence(root);
   if (convergence.needed) {
+    if (!hasBootstrapScript) {
+      return {
+        status: "incomplete",
+        canBootstrap: false,
+        actionTitle: "Bootstrap unavailable",
+        promptMessage: "This repository does not bundle the Logics bootstrap runtime entrypoint.",
+        reason: convergence.reason,
+        missingPaths: convergence.missingPaths,
+        convergenceNeeded: true
+      };
+    }
     return {
       status: "incomplete",
       canBootstrap: true,

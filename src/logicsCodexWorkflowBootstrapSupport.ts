@@ -4,15 +4,7 @@ import * as vscode from "vscode";
 import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
-import {
-  detectDangerousGitignorePatterns,
-  inspectLogicsBootstrapState,
-  inspectLogicsKitSubmodule,
-  getBundledLogicsManagerScriptPath,
-  runGitWithOutput,
-  runPythonWithOutput,
-  buildLogicsKitUpdateCommand
-} from "./logicsProviderUtils";
+import { detectDangerousGitignorePatterns, inspectLogicsBootstrapState, getBundledLogicsManagerScriptPath, runGitWithOutput, runPythonWithOutput, buildLogicsKitUpdateCommand } from "./logicsProviderUtils";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 import {
@@ -96,7 +88,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     this.gitignoreWarningPromptedKeys.add(key);
     void vscode.window.showWarningMessage(
       `Broad .gitignore pattern(s) detected for Logics runtime paths: ${result.matchedPatterns.join(", ")}. ` +
-        "This can break the runtime update path, but the extension can fall back to a copy or direct clone if you confirm."
+        "This can break the runtime update path, but the extension can still recover after confirmation."
     );
   }
 
@@ -117,13 +109,6 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
       return false;
     }
     this.bootstrapPromptedRoots.add(promptKey);
-
-    if (bootstrapState.status === "noncanonical") {
-      void vscode.window.showWarningMessage(
-        `This repository already has a non-canonical or malformed Logics runtime setup. ${bootstrapState.reason} Use Check Environment for repair guidance.`
-      );
-      return false;
-    }
 
     const action = "Bootstrap Logics";
     const message =
@@ -157,9 +142,8 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     }
 
     if (snapshot.codexOverlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
@@ -195,9 +179,8 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     }
 
     if (globalKit?.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
@@ -414,8 +397,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
     }
     const actions: string[] = [];
     if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
     } else {

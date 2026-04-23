@@ -33,4 +33,29 @@ describe("npm package surface", () => {
     expect(filePaths).not.toContain("src/logicsViewProvider.ts");
     expect(filePaths).not.toContain("tests/logicsManagerNpmWrapper.test.ts");
   });
+
+  it("installs and runs the published CLI wrapper from a packed tarball", () => {
+    const packed = packPackage();
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-install-"));
+    const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
+
+    try {
+      execFileSync("npm", ["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)], {
+        cwd: tempRoot,
+        encoding: "utf8",
+        env: { ...process.env, npm_config_cache: cacheDir }
+      });
+
+      const wrapperPath = path.join(tempRoot, "node_modules", "cdx-logics-vscode", "scripts", "npm", "logics-manager.mjs");
+      const output = execFileSync("node", [wrapperPath, "--help"], {
+        cwd: tempRoot,
+        encoding: "utf8",
+      });
+
+      expect(output).toBe("");
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+      fs.rmSync(cacheDir, { recursive: true, force: true });
+    }
+  });
 });

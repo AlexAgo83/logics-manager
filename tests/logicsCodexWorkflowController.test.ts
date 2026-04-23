@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
+  getBundledLogicsManagerScriptPath: vi.fn(),
   detectKitInstallType: vi.fn(),
   shouldPublishRepoKit: vi.fn(),
   publishCodexWorkspaceOverlay: vi.fn(),
@@ -54,6 +55,7 @@ vi.mock("../src/logicsEnvironment", () => ({
 
 vi.mock("../src/logicsProviderUtils", () => ({
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
+  getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   detectDangerousGitignorePatterns: mocks.detectDangerousGitignorePatterns,
   detectKitInstallType: mocks.detectKitInstallType,
   inspectLogicsBootstrapState: mocks.inspectLogicsBootstrapState,
@@ -64,7 +66,8 @@ vi.mock("../src/logicsProviderUtils", () => ({
 
 vi.mock("../src/logicsCodexWorkspace", () => ({
   publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
-  shouldPublishRepoKit: mocks.shouldPublishRepoKit
+  shouldPublishRepoKit: mocks.shouldPublishRepoKit,
+  inspectCodexWorkspaceOverlay: mocks.inspectCodexWorkspaceOverlay
 }));
 
 vi.mock("../src/logicsClaudeGlobalKit", () => ({
@@ -117,6 +120,7 @@ describe("LogicsCodexWorkflowController", () => {
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.buildLogicsKitUpdateCommand.mockReset();
+    mocks.getBundledLogicsManagerScriptPath.mockReset();
     mocks.detectKitInstallType.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
     mocks.publishCodexWorkspaceOverlay.mockReset();
@@ -133,12 +137,22 @@ describe("LogicsCodexWorkflowController", () => {
     mocks.buildMissingPythonMessage.mockReturnValue("Install Python first.");
     mocks.isMissingPythonFailureDetail.mockReset();
     mocks.shouldPublishRepoKit.mockReturnValue(false);
+    mocks.inspectCodexWorkspaceOverlay.mockReturnValue({
+      overlayRoot: undefined,
+      publishedAt: undefined
+    });
+    mocks.inspectClaudeGlobalKit.mockReturnValue({
+      claudeHome: undefined,
+      publishedAt: undefined
+    });
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
       reason: ""
     });
-    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --recursive -- logics/skills");
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
+    mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(process.cwd(), "scripts", "logics-manager.py"));
+    mocks.runPythonWithOutput.mockResolvedValue({ stdout: "Bootstrap: OK", stderr: "" });
   });
 
   afterEach(() => {
@@ -179,6 +193,14 @@ describe("LogicsCodexWorkflowController", () => {
       ...healthySnapshot(),
       codexOverlay: { status: "missing-manager", summary: "missing manager", runCommand: null }
     });
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
+    });
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
@@ -188,7 +210,7 @@ describe("LogicsCodexWorkflowController", () => {
 
     await controller.maybeOfferCodexStartupRemediation(root);
 
-    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("git submodule update --init --recursive -- logics/skills");
+    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("python3 -m logics_manager bootstrap");
   });
 
   it("republishes the global kit when startup remediation can recover a missing overlay", async () => {
@@ -226,37 +248,33 @@ describe("LogicsCodexWorkflowController", () => {
       }
       return { stdout: "", stderr: "" };
     });
-    mocks.detectKitInstallType.mockReturnValue("plain-copy");
-    mocks.inspectLogicsKitSubmodule.mockReturnValue({
-      exists: false,
-      isCanonical: false,
-      reason: "plain copy"
-    });
-    mocks.showWarningMessage.mockResolvedValue("Copy Update Command");
-
-    const updated = await controller.updateLogicsKit(root, "manual repair");
-
-    expect(updated).toBe(false);
-    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("git submodule update --init --recursive -- logics/skills");
-    expect(mocks.showWarningMessage).toHaveBeenCalled();
-  });
-
-  it("allows canonical kit updates when unrelated root changes are uncommitted", async () => {
-    const root = makeRoot();
-    mocks.detectKitInstallType.mockReturnValue("submodule");
-    mocks.inspectLogicsKitSubmodule.mockReturnValue({
-      exists: true,
-      isCanonical: true,
-      reason: "canonical"
-    });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: false,
       actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      reason: "Repo-local Logics bootstrap is converged."
     });
     mocks.inspectLogicsEnvironment.mockResolvedValue(healthySnapshot());
-    let submoduleStatusCalls = 0;
+
+    const updated = await controller.updateLogicsKit(root, "manual repair");
+
+    expect(updated).toBe(true);
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(process.cwd(), "scripts", "logics-manager.py"),
+      ["bootstrap"]
+    );
+  });
+
+  it("runs the bundled bootstrap when unrelated root changes are uncommitted", async () => {
+    const root = makeRoot();
+    mocks.inspectLogicsBootstrapState.mockReturnValue({
+      status: "canonical",
+      canBootstrap: false,
+      actionTitle: "Bootstrap already completed",
+      reason: "Repo-local Logics bootstrap is converged."
+    });
+    mocks.inspectLogicsEnvironment.mockResolvedValue(healthySnapshot());
     mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {
       const key = args.join(" ");
       if (key === "--version") {
@@ -268,16 +286,6 @@ describe("LogicsCodexWorkflowController", () => {
       if (key === "status --porcelain") {
         return { stdout: "?? README.md\n", stderr: "" };
       }
-      if (key === "submodule status -- logics/skills") {
-        submoduleStatusCalls += 1;
-        return {
-          stdout: submoduleStatusCalls === 1 ? " abc123 logics/skills\n" : " def456 logics/skills\n",
-          stderr: ""
-        };
-      }
-      if (key === "submodule update --init --remote --merge -- logics/skills") {
-        return { stdout: "Updated.\n", stderr: "" };
-      }
       return { stdout: "", stderr: "" };
     });
 
@@ -285,8 +293,13 @@ describe("LogicsCodexWorkflowController", () => {
 
     expect(updated).toBe(true);
     expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["status", "--porcelain"]);
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      path.join(process.cwd(), "scripts", "logics-manager.py"),
+      ["bootstrap"]
+    );
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      expect.stringContaining("Unrelated root changes were left untouched.")
+      expect.stringContaining("bundled bootstrap")
     );
   });
 
@@ -319,10 +332,7 @@ describe("LogicsCodexWorkflowController", () => {
       expect.stringContaining("local Logics tooling has uncommitted changes"),
       "Copy Update Command"
     );
-    expect(mocks.runGitWithOutput).not.toHaveBeenCalledWith(
-      root,
-      ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]
-    );
+    expect(mocks.runPythonWithOutput).not.toHaveBeenCalled();
   });
 
   it("returns false early when Git is unavailable for Logics runtime updates", async () => {

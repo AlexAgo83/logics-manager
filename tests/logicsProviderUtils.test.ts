@@ -87,11 +87,11 @@ describe("inspectLogicsBootstrapState", () => {
 
     const state = inspectLogicsBootstrapState(root);
 
-    expect(state.status).toBe("canonical");
+    expect(state.status).toBe("incomplete");
     expect(state.canBootstrap).toBe(true);
     expect(state.convergenceNeeded).toBe(true);
     expect(state.missingPaths).toContain("logics.yaml");
-    expect(state.actionTitle).toContain("Reconcile");
+    expect(state.actionTitle).toContain("Repair");
   });
 
   it("keeps canonical repos non-bootstrappable once repo-local bootstrap is converged", () => {
@@ -133,7 +133,7 @@ describe("inspectLogicsBootstrapState", () => {
 
     const state = inspectLogicsBootstrapState(root);
 
-    expect(state.status).toBe("canonical");
+    expect(state.status).toBe("incomplete");
     expect(state.canBootstrap).toBe(true);
     expect(state.convergenceNeeded).toBe(true);
     expect(state.missingPaths).toContain(".env");
@@ -242,10 +242,44 @@ describe("bootstrap state helpers", () => {
     expect(incomplete.actionTitle).toContain("Repair");
   });
 
-  it("flags non-canonical bootstrap setups when the submodule URL drifts", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-noncanonical-"));
+  it("ignores gitmodules drift once the repo-local bootstrap is converged", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-converged-"));
     roots.push(root);
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
+    for (const rel of [
+      "logics",
+      "logics/skills",
+      "logics/architecture",
+      "logics/product",
+      "logics/request",
+      "logics/backlog",
+      "logics/tasks",
+      "logics/specs",
+      "logics/external"
+    ]) {
+      fs.mkdirSync(path.join(root, rel), { recursive: true });
+    }
+    fs.writeFileSync(path.join(root, "AGENTS.md"), "# agents\n", "utf8");
+    fs.writeFileSync(path.join(root, "LOGICS.md"), "# logics\n", "utf8");
+    fs.writeFileSync(path.join(root, "logics", "instructions.md"), "# instructions\n", "utf8");
+    fs.writeFileSync(path.join(root, "logics.yaml"), "version: 1\n", "utf8");
+    fs.writeFileSync(
+      path.join(root, ".gitignore"),
+      [
+        ".env.local",
+        "logics/.cache/",
+        "logics/.cache/hybrid_assist_audit.jsonl",
+        "logics/.cache/hybrid_assist_measurements.jsonl",
+        "logics/hybrid_assist_audit.jsonl",
+        "logics/hybrid_assist_measurements.jsonl",
+        "logics/mutation_audit.jsonl"
+      ].join("\n") + "\n",
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(root, ".env.local"),
+      "OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=gm-test\n",
+      "utf8"
+    );
     fs.writeFileSync(
       path.join(root, ".gitmodules"),
       '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://example.com/other-kit.git\n',
@@ -254,9 +288,9 @@ describe("bootstrap state helpers", () => {
 
     const state = inspectLogicsBootstrapState(root);
 
-    expect(state.status).toBe("noncanonical");
+    expect(state.status).toBe("canonical");
     expect(state.canBootstrap).toBe(false);
-    expect(state.reason).toContain("non-canonical");
+    expect(state.reason).toBe("Repo-local Logics bootstrap is converged.");
   });
 });
 
@@ -334,7 +368,7 @@ describe("catalog helpers", () => {
   });
 
   it("exposes the runtime update command string", () => {
-    expect(buildLogicsKitUpdateCommand()).toContain("git submodule update");
+    expect(buildLogicsKitUpdateCommand()).toBe("python3 -m logics_manager bootstrap");
   });
 });
 

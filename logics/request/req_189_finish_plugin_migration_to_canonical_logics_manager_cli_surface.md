@@ -1,9 +1,9 @@
 ## req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface - Finish plugin migration to canonical logics-manager CLI surface
-> From version: 1.28.1
+> From version: 2.0.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 91%
+> Understanding: 99%
+> Confidence: 92%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -82,10 +82,10 @@ flowchart TD
   - contract/documentation cleanup still needs to make any retained aliases explicit and reviewable.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`
@@ -114,3 +114,10 @@ flowchart TD
 - `logics/backlog/item_346_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md`
 - `logics/backlog/item_347_remove_legacy_runtime_compatibility_surfaces_from_plugin_diagnostics_and_gating.md`
 - `logics/backlog/item_348_document_and_validate_the_canonical_plugin_to_cli_contract.md`
+
+# AC Traceability
+- AC1 -> Task: `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`. Proof: canonical operator-surface workflow actions route through the CLI contract.
+- AC2 -> Task: `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`. Proof: legacy runtime compatibility stops being treated as a normal operational contract.
+- AC3 -> Task: `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`. Proof: documentation, tests, and packaging signals consistently describe the thin-client runtime model.
+- AC4 -> Task: `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`. Proof: the plugin contract becomes one thin-client model instead of scattered partial changes.
+- AC5 -> Task: `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`. Proof: assistant-facing generated instructions and request-authoring defaults steer operators toward the canonical API.

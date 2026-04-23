@@ -10,8 +10,8 @@ from xml.sax.saxutils import escape
 
 ROOT = Path.cwd()
 EXTENSION_ROOT = "extension"
-EXTENSION_NAME = "cdx-logics-vscode"
-EXTENSION_ID = "cdx-logics-vscode"
+EXTENSION_NAME = "logics-manager"
+EXTENSION_ID = "cdx-logics.logics-manager"
 
 
 def add_file(archive: zipfile.ZipFile, source: Path, target: str) -> None:

@@ -102,7 +102,7 @@ describe("inspectLogicsEnvironment", () => {
     expect(snapshot.capabilities.hybridAssist?.summary).toContain("Hybrid assist runtime ready");
   });
 
-  it("detects both supported Claude bridge variants with a stable preference order", () => {
+  it("detects the canonical Claude bridge variant", () => {
     const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
     fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
@@ -111,31 +111,21 @@ describe("inspectLogicsEnvironment", () => {
     expect(status.available).toBe(false);
     expect(status.detectedVariants).toEqual([]);
 
-    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-flow.md"), "bridge\n", "utf8");
-    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "bridge\n", "utf8");
-    status = detectClaudeBridgeStatus(root);
-    expect(status.available).toBe(true);
-    expect(status.detectedVariants).toEqual(["flow-manager"]);
-
     fs.writeFileSync(path.join(root, ".claude", "commands", "logics-assist.md"), "bridge\n", "utf8");
     fs.writeFileSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"), "bridge\n", "utf8");
     status = detectClaudeBridgeStatus(root);
     expect(status.available).toBe(true);
-    expect(status.detectedVariants).toEqual(["hybrid-assist", "flow-manager"]);
+    expect(status.detectedVariants).toEqual(["hybrid-assist"]);
     expect(status.canonicalVariants).toEqual(["hybrid-assist"]);
   });
 
-  it("does not treat a compatibility-only Claude bridge as the canonical bridge runtime", async () => {
+  it("reports no Claude bridge when the canonical bridge files are absent", async () => {
     const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
-    fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
-    fs.mkdirSync(path.join(root, ".claude", "agents"), { recursive: true });
     fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
-    fs.writeFileSync(path.join(root, ".claude", "commands", "logics-flow.md"), "bridge\n", "utf8");
-    fs.writeFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "bridge\n", "utf8");
 
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,

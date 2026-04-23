@@ -261,7 +261,7 @@ describe("LogicsViewProvider", () => {
         command: "assist",
         kind: "claude-bridge-manifest",
         repo_root: root,
-        bridge_count: 5,
+        bridge_count: 4,
         bridges: [
           {
             id: "hybrid-assist",
@@ -271,15 +271,6 @@ describe("LogicsViewProvider", () => {
             prompt: "Use $logics-hybrid-delivery-assistant for commit-all, summaries, next-step, triage, handoff, or split-suggestion requests.",
             command_content: "# Logics Assist\n",
             agent_content: "# Logics Assist Agent\n"
-          },
-          {
-            id: "flow-manager",
-            title: "Logics Manager Workflow",
-            command_path: ".claude/commands/logics-flow.md",
-            agent_path: ".claude/agents/logics-flow-manager.md",
-            prompt: "Use the canonical `logics-manager` workflow surface for this repository: prefer `python3 -m logics_manager flow ...` for request/backlog/task work, and treat `$logics-flow-manager` only as a compatibility alias when a legacy assistant bridge still exposes it.",
-            command_content: "# Logics Manager Workflow\n",
-            agent_content: "# Logics Manager Workflow Agent\n"
           },
           {
             id: "request-draft",
@@ -461,7 +452,6 @@ describe("LogicsViewProvider", () => {
   });
 
   it("can publish the global runtime directly from environment diagnostics", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: false,
@@ -772,7 +762,7 @@ describe("LogicsViewProvider", () => {
         issues: [],
         warnings: [],
         sourceRepo: root,
-        publishedSkillNames: ["logics-flow-manager"]
+        publishedSkillNames: ["logics-hybrid-delivery-assistant"]
       },
       codexOverlay: {
         status: "healthy",
@@ -795,18 +785,11 @@ describe("LogicsViewProvider", () => {
 
   it("repairs missing Claude bridge files from Tools when the Logics runtime is already healthy", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents"), { recursive: true });
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "agents"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
     fs.writeFileSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "SKILL.md"), "# skill\n", "utf8");
     fs.writeFileSync(
       path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents", "openai.yaml"),
       "tier: core\ninterface:\n  default_prompt: \"Use $logics-hybrid-delivery-assistant for delivery work.\"\n",
-      "utf8"
-    );
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics-flow-manager", "SKILL.md"), "# skill\n", "utf8");
-    fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-flow-manager", "agents", "openai.yaml"),
-      "tier: core\ninterface:\n  default_prompt: \"Use $logics-flow-manager for workflow docs.\"\n",
       "utf8"
     );
     process.env.LOGICS_CLAUDE_GLOBAL_HOME = path.join(root, ".claude-global");
@@ -841,7 +824,7 @@ describe("LogicsViewProvider", () => {
           issues: [],
           warnings: [],
           sourceRepo: root,
-          publishedSkillNames: ["logics-flow-manager", "logics-hybrid-delivery-assistant"]
+          publishedSkillNames: ["logics-hybrid-delivery-assistant"]
         },
         codexOverlay: {
           status: "healthy",
@@ -855,7 +838,7 @@ describe("LogicsViewProvider", () => {
     await (provider as any).repairLogicsKitFromTools();
 
     expect(fs.existsSync(path.join(root, ".claude", "commands", "logics-assist.md"))).toBe(true);
-    expect(fs.existsSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"))).toBe(true);
+    expect(fs.existsSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"))).toBe(true);
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
       expect.stringContaining("Repair Logics runtime restored Claude bridge files:")
     );

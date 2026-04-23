@@ -46,7 +46,7 @@ describe("inspectRuntimeLaunchers", () => {
     });
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
-      detectedVariants: ["flow-manager"],
+      detectedVariants: ["hybrid-assist"],
       canonicalVariants: ["hybrid-assist"]
     });
   });

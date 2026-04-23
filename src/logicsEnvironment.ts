@@ -41,11 +41,6 @@ const CLAUDE_BRIDGE_VARIANTS = [
     id: "hybrid-assist",
     commandPath: [".claude", "commands", "logics-assist.md"],
     agentPath: [".claude", "agents", "logics-hybrid-delivery-assistant.md"]
-  },
-  {
-    id: "flow-manager",
-    commandPath: [".claude", "commands", "logics-flow.md"],
-    agentPath: [".claude", "agents", "logics-flow-manager.md"]
   }
 ] as const;
 

@@ -14,12 +14,9 @@ describe("inspectLogicsEnvironment", () => {
 
   it("distinguishes a partial bootstrap from a broken kit", async () => {
     const root = tracker.makeRoot();
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
-    fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
-      "#!/usr/bin/env python\n",
-      "utf8"
-    );
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
 
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
@@ -29,8 +26,8 @@ describe("inspectLogicsEnvironment", () => {
         summary: "Overlay missing.",
         issues: ["Workspace overlay is missing or not initialized."],
         warnings: [],
-        syncCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py sync",
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        syncCommand: "python -m logics_manager codex sync",
+        runCommand: "python -m logics_manager codex run -- codex"
       })
     });
 
@@ -43,15 +40,11 @@ describe("inspectLogicsEnvironment", () => {
 
   it("marks workflow mutation unavailable when python is missing even if the kit is present", async () => {
     const root = tracker.makeRoot();
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
-    fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
-      "#!/usr/bin/env python\n",
-      "utf8"
-    );
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
 
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
@@ -63,7 +56,7 @@ describe("inspectLogicsEnvironment", () => {
         warnings: [],
         workspaceId: "demo-workspace",
         codexHome: "/tmp/demo-overlay",
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        runCommand: "python -m logics_manager codex run -- codex"
       })
     });
 
@@ -75,15 +68,11 @@ describe("inspectLogicsEnvironment", () => {
 
   it("surfaces hybrid runtime readiness and capability state", async () => {
     const root = tracker.makeRoot();
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
-    fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
-      "#!/usr/bin/env python\n",
-      "utf8"
-    );
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
 
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
@@ -93,7 +82,7 @@ describe("inspectLogicsEnvironment", () => {
         summary: "Overlay ready.",
         issues: [],
         warnings: [],
-        runCommand: "python logics/skills/logics-flow-manager/scripts/logics_codex_workspace.py run -- codex"
+        runCommand: "python -m logics_manager codex run -- codex"
       }),
       inspectHybridRuntime: async () => ({
         state: "ready",
@@ -148,12 +137,8 @@ describe("branch-state transitions", () => {
 
   function makeReadyRoot(): string {
     const root = tracker.makeRoot();
-    fs.mkdirSync(path.join(root, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
-    fs.writeFileSync(
-      path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
-      "#!/usr/bin/env python\n",
-      "utf8"
-    );
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "backlog"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "tasks"), { recursive: true });
@@ -246,18 +231,8 @@ describe("branch-state transitions", () => {
       expect(missingFlowManager.capabilities.workflowMutation.status).toBe("available");
 
       const bootstrapRoot = tracker.makeRoot();
-      fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts"), { recursive: true });
-      fs.mkdirSync(path.join(bootstrapRoot, "logics", "skills", "logics-bootstrapper", "scripts"), { recursive: true });
-      fs.writeFileSync(
-        path.join(bootstrapRoot, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py"),
-        "#!/usr/bin/env python\n",
-        "utf8"
-      );
-      fs.writeFileSync(
-        path.join(bootstrapRoot, "logics", "skills", "logics-bootstrapper", "scripts", "logics_bootstrap.py"),
-        "#!/usr/bin/env python\n",
-        "utf8"
-      );
+      fs.mkdirSync(path.join(bootstrapRoot, "scripts"), { recursive: true });
+      fs.writeFileSync(path.join(bootstrapRoot, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "request"), { recursive: true });
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "backlog"), { recursive: true });
       fs.mkdirSync(path.join(bootstrapRoot, "logics", "tasks"), { recursive: true });

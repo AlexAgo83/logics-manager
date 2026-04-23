@@ -581,7 +581,7 @@ describe("LogicsViewProvider", () => {
       ["bootstrap"]
     );
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics runtime updated after environment diagnostics by running the bundled bootstrap. Review and commit the runtime source change in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
+      "Logics runtime updated after environment diagnostics by running the bundled bootstrap. Review and commit the bootstrap changes in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
     );
   });
 

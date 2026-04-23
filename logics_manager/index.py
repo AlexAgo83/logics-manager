@@ -112,7 +112,7 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
     counts = {key: len(entries) for key, (_, entries, _) in zip(SECTION_COUNT_KEYS, sections)}
     return {
         "ok": True,
-        "output_path": str(printable),
+        "output_path": printable.as_posix(),
         "counts": counts,
     }
 

@@ -47,7 +47,6 @@ import {
   detectDangerousGitignorePatterns,
   detectKitInstallType,
   findCreatedDocPathFromOutput,
-  getCompanionDocScriptPath,
   getFlowManagerScriptPath,
   hasLogicsSubmodule,
   isExistingDirectory,
@@ -179,32 +178,10 @@ describe("logicsProviderUtils extra coverage", () => {
     expect(fs.readFileSync(referencesDoc, "utf8")).toContain("`logics/request/req_001.md`");
 
     const flowManagerScript = path.join(root, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py");
-    const productScript = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-product-brief-writer",
-      "scripts",
-      "new_product_brief.py"
-    );
-    const architectureScript = path.join(
-      root,
-      "logics",
-      "skills",
-      "logics-architecture-decision-writer",
-      "scripts",
-      "new_adr.py"
-    );
     fs.mkdirSync(path.dirname(flowManagerScript), { recursive: true });
-    fs.mkdirSync(path.dirname(productScript), { recursive: true });
-    fs.mkdirSync(path.dirname(architectureScript), { recursive: true });
     fs.writeFileSync(flowManagerScript, "", "utf8");
-    fs.writeFileSync(productScript, "", "utf8");
-    fs.writeFileSync(architectureScript, "", "utf8");
 
     expect(getFlowManagerScriptPath(root)).toBe(flowManagerScript);
-    expect(getCompanionDocScriptPath(root, "product")).toBe(productScript);
-    expect(getCompanionDocScriptPath(root, "architecture")).toBe(architectureScript);
 
     mocks.runGitCommand.mockResolvedValue({ stdout: "git ok", stderr: "" });
     mocks.runPythonCommand.mockResolvedValue({ stdout: "python ok", stderr: "" });

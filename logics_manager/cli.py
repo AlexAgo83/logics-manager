@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         payload = bootstrap_payload(repo_root, check=parsed.check)
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
-    if args.command == "flow" and rest[:1] in (["new"], ["promote"], ["split"], ["close"], ["finish"]):
+    if args.command == "flow" and rest[:1] in (["new"], ["companion"], ["promote"], ["split"], ["close"], ["finish"]):
         from .flow import main as flow_main
 
         return flow_main(rest)

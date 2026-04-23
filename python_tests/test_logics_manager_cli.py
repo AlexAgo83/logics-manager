@@ -119,6 +119,7 @@ def test_main_dispatches_to_expected_underlying_script(
     monkeypatch.setattr(subprocess, "run", fake_run)
     if argv[:2] in (
         ["flow", "new"],
+        ["flow", "companion"],
         ["flow", "close"],
         ["flow", "finish"],
         ["sync", "close-eligible-requests"],
@@ -212,6 +213,9 @@ def test_main_dispatches_to_expected_underlying_script(
                 "complexity": "Medium",
             },
         )
+    if argv[:1] == ["audit"]:
+        monkeypatch.setattr("logics_manager.cli.audit_payload", lambda *args, **kwargs: {"ok": True})
+        monkeypatch.setattr("logics_manager.cli.render_audit", lambda *args, **kwargs: "{}")
 
     exit_code = main(argv)
 
@@ -493,6 +497,38 @@ def test_main_runs_native_flow_new_backlog_with_companions(
     assert len(list((repo_root / "logics" / "product").glob("prod_*.md"))) == 1
     assert len(list((repo_root / "logics" / "architecture").glob("adr_*.md"))) == 1
     assert "Created backlog:" in captured.out
+
+
+def test_main_runs_native_flow_companion_product(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "flow",
+            "companion",
+            "product",
+            "--title",
+            "Demo Product",
+            "--source-ref",
+            "req_001_demo",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    created = repo_root / "logics" / "product" / "prod_001_demo_product.md"
+    assert created.is_file()
+    content = created.read_text(encoding="utf-8")
+    assert "> Related request: `req_001_demo`" in content
+    assert "Created companion doc:" in captured.out
 
 
 def test_main_runs_native_flow_promote_request_to_backlog(

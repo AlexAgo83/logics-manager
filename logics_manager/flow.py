@@ -681,6 +681,33 @@ def _create_native_companion_docs(
     return created_product_refs, created_architecture_refs
 
 
+def _resolve_workflow_refs_for_companion(
+    source_ref: str | None,
+    *,
+    request_ref: str | None = None,
+    backlog_ref: str | None = None,
+    task_ref: str | None = None,
+) -> tuple[str | None, str | None, str | None]:
+    resolved_request = request_ref
+    resolved_backlog = backlog_ref
+    resolved_task = task_ref
+
+    if source_ref:
+        if source_ref.startswith(f"{DOC_KINDS['request'].prefix}_"):
+            resolved_request = source_ref
+        elif source_ref.startswith(f"{DOC_KINDS['backlog'].prefix}_"):
+            resolved_backlog = source_ref
+        elif source_ref.startswith(f"{DOC_KINDS['task'].prefix}_"):
+            resolved_task = source_ref
+        else:
+            raise SystemExit(
+                "Unsupported --source-ref value. Expected a request, backlog, or task ref such as "
+                "`req_001_demo`, `item_001_demo`, or `task_001_demo`."
+            )
+
+    return resolved_request, resolved_backlog, resolved_task
+
+
 def _build_native_backlog_from_request(
     repo_root: Path,
     request_path: Path,
@@ -860,6 +887,19 @@ def build_parser() -> argparse.ArgumentParser:
         _add_common_doc_args(kind_parser, kind)
         kind_parser.set_defaults(func=cmd_new)
 
+    companion_parser = sub.add_parser("companion", help="Create a companion doc from the integrated runtime.")
+    companion_sub = companion_parser.add_subparsers(dest="kind", required=True)
+    for kind in ("product", "architecture"):
+        kind_parser = companion_sub.add_parser(kind, help=f"Create a {kind} companion doc.")
+        kind_parser.add_argument("--title", required=True)
+        kind_parser.add_argument("--source-ref")
+        kind_parser.add_argument("--request-ref")
+        kind_parser.add_argument("--backlog-ref")
+        kind_parser.add_argument("--task-ref")
+        kind_parser.add_argument("--format", choices=("text", "json"), default="text")
+        kind_parser.add_argument("--dry-run", action="store_true")
+        kind_parser.set_defaults(func=cmd_companion)
+
     promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
     promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
 
@@ -981,6 +1021,62 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         print(preview)
 
     print(f"Created {doc_kind.kind}: {payload['path']}")
+    return payload
+
+
+def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    request_ref, backlog_ref, task_ref = _resolve_workflow_refs_for_companion(
+        getattr(args, "source_ref", None),
+        request_ref=getattr(args, "request_ref", None),
+        backlog_ref=getattr(args, "backlog_ref", None),
+        task_ref=getattr(args, "task_ref", None),
+    )
+
+    if args.kind == "product":
+        ref, content = _build_native_product_brief(
+            repo_root,
+            args.title,
+            request_ref=request_ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+        )
+        planned_path = repo_root / "logics" / "product" / f"{ref}.md"
+    elif args.kind == "architecture":
+        ref, content = _build_native_adr(
+            repo_root,
+            args.title,
+            request_ref=request_ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+        )
+        planned_path = repo_root / "logics" / "architecture" / f"{ref}.md"
+    else:
+        raise SystemExit(f"Unsupported companion kind `{args.kind}`.")
+
+    if not args.dry_run:
+        planned_path.parent.mkdir(parents=True, exist_ok=True)
+        planned_path.write_text(content, encoding="utf-8")
+        print(f"Wrote {planned_path}")
+    else:
+        preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+        print(f"[dry-run] would write: {planned_path}")
+        print(preview)
+
+    payload = {
+        "command": "companion",
+        "kind": args.kind,
+        "ref": ref,
+        "path": planned_path.relative_to(repo_root).as_posix(),
+        "request_ref": request_ref,
+        "backlog_ref": backlog_ref,
+        "task_ref": task_ref,
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Created companion doc: {payload['path']}")
     return payload
 
 
@@ -1347,7 +1443,7 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 def main(argv: list[str]) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "companion", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

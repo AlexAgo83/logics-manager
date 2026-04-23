@@ -742,7 +742,7 @@ describe("webview harness core behaviors", () => {
       stage: "task",
       updatedAt: "2024-03-01T00:00:00.000Z",
       indicators: {
-        Status: "Done"
+        Status: "In Progress"
       }
     };
     const { dom } = bootstrapWebview({ harness: true });
@@ -762,11 +762,44 @@ describe("webview harness core behaviors", () => {
     expect(activityPanel?.hidden).toBe(false);
     expect(board?.hidden).toBe(true);
     expect(entries[0]?.textContent).toContain("Recent activity");
-    expect(entries[0]?.textContent).toContain("Marked done");
+    expect(entries[0]?.textContent).toContain("Updated");
     expect(entries[1]?.textContent).toContain("Older activity");
 
     entries[0]?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("task_001_recent_activity");
+  });
+
+  it("hides closed items from recent activity when hide completed is active", () => {
+    const visibleItem = {
+      ...baseItem,
+      id: "req_010_activity_visible",
+      title: "Visible activity",
+      updatedAt: "2024-03-02T00:00:00.000Z"
+    };
+    const hiddenClosedItem = {
+      ...baseItem,
+      id: "task_010_activity_obsolete",
+      title: "Obsolete activity",
+      stage: "task",
+      updatedAt: "2024-04-01T00:00:00.000Z",
+      indicators: {
+        Status: "Obsolete",
+        Progress: "35%"
+      }
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [visibleItem, hiddenClosedItem]
+    });
+
+    const document = dom.window.document;
+    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
+    const entryIds = entries.map((entry) => entry.getAttribute("data-id"));
+    expect(entryIds).toContain("req_010_activity_visible");
+    expect(entryIds).not.toContain("task_010_activity_obsolete");
   });
 
   it("shows more precise Updated values for recently changed cards", () => {

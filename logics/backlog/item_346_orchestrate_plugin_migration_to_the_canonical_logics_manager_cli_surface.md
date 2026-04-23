@@ -1,10 +1,10 @@
 ## item_346_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
-> From version: 1.28.0
+> From version: 1.28.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 96%
-> Confidence: 89%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 91%
+> Progress: 20%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -16,7 +16,8 @@
 - In:
   - sequence the implementation slices in a coherent order;
   - keep the linked request, backlog items, and validation evidence synchronized during delivery;
-  - close the migration through one orchestration task that tracks cross-slice risks and final contract alignment.
+  - close the migration through one orchestration task that tracks cross-slice risks and final contract alignment;
+  - keep the assistant-surface audit findings synchronized with the plugin/runtime implementation waves.
 - Out:
   - replacing the implementation work owned by the linked sibling backlog items.
 
@@ -64,3 +65,7 @@ flowchart TD
 
 # Notes
 - This item exists to keep the migration from degenerating into unrelated cleanups with no clear finish line.
+- Audit note: the migration finish line is broader than plugin action routing alone; it also includes generated instructions, bridge prompts, and request-authoring defaults that still present a partly historical assistant contract.
+- Delivery note: the remaining orchestration work should explicitly track two states in parallel:
+  - code-path convergence onto canonical `logics-manager` entrypoints;
+  - assistant-surface convergence so generated instructions, bridge labels, and agent defaults all teach the same product contract.

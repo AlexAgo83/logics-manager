@@ -1,10 +1,10 @@
 ## item_345_route_plugin_workflow_actions_through_canonical_logics_manager_entrypoints - Route plugin workflow actions through canonical logics-manager entrypoints
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 96%
-> Confidence: 88%
-> Progress: 0%
+> Status: In progress
+> Understanding: 98%
+> Confidence: 90%
+> Progress: 55%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -16,7 +16,8 @@
 - In:
   - inventory the plugin-triggered workflow actions that should belong to the canonical CLI contract;
   - move those actions to `logics-manager` subcommands or an explicit canonical wrapper over the integrated runtime;
-  - update tests so the plugin contract checks CLI-facing behavior rather than internal script layout.
+  - update tests so the plugin contract checks CLI-facing behavior rather than internal script layout;
+  - include assistant-triggered workflow entrypoints exposed through the plugin when they still bypass the canonical runtime contract.
 - Out:
   - legacy diagnostics and migration messaging not directly tied to workflow action routing;
   - unrelated UI changes.
@@ -64,3 +65,6 @@ flowchart TD
 
 # Notes
 - This slice covers the operator path that most directly affects whether the plugin is truly a thin client over the integrated runtime.
+- Closure note: companion-doc creation is now routed through `logics-manager flow companion`, so part of this slice is already delivered.
+- Audit note: request-authoring still prefers the historical `$logics-flow-manager` agent id in `src/logicsViewProviderSupport.ts`, so assistant-triggered workflow entrypoints are not yet fully converged on the canonical CLI naming/contract.
+- Remaining proof target: close the gap between plugin-triggered CLI routing and assistant-triggered workflow routing so the extension does not advertise one naming contract in its agent layer and a different one in its runtime commands.

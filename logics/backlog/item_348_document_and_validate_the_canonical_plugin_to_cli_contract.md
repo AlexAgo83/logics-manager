@@ -1,22 +1,24 @@
 ## item_348_document_and_validate_the_canonical_plugin_to_cli_contract - Document and validate the canonical plugin to CLI contract
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95%
-> Confidence: 87%
-> Progress: 0%
+> Status: In progress
+> Understanding: 97%
+> Confidence: 89%
+> Progress: 30%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 
 # Problem
 - Even after code migration, the product remains ambiguous unless tests, packaging signals, and operator-facing wording consistently describe the plugin as a thin client over the canonical `logics-manager` contract.
+- The assistant-surface audit shows that this ambiguity still exists today: `logics/instructions.md` is already canonical, but generated Claude bridges, fallback prompts, request-authoring defaults, and several tests still present `flow-manager` as the visible workflow label.
 
 # Scope
 - In:
   - document the supported plugin-to-CLI contract where the product currently communicates runtime behavior;
   - align tests and packaging-facing signals with the canonical integrated-runtime model;
-  - make any residual exceptions explicit and reviewable.
+  - make any residual exceptions explicit and reviewable;
+  - include assistant-facing generated instructions, bridge prompts, and request-authoring defaults in that contract evidence.
 - Out:
   - deep runtime refactors that belong to the workflow-routing or diagnostics cleanup slices.
 
@@ -34,6 +36,7 @@ flowchart TD
 - AC1: User-visible documentation and packaging-facing signals describe the plugin as a thin client over the integrated `logics-manager` runtime.
 - AC2: Tests validate the canonical plugin-to-CLI contract and any intentional exceptions.
 - AC3: The resulting contract is reviewable without reading private runtime implementation details.
+- AC4: Assistant-facing generated artifacts clearly distinguish canonical `logics-manager` usage from any retained compatibility naming such as `flow-manager`.
 
 # AC Traceability
 - Request AC3 -> This backlog slice. Proof: remaining exceptions are documented rather than implicit.
@@ -63,3 +66,8 @@ flowchart TD
 
 # Notes
 - This slice is where the migration becomes explicit and durable instead of only being inferred from implementation details.
+- Audit note: generated assistant instructions are already mostly aligned, so the remaining work is to close the mismatch between those instructions and the visible bridge/prompt labels that still advertise `$logics-flow-manager`.
+- Validation note: the audit gives a clean contrast set for this slice:
+  - canonical evidence already exists in `logics/instructions.md` and the generated Claude instructions;
+  - residual mismatch still exists in bridge IDs, fallback prompts, request-authoring defaults, and wording such as the `README.md` reference to the "flow-manager guarded finish command".
+- Remaining proof target: after this slice, a reviewer should be able to inspect docs/tests/generated artifacts and see one explicit canonical contract, plus any intentionally retained aliasing called out as compatibility only.

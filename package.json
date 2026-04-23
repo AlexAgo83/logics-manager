@@ -1,5 +1,5 @@
 {
-  "name": "@grifhinz/logics-manager",
+  "name": "logics-manager",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
   "version": "2.0.1",

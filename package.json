@@ -7,7 +7,7 @@
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AlexAgo83/logics-manager.git"
+    "url": "git+https://github.com/AlexAgo83/logics-manager.git"
   },
   "engines": {
     "vscode": "^1.86.0"
@@ -19,6 +19,9 @@
   "bin": {
     "logics-manager": "./scripts/npm/logics-manager.mjs"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "README.md",
     "LICENSE",
@@ -26,7 +29,8 @@
     "pyproject.toml",
     "scripts/logics-manager.py",
     "scripts/npm/",
-    "logics_manager/"
+    "logics_manager/*.py",
+    "logics_manager/**/*.py"
   ],
   "contributes": {
     "viewsContainers": {
@@ -136,6 +140,7 @@
     "package:ci": "node scripts/build/package-ci.mjs",
     "package": "npm run compile && node scripts/build/package-release.mjs",
     "install:vsix": "npm run package && node scripts/build/install-vsix.mjs",
+    "publish:npm": "node scripts/release/publish-npm.mjs",
     "release:changelog:resolve": "node scripts/release/resolve-release-changelog.mjs --validate-current",
     "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current --require-curated"
   },

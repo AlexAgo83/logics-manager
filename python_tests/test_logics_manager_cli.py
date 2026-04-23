@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from importlib import metadata as importlib_metadata
 import os
 import subprocess
 import sys
@@ -96,6 +97,7 @@ def test_main_renders_the_canonical_claude_instructions_manifest(capsys: pytest.
         (["assist", "backlog-groom", "req_001_demo"], None, None),
         (["assist", "closure-summary"], None, None),
         (["assist", "context", "request-draft"], None, None),
+        (["self-update", "--dry-run"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -212,6 +214,12 @@ def test_main_dispatches_to_expected_underlying_script(
                 "complexity": "Medium",
             },
         )
+    if argv[:1] == ["self-update"]:
+        monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
+        monkeypatch.setattr(
+            "logics_manager.cli.metadata.version",
+            lambda _name: (_ for _ in ()).throw(importlib_metadata.PackageNotFoundError()),
+        )
     if argv[:1] == ["audit"]:
         monkeypatch.setattr("logics_manager.cli.audit_payload", lambda *args, **kwargs: {"ok": True})
         monkeypatch.setattr("logics_manager.cli.render_audit", lambda *args, **kwargs: "{}")
@@ -227,6 +235,59 @@ def test_main_dispatches_to_expected_underlying_script(
     assert command[0] == sys.executable
     assert str(command[1]).endswith(expected_script_suffix)
     assert command[2:] == expected_args
+    assert recorded["check"] is False
+
+
+def test_main_runs_self_update_with_npm(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: (_ for _ in ()).throw(importlib_metadata.PackageNotFoundError()),
+    )
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Updated @grifhinz/logics-manager via npm." in captured.out
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["check"] is False
+
+
+def test_main_runs_self_update_with_pip(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: "2.0.3",
+    )
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update", "--manager", "pip"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Updated logics-manager via pip." in captured.out
+    assert recorded["command"] == [sys.executable, "-m", "pip", "install", "--upgrade", "logics-manager"]
     assert recorded["check"] is False
 
 

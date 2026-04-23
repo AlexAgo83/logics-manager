@@ -35,6 +35,9 @@ Install the npm package with:
 npm install -g @grifhinz/logics-manager
 ```
 
+To update that CLI later, run `logics-manager self-update`.
+The command uses `pip` when the Python package is installed and falls back to `npm` for the global npm package.
+
 For the editor client, build and install the VSIX:
 
 ```bash

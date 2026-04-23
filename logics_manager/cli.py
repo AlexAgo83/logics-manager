@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 from importlib import metadata
+import subprocess
 import sys
+from shutil import which
 from pathlib import Path
 from textwrap import dedent
 
@@ -14,6 +16,10 @@ from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .lint import lint_payload, render_lint
 from .doctor import render_doctor
+
+
+DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
+DEFAULT_SELF_UPDATE_PACKAGE = "@grifhinz/logics-manager"
 
 
 def get_cli_version() -> str:
@@ -52,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("bootstrap", "flow", "sync", "assist", "audit", "index", "lint", "config", "doctor"),
+        choices=("bootstrap", "flow", "sync", "assist", "audit", "index", "lint", "config", "doctor", "self-update"),
     )
     parser.add_argument("rest", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv[:1])
@@ -100,6 +106,41 @@ def main(argv: list[str] | None = None) -> int:
         payload = bootstrap_payload(repo_root, check=parsed.check)
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
+    if args.command == "self-update":
+        parser = argparse.ArgumentParser(prog="logics-manager self-update", add_help=False)
+        parser.add_argument("--manager", choices=("auto", "pip", "npm"), default="auto")
+        parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
+        parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
+        parser.add_argument("--dry-run", action="store_true")
+        parsed, _unknown = parser.parse_known_args(rest)
+
+        manager = parsed.manager
+        if manager == "auto":
+            try:
+                metadata.version(parsed.python_package)
+            except metadata.PackageNotFoundError:
+                manager = "npm" if which("npm") else "pip"
+            else:
+                manager = "pip"
+
+        if manager == "pip":
+            command = [sys.executable, "-m", "pip", "install", "--upgrade", parsed.python_package]
+        else:
+            npm = which("npm")
+            if not npm:
+                print("npm was not found on PATH. Install Node.js/npm or update the package manually.")
+                return 1
+            command = [npm, "install", "-g", f"{parsed.package}@latest"]
+
+        if parsed.dry_run:
+            print("Dry run: " + " ".join(command))
+            return 0
+
+        result = subprocess.run(command, check=False)
+        if result.returncode == 0:
+            target = parsed.python_package if manager == "pip" else parsed.package
+            print(f"Updated {target} via {manager}.")
+        return result.returncode
     if args.command == "flow" and rest[:1] in (["new"], ["companion"], ["promote"], ["split"], ["close"], ["finish"]):
         from .flow import main as flow_main
 

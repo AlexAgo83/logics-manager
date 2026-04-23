@@ -1,7 +1,7 @@
-# cdx-logics-vscode
+# logics-manager
 
-[![CI](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/cdx-logics-vscode/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/AlexAgo83/cdx-logics-vscode)](LICENSE)
+[![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
 ![Version](https://img.shields.io/badge/version-v1.28.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
@@ -9,7 +9,7 @@
 
 Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code.
 
-`cdx-logics-vscode` gives you a visual orchestration layer for the Logics workflow
+`logics-manager` gives you a visual orchestration layer for the Logics workflow
 (`requests -> backlog -> tasks -> specs`) without moving the source of truth out of the repository.
 
 This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
@@ -154,12 +154,12 @@ Windows notes:
 
 ### Install from Marketplace
 
-https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
+https://marketplace.visualstudio.com/items?itemName=cdx-logics.logics-manager
 
 ### Install from VSIX (recommended for users)
 
 ```bash
-code --install-extension cdx-logics-vscode-<version>.vsix --force
+code --install-extension logics-manager-<version>.vsix --force
 ```
 
 If you don't have the `code` CLI on PATH:
@@ -203,7 +203,7 @@ npm run release:changelog:validate
 npm run package
 ```
 
-This creates `cdx-logics-vscode-<version>.vsix` in the repo root.
+This creates `logics-manager-<version>.vsix` in the repo root.
 
 5. Smoke-test the package locally:
 

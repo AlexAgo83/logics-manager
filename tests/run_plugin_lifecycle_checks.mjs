@@ -21,7 +21,7 @@ import path from "node:path";
 import { execFileSync, execSync } from "node:child_process";
 
 const root = process.cwd();
-const extensionId = "cdx-logics.cdx-logics-vscode";
+const extensionId = "cdx-logics.logics-manager";
 const codeCommand = process.platform === "win32" ? "code.cmd" : "code";
 
 // ── Gate checks ──────────────────────────────────────────────────────────────

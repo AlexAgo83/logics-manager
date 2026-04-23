@@ -32,7 +32,7 @@ export {
   shouldRecommendCheckEnvironment,
   writeEnvironmentDiagnosticReport
 } from "./logicsViewProviderEnvironment";
-const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
+const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
 type LogicsViewProviderSupportHost = {
   [key: string]: any;
 };

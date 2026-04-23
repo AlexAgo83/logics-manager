@@ -21,7 +21,7 @@ if (!/deactivate:\s*\(\)\s*=>\s*deactivate/.test(compiledBundle) || !/module\.ex
   throw new Error("Compiled extension bundle does not expose a deactivate() export.");
 }
 
-const vsixPath = path.join(os.tmpdir(), `cdx-logics-vscode-smoke-${Date.now()}.vsix`);
+const vsixPath = path.join(os.tmpdir(), `logics-manager-smoke-${Date.now()}.vsix`);
 runVscePackage(vsixPath, "ignore");
 
 const entries = await listZipEntries(vsixPath);

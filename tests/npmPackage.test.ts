@@ -46,7 +46,7 @@ describe("npm package surface", () => {
         env: { ...process.env, npm_config_cache: cacheDir }
       });
 
-      const wrapperPath = path.join(tempRoot, "node_modules", "cdx-logics-vscode", "scripts", "npm", "logics-manager.mjs");
+      const wrapperPath = path.join(tempRoot, "node_modules", "logics-manager", "scripts", "npm", "logics-manager.mjs");
       const output = execFileSync("node", [wrapperPath, "--help"], {
         cwd: tempRoot,
         encoding: "utf8",

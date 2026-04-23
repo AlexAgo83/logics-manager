@@ -1,9 +1,9 @@
 ## item_347_remove_legacy_runtime_compatibility_surfaces_from_plugin_diagnostics_and_gating - Remove legacy runtime compatibility surfaces from plugin diagnostics and gating
-> From version: 1.28.0
+> From version: 1.28.1
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 98%
-> Confidence: 90%
+> Status: Done
+> Understanding: 99%
+> Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
@@ -80,3 +80,4 @@ flowchart TD
 - 2026-04-23 fixture note: the main extension/runtime test fixtures now match the reduced production snapshot contract instead of carrying dead `skills` / `flow-manager-script` booleans forward by inertia.
 - 2026-04-23 cleanup note: the dead `getFlowManagerScriptPath` helper has been removed, and canonical-Claude health fixtures no longer advertise `logics-flow-manager` as the default healthy publication shape.
 - 2026-04-23 closure note: the explicit `flow-manager` bridge compatibility surface has been removed from production code and test coverage; diagnostics and runtime gating now model only the canonical bridge/runtime path.
+- - Task `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface` was finished via `logics-manager flow finish task` on 2026-04-23.

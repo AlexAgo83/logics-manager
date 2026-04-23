@@ -1,9 +1,9 @@
 ## item_348_document_and_validate_the_canonical_plugin_to_cli_contract - Document and validate the canonical plugin to CLI contract
-> From version: 1.28.0
+> From version: 1.28.1
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 97%
-> Confidence: 89%
+> Status: Done
+> Understanding: 98%
+> Confidence: 91%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
@@ -80,3 +80,4 @@ flowchart TD
 - 2026-04-23 validation note: the major plugin/runtime fixtures now mirror the reduced production snapshot contract, so reviewers no longer need to mentally discount dead bridge/runtime fields that only existed in tests.
 - 2026-04-23 validation note: dead legacy helper coverage was removed and healthy-Claude fixture coverage now points to the canonical assistant publication instead of the historical `flow-manager` shape.
 - 2026-04-23 closure note: generated assistant bridges, runtime snapshots, guided request prompts, and test evidence now expose one explicit canonical contract only: `logics-manager` for workflow commands and `logics-hybrid-delivery-assistant` for assistant-facing bridge prompts.
+- - Task `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface` was finished via `logics-manager flow finish task` on 2026-04-23.

@@ -1,10 +1,10 @@
 ## item_346_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
 > From version: 1.28.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 45%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -70,3 +70,4 @@ flowchart TD
   - code-path convergence onto canonical `logics-manager` entrypoints;
   - assistant-surface convergence so generated instructions, bridge labels, and agent defaults all teach the same product contract.
 - 2026-04-23 checkpoint: bridge prompts, guided request prompts, and request-authoring agent preference now converge on canonical `logics-manager` wording while retaining the `flow-manager` bridge id as an explicit compatibility surface.
+- - Task `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface` was finished via `logics-manager flow finish task` on 2026-04-23.

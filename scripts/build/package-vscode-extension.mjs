@@ -4,7 +4,6 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const EXTENSION_NAME = "cdx-logics-vscode";
-const NPX_COMMAND = process.platform === "win32" ? "npx.cmd" : "npx";
 
 export function packageVsix(outputPath) {
   const root = process.cwd();
@@ -43,13 +42,21 @@ export function packageVsix(outputPath) {
       path.join(stageDir, "scripts", "logics-manager.py"),
     );
 
-    execFileSync(NPX_COMMAND, ["@vscode/vsce", "package", "--out", outputPath], {
+    execFileSync(resolveVsceCommand(root), ["package", "--out", outputPath], {
       cwd: stageDir,
       stdio: "inherit",
     });
   } finally {
     fs.rmSync(stageDir, { recursive: true, force: true });
   }
+}
+
+function resolveVsceCommand(root) {
+  const commandPath = path.join(root, "node_modules", ".bin", process.platform === "win32" ? "vsce.cmd" : "vsce");
+  if (!fs.existsSync(commandPath)) {
+    throw new Error(`Missing local VSCE CLI at ${commandPath}. Run npm install before packaging the extension.`);
+  }
+  return commandPath;
 }
 
 function copyTree(sourceDir, targetDir) {

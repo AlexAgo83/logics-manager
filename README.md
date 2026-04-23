@@ -32,7 +32,7 @@ The repository also exposes a `logics-manager` npm bin when installed through np
 Install the npm package with:
 
 ```bash
-npm install -g @grifhinz/logics-manager
+npm install -g logics-manager
 ```
 
 For the editor client, build and install the VSIX:

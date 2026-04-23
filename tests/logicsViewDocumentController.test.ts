@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
   showInputBox: vi.fn(),
   getCreateConfig: vi.fn(),
   getCanonicalLogicsManagerScriptPath: vi.fn(),
-  getCanonicalCompanionDocScriptPath: vi.fn(),
   openCreatedDocFromOutput: vi.fn(),
   runPython: vi.fn(),
   runPythonWithOutput: vi.fn()
@@ -41,9 +40,7 @@ vi.mock("vscode", () => ({
 vi.mock("../src/logicsProviderUtils", () => ({
   addLinkToSectionOnDisk: vi.fn(),
   findCreatedDocPathFromOutput: vi.fn(),
-  getCanonicalCompanionDocScriptPath: mocks.getCanonicalCompanionDocScriptPath,
   getCanonicalLogicsManagerScriptPath: mocks.getCanonicalLogicsManagerScriptPath,
-  getCompanionDocScriptPath: vi.fn(),
   getCreateConfig: mocks.getCreateConfig,
   normalizeRelationPath: vi.fn(),
   openCreatedDocFromOutput: mocks.openCreatedDocFromOutput,
@@ -68,7 +65,6 @@ describe("LogicsViewDocumentController", () => {
     mocks.showInputBox.mockReset();
     mocks.getCreateConfig.mockReset();
     mocks.getCanonicalLogicsManagerScriptPath.mockReset();
-    mocks.getCanonicalCompanionDocScriptPath.mockReset();
     mocks.openCreatedDocFromOutput.mockReset();
     mocks.runPython.mockReset();
     mocks.runPythonWithOutput.mockReset();
@@ -77,11 +73,6 @@ describe("LogicsViewDocumentController", () => {
     mocks.getCreateConfig.mockReturnValue({ dir: "logics/backlog", prefix: "item_", label: "backlog item" });
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "Wrote /tmp/demo.md", stderr: "" });
     mocks.getCanonicalLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
-    mocks.getCanonicalCompanionDocScriptPath.mockImplementation((extensionPath: string, kind: "product" | "architecture") =>
-      kind === "product"
-        ? path.join(extensionPath, "logics", "skills", "logics-product-brief-writer", "scripts", "new_product_brief.py")
-        : path.join(extensionPath, "logics", "skills", "logics-architecture-decision-writer", "scripts", "new_adr.py")
-    );
   });
 
   afterEach(() => {
@@ -440,7 +431,7 @@ describe("LogicsViewDocumentController", () => {
     await controller.promoteItem("missing-item");
   });
 
-  it("covers companion doc selection and script gating branches", async () => {
+  it("covers companion doc selection and CLI routing branches", async () => {
     const refresh = vi.fn(async () => {});
     const controllerWithoutItems = new LogicsViewDocumentController({
       context: { extensionPath: root } as never,
@@ -473,6 +464,9 @@ describe("LogicsViewDocumentController", () => {
     };
     fs.mkdirSync(path.dirname(companionItem.path), { recursive: true });
     fs.writeFileSync(companionItem.path, "# Example request\n", "utf8");
+    const runtimePath = path.join(root, "scripts", "logics-manager.py");
+    fs.mkdirSync(path.dirname(runtimePath), { recursive: true });
+    fs.writeFileSync(runtimePath, "#!/usr/bin/env python3\n", "utf8");
 
     const controller = new LogicsViewDocumentController({
       context: { extensionPath: root } as never,
@@ -491,8 +485,10 @@ describe("LogicsViewDocumentController", () => {
     });
 
     await controller.createCompanionDoc("req_900_example", "product");
-    expect(mocks.showErrorMessage.mock.calls.at(-1)?.[0]).toContain(
-      "Companion doc creation is blocked because the product brief script is missing from the bundled runtime"
+    expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
+      root,
+      runtimePath,
+      ["flow", "companion", "product", "--title", "Demo item", "--source-ref", "req_900_example"]
     );
   });
 });

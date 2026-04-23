@@ -676,37 +676,6 @@ export function getCanonicalLogicsManagerScriptPath(extensionPath: string): stri
   return path.join(extensionPath, "scripts", "logics-manager.py");
 }
 
-export function getCompanionDocScriptPath(root: string, kind: "product" | "architecture"): string | null {
-  const scriptPath =
-    kind === "product"
-      ? path.join(
-          root,
-          "logics",
-          "skills",
-          "logics-product-brief-writer",
-          "scripts",
-          "new_product_brief.py"
-        )
-      : path.join(
-          root,
-          "logics",
-          "skills",
-          "logics-architecture-decision-writer",
-          "scripts",
-          "new_adr.py"
-        );
-  return fs.existsSync(scriptPath) ? scriptPath : null;
-}
-
-export function getCanonicalCompanionDocScriptPath(
-  extensionPath: string,
-  kind: "product" | "architecture"
-): string {
-  return kind === "product"
-    ? path.join(extensionPath, "logics", "skills", "logics-product-brief-writer", "scripts", "new_product_brief.py")
-    : path.join(extensionPath, "logics", "skills", "logics-architecture-decision-writer", "scripts", "new_adr.py");
-}
-
 export function getBundledLogicsManagerScriptPath(): string {
   return path.join(__dirname, "..", "scripts", "logics-manager.py");
 }

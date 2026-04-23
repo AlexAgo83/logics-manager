@@ -9,7 +9,6 @@ import { canPromote, isRequestProcessed, LogicsItem, promotionCommand } from "./
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import {
   addLinkToSectionOnDisk,
-  getCanonicalCompanionDocScriptPath,
   getCanonicalLogicsManagerScriptPath,
   findCreatedDocPathFromOutput,
   getCreateConfig,
@@ -204,16 +203,20 @@ export class LogicsViewDocumentController {
       return;
     }
 
-    const scriptPath = getCanonicalCompanionDocScriptPath(this.options.context.extensionPath, kindPick.value);
-    if (!fs.existsSync(scriptPath)) {
-      void vscode.window.showErrorMessage(
-        `Companion doc creation is blocked because the ${kindPick.label.toLowerCase()} script is missing from the bundled runtime. Repair or reinstall the extension runtime. ${this.buildRecoveryGuidance()}`
-      );
+    const scriptPath = await this.ensureWorkflowActionReady(root, `${kindPick.label} creation`);
+    if (!scriptPath) {
       return;
     }
 
-    const outDir = kindPick.value === "product" ? "logics/product" : "logics/architecture";
-    const result = await runPythonWithOutput(root, scriptPath, ["--title", title, "--out-dir", outDir]);
+    const result = await runPythonWithOutput(root, scriptPath, [
+      "flow",
+      "companion",
+      kindPick.value,
+      "--title",
+      title,
+      "--source-ref",
+      sourceItem.id
+    ]);
     if (result.error) {
       void vscode.window.showErrorMessage(this.buildScriptActionErrorMessage(`${kindPick.label} creation`, result));
       return;

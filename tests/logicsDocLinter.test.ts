@@ -75,11 +75,22 @@ function initRepoWithRequestDoc(markedMaintenance = false) {
 }
 
 function runLinter(root: string) {
-  return spawnSync("python3", [path.join(process.cwd(), "scripts", "logics-manager.py"), "lint", "--require-status", "--format", "json"], {
-    cwd: root,
-    encoding: "utf8",
-    env: process.env
-  });
+  return spawnSync(
+    process.execPath,
+    [
+      path.join(process.cwd(), "scripts", "run-python.mjs"),
+      path.join(process.cwd(), "scripts", "logics-manager.py"),
+      "lint",
+      "--require-status",
+      "--format",
+      "json"
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+      env: process.env
+    }
+  );
 }
 
 afterEach(() => {

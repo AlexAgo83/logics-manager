@@ -10,8 +10,8 @@ from xml.sax.saxutils import escape
 
 ROOT = Path.cwd()
 EXTENSION_ROOT = "extension"
-EXTENSION_NAME = "logics-manager"
-EXTENSION_ID = "cdx-logics.logics-manager"
+EXTENSION_NAME = "cdx-logics-vscode"
+EXTENSION_ID = "cdx-logics.cdx-logics-vscode"
 
 
 def add_file(archive: zipfile.ZipFile, source: Path, target: str) -> None:
@@ -80,6 +80,7 @@ def build_vsix(output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     package_json = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
     package_json["name"] = EXTENSION_NAME
+    package_json["public"] = True
     with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", build_content_types_xml())
         archive.writestr("extension.vsixmanifest", build_vsix_manifest(package_json))

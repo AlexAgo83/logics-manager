@@ -98,9 +98,13 @@ function runStep(label, command, args) {
   console.log(`\n==> ${label}`);
   const result = spawnSync(command, args, {
     cwd: repoRoot,
-    stdio: "inherit"
+    stdio: "inherit",
+    shell: process.platform === "win32" && command.startsWith("npm")
   });
   if (result.status !== 0) {
+    if (result.error) {
+      console.error(result.error);
+    }
     process.exit(result.status ?? 1);
   }
 }

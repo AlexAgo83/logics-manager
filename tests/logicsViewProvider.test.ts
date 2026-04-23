@@ -289,13 +289,13 @@ describe("LogicsViewProvider", () => {
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
-      reason: "No broad .gitignore pattern covering the runtime source was detected."
+      reason: "No broad .gitignore pattern covering repo-local Logics runtime paths was detected."
     });
     mocks.detectKitInstallType.mockReturnValue("submodule");
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Canonical cdx-logics-kit submodule detected."
+      reason: "Legacy repo-local Logics runtime checkout detected."
     });
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
@@ -417,7 +417,7 @@ describe("LogicsViewProvider", () => {
       canBootstrap: true,
       actionTitle: "Bootstrap or repair Logics in this project",
       promptMessage: "Logics bootstrap is incomplete. Bootstrap or repair Logics by provisioning the local runtime?",
-      reason: "The repository has logics/ but logics/skills is still missing."
+      reason: "The repository has logics/ but a legacy repo-local runtime checkout is still missing."
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
 
@@ -436,13 +436,13 @@ describe("LogicsViewProvider", () => {
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (runtime source is missing). Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but logics/skills is still missing."
+      promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      reason: "The active branch has logics/ but a legacy repo-local runtime checkout is still missing."
     });
     mocks.detectDangerousGitignorePatterns.mockReturnValueOnce({
       hasDangerousPatterns: true,
       matchedPatterns: ["logics/"],
-      reason: "Broad .gitignore pattern(s) cover the runtime source: logics/."
+      reason: "Broad .gitignore pattern(s) cover repo-local Logics runtime paths: logics/."
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
 
@@ -777,7 +777,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: false,
       isCanonical: false,
-      reason: "The runtime source is missing from the selected repository."
+      reason: "No legacy repo-local Logics runtime checkout was detected in the selected repository."
     });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "missing",

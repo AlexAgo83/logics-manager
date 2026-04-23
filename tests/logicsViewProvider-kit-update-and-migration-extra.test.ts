@@ -262,6 +262,7 @@ describe("LogicsViewProvider", () => {
       available: true,
       preferredVariant: "hybrid-assist",
       detectedVariants: ["hybrid-assist"],
+      canonicalVariants: ["hybrid-assist"],
       supportedVariants: ["hybrid-assist", "flow-manager"]
     });
     vi.mocked(parseGitStatusEntries).mockReturnValue([]);
@@ -710,6 +711,7 @@ describe("LogicsViewProvider", () => {
         available: false,
         preferredVariant: null,
         detectedVariants: [],
+        canonicalVariants: ["hybrid-assist"],
         supportedVariants: ["hybrid-assist", "flow-manager"]
       });
 

@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 const root = process.cwd();
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const version = packageJson.version;
-const vsixPath = path.join(root, `cdx-logics-vscode-${version}.vsix`);
+const vsixPath = path.join(root, `logics-manager-${version}.vsix`);
 const codeCommand = process.platform === "win32" ? "code.cmd" : "code";
 
 if (!fs.existsSync(vsixPath)) {

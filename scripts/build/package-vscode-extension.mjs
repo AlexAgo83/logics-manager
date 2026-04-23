@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const EXTENSION_NAME = "cdx-logics-vscode";
+const NPX_COMMAND = process.platform === "win32" ? "npx.cmd" : "npx";
 
 export function packageVsix(outputPath) {
   const root = process.cwd();
@@ -42,7 +43,7 @@ export function packageVsix(outputPath) {
       path.join(stageDir, "scripts", "logics-manager.py"),
     );
 
-    execFileSync("npx", ["@vscode/vsce", "package", "--out", outputPath], {
+    execFileSync(NPX_COMMAND, ["@vscode/vsce", "package", "--out", outputPath], {
       cwd: stageDir,
       stdio: "inherit",
     });

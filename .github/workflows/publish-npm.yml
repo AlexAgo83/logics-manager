@@ -27,6 +27,7 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Ensure tag matches package version
+        if: github.event_name == 'push'
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           if [ "v${PACKAGE_VERSION}" != "${GITHUB_REF_NAME}" ]; then

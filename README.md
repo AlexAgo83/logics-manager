@@ -2,15 +2,17 @@
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
-![Version](https://img.shields.io/badge/version-v1.28.0-4C8BF5)
+![Version](https://img.shields.io/badge/version-v2.0.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
 
-Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code.
+Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code, backed by the canonical `logics-manager` runtime.
 
 `logics-manager` gives you a visual orchestration layer for the Logics workflow
 (`requests -> backlog -> tasks -> specs`) without moving the source of truth out of the repository.
+
+Version `2.0.0` marks the point where the extension, npm bin, Python package, generated assistant instructions, and runtime-facing docs all converge on the same product surface: `logics-manager`.
 
 This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
 
@@ -49,7 +51,7 @@ The bundled runtime is the normal path. Transitional repair flows remain availab
 - Reuse shared project context for faster AI handoffs and lower-token sessions.
 - Prepare releases and keep workflow docs synchronized from the same toolchain.
 
-For more detailed workflow behavior, see the sections below on requirements, Flow Manager compatibility, commands, and tools.
+For more detailed workflow behavior, see the sections below on requirements, runtime compatibility, commands, and tools.
 
 ## Why This Matters For AI Projects
 
@@ -134,12 +136,13 @@ Windows notes:
 - If Python is installed through the Windows launcher, `py -3` is supported by the extension.
 - Repository-managed text files are normalized through [`.gitattributes`](.gitattributes); let Git handle `CRLF`/`LF` conversion instead of rewriting line endings manually.
 
-## Flow Manager Compatibility
+## Runtime Compatibility
 
-- Canonical CLI: `logics-manager`
+- Canonical CLI and runtime contract: `logics-manager`
+- The bundled runtime is the supported steady-state path for the extension.
 - If the bundled runtime is missing or incompatible, create/promote actions fail with explicit error messaging in the extension.
 
-### Flow-manager smoke checklist
+### Runtime smoke checklist
 
 - Create a request from UI (`New Request`) and confirm markdown is generated.
 - Create a fixture request with `logics-manager flow new request --title "Smoke test"` and confirm the compact synthetic request shape is generated.
@@ -189,7 +192,7 @@ npm run dev
 
 ## Deploy / Release (VSIX)
 
-1. Bump the version in both `package.json` and root `VERSION` when preparing a new plugin release manually.
+1. Bump the version in `package.json`, `pyproject.toml`, and root `VERSION` when preparing a release manually.
 2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`.
 3. Validate that the changelog matches the current package version:
 
@@ -212,6 +215,8 @@ npm run install:vsix
 ```
 
 6. Distribute the `.vsix` and use the curated file in `changelogs/` for the GitHub release body when publishing.
+
+For `2.0.0` and later, the curated changelog should summarize both user-visible changes and contract-level migrations such as runtime-surface consolidation, release workflow updates, or assistant-facing API removals.
 
 If the current plugin version is already published, `logics-manager assist next-step` can now propose the next release step instead of stalling on an already-live tag.
 

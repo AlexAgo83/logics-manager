@@ -166,7 +166,7 @@ Windows notes:
 
 ### Install from Marketplace
 
-https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
+https://marketplace.visualstudio.com/items?itemName=cdx-logics.logics-manager
 
 ### Install from VSIX (recommended for users)
 

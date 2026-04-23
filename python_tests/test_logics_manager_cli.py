@@ -1414,9 +1414,32 @@ def test_main_runs_native_bootstrap_creates_scaffold(
     assert (repo_root / "logics").is_dir()
     assert (repo_root / "logics" / "instructions.md").is_file()
     assert not (repo_root / ".claude").exists()
+    assert not (repo_root / "logics" / "skills").exists()
     for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
         assert (repo_root / "logics" / directory).is_dir()
         assert (repo_root / "logics" / directory / ".gitkeep").is_file()
+
+
+def test_main_runs_native_bootstrap_cleans_legacy_runtime_artifacts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / ".claude" / "commands").mkdir(parents=True)
+    (repo_root / ".claude" / "agents").mkdir(parents=True)
+    (repo_root / "logics" / "skills" / "legacy-skill").mkdir(parents=True)
+    (repo_root / "logics" / "skills" / "legacy-skill" / "SKILL.md").write_text("# legacy\n", encoding="utf-8")
+    monkeypatch.chdir(repo_root)
+
+    exit_code = main(["bootstrap"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Bootstrap: OK" in captured.out
+    assert not (repo_root / ".claude").exists()
+    assert not (repo_root / "logics" / "skills").exists()
 
 
 def test_main_runs_native_bootstrap_repairs_stale_instructions(

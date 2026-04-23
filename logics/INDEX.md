@@ -234,7 +234,7 @@
 | [req_186_keep_card_badges_on_a_single_row](request/req_186_keep_card_badges_on_a_single_row.md) | Keep card badges on a single row | Done |  | request/req_186_keep_card_badges_on_a_single_row.md |
 | [req_187_improve_corpus_map_readability](request/req_187_improve_corpus_map_readability.md) | Improve corpus map readability | Done |  | request/req_187_improve_corpus_map_readability.md |
 | [req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime](request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md) | Unify Logics into a bundled CLI and integrated runtime | Ready |  | request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md |
-| [req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface](request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md) | Finish plugin migration to canonical logics-manager CLI surface | Draft |  | request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md |
+| [req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface](request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md) | Finish plugin migration to canonical logics-manager CLI surface | Done |  | request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md |
 
 ## Backlog
 

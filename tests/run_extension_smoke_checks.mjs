@@ -76,7 +76,7 @@ if (releasePackageJson.name !== "cdx-logics-vscode") {
 if (releasePackageJson.public !== true) {
   throw new Error("Expected release VSIX package metadata to mark the extension public.");
 }
-if (!releaseManifest.includes('Identity Id="cdx-logics.cdx-logics-vscode"')) {
+if (!releaseManifest.includes('Identity Id="cdx-logics-vscode"')) {
   throw new Error("Expected release VSIX manifest to declare the Marketplace identity.");
 }
 if (!releaseManifest.includes('Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true"')) {

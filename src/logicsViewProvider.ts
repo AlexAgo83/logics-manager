@@ -43,7 +43,7 @@ import {
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 import { installLogicsViewProviderBindings } from "./logicsViewProviderBindings";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
-const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/cdx-logics-vscode";
+const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
   codex: {
     available: false,

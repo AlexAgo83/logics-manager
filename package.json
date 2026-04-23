@@ -1,5 +1,5 @@
 {
-  "name": "cdx-logics-vscode",
+  "name": "logics-manager",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
   "version": "1.28.0",

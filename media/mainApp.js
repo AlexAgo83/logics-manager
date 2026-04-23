@@ -132,7 +132,7 @@
   const companionStageOrder = ["product", "architecture"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const compactListQuery = window.matchMedia("(max-width: 500px)");
-  const projectGithubUrl = "https://github.com/AlexAgo83/cdx-logics-vscode";
+  const projectGithubUrl = "https://github.com/AlexAgo83/logics-manager";
   const uiState = {
     layoutMode: "horizontal",
     detailsCollapsed: false,

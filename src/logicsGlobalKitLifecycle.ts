@@ -226,7 +226,7 @@ export function discoverRepoSkills(root: string, options?: { includeOptional?: b
 }
 
 export function readRepoKitVersion(root: string): string | undefined {
-  const versionPath = path.join(root, "logics", "skills", "VERSION");
+  const versionPath = path.join(root, "VERSION");
   if (!fs.existsSync(versionPath)) {
     return undefined;
   }

@@ -16,13 +16,13 @@ import {
   areSamePath,
   buildLogicsKitUpdateCommand,
   detectDangerousGitignorePatterns,
-  detectKitInstallType,
+  detectRuntimeInstallType,
   getCreateConfig,
   getNextSequence,
   getWorkspaceRoot,
   inspectLogicsBootstrapConvergence,
   inspectLogicsBootstrapState,
-  inspectLogicsKitSubmodule,
+  inspectLogicsRuntimeSource,
   hasMultipleWorkspaceFolders,
   normalizeRelationPath,
   updateIndicatorsOnDisk
@@ -40,7 +40,7 @@ describe("inspectLogicsBootstrapState", () => {
     const root = tracker.makeRoot();
     for (const rel of [
       "logics",
-      "logics/skills",
+      "scripts",
       "logics/architecture",
       "logics/product",
       "logics/request",
@@ -53,11 +53,7 @@ describe("inspectLogicsBootstrapState", () => {
     }
     fs.writeFileSync(path.join(root, "AGENTS.md"), "# agents\n", "utf8");
     fs.writeFileSync(path.join(root, "LOGICS.md"), "# logics\n", "utf8");
-    fs.writeFileSync(
-      path.join(root, ".gitmodules"),
-      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://github.com/AlexAgo83/cdx-logics-kit\n',
-      "utf8"
-    );
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "# bundled runtime\n", "utf8");
     fs.writeFileSync(path.join(root, "logics", "instructions.md"), "# instructions\n", "utf8");
     fs.writeFileSync(path.join(root, "logics.yaml"), "version: 1\n", "utf8");
     fs.writeFileSync(
@@ -167,7 +163,7 @@ describe("workspace root helpers", () => {
   });
 });
 
-describe("inspectLogicsKitSubmodule", () => {
+describe("inspectLogicsRuntimeSource", () => {
   const roots: string[] = [];
 
   afterEach(() => {
@@ -176,41 +172,32 @@ describe("inspectLogicsKitSubmodule", () => {
     }
   });
 
-  it("reports missing skills and gitmodules states precisely", () => {
+  it("reports missing and canonical runtime entrypoints precisely", () => {
     const missingSkillsRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-skills-"));
     roots.push(missingSkillsRoot);
-    fs.writeFileSync(path.join(missingSkillsRoot, ".gitmodules"), "", "utf8");
-
-    const missingSkills = inspectLogicsKitSubmodule(missingSkillsRoot);
+    const missingSkills = inspectLogicsRuntimeSource(missingSkillsRoot);
     expect(missingSkills.exists).toBe(false);
     expect(missingSkills.isCanonical).toBe(false);
-    expect(missingSkills.reason).toContain("repo-local Logics runtime checkout");
+    expect(missingSkills.reason).toContain("bundled Logics runtime entrypoint");
 
-    const missingGitmodulesRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-gitmodules-"));
-    roots.push(missingGitmodulesRoot);
-    fs.mkdirSync(path.join(missingGitmodulesRoot, "logics", "skills"), { recursive: true });
+    const canonicalRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-canonical-runtime-"));
+    roots.push(canonicalRoot);
+    fs.mkdirSync(path.join(canonicalRoot, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(canonicalRoot, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
 
-    const missingGitmodules = inspectLogicsKitSubmodule(missingGitmodulesRoot);
-    expect(missingGitmodules.exists).toBe(true);
-    expect(missingGitmodules.isCanonical).toBe(false);
-    expect(missingGitmodules.reason).toContain(".gitmodules");
+    const canonical = inspectLogicsRuntimeSource(canonicalRoot);
+    expect(canonical.exists).toBe(true);
+    expect(canonical.isCanonical).toBe(true);
+    expect(canonical.reason).toContain("Bundled Logics runtime entrypoint");
   });
 
-  it("flags non-canonical legacy runtime checkout URLs", () => {
+  it("flags missing bundled runtime entrypoints", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-noncanonical-"));
     roots.push(root);
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(
-      path.join(root, ".gitmodules"),
-      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://example.com/other-kit.git\n',
-      "utf8"
-    );
+    const inspection = inspectLogicsRuntimeSource(root);
 
-    const inspection = inspectLogicsKitSubmodule(root);
-
-    expect(inspection.exists).toBe(true);
+    expect(inspection.exists).toBe(false);
     expect(inspection.isCanonical).toBe(false);
-    expect(inspection.remoteUrl).toBe("https://example.com/other-kit.git");
   });
 });
 
@@ -235,6 +222,8 @@ describe("bootstrap state helpers", () => {
     const incompleteRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-incomplete-"));
     roots.push(incompleteRoot);
     fs.mkdirSync(path.join(incompleteRoot, "logics"), { recursive: true });
+    fs.mkdirSync(path.join(incompleteRoot, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(incompleteRoot, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
 
     const incomplete = inspectLogicsBootstrapState(incompleteRoot);
     expect(incomplete.status).toBe("incomplete");
@@ -247,7 +236,7 @@ describe("bootstrap state helpers", () => {
     roots.push(root);
     for (const rel of [
       "logics",
-      "logics/skills",
+      "scripts",
       "logics/architecture",
       "logics/product",
       "logics/request",
@@ -280,11 +269,7 @@ describe("bootstrap state helpers", () => {
       "OPENAI_API_KEY=sk-test\nGEMINI_API_KEY=gm-test\n",
       "utf8"
     );
-    fs.writeFileSync(
-      path.join(root, ".gitmodules"),
-      '[submodule "logics/skills"]\n\tpath = logics/skills\n\turl = https://example.com/other-kit.git\n',
-      "utf8"
-    );
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
 
     const state = inspectLogicsBootstrapState(root);
 
@@ -381,7 +366,7 @@ describe("detectDangerousGitignorePatterns", () => {
     }
   });
 
-  it("detects broad logics patterns that would hide logics/skills", () => {
+  it("detects broad logics patterns that would hide the bundled runtime", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-gitignore-"));
     roots.push(root);
     fs.writeFileSync(
@@ -415,7 +400,7 @@ describe("detectDangerousGitignorePatterns", () => {
   });
 });
 
-describe("detectKitInstallType", () => {
+describe("detectRuntimeInstallType", () => {
   const roots: string[] = [];
 
   afterEach(() => {
@@ -424,29 +409,19 @@ describe("detectKitInstallType", () => {
     }
   });
 
-  it("detects the canonical submodule when .git is file-backed", () => {
+  it("detects the bundled runtime when the entrypoint exists", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
     roots.push(root);
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", ".git"), "gitdir: ../../.git/modules/logics/skills\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "# runtime\n", "utf8");
 
-    expect(detectKitInstallType(root)).toBe("submodule");
+    expect(detectRuntimeInstallType(root)).toBe("bundled-runtime");
   });
 
-  it("detects a standalone clone when .git is a directory", () => {
+  it("falls back to plain-copy when the bundled entrypoint is missing", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
     roots.push(root);
-    fs.mkdirSync(path.join(root, "logics", "skills", ".git"), { recursive: true });
-
-    expect(detectKitInstallType(root)).toBe("standalone-clone");
-  });
-
-  it("falls back to plain-copy when no .git metadata is present", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-install-"));
-    roots.push(root);
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-
-    expect(detectKitInstallType(root)).toBe("plain-copy");
+    expect(detectRuntimeInstallType(root)).toBe("plain-copy");
   });
 });
 

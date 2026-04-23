@@ -487,8 +487,8 @@ describe("LogicsViewProvider", () => {
   });
 
   it("can run the canonical runtime update directly from environment diagnostics", async () => {
-    fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
+    fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "scripts", "logics-manager.py"), "#!/usr/bin/env python\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: true,
@@ -553,9 +553,9 @@ describe("LogicsViewProvider", () => {
       .mockResolvedValueOnce({ stdout: "git version 2.0.0", stderr: "" })
       .mockResolvedValueOnce({ stdout: "true\n", stderr: "" })
       .mockResolvedValueOnce({ stdout: "", stderr: "" })
-      .mockResolvedValueOnce({ stdout: " abc123 logics/skills", stderr: "" })
+      .mockResolvedValueOnce({ stdout: " abc123 scripts/logics-manager.py", stderr: "" })
       .mockResolvedValueOnce({ stdout: "Updating", stderr: "" })
-      .mockResolvedValueOnce({ stdout: " def456 logics/skills", stderr: "" });
+      .mockResolvedValueOnce({ stdout: " def456 scripts/logics-manager.py", stderr: "" });
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
     mocks.showInformationMessage.mockResolvedValue(undefined);
 

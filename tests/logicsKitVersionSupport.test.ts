@@ -16,14 +16,12 @@ describe("inspectKitUpdateNeed", () => {
   it("returns null when VERSION is missing or malformed", () => {
     const missingRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-missing-"));
     roots.push(missingRoot);
-    fs.mkdirSync(path.join(missingRoot, "logics", "skills"), { recursive: true });
 
     expect(inspectKitUpdateNeed(missingRoot)).toBeNull();
 
     const malformedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-malformed-"));
     roots.push(malformedRoot);
-    fs.mkdirSync(path.join(malformedRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(malformedRoot, "logics", "skills", "VERSION"), "not-a-version\n", "utf8");
+    fs.writeFileSync(path.join(malformedRoot, "VERSION"), "not-a-version\n", "utf8");
 
     expect(inspectKitUpdateNeed(malformedRoot)).toBeNull();
   });
@@ -31,8 +29,7 @@ describe("inspectKitUpdateNeed", () => {
   it("flags versions below the minimum and above the maximum", () => {
     const oldRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-old-"));
     roots.push(oldRoot);
-    fs.mkdirSync(path.join(oldRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(oldRoot, "logics", "skills", "VERSION"), "1.6.9\n", "utf8");
+    fs.writeFileSync(path.join(oldRoot, "VERSION"), "1.6.9\n", "utf8");
 
     expect(inspectKitUpdateNeed(oldRoot)).toEqual({
       currentVersion: "1.6.9",
@@ -44,8 +41,7 @@ describe("inspectKitUpdateNeed", () => {
 
     const newRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-"));
     roots.push(newRoot);
-    fs.mkdirSync(path.join(newRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(newRoot, "logics", "skills", "VERSION"), "1.14.0\n", "utf8");
+    fs.writeFileSync(path.join(newRoot, "VERSION"), "1.14.0\n", "utf8");
 
     expect(inspectKitUpdateNeed(newRoot)).toEqual({
       currentVersion: "1.14.0",
@@ -57,8 +53,7 @@ describe("inspectKitUpdateNeed", () => {
 
     const supportedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-supported-"));
     roots.push(supportedRoot);
-    fs.mkdirSync(path.join(supportedRoot, "logics", "skills"), { recursive: true });
-    fs.writeFileSync(path.join(supportedRoot, "logics", "skills", "VERSION"), "1.13.0\n", "utf8");
+    fs.writeFileSync(path.join(supportedRoot, "VERSION"), "1.13.0\n", "utf8");
 
     expect(inspectKitUpdateNeed(supportedRoot)).toBeNull();
   });

@@ -566,7 +566,7 @@ describe("LogicsViewProvider", () => {
   it("offers a direct bootstrap commit when the bootstrap change set is isolated", async () => {
     mocks.runGitWithOutput
       .mockResolvedValueOnce({
-        stdout: "A  .gitmodules\nA  logics/skills\n?? logics/request/req_001_demo.md\n",
+        stdout: "A  scripts/logics-manager.py\n?? logics/request/req_001_demo.md\n",
         stderr: ""
       })
       .mockResolvedValueOnce({
@@ -578,11 +578,12 @@ describe("LogicsViewProvider", () => {
         stderr: ""
       });
     vi.mocked(parseGitStatusEntries).mockReturnValue([
-      { indexStatus: "A", workTreeStatus: " ", path: ".gitmodules" },
-      { indexStatus: "A", workTreeStatus: " ", path: "logics/skills" },
+      { indexStatus: "A", workTreeStatus: " ", path: "scripts/logics-manager.py" },
       { indexStatus: "?", workTreeStatus: "?", path: "logics/request/req_001_demo.md" }
     ]);
-    vi.mocked(isBootstrapScopedPath).mockImplementation((filePath: string) => filePath === ".gitmodules" || filePath.startsWith("logics/"));
+    vi.mocked(isBootstrapScopedPath).mockImplementation(
+      (filePath: string) => filePath === "scripts/logics-manager.py" || filePath.startsWith("logics/")
+    );
     vi.mocked(buildBootstrapCommitMessage).mockReturnValue("Bootstrap Logics runtime and initialize workflow docs");
     mocks.showInformationMessage.mockResolvedValueOnce("Commit Bootstrap Changes").mockResolvedValueOnce(undefined);
 
@@ -598,8 +599,7 @@ describe("LogicsViewProvider", () => {
       "add",
       "-A",
       "--",
-      ".gitmodules",
-      "logics/skills",
+      "scripts/logics-manager.py",
       "logics/request/req_001_demo.md"
     ]);
     expect(mocks.runGitWithOutput).toHaveBeenNthCalledWith(3, root, [
@@ -608,8 +608,7 @@ describe("LogicsViewProvider", () => {
       "Bootstrap Logics runtime and initialize workflow docs",
       "--only",
       "--",
-      ".gitmodules",
-      "logics/skills",
+      "scripts/logics-manager.py",
       "logics/request/req_001_demo.md"
     ]);
   });

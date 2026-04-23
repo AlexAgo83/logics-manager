@@ -57,7 +57,7 @@ describe("logicsGlobalKitLifecycle", () => {
 
     const skillsRoot = path.join(root, "logics", "skills");
     fs.mkdirSync(skillsRoot, { recursive: true });
-    fs.writeFileSync(path.join(skillsRoot, "VERSION"), "1.0.0\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.0.0\n", "utf8");
 
     const malformedSkill = path.join(skillsRoot, "malformed-skill");
     fs.mkdirSync(path.join(malformedSkill, "agents"), { recursive: true });
@@ -178,7 +178,7 @@ describe("logicsGlobalKitLifecycle", () => {
     fs.mkdirSync(path.join(skillsRoot, "core-skill"), { recursive: true });
     fs.mkdirSync(gitDir, { recursive: true });
     fs.writeFileSync(path.join(skillsRoot, "core-skill", "SKILL.md"), "# core\n", "utf8");
-    fs.writeFileSync(path.join(skillsRoot, "VERSION"), "1.4.0\n", "utf8");
+    fs.writeFileSync(path.join(root, "VERSION"), "1.4.0\n", "utf8");
     fs.writeFileSync(path.join(gitDir, "HEAD"), "0123456789abcdef0123456789abcdef01234567\n", "utf8");
     fs.writeFileSync(
       manifestPath,

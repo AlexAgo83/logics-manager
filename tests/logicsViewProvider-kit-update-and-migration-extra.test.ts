@@ -452,12 +452,12 @@ describe("LogicsViewProvider", () => {
         return { stdout: "true\n", stderr: "" };
       }
       if (args[0] === "status" && args[1] === "--porcelain") {
-        return { stdout: "?? README.md\n M logics/skills\n", stderr: "" };
+        return { stdout: "?? README.md\n M VERSION\n", stderr: "" };
       }
       return { stdout: "", stderr: "" };
     });
     vi.mocked(parseGitStatusEntries).mockReturnValue([
-      { indexStatus: " ", workTreeStatus: "M", path: "logics/skills" }
+      { indexStatus: " ", workTreeStatus: "M", path: "VERSION" }
     ]);
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "", stderr: "" });
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue(defaultEnvironmentSnapshot(root) as never);
@@ -540,9 +540,8 @@ describe("LogicsViewProvider", () => {
       return mocks.showQuickPick.mock.calls[0][0];
     }
 
-    it("surfaces an Update Runtime action when logics/skills/VERSION is below minimum", async () => {
-      fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-      fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0", "utf-8");
+    it("surfaces an Update Runtime action when VERSION is below minimum", async () => {
+      fs.writeFileSync(path.join(root, "VERSION"), "1.5.0", "utf-8");
 
       await provider.checkEnvironmentFromCommand();
 
@@ -551,8 +550,7 @@ describe("LogicsViewProvider", () => {
     });
 
     it("does not surface kit version item when version meets minimum", async () => {
-      fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
-      fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.7.1", "utf-8");
+      fs.writeFileSync(path.join(root, "VERSION"), "1.7.1", "utf-8");
 
       await provider.checkEnvironmentFromCommand();
 

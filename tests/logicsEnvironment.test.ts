@@ -124,6 +124,7 @@ describe("inspectLogicsEnvironment", () => {
     expect(status.available).toBe(true);
     expect(status.preferredVariant).toBe("hybrid-assist");
     expect(status.detectedVariants).toEqual(["hybrid-assist", "flow-manager"]);
+    expect(status.canonicalVariants).toEqual(["hybrid-assist"]);
     expect(status.supportedVariants).toEqual(["hybrid-assist", "flow-manager"]);
   });
 

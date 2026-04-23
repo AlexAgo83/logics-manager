@@ -30,6 +30,7 @@ export type ClaudeBridgeStatus = {
   available: boolean;
   preferredVariant: "hybrid-assist" | "flow-manager" | null;
   detectedVariants: string[];
+  canonicalVariants: string[];
   supportedVariants: string[];
 };
 
@@ -64,6 +65,7 @@ export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
     available: detectedVariants.length > 0,
     preferredVariant: detectedVariants[0] ?? null,
     detectedVariants: [...detectedVariants],
+    canonicalVariants: ["hybrid-assist"],
     supportedVariants: CLAUDE_BRIDGE_VARIANTS.map((variant) => variant.id)
   };
 }

@@ -318,6 +318,7 @@ describe("LogicsViewProvider", () => {
       available: true,
       preferredVariant: "hybrid-assist",
       detectedVariants: ["hybrid-assist"],
+      canonicalVariants: ["hybrid-assist"],
       supportedVariants: ["hybrid-assist", "flow-manager"]
     });
 

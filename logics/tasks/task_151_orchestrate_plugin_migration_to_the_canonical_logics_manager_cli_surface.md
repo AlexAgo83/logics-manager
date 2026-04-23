@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 63%
+> Progress: 68%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -70,6 +70,7 @@ stateDiagram-v2
   - updated request-authoring prompt copy and README contract wording so `flow-manager` is treated as compatibility naming instead of the primary operator surface.
   - normalized runtime-source/bootstrap wording away from `cdx-logics-kit`-as-canonical phrasing in `src/logicsProviderUtils.ts` and the related plugin diagnostic tests.
   - tightened bridge diagnostics so only the canonical Claude bridge counts as the normal supported bridge state; compatibility-only `flow-manager` bridge files now trigger canonical repair wording instead of silently satisfying the check.
+  - simplified the internal bridge snapshot contract by surfacing canonical bridge variants directly from `logicsEnvironment`, removing one more layer of plugin-side compatibility inference.
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

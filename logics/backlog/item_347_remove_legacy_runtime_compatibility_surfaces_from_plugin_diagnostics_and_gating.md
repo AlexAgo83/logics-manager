@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 90%
-> Progress: 78%
+> Progress: 82%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,3 +74,4 @@ flowchart TD
 - 2026-04-23 implementation note: the generated Claude workflow bridge now tells operators to prefer `python3 -m logics_manager flow ...` and labels `$logics-flow-manager` as compatibility-only wording rather than the normal product contract.
 - 2026-04-23 diagnostics note: runtime-source inspection and bootstrap-facing test coverage now use repo-local runtime wording instead of presenting `cdx-logics-kit` / legacy checkout language as the canonical supported-state label.
 - 2026-04-23 bridge note: plugin/runtime bridge availability now keys off the canonical `hybrid-assist` Claude bridge; a compatibility-only `flow-manager` bridge no longer counts as the normal supported bridge state for diagnostics and repair prompts.
+- 2026-04-23 internal-contract note: the Claude bridge status snapshot now exposes canonical bridge variants explicitly, so plugin repair logic no longer has to re-derive canonical-vs-compatibility intent from a broader supported-variants list.

@@ -48,6 +48,7 @@ describe("inspectRuntimeLaunchers", () => {
       available: true,
       preferredVariant: "flow-manager",
       detectedVariants: ["flow-manager"],
+      canonicalVariants: ["hybrid-assist"],
       supportedVariants: ["hybrid-assist", "flow-manager"]
     });
   });
@@ -145,6 +146,7 @@ describe("inspectRuntimeLaunchers", () => {
       available: false,
       preferredVariant: null,
       detectedVariants: [],
+      canonicalVariants: ["hybrid-assist"],
       supportedVariants: ["hybrid-assist", "flow-manager"]
     });
 

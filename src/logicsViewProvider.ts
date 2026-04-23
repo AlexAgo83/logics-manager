@@ -822,8 +822,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (root && !hybridRuntime.claudeBridgeAvailable) {
       const bridgeStatus = detectClaudeBridgeStatus(root);
-      const canonicalVariants = bridgeStatus.supportedVariants.filter((variant) => variant === "hybrid-assist");
-      const missingFiles = canonicalVariants
+      const missingFiles = bridgeStatus.canonicalVariants
         .flatMap((variant) => {
           const v = ["hybrid-assist"].find((id) => id === variant);
           if (!v) return [];

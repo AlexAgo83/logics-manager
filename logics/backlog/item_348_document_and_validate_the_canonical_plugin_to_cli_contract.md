@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 97%
 > Confidence: 89%
-> Progress: 72%
+> Progress: 76%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,3 +74,4 @@ flowchart TD
 - 2026-04-23 implementation note: README closeout wording and generated Claude bridge prompts now describe `logics-manager` as the canonical finish/workflow surface, leaving `flow-manager` only as a documented compatibility alias where it still exists.
 - 2026-04-23 validation note: plugin/runtime diagnostic wording in tests and runtime-source inspection now refer to a repo-local Logics runtime checkout rather than the historical kit branding, reducing assistant/runtime-global ambiguity in the review surface.
 - 2026-04-23 validation note: runtime and extension tests now prove that a compatibility-only Claude `flow-manager` bridge does not satisfy the canonical bridge contract; repair messaging points back to the canonical bridge files instead.
+- 2026-04-23 validation note: bridge-status snapshots now carry an explicit canonical-variants field, reducing the amount of implicit compatibility logic reviewers need to infer from UI repair behavior.

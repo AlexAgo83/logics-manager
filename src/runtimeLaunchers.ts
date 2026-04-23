@@ -29,6 +29,7 @@ export async function inspectRuntimeLaunchers(
   const codexOverlay = inspectCodexWorkspaceOverlay(root);
   const claudeGlobalKit = inspectClaudeGlobalKit(root);
   const claudeBridge = root ? detectClaudeBridgeStatus(root) : null;
+  const hasCanonicalClaudeBridge = Boolean(claudeBridge?.detectedVariants.includes("hybrid-assist"));
 
   return {
     hasCodex,
@@ -53,9 +54,9 @@ export async function inspectRuntimeLaunchers(
           : claudeGlobalKit.status === "healthy"
             ? "Launch Claude with the globally published Logics runtime"
               : claudeGlobalKit.summary ||
-              (claudeBridge?.available
+              (hasCanonicalClaudeBridge
                 ? "Global Claude Logics runtime needs re-publication before it is reliable."
-                : "Claude bridge files are missing. Run Repair Logics runtime repair to restore the bridge."),
+                : "Canonical Claude bridge files are missing. Run Repair Logics runtime repair to restore the bridge."),
       command: "claude"
     }
   };

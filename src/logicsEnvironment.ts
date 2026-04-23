@@ -33,6 +33,10 @@ export type ClaudeBridgeStatus = {
   supportedVariants: string[];
 };
 
+function hasCanonicalClaudeBridge(status: ClaudeBridgeStatus): boolean {
+  return status.detectedVariants.includes("hybrid-assist");
+}
+
 const CLAUDE_BRIDGE_VARIANTS = [
   {
     id: "hybrid-assist",
@@ -339,7 +343,7 @@ async function inspectHybridAssistRuntime(
   }
 
   const claudeBridgeStatus = detectClaudeBridgeStatus(root);
-  const claudeBridgeAvailable = claudeBridgeStatus.available;
+  const claudeBridgeAvailable = hasCanonicalClaudeBridge(claudeBridgeStatus);
 
   if (!pythonCommand) {
     return {

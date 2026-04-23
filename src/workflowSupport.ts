@@ -337,6 +337,10 @@ export function renderMarkdownToHtml(markdown: string): string {
 export function buildGuidedRequestPrompt(basePrompt: string): string {
   const trimmedBase = basePrompt.trim();
   const sections = [
+    "Use the canonical `logics-manager` workflow surface for this repository.",
+    "Prefer `python3 -m logics_manager flow ...` commands when you reference request/backlog/task operations.",
+    "If the active runtime still exposes `$logics-flow-manager`, treat it only as a compatibility alias for the same canonical workflow contract.",
+    trimmedBase ? "Active agent context:" : "",
     trimmedBase,
     "",
     "Help me draft a new Logics request for this repository.",

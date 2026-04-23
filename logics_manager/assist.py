@@ -32,10 +32,10 @@ CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, object], ...] = (
     },
     {
         "id": "flow-manager",
-        "title": "Logics Flow",
+        "title": "Logics Manager Workflow",
         "command_path": ".claude/commands/logics-flow.md",
         "agent_path": ".claude/agents/logics-flow-manager.md",
-        "fallback_prompt": "Use $logics-flow-manager to manage this repository's Logics workflow: create new request/backlog/task docs, promote between stages, keep From version/Understanding/Confidence/Progress indicators consistent.",
+        "fallback_prompt": "Use the canonical `logics-manager` workflow surface for this repository: prefer `python3 -m logics_manager flow ...` for request/backlog/task work, and treat `$logics-flow-manager` only as a compatibility alias when a legacy assistant bridge still exposes it.",
     },
     {
         "id": "request-draft",

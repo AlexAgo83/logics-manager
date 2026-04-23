@@ -184,7 +184,7 @@ describe("inspectLogicsKitSubmodule", () => {
     const missingSkills = inspectLogicsKitSubmodule(missingSkillsRoot);
     expect(missingSkills.exists).toBe(false);
     expect(missingSkills.isCanonical).toBe(false);
-    expect(missingSkills.reason).toContain("legacy repo-local Logics runtime checkout");
+    expect(missingSkills.reason).toContain("repo-local Logics runtime checkout");
 
     const missingGitmodulesRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-missing-gitmodules-"));
     roots.push(missingGitmodulesRoot);

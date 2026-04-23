@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 20%
+> Progress: 45%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -69,3 +69,4 @@ flowchart TD
 - Delivery note: the remaining orchestration work should explicitly track two states in parallel:
   - code-path convergence onto canonical `logics-manager` entrypoints;
   - assistant-surface convergence so generated instructions, bridge labels, and agent defaults all teach the same product contract.
+- 2026-04-23 checkpoint: bridge prompts, guided request prompts, and request-authoring agent preference now converge on canonical `logics-manager` wording while retaining the `flow-manager` bridge id as an explicit compatibility surface.

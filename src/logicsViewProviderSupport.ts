@@ -600,7 +600,18 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
     await this.context.workspaceState.update(ACTIVE_AGENT_STATE_KEY, undefined);
   }
   export function findRequestAuthoringAgent(this: LogicsViewProviderSupportHost): AgentDefinition | undefined {
-    return this.agentRegistry.agents.find((agent: AgentDefinition) => agent.id === "$logics-flow-manager");
+    const preferredAgentIds = [
+      "$logics-request-draft",
+      "$logics-hybrid-delivery-assistant",
+      "$logics-flow-manager"
+    ];
+    for (const agentId of preferredAgentIds) {
+      const agent = this.agentRegistry.agents.find((entry: AgentDefinition) => entry.id === agentId);
+      if (agent) {
+        return agent;
+      }
+    }
+    return this.agentRegistry.agents.find((agent: AgentDefinition) => agent.allowedDocStages.includes("request"));
   }
   export async function injectPromptIntoCodexChat(this: LogicsViewProviderSupportHost,
     prompt: string,

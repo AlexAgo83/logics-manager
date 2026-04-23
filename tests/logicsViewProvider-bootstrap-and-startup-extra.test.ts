@@ -289,7 +289,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Legacy repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime checkout detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     mocks.runGitWithOutput.mockResolvedValue({

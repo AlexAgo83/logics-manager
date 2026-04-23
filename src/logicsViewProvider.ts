@@ -822,12 +822,13 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
     if (root && !hybridRuntime.claudeBridgeAvailable) {
       const bridgeStatus = detectClaudeBridgeStatus(root);
-      const missingFiles = bridgeStatus.supportedVariants
+      const canonicalVariants = bridgeStatus.supportedVariants.filter((variant) => variant === "hybrid-assist");
+      const missingFiles = canonicalVariants
         .flatMap((variant) => {
-          const v = ["hybrid-assist", "flow-manager"].find((id) => id === variant);
+          const v = ["hybrid-assist"].find((id) => id === variant);
           if (!v) return [];
-          const commandFile = path.join(root, ".claude", "commands", v === "hybrid-assist" ? "logics-assist.md" : "logics-flow.md");
-          const agentFile = path.join(root, ".claude", "agents", v === "hybrid-assist" ? "logics-hybrid-delivery-assistant.md" : "logics-flow-manager.md");
+          const commandFile = path.join(root, ".claude", "commands", "logics-assist.md");
+          const agentFile = path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md");
           const missing: string[] = [];
           if (!fs.existsSync(commandFile)) missing.push(path.relative(root, commandFile));
           if (!fs.existsSync(agentFile)) missing.push(path.relative(root, agentFile));
@@ -836,8 +837,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       recommendedActions.push({
         label: "Fix now: Repair Logics runtime",
         description: missingFiles.length > 0
-          ? `Claude bridge files are missing: ${missingFiles.join(", ")}`
-          : "Bridge files are incomplete — run the repair flow to restore shared runtime wiring.",
+          ? `Canonical Claude bridge files are missing: ${missingFiles.join(", ")}`
+          : "Canonical Claude bridge files are incomplete — run the repair flow to restore shared runtime wiring.",
         action: async () => {
           await this.codexWorkflowController.repairLogicsKit(root);
         }

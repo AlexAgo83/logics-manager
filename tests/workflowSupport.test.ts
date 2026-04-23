@@ -84,6 +84,8 @@ describe("workflowSupport", () => {
 
   it("builds a guided request prompt from the agent default prompt", () => {
     const prompt = buildGuidedRequestPrompt("Use $logics-flow-manager to manage workflow docs.");
+    expect(prompt.includes("Use the canonical `logics-manager` workflow surface")).toBe(true);
+    expect(prompt.includes("compatibility alias")).toBe(true);
     expect(prompt.includes("Use $logics-flow-manager")).toBe(true);
     expect(prompt.includes("Help me draft a new Logics request")).toBe(true);
     expect(prompt.includes("My need:")).toBe(true);

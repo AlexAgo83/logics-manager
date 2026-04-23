@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 90%
-> Progress: 35%
+> Progress: 78%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -71,3 +71,6 @@ flowchart TD
 - Audit note: current examples include `CLAUDE_BRIDGE_VARIANTS` still publishing a `flow-manager` bridge with a `$logics-flow-manager` fallback prompt, plus plugin-side request-authoring selection still preferring that historical agent id.
 - Closure note: recent runtime messaging cleanup already reduced the product-facing emphasis on `cdx-logics-kit` and old runtime-source wording, but the assistant/runtime-global layer still leaks a legacy supported-state model.
 - Remaining proof target: legacy naming that survives for compatibility must be explicitly labeled as such; otherwise it still fails the supported-state contract even if the underlying runtime behavior is already canonical.
+- 2026-04-23 implementation note: the generated Claude workflow bridge now tells operators to prefer `python3 -m logics_manager flow ...` and labels `$logics-flow-manager` as compatibility-only wording rather than the normal product contract.
+- 2026-04-23 diagnostics note: runtime-source inspection and bootstrap-facing test coverage now use repo-local runtime wording instead of presenting `cdx-logics-kit` / legacy checkout language as the canonical supported-state label.
+- 2026-04-23 bridge note: plugin/runtime bridge availability now keys off the canonical `hybrid-assist` Claude bridge; a compatibility-only `flow-manager` bridge no longer counts as the normal supported bridge state for diagnostics and repair prompts.

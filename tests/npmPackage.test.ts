@@ -7,12 +7,16 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 
 function npmCommand() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
+  return process.platform === "win32" ? "cmd.exe" : "npm";
+}
+
+function npmArgs(args: string[]) {
+  return process.platform === "win32" ? ["/d", "/s", "/c", "npm", ...args] : args;
 }
 
 function packPackage() {
   const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
-  const output = execFileSync(npmCommand(), ["pack", "--json"], {
+  const output = execFileSync(npmCommand(), npmArgs(["pack", "--json"]), {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: cacheDir }
@@ -44,11 +48,15 @@ describe("npm package surface", () => {
     const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
 
     try {
-      execFileSync(npmCommand(), ["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)], {
-        cwd: tempRoot,
-        encoding: "utf8",
-        env: { ...process.env, npm_config_cache: cacheDir }
-      });
+      execFileSync(
+        npmCommand(),
+        npmArgs(["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)]),
+        {
+          cwd: tempRoot,
+          encoding: "utf8",
+          env: { ...process.env, npm_config_cache: cacheDir }
+        }
+      );
 
       const wrapperPath = path.join(tempRoot, "node_modules", "logics-manager", "scripts", "npm", "logics-manager.mjs");
       execFileSync("node", [wrapperPath, "--help"], {

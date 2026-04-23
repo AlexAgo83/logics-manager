@@ -77,29 +77,32 @@ describe("inspectLogicsBootstrapState", () => {
     return root;
   }
 
-  it("marks canonical repos with missing repo-local bootstrap files as convergable", () => {
+  it("keeps bootstrap converged when repo-local config files are absent", () => {
     const root = makeCanonicalRoot();
     fs.rmSync(path.join(root, "logics.yaml"));
+    fs.rmSync(path.join(root, "AGENTS.md"));
+    fs.rmSync(path.join(root, "LOGICS.md"));
+    fs.rmSync(path.join(root, ".gitignore"));
+    fs.rmSync(path.join(root, ".env.local"));
 
     const state = inspectLogicsBootstrapState(root);
 
-    expect(state.status).toBe("incomplete");
-    expect(state.canBootstrap).toBe(true);
-    expect(state.convergenceNeeded).toBe(true);
-    expect(state.missingPaths).toContain("logics.yaml");
-    expect(state.actionTitle).toContain("Repair");
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(false);
+    expect(state.convergenceNeeded).toBeUndefined();
   });
 
-  it("keeps incomplete repos non-bootstrappable when the bundled runtime entrypoint is absent", () => {
+  it("keeps incomplete workflow corpora bootstrappable even when the bundled runtime entrypoint is absent", () => {
     const root = makeCanonicalRoot();
-    fs.rmSync(path.join(root, "logics.yaml"));
+    fs.rmSync(path.join(root, "logics", "instructions.md"));
 
     const state = inspectLogicsBootstrapState(root, false);
 
     expect(state.status).toBe("incomplete");
-    expect(state.canBootstrap).toBe(false);
-    expect(state.actionTitle).toBe("Bootstrap unavailable");
-    expect(state.promptMessage).toContain("does not bundle the Logics bootstrap runtime entrypoint");
+    expect(state.canBootstrap).toBe(true);
+    expect(state.actionTitle).toBe("Repair Logics setup on this branch");
+    expect(state.promptMessage).toContain("provision the local runtime from the extension bundle");
+    expect(state.missingPaths).toContain("logics/instructions.md");
   });
 
   it("keeps canonical repos non-bootstrappable once repo-local bootstrap is converged", () => {
@@ -112,19 +115,21 @@ describe("inspectLogicsBootstrapState", () => {
     expect(state.convergenceNeeded).toBeUndefined();
   });
 
-  it("reports AGENTS.md and LOGICS.md as required convergence files", () => {
+  it("ignores repo-local config files when checking bootstrap convergence", () => {
     const root = makeCanonicalRoot();
     fs.rmSync(path.join(root, "AGENTS.md"));
     fs.rmSync(path.join(root, "LOGICS.md"));
+    fs.rmSync(path.join(root, "logics.yaml"));
+    fs.rmSync(path.join(root, ".gitignore"));
+    fs.rmSync(path.join(root, ".env.local"));
 
     const convergence = inspectLogicsBootstrapConvergence(root);
 
-    expect(convergence.needed).toBe(true);
-    expect(convergence.missingPaths).toContain("AGENTS.md");
-    expect(convergence.missingPaths).toContain("LOGICS.md");
+    expect(convergence.needed).toBe(false);
+    expect(convergence.missingPaths).toEqual([]);
   });
 
-  it("keeps canonical bootstrap converged when AGENTS.md and LOGICS.md are present", () => {
+  it("keeps canonical bootstrap converged when workflow corpus files are present", () => {
     const root = makeCanonicalRoot();
 
     const convergence = inspectLogicsBootstrapConvergence(root);
@@ -133,7 +138,7 @@ describe("inspectLogicsBootstrapState", () => {
     expect(convergence.missingPaths).toEqual([]);
   });
 
-  it("reports every repo env file missing provider placeholders during convergence", () => {
+  it("does not treat repo env files as bootstrap convergence blockers", () => {
     const root = makeCanonicalRoot();
     fs.writeFileSync(path.join(root, ".env"), "OPENAI_API_KEY=sk-test\n", "utf8");
     fs.writeFileSync(path.join(root, ".env.production"), "GEMINI_API_KEY=gm-test\n", "utf8");
@@ -141,12 +146,9 @@ describe("inspectLogicsBootstrapState", () => {
 
     const state = inspectLogicsBootstrapState(root);
 
-    expect(state.status).toBe("incomplete");
-    expect(state.canBootstrap).toBe(true);
-    expect(state.convergenceNeeded).toBe(true);
-    expect(state.missingPaths).toContain(".env");
-    expect(state.missingPaths).toContain(".env.local");
-    expect(state.missingPaths).toContain(".env.production");
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(false);
+    expect(state.convergenceNeeded).toBeUndefined();
   });
 });
 
@@ -230,6 +232,11 @@ describe("bootstrap state helpers", () => {
     expect(missing.status).toBe("missing");
     expect(missing.canBootstrap).toBe(true);
     expect(missing.actionTitle).toContain("Bootstrap");
+
+    const missingWithoutBundledRuntime = inspectLogicsBootstrapState(missingRoot, false);
+    expect(missingWithoutBundledRuntime.status).toBe("missing");
+    expect(missingWithoutBundledRuntime.canBootstrap).toBe(true);
+    expect(missingWithoutBundledRuntime.actionTitle).toBe("Bootstrap Logics on this branch");
 
     const incompleteRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-bootstrap-incomplete-"));
     roots.push(incompleteRoot);

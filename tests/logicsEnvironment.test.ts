@@ -243,6 +243,8 @@ describe("branch-state transitions", () => {
         detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
       });
       expect(missingLogics.repositoryState).toBe("missing-logics");
+      expect(missingLogics.capabilities.bootstrapRepair.status).toBe("available");
+      expect(missingLogics.capabilities.bootstrapRepair.summary).toContain("extension");
       expect(missingLogics.capabilities.workflowMutation.status).toBe("unavailable");
       expect(missingLogics.capabilities.readOnly.summary).toContain("logics/");
 

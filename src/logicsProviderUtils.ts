@@ -145,23 +145,6 @@ const REQUIRED_BOOTSTRAP_DIRS = [
   "logics/external"
 ] as const;
 
-const REQUIRED_BOOTSTRAP_FILES = [
-  "AGENTS.md",
-  "LOGICS.md"
-] as const;
-
-const REQUIRED_GITIGNORE_ENTRIES = [
-  ".env.local",
-  "logics/.cache/",
-  "logics/.cache/hybrid_assist_audit.jsonl",
-  "logics/.cache/hybrid_assist_measurements.jsonl",
-  "logics/hybrid_assist_audit.jsonl",
-  "logics/hybrid_assist_measurements.jsonl",
-  "logics/mutation_audit.jsonl"
-] as const;
-
-const REQUIRED_ENV_KEYS = ["OPENAI_API_KEY", "GEMINI_API_KEY"] as const;
-
 type BootstrapConvergenceInspection = {
   needed: boolean;
   missingPaths: string[];
@@ -191,33 +174,24 @@ export function inspectLogicsBootstrapState(root: string, hasBootstrapScript = t
   if (!fs.existsSync(logicsDir)) {
     return {
       status: "missing",
-      canBootstrap: hasBootstrapScript,
-      actionTitle: hasBootstrapScript ? "Bootstrap Logics on this branch" : "Bootstrap unavailable",
+      canBootstrap: true,
+      actionTitle: "Bootstrap Logics on this branch",
       promptMessage: hasBootstrapScript
         ? "This branch does not have Logics set up yet. Bootstrap Logics by provisioning the local runtime?"
-        : "This repository does not bundle the Logics bootstrap runtime entrypoint.",
+        : "This branch does not have Logics set up yet. Bootstrap Logics will provision the local runtime from the extension bundle.",
       reason: "No logics/ folder found on the active branch."
     };
   }
 
   const convergence = inspectLogicsBootstrapConvergence(root);
   if (convergence.needed) {
-    if (!hasBootstrapScript) {
-      return {
-        status: "incomplete",
-        canBootstrap: false,
-        actionTitle: "Bootstrap unavailable",
-        promptMessage: "This repository does not bundle the Logics bootstrap runtime entrypoint.",
-        reason: convergence.reason,
-        missingPaths: convergence.missingPaths,
-        convergenceNeeded: true
-      };
-    }
     return {
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      promptMessage: hasBootstrapScript
+        ? "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?"
+        : "This branch has an incomplete Logics setup. Repair will provision the local runtime from the extension bundle.",
       reason: convergence.reason,
       missingPaths: convergence.missingPaths,
       convergenceNeeded: true
@@ -241,28 +215,8 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
     }
   }
 
-  for (const rel of REQUIRED_BOOTSTRAP_FILES) {
-    if (!fs.existsSync(path.join(root, rel))) {
-      missingPaths.push(rel);
-    }
-  }
-
   if (!fs.existsSync(path.join(root, "logics", "instructions.md"))) {
     missingPaths.push("logics/instructions.md");
-  }
-
-  if (!fs.existsSync(path.join(root, "logics.yaml"))) {
-    missingPaths.push("logics.yaml");
-  }
-
-  const missingGitignoreEntries = getMissingBootstrapGitignoreEntries(root);
-  if (missingGitignoreEntries.length > 0) {
-    missingPaths.push(".gitignore");
-  }
-
-  const missingEnvTargets = detectBootstrapEnvTargets(root);
-  if (missingEnvTargets.length > 0) {
-    missingPaths.push(...missingEnvTargets);
   }
 
   if (missingPaths.length === 0) {
@@ -278,90 +232,6 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
     missingPaths,
     reason: `Repo-local Logics bootstrap is missing or stale: ${Array.from(new Set(missingPaths)).join(", ")}.`
   };
-}
-
-function getMissingBootstrapGitignoreEntries(root: string): string[] {
-  const gitignorePath = path.join(root, ".gitignore");
-  if (!fs.existsSync(gitignorePath)) {
-    return [...REQUIRED_GITIGNORE_ENTRIES];
-  }
-  let content = "";
-  try {
-    content = fs.readFileSync(gitignorePath, "utf-8");
-  } catch {
-    return [...REQUIRED_GITIGNORE_ENTRIES];
-  }
-  const existing = new Set(
-    content
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-  );
-  return REQUIRED_GITIGNORE_ENTRIES.filter((entry) => !existing.has(entry));
-}
-
-function getMissingBootstrapEnvKeys(root: string): string[] {
-  const presentKeys = new Set(
-    getBootstrapEnvFileNames(root).flatMap((fileName) => readBootstrapEnvKeys(path.join(root, fileName)))
-  );
-  return REQUIRED_ENV_KEYS.filter((key) => !presentKeys.has(key));
-}
-
-function getBootstrapEnvFileNames(root: string): string[] {
-  try {
-    const entries = fs.readdirSync(root, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isFile() && entry.name.startsWith(".env"))
-      .map((entry) => entry.name)
-      .sort((left, right) => {
-        const leftPriority = bootstrapEnvFilePriority(left);
-        const rightPriority = bootstrapEnvFilePriority(right);
-        if (leftPriority !== rightPriority) {
-          return leftPriority - rightPriority;
-        }
-        return left.localeCompare(right);
-      });
-  } catch {
-    return [];
-  }
-}
-
-function bootstrapEnvFilePriority(fileName: string): number {
-  if (fileName === ".env.local") {
-    return 0;
-  }
-  if (fileName === ".env") {
-    return 1;
-  }
-  return 2;
-}
-
-function detectBootstrapEnvTargets(root: string): string[] {
-  const envFiles = getBootstrapEnvFileNames(root);
-  if (envFiles.length === 0) {
-    return [".env.local"];
-  }
-  return envFiles.filter((fileName) => {
-    const presentKeys = new Set(readBootstrapEnvKeys(path.join(root, fileName)));
-    return REQUIRED_ENV_KEYS.some((key) => !presentKeys.has(key));
-  });
-}
-
-function readBootstrapEnvKeys(filePath: string): string[] {
-  if (!fs.existsSync(filePath)) {
-    return [];
-  }
-  try {
-    return fs
-      .readFileSync(filePath, "utf-8")
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith("#") && line.includes("="))
-      .map((line) => line.split("=", 1)[0].trim())
-      .filter(Boolean);
-  } catch {
-    return [];
-  }
 }
 
 export function buildLogicsRuntimeUpdateCommand(): string {

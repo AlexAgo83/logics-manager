@@ -298,21 +298,17 @@ function buildBootstrapCapability(
       summary: "Requires Git on PATH to initialize repositories and repair the local runtime."
     };
   }
-  if (!hasBootstrapScript) {
+  if (!pythonAvailable) {
     return {
       status: "unavailable",
-      summary: "This repository does not bundle the Logics bootstrap runtime entrypoint."
-    };
-  }
-  if (hasBootstrapScript && !pythonAvailable) {
-    return {
-      status: "unavailable",
-      summary: "Git is available, but Python 3 is still required to finish the bootstrap script after the runtime is present."
+      summary: "Git is available, but Python 3 is still required to finish the bootstrap script."
     };
   }
   return {
     status: "available",
-    summary: "Bootstrap or repair is available from the extension. System tools still need to be installed outside VS Code."
+    summary: hasBootstrapScript
+      ? "Bootstrap or repair is available from the extension. System tools still need to be installed outside VS Code."
+      : "Bootstrap or repair is available from the extension; the repo-local runtime entrypoint will be provisioned during bootstrap. System tools still need to be installed outside VS Code."
   };
 }
 

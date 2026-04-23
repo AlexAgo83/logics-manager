@@ -102,4 +102,34 @@ describe("environment gating", () => {
       shouldRecommendCheckEnvironment.call(context, "/workspace/mock", snapshot as never, null, launchers)
     ).resolves.toBe(false);
   });
+
+  it("does recommend an environment check when bootstrap repair is available on a fresh project", async () => {
+    const snapshot = {
+      ...buildSnapshot(),
+      hasBootstrapScript: false
+    };
+    const launchers = {
+      codex: { available: false, title: "Unavailable", command: "codex" },
+      claude: { available: false, title: "Unavailable", command: "claude" },
+      hasCodex: false,
+      hasClaude: false
+    };
+    const context = {
+      hybridAssistController: {
+        buildProviderRemediationQuickPickItem: vi.fn().mockResolvedValue(null)
+      },
+      buildLogicsYamlBlocksQuickPickItem: vi.fn(() => null),
+      buildMissingEnvLocalQuickPickItem: vi.fn(() => null)
+    };
+
+    await expect(
+      shouldRecommendCheckEnvironment.call(
+        context,
+        "/workspace/mock",
+        snapshot as never,
+        { status: "missing", canBootstrap: true, actionTitle: "Bootstrap Logics on this branch", reason: "No logics/ folder found on the active branch." } as never,
+        launchers
+      )
+    ).resolves.toBe(true);
+  });
 });

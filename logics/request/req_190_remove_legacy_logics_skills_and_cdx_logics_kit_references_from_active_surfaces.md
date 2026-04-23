@@ -1,9 +1,9 @@
 ## req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces - Remove legacy logics/skills and cdx-logics-kit references from active surfaces
-> From version: 2.0.0
+> From version: 2.0.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 100%
-> Confidence: 96%
+> Understanding: 99%
+> Confidence: 97%
 > Complexity: High
 > Theme: Runtime migration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -17,6 +17,15 @@
 - A full repository scan on 2026-04-23 found legacy references in CI, release workflows, runtime detection code, docs, lint config, and test fixtures.
 - The repository also contains a large archival corpus of requests, tasks, backlog items, changelogs, and architecture docs that still mention the old boundary for historical reasons.
 - This request only targets the active surfaces that still influence normal validation, support, and contributor expectations.
+
+```mermaid
+%% logics-kind: request
+%% logics-signature: request|remove-legacy-logics-skills-and-cdx-logi|remove-the-remaining-references-that-ke|ac1-ci-workflows-no-longer-require-a-lo
+flowchart TD
+    Need[Remove legacy active-surface references] --> Problem[Active surfaces still teach the retired boundary]
+    Problem --> Scope[Clean CI runtime code docs and fixtures]
+    Scope --> Acceptance[AC1: CI no longer requires the retired checkout]
+```
 
 # Inventory snapshot
 - Active code and CI surfaces:
@@ -95,4 +104,12 @@
 - `logics/backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md`
 - `logics/backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md`
 - `logics/backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md`
+
+# AC Traceability
+- AC1 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: supported CI and release validation no longer require the retired submodule checkout.
+- AC2 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: runtime helpers stop treating the retired boundary as supported state.
+- AC3 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: active docs stop instructing maintenance of the retired boundary.
+- AC4 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: lint/config and fixtures no longer encode the retired layout as normal behavior.
+- AC5 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: the active-surface scan is expected to go clean only after all three slices land.
+- AC6 -> Task: `task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references`. Proof: archival mentions are isolated away from the active contributor-facing surface.
 - `logics/tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md`

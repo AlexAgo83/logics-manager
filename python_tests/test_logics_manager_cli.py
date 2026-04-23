@@ -44,10 +44,9 @@ def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.Captur
     payload = json.loads(captured.out)
     assert exit_code == 0
     assert payload["kind"] == "claude-bridge-manifest"
-    assert payload["bridge_count"] == 5
+    assert payload["bridge_count"] == 4
     assert [bridge["id"] for bridge in payload["bridges"]] == [
         "hybrid-assist",
-        "flow-manager",
         "request-draft",
         "spec-first-pass",
         "backlog-groom",

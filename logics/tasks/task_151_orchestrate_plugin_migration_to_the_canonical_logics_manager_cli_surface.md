@@ -1,10 +1,10 @@
 ## task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
-> From version: 1.28.2
+> From version: 1.28.3
 > Schema version: 1.0
 > Status: Done
-> Understanding: 100%
-> Confidence: 94%
-> Progress: 100%
+> Understanding: 100% (refreshed)
+> Confidence: 95% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -81,6 +81,13 @@ stateDiagram-v2
 - - Finished on 2026-04-23.
 - - Linked backlog item(s): `item_345_route_plugin_workflow_actions_through_canonical_logics_manager_entrypoints`, `item_346_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`, `item_347_remove_legacy_runtime_compatibility_surfaces_from_plugin_diagnostics_and_gating`, `item_348_document_and_validate_the_canonical_plugin_to_cli_contract`
 - - Related request(s): `req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface`
+
+## Request AC proof lines
+- req_189 AC1 -> item_345/item_346. Proof: the wave delivered the canonical workflow route and orchestration slices, then aligned the plugin migration with the canonical `logics-manager` contract.
+- req_189 AC2 -> item_346/item_347. Proof: the wave delivered the orchestration and diagnostics cleanup slices that removed legacy runtime compatibility from the supported path.
+- req_189 AC3 -> item_347/item_348. Proof: the wave delivered the diagnostics cleanup and contract validation slices, making residual compatibility explicit rather than implicit.
+- req_189 AC4 -> item_345/item_348. Proof: the wave delivered the workflow route and contract validation slices, so the plugin contract reads as one thin-client model.
+- req_189 AC5 -> item_348. Proof: the wave aligned assistant-facing bridge prompts and request-authoring defaults to the canonical `logics-manager` wording.
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

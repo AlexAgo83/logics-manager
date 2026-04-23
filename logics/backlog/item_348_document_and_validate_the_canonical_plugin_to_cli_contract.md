@@ -1,10 +1,10 @@
 ## item_348_document_and_validate_the_canonical_plugin_to_cli_contract - Document and validate the canonical plugin to CLI contract
-> From version: 1.28.1
+> From version: 1.28.2
 > Schema version: 1.0
 > Status: Done
-> Understanding: 98%
-> Confidence: 91%
-> Progress: 100%
+> Understanding: 99% (refreshed)
+> Confidence: 92% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -41,6 +41,7 @@ flowchart TD
 # AC Traceability
 - Request AC3 -> This backlog slice. Proof: remaining exceptions are documented rather than implicit.
 - Request AC4 -> This backlog slice. Proof: documentation, tests, and packaging signals consistently describe the thin-client runtime model.
+- Request AC5 -> This backlog slice. Proof: assistant-facing generated artifacts and request-authoring defaults distinguish canonical `logics-manager` usage from compatibility naming.
 
 # Decision framing
 - Product framing: Required

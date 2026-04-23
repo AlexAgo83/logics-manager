@@ -1,9 +1,9 @@
 ## task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface - Orchestrate plugin migration to the canonical logics-manager CLI surface
 > From version: 1.28.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 98%
-> Confidence: 91%
+> Status: Done
+> Understanding: 99%
+> Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
@@ -52,16 +52,18 @@ stateDiagram-v2
 - `logics/backlog/item_348_document_and_validate_the_canonical_plugin_to_cli_contract.md`
 
 # Definition of Done (DoD)
-- [ ] The linked backlog slices are delivered or explicitly deferred with rationale.
-- [ ] Validation passes for the changed plugin/runtime surfaces.
-- [ ] Linked docs are synchronized.
-- [ ] The final report states the remaining residual risk or exception set, if any.
+- [x] The linked backlog slices are delivered or explicitly deferred with rationale.
+- [x] Validation passes for the changed plugin/runtime surfaces.
+- [x] Linked docs are synchronized.
+- [x] The final report states the remaining residual risk or exception set, if any.
 
 # Validation
 - Run `npm run lint:ts`.
 - Run `npm test`.
 - Run `npm run test:npm-cli`.
 - Run `python3 -m logics_manager lint --require-status`.
+- - Finish workflow executed on 2026-04-23.
+- - Linked backlog/request close verification passed.
 
 # Report
 - 2026-04-23 wave:
@@ -76,6 +78,9 @@ stateDiagram-v2
   - aligned the main extension/runtime fixtures with the reduced production snapshot contract by removing dead legacy bridge/runtime fields from the tests that no longer exist in production code.
   - removed the dead `getFlowManagerScriptPath` helper and aligned healthy-Claude fixture coverage with the canonical assistant publication shape rather than the historical `flow-manager` one.
   - removed the remaining explicit `flow-manager` bridge compatibility surface from production code, guided prompts, and test coverage so the extension now teaches and validates one assistant/runtime workflow contract only.
+- - Finished on 2026-04-23.
+- - Linked backlog item(s): `item_345_route_plugin_workflow_actions_through_canonical_logics_manager_entrypoints`, `item_346_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface`, `item_347_remove_legacy_runtime_compatibility_surfaces_from_plugin_diagnostics_and_gating`, `item_348_document_and_validate_the_canonical_plugin_to_cli_contract`
+- - Related request(s): `req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface`
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

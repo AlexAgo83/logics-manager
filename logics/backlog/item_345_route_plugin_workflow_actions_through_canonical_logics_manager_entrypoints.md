@@ -1,9 +1,9 @@
 ## item_345_route_plugin_workflow_actions_through_canonical_logics_manager_entrypoints - Route plugin workflow actions through canonical logics-manager entrypoints
-> From version: 1.28.0
+> From version: 1.28.1
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 98%
-> Confidence: 90%
+> Status: Done
+> Understanding: 99%
+> Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Runtime integration
@@ -70,3 +70,4 @@ flowchart TD
 - Remaining proof target: close the gap between plugin-triggered CLI routing and assistant-triggered workflow routing so the extension does not advertise one naming contract in its agent layer and a different one in its runtime commands.
 - 2026-04-23 implementation note: guided request handoff now prefers non-legacy request-authoring agents before falling back to `$logics-flow-manager`, and the copied prompt now frames `logics-manager` as the canonical workflow surface with any flow-manager mention downgraded to compatibility wording.
 - 2026-04-23 closure note: the plugin and generated assistant bridges no longer route through or advertise the historical `flow-manager` contract; canonical `logics-manager` / `hybrid-assist` surfaces are now the only assistant-facing workflow path in the extension.
+- - Task `task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface` was finished via `logics-manager flow finish task` on 2026-04-23.

@@ -1,7 +1,7 @@
 ## req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface - Finish plugin migration to canonical logics-manager CLI surface
 > From version: 1.28.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 98%
 > Confidence: 91%
 > Complexity: Medium

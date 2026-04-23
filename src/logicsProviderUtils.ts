@@ -144,7 +144,7 @@ export type LogicsRuntimeInstallType = "submodule" | "standalone-clone" | "plain
 export type LogicsKitInstallType = LogicsRuntimeInstallType;
 
 export type LogicsBootstrapState = {
-  status: "missing" | "incomplete" | "canonical" | "noncanonical";
+  status: "missing" | "incomplete" | "canonical";
   canBootstrap: boolean;
   actionTitle: string;
   promptMessage?: string;
@@ -254,8 +254,6 @@ export function inspectLogicsRuntimeSource(root: string): LogicsRuntimeSourceIns
 
 export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState {
   const logicsDir = path.join(root, "logics");
-  const skillsDir = path.join(logicsDir, "skills");
-  const inspection = inspectLogicsRuntimeSource(root);
 
   if (!fs.existsSync(logicsDir)) {
     return {
@@ -267,43 +265,24 @@ export function inspectLogicsBootstrapState(root: string): LogicsBootstrapState 
     };
   }
 
-  if (!fs.existsSync(skillsDir)) {
+  const convergence = inspectLogicsBootstrapConvergence(root);
+  if (convergence.needed) {
     return {
       status: "incomplete",
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
-      promptMessage: "This branch has an incomplete Logics setup (runtime source is missing). Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but the runtime source is still missing."
-    };
-  }
-
-  if (inspection.exists && inspection.isCanonical) {
-    const convergence = inspectLogicsBootstrapConvergence(root);
-    if (convergence.needed) {
-      return {
-        status: "canonical",
-        canBootstrap: true,
-        actionTitle: "Reconcile Logics bootstrap on this branch",
-        promptMessage:
-          "This branch already has the canonical Logics runtime, but repo-local bootstrap files are incomplete. Run Bootstrap Logics to converge them?",
-        reason: convergence.reason,
-        missingPaths: convergence.missingPaths,
-        convergenceNeeded: true
-      };
-    }
-    return {
-      status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: inspection.reason
+      promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      reason: convergence.reason,
+      missingPaths: convergence.missingPaths,
+      convergenceNeeded: true
     };
   }
 
   return {
-    status: "noncanonical",
+    status: "canonical",
     canBootstrap: false,
-    actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
-    reason: inspection.reason
+    actionTitle: "Bootstrap already completed",
+    reason: convergence.reason
   };
 }
 
@@ -440,7 +419,7 @@ function readBootstrapEnvKeys(filePath: string): string[] {
 }
 
 export function buildLogicsRuntimeUpdateCommand(): string {
-  return "git submodule update --init --remote --merge -- logics/skills";
+  return "python3 -m logics_manager bootstrap";
 }
 
 export const inspectLogicsKitSubmodule = inspectLogicsRuntimeSource;

@@ -279,7 +279,7 @@ describe("LogicsViewProvider", () => {
     mocks.hasMultipleWorkspaceFolders.mockReturnValue(false);
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
-    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],

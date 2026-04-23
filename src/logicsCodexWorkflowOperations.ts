@@ -4,11 +4,10 @@ import * as vscode from "vscode";
 import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
-import { detectDangerousGitignorePatterns, inspectLogicsKitSubmodule, runGitWithOutput } from "./logicsProviderUtils";
-import { buildLogicsKitUpdateCommand, detectKitInstallType } from "./logicsProviderUtils";
+import { detectDangerousGitignorePatterns, inspectLogicsBootstrapState, runGitWithOutput } from "./logicsProviderUtils";
+import { buildLogicsKitUpdateCommand } from "./logicsProviderUtils";
 import {
   appendBootstrapConvergenceNote,
-  ensureCanonicalGitmodules,
   fallbackInstallKit
 } from "./logicsCodexWorkflowKitSupport";
 import { publishClaudeGlobalKit } from "./logicsClaudeGlobalKit";
@@ -53,8 +52,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
     const actions: string[] = [];
     if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command", "Not now");
@@ -83,8 +81,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return;
     }
 
-    const inspection = inspectLogicsKitSubmodule(root);
-    if (inspection.exists && inspection.isCanonical) {
+    if (inspectLogicsBootstrapState(root).canBootstrap) {
       actions.push("Update Logics Runtime");
     }
     actions.push("Copy Update Command");
@@ -111,9 +108,8 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       const updateCommand = buildLogicsKitUpdateCommand();
@@ -156,9 +152,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
 
-    const inspection = inspectLogicsKitSubmodule(root);
     const updateCommand = buildLogicsKitUpdateCommand();
-    const installType = detectKitInstallType(root);
 
     const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
@@ -197,143 +191,19 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
 
-    if (installType === "standalone-clone") {
-      const skillsStatus = await runGitWithOutput(root, ["-C", "logics/skills", "status", "--porcelain"]);
-      if (!skillsStatus.error && skillsStatus.stdout.trim()) {
-        void vscode.window.showWarningMessage(
-        "Automatic Logics runtime update is blocked: the standalone runtime clone has uncommitted changes. Commit or stash them first."
-        );
-        return false;
-      }
-
-      const pullResult = await runGitWithOutput(root, ["-C", "logics/skills", "pull", "origin", "main"]);
-      if (pullResult.error) {
-        const detail = `${pullResult.stderr}\n${pullResult.stdout}\n${pullResult.error.message}`.trim();
-        const choice = await vscode.window.showErrorMessage(
-          `Failed to update the standalone Logics runtime clone. ${detail || pullResult.error.message}`,
-          "Copy Update Command"
-        );
-        if (choice === "Copy Update Command") {
-          await vscode.env.clipboard.writeText(updateCommand);
-          void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-        }
-        return false;
-      }
-
-      if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
-        ensureCanonicalGitmodules(root);
-      }
-      await this.options.refresh();
-      const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
-      const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
-      const messageWithConvergence = appendBootstrapConvergenceNote(
-        `Logics runtime updated after ${trigger}. Review and commit the standalone clone changes in your repository when ready.${rootChangeNote}`,
-        bootstrapConvergence
-      );
-      void vscode.window.showInformationMessage(messageWithConvergence);
-      return true;
-    }
-
-    if (installType === "plain-copy" || !inspection.exists || !inspection.isCanonical) {
-      if (!detectDangerousGitignorePatterns(root).hasDangerousPatterns) {
-        const choice = await vscode.window.showWarningMessage(
-          `Automatic Logics runtime update is only supported for the canonical local runtime. ${inspection.reason}`,
-          "Copy Update Command"
-        );
-        if (choice === "Copy Update Command") {
-          await vscode.env.clipboard.writeText(updateCommand);
-          void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-        }
-        return false;
-      }
-
-      const choice = await vscode.window.showWarningMessage(
-          `logics/ appears to be gitignored and the canonical runtime source is not functional. ${inspection.reason} Install or refresh the runtime via fallback copy or clone?`,
-        "Install Fallback",
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-        return false;
-      }
-      if (choice !== "Install Fallback") {
-        return false;
-      }
-
-      const fallbackResult = await fallbackInstallKit(root);
-      if (!fallbackResult.installed) {
-        const failureMessage = fallbackResult.failureMessage || "The fallback install could not complete.";
-      void vscode.window.showErrorMessage(`Failed to install the fallback Logics runtime. ${failureMessage}`);
-        return false;
-      }
-
-      await this.options.refresh();
-      const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
-      const snapshot = await inspectLogicsEnvironment(root);
-      const message =
-        fallbackResult.method === "copy"
-          ? `Logics runtime updated after ${trigger} from the ${fallbackResult.sourceLabel || "global"} runtime.`
-          : `Logics runtime updated after ${trigger} by cloning the canonical runtime repository.`;
-      const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
-      if (snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") {
-        void vscode.window.showInformationMessage(messageWithConvergence);
-      } else {
-        const choice = await vscode.window.showInformationMessage(messageWithConvergence, "Publish Global Codex Runtime");
-        if (choice === "Publish Global Codex Runtime") {
-          await this.syncCodexOverlay(root, "runtime update");
-        }
-      }
-      return true;
-    }
-
-    const beforeStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
-    if (beforeStatus.error) {
-      const choice = await vscode.window.showWarningMessage(
-        `The plugin could not confirm the canonical local Logics runtime before updating it. ${beforeStatus.stderr || beforeStatus.error.message}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-      }
+    const fallbackResult = await fallbackInstallKit(root);
+    if (!fallbackResult.installed) {
+      const failureMessage = fallbackResult.failureMessage || "The runtime repair could not complete.";
+      void vscode.window.showErrorMessage(`Failed to update the Logics runtime. ${failureMessage}`);
       return false;
     }
 
-    const updateResult = await runGitWithOutput(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
-    if (updateResult.error) {
-      const detail = `${updateResult.stderr}\n${updateResult.stdout}`.trim();
-      const choice = await vscode.window.showErrorMessage(
-        `Failed to update the Logics runtime. ${detail || updateResult.error.message}`,
-        "Copy Update Command"
-      );
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(updateCommand);
-        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-      }
-      return false;
-    }
-
-    const afterStatus = await runGitWithOutput(root, ["submodule", "status", "--", "logics/skills"]);
-    const updated = beforeStatus.stdout.trim() !== afterStatus.stdout.trim();
     await this.options.refresh();
 
     const bootstrapConvergence = await this.reconcileRepoBootstrapAfterKitUpdate(root);
     const snapshot = await inspectLogicsEnvironment(root);
     const rootChangeNote = hasOtherRootChanges ? " Unrelated root changes were left untouched." : "";
-
-    if (snapshot.codexOverlay.status === "missing-manager") {
-      void vscode.window.showWarningMessage(
-        updated
-          ? "The Logics runtime source updated, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
-          : "The Logics runtime is already at the current tracked runtime revision, but it still does not expose a compatible global publication source. Check whether the repository is pinned to an older runtime branch or tag."
-      );
-      return true;
-    }
-
-    const message = updated
-      ? `Logics runtime updated after ${trigger}. Review and commit the runtime source change in your repository when ready.${rootChangeNote}`
-      : `The Logics runtime is already up to date on the tracked runtime revision.${rootChangeNote}`;
+    const message = `Logics runtime updated after ${trigger} by running the bundled bootstrap. Review and commit the runtime source change in your repository when ready.${rootChangeNote}`;
     const messageWithConvergence = appendBootstrapConvergenceNote(message, bootstrapConvergence);
     const choice =
       snapshot.codexOverlay.status !== "healthy" && snapshot.codexOverlay.status !== "warning"
@@ -368,9 +238,8 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     if (overlay.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
@@ -458,9 +327,8 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     if (globalKit.status === "missing-manager") {
-      const inspection = inspectLogicsKitSubmodule(root);
       const actions: string[] = [];
-      if (inspection.exists && inspection.isCanonical) {
+      if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
       actions.push("Copy Update Command");
@@ -514,11 +382,11 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
 
   async repairLogicsKit(root: string): Promise<boolean> {
     let snapshot = await inspectLogicsEnvironment(root);
-    const inspection = inspectLogicsKitSubmodule(root);
+    const bootstrapState = inspectLogicsBootstrapState(root);
     if (snapshot.codexOverlay.status === "missing-manager" || snapshot.claudeGlobalKit?.status === "missing-manager") {
-      if (!inspection.exists || !inspection.isCanonical) {
+      if (!bootstrapState.canBootstrap) {
         const choice = await vscode.window.showWarningMessage(
-          `Repair Logics runtime requires the canonical local workflow runtime. ${inspection.reason}`,
+          `Repair Logics runtime requires a bootstrappable local runtime. ${bootstrapState.reason}`,
           "Copy Update Command"
         );
         if (choice === "Copy Update Command") {

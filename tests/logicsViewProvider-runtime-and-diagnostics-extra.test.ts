@@ -279,7 +279,7 @@ describe("LogicsViewProvider", () => {
     mocks.hasMultipleWorkspaceFolders.mockReturnValue(false);
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
-    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
@@ -575,14 +575,13 @@ describe("LogicsViewProvider", () => {
 
     await provider.checkEnvironmentFromCommand();
 
-    expect(mocks.runGitWithOutput).toHaveBeenCalledWith(root, ["submodule", "update", "--init", "--remote", "--merge", "--", "logics/skills"]);
     expect(mocks.runPythonWithOutput).toHaveBeenCalledWith(
       root,
       path.join(root, "scripts", "logics-manager.py"),
       ["bootstrap"]
     );
     expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Logics runtime updated after environment diagnostics. Review and commit the runtime source change in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
+      "Logics runtime updated after environment diagnostics by running the bundled bootstrap. Review and commit the runtime source change in your repository when ready. Repo-local bootstrap files were reconciled with the current runtime."
     );
   });
 

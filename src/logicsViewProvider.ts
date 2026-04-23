@@ -597,12 +597,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       void vscode.window.showInformationMessage("Logics bootstrap already configured.");
       return;
     }
-    if (bootstrapState.status === "noncanonical") {
-      void vscode.window.showWarningMessage(
-        `Bootstrap Logics is unavailable until the current Logics runtime setup is repaired. ${bootstrapState.reason}`
-      );
-      return;
-    }
     await this.codexWorkflowController.bootstrapLogics(root);
   }
 
@@ -704,7 +698,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       if (dangerousGitignore.hasDangerousPatterns) {
         detailItems.push({
           label: "Gitignore warning: Logics runtime paths may be hidden",
-          description: `${dangerousGitignore.reason} The extension can still recover via fallback copy or clone after confirmation.`
+          description: `${dangerousGitignore.reason} The extension can still recover after confirmation.`
         });
       }
     }

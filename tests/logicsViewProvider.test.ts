@@ -285,7 +285,7 @@ describe("LogicsViewProvider", () => {
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
-    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
@@ -449,7 +449,7 @@ describe("LogicsViewProvider", () => {
     await (provider as any).maybeOfferBootstrap(root);
 
     expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Broad .gitignore pattern(s) detected for Logics runtime paths: logics/. This can break the runtime update path, but the extension can fall back to a copy or direct clone if you confirm."
+      "Broad .gitignore pattern(s) detected for Logics runtime paths: logics/. This can break the runtime update path, but the extension can still recover after confirmation."
     );
   });
 
@@ -655,19 +655,21 @@ describe("LogicsViewProvider", () => {
     );
   });
 
-  it("surfaces non-canonical bootstrap state instead of claiming bootstrap is complete", async () => {
+  it("surfaces incomplete bootstrap state instead of claiming bootstrap is complete", async () => {
     mocks.inspectLogicsBootstrapState.mockReturnValue({
-      status: "noncanonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
-      reason: "The repository does not declare logics/skills in .gitmodules."
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Repair Logics setup on this branch",
+      promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
+    const bootstrapSpy = vi.spyOn((provider as any).codexWorkflowController, "bootstrapLogics").mockResolvedValue(true);
 
     await (provider as any).bootstrapFromTools();
 
-    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Bootstrap Logics is unavailable until the current Logics runtime setup is repaired. The repository does not declare logics/skills in .gitmodules."
-    );
+    expect(bootstrapSpy).toHaveBeenCalledWith(root);
   });
 
   it("runs bootstrap from Tools when the canonical runtime still needs repo-local convergence", async () => {

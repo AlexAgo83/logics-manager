@@ -279,7 +279,7 @@ describe("LogicsViewProvider", () => {
     mocks.hasMultipleWorkspaceFolders.mockReturnValue(false);
     mocks.isExistingDirectory.mockReturnValue(true);
     mocks.areSamePath.mockImplementation((left: string, right: string) => left === right);
-    mocks.buildLogicsKitUpdateCommand.mockReturnValue("git submodule update --init --remote --merge -- logics/skills");
+    mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
     mocks.detectDangerousGitignorePatterns.mockReturnValue({
       hasDangerousPatterns: false,
       matchedPatterns: [],
@@ -411,9 +411,12 @@ describe("LogicsViewProvider", () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical runtime needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
@@ -508,9 +511,12 @@ describe("LogicsViewProvider", () => {
     // Switch to a healthy branch (canonical): no prompt
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical runtime needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     await (provider as any).maybeOfferBootstrap(root);
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
@@ -527,20 +533,25 @@ describe("LogicsViewProvider", () => {
     expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
   });
 
-  it("routes noncanonical state to a warning instead of a bootstrap prompt", async () => {
+  it("routes incomplete state to a bootstrap prompt instead of a warning", async () => {
     mocks.inspectLogicsBootstrapState.mockReturnValue({
-      status: "noncanonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap unavailable until the current Logics runtime setup is repaired",
-      reason: "The runtime source points to a non-canonical URL: https://example.com/fork.git"
+      status: "incomplete",
+      canBootstrap: true,
+      actionTitle: "Repair Logics setup on this branch",
+      promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
 
     await (provider as any).maybeOfferBootstrap(root);
 
-    expect(mocks.showWarningMessage).toHaveBeenCalledOnce();
-    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
-    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      expect.stringContaining("non-canonical or malformed")
+    expect(mocks.showInformationMessage).toHaveBeenCalledOnce();
+    expect(mocks.showWarningMessage).not.toHaveBeenCalled();
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
+      "Bootstrap Logics",
+      "Not now"
     );
   });
 
@@ -548,9 +559,12 @@ describe("LogicsViewProvider", () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical runtime needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
@@ -592,9 +606,12 @@ describe("LogicsViewProvider", () => {
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical runtime needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
 
@@ -615,9 +632,12 @@ describe("LogicsViewProvider", () => {
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
-      canBootstrap: false,
-      actionTitle: "Bootstrap already completed",
-      reason: "Canonical cdx-logics-kit submodule detected."
+      canBootstrap: true,
+      actionTitle: "Reconcile Logics bootstrap on this branch",
+      promptMessage: "Canonical runtime needs repo-local convergence.",
+      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
+      missingPaths: ["logics.yaml"],
+      convergenceNeeded: true
     });
     mocks.showInformationMessage.mockResolvedValue("Update Logics Runtime");
     const updateSpy = vi.spyOn((provider as any).codexWorkflowController, "updateLogicsKit").mockResolvedValue(true);

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logics-manager"
-version = "2.0.1"
+version = "2.0.2"
 description = "Canonical Logics CLI"
 requires-python = ">=3.10"
 

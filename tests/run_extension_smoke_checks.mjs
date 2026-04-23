@@ -26,8 +26,8 @@ runVscePackage(vsixPath, "ignore");
 
 const entries = await listZipEntries(vsixPath);
 const packageJson = JSON.parse(await readZipEntry(vsixPath, "extension/package.json"));
-if (packageJson.name !== "logics-manager") {
-  throw new Error(`Expected VSIX package name to be logics-manager, got ${packageJson.name || "undefined"}.`);
+if (packageJson.name !== "cdx-logics-vscode") {
+  throw new Error(`Expected VSIX package name to be cdx-logics-vscode, got ${packageJson.name || "undefined"}.`);
 }
 assertHas(entries, "extension/package.json");
 assertHas(entries, "extension/dist/extension.js");
@@ -67,10 +67,10 @@ const releasePackageJson = JSON.parse(await readZipEntry(releaseVsixPath, "exten
 const releaseManifest = await readZipEntry(releaseVsixPath, "extension.vsixmanifest");
 assertHas(releaseEntries, "[Content_Types].xml");
 assertHas(releaseEntries, "extension.vsixmanifest");
-if (releasePackageJson.name !== "logics-manager") {
-  throw new Error(`Expected release VSIX package name to be logics-manager, got ${releasePackageJson.name || "undefined"}.`);
+if (releasePackageJson.name !== "cdx-logics-vscode") {
+  throw new Error(`Expected release VSIX package name to be cdx-logics-vscode, got ${releasePackageJson.name || "undefined"}.`);
 }
-if (!releaseManifest.includes('Identity Id="cdx-logics.logics-manager"')) {
+if (!releaseManifest.includes('Identity Id="cdx-logics.cdx-logics-vscode"')) {
   throw new Error("Expected release VSIX manifest to declare the Marketplace identity.");
 }
 if (!releaseManifest.includes('Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true"')) {

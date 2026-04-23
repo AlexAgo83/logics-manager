@@ -10,7 +10,8 @@ from xml.sax.saxutils import escape
 
 ROOT = Path.cwd()
 EXTENSION_ROOT = "extension"
-EXTENSION_NAME = "logics-manager"
+EXTENSION_NAME = "cdx-logics-vscode"
+EXTENSION_ID = "cdx-logics.cdx-logics-vscode"
 
 
 def add_file(archive: zipfile.ZipFile, source: Path, target: str) -> None:
@@ -44,12 +45,9 @@ def build_content_types_xml() -> str:
 
 
 def build_vsix_manifest(package_json: dict[str, object]) -> str:
-    name = str(package_json["name"])
-    if name.startswith("@") and "/" in name:
-        name = name.rsplit("/", 1)[-1]
     publisher = str(package_json["publisher"])
     version = str(package_json["version"])
-    display_name = escape(str(package_json.get("displayName", name)))
+    display_name = escape(str(package_json.get("displayName", EXTENSION_NAME)))
     description = escape(str(package_json.get("description", "")))
     engines = package_json.get("engines", {})
     vscode_version = ""
@@ -59,7 +57,7 @@ def build_vsix_manifest(package_json: dict[str, object]) -> str:
     return f"""<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
   <Metadata>
-    <Identity Id="{escape(publisher)}.{escape(name)}" Version="{escape(version)}" Language="en-US" Publisher="{escape(publisher)}" />
+    <Identity Id="{escape(EXTENSION_ID)}" Version="{escape(version)}" Language="en-US" Publisher="{escape(publisher)}" />
     <DisplayName>{display_name}</DisplayName>
     <Description>{description}</Description>
     <Icon>extension/media/icon.png</Icon>

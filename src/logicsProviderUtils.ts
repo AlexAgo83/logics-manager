@@ -145,6 +145,8 @@ const REQUIRED_BOOTSTRAP_DIRS = [
   "logics/external"
 ] as const;
 
+const LEGACY_RUNTIME_PATHS = [".claude", "logics/skills"] as const;
+
 type BootstrapConvergenceInspection = {
   needed: boolean;
   missingPaths: string[];
@@ -219,6 +221,12 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
     missingPaths.push("logics/instructions.md");
   }
 
+  for (const rel of LEGACY_RUNTIME_PATHS) {
+    if (fs.existsSync(path.join(root, rel))) {
+      missingPaths.push(rel);
+    }
+  }
+
   if (missingPaths.length === 0) {
     return {
       needed: false,
@@ -230,7 +238,7 @@ export function inspectLogicsBootstrapConvergence(root: string): BootstrapConver
   return {
     needed: true,
     missingPaths,
-    reason: `Repo-local Logics bootstrap is missing or stale: ${Array.from(new Set(missingPaths)).join(", ")}.`
+    reason: `Repo-local Logics bootstrap is missing, stale, or still contains legacy runtime artifacts: ${Array.from(new Set(missingPaths)).join(", ")}.`
   };
 }
 

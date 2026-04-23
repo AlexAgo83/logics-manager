@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 from .assist import _build_claude_instructions
@@ -13,12 +14,33 @@ def _workflow_directories(repo_root: Path) -> list[Path]:
     return [repo_root / "logics" / name for name in WORKFLOW_DIRS]
 
 
+def _legacy_runtime_paths(repo_root: Path) -> list[Path]:
+    return [repo_root / ".claude", repo_root / "logics" / "skills"]
+
+
+def _remove_legacy_runtime_paths(repo_root: Path, *, check: bool) -> list[str]:
+    removed_paths: list[str] = []
+    for target in _legacy_runtime_paths(repo_root):
+        if not target.exists():
+            continue
+        removed_paths.append(target.relative_to(repo_root).as_posix() + ("/" if target.is_dir() else ""))
+        if not check:
+            if target.is_dir():
+                shutil.rmtree(target)
+            else:
+                target.unlink()
+    return removed_paths
+
+
 def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
     logics_root = repo_root / "logics"
     instructions_manifest = _build_claude_instructions(repo_root)
     directory_actions: list[dict[str, object]] = []
     created_paths: list[str] = []
+    removed_paths: list[str] = []
     missing_paths: list[str] = []
+
+    removed_paths.extend(_remove_legacy_runtime_paths(repo_root, check=check))
 
     if not logics_root.exists():
         missing_paths.append("logics/")
@@ -78,6 +100,7 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
         "ok": ok,
         "missing_paths": missing_paths,
         "created_paths": created_paths,
+        "removed_paths": removed_paths,
         "directory_actions": directory_actions,
         "claude_instruction_line_count": instructions_manifest["line_count"],
     }
@@ -94,6 +117,10 @@ def render_bootstrap(payload: dict[str, object], *, output_format: str) -> str:
             lines.append(f"- missing: {path}")
         return "\n".join(lines)
     lines = ["Bootstrap: OK"]
+    if payload.get("removed_paths"):
+        lines.append("- removed:")
+        for path in payload["removed_paths"]:
+            lines.append(f"  - {path}")
     if payload["created_paths"]:
         lines.append("- created:")
         for path in payload["created_paths"]:

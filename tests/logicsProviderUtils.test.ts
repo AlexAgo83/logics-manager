@@ -129,6 +129,20 @@ describe("inspectLogicsBootstrapState", () => {
     expect(convergence.missingPaths).toEqual([]);
   });
 
+  it("marks legacy runtime artifacts as bootstrap convergence blockers", () => {
+    const root = makeCanonicalRoot();
+    fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
+    fs.mkdirSync(path.join(root, "logics", "skills", "legacy"), { recursive: true });
+
+    const convergence = inspectLogicsBootstrapConvergence(root);
+
+    expect(convergence.needed).toBe(true);
+    expect(convergence.missingPaths).toEqual(expect.arrayContaining([".claude", "logics/skills"]));
+    const state = inspectLogicsBootstrapState(root);
+    expect(state.status).toBe("incomplete");
+    expect(state.canBootstrap).toBe(true);
+  });
+
   it("keeps canonical bootstrap converged when workflow corpus files are present", () => {
     const root = makeCanonicalRoot();
 

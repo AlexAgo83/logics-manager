@@ -927,10 +927,12 @@ def test_main_runs_native_assist_runtime_status(
 ) -> None:
     repo_root = tmp_path / "logics-repo"
     repo_root.mkdir()
-    (repo_root / ".claude" / "commands").mkdir(parents=True)
-    (repo_root / ".claude" / "agents").mkdir(parents=True)
-    (repo_root / ".claude" / "commands" / "logics-assist.md").write_text("", encoding="utf-8")
-    (repo_root / ".claude" / "agents" / "logics-hybrid-delivery-assistant.md").write_text("", encoding="utf-8")
+    claude_home = tmp_path / "claude-home"
+    claude_home.mkdir()
+    (claude_home / "commands").mkdir(parents=True)
+    (claude_home / "agents").mkdir(parents=True)
+    (claude_home / "commands" / "logics-assist.md").write_text("", encoding="utf-8")
+    (claude_home / "agents" / "logics-hybrid-delivery-assistant.md").write_text("", encoding="utf-8")
     (repo_root / "logics").mkdir()
     (repo_root / "logics.yaml").write_text(
         "\n".join(
@@ -950,6 +952,7 @@ def test_main_runs_native_assist_runtime_status(
         + "\n",
         encoding="utf-8",
     )
+    monkeypatch.setenv("LOGICS_CLAUDE_GLOBAL_HOME", claude_home.as_posix())
 
     monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
 
@@ -1410,8 +1413,7 @@ def test_main_runs_native_bootstrap_creates_scaffold(
     assert "Bootstrap: OK" in captured.out
     assert (repo_root / "logics").is_dir()
     assert (repo_root / "logics" / "instructions.md").is_file()
-    assert (repo_root / ".claude" / "commands" / "logics-assist.md").is_file()
-    assert (repo_root / ".claude" / "agents" / "logics-request-draft.md").is_file()
+    assert not (repo_root / ".claude").exists()
     for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
         assert (repo_root / "logics" / directory).is_dir()
         assert (repo_root / "logics" / directory / ".gitkeep").is_file()

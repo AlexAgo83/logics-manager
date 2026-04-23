@@ -11,7 +11,7 @@ import {
 import { parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
-import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "./logicsEnvironment";
+import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
   areSamePath,
   detectDangerousGitignorePatterns,
@@ -809,12 +809,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         description: hybridCapability.summary
       },
       {
-        label: `Claude repo bridge: ${launchers.hasClaude ? (hybridRuntime.claudeBridgeAvailable ? "Available" : "Missing") : "Not installed"}`,
+        label: `Claude global runtime: ${launchers.hasClaude ? (snapshot.claudeGlobalKit?.status === "healthy" ? "Available" : "Missing") : "Not installed"}`,
         description: launchers.hasClaude
-          ? hybridRuntime.claudeBridgeAvailable
-            ? "Claude bridge files point to the shared hybrid runtime."
-            : "Hybrid runtime stays usable, but the thin Claude bridge is missing."
-          : "Claude is not installed on PATH, so bridge status is not checked."
+          ? snapshot.claudeGlobalKit?.status === "healthy"
+            ? "Claude launchers point to the globally published runtime."
+            : "Claude launchers are present, but the global runtime still needs publication."
+          : "Claude is not installed on PATH, so global runtime status is not checked."
       },
       {
         label: `Publish Release: ${publishReleaseCapability.available ? "Available" : "Unavailable"}`,
@@ -836,26 +836,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       viewProviderSupport.ensureLogicsCacheDir.call(this, root);
     }
 
-    if (root && !hybridRuntime.claudeBridgeAvailable) {
-      const bridgeStatus = detectClaudeBridgeStatus(root);
-      const missingFiles = bridgeStatus.canonicalVariants
-        .flatMap((variant) => {
-          const v = ["hybrid-assist"].find((id) => id === variant);
-          if (!v) return [];
-          const commandFile = path.join(root, ".claude", "commands", "logics-assist.md");
-          const agentFile = path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md");
-          const missing: string[] = [];
-          if (!fs.existsSync(commandFile)) missing.push(path.relative(root, commandFile));
-          if (!fs.existsSync(agentFile)) missing.push(path.relative(root, agentFile));
-          return missing;
-        });
+    if (root && snapshot.claudeGlobalKit?.status && snapshot.claudeGlobalKit.status !== "healthy") {
       recommendedActions.push({
-        label: "Fix now: Repair Logics runtime",
-        description: missingFiles.length > 0
-          ? `Canonical Claude bridge files are missing: ${missingFiles.join(", ")}`
-          : "Canonical Claude bridge files are incomplete — run the repair flow to restore shared runtime wiring.",
+        label: "Fix now: Publish Claude runtime",
+        description: snapshot.claudeGlobalKit.summary,
         action: async () => {
-          await this.codexWorkflowController.repairLogicsKit(root);
+          await this.codexWorkflowController.syncClaudeGlobalKit(root, "environment diagnostics", { forceRepublish: true });
         }
       });
     }

@@ -132,7 +132,7 @@ describe("inspectRuntimeLaunchers", () => {
     expect(snapshot.codex.title).toContain("globally published Logics runtime");
   });
 
-  it("shows the bridge repair title when Claude global kit is unhealthy and bridge files are missing", async () => {
+  it("shows the global runtime repair title when Claude global kit is unhealthy", async () => {
     mocks.inspectClaudeGlobalKit.mockReturnValue({
       status: "stale",
       summary: "",
@@ -140,17 +140,11 @@ describe("inspectRuntimeLaunchers", () => {
       warnings: [],
       needsPublish: true
     });
-    mocks.detectClaudeBridgeStatus.mockReturnValue({
-      available: false,
-      detectedVariants: [],
-      canonicalVariants: ["hybrid-assist"]
-    });
-
     const snapshot = await inspectRuntimeLaunchers("/workspace", {
       detectCommand: async () => true
     });
 
     expect(snapshot.claude.available).toBe(false);
-    expect(snapshot.claude.title).toContain("Canonical Claude bridge files are missing");
+    expect(snapshot.claude.title).toContain("Global Claude runtime");
   });
 });

@@ -1,35 +1,9 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import { parseDocument } from "yaml";
-import {
-  inspectPublicationLifecycle,
-  readSkillMtime,
-  removePath,
-  runPublicationLifecycle
-} from "./logicsGlobalKitLifecycle";
+import { ClaudeBridgeManifest, getGlobalClaudeHome, repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 
 export type ClaudeKitStatus = "unavailable" | "missing-manager" | "missing-overlay" | "stale" | "healthy";
-
-type ClaudePublishedEntry = {
-  name: string;
-  kind: "agent" | "command";
-  source_path: string;
-  destination_path: string;
-  mode: "copy";
-  source_mtime_ns?: number;
-};
-
-type ClaudeGlobalKitManifest = {
-  schema_version?: number;
-  manifest_kind?: string;
-  installed_version?: string;
-  source_repo?: string;
-  source_revision?: string;
-  published_at?: string;
-  publication_mode?: "copy";
-  published_skill_entries?: ClaudePublishedEntry[];
-};
 
 export type ClaudeKitSnapshot = {
   status: ClaudeKitStatus;
@@ -50,14 +24,10 @@ export type ClaudeKitSnapshot = {
 export type ClaudeGlobalPublishResult = {
   publicationMode: "copy";
   manifestPath: string;
-  installedVersion?: string;
-  sourceRevision?: string;
   publishedSkillNames: string[];
 };
 
 const MANIFEST_NAME = "logics-global-kit-claude.json";
-const MANIFEST_SCHEMA_VERSION = 1;
-const MANIFEST_KIND = "logics-global-kit-claude";
 
 export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
   if (!root) {
@@ -69,7 +39,6 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     };
   }
 
-  const resolvedRoot = path.resolve(root);
   const claudeHome = getGlobalClaudeHome();
   const agentsRoot = path.join(claudeHome, "agents");
   const commandsRoot = path.join(claudeHome, "commands");
@@ -84,178 +53,57 @@ export function inspectClaudeGlobalKit(root: string | null): ClaudeKitSnapshot {
     commandsRoot
   };
 
-  const inspection = inspectPublicationLifecycle<ClaudeGlobalKitManifest, ClaudePublishedEntry>({
-    root: resolvedRoot,
-    manifestPath,
-    validateManifest: (manifest) =>
-      (manifest.manifest_kind && manifest.manifest_kind !== MANIFEST_KIND) ||
-      (manifest.schema_version && manifest.schema_version !== MANIFEST_SCHEMA_VERSION)
-        ? ["Global Claude runtime manifest schema is unsupported."]
-        : [],
-    validateEntries: (entries) => {
-      const issues: string[] = [];
-      for (const entry of entries) {
-        if (!fs.existsSync(entry.source_path)) {
-          issues.push(`Published Claude runtime source is missing for \`${entry.name}\` (${entry.kind}).`);
-          continue;
-        }
-        if (!fs.existsSync(entry.destination_path)) {
-          issues.push(`Published Claude runtime destination is missing for \`${entry.name}\` (${entry.kind}).`);
-          continue;
-        }
-        const currentSourceMtime = readSkillMtime(entry.source_path, ["SKILL.md", path.join("agents", "openai.yaml")]);
-        if (
-          typeof entry.source_mtime_ns === "number" &&
-          typeof currentSourceMtime === "number" &&
-          entry.source_mtime_ns !== currentSourceMtime
-        ) {
-          issues.push(`Published Claude runtime entry is stale for \`${entry.name}\` (${entry.kind}).`);
-        }
-      }
-      return issues;
-    },
-    publishedSkillNames: (entries) => Array.from(new Set(entries.map((entry) => entry.name))).sort(),
-    versionChangeSeverity: "issue",
-    versionChangeMessage: (repoVersion, installedVersion) =>
-      `Repo-local runtime version ${repoVersion} is newer than the published Claude version ${installedVersion || "unknown"}.`,
-    revisionChangeSeverity: "issue",
-    revisionChangeMessage: () => "Repo-local runtime revision differs from the published Claude revision for this repository.",
-    missingVersionSeverity: "issue",
-    missingVersionMessage: "Published global Claude runtime version is missing from the manifest."
-  });
-
-  if (inspection.kind === "missing-manager") {
-    return {
-      ...base,
-      status: "missing-manager",
-      summary: "This repository does not expose a compatible repo-local Logics runtime source for Claude publication.",
-      issues: inspection.issues
-    };
-  }
-
-  if (inspection.kind === "missing-overlay") {
+  if (!fs.existsSync(manifestPath)) {
     return {
       ...base,
       status: "missing-overlay",
       summary: "No global Claude runtime is published yet.",
-      issues: inspection.issues,
-      installedVersion: inspection.context.repoVersion,
-      sourceRepo: inspection.context.resolvedRoot,
-      sourceRevision: inspection.context.repoRevision,
+      issues: ["Global Claude bridge manifest is missing."],
       publishedSkillNames: [],
       needsPublish: true
     };
   }
 
-  if (inspection.kind === "stale") {
+  const manifest = readClaudeBridgeManifest(manifestPath);
+  if (!manifest) {
     return {
       ...base,
       status: "stale",
       summary: "Global Claude runtime manifest is unreadable.",
-      issues: inspection.issues,
+      issues: ["Global Claude bridge manifest is unreadable."],
       needsPublish: true
     };
   }
 
-  const status: ClaudeKitStatus = inspection.issues.length > 0 ? "stale" : "healthy";
+  const issues = validateClaudeBridgeManifest(manifest, claudeHome);
+  const status: ClaudeKitStatus = issues.length > 0 ? "stale" : "healthy";
   const summary =
     status === "healthy"
-      ? `Global Claude runtime is ready (${inspection.installedVersion || "unknown version"}). Launch Claude normally to use it.`
+      ? "Global Claude runtime is ready. Launch Claude normally to use it."
       : "Global Claude runtime needs re-publication before it is reliable.";
 
   return {
     ...base,
     status,
     summary,
-    issues: inspection.issues,
-    warnings: inspection.warnings,
-    installedVersion: inspection.installedVersion,
-    sourceRepo: inspection.sourceRepo,
-    sourceRevision: inspection.sourceRevision,
-    publishedAt: inspection.publishedAt,
-    publishedSkillNames: inspection.publishedSkillNames,
+    issues,
+    warnings: [],
+    publishedSkillNames: manifest.bridges.map((bridge) => bridge.id),
     needsPublish: status !== "healthy"
   };
 }
 
-export function publishClaudeGlobalKit(root: string): ClaudeGlobalPublishResult {
-  const resolvedRoot = path.resolve(root);
-  const claudeHome = getGlobalClaudeHome();
-  const agentsRoot = path.join(claudeHome, "agents");
-  const commandsRoot = path.join(claudeHome, "commands");
-  const manifestPath = path.join(claudeHome, MANIFEST_NAME);
-
-  return runPublicationLifecycle<ClaudeGlobalKitManifest, ClaudePublishedEntry, ClaudeGlobalPublishResult>({
-    root: resolvedRoot,
-    manifestPath,
-    prepareDestinations: () => {
-      fs.mkdirSync(agentsRoot, { recursive: true });
-      fs.mkdirSync(commandsRoot, { recursive: true });
-    },
-    buildPublication: (context, previousManifest) => {
-      const previousDestinations = new Set((previousManifest?.published_skill_entries ?? []).map((entry) => entry.destination_path));
-      const nextDestinations = new Set<string>();
-      const publishedEntries: ClaudePublishedEntry[] = [];
-      for (const skill of context.repoSkills) {
-        const metadata = readClaudeSkillMetadata(skill.root, skill.name);
-        const agentPath = path.join(agentsRoot, `${skill.name}.md`);
-        const commandPath = path.join(commandsRoot, `${skill.name}.md`);
-        fs.writeFileSync(agentPath, renderClaudeAgent(metadata), "utf8");
-        fs.writeFileSync(commandPath, renderClaudeCommand(metadata), "utf8");
-        nextDestinations.add(agentPath);
-        nextDestinations.add(commandPath);
-        publishedEntries.push({
-          name: skill.name,
-          kind: "agent",
-          source_path: metadata.skillRoot,
-          destination_path: agentPath,
-          mode: "copy",
-          source_mtime_ns: readSkillMtime(metadata.skillRoot, ["SKILL.md", path.join("agents", "openai.yaml")]) ?? undefined
-        });
-        publishedEntries.push({
-          name: skill.name,
-          kind: "command",
-          source_path: metadata.skillRoot,
-          destination_path: commandPath,
-          mode: "copy",
-          source_mtime_ns: readSkillMtime(metadata.skillRoot, ["SKILL.md", path.join("agents", "openai.yaml")]) ?? undefined
-        });
-      }
-
-      for (const destinationPath of previousDestinations) {
-        if (!nextDestinations.has(destinationPath)) {
-          removePath(destinationPath);
-        }
-      }
-
-      return {
-        publishedEntries,
-        publishedSkillNames: discoverKitSkills(resolvedRoot),
-        publicationMode: "copy"
-      };
-    },
-    buildManifest: (context, publication) => ({
-      schema_version: MANIFEST_SCHEMA_VERSION,
-      manifest_kind: MANIFEST_KIND,
-      installed_version: context.repoVersion,
-      source_repo: context.resolvedRoot,
-      source_revision: context.repoRevision,
-      published_at: new Date().toISOString(),
-      publication_mode: "copy",
-      published_skill_entries: publication.publishedEntries
-    }),
-    formatResult: (currentManifestPath, manifest, publication) => ({
-      publicationMode: "copy",
-      manifestPath: currentManifestPath,
-      installedVersion: manifest.installed_version,
-      sourceRevision: manifest.source_revision,
-      publishedSkillNames: publication.publishedSkillNames
-    })
-  });
-}
-
-function getGlobalClaudeHome(): string {
-  return path.resolve(process.env.LOGICS_CLAUDE_GLOBAL_HOME || path.join(os.homedir(), ".claude"));
+export async function publishClaudeGlobalKit(root: string): Promise<ClaudeGlobalPublishResult> {
+  const manifestPath = path.join(getGlobalClaudeHome(), MANIFEST_NAME);
+  const result = await repairClaudeBridgeFiles(root);
+  const manifest = readClaudeBridgeManifest(manifestPath);
+  return {
+    publicationMode: "copy",
+    manifestPath: result.manifestPath ?? manifestPath,
+    publishedSkillNames: result.publishedVariantIds.length > 0
+      ? result.publishedVariantIds
+      : manifest?.bridges.map((bridge) => bridge.id) ?? []
+  };
 }
 
 export function discoverKitSkills(kitRoot: string): string[] {
@@ -267,101 +115,50 @@ export function discoverKitSkills(kitRoot: string): string[] {
     .readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .filter((entry) => !entry.name.startsWith("."))
-    .map((entry) => path.join(skillsRoot, entry.name))
-    .filter((skillRoot) => fs.existsSync(path.join(skillRoot, "SKILL.md")))
-    .map((skillRoot) => {
+    .filter((entry) => fs.existsSync(path.join(skillsRoot, entry.name, "SKILL.md")))
+    .map((entry) => {
+      const skillRoot = path.join(skillsRoot, entry.name);
       const skillDocPath = path.join(skillRoot, "SKILL.md");
       try {
         const document = parseDocument(fs.readFileSync(skillDocPath, "utf8"), { prettyErrors: false });
         const parsed = document.toJSON();
-        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        if (parsed && typeof parsed === "object") {
           const skillName = (parsed as { name?: unknown }).name;
           if (typeof skillName === "string" && skillName.trim()) {
             return skillName.trim();
           }
         }
       } catch {
-        // Keep the folder name fallback when frontmatter is malformed.
+        // fall through to folder name
       }
       return path.basename(skillRoot);
     })
-    .sort((left, right) => left.localeCompare(right));
+    .sort();
 }
 
-type ClaudeSkillMetadata = {
-  skillRoot: string;
-  skillName: string;
-  displayName: string;
-  defaultPrompt: string;
-  shortDescription: string;
-};
+function readClaudeBridgeManifest(manifestPath: string): ClaudeBridgeManifest | null {
+  try {
+    const payload = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as ClaudeBridgeManifest;
+    if (!payload || !Array.isArray(payload.bridges)) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
-function readClaudeSkillMetadata(skillRoot: string, skillName: string): ClaudeSkillMetadata {
-  const agentYamlPath = path.join(skillRoot, "agents", "openai.yaml");
-  let displayName = skillName;
-  let defaultPrompt = `Use $${skillName} for this repository.`;
-  let shortDescription = "Repository-local Logics skill.";
-
-  if (fs.existsSync(agentYamlPath)) {
-    try {
-      const document = parseDocument(fs.readFileSync(agentYamlPath, "utf8"), { prettyErrors: false });
-      const parsed = document.toJSON();
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        const interfaceConfig = (parsed as { interface?: Record<string, unknown> }).interface;
-        if (interfaceConfig && typeof interfaceConfig === "object") {
-          if (typeof interfaceConfig.display_name === "string" && interfaceConfig.display_name.trim()) {
-            displayName = interfaceConfig.display_name.trim();
-          }
-          if (typeof interfaceConfig.default_prompt === "string" && interfaceConfig.default_prompt.trim()) {
-            defaultPrompt = interfaceConfig.default_prompt.trim();
-          }
-          if (typeof interfaceConfig.short_description === "string" && interfaceConfig.short_description.trim()) {
-            shortDescription = interfaceConfig.short_description.trim();
-          }
-        }
-      }
-    } catch {
-      // Keep defaults for malformed metadata during publication.
+function validateClaudeBridgeManifest(manifest: ClaudeBridgeManifest, claudeHome: string): string[] {
+  const issues: string[] = [];
+  for (const bridge of manifest.bridges) {
+    const commandPath = path.join(claudeHome, bridge.command_path.replace(/^\.claude[\\/]/, ""));
+    const agentPath = path.join(claudeHome, bridge.agent_path.replace(/^\.claude[\\/]/, ""));
+    if (!fs.existsSync(commandPath)) {
+      issues.push(`Published Claude bridge destination is missing for \`${bridge.id}\` (command).`);
+    }
+    if (!fs.existsSync(agentPath)) {
+      issues.push(`Published Claude bridge destination is missing for \`${bridge.id}\` (agent).`);
     }
   }
-
-  return {
-    skillRoot,
-    skillName,
-    displayName,
-    defaultPrompt,
-    shortDescription
-  };
-}
-
-function renderClaudeCommand(metadata: ClaudeSkillMetadata): string {
-  return [
-    `# ${metadata.displayName}`,
-    "",
-    metadata.shortDescription,
-    "",
-    "Primary prompt:",
-    metadata.defaultPrompt,
-    "",
-    "References:",
-    `- \`${path.join(metadata.skillRoot, "SKILL.md")}\``,
-    `- \`${path.join(metadata.skillRoot, "agents", "openai.yaml")}\``,
-    ""
-  ].join("\n");
-}
-
-function renderClaudeAgent(metadata: ClaudeSkillMetadata): string {
-  return [
-    `# ${metadata.displayName} Agent`,
-    "",
-    metadata.shortDescription,
-    "",
-    "Default prompt:",
-    metadata.defaultPrompt,
-    "",
-    "References:",
-    `- \`${path.join(metadata.skillRoot, "SKILL.md")}\``,
-    `- \`${path.join(metadata.skillRoot, "agents", "openai.yaml")}\``,
-    ""
-  ].join("\n");
+  return issues;
 }

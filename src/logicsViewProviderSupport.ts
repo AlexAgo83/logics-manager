@@ -6,7 +6,7 @@ import { AgentDefinition, AgentRegistrySnapshot, createEmptyAgentRegistry, loadA
 import { LogicsItem, LogicsStage } from "./logicsIndexer";
 import { parseGitStatusEntries } from "./workflowSupport";
 import { buildLogicsWebviewHtml } from "./logicsWebviewHtml";
-import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "./logicsEnvironment";
+import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import { areSamePath, detectDangerousGitignorePatterns, getWorkspaceRoot, inspectLogicsBootstrapState, hasMultipleWorkspaceFolders, isExistingDirectory, runGitWithOutput, updateIndicatorsOnDisk } from "./logicsProviderUtils";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";

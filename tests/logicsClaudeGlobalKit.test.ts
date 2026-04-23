@@ -36,10 +36,8 @@ describe("Claude global runtime", () => {
     );
   }
 
-  it("reports a missing Claude runtime when repo-local skills exist but nothing is published yet", () => {
+  it("reports a missing Claude runtime when the global runtime has not been published yet", () => {
     const root = makeRoot("logics-claude-kit-");
-    writeSkill(root, "demo-skill", "Use $demo-skill.");
-    fs.writeFileSync(path.join(root, "VERSION"), "1.21.1\n", "utf8");
     process.env.LOGICS_CLAUDE_GLOBAL_HOME = makeRoot("claude-global-");
 
     const snapshot = inspectClaudeGlobalKit(root);
@@ -48,24 +46,21 @@ describe("Claude global runtime", () => {
     expect(snapshot.summary).toContain("No global Claude runtime is published yet");
   });
 
-  it("publishes a global Claude runtime and reports it healthy", () => {
+  it("publishes a global Claude runtime and reports it healthy", async () => {
     const root = makeRoot("logics-claude-kit-");
-    writeSkill(root, "demo-skill", "Use $demo-skill.");
-    fs.writeFileSync(path.join(root, "VERSION"), "1.21.1\n", "utf8");
     process.env.LOGICS_CLAUDE_GLOBAL_HOME = makeRoot("claude-global-");
 
-    const result = publishClaudeGlobalKit(root);
+    const result = await publishClaudeGlobalKit(root);
 
     expect(result.publicationMode).toBe("copy");
-    expect(result.publishedSkillNames).toEqual(["demo-skill"]);
-    expect(fs.existsSync(path.join(process.env.LOGICS_CLAUDE_GLOBAL_HOME!, "agents", "demo-skill.md"))).toBe(true);
-    expect(fs.existsSync(path.join(process.env.LOGICS_CLAUDE_GLOBAL_HOME!, "commands", "demo-skill.md"))).toBe(true);
+    expect(result.publishedSkillNames).toEqual(["hybrid-assist", "request-draft", "spec-first-pass", "backlog-groom"]);
+    expect(fs.existsSync(path.join(process.env.LOGICS_CLAUDE_GLOBAL_HOME!, "agents", "logics-hybrid-delivery-assistant.md"))).toBe(true);
+    expect(fs.existsSync(path.join(process.env.LOGICS_CLAUDE_GLOBAL_HOME!, "commands", "logics-assist.md"))).toBe(true);
     expect(fs.existsSync(path.join(process.env.LOGICS_CLAUDE_GLOBAL_HOME!, "logics-global-kit-claude.json"))).toBe(true);
 
     const snapshot = inspectClaudeGlobalKit(root);
     expect(snapshot.status).toBe("healthy");
-    expect(snapshot.installedVersion).toBe("1.21.1");
-    expect(snapshot.publishedSkillNames).toEqual(["demo-skill"]);
+    expect(snapshot.publishedSkillNames).toEqual(["hybrid-assist", "request-draft", "spec-first-pass", "backlog-groom"]);
   });
 
   it("discovers runtime skill names from SKILL.md frontmatter", () => {

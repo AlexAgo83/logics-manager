@@ -710,7 +710,7 @@ describe("LogicsViewProvider", () => {
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Logics runtime"))).toBe(true);
+      expect(items.some((i) => i.label.includes("Publish Claude runtime"))).toBe(true);
     });
 
     it("surfaces a Claude global kit publish action when the Claude kit is missing", async () => {
@@ -720,11 +720,38 @@ describe("LogicsViewProvider", () => {
       expect(items.some((i) => i.label.includes("Publish Global Claude Runtime"))).toBe(true);
     });
 
-    it("does not surface Claude bridge repair when bridge is available", async () => {
+    it("does not surface Claude runtime publish when runtime is available", async () => {
+      vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
+        ...defaultEnvironmentSnapshot(root),
+        claudeGlobalKit: {
+          status: "healthy",
+          summary: "Global Claude runtime is ready.",
+          issues: [],
+          warnings: [],
+          publishedSkillNames: ["hybrid-assist", "request-draft", "spec-first-pass", "backlog-groom"]
+        },
+        hybridRuntime: {
+          state: "ready",
+          summary: "Hybrid assist runtime ready.",
+          backend: "codex",
+          requestedBackend: "auto",
+          degraded: false,
+          degradedReasons: [],
+          claudeBridgeAvailable: true,
+          windowsSafeEntrypoint: "python -m logics_manager assist runtime-status --format json"
+        }
+      } as never);
+      mocks.inspectClaudeGlobalKit.mockReturnValue({
+        status: "healthy",
+        summary: "Global Claude runtime is ready.",
+        issues: [],
+        warnings: [],
+        publishedSkillNames: ["hybrid-assist", "request-draft", "spec-first-pass", "backlog-groom"]
+      });
       await provider.checkEnvironmentFromCommand();
 
       const items = quickPickItems();
-      expect(items.some((i) => i.label.includes("Repair Logics runtime"))).toBe(false);
+      expect(items.some((i) => i.label.includes("Publish Claude runtime"))).toBe(false);
     });
 
     it("creates logics/.cache directory when absent during Check Environment", async () => {

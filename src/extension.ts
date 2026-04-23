@@ -50,7 +50,6 @@ export function activate(context: vscode.ExtensionContext): void {
     }
     const patterns = [
       "logics/**/*.{md,markdown,yaml,yml}",
-      ".claude/**/*.{md,markdown,yml,yaml}",
       "logics.yaml",
       // Watch the git HEAD file so branch switches trigger a refresh and
       // clear stale bootstrap-state assumptions tied to the previous branch.

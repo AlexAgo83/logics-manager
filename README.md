@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
-![Version](https://img.shields.io/badge/version-v2.0.2-4C8BF5)
+![Version](https://img.shields.io/badge/version-v2.0.3-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -267,7 +267,7 @@ Contract:
 - `Environment` can also surface direct remediation actions when the plugin detects a stale runtime, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
 - `Environment` now uses a clearer hierarchy with summary, recommended actions, current status, and technical details, plus hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
 - `Check Environment` can be promoted into `Recommended` when the current repo state actually warrants operator attention.
-- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and supported `.claude/` bridge files; external global runtime state still requires an explicit refresh because it lives outside the workspace.
+- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and `.git/HEAD`; external global runtime state still requires an explicit refresh because it lives outside the workspace.
 - `Launch Codex` starts Codex using the globally published Logics runtime when the shared runtime is healthy.
 - `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
 - `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.

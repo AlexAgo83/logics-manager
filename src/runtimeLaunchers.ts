@@ -1,5 +1,4 @@
 import { execFile } from "child_process";
-import { detectClaudeBridgeStatus } from "./logicsEnvironment";
 import { inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 
@@ -28,8 +27,6 @@ export async function inspectRuntimeLaunchers(
   const [hasCodex, hasClaude] = await Promise.all([detectCommand("codex"), detectCommand("claude")]);
   const codexOverlay = inspectCodexWorkspaceOverlay(root);
   const claudeGlobalKit = inspectClaudeGlobalKit(root);
-  const claudeBridge = root ? detectClaudeBridgeStatus(root) : null;
-  const hasCanonicalClaudeBridge = Boolean(claudeBridge?.detectedVariants.includes("hybrid-assist"));
 
   return {
     hasCodex,
@@ -49,14 +46,11 @@ export async function inspectRuntimeLaunchers(
       available: Boolean(root) && hasClaude && claudeGlobalKit.status === "healthy",
       title: !root
         ? "Select a project root first"
-          : !hasClaude
+        : !hasClaude
           ? "Claude CLI not found on PATH"
           : claudeGlobalKit.status === "healthy"
             ? "Launch Claude with the globally published Logics runtime"
-              : claudeGlobalKit.summary ||
-              (hasCanonicalClaudeBridge
-                ? "Global Claude Logics runtime needs re-publication before it is reliable."
-                : "Canonical Claude bridge files are missing. Run Repair Logics runtime repair to restore the bridge."),
+            : claudeGlobalKit.summary || "Global Claude runtime needs publication.",
       command: "claude"
     }
   };

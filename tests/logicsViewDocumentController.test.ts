@@ -18,8 +18,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock("../src/logicsEnvironment", () => ({
   inspectLogicsEnvironment: vi.fn(async () => ({
     hasLogicsDir: true,
-    hasSkillsDir: true,
-    hasFlowManagerScript: true,
     python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
   }))
 }));
@@ -118,8 +116,6 @@ describe("LogicsViewDocumentController", () => {
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       hasLogicsDir: true,
-      hasSkillsDir: true,
-      hasFlowManagerScript: false,
       python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
     } as never);
 
@@ -152,8 +148,6 @@ describe("LogicsViewDocumentController", () => {
     const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       hasLogicsDir: true,
-      hasSkillsDir: true,
-      hasFlowManagerScript: true,
       python: { available: false, command: null }
     } as never);
 
@@ -301,8 +295,6 @@ describe("LogicsViewDocumentController", () => {
 
     envMock.mockResolvedValue({
       hasLogicsDir: false,
-      hasSkillsDir: false,
-      hasFlowManagerScript: false,
       python: { available: false, command: null }
     } as never);
     await controller.fixDocs();
@@ -310,8 +302,6 @@ describe("LogicsViewDocumentController", () => {
 
     envMock.mockResolvedValue({
       hasLogicsDir: true,
-      hasSkillsDir: true,
-      hasFlowManagerScript: true,
       python: { available: false, command: null }
     } as never);
     await controller.fixDocs();
@@ -319,8 +309,6 @@ describe("LogicsViewDocumentController", () => {
 
     envMock.mockResolvedValue({
       hasLogicsDir: true,
-      hasSkillsDir: true,
-      hasFlowManagerScript: true,
       python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
     } as never);
     mocks.showWarningMessage.mockResolvedValueOnce(undefined);

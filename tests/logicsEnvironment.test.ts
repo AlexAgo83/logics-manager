@@ -115,17 +115,14 @@ describe("inspectLogicsEnvironment", () => {
     fs.writeFileSync(path.join(root, ".claude", "agents", "logics-flow-manager.md"), "bridge\n", "utf8");
     status = detectClaudeBridgeStatus(root);
     expect(status.available).toBe(true);
-    expect(status.preferredVariant).toBe("flow-manager");
     expect(status.detectedVariants).toEqual(["flow-manager"]);
 
     fs.writeFileSync(path.join(root, ".claude", "commands", "logics-assist.md"), "bridge\n", "utf8");
     fs.writeFileSync(path.join(root, ".claude", "agents", "logics-hybrid-delivery-assistant.md"), "bridge\n", "utf8");
     status = detectClaudeBridgeStatus(root);
     expect(status.available).toBe(true);
-    expect(status.preferredVariant).toBe("hybrid-assist");
     expect(status.detectedVariants).toEqual(["hybrid-assist", "flow-manager"]);
     expect(status.canonicalVariants).toEqual(["hybrid-assist"]);
-    expect(status.supportedVariants).toEqual(["hybrid-assist", "flow-manager"]);
   });
 
   it("does not treat a compatibility-only Claude bridge as the canonical bridge runtime", async () => {

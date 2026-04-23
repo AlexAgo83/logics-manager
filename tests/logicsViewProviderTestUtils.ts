@@ -3,8 +3,6 @@ export function defaultEnvironmentSnapshot(currentRoot: string) {
     root: currentRoot,
     repositoryState: "partial-bootstrap",
     hasLogicsDir: true,
-    hasSkillsDir: true,
-    hasFlowManagerScript: true,
     hasBootstrapScript: true,
     missingWorkflowDirs: ["logics/request"],
     git: { available: true },

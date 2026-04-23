@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 98%
 > Confidence: 91%
-> Progress: 68%
+> Progress: 82%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -71,6 +71,9 @@ stateDiagram-v2
   - normalized runtime-source/bootstrap wording away from `cdx-logics-kit`-as-canonical phrasing in `src/logicsProviderUtils.ts` and the related plugin diagnostic tests.
   - tightened bridge diagnostics so only the canonical Claude bridge counts as the normal supported bridge state; compatibility-only `flow-manager` bridge files now trigger canonical repair wording instead of silently satisfying the check.
   - simplified the internal bridge snapshot contract by surfacing canonical bridge variants directly from `logicsEnvironment`, removing one more layer of plugin-side compatibility inference.
+  - removed legacy `hasSkillsDir` and `hasFlowManagerScript` fields from the production environment snapshot contract because capability gating no longer depends on those historical runtime-shape probes.
+  - removed `supportedVariants` from the production Claude bridge snapshot contract so runtime consumers only depend on the canonical-vs-detected bridge distinction.
+  - aligned the main extension/runtime fixtures with the reduced production snapshot contract by removing dead legacy bridge/runtime fields from the tests that no longer exist in production code.
 
 # AI Context
 - Summary: Implement orchestrate plugin migration to the canonical logics-manager cli surface.

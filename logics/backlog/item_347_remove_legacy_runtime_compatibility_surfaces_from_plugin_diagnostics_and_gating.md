@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 98%
 > Confidence: 90%
-> Progress: 82%
+> Progress: 93%
 > Complexity: Medium
 > Theme: Runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -75,3 +75,6 @@ flowchart TD
 - 2026-04-23 diagnostics note: runtime-source inspection and bootstrap-facing test coverage now use repo-local runtime wording instead of presenting `cdx-logics-kit` / legacy checkout language as the canonical supported-state label.
 - 2026-04-23 bridge note: plugin/runtime bridge availability now keys off the canonical `hybrid-assist` Claude bridge; a compatibility-only `flow-manager` bridge no longer counts as the normal supported bridge state for diagnostics and repair prompts.
 - 2026-04-23 internal-contract note: the Claude bridge status snapshot now exposes canonical bridge variants explicitly, so plugin repair logic no longer has to re-derive canonical-vs-compatibility intent from a broader supported-variants list.
+- 2026-04-23 runtime-contract note: `LogicsEnvironmentSnapshot` no longer exposes `hasSkillsDir` and `hasFlowManagerScript` in production code, removing two legacy runtime-shape fields that were no longer needed for capability decisions.
+- 2026-04-23 snapshot note: the production Claude bridge snapshot no longer exposes `supportedVariants`; runtime and plugin code now depend on detected and canonical variants only.
+- 2026-04-23 fixture note: the main extension/runtime test fixtures now match the reduced production snapshot contract instead of carrying dead `skills` / `flow-manager-script` booleans forward by inertia.

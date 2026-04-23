@@ -15,8 +15,6 @@ function buildSnapshot() {
     root: "/workspace/mock",
     repositoryState: "ready",
     hasLogicsDir: true,
-    hasSkillsDir: true,
-    hasFlowManagerScript: true,
     hasBootstrapScript: true,
     missingWorkflowDirs: [],
     git: { available: true },

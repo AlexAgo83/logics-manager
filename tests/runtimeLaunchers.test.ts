@@ -46,10 +46,8 @@ describe("inspectRuntimeLaunchers", () => {
     });
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
-      preferredVariant: "flow-manager",
       detectedVariants: ["flow-manager"],
-      canonicalVariants: ["hybrid-assist"],
-      supportedVariants: ["hybrid-assist", "flow-manager"]
+      canonicalVariants: ["hybrid-assist"]
     });
   });
 
@@ -144,10 +142,8 @@ describe("inspectRuntimeLaunchers", () => {
     });
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: false,
-      preferredVariant: null,
       detectedVariants: [],
-      canonicalVariants: ["hybrid-assist"],
-      supportedVariants: ["hybrid-assist", "flow-manager"]
+      canonicalVariants: ["hybrid-assist"]
     });
 
     const snapshot = await inspectRuntimeLaunchers("/workspace", {

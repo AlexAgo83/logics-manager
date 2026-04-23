@@ -28,10 +28,8 @@ export type HybridRuntimeSnapshot = {
 
 export type ClaudeBridgeStatus = {
   available: boolean;
-  preferredVariant: "hybrid-assist" | "flow-manager" | null;
   detectedVariants: string[];
   canonicalVariants: string[];
-  supportedVariants: string[];
 };
 
 function hasCanonicalClaudeBridge(status: ClaudeBridgeStatus): boolean {
@@ -63,10 +61,8 @@ export function detectClaudeBridgeStatus(root: string): ClaudeBridgeStatus {
   ).map((variant) => variant.id);
   return {
     available: detectedVariants.length > 0,
-    preferredVariant: detectedVariants[0] ?? null,
     detectedVariants: [...detectedVariants],
-    canonicalVariants: ["hybrid-assist"],
-    supportedVariants: CLAUDE_BRIDGE_VARIANTS.map((variant) => variant.id)
+    canonicalVariants: ["hybrid-assist"]
   };
 }
 
@@ -75,8 +71,6 @@ export type LogicsEnvironmentSnapshot = {
   invalidOverridePath?: string;
   repositoryState: RepositoryState;
   hasLogicsDir: boolean;
-  hasSkillsDir: boolean;
-  hasFlowManagerScript: boolean;
   hasBootstrapScript: boolean;
   missingWorkflowDirs: string[];
   git: {
@@ -118,11 +112,6 @@ export async function inspectLogicsEnvironment(
   const projectRoot = root ?? "";
   const hasLogicsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics"));
   const hasBundledManagerScript = Boolean(root) && fs.existsSync(path.join(projectRoot, "scripts", "logics-manager.py"));
-  const hasSkillsDir = Boolean(root) && fs.existsSync(path.join(projectRoot, "logics", "skills"));
-  const hasFlowManagerScript =
-    hasBundledManagerScript ||
-    (Boolean(root) &&
-      fs.existsSync(path.join(projectRoot, "logics", "skills", "logics-flow-manager", "scripts", "logics_flow.py")));
   const hasBootstrapScript = hasBundledManagerScript;
   const missingWorkflowDirs = root ? getMissingWorkflowDirs(root) : [];
   const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
@@ -133,8 +122,6 @@ export async function inspectLogicsEnvironment(
   const repositoryState = computeRepositoryState({
     root,
     hasLogicsDir,
-    hasSkillsDir,
-    hasFlowManagerScript,
     missingWorkflowDirs
   });
 
@@ -143,8 +130,6 @@ export async function inspectLogicsEnvironment(
     invalidOverridePath,
     repositoryState,
     hasLogicsDir,
-    hasSkillsDir,
-    hasFlowManagerScript,
     hasBootstrapScript,
     missingWorkflowDirs,
     git: {
@@ -159,7 +144,7 @@ export async function inspectLogicsEnvironment(
     hybridRuntime,
     capabilities: {
       readOnly: buildReadOnlyCapability(repositoryState, root, invalidOverridePath),
-      workflowMutation: buildWorkflowMutationCapability(hasLogicsDir, hasFlowManagerScript, pythonAvailable),
+      workflowMutation: buildWorkflowMutationCapability(hasLogicsDir, pythonAvailable),
       bootstrapRepair: buildBootstrapCapability(root, gitAvailable, pythonAvailable, hasBootstrapScript),
       codexRuntime: buildCodexRuntimeCapability(root, codexOverlay),
       hybridAssist: buildHybridAssistCapability(root, hybridRuntime),
@@ -221,8 +206,6 @@ function getMissingWorkflowDirs(root: string): string[] {
 function computeRepositoryState(input: {
   root: string | null;
   hasLogicsDir: boolean;
-  hasSkillsDir: boolean;
-  hasFlowManagerScript: boolean;
   missingWorkflowDirs: string[];
 }): RepositoryState {
   if (!input.root) {
@@ -262,7 +245,6 @@ function buildReadOnlyCapability(
 
 function buildWorkflowMutationCapability(
   hasLogicsDir: boolean,
-  hasFlowManagerScript: boolean,
   pythonAvailable: boolean
 ): Capability {
   if (!hasLogicsDir) {

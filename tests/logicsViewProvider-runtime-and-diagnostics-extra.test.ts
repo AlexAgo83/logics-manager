@@ -146,8 +146,6 @@ vi.mock("../src/logicsEnvironment", () => ({
     root: "/workspace/mock",
     repositoryState: "partial-bootstrap",
     hasLogicsDir: true,
-    hasSkillsDir: true,
-    hasFlowManagerScript: true,
     hasBootstrapScript: true,
     missingWorkflowDirs: ["logics/request"],
     git: { available: true },
@@ -260,10 +258,8 @@ describe("LogicsViewProvider", () => {
     mocks.inspectGitHubReleaseCapability.mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
-      preferredVariant: "hybrid-assist",
       detectedVariants: ["hybrid-assist"],
-      canonicalVariants: ["hybrid-assist"],
-      supportedVariants: ["hybrid-assist", "flow-manager"]
+      canonicalVariants: ["hybrid-assist"]
     });
 
     mocks.inspectLogicsBootstrapState.mockReturnValue({
@@ -420,8 +416,6 @@ describe("LogicsViewProvider", () => {
         root,
         repositoryState: "ready",
         hasLogicsDir: true,
-        hasSkillsDir: true,
-        hasFlowManagerScript: true,
         hasBootstrapScript: true,
         missingWorkflowDirs: [],
         git: { available: true },
@@ -445,8 +439,6 @@ describe("LogicsViewProvider", () => {
         root,
         repositoryState: "ready",
         hasLogicsDir: true,
-        hasSkillsDir: true,
-        hasFlowManagerScript: true,
         hasBootstrapScript: true,
         missingWorkflowDirs: [],
         git: { available: true },
@@ -470,8 +462,6 @@ describe("LogicsViewProvider", () => {
         root,
         repositoryState: "ready",
         hasLogicsDir: true,
-        hasSkillsDir: true,
-        hasFlowManagerScript: true,
         hasBootstrapScript: true,
         missingWorkflowDirs: [],
         git: { available: true },
@@ -514,8 +504,6 @@ describe("LogicsViewProvider", () => {
         root,
         repositoryState: "ready",
         hasLogicsDir: true,
-        hasSkillsDir: true,
-        hasFlowManagerScript: true,
         hasBootstrapScript: true,
         missingWorkflowDirs: [],
         git: { available: true },
@@ -539,8 +527,6 @@ describe("LogicsViewProvider", () => {
         root,
         repositoryState: "ready",
         hasLogicsDir: true,
-        hasSkillsDir: true,
-        hasFlowManagerScript: true,
         hasBootstrapScript: true,
         missingWorkflowDirs: [],
         git: { available: true },

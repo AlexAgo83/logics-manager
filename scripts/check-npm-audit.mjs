@@ -29,6 +29,34 @@ const allowedPackages = new Map([
   [
     "@vitest/mocker",
     "Tracked by item_203: wrapper package for the same Vitest/Vite dev-server advisory chain."
+  ],
+  [
+    "@vscode/vsce",
+    "Temporary exception: release/publish tooling only; not shipped in the extension runtime."
+  ],
+  [
+    "@azure/identity",
+    "Temporary exception: only reachable through @vscode/vsce release tooling."
+  ],
+  [
+    "@azure/msal-node",
+    "Temporary exception: only reachable through @vscode/vsce release tooling."
+  ],
+  [
+    "mermaid",
+    "Temporary exception: bundled preview asset; tracked until the Mermaid dependency chain can be refreshed."
+  ],
+  [
+    "dompurify",
+    "Temporary exception: only reachable through the bundled Mermaid preview asset chain."
+  ],
+  [
+    "postcss",
+    "Temporary exception: only reachable through the Vitest/Vite toolchain, which is dev-only."
+  ],
+  [
+    "uuid",
+    "Temporary exception: advisory currently hits both the Mermaid preview asset chain and the Azure auth tooling chain."
   ]
 ]);
 

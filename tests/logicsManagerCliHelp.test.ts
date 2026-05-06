@@ -26,9 +26,12 @@ function resolvePythonBinary(): string {
   throw new Error("No Python 3.10+ interpreter found for logics-manager help tests.");
 }
 
-function runCliHelp(args: string[]) {
+function runCliHelp(args: string[], extraEnv: NodeJS.ProcessEnv = {}) {
   const python = resolvePythonBinary();
-  const result = spawnSync(python, [scriptPath, ...args], { encoding: "utf8" });
+  const result = spawnSync(python, [scriptPath, ...args], {
+    encoding: "utf8",
+    env: { ...process.env, ...extraEnv },
+  });
   if (result.error) {
     throw result.error;
   }
@@ -50,6 +53,14 @@ describe("logics-manager CLI help", () => {
     expect(output).toContain("audit");
     expect(output).toContain("self-update");
     expect(output).toContain("Examples:");
+  });
+
+  it("colors help output when explicitly forced", () => {
+    const { status, output } = runCliHelp(["--help"], { LOGICS_MANAGER_COLOR: "always" });
+
+    expect(status).toBe(0);
+    expect(output).toContain("\u001b[");
+    expect(output).toContain("Logics Manager CLI");
   });
 
   it("prints a rich flow recap on flow --help", () => {

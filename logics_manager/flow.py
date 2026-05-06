@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .termstyle import colorize_help
+
 
 @dataclass(frozen=True)
 class DocKind:
@@ -386,6 +388,10 @@ def _build_finish_kind_help(kind: str) -> str:
             "  logics-manager flow finish task task_003_fix_docs",
         ]
     )
+
+
+def _print_help(text: str) -> None:
+    print(colorize_help(text))
 
 
 def _split_titles(raw_titles: list[str]) -> list[str]:
@@ -1795,43 +1801,43 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 
 def main(argv: list[str]) -> int:
     if not argv or argv[0] in HELP_FLAGS:
-        print(_build_help())
+        _print_help(_build_help())
         return 0
     if argv[0] == "new" and _help_requested(argv, 1):
-        print(_build_new_help())
+        _print_help(_build_new_help())
         return 0
     if argv[0] == "new" and len(argv) > 1 and argv[1] in DOC_KINDS and _help_requested(argv, 2):
-        print(_build_new_kind_help(argv[1]))
+        _print_help(_build_new_kind_help(argv[1]))
         return 0
     if argv[0] == "companion" and _help_requested(argv, 1):
-        print(_build_companion_help())
+        _print_help(_build_companion_help())
         return 0
     if argv[0] == "companion" and len(argv) > 1 and argv[1] in {"product", "architecture"} and _help_requested(argv, 2):
-        print(_build_companion_kind_help(argv[1]))
+        _print_help(_build_companion_kind_help(argv[1]))
         return 0
     if argv[0] == "promote" and _help_requested(argv, 1):
-        print(_build_promote_help())
+        _print_help(_build_promote_help())
         return 0
     if argv[0] == "promote" and len(argv) > 1 and argv[1] in {"request-to-backlog", "backlog-to-task"} and _help_requested(argv, 2):
-        print(_build_promote_variant_help(argv[1]))
+        _print_help(_build_promote_variant_help(argv[1]))
         return 0
     if argv[0] == "split" and _help_requested(argv, 1):
-        print(_build_split_help())
+        _print_help(_build_split_help())
         return 0
     if argv[0] == "split" and len(argv) > 1 and argv[1] in {"request", "backlog"} and _help_requested(argv, 2):
-        print(_build_split_variant_help(argv[1]))
+        _print_help(_build_split_variant_help(argv[1]))
         return 0
     if argv[0] == "close" and _help_requested(argv, 1):
-        print(_build_close_help())
+        _print_help(_build_close_help())
         return 0
     if argv[0] == "close" and len(argv) > 1 and argv[1] in {"request", "backlog", "task"} and _help_requested(argv, 2):
-        print(_build_close_kind_help(argv[1]))
+        _print_help(_build_close_kind_help(argv[1]))
         return 0
     if argv[0] == "finish" and _help_requested(argv, 1):
-        print(_build_finish_help())
+        _print_help(_build_finish_help())
         return 0
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
-        print(_build_finish_kind_help(argv[1]))
+        _print_help(_build_finish_kind_help(argv[1]))
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)

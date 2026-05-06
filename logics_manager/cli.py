@@ -15,6 +15,7 @@ from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .lint import lint_payload, render_lint
 from .doctor import render_doctor
+from .termstyle import colorize_help
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -97,6 +98,10 @@ def _build_root_help() -> str:
     return "\n".join(sections)
 
 
+def _print_help(text: str) -> None:
+    print(colorize_help(text))
+
+
 def get_cli_version() -> str:
     version_file = Path(__file__).resolve().parents[1] / "VERSION"
     try:
@@ -117,10 +122,10 @@ def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     if not argv:
-        print(_build_root_help())
+        _print_help(_build_root_help())
         return 1
     if argv[0] in ("-h", "--help"):
-        print(_build_root_help())
+        _print_help(_build_root_help())
         return 0
     if argv[0] == "--version":
         print(f"logics-manager {get_cli_version()}")

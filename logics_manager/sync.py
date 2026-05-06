@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .config import find_repo_root
 from .lint import expected_workflow_mermaid_signature
+from .termstyle import colorize_help
 
 
 @dataclass(frozen=True)
@@ -626,6 +627,10 @@ def _build_subcommand_help(command: str) -> str:
     return _build_help()
 
 
+def _print_help(text: str) -> None:
+    print(colorize_help(text))
+
+
 def cmd_close_eligible_requests(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     scanned, closed = _close_eligible_requests(repo_root, args.dry_run)
@@ -726,10 +731,10 @@ def cmd_export_graph(args: argparse.Namespace) -> dict[str, object]:
 
 def main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
-        print(_build_help())
+        _print_help(_build_help())
         return 0
     if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "context-pack", "export-graph"} and (len(argv) == 1 or argv[1] in ("-h", "--help")):
-        print(_build_subcommand_help(argv[0]))
+        _print_help(_build_subcommand_help(argv[0]))
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)

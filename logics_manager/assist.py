@@ -14,6 +14,7 @@ from typing import Any
 from .config import ConfigError, find_repo_root, load_repo_config
 from .doctor import doctor_payload
 from .lint import lint_payload
+from .termstyle import colorize_help
 
 
 DEFAULT_HYBRID_AUDIT_LOG = "logics/.cache/hybrid_assist_audit.jsonl"
@@ -1702,6 +1703,10 @@ def _build_command_help(command: str) -> str:
     return _build_help()
 
 
+def _print_help(text: str) -> None:
+    print(colorize_help(text))
+
+
 def _get_global_claude_home() -> Path:
     return Path(os.environ.get("LOGICS_CLAUDE_GLOBAL_HOME") or (Path.home() / ".claude")).resolve()
 
@@ -2569,10 +2574,10 @@ def cmd_context(args: argparse.Namespace) -> dict[str, object]:
 
 def main(argv: list[str]) -> int:
     if not argv or argv[0] in HELP_FLAGS:
-        print(_build_help())
+        _print_help(_build_help())
         return 0
     if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and (len(argv) == 1 or argv[1] in HELP_FLAGS):
-        print(_build_command_help(argv[0]))
+        _print_help(_build_command_help(argv[0]))
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)

@@ -1,10 +1,10 @@
 ## task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references - Orchestrate removal of legacy logics/skills and cdx-logics-kit references
 > From version: 2.0.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100% (refreshed)
 > Confidence: 95% (refreshed)
-> Progress: 0% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Runtime migration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -36,12 +36,12 @@ stateDiagram-v2
 ```
 
 # Plan
-- [ ] 1. Confirm the request scope, dependencies, and active-surface boundary.
-- [ ] 2. Deliver the CI and release workflow cleanup slice.
-- [ ] 3. Deliver the runtime detection and test cleanup slice.
-- [ ] 4. Deliver the docs, lint, and fixture cleanup slice.
-- [ ] 5. Validate the active-surface scan and the supported CI path, then update the linked Logics docs.
-- [ ] GATE: do not close the task until the active surfaces no longer contain the retired references and the workflow validation is green.
+- [x] 1. Confirm the request scope, dependencies, and active-surface boundary.
+- [x] 2. Deliver the CI and release workflow cleanup slice.
+- [x] 3. Deliver the runtime detection and test cleanup slice.
+- [x] 4. Deliver the docs, lint, and fixture cleanup slice.
+- [x] 5. Validate the active-surface scan and the supported CI path, then update the linked Logics docs.
+- [x] GATE: do not close the task until the active surfaces no longer contain the retired references and the workflow validation is green.
 
 # Backlog
 - `logics/backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md`
@@ -49,11 +49,11 @@ stateDiagram-v2
 - `logics/backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md`
 
 # Definition of Done (DoD)
-- [ ] The linked backlog slices are delivered or explicitly deferred with rationale.
-- [ ] Validation passes for the changed workflow, runtime, and documentation surfaces.
-- [ ] The active-surface scan no longer finds `logics/skills` or `cdx-logics-kit`.
-- [ ] Linked docs are synchronized.
-- [ ] The final report states any residual archival-only mentions.
+- [x] The linked backlog slices are delivered or explicitly deferred with rationale.
+- [x] Validation passes for the changed workflow, runtime, and documentation surfaces.
+- [x] The active-surface scan no longer finds `logics/skills` or `cdx-logics-kit`.
+- [x] Linked docs are synchronized.
+- [x] The final report states any residual archival-only mentions.
 
 # Validation
 - Run the targeted CI and runtime tests for the changed surfaces.

@@ -286,7 +286,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime source detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
@@ -477,7 +477,7 @@ describe("LogicsViewProvider", () => {
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
       promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but the legacy repo-local runtime checkout is still missing."
+      reason: "The active branch has logics/ but bootstrap is still incomplete."
     });
 
     await (provider as any).maybeOfferBootstrap(root);

@@ -295,7 +295,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime source detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     mocks.runGitWithOutput.mockResolvedValue({
@@ -422,7 +422,7 @@ describe("LogicsViewProvider", () => {
       status: "canonical",
       canBootstrap: false,
       actionTitle: "Bootstrap already completed",
-      reason: "Repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime source detected."
     });
     mocks.shouldPublishRepoKit.mockReturnValueOnce(true).mockReturnValue(false);
     (provider as any).refresh = vi.fn().mockResolvedValue(undefined);

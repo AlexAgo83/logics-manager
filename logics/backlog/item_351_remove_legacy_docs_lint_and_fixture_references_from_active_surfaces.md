@@ -1,10 +1,10 @@
 ## item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces - Remove legacy docs, lint, and fixture references from active surfaces
 > From version: 2.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime migration and repository hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

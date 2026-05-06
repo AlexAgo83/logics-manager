@@ -1,6 +1,6 @@
 ## prod_001_hybrid_assist_operator_experience_for_repetitive_logics_delivery_flows - Hybrid assist operator experience for repetitive Logics delivery flows
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Active
 > Related request: `req_089_add_a_hybrid_ollama_or_codex_local_orchestration_backend_for_repetitive_logics_delivery_tasks`
 > Related backlog: `item_142_add_hybrid_commit_message_pr_summary_and_changelog_summary_assist_flows`
 > Related task: `task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure`

@@ -1,10 +1,10 @@
 ## item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation - Remove legacy checkout and release workflow dependencies from CI validation
 > From version: 2.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime migration and CI hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

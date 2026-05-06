@@ -287,7 +287,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime source detected."
     });
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });

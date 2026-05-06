@@ -1,10 +1,10 @@
 ## item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests - Remove legacy runtime detection and bootstrap signals from TypeScript and tests
 > From version: 2.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Runtime integration and test contract cleanup
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

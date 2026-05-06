@@ -1,7 +1,7 @@
 ## req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces - Remove legacy logics/skills and cdx-logics-kit references from active surfaces
 > From version: 2.0.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 99%
 > Confidence: 97%
 > Complexity: High

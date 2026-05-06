@@ -129,18 +129,18 @@ describe("inspectLogicsBootstrapState", () => {
     expect(convergence.missingPaths).toEqual([]);
   });
 
-  it("marks legacy runtime artifacts as bootstrap convergence blockers", () => {
+  it("ignores legacy runtime artifacts once the repo-local bootstrap is converged", () => {
     const root = makeCanonicalRoot();
     fs.mkdirSync(path.join(root, ".claude", "commands"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "skills", "legacy"), { recursive: true });
 
     const convergence = inspectLogicsBootstrapConvergence(root);
 
-    expect(convergence.needed).toBe(true);
-    expect(convergence.missingPaths).toEqual(expect.arrayContaining([".claude", "logics/skills"]));
+    expect(convergence.needed).toBe(false);
+    expect(convergence.missingPaths).toEqual([]);
     const state = inspectLogicsBootstrapState(root);
-    expect(state.status).toBe("incomplete");
-    expect(state.canBootstrap).toBe(true);
+    expect(state.status).toBe("canonical");
+    expect(state.canBootstrap).toBe(false);
   });
 
   it("keeps canonical bootstrap converged when workflow corpus files are present", () => {

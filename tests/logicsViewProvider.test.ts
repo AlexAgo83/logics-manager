@@ -292,7 +292,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: true,
       isCanonical: true,
-      reason: "Repo-local Logics runtime checkout detected."
+      reason: "Repo-local Logics runtime source detected."
     });
     mocks.runGitWithOutput.mockResolvedValue({
       stdout: "",
@@ -414,7 +414,7 @@ describe("LogicsViewProvider", () => {
       canBootstrap: true,
       actionTitle: "Bootstrap or repair Logics in this project",
       promptMessage: "Logics bootstrap is incomplete. Bootstrap or repair Logics by provisioning the local runtime?",
-      reason: "The repository has logics/ but a legacy repo-local runtime checkout is still missing."
+      reason: "The repository has logics/ but bootstrap is still incomplete."
     });
     mocks.showInformationMessage.mockResolvedValue("Not now");
 
@@ -434,7 +434,7 @@ describe("LogicsViewProvider", () => {
       canBootstrap: true,
       actionTitle: "Repair Logics setup on this branch",
       promptMessage: "This branch has an incomplete Logics setup. Repair by provisioning the local runtime?",
-      reason: "The active branch has logics/ but a legacy repo-local runtime checkout is still missing."
+      reason: "The active branch has logics/ but bootstrap is still incomplete."
     });
     mocks.detectDangerousGitignorePatterns.mockReturnValueOnce({
       hasDangerousPatterns: true,
@@ -770,7 +770,7 @@ describe("LogicsViewProvider", () => {
     mocks.inspectLogicsKitSubmodule.mockReturnValue({
       exists: false,
       isCanonical: false,
-      reason: "No repo-local Logics runtime checkout was detected in the selected repository."
+      reason: "No bundled Logics runtime source was detected in the selected repository."
     });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "missing",

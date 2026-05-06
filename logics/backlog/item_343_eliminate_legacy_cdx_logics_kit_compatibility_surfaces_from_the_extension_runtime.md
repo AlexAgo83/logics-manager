@@ -1,10 +1,10 @@
 ## item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime - Eliminate legacy cdx-logics-kit compatibility surfaces from the extension runtime
-> From version: 1.28.0
+> From version: 1.28.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 96% (refreshed)
+> Confidence: 90% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Runtime integration and TypeScript boundary reduction
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|eliminate-legacy-cdx-logics-kit-compa|req-188-unify-logics-into-a-bundled-cli-|remove-legacy-kit-compatibility-sur|ac5-the-migration-removes-the
+%% logics-signature: backlog|eliminate-legacy-cdx-logics-kit-compatib|req-188-unify-logics-into-a-bundled-cli-|the-extension-still-branches-on-logics|ac5-the-migration-removes-the-legacy
 flowchart TD
     Request[Unify Logics into a bundled CLI and integrated runtime] --> Problem[Eliminate legacy kit compatibility surfaces]
     Problem --> Scope[Reduce the TypeScript shell to the supported runtime boundary]

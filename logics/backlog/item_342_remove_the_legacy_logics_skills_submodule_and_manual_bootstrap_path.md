@@ -1,10 +1,10 @@
 ## item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path - Remove the legacy logics/skills submodule and manual bootstrap path
-> From version: 1.28.0
+> From version: 1.28.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 96%
-> Confidence: 90%
-> Progress: 100%
+> Understanding: 96% (refreshed)
+> Confidence: 90% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Runtime packaging and repository hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|remove-the-legacy-logics-skills-submodu|req-188-unify-logics-into-a-bundled-cli-|remove-the-live-logics-skills-submodul|ac1-the-runtime-is-bundled-into
+%% logics-signature: backlog|remove-the-legacy-logics-skills-submodul|req-188-unify-logics-into-a-bundled-cli-|the-repository-still-carries-a-live|ac1-the-repository-no-longer-requires
 flowchart TD
     Request[Unify Logics into a bundled CLI and integrated runtime] --> Problem[Remove the legacy logics/skills checkout path]
     Problem --> Scope[Replace manual bootstrap guidance with bundled runtime behavior]

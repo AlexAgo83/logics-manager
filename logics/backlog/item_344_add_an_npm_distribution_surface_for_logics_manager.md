@@ -1,10 +1,10 @@
 ## item_344_add_an_npm_distribution_surface_for_logics_manager - Add an npm distribution surface for logics-manager
-> From version: 1.28.0
+> From version: 1.28.0 (refreshed)
 > Schema version: 1.0
 > Status: Done
-> Understanding: 94%
-> Confidence: 86%
-> Progress: 100%
+> Understanding: 94% (refreshed)
+> Confidence: 86% (refreshed)
+> Progress: 100% (refreshed)
 > Complexity: High
 > Theme: Runtime packaging and release tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -18,7 +18,7 @@
 
 ```mermaid
 %% logics-kind: backlog
-%% logics-signature: backlog|add-an-npm-distribution-surface-for-l|req-188-unify-logics-into-a-bundled-cli-|add-an-npm-distribution-surface-for|ac2-logics-manager-is-the-canonic
+%% logics-signature: backlog|add-an-npm-distribution-surface-for-logi|req-188-unify-logics-into-a-bundled-cli-|the-python-cli-is-installable-through|ac2-logics-manager-has-a-supported-npm
 flowchart TD
     Request[Unify Logics into a bundled CLI and integrated runtime] --> Problem[Add an npm distribution surface for logics-manager]
     Problem --> Scope[Provide an npm-installable CLI surface that matches the Python runtime]

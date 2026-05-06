@@ -46,6 +46,7 @@ def _build_root_help() -> str:
         "",
         "Top-level options:",
         "  -h, --help      Show this help message and exit.",
+        "  -v, --version   Print the installed version.",
         "  --version       Print the installed version.",
         "",
         "Commands:",
@@ -127,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     if argv[0] in ("-h", "--help"):
         _print_help(_build_root_help())
         return 0
-    if argv[0] == "--version":
+    if argv[0] in {"-v", "--version"}:
         print(f"logics-manager {get_cli_version()}")
         return 0
 

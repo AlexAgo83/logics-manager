@@ -37,6 +37,15 @@ def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> No
     assert f"logics-manager {version}" in captured.out
 
 
+def test_main_prints_version_with_short_alias(capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = main(["-v"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    version = (Path(__file__).resolve().parents[1] / "VERSION").read_text(encoding="utf-8").strip()
+    assert f"logics-manager {version}" in captured.out
+
+
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = main(["assist", "claude-bridges", "--format", "json"])
 

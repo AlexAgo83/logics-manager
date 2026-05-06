@@ -33,6 +33,359 @@ STATUS_BY_KIND_DEFAULT = {
     "backlog": "Ready",
     "task": "Ready",
 }
+HELP_FLAGS = ("-h", "--help")
+
+
+def _help_requested(argv: list[str], index: int) -> bool:
+    return len(argv) <= index or argv[index] in HELP_FLAGS
+
+
+def _format_flag_list(flags: list[str]) -> str:
+    return ", ".join(flags)
+
+
+def _build_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow CLI",
+            "Create workflow docs with stable IDs, templates, and transitions.",
+            "",
+            "Usage:",
+            "  logics-manager flow <command> [args...]",
+            "",
+            "Commands:",
+            "  new <request|backlog|task>",
+            "    Create a new doc from a template.",
+            "    Common flags: --title, --slug, --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --format {text,json}, --dry-run",
+            "    Request-only flags: --fixture, --smoke-test",
+            "    Backlog/task-only flags: --auto-create-product-brief, --auto-create-adr",
+            "",
+            "  companion <product|architecture>",
+            "    Create a companion doc from the integrated runtime.",
+            "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "",
+            "  promote request-to-backlog <source>",
+            "    Create a backlog slice from a request.",
+            "",
+            "  promote backlog-to-task <source>",
+            "    Create a task from a backlog item.",
+            "",
+            "  split request <source>",
+            "    Split a request into multiple backlog items.",
+            "    Flags: --title (repeatable), plus the common backlog flags above.",
+            "",
+            "  split backlog <source>",
+            "    Split a backlog item into multiple tasks.",
+            "    Flags: --title (repeatable), plus the common task flags above.",
+            "",
+            "  close <request|backlog|task> <source>",
+            "    Close a doc and propagate transitions.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "  finish task <source>",
+            "    Finish a task and verify the closure chain.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            '  logics-manager flow new request --title "My request"',
+            "  logics-manager flow promote request-to-backlog req_001_my_request",
+            "  logics-manager flow close task task_003_fix_docs --dry-run",
+        ]
+    )
+
+
+def _build_new_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow New",
+            "Create a new workflow doc from a template.",
+            "",
+            "Usage:",
+            "  logics-manager flow new <request|backlog|task> [args...]",
+            "",
+            "Kinds:",
+            "  request",
+            "    Generates a request doc.",
+            "    Flags: --title, --slug, --fixture, --smoke-test, --from-version, --understanding, --confidence, --status, --complexity, --theme, --format {text,json}, --dry-run",
+            "  backlog",
+            "    Generates a backlog doc.",
+            "    Flags: --title, --slug, --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "  task",
+            "    Generates a task doc.",
+            "    Flags: --title, --slug, --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            '  logics-manager flow new request --title "Capture migration risks"',
+            '  logics-manager flow new backlog --title "Break work into slices"',
+            '  logics-manager flow new task --title "Implement the parser"',
+        ]
+    )
+
+
+def _build_new_kind_help(kind: str) -> str:
+    if kind == "request":
+        kind_title = "Request"
+        flags = ["--title", "--slug", "--fixture", "--smoke-test", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--format {text,json}", "--dry-run"]
+        examples = ['  logics-manager flow new request --title "Capture migration risks"']
+    elif kind == "backlog":
+        kind_title = "Backlog"
+        flags = ["--title", "--slug", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--progress", "--auto-create-product-brief", "--auto-create-adr", "--format {text,json}", "--dry-run"]
+        examples = ['  logics-manager flow new backlog --title "Break work into slices"']
+    else:
+        kind_title = "Task"
+        flags = ["--title", "--slug", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--progress", "--auto-create-product-brief", "--auto-create-adr", "--format {text,json}", "--dry-run"]
+        examples = ['  logics-manager flow new task --title "Implement the parser"']
+    return "\n".join(
+        [
+            f"Logics Flow New {kind_title}",
+            f"Create a new {kind.lower()} doc.",
+            "",
+            "Usage:",
+            f"  logics-manager flow new {kind} [args...]",
+            "",
+            "Flags:",
+            f"  {_format_flag_list(flags)}",
+            "",
+            "Examples:",
+            *examples,
+        ]
+    )
+
+
+def _build_companion_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Companion",
+            "Create a companion doc from the integrated runtime.",
+            "",
+            "Usage:",
+            "  logics-manager flow companion <product|architecture> [args...]",
+            "",
+            "Kinds:",
+            "  product",
+            "    Create a product companion doc.",
+            "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "  architecture",
+            "    Create an architecture companion doc.",
+            "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            '  logics-manager flow companion product --title "Product note"',
+            '  logics-manager flow companion architecture --title "Architecture note"',
+        ]
+    )
+
+
+def _build_companion_kind_help(kind: str) -> str:
+    return "\n".join(
+        [
+            f"Logics Flow Companion {kind.title()}",
+            f"Create an {kind} companion doc from the integrated runtime.",
+            "",
+            "Usage:",
+            f"  logics-manager flow companion {kind} [args...]",
+            "",
+            "Flags:",
+            "  --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            f'  logics-manager flow companion {kind} --title "{kind.title()} note"',
+        ]
+    )
+
+
+def _build_promote_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Promote",
+            "Promote between workflow stages.",
+            "",
+            "Usage:",
+            "  logics-manager flow promote <request-to-backlog|backlog-to-task> <source> [args...]",
+            "",
+            "Commands:",
+            "  request-to-backlog <source>",
+            "    Create a backlog slice from a request.",
+            "    Flags: --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "  backlog-to-task <source>",
+            "    Create a task from a backlog item.",
+            "    Flags: --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager flow promote request-to-backlog req_001_capture_migration_risks",
+            "  logics-manager flow promote backlog-to-task item_002_break_work_into_slices",
+        ]
+    )
+
+
+def _build_promote_variant_help(promotion: str) -> str:
+    if promotion == "request-to-backlog":
+        title = "Request to Backlog"
+        summary = "Create a backlog slice from a request."
+        usage = "  logics-manager flow promote request-to-backlog <source> [args...]"
+        example = "  logics-manager flow promote request-to-backlog req_001_capture_migration_risks"
+    else:
+        title = "Backlog to Task"
+        summary = "Create a task from a backlog item."
+        usage = "  logics-manager flow promote backlog-to-task <source> [args...]"
+        example = "  logics-manager flow promote backlog-to-task item_002_break_work_into_slices"
+    return "\n".join(
+        [
+            f"Logics Flow Promote {title}",
+            summary,
+            "",
+            "Usage:",
+            usage,
+            "",
+            "Flags:",
+            "  --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "",
+            "Example:",
+            example,
+        ]
+    )
+
+
+def _build_split_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Split",
+            "Split a request or backlog into bounded children.",
+            "",
+            "Usage:",
+            "  logics-manager flow split <request|backlog> <source> [args...]",
+            "",
+            "Commands:",
+            "  request <source>",
+            "    Split a request into multiple backlog items.",
+            "    Flags: --title (repeatable), --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "  backlog <source>",
+            "    Split a backlog item into multiple tasks.",
+            "    Flags: --title (repeatable), --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager flow split request req_001_capture_migration_risks --title \"Slice 1\" --title \"Slice 2\"",
+            "  logics-manager flow split backlog item_002_break_work_into_slices --title \"Task 1\" --title \"Task 2\"",
+        ]
+    )
+
+
+def _build_split_variant_help(split_kind: str) -> str:
+    if split_kind == "request":
+        title = "Request"
+        summary = "Split a request into multiple backlog items."
+        usage = "  logics-manager flow split request <source> [args...]"
+        example = '  logics-manager flow split request req_001_capture_migration_risks --title "Slice 1" --title "Slice 2"'
+    else:
+        title = "Backlog"
+        summary = "Split a backlog item into multiple tasks."
+        usage = "  logics-manager flow split backlog <source> [args...]"
+        example = '  logics-manager flow split backlog item_002_break_work_into_slices --title "Task 1" --title "Task 2"'
+    return "\n".join(
+        [
+            f"Logics Flow Split {title}",
+            summary,
+            "",
+            "Usage:",
+            usage,
+            "",
+            "Flags:",
+            "  --title (repeatable), --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            "",
+            "Example:",
+            example,
+        ]
+    )
+
+
+def _build_close_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Close",
+            "Close a request, backlog item, or task and propagate transitions.",
+            "",
+            "Usage:",
+            "  logics-manager flow close <request|backlog|task> <source> [args...]",
+            "",
+            "Kinds:",
+            "  request",
+            "    Close a request doc.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  backlog",
+            "    Close a backlog doc.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  task",
+            "    Close a task doc.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager flow close request req_001_capture_migration_risks",
+            "  logics-manager flow close task task_003_fix_docs --dry-run",
+        ]
+    )
+
+
+def _build_close_kind_help(kind: str) -> str:
+    example = {
+        "request": "  logics-manager flow close request req_001_capture_migration_risks",
+        "backlog": "  logics-manager flow close backlog item_002_break_work_into_slices",
+        "task": "  logics-manager flow close task task_003_fix_docs",
+    }[kind]
+    return "\n".join(
+        [
+            f"Logics Flow Close {kind.title()}",
+            f"Close a {kind} doc and propagate transitions.",
+            "",
+            "Usage:",
+            f"  logics-manager flow close {kind} <source> [args...]",
+            "",
+            "Flags:",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Example:",
+            example,
+        ]
+    )
+
+
+def _build_finish_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Finish",
+            "Finish a task and verify the closure chain.",
+            "",
+            "Usage:",
+            "  logics-manager flow finish task <source> [args...]",
+            "",
+            "Commands:",
+            "  task <source>",
+            "    Finish a task.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager flow finish task task_003_fix_docs",
+        ]
+    )
+
+
+def _build_finish_kind_help(kind: str) -> str:
+    return "\n".join(
+        [
+            f"Logics Flow Finish {kind.title()}",
+            f"Finish a {kind} and verify the closure chain.",
+            "",
+            "Usage:",
+            f"  logics-manager flow finish {kind} <source> [args...]",
+            "",
+            "Flags:",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Example:",
+            "  logics-manager flow finish task task_003_fix_docs",
+        ]
+    )
 
 
 def _split_titles(raw_titles: list[str]) -> list[str]:
@@ -1441,6 +1794,45 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 
 
 def main(argv: list[str]) -> int:
+    if not argv or argv[0] in HELP_FLAGS:
+        print(_build_help())
+        return 0
+    if argv[0] == "new" and _help_requested(argv, 1):
+        print(_build_new_help())
+        return 0
+    if argv[0] == "new" and len(argv) > 1 and argv[1] in DOC_KINDS and _help_requested(argv, 2):
+        print(_build_new_kind_help(argv[1]))
+        return 0
+    if argv[0] == "companion" and _help_requested(argv, 1):
+        print(_build_companion_help())
+        return 0
+    if argv[0] == "companion" and len(argv) > 1 and argv[1] in {"product", "architecture"} and _help_requested(argv, 2):
+        print(_build_companion_kind_help(argv[1]))
+        return 0
+    if argv[0] == "promote" and _help_requested(argv, 1):
+        print(_build_promote_help())
+        return 0
+    if argv[0] == "promote" and len(argv) > 1 and argv[1] in {"request-to-backlog", "backlog-to-task"} and _help_requested(argv, 2):
+        print(_build_promote_variant_help(argv[1]))
+        return 0
+    if argv[0] == "split" and _help_requested(argv, 1):
+        print(_build_split_help())
+        return 0
+    if argv[0] == "split" and len(argv) > 1 and argv[1] in {"request", "backlog"} and _help_requested(argv, 2):
+        print(_build_split_variant_help(argv[1]))
+        return 0
+    if argv[0] == "close" and _help_requested(argv, 1):
+        print(_build_close_help())
+        return 0
+    if argv[0] == "close" and len(argv) > 1 and argv[1] in {"request", "backlog", "task"} and _help_requested(argv, 2):
+        print(_build_close_kind_help(argv[1]))
+        return 0
+    if argv[0] == "finish" and _help_requested(argv, 1):
+        print(_build_finish_help())
+        return 0
+    if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
+        print(_build_finish_kind_help(argv[1]))
+        return 0
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command not in {"new", "companion", "promote", "split", "close", "finish"}:

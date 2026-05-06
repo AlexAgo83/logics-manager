@@ -21,6 +21,7 @@ DEFAULT_HYBRID_MEASUREMENT_LOG = "logics/.cache/hybrid_assist_measurements.jsonl
 DEFAULT_HYBRID_ROI_RECENT_LIMIT = 8
 DEFAULT_HYBRID_ROI_WINDOW_DAYS = 14
 DEFAULT_ESTIMATED_REMOTE_TOKENS_PER_LOCAL_RUN = 1200
+HELP_FLAGS = ("-h", "--help")
 
 
 CLAUDE_BRIDGE_VARIANTS: tuple[dict[str, object], ...] = (
@@ -1347,6 +1348,360 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _build_help() -> str:
+    return "\n".join(
+        [
+            "Logics Assist CLI",
+            "Inspect runtime signals and build context bundles.",
+            "",
+            "Usage:",
+            "  logics-manager assist <command> [args...]",
+            "",
+            "Runtime and diagnostics:",
+            "  runtime-status",
+            "    Report local assist runtime readiness.",
+            "    Flags: --backend, --model-profile, --model, --ollama-host, --timeout, --format {text,json}, --out, --dry-run",
+            "  diff-risk",
+            "    Classify the current git diff using deterministic heuristics.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  commit-plan",
+            "    Draft a minimal commit plan from the current git diff.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  changed-surface-summary",
+            "    Summarize the current changed repository surface.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "Review and governance:",
+            "  doc-consistency",
+            "    Review workflow docs for consistency issues without mutating them.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  review-checklist",
+            "    Generate a bounded review checklist for the current change surface.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  validation-checklist",
+            "    Generate a deterministic validation checklist from the current change surface.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  validation-summary",
+            "    Summarize lint, doctor, and validation impact signals.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  test-impact-summary",
+            "    Summarize the likely test impact of the current change surface.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  roi-report",
+            "    Summarize hybrid assist ROI from local audit and measurement logs.",
+            "    Flags: --audit-log, --measurement-log, --recent-limit, --window-days, --format {text,json}, --out, --dry-run",
+            "",
+            "Context and prompts:",
+            "  claude-bridges",
+            "    Render the canonical Claude runtime publication manifest and prompts.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  context <flow_name> [ref]",
+            "    Build a shared assist context bundle for a flow.",
+            "    Flags: --context-mode {summary-only,diff-first,full}, --profile {tiny,normal,deep}, --include-graph, --include-registry, --include-doctor, --format {text,json}, --out, --dry-run",
+            "  claude-instructions",
+            "    Render the canonical assistant instructions derived from the integrated runtime.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  next-step [ref]",
+            "    Suggest the next bounded Logics step for a target doc.",
+            "    Flags: --format {text,json}, --dry-run",
+            "  request-draft",
+            "    Draft a bounded request doc from an intent.",
+            "    Flags: --intent, --format {text,json}, --execution-mode {suggestion-only,execute}, --dry-run",
+            "  spec-first-pass <ref>",
+            "    Draft a first-pass spec outline from a backlog item.",
+            "    Flags: --format {text,json}, --execution-mode {suggestion-only,execute}, --dry-run",
+            "  backlog-groom <ref>",
+            "    Draft a bounded backlog proposal from a request doc.",
+            "    Flags: --format {text,json}, --execution-mode {suggestion-only,execute}, --dry-run",
+            "  closure-summary [ref]",
+            "    Summarize a delivered request, backlog item, or task.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager assist runtime-status --format json",
+            "  logics-manager assist context request req_001_my_request --profile deep",
+            "  logics-manager assist request-draft --intent \"Improve onboarding\"",
+        ]
+    )
+
+
+def _build_command_help(command: str) -> str:
+    if command == "runtime-status":
+        return "\n".join(
+            [
+                "Logics Assist Runtime Status",
+                "Report local assist runtime readiness.",
+                "",
+                "Usage:",
+                "  logics-manager assist runtime-status [args...]",
+                "",
+                "Flags:",
+                "  --backend",
+                "  --model-profile",
+                "  --model",
+                "  --ollama-host",
+                "  --timeout",
+                "  --format {text,json}",
+                "  --out",
+                "  --dry-run",
+            ]
+        )
+    if command == "context":
+        return "\n".join(
+            [
+                "Logics Assist Context",
+                "Build a shared assist context bundle for a flow.",
+                "",
+                "Usage:",
+                "  logics-manager assist context <flow_name> [ref] [args...]",
+                "",
+                "Flags:",
+                "  --context-mode {summary-only,diff-first,full}",
+                "  --profile {tiny,normal,deep}",
+                "  --include-graph",
+                "  --include-registry",
+                "  --include-doctor",
+                "  --format {text,json}",
+                "  --out",
+                "  --dry-run",
+            ]
+        )
+    if command == "request-draft":
+        return "\n".join(
+            [
+                "Logics Assist Request Draft",
+                "Draft a bounded request doc from an intent.",
+                "",
+                "Usage:",
+                "  logics-manager assist request-draft [args...]",
+                "",
+                "Flags:",
+                "  --intent",
+                "  --format {text,json}",
+                "  --execution-mode {suggestion-only,execute}",
+                "  --dry-run",
+            ]
+        )
+    if command == "spec-first-pass":
+        return "\n".join(
+            [
+                "Logics Assist Spec First Pass",
+                "Draft a first-pass spec outline from a backlog item.",
+                "",
+                "Usage:",
+                "  logics-manager assist spec-first-pass <ref> [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --execution-mode {suggestion-only,execute}",
+                "  --dry-run",
+            ]
+        )
+    if command == "backlog-groom":
+        return "\n".join(
+            [
+                "Logics Assist Backlog Groom",
+                "Draft a bounded backlog proposal from a request doc.",
+                "",
+                "Usage:",
+                "  logics-manager assist backlog-groom <ref> [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --execution-mode {suggestion-only,execute}",
+                "  --dry-run",
+            ]
+        )
+    if command == "closure-summary":
+        return "\n".join(
+            [
+                "Logics Assist Closure Summary",
+                "Summarize a delivered request, backlog item, or task.",
+                "",
+                "Usage:",
+                "  logics-manager assist closure-summary [ref] [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "roi-report":
+        return "\n".join(
+            [
+                "Logics Assist ROI Report",
+                "Summarize hybrid assist ROI from local audit and measurement logs.",
+                "",
+                "Usage:",
+                "  logics-manager assist roi-report [args...]",
+                "",
+                "Flags:",
+                "  --audit-log",
+                "  --measurement-log",
+                "  --recent-limit",
+                "  --window-days",
+                "  --format {text,json}",
+                "  --out",
+                "  --dry-run",
+            ]
+        )
+    if command == "diff-risk":
+        return "\n".join(
+            [
+                "Logics Assist Diff Risk",
+                "Classify the current git diff using deterministic heuristics.",
+                "",
+                "Usage:",
+                "  logics-manager assist diff-risk [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "commit-plan":
+        return "\n".join(
+            [
+                "Logics Assist Commit Plan",
+                "Draft a minimal commit plan from the current git diff.",
+                "",
+                "Usage:",
+                "  logics-manager assist commit-plan [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "changed-surface-summary":
+        return "\n".join(
+            [
+                "Logics Assist Changed Surface Summary",
+                "Summarize the current changed repository surface.",
+                "",
+                "Usage:",
+                "  logics-manager assist changed-surface-summary [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "doc-consistency":
+        return "\n".join(
+            [
+                "Logics Assist Doc Consistency",
+                "Review workflow docs for consistency issues without mutating them.",
+                "",
+                "Usage:",
+                "  logics-manager assist doc-consistency [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "review-checklist":
+        return "\n".join(
+            [
+                "Logics Assist Review Checklist",
+                "Generate a bounded review checklist for the current change surface.",
+                "",
+                "Usage:",
+                "  logics-manager assist review-checklist [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "validation-checklist":
+        return "\n".join(
+            [
+                "Logics Assist Validation Checklist",
+                "Generate a deterministic validation checklist from the current change surface.",
+                "",
+                "Usage:",
+                "  logics-manager assist validation-checklist [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "validation-summary":
+        return "\n".join(
+            [
+                "Logics Assist Validation Summary",
+                "Summarize lint, doctor, and validation impact signals.",
+                "",
+                "Usage:",
+                "  logics-manager assist validation-summary [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "test-impact-summary":
+        return "\n".join(
+            [
+                "Logics Assist Test Impact Summary",
+                "Summarize the likely test impact of the current change surface.",
+                "",
+                "Usage:",
+                "  logics-manager assist test-impact-summary [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "claude-bridges":
+        return "\n".join(
+            [
+                "Logics Assist Claude Bridges",
+                "Render the canonical Claude runtime publication manifest and prompts.",
+                "",
+                "Usage:",
+                "  logics-manager assist claude-bridges [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "claude-instructions":
+        return "\n".join(
+            [
+                "Logics Assist Claude Instructions",
+                "Render the canonical assistant instructions derived from the integrated runtime.",
+                "",
+                "Usage:",
+                "  logics-manager assist claude-instructions [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "next-step":
+        return "\n".join(
+            [
+                "Logics Assist Next Step",
+                "Suggest the next bounded Logics step for a target doc.",
+                "",
+                "Usage:",
+                "  logics-manager assist next-step [ref] [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    return _build_help()
+
+
 def _get_global_claude_home() -> Path:
     return Path(os.environ.get("LOGICS_CLAUDE_GLOBAL_HOME") or (Path.home() / ".claude")).resolve()
 
@@ -2213,6 +2568,12 @@ def cmd_context(args: argparse.Namespace) -> dict[str, object]:
 
 
 def main(argv: list[str]) -> int:
+    if not argv or argv[0] in HELP_FLAGS:
+        print(_build_help())
+        return 0
+    if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and (len(argv) == 1 or argv[1] in HELP_FLAGS):
+        print(_build_command_help(argv[0]))
+        return 0
     parser = build_parser()
     args = parser.parse_args(argv)
     payload = args.func(args)

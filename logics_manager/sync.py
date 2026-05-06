@@ -499,6 +499,133 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _build_help() -> str:
+    return "\n".join(
+        [
+            "Logics Sync CLI",
+            "Manage workflow transitions and exports.",
+            "",
+            "Usage:",
+            "  logics-manager sync <command> [args...]",
+            "",
+            "Commands:",
+            "  close-eligible-requests",
+            "    Auto-close requests when all linked backlog items are done.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "  refresh-mermaid-signatures",
+            "    Refresh stale Mermaid signatures without rewriting diagram bodies.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "  schema-status [sources...]",
+            "    Report schema-version coverage for selected workflow docs.",
+            "    Flags: --format {text,json}",
+            "",
+            "  context-pack <ref>",
+            "    Build a compact JSON context pack from workflow docs.",
+            "    Flags: --mode {summary-only,diff-first,full}, --profile {tiny,normal,deep}, --out, --format {text,json}, --dry-run",
+            "",
+            "  export-graph",
+            "    Export workflow relationships as a machine-readable graph.",
+            "    Flags: --out, --format {text,json}, --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager sync schema-status",
+            "  logics-manager sync context-pack req_001_my_request --out logics/context-pack.json",
+            "  logics-manager sync export-graph --format json",
+        ]
+    )
+
+
+def _build_subcommand_help(command: str) -> str:
+    if command == "close-eligible-requests":
+        return "\n".join(
+            [
+                "Logics Sync Close Eligible Requests",
+                "Auto-close requests when all linked backlog items are done.",
+                "",
+                "Usage:",
+                "  logics-manager sync close-eligible-requests [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+                "",
+                "Example:",
+                "  logics-manager sync close-eligible-requests --dry-run",
+            ]
+        )
+    if command == "refresh-mermaid-signatures":
+        return "\n".join(
+            [
+                "Logics Sync Refresh Mermaid Signatures",
+                "Refresh stale workflow Mermaid signatures without rewriting diagram bodies.",
+                "",
+                "Usage:",
+                "  logics-manager sync refresh-mermaid-signatures [args...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "schema-status":
+        return "\n".join(
+            [
+                "Logics Sync Schema Status",
+                "Report schema-version coverage for workflow docs.",
+                "",
+                "Usage:",
+                "  logics-manager sync schema-status [sources...]",
+                "",
+                "Flags:",
+                "  --format {text,json}",
+                "",
+                "Example:",
+                "  logics-manager sync schema-status logics/request",
+            ]
+        )
+    if command == "context-pack":
+        return "\n".join(
+            [
+                "Logics Sync Context Pack",
+                "Build a compact JSON context pack from workflow docs.",
+                "",
+                "Usage:",
+                "  logics-manager sync context-pack <ref> [args...]",
+                "",
+                "Flags:",
+                "  --mode {summary-only,diff-first,full}",
+                "  --profile {tiny,normal,deep}",
+                "  --out",
+                "  --format {text,json}",
+                "  --dry-run",
+                "",
+                "Example:",
+                "  logics-manager sync context-pack req_001_my_request --out logics/context-pack.json",
+            ]
+        )
+    if command == "export-graph":
+        return "\n".join(
+            [
+                "Logics Sync Export Graph",
+                "Export workflow relationships as a machine-readable graph.",
+                "",
+                "Usage:",
+                "  logics-manager sync export-graph [args...]",
+                "",
+                "Flags:",
+                "  --out",
+                "  --format {text,json}",
+                "  --dry-run",
+                "",
+                "Example:",
+                "  logics-manager sync export-graph --format json",
+            ]
+        )
+    return _build_help()
+
+
 def cmd_close_eligible_requests(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     scanned, closed = _close_eligible_requests(repo_root, args.dry_run)
@@ -598,6 +725,12 @@ def cmd_export_graph(args: argparse.Namespace) -> dict[str, object]:
 
 
 def main(argv: list[str]) -> int:
+    if not argv or argv[0] in ("-h", "--help"):
+        print(_build_help())
+        return 0
+    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "context-pack", "export-graph"} and (len(argv) == 1 or argv[1] in ("-h", "--help")):
+        print(_build_subcommand_help(argv[0]))
+        return 0
     parser = build_parser()
     args = parser.parse_args(argv)
     payload = args.func(args)

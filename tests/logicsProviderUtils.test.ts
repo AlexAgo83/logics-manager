@@ -14,7 +14,7 @@ vi.mock("vscode", () => ({
 
 import {
   areSamePath,
-  buildLogicsKitUpdateCommand,
+  buildLogicsRuntimeUpdateCommand,
   detectDangerousGitignorePatterns,
   detectRuntimeInstallType,
   getCreateConfig,
@@ -386,7 +386,7 @@ describe("catalog helpers", () => {
   });
 
   it("exposes the runtime update command string", () => {
-    expect(buildLogicsKitUpdateCommand()).toBe("python3 -m logics_manager bootstrap");
+    expect(buildLogicsRuntimeUpdateCommand()).toBe("python3 -m logics_manager bootstrap");
   });
 });
 

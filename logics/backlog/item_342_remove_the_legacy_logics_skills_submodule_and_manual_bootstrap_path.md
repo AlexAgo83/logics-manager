@@ -1,10 +1,10 @@
 ## item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path - Remove the legacy logics/skills submodule and manual bootstrap path
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Runtime packaging and repository hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

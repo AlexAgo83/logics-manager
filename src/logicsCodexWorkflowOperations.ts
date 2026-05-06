@@ -4,8 +4,7 @@ import * as vscode from "vscode";
 import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
-import { detectDangerousGitignorePatterns, inspectLogicsBootstrapState, runGitWithOutput } from "./logicsProviderUtils";
-import { buildLogicsKitUpdateCommand } from "./logicsProviderUtils";
+import { buildLogicsRuntimeUpdateCommand, detectDangerousGitignorePatterns, inspectLogicsBootstrapState, runGitWithOutput } from "./logicsProviderUtils";
 import {
   appendBootstrapConvergenceNote,
   fallbackInstallKit
@@ -65,7 +64,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         return;
       }
       if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
@@ -94,7 +93,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return;
     }
     if (choice === "Copy Update Command") {
-      await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+      await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
       void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
     }
   }
@@ -112,7 +111,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       if (inspectLogicsBootstrapState(root).canBootstrap) {
         actions.push("Update Logics Runtime");
       }
-      const updateCommand = buildLogicsKitUpdateCommand();
+      const updateCommand = buildLogicsRuntimeUpdateCommand();
       actions.push("Copy Update Command");
       const choice = await vscode.window.showInformationMessage(
         `Repo-local Logics is ready after ${trigger}, but the current runtime cannot yet publish a healthy global Codex runtime. ${overlay.summary}`,
@@ -152,7 +151,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return false;
     }
 
-    const updateCommand = buildLogicsKitUpdateCommand();
+    const updateCommand = buildLogicsRuntimeUpdateCommand();
 
     const repoCheck = await runGitWithOutput(root, ["rev-parse", "--is-inside-work-tree"]);
     if (repoCheck.error || repoCheck.stdout.trim() !== "true") {
@@ -243,7 +242,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         await this.updateLogicsKit(root, trigger);
       }
       if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       if (actions.length === 0) {
@@ -339,7 +338,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
         await this.updateLogicsKit(root, trigger);
       }
       if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       if (actions.length === 0) {
@@ -394,7 +393,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
           "Copy Update Command"
         );
         if (choice === "Copy Update Command") {
-          await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+          await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
           void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
         }
         return false;

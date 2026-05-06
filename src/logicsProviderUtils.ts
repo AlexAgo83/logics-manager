@@ -238,10 +238,6 @@ export function buildLogicsRuntimeUpdateCommand(): string {
   return "python3 -m logics_manager bootstrap";
 }
 
-export const inspectLogicsKitSubmodule = inspectLogicsRuntimeSource;
-export const detectKitInstallType = detectRuntimeInstallType;
-export const buildLogicsKitUpdateCommand = buildLogicsRuntimeUpdateCommand;
-
 export type CreateItemConfig = { dir: string; prefix: string; label: string };
 
 export function getCreateConfig(kind: "request" | "backlog" | "task"): CreateItemConfig | null {

@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => ({
   workspaceStateGet: vi.fn(),
   workspaceStateUpdate: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
+  buildLogicsRuntimeUpdateCommand: vi.fn(),
   detectDangerousGitignorePatterns: vi.fn(),
   detectKitInstallType: vi.fn(),
   inspectLogicsKitSubmodule: vi.fn(),
@@ -88,6 +89,7 @@ vi.mock("vscode", () => ({
 vi.mock("../src/logicsProviderUtils", () => ({
   areSamePath: mocks.areSamePath,
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
+  buildLogicsRuntimeUpdateCommand: mocks.buildLogicsRuntimeUpdateCommand,
   detectDangerousGitignorePatterns: mocks.detectDangerousGitignorePatterns,
   detectKitInstallType: mocks.detectKitInstallType,
   getWorkspaceRoot: mocks.getWorkspaceRoot,

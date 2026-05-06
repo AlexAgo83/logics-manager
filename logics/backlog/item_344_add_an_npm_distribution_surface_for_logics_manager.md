@@ -1,10 +1,10 @@
 ## item_344_add_an_npm_distribution_surface_for_logics_manager - Add an npm distribution surface for logics-manager
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94%
 > Confidence: 86%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Runtime packaging and release tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

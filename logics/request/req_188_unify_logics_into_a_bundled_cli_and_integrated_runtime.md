@@ -1,7 +1,7 @@
 ## req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime - Unify Logics into a bundled CLI and integrated runtime
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
 > Confidence: 96%
 > Complexity: High

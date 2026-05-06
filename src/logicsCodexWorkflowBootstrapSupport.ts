@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { repairClaudeBridgeFiles } from "./claudeBridgeSupport";
 import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
-import { detectDangerousGitignorePatterns, inspectLogicsBootstrapState, getBundledLogicsManagerScriptPath, runGitWithOutput, runPythonWithOutput, buildLogicsKitUpdateCommand } from "./logicsProviderUtils";
+import { buildLogicsRuntimeUpdateCommand, detectDangerousGitignorePatterns, getBundledLogicsManagerScriptPath, inspectLogicsBootstrapState, runGitWithOutput, runPythonWithOutput } from "./logicsProviderUtils";
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import { inspectRuntimeLaunchers } from "./runtimeLaunchers";
 import {
@@ -159,7 +159,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
         await this.updateLogicsKit(root, "launch request");
       }
       if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;
@@ -196,7 +196,7 @@ export abstract class LogicsCodexWorkflowBootstrapSupport {
         await this.updateLogicsKit(root, "launch request");
       }
       if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsKitUpdateCommand());
+        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
         void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
       }
       return;

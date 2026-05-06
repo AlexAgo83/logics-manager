@@ -1,10 +1,10 @@
 ## item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime - Eliminate legacy cdx-logics-kit compatibility surfaces from the extension runtime
 > From version: 1.28.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Runtime integration and TypeScript boundary reduction
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

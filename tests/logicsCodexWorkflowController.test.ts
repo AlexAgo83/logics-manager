@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
   buildLogicsKitUpdateCommand: vi.fn(),
+  buildLogicsRuntimeUpdateCommand: vi.fn(),
   getBundledLogicsManagerScriptPath: vi.fn(),
   detectKitInstallType: vi.fn(),
   shouldPublishRepoKit: vi.fn(),
@@ -55,6 +56,7 @@ vi.mock("../src/logicsEnvironment", () => ({
 
 vi.mock("../src/logicsProviderUtils", () => ({
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
+  buildLogicsRuntimeUpdateCommand: mocks.buildLogicsRuntimeUpdateCommand,
   getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   detectDangerousGitignorePatterns: mocks.detectDangerousGitignorePatterns,
   detectKitInstallType: mocks.detectKitInstallType,
@@ -120,6 +122,7 @@ describe("LogicsCodexWorkflowController", () => {
     mocks.runGitWithOutput.mockReset();
     mocks.runPythonWithOutput.mockReset();
     mocks.buildLogicsKitUpdateCommand.mockReset();
+    mocks.buildLogicsRuntimeUpdateCommand.mockReset();
     mocks.getBundledLogicsManagerScriptPath.mockReset();
     mocks.detectKitInstallType.mockReset();
     mocks.shouldPublishRepoKit.mockReset();
@@ -151,6 +154,7 @@ describe("LogicsCodexWorkflowController", () => {
       reason: ""
     });
     mocks.buildLogicsKitUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
+    mocks.buildLogicsRuntimeUpdateCommand.mockReturnValue("python3 -m logics_manager bootstrap");
     mocks.getBundledLogicsManagerScriptPath.mockReturnValue(path.join(process.cwd(), "scripts", "logics-manager.py"));
     mocks.runPythonWithOutput.mockResolvedValue({ stdout: "Bootstrap: OK", stderr: "" });
   });

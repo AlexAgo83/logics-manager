@@ -36,6 +36,9 @@ STATUS_BY_KIND_DEFAULT = {
     "task": "Ready",
 }
 HELP_FLAGS = ("-h", "--help")
+LIST_KIND_CHOICES = ("all", "request", "backlog", "task")
+ACTIVE_FLOW_STATUSES = {"draft", "ready", "in progress", "blocked"}
+FLOW_KIND_ORDER = {"request": 0, "backlog": 1, "task": 2}
 
 
 def _help_requested(argv: list[str], index: int) -> bool:
@@ -44,6 +47,135 @@ def _help_requested(argv: list[str], index: int) -> bool:
 
 def _format_flag_list(flags: list[str]) -> str:
     return ", ".join(flags)
+
+
+def _normalize_status(value: str | None) -> str:
+    return " ".join(value.split()).lower() if value else ""
+
+
+def _is_active_flow_doc(status: str | None) -> bool:
+    return _normalize_status(status) in ACTIVE_FLOW_STATUSES
+
+
+@dataclass(frozen=True)
+class FlowListEntry:
+    kind: str
+    path: Path
+    ref: str
+    title: str
+    status: str | None
+    progress: str | None
+
+
+def _parse_flow_doc(path: Path, kind: str) -> FlowListEntry:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    ref = path.stem
+    title = _extract_doc_title(path)
+    status: str | None = None
+    progress: str | None = None
+
+    for line in lines:
+        if line.startswith("> Status:"):
+            status = line.split(":", 1)[1].strip()
+            continue
+        if line.startswith("> Progress:"):
+            progress = line.split(":", 1)[1].strip()
+
+    return FlowListEntry(
+        kind=kind,
+        path=path,
+        ref=ref,
+        title=title,
+        status=status,
+        progress=progress,
+    )
+
+
+def _collect_flow_list_entries(repo_root: Path, kind_filter: str = "all") -> list[FlowListEntry]:
+    entries: list[FlowListEntry] = []
+    for kind, doc_kind in DOC_KINDS.items():
+        if kind_filter != "all" and kind_filter != kind:
+            continue
+        directory = repo_root / doc_kind.directory
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.glob("*.md")):
+            entry = _parse_flow_doc(path, kind)
+            if _is_active_flow_doc(entry.status):
+                entries.append(entry)
+    entries.sort(key=lambda entry: (FLOW_KIND_ORDER.get(entry.kind, 99), _normalize_status(entry.status), entry.ref))
+    return entries
+
+
+def _render_flow_list_section(title: str, entries: list[FlowListEntry], out_dir: Path) -> str:
+    lines: list[str] = [f"## {title}", ""]
+    if not entries:
+        lines.append("_None_")
+        lines.append("")
+        return "\n".join(lines)
+
+    lines.extend(["| Doc | Title | Status | Progress | Path |", "|---|---|---|---|---|"])
+    for entry in entries:
+        rel = entry.path.relative_to(out_dir).as_posix()
+        doc_link = f"[{entry.ref}]({rel})"
+        lines.append(f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.progress or ''} | {rel} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def flow_list_payload(repo_root: Path, *, kind: str = "all") -> dict[str, object]:
+    repo_root = repo_root.resolve()
+    entries = _collect_flow_list_entries(repo_root, kind_filter=kind)
+    by_kind: dict[str, list[FlowListEntry]] = {key: [] for key in ("request", "backlog", "task")}
+    for entry in entries:
+        by_kind[entry.kind].append(entry)
+    counts = {key: len(values) for key, values in by_kind.items()}
+    return {
+        "ok": True,
+        "kind": kind,
+        "count": len(entries),
+        "counts_by_kind": counts,
+        "entries": [
+            {
+                "kind": entry.kind,
+                "ref": entry.ref,
+                "title": entry.title,
+                "status": entry.status,
+                "progress": entry.progress,
+                "path": entry.path.relative_to(repo_root).as_posix(),
+            }
+            for entry in entries
+        ],
+    }
+
+
+def render_flow_list(repo_root: Path, *, kind: str = "all", output_format: str = "text") -> str:
+    payload = flow_list_payload(repo_root, kind=kind)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+
+    entries = [
+        FlowListEntry(
+            kind=str(item["kind"]),
+            path=repo_root / str(item["path"]),
+            ref=str(item["ref"]),
+            title=str(item["title"]),
+            status=item["status"],
+            progress=item["progress"],
+        )
+        for item in payload["entries"]
+    ]
+    if not entries:
+        return "Flow docs in progress: 0\n\n_None_"
+
+    sections: list[str] = [f"Flow docs in progress: {payload['count']}", ""]
+    kind_titles = {"request": "Requests", "backlog": "Backlog", "task": "Tasks"}
+    for key in ("request", "backlog", "task"):
+        if kind != "all" and kind != key:
+            continue
+        section_entries = [entry for entry in entries if entry.kind == key]
+        sections.append(_render_flow_list_section(f"{kind_titles[key]} ({len(section_entries)})", section_entries, repo_root))
+    return "\n".join(sections).rstrip()
 
 
 def _build_help() -> str:
@@ -61,6 +193,10 @@ def _build_help() -> str:
             "    Common flags: --title, --slug, --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --format {text,json}, --dry-run",
             "    Request-only flags: --fixture, --smoke-test",
             "    Backlog/task-only flags: --auto-create-product-brief, --auto-create-adr",
+            "",
+            "  list",
+            "    List workflow docs that are still active.",
+            "    Flags: --kind {all,request,backlog,task}, --format {text,json}",
             "",
             "  companion <product|architecture>",
             "    Create a companion doc from the integrated runtime.",
@@ -150,6 +286,26 @@ def _build_new_kind_help(kind: str) -> str:
             "",
             "Examples:",
             *examples,
+        ]
+    )
+
+
+def _build_list_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow List",
+            "List workflow docs that are still active.",
+            "",
+            "Usage:",
+            "  logics-manager flow list [args...]",
+            "",
+            "Flags:",
+            "  --kind {all,request,backlog,task}",
+            "  --format {text,json}",
+            "",
+            "Examples:",
+            "  logics-manager flow list",
+            "  logics-manager flow list --kind backlog",
         ]
     )
 
@@ -1246,6 +1402,11 @@ def build_parser() -> argparse.ArgumentParser:
         _add_common_doc_args(kind_parser, kind)
         kind_parser.set_defaults(func=cmd_new)
 
+    list_parser = sub.add_parser("list", help="List workflow docs that are still active.")
+    list_parser.add_argument("--kind", choices=LIST_KIND_CHOICES, default="all")
+    list_parser.add_argument("--format", choices=("text", "json"), default="text")
+    list_parser.set_defaults(func=cmd_list)
+
     companion_parser = sub.add_parser("companion", help="Create a companion doc from the integrated runtime.")
     companion_sub = companion_parser.add_subparsers(dest="kind", required=True)
     for kind in ("product", "architecture"):
@@ -1380,6 +1541,13 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         print(preview)
 
     print(f"Created {doc_kind.kind}: {payload['path']}")
+    return payload
+
+
+def cmd_list(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = flow_list_payload(repo_root, kind=args.kind)
+    print(render_flow_list(repo_root, kind=args.kind, output_format=args.format))
     return payload
 
 
@@ -1809,6 +1977,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "new" and len(argv) > 1 and argv[1] in DOC_KINDS and _help_requested(argv, 2):
         _print_help(_build_new_kind_help(argv[1]))
         return 0
+    if argv[0] == "list" and _help_requested(argv, 1):
+        _print_help(_build_list_help())
+        return 0
     if argv[0] == "companion" and _help_requested(argv, 1):
         _print_help(_build_companion_help())
         return 0
@@ -1841,7 +2012,7 @@ def main(argv: list[str]) -> int:
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "companion", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "list", "companion", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

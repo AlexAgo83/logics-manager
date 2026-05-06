@@ -1,6 +1,6 @@
 ## prod_004_logics_auto_orchestration_vision - Logics auto orchestration vision
 > Date: 2026-04-09 (refreshed)
-> Status: Proposed
+> Status: Accepted
 > Related request: `req_119_three_step_onboarding_for_need_framing_and_execution` (refreshed)
 > Related backlog: `item_208_define_the_three_step_onboarding_model_and_operator_copy`, `item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment` (refreshed)
 > Related task: `task_109_orchestration_delivery_for_req_119_three_step_onboarding` (refreshed)

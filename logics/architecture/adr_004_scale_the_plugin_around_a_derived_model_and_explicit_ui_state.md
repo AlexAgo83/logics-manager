@@ -1,6 +1,6 @@
 ## adr_004_scale_the_plugin_around_a_derived_model_and_explicit_ui_state - Scale the plugin around a derived model and explicit UI state
 > Date: 2026-04-09
-> Status: Proposed
+> Status: Accepted
 > Drivers: Keep the next wave of plugin UX work coherent, avoid feature-by-feature state sprawl, centralize workflow heuristics, and preserve the modular vanilla-webview direction.
 > Related request: `req_039_improve_ui_state_persistence_in_the_plugin`
 > Related backlog: `(cross-cutting follow-up across req_028 to req_044)`

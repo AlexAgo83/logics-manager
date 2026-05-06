@@ -1,6 +1,6 @@
 ## prod_005_logics_corpus_navigation_views - Logics corpus navigation views
 > Date: 2026-04-09
-> Status: Proposed
+> Status: Accepted
 > Related request: `req_134_generated_corpus_index_and_relationship_views`
 > Related backlog: `item_257_generated_corpus_index_and_relationship_views`
 > Related task: `task_117_generated_corpus_index_and_relationship_views`

@@ -1,6 +1,6 @@
 ## prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights - Add a corpus explorer with map and timeline views to Logics Insights
 > Date: 2026-04-12
-> Status: Proposed
+> Status: Accepted
 > Related request: `req_184_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
 > Related backlog: `item_331_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`
 > Related task: `task_142_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights`

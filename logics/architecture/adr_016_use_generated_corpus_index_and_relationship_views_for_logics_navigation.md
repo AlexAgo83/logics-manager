@@ -1,6 +1,6 @@
 ## adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation - Use generated corpus index and relationship views for Logics navigation
 > Date: 2026-04-09
-> Status: Proposed
+> Status: Accepted
 > Drivers: Corpus-scale discovery, repo-native navigation, deterministic refresh, and lightweight relationship guardrails.
 > Related request: `req_134_generated_corpus_index_and_relationship_views`
 > Related backlog: `item_257_generated_corpus_index_and_relationship_views`

@@ -1,6 +1,6 @@
 ## adr_011_keep_hybrid_assist_runtime_contracts_shared_backend_agnostic_and_safely_bounded - Keep hybrid assist runtime contracts shared, backend-agnostic, and safely bounded
 > Date: 2026-04-09
-> Status: Proposed
+> Status: Accepted
 > Drivers: shared runtime coherence, backend portability, safe bounded automation, auditability
 > Related request: `req_093_add_shared_hybrid_assist_contracts_fallback_policy_activation_rules_and_audit_governance_for_logics_delivery_automation`
 > Related backlog: `item_150_define_a_shared_hybrid_assist_payload_envelope_and_execution_metadata_contract`

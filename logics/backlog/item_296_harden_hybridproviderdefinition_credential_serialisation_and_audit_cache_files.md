@@ -1,7 +1,7 @@
 ## item_296_harden_hybridproviderdefinition_credential_serialisation_and_audit_cache_files - Harden HybridProviderDefinition credential serialisation and audit cache files
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%

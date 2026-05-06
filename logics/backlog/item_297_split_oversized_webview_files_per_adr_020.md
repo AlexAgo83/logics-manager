@@ -1,7 +1,7 @@
 ## item_297_split_oversized_webview_files_per_adr_020 - Split oversized webview files per ADR-020
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 80%
 > Progress: 100%

@@ -1,7 +1,7 @@
 ## item_295_raise_kit_branch_coverage_and_reorganise_numbered_test_suites_by_domain - Raise kit branch coverage and reorganise numbered test suites by domain
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 80%
 > Progress: 100%

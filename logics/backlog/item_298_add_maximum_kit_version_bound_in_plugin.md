@@ -1,7 +1,7 @@
 ## item_298_add_maximum_kit_version_bound_in_plugin - Add maximum kit version bound in plugin
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%

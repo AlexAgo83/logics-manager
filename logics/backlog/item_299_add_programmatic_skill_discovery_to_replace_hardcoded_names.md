@@ -1,7 +1,7 @@
 ## item_299_add_programmatic_skill_discovery_to_replace_hardcoded_names - Add programmatic skill discovery to replace hardcoded names
 > From version: 1.25.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 75%
 > Progress: 100%

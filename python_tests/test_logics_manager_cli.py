@@ -24,16 +24,15 @@ def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixtur
 
     captured = capsys.readouterr()
     assert exit_code == 1
-    assert "Canonical Logics CLI" in captured.out
+    assert "Logics Manager CLI" in captured.out
     assert "Examples:" in captured.out
 
 
 def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> None:
-    with pytest.raises(SystemExit) as exc_info:
-        main(["--version"])
+    exit_code = main(["--version"])
 
     captured = capsys.readouterr()
-    assert exc_info.value.code == 0
+    assert exit_code == 0
     version = (Path(__file__).resolve().parents[1] / "VERSION").read_text(encoding="utf-8").strip()
     assert f"logics-manager {version}" in captured.out
 

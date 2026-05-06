@@ -733,7 +733,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
         _print_help(_build_help())
         return 0
-    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "context-pack", "export-graph"} and (len(argv) == 1 or argv[1] in ("-h", "--help")):
+    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "context-pack", "export-graph"} and len(argv) > 1 and argv[1] in ("-h", "--help"):
         _print_help(_build_subcommand_help(argv[0]))
         return 0
     parser = build_parser()

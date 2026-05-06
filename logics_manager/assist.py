@@ -2576,7 +2576,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in HELP_FLAGS:
         _print_help(_build_help())
         return 0
-    if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and (len(argv) == 1 or argv[1] in HELP_FLAGS):
+    if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and len(argv) > 1 and argv[1] in HELP_FLAGS:
         _print_help(_build_command_help(argv[0]))
         return 0
     parser = build_parser()

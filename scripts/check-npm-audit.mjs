@@ -71,11 +71,23 @@ if (auditResult.error) {
 }
 
 const rawOutput = auditResult.stdout || "";
+const rawError = auditResult.stderr || "";
 let parsed;
 try {
   parsed = JSON.parse(rawOutput);
 } catch (error) {
   console.error("Failed to parse `npm audit --json` output.");
+  if (rawOutput.trim()) {
+    console.error(rawOutput.trim());
+  }
+  process.exit(1);
+}
+
+if (!parsed || typeof parsed !== "object" || !("auditReportVersion" in parsed) || !("vulnerabilities" in parsed)) {
+  console.error("`npm audit --json` did not return an audit report.");
+  if (rawError.trim()) {
+    console.error(rawError.trim());
+  }
   if (rawOutput.trim()) {
     console.error(rawOutput.trim());
   }

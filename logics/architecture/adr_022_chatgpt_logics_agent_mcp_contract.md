@@ -1,5 +1,5 @@
 ## adr_022_chatgpt_logics_agent_mcp_contract - ChatGPT Logics Agent MCP Contract
-> Date: 2026-05-27 (validation sequence update)
+> Date: 2026-05-27 (agent ergonomics update)
 > Status: Proposed
 > Drivers: local-first ChatGPT integration, bounded write actions, canonical Logics workflow, Codex handoff clarity
 > Related request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`
@@ -65,6 +65,8 @@ Output:
 - `summary`
 - `lint_status`
 - `diff_summary`
+- `document_preview`
+- `next_suggested_tool`
 
 ## `promote_request_to_backlog`
 Purpose: promote an existing request into a backlog item.
@@ -83,6 +85,8 @@ Output:
 - `created_ref`
 - `lint_status`
 - `diff_summary`
+- `document_preview`
+- `next_suggested_tool`
 
 ## `promote_backlog_to_task`
 Purpose: promote an existing backlog item into an executable task.
@@ -101,6 +105,8 @@ Output:
 - `created_ref`
 - `lint_status`
 - `diff_summary`
+- `document_preview`
+- `next_suggested_tool`
 
 ## `create_product_brief`
 Purpose: create or link a product brief for a product-shaped initiative.
@@ -123,6 +129,8 @@ Output:
 - `lint_status`
 - `audit_status`
 - `diff_summary`
+- `document_preview`
+- `next_suggested_tool`
 
 ## `create_architecture_decision`
 Purpose: create an ADR for an architecture or security decision.
@@ -145,6 +153,8 @@ Output:
 - `lint_status`
 - `audit_status`
 - `diff_summary`
+- `document_preview`
+- `next_suggested_tool`
 
 ## `list_active_work`
 Purpose: show ChatGPT the current active Logics workflow state without scanning arbitrary files.
@@ -214,6 +224,10 @@ Output:
 # Error contract
 - `invalid_path`: input path is absolute, escapes the repo, or is outside the allowed Logics area.
 - `unsupported_action`: ChatGPT requested behavior outside the MCP tool contract.
+- `missing_required_argument`: a required tool argument is absent.
+- `unsupported_argument`: the request includes an argument outside the tool schema.
+- `invalid_argument_type`: an argument has the wrong JSON type.
+- `invalid_argument_value`: an argument value is outside the allowed enum or expected value range.
 - `command_failed`: the underlying `logics-manager` command failed.
 - `lint_failed`: the action wrote files but lint reported blocking issues.
 - `audit_failed`: the action wrote files but audit reported blocking consistency issues.

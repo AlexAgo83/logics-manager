@@ -165,21 +165,21 @@ def _validate_arguments(name: str, arguments: dict[str, Any]) -> None:
     required = schema.get("required", [])
     for key in required:
         if key not in arguments:
-            raise McpToolError("unsupported_action", f"Missing required argument: {key}")
+            raise McpToolError("missing_required_argument", f"Missing required argument: {key}", details={"argument": key})
     unknown = sorted(set(arguments) - set(properties))
     if unknown:
-        raise McpToolError("unsupported_action", "Unsupported argument(s).", details={"arguments": unknown})
+        raise McpToolError("unsupported_argument", "Unsupported argument(s).", details={"arguments": unknown})
     for key, value in arguments.items():
         expected = properties.get(key, {})
         expected_type = expected.get("type")
         if expected_type == "string" and not isinstance(value, str):
-            raise McpToolError("unsupported_action", f"Argument `{key}` must be a string.")
+            raise McpToolError("invalid_argument_type", f"Argument `{key}` must be a string.", details={"argument": key, "expected": "string"})
         if expected_type == "array":
             if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
-                raise McpToolError("unsupported_action", f"Argument `{key}` must be an array of strings.")
+                raise McpToolError("invalid_argument_type", f"Argument `{key}` must be an array of strings.", details={"argument": key, "expected": "array[string]"})
         enum = expected.get("enum")
         if enum and value not in enum:
-            raise McpToolError("unsupported_action", f"Argument `{key}` has an unsupported value.", details={"allowed": enum, "value": value})
+            raise McpToolError("invalid_argument_value", f"Argument `{key}` has an unsupported value.", details={"argument": key, "allowed": enum, "value": value})
 
 
 def _relative_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...]) -> Path:
@@ -358,10 +358,10 @@ def _audit_status(repo_root: Path) -> dict[str, Any]:
 
 def _bullets(values: Any) -> list[str]:
     if not isinstance(values, list):
-        raise McpToolError("unsupported_action", "Expected a list of strings.")
+        raise McpToolError("invalid_argument_type", "Expected a list of strings.")
     out = [str(value).strip() for value in values if str(value).strip()]
     if not out:
-        raise McpToolError("unsupported_action", "Expected at least one non-empty string.")
+        raise McpToolError("invalid_argument_value", "Expected at least one non-empty string.")
     return out
 
 
@@ -426,6 +426,16 @@ def _validation_result(repo_root: Path, *, include_audit: bool = False) -> dict[
     return payload
 
 
+def _document_preview(repo_root: Path, rel_path: str, *, max_chars: int = 1600) -> dict[str, Any]:
+    path = repo_root / rel_path
+    text = path.read_text(encoding="utf-8")
+    return {
+        "path": rel_path,
+        "content": text[:max_chars],
+        "truncated": len(text) > max_chars,
+    }
+
+
 def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: Path | None = None) -> dict[str, Any]:
     root = _repo_root(repo_root)
     args = arguments or {}
@@ -434,13 +444,15 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     _validate_arguments(name, args)
 
     if name == "run_logics_lint":
-        return {"ok": True, "status": _lint_status(root)}
+        status = _lint_status(root)
+        return {"ok": bool(status["ok"]), "status": status}
     if name == "run_logics_audit":
-        return {"ok": True, "status": _audit_status(root)}
+        status = _audit_status(root)
+        return {"ok": bool(status["ok"]), "status": status}
     if name == "list_active_work":
         kind = str(args.get("kind") or "all")
         if kind not in {"all", "request", "backlog", "task"}:
-            raise McpToolError("unsupported_action", "Unsupported list kind.", details={"kind": kind})
+            raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
         return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
     if name == "show_git_diff":
         raw_paths = args.get("paths")
@@ -450,7 +462,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     if name == "create_request":
         title = str(args.get("title") or "").strip()
         if not title:
-            raise McpToolError("unsupported_action", "title is required.")
+            raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
         command = ["flow", "new", "request", "--title", title, "--format", "json"]
         if args.get("theme"):
             command.extend(["--theme", str(args["theme"])])
@@ -463,6 +475,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             "path": payload["path"],
             "ref": payload["ref"],
             "summary": f"Created request {payload['ref']}",
+            "document_preview": _document_preview(root, str(payload["path"])),
+            "next_suggested_tool": "promote_request_to_backlog",
             **_validation_result(root),
             **_show_git_diff(root, [str(payload["path"])]),
         }
@@ -476,6 +490,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             "source_path": payload["source"],
             "created_path": payload["created_path"],
             "created_ref": payload["created_ref"],
+            "document_preview": _document_preview(root, str(payload["created_path"])),
+            "next_suggested_tool": "promote_backlog_to_task",
             **_validation_result(root),
             **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
         }
@@ -489,6 +505,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             "source_path": payload["source"],
             "created_path": payload["created_path"],
             "created_ref": payload["created_ref"],
+            "document_preview": _document_preview(root, str(payload["created_path"])),
+            "next_suggested_tool": "run_logics_lint",
             **_validation_result(root),
             **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
         }
@@ -496,7 +514,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     if name in {"create_product_brief", "create_architecture_decision"}:
         title = str(args.get("title") or "").strip()
         if not title:
-            raise McpToolError("unsupported_action", "title is required.")
+            raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
         companion_kind = "product" if name == "create_product_brief" else "architecture"
         command = ["flow", "companion", companion_kind, "--title", title, "--format", "json"]
         ref_args = (
@@ -518,6 +536,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             "path": payload["path"],
             "ref": payload["ref"],
             "linked_refs": linked_refs,
+            "document_preview": _document_preview(root, str(payload["path"])),
+            "next_suggested_tool": "run_logics_lint",
             **_validation_result(root, include_audit=True),
             **_show_git_diff(root, [str(payload["path"])]),
         }

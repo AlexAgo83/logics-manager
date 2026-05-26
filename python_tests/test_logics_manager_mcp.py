@@ -61,7 +61,7 @@ def test_mcp_rejects_unknown_arguments(tmp_path: Path) -> None:
     try:
         call_tool("run_logics_lint", {"shell": "echo nope"}, repo_root=repo_root)
     except McpToolError as exc:
-        assert exc.code == "unsupported_action"
+        assert exc.code == "unsupported_argument"
         assert exc.details == {"arguments": ["shell"]}
     else:
         raise AssertionError("Expected unknown arguments to be rejected.")
@@ -136,6 +136,8 @@ def test_mcp_create_request_and_promote_flow(tmp_path: Path) -> None:
     )
     assert created["ok"] is True
     assert created["lint_status"]["ok"] is True
+    assert created["next_suggested_tool"] == "promote_request_to_backlog"
+    assert "document_preview" in created
     request_path = created["path"]
     request_text = (repo_root / request_path).read_text(encoding="utf-8")
     assert "Let an agent create a request through MCP." in request_text
@@ -145,11 +147,13 @@ def test_mcp_create_request_and_promote_flow(tmp_path: Path) -> None:
     assert backlog["ok"] is True
     assert backlog["lint_status"]["ok"] is True
     assert backlog["created_path"].startswith("logics/backlog/item_")
+    assert backlog["next_suggested_tool"] == "promote_backlog_to_task"
 
     task = call_tool("promote_backlog_to_task", {"backlog_path": backlog["created_path"]}, repo_root=repo_root)
     assert task["ok"] is True
     assert task["lint_status"]["ok"] is True
     assert task["created_path"].startswith("logics/tasks/task_")
+    assert task["next_suggested_tool"] == "run_logics_lint"
 
     lint = call_tool("run_logics_lint", {}, repo_root=repo_root)
     assert lint["status"]["ok"] is True
@@ -175,6 +179,20 @@ def test_mcp_jsonrpc_tool_call_returns_structured_error(tmp_path: Path) -> None:
     result = response["result"]
     assert result["isError"] is True
     assert result["structuredContent"]["error"] == "invalid_path"
+
+
+def test_mcp_audit_top_level_ok_matches_audit_status(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    monkeypatch.setattr(
+        "logics_manager.mcp.audit_payload",
+        lambda *args, **kwargs: {"ok": False, "issue_count": 1, "issues": [{"code": "demo"}], "issues_by_doc": {"demo.md": [{"code": "demo"}]}},
+    )
+
+    audit = call_tool("run_logics_audit", {}, repo_root=repo_root)
+
+    assert audit["ok"] is False
+    assert audit["status"]["ok"] is False
 
 
 def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:

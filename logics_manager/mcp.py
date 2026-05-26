@@ -157,6 +157,29 @@ def _repo_root(repo_root: Path | None = None) -> Path:
     return root
 
 
+def _validate_arguments(name: str, arguments: dict[str, Any]) -> None:
+    schema = TOOLS_BY_NAME[name]["inputSchema"]
+    properties = schema.get("properties", {})
+    required = schema.get("required", [])
+    for key in required:
+        if key not in arguments:
+            raise McpToolError("unsupported_action", f"Missing required argument: {key}")
+    unknown = sorted(set(arguments) - set(properties))
+    if unknown:
+        raise McpToolError("unsupported_action", "Unsupported argument(s).", details={"arguments": unknown})
+    for key, value in arguments.items():
+        expected = properties.get(key, {})
+        expected_type = expected.get("type")
+        if expected_type == "string" and not isinstance(value, str):
+            raise McpToolError("unsupported_action", f"Argument `{key}` must be a string.")
+        if expected_type == "array":
+            if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+                raise McpToolError("unsupported_action", f"Argument `{key}` must be an array of strings.")
+        enum = expected.get("enum")
+        if enum and value not in enum:
+            raise McpToolError("unsupported_action", f"Argument `{key}` has an unsupported value.", details={"allowed": enum, "value": value})
+
+
 def _relative_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...]) -> Path:
     if not raw_path or not raw_path.strip():
         raise McpToolError("invalid_path", "Path is required.")
@@ -237,17 +260,37 @@ def _run_git(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[st
     return result
 
 
-def _logics_changed_paths(repo_root: Path) -> list[str]:
-    result = _run_git(repo_root, ["status", "--short", "--", "logics"])
-    paths: list[str] = []
+def _git_status_entries(repo_root: Path, paths: list[str]) -> dict[str, str]:
+    result = _run_git(repo_root, ["status", "--short", "--", *paths])
+    entries: dict[str, str] = {}
     for line in result.stdout.splitlines():
+        if len(line) < 4:
+            continue
+        status = line[:2]
         path = line[3:].strip()
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1].strip()
         if path:
-            paths.append(path)
-    return sorted(set(paths))
+            entries[path] = status
+    return entries
 
 
-def _diff_summary(raw_diff: str) -> str:
+def _ensure_no_dirty_conflict(repo_root: Path, paths: list[str]) -> None:
+    statuses = _git_status_entries(repo_root, paths)
+    conflicts = {
+        path: status
+        for path, status in statuses.items()
+        if status != "??"
+    }
+    if conflicts:
+        raise McpToolError(
+            "dirty_conflict",
+            "Refusing to modify existing uncommitted Logics changes.",
+            details={"paths": conflicts},
+        )
+
+
+def _diff_summary(raw_diff: str, *, untracked_count: int = 0) -> str:
     files = 0
     added = 0
     removed = 0
@@ -258,7 +301,8 @@ def _diff_summary(raw_diff: str) -> str:
             added += 1
         elif line.startswith("-") and not line.startswith("---"):
             removed += 1
-    return f"{files} file(s), {added} insertion(s), {removed} deletion(s)"
+    suffix = f", {untracked_count} untracked file(s)" if untracked_count else ""
+    return f"{files} tracked diff file(s), {added} insertion(s), {removed} deletion(s){suffix}"
 
 
 def _show_git_diff(repo_root: Path, paths: list[str] | None = None) -> dict[str, Any]:
@@ -269,13 +313,21 @@ def _show_git_diff(repo_root: Path, paths: list[str] | None = None) -> dict[str,
     else:
         path_args = ["logics"]
     diff_result = _run_git(repo_root, ["diff", "--", *path_args])
-    status_result = _run_git(repo_root, ["status", "--short", "--", *path_args])
+    status_result = _run_git(repo_root, ["status", "--short", "-uall", "--", *path_args])
     raw_diff = diff_result.stdout
     truncated = len(raw_diff) > MAX_RAW_DIFF_CHARS
+    changed_paths = [line[3:].strip() for line in status_result.stdout.splitlines() if line[3:].strip()]
+    untracked_count = sum(1 for line in status_result.stdout.splitlines() if line.startswith("?? "))
+    if truncated and paths:
+        raise McpToolError(
+            "output_too_large",
+            "Diff output exceeded the MCP response limit.",
+            details={"limit": MAX_RAW_DIFF_CHARS, "diff_summary": _diff_summary(raw_diff, untracked_count=untracked_count)},
+        )
     return {
         "ok": True,
-        "changed_paths": [line[3:].strip() for line in status_result.stdout.splitlines() if line[3:].strip()],
-        "diff_summary": _diff_summary(raw_diff),
+        "changed_paths": changed_paths,
+        "diff_summary": _diff_summary(raw_diff, untracked_count=untracked_count),
         "raw_diff": raw_diff[:MAX_RAW_DIFF_CHARS],
         "truncated": truncated,
     }
@@ -377,6 +429,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     args = arguments or {}
     if name not in TOOLS_BY_NAME:
         raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
+    _validate_arguments(name, args)
 
     if name == "run_logics_lint":
         return {"ok": True, "status": _lint_status(root)}
@@ -414,6 +467,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
 
     if name == "promote_request_to_backlog":
         rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
         payload = _json_from_stdout(_run_command(root, ["flow", "promote", "request-to-backlog", rel_path.as_posix(), "--format", "json"]).stdout)
         return {
             "ok": True,
@@ -426,6 +480,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
 
     if name == "promote_backlog_to_task":
         rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
         payload = _json_from_stdout(_run_command(root, ["flow", "promote", "backlog-to-task", rel_path.as_posix(), "--format", "json"]).stdout)
         return {
             "ok": True,

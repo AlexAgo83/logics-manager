@@ -70,6 +70,12 @@ Call one tool directly for local smoke testing:
 python3 -m logics_manager mcp call run_logics_lint --arguments '{}'
 ```
 
+Run the local dogfooding flow that exercises JSON-RPC tool calls for request creation, backlog promotion, task promotion, lint, audit, and diff:
+
+```bash
+python3 scripts/dogfood-mcp-flow.py --repo-root .
+```
+
 The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
 Remote ChatGPT usage still requires exposing the local server through a controlled HTTPS-compatible bridge or tunnel; Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
 

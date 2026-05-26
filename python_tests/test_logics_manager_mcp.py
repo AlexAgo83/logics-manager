@@ -49,6 +49,70 @@ def test_mcp_rejects_path_traversal(tmp_path: Path) -> None:
         raise AssertionError("Expected path traversal to be rejected.")
 
 
+def test_mcp_rejects_unknown_arguments(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    try:
+        call_tool("run_logics_lint", {"shell": "echo nope"}, repo_root=repo_root)
+    except McpToolError as exc:
+        assert exc.code == "unsupported_action"
+        assert exc.details == {"arguments": ["shell"]}
+    else:
+        raise AssertionError("Expected unknown arguments to be rejected.")
+
+
+def test_mcp_rejects_dirty_tracked_source_conflicts(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    request_dir = repo_root / "logics/request"
+    request_path = request_dir / "req_000_existing.md"
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_000_existing - Existing",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "> Status: Draft",
+                "> Understanding: 90%",
+                "> Confidence: 80%",
+                "> Complexity: Low",
+                "> Theme: Test",
+                "",
+                "# Needs",
+                "- Existing need",
+                "",
+                "# Context",
+                "- Existing context",
+                "",
+                "# Acceptance criteria",
+                "- AC1: Existing acceptance",
+                "",
+                "# Backlog",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "add", "logics/request/req_000_existing.md"], cwd=repo_root, check=True)
+    subprocess.run(
+        ["git", "-c", "user.email=test@example.com", "-c", "user.name=Test User", "commit", "-m", "Add existing request"],
+        cwd=repo_root,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    request_path.write_text(request_path.read_text(encoding="utf-8") + "\n# Local note\n", encoding="utf-8")
+
+    try:
+        call_tool("promote_request_to_backlog", {"request_path": "logics/request/req_000_existing.md"}, repo_root=repo_root)
+    except McpToolError as exc:
+        assert exc.code == "dirty_conflict"
+        assert "logics/request/req_000_existing.md" in exc.details["paths"]
+    else:
+        raise AssertionError("Expected dirty tracked source conflicts to be rejected.")
+
+
 def test_mcp_create_request_and_promote_flow(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

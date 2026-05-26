@@ -2,9 +2,9 @@
 > From version: 2.0.5
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 95%
-> Confidence: 88%
-> Progress: 55%
+> Understanding: 96%
+> Confidence: 89%
+> Progress: 78%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -59,7 +59,9 @@ stateDiagram-v2
 
 # Report
 - First implementation slice complete: added the local MCP handler module, JSON-RPC stdio surface, direct testing command, path guardrails, tool definitions, and Python smoke coverage for request to backlog to task flow.
-- Remaining work: real client dogfooding, tunnel or connector documentation, and any packaging refinement needed for ChatGPT integration.
+- Second implementation slice complete: added stricter MCP argument validation, dirty tracked-source conflict detection, untracked-file diff summaries, and a JSON-RPC dogfooding script for the request to backlog to task flow.
+- Local dogfood proof: `scripts/dogfood-mcp-flow.py --repo-root <temp repo>` creates request, backlog, and task through MCP JSON-RPC handlers, then runs lint, audit, and diff.
+- Remaining work: run a real Codex dogfooding session, document tunnel or connector setup, and refine packaging for ChatGPT integration.
 
 # AI Context
 - Summary: Implement build a chatgpt logics agent.

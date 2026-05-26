@@ -1,0 +1,69 @@
+## task_153_build_a_chatgpt_logics_agent - Build a ChatGPT Logics Agent
+> From version: 2.0.5
+> Schema version: 1.0
+> Status: Ready
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 0%
+> Complexity: Medium
+> Theme: Implementation delivery
+> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+
+# Definition of Done (DoD)
+- [ ] The backlog scope is implemented.
+- [ ] Acceptance criteria are covered.
+- [ ] Validation passes.
+
+# Backlog
+- `item_352_build_a_chatgpt_logics_agent`
+
+# Acceptance criteria
+- AC1: The agent can create a Logics request from a ChatGPT conversation through a bounded MCP action.
+- AC2: The agent can promote existing workflow docs only through canonical `logics-manager` commands.
+- AC3: The MCP surface rejects arbitrary shell execution and absolute path writes.
+- AC4: Each write returns the changed artifact path, validation status, and a human-readable diff summary.
+- AC5: Codex remains the execution agent and can later consume generated tasks without extra translation.
+
+# AC Traceability
+- AC1 -> Scope: Build the bounded MCP action for creating a Logics request from ChatGPT conversation. Proof: request creation is part of the task acceptance criteria.
+- AC2 -> Scope: Build promotion actions that delegate to canonical `logics-manager` commands. Proof: request and backlog promotion are part of the task acceptance criteria.
+- AC3 -> Scope: Add command and path restrictions around the MCP action surface. Proof: the task explicitly rejects arbitrary shell execution and absolute path writes.
+- AC4 -> Scope: Return changed paths, validation status, and diff summaries after write actions. Proof: write result reporting is part of the task acceptance criteria.
+- AC5 -> Scope: Preserve the Codex handoff boundary. Proof: the task keeps implementation work out of ChatGPT's direct action surface.
+
+# Validation
+- Run `python3 -m logics_manager lint --require-status`.
+- Run `python3 -m logics_manager flow finish task task_153_build_a_chatgpt_logics_agent.md` after implementation.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|build-a-chatgpt-logics-agent|item-352-build-a-chatgpt-logics-agent|1-confirm-scope|run-python3-m-logics-manager-lint-requi
+stateDiagram-v2
+    state "item 352 build a chatgpt logics agent" as Backlog
+    state "1. Confirm scope" as Scope
+    state "2. Implement change" as Build
+    state "3. Validate result" as Verify
+    state "Run python3 -m logics_manager lint" as Validation
+    state "Report outcome" as Report
+    [*] --> Backlog
+    Backlog --> Scope
+    Scope --> Build
+    Build --> Verify
+    Verify --> Validation
+    Validation --> Report
+    Report --> [*]
+```
+
+# Report
+- Implementation complete.
+
+# AI Context
+- Summary: Implement build a chatgpt logics agent.
+- Keywords: task, implementation, backlog, runtime, python
+- Use when: You need a bounded implementation task for a backlog item.
+- Skip when: The work is still at the request or backlog shaping stage.
+
+# Links
+- Request: `req_191_build_a_chatgpt_logics_agent`
+- Product brief(s): `logics/product/prod_010_chatgpt_logics_agent.md`
+- Architecture decision(s): `logics/architecture/adr_022_chatgpt_logics_agent_mcp_contract.md`

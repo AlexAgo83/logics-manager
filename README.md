@@ -47,6 +47,32 @@ npm run install:vsix
 
 The bundled runtime is the normal path. Transitional repair flows remain available for older repositories when needed, but they are not part of normal setup.
 
+### Local MCP Tools
+
+`logics-manager` also exposes a bounded MCP tool surface for agent clients that should work with Logics without receiving a general shell.
+The MCP server wraps the canonical CLI, keeps paths repo-relative, and limits write-capable actions to Logics workflow directories.
+
+Inspect the exposed tools:
+
+```bash
+python3 -m logics_manager mcp tools
+```
+
+Run the local stdio MCP server from a Logics repository:
+
+```bash
+python3 -m logics_manager mcp serve --repo-root .
+```
+
+Call one tool directly for local smoke testing:
+
+```bash
+python3 -m logics_manager mcp call run_logics_lint --arguments '{}'
+```
+
+The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
+Remote ChatGPT usage still requires exposing the local server through a controlled HTTPS-compatible bridge or tunnel; Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
+
 ## Features
 
 - Turn `logics/*` Markdown into a delivery cockpit inside VS Code.

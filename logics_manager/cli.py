@@ -31,6 +31,7 @@ ROOT_COMMANDS = (
     "lint",
     "config",
     "doctor",
+    "mcp",
     "self-update",
 )
 
@@ -86,6 +87,10 @@ def _build_root_help() -> str:
         "  doctor",
         "    Check required workflow directories and schema metadata.",
         "    Options: --format {text,json}",
+        "",
+        "  mcp",
+        "    Expose bounded Logics tools for MCP clients.",
+        "    Subcommands: serve, tools, call",
         "",
         "  self-update",
         "    Update the installed Python or npm package.",
@@ -224,6 +229,10 @@ def main(argv: list[str] | None = None) -> int:
         if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["claude-bridges"], ["claude-instructions"], ["request-draft"], ["spec-first-pass"], ["backlog-groom"], ["closure-summary"], ["context"]) and rest[:1] not in HELP_ARGV:
             raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
         return assist_main(rest)
+    if command == "mcp":
+        from .mcp import main as mcp_main
+
+        return mcp_main(rest)
     if command == "audit":
         audit_parser = build_audit_parser()
         parsed, _unknown = audit_parser.parse_known_args(rest)

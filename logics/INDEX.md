@@ -26,6 +26,7 @@
 | [adr_019_use_extension_host_quick_pick_for_status_changes](architecture/adr_019_use_extension_host_quick_pick_for_status_changes.md) | Use extension-host quick pick for status changes | Accepted |  | architecture/adr_019_use_extension_host_quick_pick_for_status_changes.md |
 | [adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules](architecture/adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules.md) | Split the oversized plugin and workflow surfaces into focused modules | Accepted |  | architecture/adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules.md |
 | [adr_021_keep_media_coverage_at_zero_and_rely_on_smoke_tests_for_webview_regressions](architecture/adr_021_keep_media_coverage_at_zero_and_rely_on_smoke_tests_for_webview_regressions.md) | Keep media coverage at zero and rely on smoke tests for webview regressions | Accepted |  | architecture/adr_021_keep_media_coverage_at_zero_and_rely_on_smoke_tests_for_webview_regressions.md |
+| [adr_022_chatgpt_logics_agent_mcp_contract](architecture/adr_022_chatgpt_logics_agent_mcp_contract.md) | `show_git_diff` | Proposed |  | architecture/adr_022_chatgpt_logics_agent_mcp_contract.md |
 
 ## Product briefs
 
@@ -41,6 +42,7 @@
 | [prod_007_graph_embeddings_for_audit_discovery](product/prod_007_graph_embeddings_for_audit_discovery.md) | Graph embeddings for audit discovery | Active |  | product/prod_007_graph_embeddings_for_audit_discovery.md |
 | [prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights](product/prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md) | Add a corpus explorer with map and timeline views to Logics Insights | Active |  | product/prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md |
 | [prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api](product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md) | Logics CLI as the primary operator surface and unified runtime API | Active |  | product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md |
+| [prod_010_chatgpt_logics_agent](product/prod_010_chatgpt_logics_agent.md) | ChatGPT Logics Agent | Proposed |  | product/prod_010_chatgpt_logics_agent.md |
 
 ## Requests
 
@@ -236,6 +238,7 @@
 | [req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime](request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md) | Unify Logics into a bundled CLI and integrated runtime | Done |  | request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md |
 | [req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface](request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md) | Finish plugin migration to canonical logics-manager CLI surface | Done |  | request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md |
 | [req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces](request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md) | Remove legacy logics/skills and cdx-logics-kit references from active surfaces | Done |  | request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md |
+| [req_191_build_a_chatgpt_logics_agent](request/req_191_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Draft |  | request/req_191_build_a_chatgpt_logics_agent.md |
 
 ## Backlog
 
@@ -592,6 +595,7 @@
 | [item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation](backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md) | Remove legacy checkout and release workflow dependencies from CI validation | Done | 100% | backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md |
 | [item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests](backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md) | Remove legacy runtime detection and bootstrap signals from TypeScript and tests | Done | 100% | backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md |
 | [item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces](backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md) | Remove legacy docs, lint, and fixture references from active surfaces | Done | 100% | backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md |
+| [item_352_build_a_chatgpt_logics_agent](backlog/item_352_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Ready | 0% | backlog/item_352_build_a_chatgpt_logics_agent.md |
 
 ## Tasks
 
@@ -743,3 +747,4 @@
 | [task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime](tasks/task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime.md) | Generate assistant bridges and instructions from the integrated runtime | Done | 100% | tasks/task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime.md |
 | [task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface](tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md |
 | [task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references](tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md |
+| [task_153_build_a_chatgpt_logics_agent](tasks/task_153_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | In progress | 55% | tasks/task_153_build_a_chatgpt_logics_agent.md |

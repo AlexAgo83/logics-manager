@@ -2,9 +2,9 @@
 > From version: 2.0.5
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 97%
-> Confidence: 90%
-> Progress: 88%
+> Understanding: 98%
+> Confidence: 91%
+> Progress: 89%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -36,6 +36,7 @@
 - Run `python3 -m logics_manager lint --require-status`.
 - Run an automated smoke test for create request, promote request, promote backlog, lint, audit, and diff reporting.
 - Run a Codex dogfooding scenario against the MCP surface before treating the ChatGPT connector path as product-ready.
+- Verify HTTP transport through a local smoke test and then through an HTTPS tunnel before attempting ChatGPT developer-mode registration.
 - Run `python3 -m logics_manager flow finish task task_153_build_a_chatgpt_logics_agent.md` after implementation.
 
 ```mermaid
@@ -63,7 +64,7 @@ stateDiagram-v2
 - Local dogfood proof: `scripts/dogfood-mcp-flow.py --repo-root <temp repo>` creates request, backlog, and task through MCP JSON-RPC handlers, then runs lint, audit, and diff.
 - Third implementation slice in progress: added local HTTP transport for tunnel testing and documented the ChatGPT connector constraint that local MCP needs a remote or tunnel path.
 - HTTP smoke proof: a temporary local server returned `200` for `/health` and `200` for `POST /mcp` `tools/list`, exposing 9 tools.
-- Remaining work: run a real Codex dogfooding session, verify an HTTPS tunnel against the HTTP transport, and refine packaging for ChatGPT integration.
+- Next sequence is explicit: run real Codex dogfooding, adjust MCP ergonomics if needed, verify an HTTPS tunnel against the HTTP transport, then attempt ChatGPT developer-mode registration when plan and permissions are available.
 
 # AI Context
 - Summary: Implement build a chatgpt logics agent.

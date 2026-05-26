@@ -88,6 +88,12 @@ Run the local dogfooding flow that exercises JSON-RPC tool calls for request cre
 python3 scripts/dogfood-mcp-flow.py --repo-root .
 ```
 
+Use this prompt for a real Codex dogfooding pass before connecting ChatGPT:
+
+```text
+Use only the Logics MCP surface, not direct logics-manager CLI commands, to create a request for a small test idea, promote it to backlog, promote it to task, run lint and audit, and summarize the diff and any MCP errors.
+```
+
 The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
 ChatGPT custom MCP usage currently requires a remote server. For a local developer machine, put `serve-http` behind a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel, then register the resulting remote URL in ChatGPT developer mode.
 Keep the tunnel private, point it only at `127.0.0.1:8765`, and stop it when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.

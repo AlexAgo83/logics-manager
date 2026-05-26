@@ -1,5 +1,5 @@
 ## adr_022_chatgpt_logics_agent_mcp_contract - ChatGPT Logics Agent MCP Contract
-> Date: 2026-05-27 (http transport update)
+> Date: 2026-05-27 (validation sequence update)
 > Status: Proposed
 > Drivers: local-first ChatGPT integration, bounded write actions, canonical Logics workflow, Codex handoff clarity
 > Related request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`
@@ -242,6 +242,14 @@ Output:
 - Treat failures in Codex's ability to choose the right tool, recover from validation errors, or explain the result as product feedback on the MCP contract.
 - Do not treat Codex dogfooding as a replacement for final ChatGPT connector validation; it is an earlier proxy for agent usability.
 
+# Next validation sequence
+- Run a real Codex dogfooding pass against the MCP surface and record whether the agent can complete the flow without falling back to direct `logics-manager` CLI commands.
+- Adjust MCP names, schemas, or result payloads if the dogfooding pass exposes confusing choices or weak recovery hints.
+- Start the HTTP transport on `127.0.0.1:8765` and expose it through a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel.
+- From outside the local machine, verify `/health` and `POST /mcp` `tools/list`.
+- Register the remote URL in ChatGPT developer mode when the workspace plan and permissions support custom MCP connectors.
+- Run the first ChatGPT write test with `create_request`, then review the returned diff before promoting the document.
+
 # Alternatives considered
 - Expose a generic shell tool.
 Rejected because it gives ChatGPT too much mutation power for a product framing agent.
@@ -260,8 +268,7 @@ Rejected for the MVP because implementation should remain a deliberate Codex wor
 - `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`
 
 # Follow-up work
-- Implement the MCP server with this tool contract.
-- Add unit tests for path validation and command allowlisting.
-- Add an operator README for local launch, HTTPS tunnel setup, ChatGPT connector setup, and shutdown.
-- Add a smoke test that creates a request, promotes it to backlog, promotes it to task, and verifies lint and audit.
-- Add a Codex dogfooding script or documented prompt that exercises the MCP tools without relying on direct `logics-manager` CLI knowledge.
+- Run real Codex dogfooding and record the agent usability findings.
+- Verify an HTTPS tunnel against the HTTP transport.
+- Add ChatGPT connector setup notes once the exact workspace/developer-mode path is confirmed.
+- Refine packaging after the MCP surface is proven with Codex and ChatGPT.

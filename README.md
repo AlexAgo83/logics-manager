@@ -64,6 +64,18 @@ Run the local stdio MCP server from a Logics repository:
 python3 -m logics_manager mcp serve --repo-root .
 ```
 
+Run the local HTTP transport when you want to place the MCP server behind an HTTPS tunnel:
+
+```bash
+python3 -m logics_manager mcp serve-http --repo-root . --host 127.0.0.1 --port 8765
+```
+
+Smoke check the HTTP endpoint:
+
+```bash
+curl -s http://127.0.0.1:8765/health
+```
+
 Call one tool directly for local smoke testing:
 
 ```bash
@@ -77,7 +89,8 @@ python3 scripts/dogfood-mcp-flow.py --repo-root .
 ```
 
 The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
-Remote ChatGPT usage still requires exposing the local server through a controlled HTTPS-compatible bridge or tunnel; Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
+ChatGPT custom MCP usage currently requires a remote server. For a local developer machine, put `serve-http` behind a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel, then register the resulting remote URL in ChatGPT developer mode.
+Keep the tunnel private, point it only at `127.0.0.1:8765`, and stop it when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
 
 ## Features
 

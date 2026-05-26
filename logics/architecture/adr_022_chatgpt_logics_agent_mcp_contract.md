@@ -1,5 +1,5 @@
 ## adr_022_chatgpt_logics_agent_mcp_contract - ChatGPT Logics Agent MCP Contract
-> Date: 2026-05-27 (dogfooding update)
+> Date: 2026-05-27 (http transport update)
 > Status: Proposed
 > Drivers: local-first ChatGPT integration, bounded write actions, canonical Logics workflow, Codex handoff clarity
 > Related request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`
@@ -27,6 +27,7 @@ flowchart LR
 # Context
 - The product brief in `logics/product/prod_010_chatgpt_logics_agent.md` defines ChatGPT as the framing agent and Codex as the delivery agent.
 - ChatGPT cannot use a pure local `localhost` MCP endpoint directly, so the local MCP process may need to be exposed through a controlled HTTPS tunnel for ChatGPT usage.
+- OpenAI's current ChatGPT connector guidance treats local developer-machine MCP servers as needing a remote or tunnel path before ChatGPT can connect.
 - Codex can be used as an agentic dogfooding client before the ChatGPT connector is available end to end, because it can exercise the same tool names, inputs, errors, and validation loop.
 - Logics already has a canonical CLI, `python3 -m logics_manager`, for creating, promoting, validating, and auditing workflow docs.
 - The highest-risk failure mode is accidentally turning ChatGPT into a broad repository mutation surface.
@@ -231,6 +232,7 @@ Output:
 - Codex remains responsible for implementation and verification, which keeps the agent responsibilities clear.
 - Codex can also validate MCP ergonomics before ChatGPT is wired up, giving the project an early signal that the tool contract is understandable by an agent.
 - The tunnel or remote exposure layer becomes operationally important and must be documented carefully.
+- The local runtime needs both stdio for local agent clients and HTTP for tunnel-based connector testing.
 - Tool implementation must be precise about path normalization and command construction, because the MCP boundary is now a write-capable interface.
 
 # Dogfooding strategy

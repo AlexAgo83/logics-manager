@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import subprocess
+import json
+import threading
+from http.client import HTTPConnection
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
+import pytest
+
 from logics_manager.bootstrap import bootstrap_payload
-from logics_manager.mcp import McpToolError, call_tool, handle_jsonrpc
+from logics_manager.mcp import McpToolError, call_tool, handle_jsonrpc, make_http_handler
 
 
 def _repo(tmp_path: Path) -> Path:
@@ -169,3 +175,27 @@ def test_mcp_jsonrpc_tool_call_returns_structured_error(tmp_path: Path) -> None:
     result = response["result"]
     assert result["isError"] is True
     assert result["structuredContent"]["error"] == "invalid_path"
+
+
+def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        body = json.dumps({"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}})
+        conn.request("POST", "/mcp", body=body, headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert response.status == 200
+    assert payload["id"] == 3
+    assert payload["result"]["tools"][0]["name"] == "create_request"

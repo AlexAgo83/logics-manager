@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
 import re
@@ -9,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from .audit import audit_payload
 from .config import ConfigError, find_repo_root
@@ -580,11 +582,79 @@ def serve_stdio(*, repo_root: Path | None = None) -> int:
     return 0
 
 
+def make_http_handler(repo_root: Path) -> type[BaseHTTPRequestHandler]:
+    class LogicsMcpHttpHandler(BaseHTTPRequestHandler):
+        server_version = "LogicsMCP/1.0"
+
+        def _send_json(self, status: int, payload: dict[str, Any]) -> None:
+            encoded = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+
+        def do_GET(self) -> None:
+            parsed = urlparse(self.path)
+            if parsed.path == "/health":
+                self._send_json(200, {"ok": True, "server": "logics-manager-mcp", "version": _server_version()})
+                return
+            self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
+
+        def do_POST(self) -> None:
+            parsed = urlparse(self.path)
+            if parsed.path != "/mcp":
+                self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self._send_json(400, {"ok": False, "error": "bad_request", "message": "Invalid Content-Length."})
+                return
+            raw_body = self.rfile.read(length).decode("utf-8")
+            try:
+                message = json.loads(raw_body)
+                if not isinstance(message, dict):
+                    raise ValueError("JSON-RPC message must be an object.")
+                response = handle_jsonrpc(message, repo_root=repo_root)
+            except Exception as exc:
+                self._send_json(400, {"jsonrpc": JSONRPC_VERSION, "id": None, "error": {"code": -32700, "message": str(exc)}})
+                return
+            if response is None:
+                self.send_response(202)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            self._send_json(200, response)
+
+        def log_message(self, format: str, *args: Any) -> None:
+            print(f"logics-mcp-http: {format % args}", file=sys.stderr)
+
+    return LogicsMcpHttpHandler
+
+
+def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8765) -> int:
+    root = _repo_root(repo_root)
+    server = ThreadingHTTPServer((host, port), make_http_handler(root))
+    print(f"Logics MCP HTTP listening on http://{host}:{server.server_port}/mcp", file=sys.stderr)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        return 130
+    finally:
+        server.server_close()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="logics-manager mcp", description="Run or inspect the Logics MCP server.")
     sub = parser.add_subparsers(dest="command", required=True)
     serve = sub.add_parser("serve", help="Serve MCP JSON-RPC over stdio.")
     serve.add_argument("--repo-root", default=None)
+    serve_http_parser = sub.add_parser("serve-http", help="Serve MCP JSON-RPC over local HTTP for tunnel testing.")
+    serve_http_parser.add_argument("--repo-root", default=None)
+    serve_http_parser.add_argument("--host", default="127.0.0.1")
+    serve_http_parser.add_argument("--port", type=int, default=8765)
     tools = sub.add_parser("tools", help="Print the exposed MCP tool definitions.")
     tools.add_argument("--format", choices=("json",), default="json")
     call = sub.add_parser("call", help="Call one MCP tool directly for local testing.")
@@ -598,6 +668,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if parsed.command == "serve":
         return serve_stdio(repo_root=Path(parsed.repo_root) if parsed.repo_root else None)
+    if parsed.command == "serve-http":
+        return serve_http(repo_root=Path(parsed.repo_root) if parsed.repo_root else None, host=parsed.host, port=parsed.port)
     if parsed.command == "call":
         try:
             arguments = json.loads(parsed.arguments)

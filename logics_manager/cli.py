@@ -90,7 +90,7 @@ def _build_root_help() -> str:
         "",
         "  mcp",
         "    Expose bounded Logics tools for MCP clients.",
-        "    Subcommands: serve, tools, call",
+        "    Subcommands: serve, serve-http, tools, call",
         "",
         "  self-update",
         "    Update the installed Python or npm package.",

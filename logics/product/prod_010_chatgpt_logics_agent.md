@@ -1,5 +1,5 @@
 ## prod_010_chatgpt_logics_agent - ChatGPT Logics Agent
-> Date: 2026-05-27
+> Date: 2026-05-27 (dogfooding update)
 > Status: Proposed
 > Related request: `req_191_build_a_chatgpt_logics_agent`
 > Related backlog: `item_352_build_a_chatgpt_logics_agent`
@@ -89,6 +89,7 @@ The opportunity is to make ChatGPT the natural front door for Logics while prese
 - The generated artifacts pass `logics-manager lint --require-status` and the standard audit flow.
 - The user can review exactly what changed after every action.
 - Codex can later pick up the generated task and execute it without extra translation.
+- Before ChatGPT integration is available end to end, Codex can dogfood the same MCP tools as an agent client and complete the request to backlog to task flow without knowing the underlying CLI commands.
 - The workflow feels faster than manual document creation while remaining transparent and controlled.
 - The MCP action surface remains small enough to reason about and safe enough for local repo usage.
 
@@ -116,6 +117,7 @@ The opportunity is to make ChatGPT the natural front door for Logics while prese
 - Should the first MCP server be packaged inside this repository or generated as a separate local companion service?
 - Should write actions require a second confirmation inside the MCP layer, or is ChatGPT's confirmation flow sufficient for the MVP?
 - Should Codex task execution remain a separate manual step, or should a later version offer a controlled "prepare for Codex" handoff action?
+- Which Codex dogfooding prompt should become the standard smoke scenario for validating the agent-facing MCP contract before ChatGPT is connected?
 
 # References
 - `logics/request/req_191_build_a_chatgpt_logics_agent.md`

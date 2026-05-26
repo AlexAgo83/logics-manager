@@ -1,5 +1,5 @@
 ## adr_022_chatgpt_logics_agent_mcp_contract - ChatGPT Logics Agent MCP Contract
-> Date: 2026-05-27
+> Date: 2026-05-27 (dogfooding update)
 > Status: Proposed
 > Drivers: local-first ChatGPT integration, bounded write actions, canonical Logics workflow, Codex handoff clarity
 > Related request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`
@@ -27,6 +27,7 @@ flowchart LR
 # Context
 - The product brief in `logics/product/prod_010_chatgpt_logics_agent.md` defines ChatGPT as the framing agent and Codex as the delivery agent.
 - ChatGPT cannot use a pure local `localhost` MCP endpoint directly, so the local MCP process may need to be exposed through a controlled HTTPS tunnel for ChatGPT usage.
+- Codex can be used as an agentic dogfooding client before the ChatGPT connector is available end to end, because it can exercise the same tool names, inputs, errors, and validation loop.
 - Logics already has a canonical CLI, `python3 -m logics_manager`, for creating, promoting, validating, and auditing workflow docs.
 - The highest-risk failure mode is accidentally turning ChatGPT into a broad repository mutation surface.
 - The MVP should therefore expose Logics workflow actions only, with no arbitrary shell access and no free-form filesystem write tool.
@@ -228,8 +229,16 @@ Output:
 - ChatGPT can shape Logics work directly from conversation while the repository remains bounded by a small workflow-specific API.
 - The MVP can ship without adding a public service or granting ChatGPT broad repository access.
 - Codex remains responsible for implementation and verification, which keeps the agent responsibilities clear.
+- Codex can also validate MCP ergonomics before ChatGPT is wired up, giving the project an early signal that the tool contract is understandable by an agent.
 - The tunnel or remote exposure layer becomes operationally important and must be documented carefully.
 - Tool implementation must be precise about path normalization and command construction, because the MCP boundary is now a write-capable interface.
+
+# Dogfooding strategy
+- Use automated handler tests for deterministic safety coverage.
+- Use Codex as the first agentic client to test whether the MCP tool names, inputs, outputs, and errors are self-explanatory.
+- The standard dogfooding scenario should ask Codex to create a request, promote it to backlog, promote it to task, run lint and audit, and summarize the diff using only the MCP Logics tools.
+- Treat failures in Codex's ability to choose the right tool, recover from validation errors, or explain the result as product feedback on the MCP contract.
+- Do not treat Codex dogfooding as a replacement for final ChatGPT connector validation; it is an earlier proxy for agent usability.
 
 # Alternatives considered
 - Expose a generic shell tool.
@@ -253,3 +262,4 @@ Rejected for the MVP because implementation should remain a deliberate Codex wor
 - Add unit tests for path validation and command allowlisting.
 - Add an operator README for local launch, HTTPS tunnel setup, ChatGPT connector setup, and shutdown.
 - Add a smoke test that creates a request, promotes it to backlog, promotes it to task, and verifies lint and audit.
+- Add a Codex dogfooding script or documented prompt that exercises the MCP tools without relying on direct `logics-manager` CLI knowledge.

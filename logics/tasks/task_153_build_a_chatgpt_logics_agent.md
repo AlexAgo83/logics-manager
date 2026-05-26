@@ -2,8 +2,8 @@
 > From version: 2.0.5
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -12,6 +12,7 @@
 # Definition of Done (DoD)
 - [ ] The backlog scope is implemented.
 - [ ] Acceptance criteria are covered.
+- [ ] A Codex dogfooding run can exercise the MCP tools for request to backlog to task without direct CLI usage.
 - [ ] Validation passes.
 
 # Backlog
@@ -33,6 +34,8 @@
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
+- Run an automated smoke test for create request, promote request, promote backlog, lint, audit, and diff reporting.
+- Run a Codex dogfooding scenario against the MCP surface before treating the ChatGPT connector path as product-ready.
 - Run `python3 -m logics_manager flow finish task task_153_build_a_chatgpt_logics_agent.md` after implementation.
 
 ```mermaid

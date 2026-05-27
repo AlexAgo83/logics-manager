@@ -17,7 +17,7 @@
   ],
   "main": "./dist/extension.js",
   "bin": {
-    "logics-manager": "./scripts/npm/logics-manager.mjs"
+    "logics-manager": "scripts/npm/logics-manager.mjs"
   },
   "publishConfig": {
     "access": "public"

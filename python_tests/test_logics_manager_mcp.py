@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager.bootstrap import bootstrap_payload
-from logics_manager.mcp import McpToolError, call_tool, handle_jsonrpc, make_http_handler
+from logics_manager.mcp import McpToolError, call_tool, connector_plan, handle_jsonrpc, make_http_handler
 
 
 def _repo(tmp_path: Path) -> Path:
@@ -157,6 +157,266 @@ def test_mcp_create_request_and_promote_flow(tmp_path: Path) -> None:
 
     lint = call_tool("run_logics_lint", {}, repo_root=repo_root)
     assert lint["status"]["ok"] is True
+
+
+def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Readable MCP context",
+            "needs": ["Let agents read a bounded Logics document."],
+            "context": ["Search should find this unique marker: bounded-context-marker."],
+            "acceptance_criteria": ["The document can be read and searched."],
+        },
+        repo_root=repo_root,
+    )
+
+    read = call_tool("read_logics_doc", {"source": created["ref"], "max_chars": 300}, repo_root=repo_root)
+    assert read["ok"] is True
+    assert read["ref"] == created["ref"]
+    assert read["title"] == "Readable MCP context"
+    assert read["status"] == "Draft"
+    assert "Needs" in read["sections"]
+    assert len(read["content"]) <= 300
+
+    listed = call_tool("list_logics_docs", {"kind": "request", "status": "Draft", "ref_prefix": "req_", "limit": 5}, repo_root=repo_root)
+    assert listed["ok"] is True
+    assert any(item["ref"] == created["ref"] for item in listed["items"])
+
+    searched = call_tool("search_logics_docs", {"query": "bounded-context-marker", "kind": "request"}, repo_root=repo_root)
+    assert searched["ok"] is True
+    assert searched["matches"][0]["ref"] == created["ref"]
+    assert "bounded-context-marker" in searched["matches"][0]["snippet"]
+
+    pack = call_tool("build_context_pack", {"ref": created["ref"], "mode": "summary-only", "profile": "tiny"}, repo_root=repo_root)
+    assert pack["ok"] is True
+    assert pack["ref"] == created["ref"]
+    assert pack["estimates"]["doc_count"] >= 1
+
+
+def test_mcp_read_rejects_absolute_paths(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    request = repo_root / "logics" / "request" / "req_000_existing.md"
+    request.write_text(
+        "\n".join(
+            [
+                "## req_000_existing - Existing",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "> Status: Draft",
+                "",
+                "# Needs",
+                "- Existing need",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    response = handle_jsonrpc(
+        {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "method": "tools/call",
+            "params": {
+                "name": "read_logics_doc",
+                "arguments": {"source": str(request)},
+            },
+        },
+        repo_root=repo_root,
+    )
+
+    assert response is not None
+    result = response["result"]
+    assert result["isError"] is True
+    assert result["structuredContent"]["error"] == "invalid_reference"
+
+
+def test_mcp_closure_and_maintenance_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Closable MCP workflow",
+            "needs": ["Let agents close workflow chains deterministically."],
+            "context": ["This validates finish and close tools."],
+            "acceptance_criteria": ["The task, backlog item, and request are closed."],
+        },
+        repo_root=repo_root,
+    )
+    backlog = call_tool("promote_request_to_backlog", {"request_path": created["path"]}, repo_root=repo_root)
+    task = call_tool("promote_backlog_to_task", {"backlog_path": backlog["created_path"]}, repo_root=repo_root)
+
+    finished = call_tool("finish_task", {"task_path": task["created_path"]}, repo_root=repo_root)
+    assert finished["ok"] is True
+    assert finished["lint_status"]["ok"] is True
+    assert finished["audit_status"]["ok"] is True
+    assert "changed_paths" in finished
+    assert "diff_summary" in finished
+
+    assert call_tool("read_logics_doc", {"source": task["created_ref"]}, repo_root=repo_root)["status"] == "Done"
+    assert call_tool("read_logics_doc", {"source": backlog["created_ref"]}, repo_root=repo_root)["status"] == "Done"
+    assert call_tool("read_logics_doc", {"source": created["ref"]}, repo_root=repo_root)["status"] == "Done"
+
+    standalone = call_tool(
+        "create_request",
+        {
+            "title": "Direct MCP close",
+            "needs": ["Let agents close one request."],
+            "context": ["This validates close_workflow_doc."],
+            "acceptance_criteria": ["The request is closed."],
+        },
+        repo_root=repo_root,
+    )
+    closed = call_tool("close_workflow_doc", {"kind": "request", "source_path": standalone["path"]}, repo_root=repo_root)
+    assert closed["ok"] is True
+    assert closed["lint_status"]["ok"] is True
+    assert call_tool("read_logics_doc", {"source": standalone["ref"]}, repo_root=repo_root)["status"] == "Done"
+
+    eligible = call_tool("close_eligible_requests", {"dry_run": True}, repo_root=repo_root)
+    assert eligible["ok"] is True
+    assert eligible["dry_run"] is True
+    assert "diff_summary" in eligible
+
+    refreshed = call_tool("refresh_mermaid_signatures", {"dry_run": True}, repo_root=repo_root)
+    assert refreshed["ok"] is True
+    assert refreshed["dry_run"] is True
+    assert "modified_files" in refreshed
+
+
+def test_mcp_controlled_mutation_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Mutable MCP workflow",
+            "needs": ["Let agents update bounded workflow fields."],
+            "context": ["This validates controlled mutation tools."],
+            "acceptance_criteria": ["The task can receive indicators and scoped notes."],
+        },
+        repo_root=repo_root,
+    )
+    backlog = call_tool("promote_request_to_backlog", {"request_path": created["path"]}, repo_root=repo_root)
+    task = call_tool("promote_backlog_to_task", {"backlog_path": backlog["created_path"]}, repo_root=repo_root)
+
+    updated = call_tool(
+        "update_workflow_indicators",
+        {"source": task["created_ref"], "progress": "25%", "theme": "Mutation safety"},
+        repo_root=repo_root,
+    )
+    assert updated["ok"] is True
+    assert updated["updated_indicators"] == {"Progress": "25%", "Theme": "Mutation safety"}
+    task_doc = call_tool("read_logics_doc", {"source": task["created_ref"]}, repo_root=repo_root)
+    assert task_doc["indicators"]["Progress"] == "25%"
+    assert task_doc["indicators"]["Theme"] == "Mutation safety"
+
+    report = call_tool("append_report_entry", {"source": task["created_path"], "text": "Report note from MCP."}, repo_root=repo_root)
+    assert report["section"] == "Report"
+    validation = call_tool("append_validation_note", {"source": created["ref"], "text": "Validation note from MCP."}, repo_root=repo_root)
+    assert validation["section"] == "Validation"
+    decision = call_tool("append_decision_note", {"source": backlog["created_ref"], "text": "Decision rationale from MCP."}, repo_root=repo_root)
+    assert decision["section"] == "Decision framing"
+
+    task_sections = call_tool("read_logics_doc", {"source": task["created_ref"], "sections": ["Report"]}, repo_root=repo_root)["sections"]
+    request_sections = call_tool("read_logics_doc", {"source": created["ref"], "sections": ["Validation"]}, repo_root=repo_root)["sections"]
+    backlog_sections = call_tool("read_logics_doc", {"source": backlog["created_ref"], "sections": ["Decision framing"]}, repo_root=repo_root)["sections"]
+    assert "- Report note from MCP." in task_sections["Report"]
+    assert "- Validation note from MCP." in request_sections["Validation"]
+    assert "- Decision rationale from MCP." in backlog_sections["Decision framing"]
+
+
+def test_mcp_mutation_rejects_oversized_text(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Bounded mutation",
+            "needs": ["Reject oversized notes."],
+            "context": ["This validates mutation bounds."],
+            "acceptance_criteria": ["Oversized text is rejected."],
+        },
+        repo_root=repo_root,
+    )
+
+    response = handle_jsonrpc(
+        {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "method": "tools/call",
+            "params": {
+                "name": "append_validation_note",
+                "arguments": {"source": created["ref"], "text": "x" * 2001},
+            },
+        },
+        repo_root=repo_root,
+    )
+
+    assert response is not None
+    result = response["result"]
+    assert result["isError"] is True
+    assert result["structuredContent"]["error"] == "invalid_argument_value"
+
+
+def test_mcp_split_and_audit_repair_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Splittable MCP workflow",
+            "needs": ["Let agents split oversized workflow docs."],
+            "context": ["This validates split tools."],
+            "acceptance_criteria": ["The request is split into backlog items."],
+        },
+        repo_root=repo_root,
+    )
+
+    split_request = call_tool(
+        "split_request",
+        {"request_path": created["path"], "titles": ["First split backlog", "Second split backlog"]},
+        repo_root=repo_root,
+    )
+    assert split_request["ok"] is True
+    assert len(split_request["created_refs"]) == 2
+    assert all(path.startswith("logics/backlog/item_") for path in split_request["created_paths"])
+    assert "diff_summary" in split_request
+
+    split_backlog = call_tool(
+        "split_backlog",
+        {"backlog_path": split_request["created_paths"][0], "titles": ["First split task"]},
+        repo_root=repo_root,
+    )
+    assert split_backlog["ok"] is True
+    assert len(split_backlog["created_refs"]) == 1
+    assert split_backlog["created_paths"][0].startswith("logics/tasks/task_")
+
+    ac_fix = call_tool("autofix_ac_traceability", {"refs": [created["ref"]]}, repo_root=repo_root)
+    assert ac_fix["ok"] is True
+    assert "modified_paths" in ac_fix
+
+    structure_fix = call_tool("autofix_structure", {"paths": [created["path"]]}, repo_root=repo_root)
+    assert structure_fix["ok"] is True
+    assert "audit_payload" in structure_fix
+
+
+def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    plan = connector_plan(repo_root=repo_root, host="127.0.0.1", port=8765, bearer_token="test-token", public_url="https://example.test")
+
+    assert plan["ok"] is True
+    assert plan["bearer_token"] == "test-token"
+    assert plan["local_mcp_url"] == "http://127.0.0.1:8765/mcp"
+    assert plan["mcp_url"] == "https://example.test/mcp"
+    assert plan["health_url"] == "https://example.test/health"
+    assert plan["chatgpt"]["mcp_url"] == "https://example.test/mcp"
+    assert plan["auth_header"] == "Authorization: Bearer test-token"
+    assert "serve-http" in plan["server_command"]
+    assert plan["cleanup"]
 
 
 def test_mcp_jsonrpc_tool_call_returns_structured_error(tmp_path: Path) -> None:

@@ -1,18 +1,18 @@
 ## task_157_split_and_audit_repair_mcp_tools - Split and audit repair MCP tools
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_356_split_and_audit_repair_mcp_tools`
@@ -32,9 +32,14 @@
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_157_split_and_audit_repair_mcp_tools.md` after implementation.
+- Finish workflow executed on 2026-05-27.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-05-27.
+- Linked backlog item(s): `item_356_split_and_audit_repair_mcp_tools`
+- Related request(s): `req_192_expand_local_chatgpt_mcp_action_surface`
 
 # AI Context
 - Summary: Implement split and audit repair mcp tools.

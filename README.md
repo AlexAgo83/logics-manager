@@ -62,7 +62,7 @@ The initial MCP surface is intentionally narrow and production-safe for local do
 - run lint and audit;
 - show Logics-scoped diffs.
 
-The next planned MCP expansion is documented in `logics/product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md`. It keeps the same CLI-first rule while adding read, context-pack, list/search, controlled mutation, closure, deterministic repair, split, and connector-launcher tools for local assistant workflows.
+The expanded MCP surface is documented in `logics/product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md`. It keeps the same CLI-first rule while adding read, context-pack, list/search, controlled mutation, closure, deterministic repair, split, and connector-launcher tools for local assistant workflows.
 
 Inspect the exposed tools:
 
@@ -83,6 +83,20 @@ LOGICS_MCP_BEARER_TOKEN="$(openssl rand -hex 32)" python3 -m logics_manager mcp 
 ```
 
 `POST /mcp` accepts an OAuth-style `Authorization: Bearer <token>` header when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for tunnel smoke checks, but do not expose `/mcp` through a public tunnel without a bearer token.
+
+Generate a local connector setup plan for ChatGPT developer mode:
+
+```bash
+python3 -m logics_manager mcp connect --repo-root . --port 8765
+```
+
+If you already have an HTTPS tunnel URL, include it to get copyable connector values and optional smoke checks:
+
+```bash
+python3 -m logics_manager mcp connect --repo-root . --public-url https://example-tunnel.example --check
+```
+
+The connector plan prints the bearer token, local server command, tunnel target, ChatGPT MCP URL, auth header, `/health` and authenticated `/mcp` checks, and cleanup steps for stopping the tunnel and local server after the session.
 
 Smoke check the HTTP endpoint:
 
@@ -143,7 +157,7 @@ The project currently favors option-A local-first assistant usage:
 - `POST /mcp` is protected with a bearer token;
 - the tunnel is stopped after the test or work session.
 
-This keeps repository files local and avoids a multi-tenant hosted service. A future connector launcher (`logics-manager mcp connect`) is planned to make token generation, server startup, tunnel checks, and assistant connector setup less manual.
+This keeps repository files local and avoids a multi-tenant hosted service. `logics-manager mcp connect` makes token generation, server startup guidance, tunnel checks, and assistant connector setup less manual without introducing hosted infrastructure.
 
 For more detailed workflow behavior, see the sections below on requirements, runtime compatibility, commands, and tools.
 

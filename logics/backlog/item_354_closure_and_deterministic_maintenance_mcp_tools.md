@@ -1,10 +1,10 @@
 ## item_354_closure_and_deterministic_maintenance_mcp_tools - Closure and deterministic maintenance MCP tools
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: MCP workflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,6 +57,7 @@ The first ChatGPT MCP test proved that manual status edits can leave the Logics 
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_155_closure_and_deterministic_maintenance_mcp_tools` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_155_closure_and_deterministic_maintenance_mcp_tools`

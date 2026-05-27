@@ -38,6 +38,8 @@ REF_PREFIXES = ("req", "item", "task", "prod", "adr", "spec")
 _CONTEXT_PACK_CACHE: dict[str, dict[str, object]] = {}
 MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
 MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
+APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
+MAX_MUTATION_TEXT_CHARS = 2000
 
 
 def _read_text(path: Path) -> str:
@@ -303,6 +305,9 @@ def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str,
 
     resolved: list[tuple[str, Path]] = []
     for source in sources:
+        raw_source = Path(source)
+        if raw_source.is_absolute() or any(part == ".." for part in raw_source.parts):
+            raise SystemExit(f"Unsupported workflow doc target `{source}`.")
         candidate = (repo_root / source).resolve()
         if candidate.is_file():
             for kind_name, kind in DOC_KINDS.items():
@@ -339,6 +344,249 @@ def _schema_status(repo_root: Path, targets: list[str]) -> dict[str, object]:
         "missing": missing,
         "outdated": outdated,
         "doc_count": len(docs),
+    }
+
+
+def build_context_pack_payload(repo_root: Path, ref: str, *, mode: str = "summary-only", profile: str = "normal", config: dict[str, object] | None = None) -> dict[str, object]:
+    return _build_context_pack(repo_root, ref, mode=mode, profile=profile, config=config)
+
+
+def _default_section_names(kind: str) -> list[str]:
+    return {
+        "request": ["Needs", "Context", "Acceptance criteria", "Backlog", "Tasks", "AI Context"],
+        "backlog": ["Problem", "Scope", "Acceptance criteria", "AC Traceability", "Tasks", "AI Context"],
+        "task": ["Definition of Done (DoD)", "Backlog", "Acceptance criteria", "Validation", "Report", "AI Context"],
+    }.get(kind, ["AI Context"])
+
+
+def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 4000, sections: list[str] | None = None) -> dict[str, object]:
+    targets = _resolve_target_docs(repo_root, [source])
+    if len(targets) != 1:
+        raise SystemExit(f"Expected one workflow doc target for `{source}`.")
+    kind, path = targets[0]
+    doc = parse_workflow_doc(path, repo_root=repo_root)
+    requested_sections = sections or _default_section_names(kind)
+    selected_sections = {
+        heading: [line for line in doc.sections.get(heading, []) if line.strip()]
+        for heading in requested_sections
+        if heading in doc.sections
+    }
+    text = _read_text(path)
+    return {
+        "ref": doc.ref,
+        "kind": doc.kind,
+        "path": doc.path,
+        "title": doc.title,
+        "status": doc.indicators.get("Status", ""),
+        "indicators": doc.indicators,
+        "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
+        "sections": selected_sections,
+        "content": text[:max_chars],
+        "truncated": len(text) > max_chars,
+        "max_chars": max_chars,
+    }
+
+
+def list_logics_docs_payload(
+    repo_root: Path,
+    *,
+    kind: str = "all",
+    status: str | None = None,
+    ref_prefix: str | None = None,
+    limit: int = 50,
+) -> dict[str, object]:
+    docs = sorted(_load_workflow_docs(repo_root).values(), key=lambda doc: doc.path)
+    if kind != "all":
+        docs = [doc for doc in docs if doc.kind == kind]
+    if status:
+        expected_status = " ".join(status.split()).lower()
+        docs = [doc for doc in docs if " ".join(doc.indicators.get("Status", "").split()).lower() == expected_status]
+    if ref_prefix:
+        docs = [doc for doc in docs if doc.ref.startswith(ref_prefix)]
+    limited = docs[:limit]
+    return {
+        "items": [
+            {
+                "ref": doc.ref,
+                "kind": doc.kind,
+                "path": doc.path,
+                "title": doc.title,
+                "status": doc.indicators.get("Status", ""),
+                "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
+            }
+            for doc in limited
+        ],
+        "total_count": len(docs),
+        "returned_count": len(limited),
+        "truncated": len(docs) > len(limited),
+        "limit": limit,
+    }
+
+
+def _snippet_for_line(lines: list[str], index: int, *, max_chars: int) -> str:
+    start = max(0, index - 1)
+    end = min(len(lines), index + 2)
+    snippet = "\n".join(line for line in lines[start:end] if line.strip())
+    return snippet[:max_chars]
+
+
+def search_logics_docs_payload(
+    repo_root: Path,
+    query: str,
+    *,
+    kind: str = "all",
+    status: str | None = None,
+    limit: int = 20,
+    max_snippet_chars: int = 240,
+) -> dict[str, object]:
+    normalized_query = query.strip().lower()
+    if not normalized_query:
+        raise SystemExit("Search query is required.")
+    docs_payload = list_logics_docs_payload(repo_root, kind=kind, status=status, limit=10000)
+    docs_by_ref = _load_workflow_docs(repo_root)
+    matches: list[dict[str, object]] = []
+    for item in docs_payload["items"]:
+        ref = str(item["ref"])
+        doc = docs_by_ref.get(ref)
+        if doc is None:
+            continue
+        text = _strip_mermaid_blocks(_read_text(repo_root / doc.path))
+        lines = text.splitlines()
+        for idx, line in enumerate(lines):
+            if normalized_query in line.lower():
+                matches.append(
+                    {
+                        "ref": doc.ref,
+                        "kind": doc.kind,
+                        "path": doc.path,
+                        "title": doc.title,
+                        "status": doc.indicators.get("Status", ""),
+                        "line": idx + 1,
+                        "snippet": _snippet_for_line(lines, idx, max_chars=max_snippet_chars),
+                    }
+                )
+                break
+        if len(matches) >= limit:
+            break
+    return {
+        "query": query,
+        "matches": matches,
+        "returned_count": len(matches),
+        "truncated": len(matches) >= limit,
+        "limit": limit,
+    }
+
+
+def _clean_mutation_text(text: str, *, field: str) -> str:
+    cleaned = " ".join(text.split())
+    if not cleaned:
+        raise SystemExit(f"{field} is required.")
+    if len(cleaned) > MAX_MUTATION_TEXT_CHARS:
+        raise SystemExit(f"{field} exceeds {MAX_MUTATION_TEXT_CHARS} characters.")
+    if cleaned.startswith("#") or "```" in cleaned:
+        raise SystemExit(f"{field} contains unsupported Markdown structure.")
+    return cleaned
+
+
+def _replace_indicator(lines: list[str], key: str, value: str) -> tuple[list[str], bool]:
+    rendered = f"> {key}: {value}"
+    for idx, line in enumerate(lines):
+        if line.startswith(f"> {key}:"):
+            if line == rendered:
+                return lines, False
+            updated = list(lines)
+            updated[idx] = rendered
+            return updated, True
+    insert_at = 1
+    while insert_at < len(lines) and lines[insert_at].startswith("> "):
+        insert_at += 1
+    updated = list(lines)
+    updated.insert(insert_at, rendered)
+    return updated, True
+
+
+def update_workflow_indicators_payload(repo_root: Path, source: str, indicators: dict[str, str], *, dry_run: bool = False) -> dict[str, object]:
+    unknown = sorted(set(indicators) - set(APPROVED_WORKFLOW_INDICATORS))
+    if unknown:
+        raise SystemExit(f"Unsupported workflow indicator(s): {', '.join(unknown)}.")
+    cleaned = {key: _clean_mutation_text(value, field=key) for key, value in indicators.items() if value is not None}
+    if not cleaned:
+        raise SystemExit("At least one workflow indicator is required.")
+
+    targets = _resolve_target_docs(repo_root, [source])
+    if len(targets) != 1:
+        raise SystemExit(f"Expected one workflow doc target for `{source}`.")
+    kind, path = targets[0]
+    lines = _read_lines(path)
+    changed = False
+    for key in APPROVED_WORKFLOW_INDICATORS:
+        if key not in cleaned:
+            continue
+        if key == "Progress" and kind not in {"backlog", "task"}:
+            raise SystemExit("Progress is only supported for backlog and task documents.")
+        lines, key_changed = _replace_indicator(lines, key, cleaned[key])
+        changed = changed or key_changed
+    if changed and not dry_run:
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
+    return {
+        "path": path.relative_to(repo_root).as_posix(),
+        "ref": path.stem,
+        "kind": kind,
+        "updated_indicators": cleaned,
+        "changed": changed,
+        "dry_run": dry_run,
+    }
+
+
+def _section_for_note(kind: str, note_kind: str) -> str:
+    if note_kind == "report":
+        if kind != "task":
+            raise SystemExit("Report entries are only supported for task documents.")
+        return "Report"
+    if note_kind == "validation":
+        return "Validation"
+    if note_kind == "decision":
+        return "Decision framing" if kind == "backlog" else "Notes"
+    raise SystemExit(f"Unsupported note kind `{note_kind}`.")
+
+
+def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str, text: str, dry_run: bool = False) -> dict[str, object]:
+    targets = _resolve_target_docs(repo_root, [source])
+    if len(targets) != 1:
+        raise SystemExit(f"Expected one workflow doc target for `{source}`.")
+    kind, path = targets[0]
+    section = _section_for_note(kind, note_kind)
+    cleaned = _clean_mutation_text(text, field="text")
+    bullet = f"- {cleaned}"
+    lines = _read_lines(path)
+    insert_at = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == section.lower():
+            insert_at = idx + 1
+            while insert_at < len(lines) and lines[insert_at].strip().startswith("- "):
+                insert_at += 1
+            break
+    changed = True
+    if insert_at is None:
+        lines.extend(["", f"# {section}", bullet])
+    else:
+        existing = {line.strip() for line in lines if line.strip().startswith("- ")}
+        if bullet in existing:
+            changed = False
+        else:
+            lines.insert(insert_at, bullet)
+    if changed and not dry_run:
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
+    return {
+        "path": path.relative_to(repo_root).as_posix(),
+        "ref": path.stem,
+        "kind": kind,
+        "section": section,
+        "text": cleaned,
+        "changed": changed,
+        "dry_run": dry_run,
     }
 
 
@@ -482,6 +730,50 @@ def build_parser() -> argparse.ArgumentParser:
     schema_status.add_argument("--format", choices=("text", "json"), default="text")
     schema_status.set_defaults(func=cmd_schema_status)
 
+    read_doc = sub.add_parser("read-doc", help="Read a bounded workflow document payload by ref or path.")
+    read_doc.add_argument("source", help="Workflow ref or repo-relative path.")
+    read_doc.add_argument("--max-chars", type=int, default=4000)
+    read_doc.add_argument("--section", action="append", default=[], help="Section heading to include; repeatable.")
+    read_doc.add_argument("--format", choices=("text", "json"), default="text")
+    read_doc.set_defaults(func=cmd_read_doc)
+
+    list_docs = sub.add_parser("list-docs", help="List workflow docs by bounded criteria.")
+    list_docs.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+    list_docs.add_argument("--status", default=None)
+    list_docs.add_argument("--ref-prefix", default=None)
+    list_docs.add_argument("--limit", type=int, default=50)
+    list_docs.add_argument("--format", choices=("text", "json"), default="text")
+    list_docs.set_defaults(func=cmd_list_docs)
+
+    search_docs = sub.add_parser("search-docs", help="Search approved workflow docs with bounded snippets.")
+    search_docs.add_argument("query")
+    search_docs.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+    search_docs.add_argument("--status", default=None)
+    search_docs.add_argument("--limit", type=int, default=20)
+    search_docs.add_argument("--max-snippet-chars", type=int, default=240)
+    search_docs.add_argument("--format", choices=("text", "json"), default="text")
+    search_docs.set_defaults(func=cmd_search_docs)
+
+    update_indicators = sub.add_parser("update-indicators", help="Update approved indicators on one workflow doc.")
+    update_indicators.add_argument("source", help="Workflow ref or repo-relative path.")
+    update_indicators.add_argument("--status")
+    update_indicators.add_argument("--progress")
+    update_indicators.add_argument("--understanding")
+    update_indicators.add_argument("--confidence")
+    update_indicators.add_argument("--theme")
+    update_indicators.add_argument("--complexity")
+    update_indicators.add_argument("--format", choices=("text", "json"), default="text")
+    update_indicators.add_argument("--dry-run", action="store_true")
+    update_indicators.set_defaults(func=cmd_update_indicators)
+
+    append_note = sub.add_parser("append-note", help="Append a bounded note to an approved workflow section.")
+    append_note.add_argument("source", help="Workflow ref or repo-relative path.")
+    append_note.add_argument("--section", choices=("report", "validation", "decision"), required=True)
+    append_note.add_argument("--text", required=True)
+    append_note.add_argument("--format", choices=("text", "json"), default="text")
+    append_note.add_argument("--dry-run", action="store_true")
+    append_note.set_defaults(func=cmd_append_note)
+
     context_pack = sub.add_parser("context-pack", help="Build a compact context pack from workflow docs.")
     context_pack.add_argument("ref", help="Seed workflow ref for the context pack.")
     context_pack.add_argument("--mode", choices=("summary-only", "diff-first", "full"), default="summary-only")
@@ -525,6 +817,26 @@ def _build_help() -> str:
             "  context-pack <ref>",
             "    Build a compact JSON context pack from workflow docs.",
             "    Flags: --mode {summary-only,diff-first,full}, --profile {tiny,normal,deep}, --out, --format {text,json}, --dry-run",
+            "",
+            "  read-doc <source>",
+            "    Read a bounded workflow document payload by ref or path.",
+            "    Flags: --max-chars, --section, --format {text,json}",
+            "",
+            "  list-docs",
+            "    List workflow docs by bounded criteria.",
+            "    Flags: --kind {all,request,backlog,task}, --status, --ref-prefix, --limit, --format {text,json}",
+            "",
+            "  search-docs <query>",
+            "    Search approved workflow docs with bounded snippets.",
+            "    Flags: --kind {all,request,backlog,task}, --status, --limit, --max-snippet-chars, --format {text,json}",
+            "",
+            "  update-indicators <source>",
+            "    Update approved indicators on one workflow doc.",
+            "    Flags: --status, --progress, --understanding, --confidence, --theme, --complexity, --format {text,json}, --dry-run",
+            "",
+            "  append-note <source>",
+            "    Append a bounded note to an approved workflow section.",
+            "    Flags: --section {report,validation,decision}, --text, --format {text,json}, --dry-run",
             "",
             "  export-graph",
             "    Export workflow relationships as a machine-readable graph.",
@@ -604,6 +916,91 @@ def _build_subcommand_help(command: str) -> str:
                 "",
                 "Example:",
                 "  logics-manager sync context-pack req_001_my_request --out logics/context-pack.json",
+            ]
+        )
+    if command == "read-doc":
+        return "\n".join(
+            [
+                "Logics Sync Read Doc",
+                "Read a bounded workflow document payload by ref or path.",
+                "",
+                "Usage:",
+                "  logics-manager sync read-doc <source> [args...]",
+                "",
+                "Flags:",
+                "  --max-chars",
+                "  --section",
+                "  --format {text,json}",
+            ]
+        )
+    if command == "list-docs":
+        return "\n".join(
+            [
+                "Logics Sync List Docs",
+                "List workflow docs by bounded criteria.",
+                "",
+                "Usage:",
+                "  logics-manager sync list-docs [args...]",
+                "",
+                "Flags:",
+                "  --kind {all,request,backlog,task}",
+                "  --status",
+                "  --ref-prefix",
+                "  --limit",
+                "  --format {text,json}",
+            ]
+        )
+    if command == "search-docs":
+        return "\n".join(
+            [
+                "Logics Sync Search Docs",
+                "Search approved workflow docs with bounded snippets.",
+                "",
+                "Usage:",
+                "  logics-manager sync search-docs <query> [args...]",
+                "",
+                "Flags:",
+                "  --kind {all,request,backlog,task}",
+                "  --status",
+                "  --limit",
+                "  --max-snippet-chars",
+                "  --format {text,json}",
+            ]
+        )
+    if command == "update-indicators":
+        return "\n".join(
+            [
+                "Logics Sync Update Indicators",
+                "Update approved indicators on one workflow doc.",
+                "",
+                "Usage:",
+                "  logics-manager sync update-indicators <source> [args...]",
+                "",
+                "Flags:",
+                "  --status",
+                "  --progress",
+                "  --understanding",
+                "  --confidence",
+                "  --theme",
+                "  --complexity",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "append-note":
+        return "\n".join(
+            [
+                "Logics Sync Append Note",
+                "Append a bounded note to an approved workflow section.",
+                "",
+                "Usage:",
+                "  logics-manager sync append-note <source> --section <section> --text <text> [args...]",
+                "",
+                "Flags:",
+                "  --section {report,validation,decision}",
+                "  --text",
+                "  --format {text,json}",
+                "  --dry-run",
             ]
         )
     if command == "export-graph":
@@ -689,6 +1086,84 @@ def cmd_schema_status(args: argparse.Namespace) -> dict[str, object]:
     return {"command": "sync", "kind": "schema-status", "repo_root": repo_root.as_posix(), **payload}
 
 
+def _bounded_positive(value: int, *, default: int, maximum: int) -> int:
+    if value <= 0:
+        return default
+    return min(value, maximum)
+
+
+def cmd_read_doc(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = read_logics_doc_payload(repo_root, args.source, max_chars=_bounded_positive(args.max_chars, default=4000, maximum=12000), sections=args.section or None)
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"{payload['ref']} ({payload['kind']}): {payload['title']}")
+        print(f"- path: {payload['path']}")
+        print(f"- status: {payload['status']}")
+        print(f"- truncated: {payload['truncated']}")
+    return {"command": "sync", "kind": "read-doc", "repo_root": repo_root.as_posix(), **payload}
+
+
+def cmd_list_docs(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = list_logics_docs_payload(repo_root, kind=args.kind, status=args.status, ref_prefix=args.ref_prefix, limit=_bounded_positive(args.limit, default=50, maximum=200))
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Workflow docs: {payload['returned_count']} returned of {payload['total_count']}")
+        for item in payload["items"]:
+            print(f"- {item['ref']} [{item['status']}]: {item['title']}")
+    return {"command": "sync", "kind": "list-docs", "repo_root": repo_root.as_posix(), **payload}
+
+
+def cmd_search_docs(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = search_logics_docs_payload(
+        repo_root,
+        args.query,
+        kind=args.kind,
+        status=args.status,
+        limit=_bounded_positive(args.limit, default=20, maximum=100),
+        max_snippet_chars=_bounded_positive(args.max_snippet_chars, default=240, maximum=1000),
+    )
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Search `{payload['query']}`: {payload['returned_count']} match(es)")
+        for match in payload["matches"]:
+            print(f"- {match['ref']}:{match['line']} {match['title']}")
+    return {"command": "sync", "kind": "search-docs", "repo_root": repo_root.as_posix(), **payload}
+
+
+def cmd_update_indicators(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    indicators = {
+        "Status": args.status,
+        "Progress": args.progress,
+        "Understanding": args.understanding,
+        "Confidence": args.confidence,
+        "Theme": args.theme,
+        "Complexity": args.complexity,
+    }
+    payload = update_workflow_indicators_payload(repo_root, args.source, {key: value for key, value in indicators.items() if value is not None}, dry_run=args.dry_run)
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Updated indicators for {payload['path']} (changed: {payload['changed']}).")
+    return {"command": "sync", "kind": "update-indicators", "repo_root": repo_root.as_posix(), **payload}
+
+
+def cmd_append_note(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = append_workflow_note_payload(repo_root, args.source, note_kind=args.section, text=args.text, dry_run=args.dry_run)
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Appended {args.section} note to {payload['path']} (changed: {payload['changed']}).")
+    return {"command": "sync", "kind": "append-note", "repo_root": repo_root.as_posix(), **payload}
+
+
 def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     payload = _build_context_pack(repo_root, args.ref, mode=args.mode, profile=args.profile, config=None)
@@ -733,7 +1208,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
         _print_help(_build_help())
         return 0
-    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "context-pack", "export-graph"} and len(argv) > 1 and argv[1] in ("-h", "--help"):
+    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "read-doc", "list-docs", "search-docs", "update-indicators", "append-note", "context-pack", "export-graph"} and len(argv) > 1 and argv[1] in ("-h", "--help"):
         _print_help(_build_subcommand_help(argv[0]))
         return 0
     parser = build_parser()

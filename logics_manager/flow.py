@@ -1868,18 +1868,18 @@ def _record_finished_task_follow_up(repo_root: Path, task_path: Path, dry_run: b
         _append_section_bullets(
             item_path,
             "Notes",
-            [f"- Task `{task_ref}` was finished via `logics-manager flow finish task` on {date.today().isoformat()}."],
+            [f"Task `{task_ref}` was finished via `logics-manager flow finish task` on {date.today().isoformat()}."],
             dry_run,
         )
 
     validation_bullets = [
-        f"- Finish workflow executed on {date.today().isoformat()}.",
-        "- Linked backlog/request close verification passed.",
+        f"Finish workflow executed on {date.today().isoformat()}.",
+        "Linked backlog/request close verification passed.",
     ]
     report_bullets = [
-        f"- Finished on {date.today().isoformat()}.",
-        f"- Linked backlog item(s): {', '.join(f'`{ref}`' for ref in item_refs) if item_refs else '(none)'}",
-        f"- Related request(s): {', '.join(f'`{ref}`' for ref in sorted(request_refs)) if request_refs else '(none)'}",
+        f"Finished on {date.today().isoformat()}.",
+        f"Linked backlog item(s): {', '.join(f'`{ref}`' for ref in item_refs) if item_refs else '(none)'}",
+        f"Related request(s): {', '.join(f'`{ref}`' for ref in sorted(request_refs)) if request_refs else '(none)'}",
     ]
     _append_section_bullets(task_path, "Validation", validation_bullets, dry_run)
     _append_section_bullets(task_path, "Report", report_bullets, dry_run)
@@ -1951,7 +1951,10 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 
     if args.dry_run:
         payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": True}
-        print("Dry run: skipped post-close verification.")
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print("Dry run: skipped post-close verification.")
         return payload
 
     issues = _verify_finished_task_chain(repo_root, source_path)

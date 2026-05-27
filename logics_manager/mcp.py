@@ -12,12 +12,15 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
 from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 from .audit import audit_payload
 from .config import ConfigError, find_repo_root
 from .flow import flow_list_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
+from .sync import append_workflow_note_payload, build_context_pack_payload, list_logics_docs_payload, read_logics_doc_payload, search_logics_docs_payload, update_workflow_indicators_payload
 
 
 ALLOWED_WRITE_DIRS = (
@@ -119,6 +122,144 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
+        "name": "read_logics_doc",
+        "description": "Read one approved Logics workflow document by ref or repo-relative path.",
+        "inputSchema": _tool_schema(
+            {
+                "source": {"type": "string"},
+                "max_chars": {"type": "integer"},
+                "sections": {"type": "array", "items": {"type": "string"}},
+            },
+            ["source"],
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "build_context_pack",
+        "description": "Build a compact Logics context pack for a workflow ref.",
+        "inputSchema": _tool_schema(
+            {
+                "ref": {"type": "string"},
+                "mode": {"type": "string", "enum": ["summary-only", "diff-first", "full"]},
+                "profile": {"type": "string", "enum": ["tiny", "normal", "deep"]},
+            },
+            ["ref"],
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "list_logics_docs",
+        "description": "List Logics workflow documents by bounded criteria.",
+        "inputSchema": _tool_schema(
+            {
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]},
+                "status": {"type": "string"},
+                "ref_prefix": {"type": "string"},
+                "limit": {"type": "integer"},
+            }
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "search_logics_docs",
+        "description": "Search approved Logics workflow docs with bounded snippets.",
+        "inputSchema": _tool_schema(
+            {
+                "query": {"type": "string"},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]},
+                "status": {"type": "string"},
+                "limit": {"type": "integer"},
+                "max_snippet_chars": {"type": "integer"},
+            },
+            ["query"],
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "finish_task",
+        "description": "Finish a Logics task through the canonical flow finish task command.",
+        "inputSchema": _tool_schema({"task_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["task_path"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "close_workflow_doc",
+        "description": "Close a Logics request, backlog item, or task through the canonical flow close command.",
+        "inputSchema": _tool_schema({"kind": {"type": "string", "enum": ["request", "backlog", "task"]}, "source_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["kind", "source_path"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "close_eligible_requests",
+        "description": "Close requests whose linked backlog items are already done.",
+        "inputSchema": _tool_schema({"dry_run": {"type": "boolean"}}),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "refresh_mermaid_signatures",
+        "description": "Refresh deterministic workflow Mermaid signatures.",
+        "inputSchema": _tool_schema({"dry_run": {"type": "boolean"}}),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "update_workflow_indicators",
+        "description": "Update approved workflow indicators without free-form Markdown editing.",
+        "inputSchema": _tool_schema(
+            {
+                "source": {"type": "string"},
+                "status": {"type": "string"},
+                "progress": {"type": "string"},
+                "understanding": {"type": "string"},
+                "confidence": {"type": "string"},
+                "theme": {"type": "string"},
+                "complexity": {"type": "string"},
+                "dry_run": {"type": "boolean"},
+            },
+            ["source"],
+        ),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "append_report_entry",
+        "description": "Append bounded content to a task Report section.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "append_validation_note",
+        "description": "Append bounded content to a workflow Validation section.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "append_decision_note",
+        "description": "Append bounded rationale to an approved workflow decision or notes section.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "split_request",
+        "description": "Split one Logics request into multiple backlog items through the canonical flow split command.",
+        "inputSchema": _tool_schema({"request_path": {"type": "string"}, "titles": {"type": "array", "items": {"type": "string"}}, "dry_run": {"type": "boolean"}}, ["request_path", "titles"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "split_backlog",
+        "description": "Split one Logics backlog item into multiple tasks through the canonical flow split command.",
+        "inputSchema": _tool_schema({"backlog_path": {"type": "string"}, "titles": {"type": "array", "items": {"type": "string"}}, "dry_run": {"type": "boolean"}}, ["backlog_path", "titles"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "autofix_ac_traceability",
+        "description": "Run deterministic audit autofix for missing AC traceability skeleton entries.",
+        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "autofix_structure",
+        "description": "Run deterministic audit autofix for supported workflow document structure repairs.",
+        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
         "name": "run_logics_lint",
         "description": "Run Logics lint with required status indicators.",
         "inputSchema": _tool_schema({}),
@@ -180,6 +321,10 @@ def _validate_arguments(name: str, arguments: dict[str, Any]) -> None:
         if expected_type == "array":
             if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
                 raise McpToolError("invalid_argument_type", f"Argument `{key}` must be an array of strings.", details={"argument": key, "expected": "array[string]"})
+        if expected_type == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
+            raise McpToolError("invalid_argument_type", f"Argument `{key}` must be an integer.", details={"argument": key, "expected": "integer"})
+        if expected_type == "boolean" and not isinstance(value, bool):
+            raise McpToolError("invalid_argument_type", f"Argument `{key}` must be a boolean.", details={"argument": key, "expected": "boolean"})
         enum = expected.get("enum")
         if enum and value not in enum:
             raise McpToolError("invalid_argument_value", f"Argument `{key}` has an unsupported value.", details={"argument": key, "allowed": enum, "value": value})
@@ -219,6 +364,19 @@ def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProces
             details={"command": ["python3", "-m", "logics_manager", *args], "stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode},
         )
     return result
+
+
+def _run_json_command(repo_root: Path, args: list[str]) -> dict[str, Any]:
+    command = [sys.executable, "-m", "logics_manager", *args]
+    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    payload = _json_from_stdout_or_none(result.stdout)
+    if payload is None:
+        raise McpToolError(
+            "command_failed",
+            "Underlying logics-manager command failed.",
+            details={"command": ["python3", "-m", "logics_manager", *args], "stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode},
+        )
+    return payload
 
 
 def _json_from_stdout(stdout: str) -> dict[str, Any]:
@@ -439,6 +597,50 @@ def _document_preview(repo_root: Path, rel_path: str, *, max_chars: int = 1600) 
     }
 
 
+def _bounded_int(value: Any, *, default: int, maximum: int) -> int:
+    if not isinstance(value, int) or isinstance(value, bool):
+        return default
+    if value <= 0:
+        return default
+    return min(value, maximum)
+
+
+def _mcp_read_error(exc: BaseException) -> McpToolError:
+    if isinstance(exc, McpToolError):
+        return exc
+    return McpToolError("invalid_reference", str(exc))
+
+
+def _mcp_mutation_error(exc: BaseException) -> McpToolError:
+    if isinstance(exc, McpToolError):
+        return exc
+    return McpToolError("invalid_argument_value", str(exc))
+
+
+def _workflow_doc_path_for_source(repo_root: Path, source: str) -> str:
+    try:
+        payload = read_logics_doc_payload(repo_root, source, max_chars=1, sections=[])
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    return str(payload["path"])
+
+
+def _nonempty_titles(values: Any) -> list[str]:
+    titles = [str(value).strip() for value in values if str(value).strip()] if isinstance(values, list) else []
+    if not titles:
+        raise McpToolError("invalid_argument_value", "At least one non-empty title is required.", details={"argument": "titles"})
+    return titles
+
+
+def _workflow_write_result(repo_root: Path, payload: dict[str, Any], *, paths: list[str] | None = None) -> dict[str, Any]:
+    return {
+        "ok": True,
+        **payload,
+        **_validation_result(repo_root, include_audit=True),
+        **_show_git_diff(repo_root, paths),
+    }
+
+
 def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: Path | None = None) -> dict[str, Any]:
     root = _repo_root(repo_root)
     args = arguments or {}
@@ -457,6 +659,156 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         if kind not in {"all", "request", "backlog", "task"}:
             raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
         return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
+    if name == "read_logics_doc":
+        try:
+            payload = read_logics_doc_payload(root, str(args.get("source") or ""), max_chars=_bounded_int(args.get("max_chars"), default=4000, maximum=12000), sections=args.get("sections") if isinstance(args.get("sections"), list) else None)
+        except SystemExit as exc:
+            raise _mcp_read_error(exc) from exc
+        return {"ok": True, **payload}
+    if name == "build_context_pack":
+        try:
+            payload = build_context_pack_payload(root, str(args.get("ref") or ""), mode=str(args.get("mode") or "summary-only"), profile=str(args.get("profile") or "normal"), config=None)
+        except SystemExit as exc:
+            raise _mcp_read_error(exc) from exc
+        return {"ok": True, **payload}
+    if name == "list_logics_docs":
+        payload = list_logics_docs_payload(
+            root,
+            kind=str(args.get("kind") or "all"),
+            status=str(args["status"]) if args.get("status") else None,
+            ref_prefix=str(args["ref_prefix"]) if args.get("ref_prefix") else None,
+            limit=_bounded_int(args.get("limit"), default=50, maximum=200),
+        )
+        return {"ok": True, **payload}
+    if name == "search_logics_docs":
+        try:
+            payload = search_logics_docs_payload(
+                root,
+                str(args.get("query") or ""),
+                kind=str(args.get("kind") or "all"),
+                status=str(args["status"]) if args.get("status") else None,
+                limit=_bounded_int(args.get("limit"), default=20, maximum=100),
+                max_snippet_chars=_bounded_int(args.get("max_snippet_chars"), default=240, maximum=1000),
+            )
+        except SystemExit as exc:
+            raise _mcp_read_error(exc) from exc
+        return {"ok": True, **payload}
+    if name == "finish_task":
+        rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, ["logics"])
+        command = ["flow", "finish", "task", rel_path.as_posix(), "--format", "json"]
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=None if not dry_run else [rel_path.as_posix()])
+    if name == "close_workflow_doc":
+        kind = str(args.get("kind") or "")
+        allowed_dir = {"request": "logics/request", "backlog": "logics/backlog", "task": "logics/tasks"}[kind]
+        rel_path = _relative_path(root, str(args.get("source_path") or ""), (allowed_dir,))
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, ["logics"])
+        command = ["flow", "close", kind, rel_path.as_posix(), "--format", "json"]
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=None if not dry_run else [rel_path.as_posix()])
+    if name == "close_eligible_requests":
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, ["logics"])
+        command = ["sync", "close-eligible-requests", "--format", "json"]
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        return _workflow_write_result(root, payload)
+    if name == "refresh_mermaid_signatures":
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, ["logics"])
+        command = ["sync", "refresh-mermaid-signatures", "--format", "json"]
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        paths = [str(path) for path in payload.get("modified_files", [])] or None
+        return _workflow_write_result(root, payload, paths=paths)
+    if name == "update_workflow_indicators":
+        source = str(args.get("source") or "")
+        dry_run = bool(args.get("dry_run", False))
+        rel_path = _workflow_doc_path_for_source(root, source)
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [rel_path])
+        indicators = {
+            "Status": args.get("status"),
+            "Progress": args.get("progress"),
+            "Understanding": args.get("understanding"),
+            "Confidence": args.get("confidence"),
+            "Theme": args.get("theme"),
+            "Complexity": args.get("complexity"),
+        }
+        try:
+            payload = update_workflow_indicators_payload(root, source, {key: str(value) for key, value in indicators.items() if value is not None}, dry_run=dry_run)
+        except SystemExit as exc:
+            raise _mcp_mutation_error(exc) from exc
+        return _workflow_write_result(root, payload, paths=[rel_path])
+    if name in {"append_report_entry", "append_validation_note", "append_decision_note"}:
+        source = str(args.get("source") or "")
+        dry_run = bool(args.get("dry_run", False))
+        rel_path = _workflow_doc_path_for_source(root, source)
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [rel_path])
+        note_kind = {"append_report_entry": "report", "append_validation_note": "validation", "append_decision_note": "decision"}[name]
+        try:
+            payload = append_workflow_note_payload(root, source, note_kind=note_kind, text=str(args.get("text") or ""), dry_run=dry_run)
+        except SystemExit as exc:
+            raise _mcp_mutation_error(exc) from exc
+        return _workflow_write_result(root, payload, paths=[rel_path])
+    if name == "split_request":
+        rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
+        titles = _nonempty_titles(args.get("titles"))
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+        command = ["flow", "split", "request", rel_path.as_posix(), "--format", "json"]
+        for title in titles:
+            command.extend(["--title", title])
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        created_paths = [f"logics/backlog/{ref}.md" for ref in payload.get("created_refs", [])]
+        return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
+    if name == "split_backlog":
+        rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
+        titles = _nonempty_titles(args.get("titles"))
+        dry_run = bool(args.get("dry_run", False))
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+        command = ["flow", "split", "backlog", rel_path.as_posix(), "--format", "json"]
+        for title in titles:
+            command.extend(["--title", title])
+        if dry_run:
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+        created_paths = [f"logics/tasks/{ref}.md" for ref in payload.get("created_refs", [])]
+        return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
+    if name in {"autofix_ac_traceability", "autofix_structure"}:
+        raw_paths = args.get("paths") if isinstance(args.get("paths"), list) else []
+        paths = [_relative_path(root, str(path), ("logics",)).as_posix() for path in raw_paths]
+        refs = [str(ref).strip() for ref in args.get("refs", []) if str(ref).strip()] if isinstance(args.get("refs"), list) else []
+        _ensure_no_dirty_conflict(root, paths or ["logics"])
+        flag = "--autofix-ac-traceability" if name == "autofix_ac_traceability" else "--autofix-structure"
+        command = ["audit", flag, "--format", "json"]
+        if paths:
+            command.append("--paths")
+            command.extend(paths)
+        if refs:
+            command.append("--refs")
+            command.extend(refs)
+        payload = _run_json_command(root, command)
+        modified = [str(path) for path in payload.get("autofix", {}).get("modified_files", [])]
+        return _workflow_write_result(root, {"audit_payload": payload, "modified_paths": modified}, paths=modified or paths or None)
     if name == "show_git_diff":
         raw_paths = args.get("paths")
         paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
@@ -686,6 +1038,88 @@ def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: 
     return 0
 
 
+def _connector_urls(public_url: str | None) -> dict[str, str]:
+    if not public_url:
+        return {}
+    base = public_url.rstrip("/")
+    if base.endswith("/mcp"):
+        mcp_url = base
+        health_url = base[:-4].rstrip("/") + "/health"
+    else:
+        mcp_url = f"{base}/mcp"
+        health_url = f"{base}/health"
+    return {"public_url": base, "mcp_url": mcp_url, "health_url": health_url}
+
+
+def connector_plan(*, repo_root: Path, host: str, port: int, bearer_token: str | None = None, public_url: str | None = None) -> dict[str, Any]:
+    token = bearer_token or secrets.token_urlsafe(32)
+    urls = _connector_urls(public_url)
+    local_mcp_url = f"http://{host}:{port}/mcp"
+    local_health_url = f"http://{host}:{port}/health"
+    server_command = f'{AUTH_ENV_VAR}="{token}" python3 -m logics_manager mcp serve-http --repo-root {repo_root.as_posix()} --host {host} --port {port}'
+    return {
+        "ok": True,
+        "repo_root": repo_root.as_posix(),
+        "bearer_token": token,
+        "auth_header": f"Authorization: Bearer {token}",
+        "local_mcp_url": local_mcp_url,
+        "local_health_url": local_health_url,
+        "server_command": server_command,
+        "tunnel_target": f"{host}:{port}",
+        "chatgpt": {
+            "developer_mode": True,
+            "mcp_url": urls.get("mcp_url", "<your HTTPS tunnel URL>/mcp"),
+            "auth_type": "Bearer token",
+            "auth_value": token,
+        },
+        "smoke_checks": {
+            "health": urls.get("health_url", f"<your HTTPS tunnel URL>/health"),
+            "mcp_tools_list": urls.get("mcp_url", "<your HTTPS tunnel URL>/mcp"),
+        },
+        "cleanup": [
+            "Stop the HTTPS tunnel process.",
+            "Stop the local mcp serve-http process with Ctrl-C.",
+            "Treat the bearer token as expired once the local session is stopped.",
+        ],
+        **urls,
+    }
+
+
+def connector_smoke_check(public_url: str, bearer_token: str, *, timeout: float = 5.0) -> dict[str, Any]:
+    urls = _connector_urls(public_url)
+    health_ok = False
+    mcp_ok = False
+    errors: list[str] = []
+    try:
+        with urlopen(urls["health_url"], timeout=timeout) as response:
+            health_ok = response.status == 200
+    except (OSError, URLError) as exc:
+        errors.append(f"health: {exc}")
+    try:
+        body = json.dumps({"jsonrpc": JSONRPC_VERSION, "id": 1, "method": "tools/list", "params": {}}).encode("utf-8")
+        request = Request(urls["mcp_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {bearer_token}"}, method="POST")
+        with urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+            mcp_ok = response.status == 200 and "result" in payload
+    except (OSError, URLError, json.JSONDecodeError) as exc:
+        errors.append(f"mcp: {exc}")
+    return {"ok": health_ok and mcp_ok, "health_ok": health_ok, "mcp_ok": mcp_ok, "errors": errors, **urls}
+
+
+def _print_connector_plan(plan: dict[str, Any]) -> None:
+    print("Logics MCP Connector")
+    print(f"Server command:\n  {plan['server_command']}")
+    print(f"Tunnel target: {plan['tunnel_target']}")
+    print(f"ChatGPT developer-mode MCP URL: {plan['chatgpt']['mcp_url']}")
+    print(f"Authorization header: {plan['auth_header']}")
+    print("Smoke checks:")
+    print(f"  health: {plan['smoke_checks']['health']}")
+    print(f"  mcp tools/list: {plan['smoke_checks']['mcp_tools_list']}")
+    print("Cleanup:")
+    for item in plan["cleanup"]:
+        print(f"  - {item}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="logics-manager mcp", description="Run or inspect the Logics MCP server.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -702,6 +1136,14 @@ def main(argv: list[str] | None = None) -> int:
     call.add_argument("name")
     call.add_argument("--arguments", default="{}")
     call.add_argument("--repo-root", default=None)
+    connect = sub.add_parser("connect", help="Print local HTTP connector setup for ChatGPT developer mode.")
+    connect.add_argument("--repo-root", default=None)
+    connect.add_argument("--host", default="127.0.0.1")
+    connect.add_argument("--port", type=int, default=8765)
+    connect.add_argument("--bearer-token", default=None)
+    connect.add_argument("--public-url", default=None, help="Optional HTTPS tunnel URL used for copyable ChatGPT setup and smoke checks.")
+    connect.add_argument("--check", action="store_true", help="Run /health and authenticated /mcp smoke checks against --public-url.")
+    connect.add_argument("--format", choices=("text", "json"), default="text")
     parsed = parser.parse_args(argv)
 
     if parsed.command == "tools":
@@ -726,4 +1168,21 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
+    if parsed.command == "connect":
+        root = _repo_root(Path(parsed.repo_root) if parsed.repo_root else None)
+        plan = connector_plan(repo_root=root, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token, public_url=parsed.public_url)
+        if parsed.check:
+            if not parsed.public_url:
+                raise SystemExit("--check requires --public-url.")
+            plan["check"] = connector_smoke_check(parsed.public_url, str(plan["bearer_token"]))
+            plan["ok"] = bool(plan["check"]["ok"])
+        if parsed.format == "json":
+            print(json.dumps(plan, indent=2, sort_keys=True))
+        else:
+            _print_connector_plan(plan)
+            if "check" in plan:
+                print(f"Check: {'OK' if plan['check']['ok'] else 'FAILED'}")
+                for error in plan["check"]["errors"]:
+                    print(f"  - {error}")
+        return 0 if plan["ok"] else 1
     return 1

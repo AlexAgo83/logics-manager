@@ -1,10 +1,10 @@
 ## item_356_split_and_audit_repair_mcp_tools - Split and audit repair MCP tools
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: MCP workflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,6 +57,7 @@ ChatGPT is useful for decomposing oversized ideas and interpreting audit failure
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_157_split_and_audit_repair_mcp_tools` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_157_split_and_audit_repair_mcp_tools`

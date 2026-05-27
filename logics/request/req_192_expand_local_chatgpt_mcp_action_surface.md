@@ -1,7 +1,7 @@
 ## req_192_expand_local_chatgpt_mcp_action_surface - Expand local ChatGPT MCP action surface
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High

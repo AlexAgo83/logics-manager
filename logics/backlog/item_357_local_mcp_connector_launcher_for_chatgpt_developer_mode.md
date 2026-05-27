@@ -1,10 +1,10 @@
 ## item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode - Local MCP connector launcher for ChatGPT developer mode
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: MCP workflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,6 +57,7 @@ Option-A local-first usage still requires too many manual steps: generate a toke
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode`

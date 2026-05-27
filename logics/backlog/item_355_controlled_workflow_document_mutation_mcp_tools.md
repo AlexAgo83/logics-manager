@@ -1,10 +1,10 @@
 ## item_355_controlled_workflow_document_mutation_mcp_tools - Controlled workflow document mutation MCP tools
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: MCP workflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,6 +57,7 @@ ChatGPT needs to refine workflow docs after reading them, but allowing arbitrary
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_156_controlled_workflow_document_mutation_mcp_tools` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_156_controlled_workflow_document_mutation_mcp_tools`

@@ -62,7 +62,7 @@ def _build_root_help() -> str:
         "",
         "  sync",
         "    Synchronize workflow transitions and exports.",
-        "    Subcommands: close-eligible-requests, refresh-mermaid-signatures, schema-status, context-pack, export-graph",
+        "    Subcommands: close-eligible-requests, refresh-mermaid-signatures, schema-status, read-doc, list-docs, search-docs, update-indicators, append-note, context-pack, export-graph",
         "",
         "  assist",
         "    Inspect runtime signals and build context bundles.",
@@ -90,7 +90,7 @@ def _build_root_help() -> str:
         "",
         "  mcp",
         "    Expose bounded Logics tools for MCP clients.",
-        "    Subcommands: serve, serve-http, tools, call",
+        "    Subcommands: serve, serve-http, connect, tools, call",
         "",
         "  self-update",
         "    Update the installed Python or npm package.",
@@ -220,7 +220,7 @@ def main(argv: list[str] | None = None) -> int:
 
         return flow_main(rest)
     if command == "sync":
-        if rest[:1] not in (["close-eligible-requests"], ["refresh-mermaid-signatures"], ["schema-status"], ["context-pack"], ["export-graph"]) and rest[:1] not in HELP_ARGV:
+        if rest[:1] not in (["close-eligible-requests"], ["refresh-mermaid-signatures"], ["schema-status"], ["read-doc"], ["list-docs"], ["search-docs"], ["update-indicators"], ["append-note"], ["context-pack"], ["export-graph"]) and rest[:1] not in HELP_ARGV:
             raise SystemExit("Unsupported sync subcommand for the native CLI slice.")
         from .sync import main as sync_main
 

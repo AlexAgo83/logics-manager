@@ -7,62 +7,145 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
 
-Turn your `logics/*` Markdown corpus into a real delivery cockpit inside VS Code, backed by the canonical `logics-manager` runtime.
+`logics-manager` is a local workflow runtime for projects that keep their delivery memory in Markdown.
 
-`logics-manager` gives you a visual orchestration layer for the Logics workflow
-(`requests -> backlog -> tasks -> specs`) without moving the source of truth out of the repository.
+The core product is the CLI. It creates, promotes, validates, audits, and closes the `logics/*` documents that describe work:
 
-Version `2.0.0` marks the point where the extension, npm bin, Python package, generated assistant instructions, and runtime-facing docs all converge on the same product surface: `logics-manager`.
+```text
+request -> backlog item -> task -> implementation
+```
 
-This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
+Everything else in this repository is a client around that runtime:
 
-The current product direction adds local-first assistant entrypoints on top of the same runtime. Chat-oriented assistants such as ChatGPT can shape product intent into Logics documents through MCP, while coding agents such as Codex or Claude Code can consume prepared tasks for implementation and validation. The local repository stays the source of truth; the MCP server is a bounded adapter over the CLI, not a general shell.
+- the VS Code extension gives humans a board, details panel, previews, search, and insights;
+- the MCP server gives assistants a bounded tool API over the same CLI;
+- the npm package and Python package are distribution paths for the same runtime.
 
-## Logics Runtime and CLI
+The source of truth stays in your repository. Logics documents are plain Markdown, versioned with git, readable in reviews, and reusable by humans or AI assistants across sessions.
 
-`logics-manager` is the canonical CLI surface for the Logics runtime. The VS Code extension uses the bundled Python runtime for local workflow operations and packaging checks.
+## What It Solves
 
-Install it locally with `pip`:
+AI-heavy projects often lose context between chats, agents, and implementation passes. Logics turns that context into durable project artifacts:
+
+- `request`: the problem, need, and acceptance criteria;
+- `backlog item`: a scoped delivery slice;
+- `task`: executable implementation work;
+- `product brief`: product framing and intent;
+- `ADR`: architectural decisions;
+- `spec`: behavioral contract.
+
+The result is a repo-local memory layer that reduces re-explaining, keeps implementation grounded, and gives every assistant or human the same inspectable workflow state.
+
+## Product Shape
+
+`logics-manager` has one core and several integrations:
+
+| Layer | Purpose |
+| --- | --- |
+| CLI runtime | Canonical workflow engine for creating, promoting, auditing, repairing, and closing Logics docs. |
+| VS Code extension | Human-facing cockpit for navigating and managing the Markdown corpus. |
+| MCP server | Assistant-facing adapter that exposes bounded Logics tools without giving agents a shell. |
+| npm / Python packaging | Installation paths for the same CLI/runtime. |
+
+The CLI owns the behavior. The extension and MCP server call into it instead of reimplementing workflow logic.
+
+## Quick Start
+
+Install the CLI from this repository:
 
 ```bash
 python3.11 -m pip install .
 logics-manager --help
 ```
 
-The repository also exposes a `logics-manager` npm bin when installed through npm, which delegates to the same Python CLI.
-
-Install the npm package with:
+Or install the npm package:
 
 ```bash
 npm install -g @grifhinz/logics-manager
+logics-manager --help
 ```
 
-To update that CLI later, run `logics-manager self-update`.
-The command uses `pip` when the Python package is installed and falls back to `npm` for the global npm package.
-
-For the editor client, build and install the VSIX:
+Initialize or check a repository:
 
 ```bash
+logics-manager bootstrap --check
+```
+
+Create the first workflow document:
+
+```bash
+logics-manager flow new request --title "Improve onboarding"
+```
+
+Validate the workflow corpus:
+
+```bash
+logics-manager lint --require-status
+logics-manager audit
+```
+
+## Core CLI
+
+The CLI is the stable contract for Logics. It supports:
+
+- bootstrapping the `logics/` tree;
+- creating requests, backlog items, tasks, product briefs, and ADRs;
+- promoting request -> backlog and backlog -> task;
+- splitting large requests or backlog items;
+- closing tasks, backlog items, and requests with consistency checks;
+- linting and auditing workflow traceability;
+- exporting indexes, context packs, and graph data;
+- serving the bounded MCP tool surface.
+
+Useful commands:
+
+```bash
+logics-manager flow list
+logics-manager flow promote request-to-backlog logics/request/req_001_example.md
+logics-manager flow promote backlog-to-task logics/backlog/item_001_example.md
+logics-manager flow finish task logics/tasks/task_001_example.md
+logics-manager sync context-pack req_001_example --format json
+```
+
+To update the installed CLI later:
+
+```bash
+logics-manager self-update
+```
+
+## VS Code Extension
+
+The VS Code extension is the human cockpit around the same runtime. It helps you:
+
+- browse workflow docs as a board or list;
+- preview Logics Markdown with clickable references and Mermaid rendering;
+- create and promote workflow items without leaving the editor;
+- inspect recent activity, status, theme, confidence, stale work, and backlog coverage;
+- run validation-oriented actions from the UI.
+
+Install from the Marketplace:
+
+https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
+
+For local development or manual VSIX testing:
+
+```bash
+npm install
 npm run package
 npm run install:vsix
 ```
 
-The bundled runtime is the normal path. Transitional repair flows remain available for older repositories when needed, but they are not part of normal setup.
+## MCP For Assistants
 
-### Local MCP Tools
+The MCP server is an assistant-facing adapter over the CLI. It is useful when a chat assistant should work with Logics documents without getting arbitrary filesystem or shell access.
 
-`logics-manager` also exposes a bounded MCP tool surface for agent clients that should work with Logics without receiving a general shell.
-The MCP server wraps the canonical CLI, keeps paths repo-relative, and limits write-capable actions to Logics workflow directories.
+The MCP surface can:
 
-The initial MCP surface is intentionally narrow and production-safe for local dogfooding:
-- create a request from framed product conversation;
-- promote request -> backlog and backlog -> task through canonical commands;
-- create linked product briefs and architecture decisions;
-- list active work;
-- run lint and audit;
-- show Logics-scoped diffs.
-
-The expanded MCP surface is documented in `logics/product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md`. It keeps the same CLI-first rule while adding read, context-pack, list/search, controlled mutation, closure, deterministic repair, split, and connector-launcher tools for local assistant workflows.
+- create and promote workflow docs;
+- read, list, search, and build context packs from approved Logics docs;
+- update controlled indicators and append bounded notes;
+- finish or close workflow docs through canonical commands;
+- run lint, audit, deterministic repairs, split operations, and Logics-scoped diffs.
 
 Inspect the exposed tools:
 
@@ -70,104 +153,44 @@ Inspect the exposed tools:
 python3 -m logics_manager mcp tools
 ```
 
-Run the local stdio MCP server from a Logics repository:
+Run the local stdio server:
 
 ```bash
 python3 -m logics_manager mcp serve --repo-root .
 ```
 
-Run the local HTTP transport when you want to place the MCP server behind an HTTPS tunnel:
+Run the local HTTP server for an HTTPS tunnel:
 
 ```bash
 LOGICS_MCP_BEARER_TOKEN="$(openssl rand -hex 32)" python3 -m logics_manager mcp serve-http --repo-root . --host 127.0.0.1 --port 8765
 ```
 
-`POST /mcp` accepts an OAuth-style `Authorization: Bearer <token>` header when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for tunnel smoke checks, but do not expose `/mcp` through a public tunnel without a bearer token.
+`POST /mcp` accepts `Authorization: Bearer <token>` when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for smoke checks, but do not expose `/mcp` publicly without a bearer token.
 
-Generate a local connector setup plan for ChatGPT developer mode:
+Generate a local connector plan:
 
 ```bash
 python3 -m logics_manager mcp connect --repo-root . --port 8765
 ```
 
-If you already have an HTTPS tunnel URL, include it to get copyable connector values and optional smoke checks:
+With an HTTPS tunnel URL:
 
 ```bash
 python3 -m logics_manager mcp connect --repo-root . --public-url https://example-tunnel.example --check
 ```
 
-The connector plan prints the bearer token, local server command, tunnel target, ChatGPT MCP URL, auth header, `/health` and authenticated `/mcp` checks, and cleanup steps for stopping the tunnel and local server after the session.
+The connector plan prints the bearer token, server command, tunnel target, assistant connector URL, auth header, smoke checks, and cleanup steps.
 
-Smoke check the HTTP endpoint:
+## Assistant Model
 
-```bash
-curl -s http://127.0.0.1:8765/health
-```
+The project is local-first:
 
-Call one tool directly for local smoke testing:
+- each operator runs the CLI and MCP server against their own repository;
+- remote chat assistants connect through a short-lived HTTPS tunnel when needed;
+- coding agents consume prepared tasks and run validations in the repo;
+- shared GPTs or assistant configs can carry instructions, but each user keeps their own local connector URL and token.
 
-```bash
-python3 -m logics_manager mcp call run_logics_lint --arguments '{}'
-```
-
-Run the local dogfooding flow that exercises JSON-RPC tool calls for request creation, backlog promotion, task promotion, lint, audit, and diff:
-
-```bash
-python3 scripts/dogfood-mcp-flow.py --repo-root .
-```
-
-Use this prompt for a real Codex dogfooding pass before connecting ChatGPT:
-
-```text
-Use only the Logics MCP surface, not direct logics-manager CLI commands, to create a request for a small test idea, promote it to backlog, promote it to task, run lint and audit, and summarize the diff and any MCP errors.
-```
-
-The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
-ChatGPT custom MCP usage currently requires a remote server. For a local developer machine, put `serve-http` behind a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel, then register the resulting remote URL in ChatGPT developer mode.
-Keep the tunnel private, point it only at `127.0.0.1:8765`, configure the bearer token in the ChatGPT connector, and stop the tunnel when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
-
-For the local-first assistant model, each user runs their own MCP server against their own repository. A shared GPT, app, or assistant configuration can carry the workflow instructions, but the MCP connector URL and bearer token are user-local until a future hosted connector model exists.
-
-## Features
-
-- Turn `logics/*` Markdown into a delivery cockpit inside VS Code.
-- Keep requests, backlog items, tasks, and specs connected in one workspace.
-- Use the canonical `logics-manager` CLI as the shared runtime for the VS Code extension, npm bin, Python package, and assistant-facing MCP surface.
-- Connect chat assistants to a local Logics repository through a bounded MCP server for request creation, promotion, validation, and diff review.
-- Preview Logics docs with clickable references, Mermaid rendering, and cleaner read views.
-- Move from triage to execution with board, list, search, and recent-activity views that stay aligned.
-- See richer card metadata and hover previews, including Theme, while the compact-list toggle stays hidden when forced.
-- Explore Logics Insights with day/week timelines plus WIP, Blocked, Stale, Status, Theme, Understanding, Confidence, and backlog-coverage sections.
-- Keep the extension on a tighter quality bar with ESLint, stronger coverage checks, and CI validation.
-- Create, promote, bootstrap, and review workflow items without leaving the editor.
-- Reuse shared project context for faster AI handoffs and lower-token sessions.
-- Prepare releases and keep workflow docs synchronized from the same toolchain.
-
-## Product Model
-
-Logics separates three responsibilities:
-
-- Chat-oriented assistants, such as ChatGPT, are product-framing agents. They help turn conversation into requests, backlog slices, tasks, product briefs, and ADRs through bounded MCP tools.
-- Coding agents, such as Codex or Claude Code, are implementation agents. They consume prepared Logics tasks, change code, run validations, and close work through the canonical workflow.
-- `logics-manager` is the source-of-truth runtime. The CLI owns workflow behavior, and the VS Code extension plus MCP server adapt that runtime for humans and assistants.
-
-The project currently favors option-A local-first assistant usage:
-- each operator runs `logics-manager mcp serve-http` locally;
-- the operator exposes it through a short-lived controlled HTTPS tunnel when a remote chat assistant needs access;
-- `POST /mcp` is protected with a bearer token;
-- the tunnel is stopped after the test or work session.
-
-This keeps repository files local and avoids a multi-tenant hosted service. `logics-manager mcp connect` makes token generation, server startup guidance, tunnel checks, and assistant connector setup less manual without introducing hosted infrastructure.
-
-For more detailed workflow behavior, see the sections below on requirements, runtime compatibility, commands, and tools.
-
-## Why This Matters For AI Projects
-
-- AI sessions become cheaper because the project memory already exists in the repo instead of living only in previous chats.
-- Requests, backlog items, tasks, specs, and links become reusable context blocks that survive model changes, thread resets, and handoffs between assistants.
-- The plugin makes that memory operational: you can inspect it, navigate it, and inject a smaller assistant handoff directly from the active item.
-- That usually means lower token consumption, less context-window waste, and fewer regressions caused by missing earlier decisions.
-- Because the memory is plain Markdown in git, it stays reviewable by humans, diffable in pull requests, and portable across tools.
+This avoids a hosted multi-tenant Logics service while still allowing ChatGPT, Claude, Codex, or another MCP-capable assistant to work against the same workflow contract.
 
 ## Onboarding Prompts
 
@@ -261,13 +284,15 @@ Windows notes:
 - Promote backlog -> task and confirm task document is generated.
 - Refresh board/details and confirm data remains consistent.
 
-## Installation
+## VS Code Extension Installation
 
-### Install from Marketplace
+This section is only for installing the VS Code extension. For the core CLI, use the `Quick Start` section above.
+
+### Marketplace
 
 https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode
 
-### Install from VSIX (recommended for users)
+### VSIX
 
 ```bash
 code --install-extension logics-manager-<version>.vsix --force
@@ -277,7 +302,7 @@ If you don't have the `code` CLI on PATH:
 - Windows: either use the VS Code installer option that adds `code` to PATH, or install the `.vsix` from the VS Code UI via **Extensions -> ... -> Install from VSIX...**.
 - macOS/Linux: you can enable it from **Command Palette -> Shell Command: Install 'code' command in PATH**.
 
-### Install from source (dev)
+### Extension Development From Source
 
 ```bash
 npm install
@@ -322,21 +347,9 @@ This creates `logics-manager-<version>.vsix` in the repo root.
 npm run install:vsix
 ```
 
-6. Distribute the `.vsix` and use the curated file in `changelogs/` for the GitHub release body when publishing.
-
-For `2.0.0` and later, the curated changelog should summarize both user-visible changes and contract-level migrations such as runtime-surface consolidation, release workflow updates, or assistant-facing API removals.
+6. Distribute the `.vsix` and use the matching release notes when publishing.
 
 If the current plugin version is already published, `logics-manager assist next-step` can now propose the next release step instead of stalling on an already-live tag.
-
-## Curated Changelogs
-
-Versioned release notes for the main extension live in [`changelogs/`](changelogs).
-
-Contract:
-- filename pattern: `CHANGELOGS_X_Y_Z.md`
-- version source of truth: root `package.json`
-- helper: `npm run release:changelog:resolve`
-- validation: `npm run release:changelog:validate` fails when the curated changelog for the current package version is missing
 
 ## Commands
 
@@ -354,94 +367,6 @@ Contract:
 - `Logics: Assess Diff Risk`
 - `Logics: Build Validation Checklist`
 - `Logics: Review Doc Consistency`
-
-## Tools Menu
-
-- The Tools menu is split into `Workflow` and `System` views, with a `Recommended` section surfaced first for common day-to-day actions.
-- `Select Agent` picks the active Logics agent and prepares assistant chat context.
-- `Getting Started` opens the onboarding guide inside the extension.
-- `Companion Doc` creates a linked product brief or ADR from the current workflow context when the runtime supports it.
-- `New Request` opens a guided request-drafting flow using the request-authoring agent.
-- `Bootstrap Logics` installs the Logics runtime into a project that is not initialized yet.
-- `Update Logics Runtime` runs the bundled-runtime repair/update flow when Git state is safe for automation.
-- `Publish Global Codex Runtime` publishes or repairs the shared global Logics runtime in `~/.codex` from the current bundled source when needed.
-- `Environment` opens the same diagnostics as `Logics: Check Environment`: repository state, Python availability, Git availability, global Codex runtime health, and whether read-only, workflow, bootstrap, or terminal-Codex handoff actions are currently available.
-- `Environment` can also surface direct remediation actions when the plugin detects a stale runtime, an incomplete bootstrap, a missing global publication, or missing environment placeholders.
-- `Environment` now uses a clearer hierarchy with summary, recommended actions, current status, and technical details, plus hybrid assist runtime state, backend availability, degraded reasons, Claude-bridge presence, and the shared Windows-safe runtime entrypoint.
-- `Check Environment` can be promoted into `Recommended` when the current repo state actually warrants operator attention.
-- repo-local refresh now watches `logics/**/*`, `logics.yaml`, and `.git/HEAD`; external global runtime state still requires an explicit refresh because it lives outside the workspace.
-- `Launch Codex` starts Codex using the globally published Logics runtime when the shared runtime is healthy.
-- `AI Runtime Status` probes the shared `logics.py flow assist runtime-status` surface and reports ready providers, flagged providers, cooldown or credential issues, and bounded backend provenance.
-- `AI Provider Insights` opens a dedicated plugin panel backed by `logics.py flow assist roi-report`, with provider mix, execution-path breakdowns, derived rates, estimated ROI proxies, and recent audit drill-down over the shared runtime output.
-- `Logics Insights` opens a repository-level corpus stats panel with stage counts, progress buckets, relationship hot spots, large docs, and recent updates.
-- `Commit All Changes` asks the shared hybrid runtime for a bounded commit plan and can execute it after explicit confirmation.
-- `Suggest Next Step` asks the shared hybrid runtime for the next bounded workflow action on a selected request, backlog item, or task.
-- `Triage Item` classifies a selected request, backlog item, or task through the shared hybrid runtime and keeps backend provenance visible in the completion notification.
-- `Assess Diff Risk` runs the shared `diff-risk` flow directly from the plugin so the current change surface can stay local-first when policy allows it.
-- `Validation Summary` runs the shared hybrid runtime summary flow and returns a compact validation state without reimplementing runtime logic in the extension.
-- `Validation Checklist` asks the shared runtime for a bounded validation checklist derived from the current diff surface.
-- `Doc Consistency` runs the shared runtime review flow for workflow-doc consistency without moving validation semantics into the extension.
-- `Prepare Release` checks release readiness and can run the bounded prep step that generates a missing changelog, refreshes the README version badge, syncs local version artifacts, and commits the release-prep changes.
-- When the current version is already published, `Prepare Release` can now propose the next patch version instead of leaving the operator with a no-op.
-- `Publish Release` checks readiness, can publish through the shared runtime flow, stays disabled with an explicit reason outside GitHub-compatible repositories, and warns when a local `release` branch exists but is behind the current branch.
-- On load, the extension can proactively publish or upgrade the global Codex runtime from a compatible repository without requiring an explicit migration action in the normal path.
-- Codex launch shown by the plugin now uses the standard `codex` command because the runtime no longer depends on a per-repo overlay launcher.
-- After successful bootstrap, the extension can propose a git commit with a generated message.
-- Bootstrap completion messaging now distinguishes repo-local runtime readiness from global Codex runtime readiness.
-- `Change Project Root` / `Reset Project Root` control which repository root the extension operates on.
-- `Refresh` is available from the Tools menu to keep the main toolbar focused on view/navigation controls.
-- `Fix Logics` runs Logics doc-fix flows when available.
-- `About` opens the project repository information.
-
-The plugin remains a thin client over the shared runtime:
-- shared hybrid actions call `python -m logics_manager flow assist ...`;
-- hybrid ROI aggregation and semantics also stay in the runtime through `python -m logics_manager flow assist roi-report --format json`;
-- the shared runtime now distinguishes deterministic helpers such as `changed-surface-summary`, `release-changelog-status`, `test-impact-summary`, and `hybrid-insights-explainer` from Ollama-first proposal flows such as `windows-compat-risk`, `review-checklist`, and `doc-link-suggestion`;
-- backend routing, fallback semantics, payload validation, audit, and degraded-mode policy remain owned by the Logics runtime;
-- global Codex runtime actions stay distinct from shared hybrid assist actions so the UI can support Codex, Claude-oriented bridges, and Windows-safe runtime paths without duplicating business logic in TypeScript.
-
-## Assistant Handoffs
-
-The plugin now builds a lighter assistant handoff directly from the selected Logics item.
-
-- The details panel shows a `Context pack for AI assistants` summary with docs, lines, characters, approximate token cost, and a coarse budget label.
-- `summary-only` trims the handoff to the current item, compact summary points, acceptance criteria, and response contract.
-- `diff-first` puts relevant changed files first when the repository has recent Git changes tied to the current item.
-- Agent-aware filtering can exclude docs that do not belong to the active agent profile.
-- Session-hygiene hints warn when switching item, task type, workspace root, or handoff mode makes a fresh assistant session safer.
-
-These flows are designed to reduce token waste without hiding the underlying Logics docs. The Markdown corpus in `logics/*` remains the source of truth; the plugin only shapes a smaller handoff from it.
-
-## Global Codex Runtime Publication
-
-The primary Codex runtime model is now a globally published Logics runtime under `~/.codex`.
-The plugin auto-publishes or upgrades the runtime into the shared Codex home when it detects a compatible bundled source.
-
-Examples:
-
-```bash
-codex
-cat ~/.codex/logics-global-kit.json
-```
-
-Runtime contract:
-
-- Bundled runtime paths are the default.
-- the active shared runtime is published into the main Codex home under `~/.codex/skills`.
-- the publication manifest `~/.codex/logics-global-kit.json` records installed version, source repo, source revision, publish time, and published runtime state.
-- the plugin can auto-upgrade the shared runtime when a newer compatible repo-local source is detected.
-- repo-owned workflow documents under `logics/request`, `logics/backlog`, `logics/tasks`, product briefs, and ADRs stay inside the repository and are never globalized.
-
-Plugin remediation path:
-
-- if the global runtime is missing or stale, opening a compatible repository can auto-publish it without a separate migration action in the normal path.
-- if publication is unavailable or broken, the plugin exposes direct diagnostics and repair actions through `Check Environment`.
-- when the global runtime is healthy, the plugin can launch Codex directly and still keeps a clipboard fallback for prompt handoff flows.
-- stale legacy overlay artifacts are no longer part of the normal operator path and should be treated as deprecated compatibility state.
-
-Legacy compatibility:
-- `logics_codex_workspace.py` remains available as a legacy overlay manager for transitional troubleshooting or older flows.
-- overlays are no longer the primary runtime contract for the plugin or the recommended default operator path.
 
 ## Validation
 
@@ -513,23 +438,6 @@ For multi-wave delivery work, prefer coherent checkpoints:
 - update the linked Logics docs during the wave that changes the behavior;
 - leave the repo in a commit-ready state at the end of the wave;
 - then create the reviewed commit checkpoint instead of batching several undocumented partial states.
-
-## Webview Browser Debug
-
-Run the harness server:
-
-```bash
-npm run debug:webview
-```
-
-Then open `http://localhost:4173/` and switch scenarios from the in-page debug control.
-
-In harness mode:
-- `Change Project Root` uses browser-native directory selection fallbacks.
-- `Edit` and `Read` open selected files in new browser tabs (preferring File System Access API content when available).
-- `Read` renders markdown with Mermaid support in the browser preview tab.
-- Host-only actions (for example `Promote`, `Fix Logics`) show explicit guidance instead of silent no-op.
-- Add `?debug-ui=1` to the harness URL to enable verbose UI state transition logs in browser console.
 
 ## Accessibility Baseline
 

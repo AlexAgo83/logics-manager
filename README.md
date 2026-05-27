@@ -167,6 +167,25 @@ LOGICS_MCP_BEARER_TOKEN="$(openssl rand -hex 32)" python3 -m logics_manager mcp 
 
 `POST /mcp` accepts `Authorization: Bearer <token>` when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for smoke checks, but do not expose `/mcp` publicly without a bearer token.
 
+Start the local server and a temporary `localtunnel` session in one command:
+
+```bash
+python3 -m logics_manager mcp tunnel --repo-root . --port 8765
+```
+
+For short-lived live debugging only, run without bearer auth:
+
+```bash
+python3 -m logics_manager mcp tunnel --repo-root . --port 8765 --no-bearer
+```
+
+During project development, the same commands can be run through the repository binary:
+
+```bash
+node scripts/npm/logics-manager.mjs mcp tunnel --repo-root . --port 8765
+node scripts/npm/logics-manager.mjs mcp tunnel --repo-root . --port 8765 --no-bearer
+```
+
 Generate a local connector plan:
 
 ```bash
@@ -179,7 +198,13 @@ With an HTTPS tunnel URL:
 python3 -m logics_manager mcp connect --repo-root . --public-url https://example-tunnel.example --check
 ```
 
-The connector plan prints the bearer token, server command, tunnel target, assistant connector URL, auth header, smoke checks, and cleanup steps.
+For a no-bearer plan:
+
+```bash
+python3 -m logics_manager mcp connect --repo-root . --public-url https://example-tunnel.example --no-bearer --check
+```
+
+The connector plan prints the bearer token when used, server command, tunnel target, assistant connector URL, auth mode, auth header, smoke checks, warnings, and cleanup steps.
 
 ## Assistant Model
 

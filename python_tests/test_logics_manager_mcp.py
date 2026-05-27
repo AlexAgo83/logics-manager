@@ -196,6 +196,24 @@ def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
     assert pack["estimates"]["doc_count"] >= 1
 
 
+def test_mcp_lists_companion_docs(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    product = call_tool("create_product_brief", {"title": "Companion Inventory"}, repo_root=repo_root)
+    architecture = call_tool("create_architecture_decision", {"title": "Companion Decision"}, repo_root=repo_root)
+
+    products = call_tool("list_companion_docs", {"kind": "product", "limit": 10}, repo_root=repo_root)
+    assert products["ok"] is True
+    assert any(item["ref"] == product["ref"] for item in products["items"])
+    assert all(item["kind"] == "product" for item in products["items"])
+
+    all_docs = call_tool("list_companion_docs", {"kind": "all", "limit": 10}, repo_root=repo_root)
+    refs = {item["ref"] for item in all_docs["items"]}
+    assert product["ref"] in refs
+    assert architecture["ref"] in refs
+    assert all({"ref", "path", "title", "status", "related"} <= set(item) for item in all_docs["items"])
+
+
 def test_mcp_read_rejects_absolute_paths(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
     request = repo_root / "logics" / "request" / "req_000_existing.md"
@@ -403,6 +421,73 @@ def test_mcp_split_and_audit_repair_tools(tmp_path: Path) -> None:
     assert "audit_payload" in structure_fix
 
 
+def test_mcp_bounded_delete_and_rename_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    request_path = repo_root / "logics" / "request" / "req_999_bad_name.md"
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_999_bad_name - Bad name",
+                "> Status: Draft",
+                "",
+                "# Needs",
+                "- Rename me.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    dry_rename = call_tool(
+        "rename_logics_file",
+        {
+            "source_path": "logics/request/req_999_bad_name.md",
+            "destination_path": "logics/request/req_999_good_name.md",
+            "dry_run": True,
+        },
+        repo_root=repo_root,
+    )
+    assert dry_rename["would_rename"] is True
+    assert request_path.exists()
+
+    renamed = call_tool(
+        "rename_logics_file",
+        {
+            "source_path": "logics/request/req_999_bad_name.md",
+            "destination_path": "logics/request/req_999_good_name.md",
+        },
+        repo_root=repo_root,
+    )
+    assert renamed["renamed"] is True
+    assert not request_path.exists()
+    renamed_path = repo_root / "logics" / "request" / "req_999_good_name.md"
+    assert renamed_path.exists()
+
+    dry_delete = call_tool("delete_logics_file", {"path": "logics/request/req_999_good_name.md", "dry_run": True}, repo_root=repo_root)
+    assert dry_delete["would_delete"] is True
+    assert renamed_path.exists()
+
+    deleted = call_tool("delete_logics_file", {"path": "logics/request/req_999_good_name.md"}, repo_root=repo_root)
+    assert deleted["deleted"] is True
+    assert not renamed_path.exists()
+
+
+def test_mcp_file_tools_reject_unapproved_paths(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("delete_logics_file", {"path": "README.md"}, repo_root=repo_root)
+    assert exc.value.code == "invalid_path"
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool(
+            "rename_logics_file",
+            {"source_path": "logics/request/req_001_demo.txt", "destination_path": "logics/request/req_001_demo.md"},
+            repo_root=repo_root,
+        )
+    assert exc.value.code == "invalid_path"
+
+
 def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 
@@ -410,6 +495,7 @@ def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:
 
     assert plan["ok"] is True
     assert plan["bearer_token"] == "test-token"
+    assert plan["auth_mode"] == "bearer"
     assert plan["local_mcp_url"] == "http://127.0.0.1:8765/mcp"
     assert plan["mcp_url"] == "https://example.test/mcp"
     assert plan["health_url"] == "https://example.test/health"
@@ -417,6 +503,20 @@ def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:
     assert plan["auth_header"] == "Authorization: Bearer test-token"
     assert "serve-http" in plan["server_command"]
     assert plan["cleanup"]
+
+
+def test_mcp_connector_plan_supports_no_bearer(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    plan = connector_plan(repo_root=repo_root, host="127.0.0.1", port=8765, public_url="https://example.test", no_bearer=True)
+
+    assert plan["ok"] is True
+    assert plan["bearer_token"] is None
+    assert plan["auth_mode"] == "none"
+    assert plan["auth_header"] is None
+    assert plan["chatgpt"]["auth_type"] == "None"
+    assert plan["warnings"]
+    assert "LOGICS_MCP_BEARER_TOKEN" not in plan["server_command"]
 
 
 def test_mcp_jsonrpc_tool_call_returns_structured_error(tmp_path: Path) -> None:

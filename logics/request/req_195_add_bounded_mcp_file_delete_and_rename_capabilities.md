@@ -1,9 +1,9 @@
 ## req_195_add_bounded_mcp_file_delete_and_rename_capabilities - Add bounded MCP file delete and rename capabilities
 > From version: 2.1.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -29,10 +29,10 @@
 - AC7: A smoke test confirms that an invalid request file can be renamed to a convention-compliant filename or deleted, after which Logics lint no longer reports the original bad filename.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

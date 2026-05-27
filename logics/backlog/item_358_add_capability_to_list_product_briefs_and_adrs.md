@@ -1,10 +1,10 @@
 ## item_358_add_capability_to_list_product_briefs_and_adrs - Add capability to list product briefs and ADRs
 > From version: 2.1.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -66,6 +66,7 @@ Make companion documents discoverable with their references, paths, titles, stat
 - Hybrid rationale: Derived from request `req_194_add_capability_to_list_product_briefs_and_adrs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_194_add_capability_to_list_product_briefs_and_adrs.md`.
 - Generated locally by logics-manager.
+- Task `task_159_add_capability_to_list_product_briefs_and_adrs` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_159_add_capability_to_list_product_briefs_and_adrs`

@@ -8,6 +8,7 @@ import json
 import os
 import re
 import secrets
+import signal
 import subprocess
 import sys
 import time
@@ -115,6 +116,17 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             ["title"],
         ),
         "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
+    {
+        "name": "list_companion_docs",
+        "description": "List Logics companion documents such as product briefs and architecture decisions.",
+        "inputSchema": _tool_schema(
+            {
+                "kind": {"type": "string", "enum": ["all", "product", "architecture"]},
+                "limit": {"type": "integer"},
+            }
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "list_active_work",
@@ -278,6 +290,25 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}}),
         "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
+    {
+        "name": "delete_logics_file",
+        "description": "Delete one bounded Logics Markdown file from an approved Logics directory.",
+        "inputSchema": _tool_schema({"path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["path"]),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": True},
+    },
+    {
+        "name": "rename_logics_file",
+        "description": "Rename one bounded Logics Markdown file within approved Logics directories.",
+        "inputSchema": _tool_schema(
+            {
+                "source_path": {"type": "string"},
+                "destination_path": {"type": "string"},
+                "dry_run": {"type": "boolean"},
+            },
+            ["source_path", "destination_path"],
+        ),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
 ]
 TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
 
@@ -353,6 +384,13 @@ def _relative_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...]
     if resolved.is_symlink():
         raise McpToolError("invalid_path", "Symlink paths are not accepted.", details={"path": raw_path})
     return normalized
+
+
+def _markdown_file_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...] = ALLOWED_WRITE_DIRS) -> Path:
+    rel_path = _relative_path(repo_root, raw_path, allowed_dirs)
+    if rel_path.suffix != ".md":
+        raise McpToolError("invalid_path", "Only Markdown files are accepted.", details={"path": raw_path, "extension": rel_path.suffix})
+    return rel_path
 
 
 def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -598,6 +636,74 @@ def _document_preview(repo_root: Path, rel_path: str, *, max_chars: int = 1600) 
     }
 
 
+def _indicator_from_lines(lines: list[str], key: str) -> str | None:
+    prefix = f"> {key}:"
+    for line in lines:
+        if line.startswith(prefix):
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+def _title_from_heading(lines: list[str], fallback: str) -> str:
+    for line in lines:
+        if not line.startswith("## "):
+            continue
+        heading = line[3:].strip()
+        if " - " in heading:
+            return heading.split(" - ", 1)[1].strip()
+        return heading
+    return fallback
+
+
+def _parse_companion_refs(value: str | None) -> list[str]:
+    if not value or value == "(none yet)":
+        return []
+    refs = re.findall(r"`([^`]+)`", value)
+    if refs:
+        return [ref for ref in refs if ref not in {"(none)", "(none yet)"}]
+    return [part.strip() for part in value.split(",") if part.strip() and part.strip() not in {"(none)", "(none yet)"}]
+
+
+def _companion_doc_entry(repo_root: Path, rel_path: Path, kind: str) -> dict[str, Any]:
+    path = repo_root / rel_path
+    lines = path.read_text(encoding="utf-8").splitlines()
+    related = {
+        "request": _parse_companion_refs(_indicator_from_lines(lines, "Related request")),
+        "backlog": _parse_companion_refs(_indicator_from_lines(lines, "Related backlog")),
+        "task": _parse_companion_refs(_indicator_from_lines(lines, "Related task")),
+        "architecture": _parse_companion_refs(_indicator_from_lines(lines, "Related architecture")),
+    }
+    return {
+        "kind": kind,
+        "ref": rel_path.stem,
+        "path": rel_path.as_posix(),
+        "title": _title_from_heading(lines, rel_path.stem),
+        "status": _indicator_from_lines(lines, "Status") or "Unknown",
+        "related": {key: refs for key, refs in related.items() if refs},
+    }
+
+
+def _list_companion_docs(repo_root: Path, *, kind: str = "all", limit: int = 50) -> dict[str, Any]:
+    if kind not in {"all", "product", "architecture"}:
+        raise McpToolError("invalid_argument_value", "Unsupported companion document kind.", details={"kind": kind, "allowed": ["all", "product", "architecture"]})
+    targets = []
+    if kind in {"all", "product"}:
+        targets.append(("product", Path("logics/product"), "prod_*.md"))
+    if kind in {"all", "architecture"}:
+        targets.append(("architecture", Path("logics/architecture"), "adr_*.md"))
+    items: list[dict[str, Any]] = []
+    for doc_kind, directory, pattern in targets:
+        root = repo_root / directory
+        if not root.is_dir():
+            continue
+        for path in sorted(root.glob(pattern)):
+            if path.is_file() and not path.is_symlink():
+                items.append(_companion_doc_entry(repo_root, path.relative_to(repo_root), doc_kind))
+    items.sort(key=lambda item: str(item["path"]))
+    bounded_items = items[:limit]
+    return {"kind": kind, "limit": limit, "count": len(bounded_items), "total_count": len(items), "items": bounded_items}
+
+
 def _bounded_int(value: Any, *, default: int, maximum: int) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         return default
@@ -660,6 +766,9 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         if kind not in {"all", "request", "backlog", "task"}:
             raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
         return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
+    if name == "list_companion_docs":
+        payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
+        return {"ok": True, **payload}
     if name == "read_logics_doc":
         try:
             payload = read_logics_doc_payload(root, str(args.get("source") or ""), max_chars=_bounded_int(args.get("max_chars"), default=4000, maximum=12000), sections=args.get("sections") if isinstance(args.get("sections"), list) else None)
@@ -814,6 +923,58 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         raw_paths = args.get("paths")
         paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
         return _show_git_diff(root, paths)
+    if name == "delete_logics_file":
+        rel_path = _markdown_file_path(root, str(args.get("path") or ""))
+        target = root / rel_path
+        dry_run = bool(args.get("dry_run", False))
+        if not target.exists():
+            raise McpToolError("not_found", "Logics file not found.", details={"path": rel_path.as_posix()})
+        if not target.is_file() or target.is_symlink():
+            raise McpToolError("invalid_path", "Only regular Markdown files can be deleted.", details={"path": rel_path.as_posix()})
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+            target.unlink()
+        return _workflow_write_result(
+            root,
+            {
+                "path": rel_path.as_posix(),
+                "dry_run": dry_run,
+                "deleted": not dry_run,
+                "would_delete": dry_run,
+                "summary": f"{'Would delete' if dry_run else 'Deleted'} {rel_path.as_posix()}",
+            },
+            paths=[rel_path.as_posix()],
+        )
+    if name == "rename_logics_file":
+        source_rel = _markdown_file_path(root, str(args.get("source_path") or ""))
+        destination_rel = _markdown_file_path(root, str(args.get("destination_path") or ""))
+        source = root / source_rel
+        destination = root / destination_rel
+        dry_run = bool(args.get("dry_run", False))
+        if source_rel == destination_rel:
+            raise McpToolError("invalid_path", "Source and destination paths must differ.", details={"source_path": source_rel.as_posix(), "destination_path": destination_rel.as_posix()})
+        if not source.exists():
+            raise McpToolError("not_found", "Source Logics file not found.", details={"source_path": source_rel.as_posix()})
+        if not source.is_file() or source.is_symlink():
+            raise McpToolError("invalid_path", "Only regular Markdown files can be renamed.", details={"source_path": source_rel.as_posix()})
+        if destination.exists():
+            raise McpToolError("already_exists", "Destination already exists.", details={"destination_path": destination_rel.as_posix()})
+        if not dry_run:
+            _ensure_no_dirty_conflict(root, [source_rel.as_posix(), destination_rel.as_posix()])
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            source.rename(destination)
+        return _workflow_write_result(
+            root,
+            {
+                "source_path": source_rel.as_posix(),
+                "destination_path": destination_rel.as_posix(),
+                "dry_run": dry_run,
+                "renamed": not dry_run,
+                "would_rename": dry_run,
+                "summary": f"{'Would rename' if dry_run else 'Renamed'} {source_rel.as_posix()} to {destination_rel.as_posix()}",
+            },
+            paths=[source_rel.as_posix(), destination_rel.as_posix()],
+        )
 
     if name == "create_request":
         title = str(args.get("title") or "").strip()
@@ -1079,17 +1240,29 @@ def _connector_urls(public_url: str | None) -> dict[str, str]:
     return {"public_url": base, "mcp_url": mcp_url, "health_url": health_url}
 
 
-def connector_plan(*, repo_root: Path, host: str, port: int, bearer_token: str | None = None, public_url: str | None = None) -> dict[str, Any]:
-    token = bearer_token or secrets.token_urlsafe(32)
+def connector_plan(*, repo_root: Path, host: str, port: int, bearer_token: str | None = None, public_url: str | None = None, no_bearer: bool = False, project_binary: str | None = None) -> dict[str, Any]:
+    token = None if no_bearer else bearer_token or secrets.token_urlsafe(32)
     urls = _connector_urls(public_url)
     local_mcp_url = f"http://{host}:{port}/mcp"
     local_health_url = f"http://{host}:{port}/health"
-    server_command = f'{AUTH_ENV_VAR}="{token}" python3 -m logics_manager mcp serve-http --repo-root {repo_root.as_posix()} --host {host} --port {port}'
+    launcher = project_binary or "python3 -m logics_manager"
+    auth_args = "" if no_bearer else f'{AUTH_ENV_VAR}="{token}" '
+    server_command = f"{auth_args}{launcher} mcp serve-http --repo-root {repo_root.as_posix()} --host {host} --port {port}"
+    auth_header = None if no_bearer else f"Authorization: Bearer {token}"
+    cleanup = [
+        "Stop the HTTPS tunnel process.",
+        "Stop the local mcp serve-http process with Ctrl-C.",
+    ]
+    if token:
+        cleanup.append("Treat the bearer token as expired once the local session is stopped.")
+    else:
+        cleanup.append("Treat the public tunnel URL as exposed until both processes are stopped.")
     return {
         "ok": True,
         "repo_root": repo_root.as_posix(),
         "bearer_token": token,
-        "auth_header": f"Authorization: Bearer {token}",
+        "auth_mode": "none" if no_bearer else "bearer",
+        "auth_header": auth_header,
         "local_mcp_url": local_mcp_url,
         "local_health_url": local_health_url,
         "server_command": server_command,
@@ -1097,23 +1270,20 @@ def connector_plan(*, repo_root: Path, host: str, port: int, bearer_token: str |
         "chatgpt": {
             "developer_mode": True,
             "mcp_url": urls.get("mcp_url", "<your HTTPS tunnel URL>/mcp"),
-            "auth_type": "Bearer token",
+            "auth_type": "None" if no_bearer else "Bearer token",
             "auth_value": token,
         },
         "smoke_checks": {
             "health": urls.get("health_url", f"<your HTTPS tunnel URL>/health"),
             "mcp_tools_list": urls.get("mcp_url", "<your HTTPS tunnel URL>/mcp"),
         },
-        "cleanup": [
-            "Stop the HTTPS tunnel process.",
-            "Stop the local mcp serve-http process with Ctrl-C.",
-            "Treat the bearer token as expired once the local session is stopped.",
-        ],
+        "warnings": ["No-bearer mode is unauthenticated. Use only for short-lived local debugging."] if no_bearer else [],
+        "cleanup": cleanup,
         **urls,
     }
 
 
-def connector_smoke_check(public_url: str, bearer_token: str, *, timeout: float = 5.0) -> dict[str, Any]:
+def connector_smoke_check(public_url: str, bearer_token: str | None = None, *, timeout: float = 5.0) -> dict[str, Any]:
     urls = _connector_urls(public_url)
     health_ok = False
     mcp_ok = False
@@ -1125,7 +1295,10 @@ def connector_smoke_check(public_url: str, bearer_token: str, *, timeout: float 
         errors.append(f"health: {exc}")
     try:
         body = json.dumps({"jsonrpc": JSONRPC_VERSION, "id": 1, "method": "tools/list", "params": {}}).encode("utf-8")
-        request = Request(urls["mcp_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {bearer_token}"}, method="POST")
+        headers = {"Content-Type": "application/json"}
+        if bearer_token:
+            headers["Authorization"] = f"Bearer {bearer_token}"
+        request = Request(urls["mcp_url"], data=body, headers=headers, method="POST")
         with urlopen(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
             mcp_ok = response.status == 200 and "result" in payload
@@ -1136,16 +1309,101 @@ def connector_smoke_check(public_url: str, bearer_token: str, *, timeout: float 
 
 def _print_connector_plan(plan: dict[str, Any]) -> None:
     print("Logics MCP Connector")
+    for warning in plan.get("warnings", []):
+        print(f"WARNING: {warning}")
     print(f"Server command:\n  {plan['server_command']}")
     print(f"Tunnel target: {plan['tunnel_target']}")
     print(f"ChatGPT developer-mode MCP URL: {plan['chatgpt']['mcp_url']}")
-    print(f"Authorization header: {plan['auth_header']}")
+    print(f"Auth mode: {plan['auth_mode']}")
+    print(f"Authorization header: {plan['auth_header'] or '(none)'}")
     print("Smoke checks:")
     print(f"  health: {plan['smoke_checks']['health']}")
     print(f"  mcp tools/list: {plan['smoke_checks']['mcp_tools_list']}")
     print("Cleanup:")
     for item in plan["cleanup"]:
         print(f"  - {item}")
+
+
+def _project_binary_path(repo_root: Path) -> str:
+    candidate = repo_root / "scripts" / "npm" / "logics-manager.mjs"
+    if candidate.is_file():
+        return f"node {candidate.as_posix()}"
+    return "python3 -m logics_manager"
+
+
+def _terminate_process(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+
+
+def launch_tunnel(
+    *,
+    repo_root: Path,
+    host: str,
+    port: int,
+    bearer_token: str | None = None,
+    no_bearer: bool = False,
+    tunnel_command: list[str] | None = None,
+) -> int:
+    token = None if no_bearer else bearer_token or secrets.token_urlsafe(32)
+    server_command = [sys.executable, "-m", "logics_manager", "mcp", "serve-http", "--repo-root", repo_root.as_posix(), "--host", host, "--port", str(port)]
+    env = os.environ.copy()
+    if token:
+        env[AUTH_ENV_VAR] = token
+    tunnel_command = tunnel_command or ["npx", "localtunnel", "--port", str(port)]
+    server = subprocess.Popen(server_command, cwd=repo_root, env=env, text=True)
+    tunnel: subprocess.Popen[str] | None = None
+    previous_sigint = signal.getsignal(signal.SIGINT)
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+
+    def stop(_signum: int | None = None, _frame: Any | None = None) -> None:
+        if tunnel is not None:
+            _terminate_process(tunnel)
+        _terminate_process(server)
+
+    signal.signal(signal.SIGINT, stop)
+    signal.signal(signal.SIGTERM, stop)
+    try:
+        time.sleep(0.8)
+        if server.poll() is not None:
+            return server.returncode or 1
+        tunnel = subprocess.Popen(tunnel_command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        public_url = None
+        start = time.monotonic()
+        while time.monotonic() - start < 30:
+            if tunnel.poll() is not None:
+                return tunnel.returncode or 1
+            line = tunnel.stdout.readline() if tunnel.stdout else ""
+            if not line:
+                time.sleep(0.1)
+                continue
+            print(line.rstrip())
+            match = re.search(r"https://\S+", line)
+            if match:
+                public_url = match.group(0).rstrip("/")
+                break
+        if not public_url:
+            raise McpToolError("command_failed", "Tunnel command did not print a public HTTPS URL within 30 seconds.", details={"command": tunnel_command})
+        plan = connector_plan(repo_root=repo_root, host=host, port=port, bearer_token=token, public_url=public_url, no_bearer=no_bearer, project_binary=_project_binary_path(repo_root))
+        _print_connector_plan(plan)
+        print("Processes are running. Press Ctrl-C to stop server and tunnel.")
+        while True:
+            if server.poll() is not None:
+                return server.returncode or 1
+            if tunnel.poll() is not None:
+                return tunnel.returncode or 1
+            time.sleep(1)
+    except KeyboardInterrupt:
+        return 130
+    finally:
+        stop()
+        signal.signal(signal.SIGINT, previous_sigint)
+        signal.signal(signal.SIGTERM, previous_sigterm)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1169,9 +1427,16 @@ def main(argv: list[str] | None = None) -> int:
     connect.add_argument("--host", default="127.0.0.1")
     connect.add_argument("--port", type=int, default=8765)
     connect.add_argument("--bearer-token", default=None)
+    connect.add_argument("--no-bearer", action="store_true", help="Print a no-auth connector plan for short-lived local debugging.")
     connect.add_argument("--public-url", default=None, help="Optional HTTPS tunnel URL used for copyable ChatGPT setup and smoke checks.")
     connect.add_argument("--check", action="store_true", help="Run /health and authenticated /mcp smoke checks against --public-url.")
     connect.add_argument("--format", choices=("text", "json"), default="text")
+    tunnel = sub.add_parser("tunnel", help="Start the local MCP HTTP server plus an HTTPS localtunnel session.")
+    tunnel.add_argument("--repo-root", default=None)
+    tunnel.add_argument("--host", default="127.0.0.1")
+    tunnel.add_argument("--port", type=int, default=8765)
+    tunnel.add_argument("--bearer-token", default=None)
+    tunnel.add_argument("--no-bearer", action="store_true", help="Run without bearer auth for short-lived local debugging.")
     parsed = parser.parse_args(argv)
 
     if parsed.command == "tools":
@@ -1198,11 +1463,13 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if parsed.command == "connect":
         root = _repo_root(Path(parsed.repo_root) if parsed.repo_root else None)
-        plan = connector_plan(repo_root=root, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token, public_url=parsed.public_url)
+        if parsed.no_bearer and parsed.bearer_token:
+            raise SystemExit("--no-bearer cannot be combined with --bearer-token.")
+        plan = connector_plan(repo_root=root, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token, public_url=parsed.public_url, no_bearer=parsed.no_bearer, project_binary=_project_binary_path(root))
         if parsed.check:
             if not parsed.public_url:
                 raise SystemExit("--check requires --public-url.")
-            plan["check"] = connector_smoke_check(parsed.public_url, str(plan["bearer_token"]))
+            plan["check"] = connector_smoke_check(parsed.public_url, str(plan["bearer_token"]) if plan["bearer_token"] else None)
             plan["ok"] = bool(plan["check"]["ok"])
         if parsed.format == "json":
             print(json.dumps(plan, indent=2, sort_keys=True))
@@ -1213,4 +1480,9 @@ def main(argv: list[str] | None = None) -> int:
                 for error in plan["check"]["errors"]:
                     print(f"  - {error}")
         return 0 if plan["ok"] else 1
+    if parsed.command == "tunnel":
+        if parsed.no_bearer and parsed.bearer_token:
+            raise SystemExit("--no-bearer cannot be combined with --bearer-token.")
+        root = _repo_root(Path(parsed.repo_root) if parsed.repo_root else None)
+        return launch_tunnel(repo_root=root, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token, no_bearer=parsed.no_bearer)
     return 1

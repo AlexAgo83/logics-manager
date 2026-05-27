@@ -241,6 +241,9 @@
 | [req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces](request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md) | Remove legacy logics/skills and cdx-logics-kit references from active surfaces | Done |  | request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md |
 | [req_191_build_a_chatgpt_logics_agent](request/req_191_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done |  | request/req_191_build_a_chatgpt_logics_agent.md |
 | [req_192_expand_local_chatgpt_mcp_action_surface](request/req_192_expand_local_chatgpt_mcp_action_surface.md) | Expand local ChatGPT MCP action surface | Done |  | request/req_192_expand_local_chatgpt_mcp_action_surface.md |
+| [req_194_add_capability_to_list_product_briefs_and_adrs](request/req_194_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done |  | request/req_194_add_capability_to_list_product_briefs_and_adrs.md |
+| [req_195_add_bounded_mcp_file_delete_and_rename_capabilities](request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done |  | request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md |
+| [req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch](request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done |  | request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 
 ## Backlog
 
@@ -603,6 +606,9 @@
 | [item_355_controlled_workflow_document_mutation_mcp_tools](backlog/item_355_controlled_workflow_document_mutation_mcp_tools.md) | Controlled workflow document mutation MCP tools | Done | 100% | backlog/item_355_controlled_workflow_document_mutation_mcp_tools.md |
 | [item_356_split_and_audit_repair_mcp_tools](backlog/item_356_split_and_audit_repair_mcp_tools.md) | Split and audit repair MCP tools | Done | 100% | backlog/item_356_split_and_audit_repair_mcp_tools.md |
 | [item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode](backlog/item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode.md) | Local MCP connector launcher for ChatGPT developer mode | Done | 100% | backlog/item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode.md |
+| [item_358_add_capability_to_list_product_briefs_and_adrs](backlog/item_358_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done | 100% | backlog/item_358_add_capability_to_list_product_briefs_and_adrs.md |
+| [item_359_add_bounded_mcp_file_delete_and_rename_capabilities](backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md |
+| [item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch](backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 
 ## Tasks
 
@@ -760,3 +766,6 @@
 | [task_156_controlled_workflow_document_mutation_mcp_tools](tasks/task_156_controlled_workflow_document_mutation_mcp_tools.md) | Controlled workflow document mutation MCP tools | Done | 100% | tasks/task_156_controlled_workflow_document_mutation_mcp_tools.md |
 | [task_157_split_and_audit_repair_mcp_tools](tasks/task_157_split_and_audit_repair_mcp_tools.md) | Split and audit repair MCP tools | Done | 100% | tasks/task_157_split_and_audit_repair_mcp_tools.md |
 | [task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode](tasks/task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode.md) | Local MCP connector launcher for ChatGPT developer mode | Done | 100% | tasks/task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode.md |
+| [task_159_add_capability_to_list_product_briefs_and_adrs](tasks/task_159_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done | 100% | tasks/task_159_add_capability_to_list_product_briefs_and_adrs.md |
+| [task_160_add_bounded_mcp_file_delete_and_rename_capabilities](tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md |
+| [task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch](tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |

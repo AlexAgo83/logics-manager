@@ -1,9 +1,9 @@
 ## req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch - Add quick commands for local MCP server and tunnel launch
 > From version: 2.1.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: MCP workflow ergonomics
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -40,10 +40,10 @@
   - changing the bounded MCP tool permissions model.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

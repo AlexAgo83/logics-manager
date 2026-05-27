@@ -1,10 +1,10 @@
 ## item_359_add_bounded_mcp_file_delete_and_rename_capabilities - Add bounded MCP file delete and rename capabilities
 > From version: 2.1.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -66,6 +66,7 @@ Prevent manual repository cleanup from being required for common remediation flo
 - Hybrid rationale: Derived from request `req_195_add_bounded_mcp_file_delete_and_rename_capabilities` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md`.
 - Generated locally by logics-manager.
+- Task `task_160_add_bounded_mcp_file_delete_and_rename_capabilities` was finished via `logics-manager flow finish task` on 2026-05-27.
 
 # Tasks
 - `task_160_add_bounded_mcp_file_delete_and_rename_capabilities`

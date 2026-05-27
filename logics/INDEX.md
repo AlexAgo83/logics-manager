@@ -43,6 +43,7 @@
 | [prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights](product/prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md) | Add a corpus explorer with map and timeline views to Logics Insights | Active |  | product/prod_008_add_a_corpus_explorer_with_map_and_timeline_views_to_logics_insights.md |
 | [prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api](product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md) | Logics CLI as the primary operator surface and unified runtime API | Active |  | product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md |
 | [prod_010_chatgpt_logics_agent](product/prod_010_chatgpt_logics_agent.md) | ChatGPT Logics Agent | Proposed |  | product/prod_010_chatgpt_logics_agent.md |
+| [prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows](product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md) | Expanded Logics MCP action surface for local ChatGPT workflows | Proposed |  | product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md |
 
 ## Requests
 
@@ -239,6 +240,7 @@
 | [req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface](request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md) | Finish plugin migration to canonical logics-manager CLI surface | Done |  | request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md |
 | [req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces](request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md) | Remove legacy logics/skills and cdx-logics-kit references from active surfaces | Done |  | request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md |
 | [req_191_build_a_chatgpt_logics_agent](request/req_191_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done |  | request/req_191_build_a_chatgpt_logics_agent.md |
+| [req_192_expand_local_chatgpt_mcp_action_surface](request/req_192_expand_local_chatgpt_mcp_action_surface.md) | Expand local ChatGPT MCP action surface | Ready |  | request/req_192_expand_local_chatgpt_mcp_action_surface.md |
 
 ## Backlog
 
@@ -596,6 +598,11 @@
 | [item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests](backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md) | Remove legacy runtime detection and bootstrap signals from TypeScript and tests | Done | 100% | backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md |
 | [item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces](backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md) | Remove legacy docs, lint, and fixture references from active surfaces | Done | 100% | backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md |
 | [item_352_build_a_chatgpt_logics_agent](backlog/item_352_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done | 100% | backlog/item_352_build_a_chatgpt_logics_agent.md |
+| [item_353_read_list_search_and_context_mcp_tools](backlog/item_353_read_list_search_and_context_mcp_tools.md) | Read list search and context MCP tools | Ready | 0% | backlog/item_353_read_list_search_and_context_mcp_tools.md |
+| [item_354_closure_and_deterministic_maintenance_mcp_tools](backlog/item_354_closure_and_deterministic_maintenance_mcp_tools.md) | Closure and deterministic maintenance MCP tools | Ready | 0% | backlog/item_354_closure_and_deterministic_maintenance_mcp_tools.md |
+| [item_355_controlled_workflow_document_mutation_mcp_tools](backlog/item_355_controlled_workflow_document_mutation_mcp_tools.md) | Controlled workflow document mutation MCP tools | Ready | 0% | backlog/item_355_controlled_workflow_document_mutation_mcp_tools.md |
+| [item_356_split_and_audit_repair_mcp_tools](backlog/item_356_split_and_audit_repair_mcp_tools.md) | Split and audit repair MCP tools | Ready | 0% | backlog/item_356_split_and_audit_repair_mcp_tools.md |
+| [item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode](backlog/item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode.md) | Local MCP connector launcher for ChatGPT developer mode | Ready | 0% | backlog/item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode.md |
 
 ## Tasks
 
@@ -748,3 +755,8 @@
 | [task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface](tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md |
 | [task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references](tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md |
 | [task_153_build_a_chatgpt_logics_agent](tasks/task_153_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done | 100% | tasks/task_153_build_a_chatgpt_logics_agent.md |
+| [task_154_read_list_search_and_context_mcp_tools](tasks/task_154_read_list_search_and_context_mcp_tools.md) | Read list search and context MCP tools | Ready | 0% | tasks/task_154_read_list_search_and_context_mcp_tools.md |
+| [task_155_closure_and_deterministic_maintenance_mcp_tools](tasks/task_155_closure_and_deterministic_maintenance_mcp_tools.md) | Closure and deterministic maintenance MCP tools | Ready | 0% | tasks/task_155_closure_and_deterministic_maintenance_mcp_tools.md |
+| [task_156_controlled_workflow_document_mutation_mcp_tools](tasks/task_156_controlled_workflow_document_mutation_mcp_tools.md) | Controlled workflow document mutation MCP tools | Ready | 0% | tasks/task_156_controlled_workflow_document_mutation_mcp_tools.md |
+| [task_157_split_and_audit_repair_mcp_tools](tasks/task_157_split_and_audit_repair_mcp_tools.md) | Split and audit repair MCP tools | Ready | 0% | tasks/task_157_split_and_audit_repair_mcp_tools.md |
+| [task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode](tasks/task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode.md) | Local MCP connector launcher for ChatGPT developer mode | Ready | 0% | tasks/task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode.md |

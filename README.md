@@ -16,6 +16,8 @@ Version `2.0.0` marks the point where the extension, npm bin, Python package, ge
 
 This is more than a workflow panel. It turns project context into a durable, inspectable memory that AI assistants can reuse across sessions, so teams spend less time re-explaining history, waste fewer tokens, and keep delivery conversations grounded in the same artifacts.
 
+The current product direction adds local-first assistant entrypoints on top of the same runtime. Chat-oriented assistants such as ChatGPT can shape product intent into Logics documents through MCP, while coding agents such as Codex or Claude Code can consume prepared tasks for implementation and validation. The local repository stays the source of truth; the MCP server is a bounded adapter over the CLI, not a general shell.
+
 ## Logics Runtime and CLI
 
 `logics-manager` is the canonical CLI surface for the Logics runtime. The VS Code extension uses the bundled Python runtime for local workflow operations and packaging checks.
@@ -51,6 +53,16 @@ The bundled runtime is the normal path. Transitional repair flows remain availab
 
 `logics-manager` also exposes a bounded MCP tool surface for agent clients that should work with Logics without receiving a general shell.
 The MCP server wraps the canonical CLI, keeps paths repo-relative, and limits write-capable actions to Logics workflow directories.
+
+The initial MCP surface is intentionally narrow and production-safe for local dogfooding:
+- create a request from framed product conversation;
+- promote request -> backlog and backlog -> task through canonical commands;
+- create linked product briefs and architecture decisions;
+- list active work;
+- run lint and audit;
+- show Logics-scoped diffs.
+
+The next planned MCP expansion is documented in `logics/product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md`. It keeps the same CLI-first rule while adding read, context-pack, list/search, controlled mutation, closure, deterministic repair, split, and connector-launcher tools for local assistant workflows.
 
 Inspect the exposed tools:
 
@@ -100,10 +112,14 @@ The first tool set covers request creation, request-to-backlog promotion, backlo
 ChatGPT custom MCP usage currently requires a remote server. For a local developer machine, put `serve-http` behind a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel, then register the resulting remote URL in ChatGPT developer mode.
 Keep the tunnel private, point it only at `127.0.0.1:8765`, configure the bearer token in the ChatGPT connector, and stop the tunnel when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
 
+For the local-first assistant model, each user runs their own MCP server against their own repository. A shared GPT, app, or assistant configuration can carry the workflow instructions, but the MCP connector URL and bearer token are user-local until a future hosted connector model exists.
+
 ## Features
 
 - Turn `logics/*` Markdown into a delivery cockpit inside VS Code.
 - Keep requests, backlog items, tasks, and specs connected in one workspace.
+- Use the canonical `logics-manager` CLI as the shared runtime for the VS Code extension, npm bin, Python package, and assistant-facing MCP surface.
+- Connect chat assistants to a local Logics repository through a bounded MCP server for request creation, promotion, validation, and diff review.
 - Preview Logics docs with clickable references, Mermaid rendering, and cleaner read views.
 - Move from triage to execution with board, list, search, and recent-activity views that stay aligned.
 - See richer card metadata and hover previews, including Theme, while the compact-list toggle stays hidden when forced.
@@ -112,6 +128,22 @@ Keep the tunnel private, point it only at `127.0.0.1:8765`, configure the bearer
 - Create, promote, bootstrap, and review workflow items without leaving the editor.
 - Reuse shared project context for faster AI handoffs and lower-token sessions.
 - Prepare releases and keep workflow docs synchronized from the same toolchain.
+
+## Product Model
+
+Logics separates three responsibilities:
+
+- Chat-oriented assistants, such as ChatGPT, are product-framing agents. They help turn conversation into requests, backlog slices, tasks, product briefs, and ADRs through bounded MCP tools.
+- Coding agents, such as Codex or Claude Code, are implementation agents. They consume prepared Logics tasks, change code, run validations, and close work through the canonical workflow.
+- `logics-manager` is the source-of-truth runtime. The CLI owns workflow behavior, and the VS Code extension plus MCP server adapt that runtime for humans and assistants.
+
+The project currently favors option-A local-first assistant usage:
+- each operator runs `logics-manager mcp serve-http` locally;
+- the operator exposes it through a short-lived controlled HTTPS tunnel when a remote chat assistant needs access;
+- `POST /mcp` is protected with a bearer token;
+- the tunnel is stopped after the test or work session.
+
+This keeps repository files local and avoids a multi-tenant hosted service. A future connector launcher (`logics-manager mcp connect`) is planned to make token generation, server startup, tunnel checks, and assistant connector setup less manual.
 
 For more detailed workflow behavior, see the sections below on requirements, runtime compatibility, commands, and tools.
 

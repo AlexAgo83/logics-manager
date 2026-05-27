@@ -217,3 +217,50 @@ def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:
     assert response.status == 200
     assert payload["id"] == 3
     assert payload["result"]["tools"][0]["name"] == "create_request"
+
+
+def test_mcp_http_transport_rejects_missing_bearer_token(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root, bearer_token="secret-token"))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        body = json.dumps({"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}})
+        conn.request("POST", "/mcp", body=body, headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert response.status == 401
+    assert response.getheader("WWW-Authenticate") == 'Bearer realm="logics-mcp"'
+    assert payload["error"] == "unauthorized"
+
+
+def test_mcp_http_transport_accepts_bearer_token(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root, bearer_token="secret-token"))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        body = json.dumps({"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}})
+        conn.request("POST", "/mcp", body=body, headers={"Content-Type": "application/json", "Authorization": "Bearer secret-token"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert response.status == 200
+    assert payload["result"]["tools"][0]["name"] == "create_request"

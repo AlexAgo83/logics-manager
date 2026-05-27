@@ -1,7 +1,7 @@
 ## req_191_build_a_chatgpt_logics_agent - Build a ChatGPT Logics Agent
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

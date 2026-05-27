@@ -1,19 +1,19 @@
 ## task_153_build_a_chatgpt_logics_agent - Build a ChatGPT Logics Agent
 > From version: 2.0.5
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 99%
 > Confidence: 92%
-> Progress: 94%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] A Codex dogfooding run can exercise the MCP tools for request to backlog to task without direct CLI usage.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] A Codex dogfooding run can exercise the MCP tools for request to backlog to task without direct CLI usage.
+- [x] Validation passes.
 
 # Backlog
 - `item_352_build_a_chatgpt_logics_agent`
@@ -67,7 +67,12 @@ stateDiagram-v2
 - Scripted Codex-style dogfood proof: `scripts/dogfood-mcp-flow.py --repo-root <temp repo> --title "Codex MCP dogfood flow"` completed request, backlog, task, lint, audit, and diff through MCP JSON-RPC handlers.
 - Real sub-agent dogfooding found the MCP usable by an agent and identified ergonomics fixes: audit top-level `ok`, precise argument error codes, document previews for untracked files, and `next_suggested_tool` hints.
 - Agent ergonomics fixes applied: `run_logics_audit.ok` now mirrors audit status, argument validation uses precise error codes, write actions return `document_preview`, write actions return `next_suggested_tool`, and the dogfood script is executable.
-- Remaining sequence: verify an HTTPS tunnel against the HTTP transport, then attempt ChatGPT developer-mode registration when plan and permissions are available.
+- HTTPS tunnel proof: an SSH reverse tunnel through `localhost.run` exposed the local `serve-http` endpoint at `https://e1cf6a48918c18.lhr.life`; `/health` returned `200` with `{"ok":true,"server":"logics-manager-mcp","version":"2.0.5"}`, and `POST /mcp` `tools/list` returned the 9-tool MCP surface.
+- ChatGPT developer-mode proof: ChatGPT connected through a temporary HTTPS tunnel, called the Logics MCP tools, created a temporary smoke-test request, promoted it to a backlog item, promoted that to a task, then ran lint, audit, and `show_git_diff`.
+- Follow-up from real ChatGPT run: lint passed with missing-Mermaid warnings on the generated smoke docs; audit correctly reported request AC traceability gaps on the generated smoke request, proving error reporting reaches ChatGPT without a transport failure.
+- Cleanup complete: the temporary ChatGPT smoke request, backlog item, and task were removed after the connector test.
+- HTTP auth hardening complete: `serve-http` can require an OAuth-style bearer token via `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token`; `POST /mcp` rejects missing or invalid bearer tokens while `/health` remains available for tunnel checks.
+- Final validation: `python3 -m pytest python_tests/test_logics_manager_mcp.py` passed with sandbox-only socket skips; `python3 -m logics_manager lint --require-status` passed; `python3 -m logics_manager audit --format json` passed.
 
 # AI Context
 - Summary: Implement build a chatgpt logics agent.

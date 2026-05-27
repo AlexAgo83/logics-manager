@@ -5,7 +5,9 @@ import contextlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
+import os
 import re
+import secrets
 import subprocess
 import sys
 from pathlib import Path
@@ -27,6 +29,7 @@ ALLOWED_WRITE_DIRS = (
 )
 MAX_RAW_DIFF_CHARS = 12000
 JSONRPC_VERSION = "2.0"
+AUTH_ENV_VAR = "LOGICS_MCP_BEARER_TOKEN"
 
 
 class McpToolError(Exception):
@@ -602,7 +605,7 @@ def serve_stdio(*, repo_root: Path | None = None) -> int:
     return 0
 
 
-def make_http_handler(repo_root: Path) -> type[BaseHTTPRequestHandler]:
+def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> type[BaseHTTPRequestHandler]:
     class LogicsMcpHttpHandler(BaseHTTPRequestHandler):
         server_version = "LogicsMCP/1.0"
 
@@ -626,6 +629,18 @@ def make_http_handler(repo_root: Path) -> type[BaseHTTPRequestHandler]:
             if parsed.path != "/mcp":
                 self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
                 return
+            if bearer_token:
+                expected = f"Bearer {bearer_token}"
+                actual = self.headers.get("Authorization", "")
+                if not secrets.compare_digest(actual, expected):
+                    self.send_response(401)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("WWW-Authenticate", 'Bearer realm="logics-mcp"')
+                    encoded = json.dumps({"ok": False, "error": "unauthorized", "message": "Missing or invalid bearer token."}, separators=(",", ":")).encode("utf-8")
+                    self.send_header("Content-Length", str(len(encoded)))
+                    self.end_headers()
+                    self.wfile.write(encoded)
+                    return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
             except ValueError:
@@ -653,10 +668,15 @@ def make_http_handler(repo_root: Path) -> type[BaseHTTPRequestHandler]:
     return LogicsMcpHttpHandler
 
 
-def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8765) -> int:
+def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8765, bearer_token: str | None = None) -> int:
     root = _repo_root(repo_root)
-    server = ThreadingHTTPServer((host, port), make_http_handler(root))
+    token = bearer_token or os.environ.get(AUTH_ENV_VAR)
+    server = ThreadingHTTPServer((host, port), make_http_handler(root, bearer_token=token))
     print(f"Logics MCP HTTP listening on http://{host}:{server.server_port}/mcp", file=sys.stderr)
+    if token:
+        print("Logics MCP HTTP requires Authorization: Bearer <token> for POST /mcp", file=sys.stderr)
+    else:
+        print(f"WARNING: Logics MCP HTTP is running without bearer-token auth. Set {AUTH_ENV_VAR} or pass --bearer-token before tunneling.", file=sys.stderr)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -675,6 +695,7 @@ def main(argv: list[str] | None = None) -> int:
     serve_http_parser.add_argument("--repo-root", default=None)
     serve_http_parser.add_argument("--host", default="127.0.0.1")
     serve_http_parser.add_argument("--port", type=int, default=8765)
+    serve_http_parser.add_argument("--bearer-token", default=None, help=f"Require this OAuth-style bearer token for POST /mcp. Defaults to ${AUTH_ENV_VAR} when set.")
     tools = sub.add_parser("tools", help="Print the exposed MCP tool definitions.")
     tools.add_argument("--format", choices=("json",), default="json")
     call = sub.add_parser("call", help="Call one MCP tool directly for local testing.")
@@ -689,7 +710,7 @@ def main(argv: list[str] | None = None) -> int:
     if parsed.command == "serve":
         return serve_stdio(repo_root=Path(parsed.repo_root) if parsed.repo_root else None)
     if parsed.command == "serve-http":
-        return serve_http(repo_root=Path(parsed.repo_root) if parsed.repo_root else None, host=parsed.host, port=parsed.port)
+        return serve_http(repo_root=Path(parsed.repo_root) if parsed.repo_root else None, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token)
     if parsed.command == "call":
         try:
             arguments = json.loads(parsed.arguments)

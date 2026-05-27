@@ -238,7 +238,7 @@
 | [req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime](request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md) | Unify Logics into a bundled CLI and integrated runtime | Done |  | request/req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime.md |
 | [req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface](request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md) | Finish plugin migration to canonical logics-manager CLI surface | Done |  | request/req_189_finish_plugin_migration_to_canonical_logics_manager_cli_surface.md |
 | [req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces](request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md) | Remove legacy logics/skills and cdx-logics-kit references from active surfaces | Done |  | request/req_190_remove_legacy_logics_skills_and_cdx_logics_kit_references_from_active_surfaces.md |
-| [req_191_build_a_chatgpt_logics_agent](request/req_191_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Draft |  | request/req_191_build_a_chatgpt_logics_agent.md |
+| [req_191_build_a_chatgpt_logics_agent](request/req_191_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done |  | request/req_191_build_a_chatgpt_logics_agent.md |
 
 ## Backlog
 
@@ -595,7 +595,7 @@
 | [item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation](backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md) | Remove legacy checkout and release workflow dependencies from CI validation | Done | 100% | backlog/item_349_remove_legacy_checkout_and_release_workflow_dependencies_from_ci_validation.md |
 | [item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests](backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md) | Remove legacy runtime detection and bootstrap signals from TypeScript and tests | Done | 100% | backlog/item_350_remove_legacy_runtime_detection_and_bootstrap_signals_from_typescript_and_tests.md |
 | [item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces](backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md) | Remove legacy docs, lint, and fixture references from active surfaces | Done | 100% | backlog/item_351_remove_legacy_docs_lint_and_fixture_references_from_active_surfaces.md |
-| [item_352_build_a_chatgpt_logics_agent](backlog/item_352_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Ready | 0% | backlog/item_352_build_a_chatgpt_logics_agent.md |
+| [item_352_build_a_chatgpt_logics_agent](backlog/item_352_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done | 100% | backlog/item_352_build_a_chatgpt_logics_agent.md |
 
 ## Tasks
 
@@ -747,4 +747,4 @@
 | [task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime](tasks/task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime.md) | Generate assistant bridges and instructions from the integrated runtime | Done | 100% | tasks/task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime.md |
 | [task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface](tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_151_orchestrate_plugin_migration_to_the_canonical_logics_manager_cli_surface.md |
 | [task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references](tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md) | Request AC proof lines | Done | 100% (refreshed) | tasks/task_152_orchestrate_removal_of_legacy_logics_skills_and_cdx_logics_kit_references.md |
-| [task_153_build_a_chatgpt_logics_agent](tasks/task_153_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | In progress | 94% | tasks/task_153_build_a_chatgpt_logics_agent.md |
+| [task_153_build_a_chatgpt_logics_agent](tasks/task_153_build_a_chatgpt_logics_agent.md) | Build a ChatGPT Logics Agent | Done | 100% | tasks/task_153_build_a_chatgpt_logics_agent.md |

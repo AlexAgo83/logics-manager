@@ -67,8 +67,10 @@ python3 -m logics_manager mcp serve --repo-root .
 Run the local HTTP transport when you want to place the MCP server behind an HTTPS tunnel:
 
 ```bash
-python3 -m logics_manager mcp serve-http --repo-root . --host 127.0.0.1 --port 8765
+LOGICS_MCP_BEARER_TOKEN="$(openssl rand -hex 32)" python3 -m logics_manager mcp serve-http --repo-root . --host 127.0.0.1 --port 8765
 ```
+
+`POST /mcp` accepts an OAuth-style `Authorization: Bearer <token>` header when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for tunnel smoke checks, but do not expose `/mcp` through a public tunnel without a bearer token.
 
 Smoke check the HTTP endpoint:
 
@@ -96,7 +98,7 @@ Use only the Logics MCP surface, not direct logics-manager CLI commands, to crea
 
 The first tool set covers request creation, request-to-backlog promotion, backlog-to-task promotion, companion doc creation, active work listing, lint, audit, and Logics-scoped diff summaries.
 ChatGPT custom MCP usage currently requires a remote server. For a local developer machine, put `serve-http` behind a controlled HTTPS tunnel or OpenAI-supported secure MCP tunnel, then register the resulting remote URL in ChatGPT developer mode.
-Keep the tunnel private, point it only at `127.0.0.1:8765`, and stop it when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
+Keep the tunnel private, point it only at `127.0.0.1:8765`, configure the bearer token in the ChatGPT connector, and stop the tunnel when the test is over. Codex dogfooding can exercise the same tool contract locally before that connector path is finalized.
 
 ## Features
 

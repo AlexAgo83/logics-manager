@@ -10,6 +10,7 @@ import re
 import secrets
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 from urllib.error import URLError
@@ -969,10 +970,47 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
             self.end_headers()
             self.wfile.write(encoded)
 
+        def _authorized(self) -> bool:
+            if not bearer_token:
+                return True
+            expected = f"Bearer {bearer_token}"
+            actual = self.headers.get("Authorization", "")
+            if secrets.compare_digest(actual, expected):
+                return True
+            self.send_response(401)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("WWW-Authenticate", 'Bearer realm="logics-mcp"')
+            encoded = json.dumps({"ok": False, "error": "unauthorized", "message": "Missing or invalid bearer token."}, separators=(",", ":")).encode("utf-8")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return False
+
+        def _send_sse_stream(self) -> None:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.end_headers()
+            self.wfile.write(b": logics-manager-mcp ready\n\n")
+            self.wfile.flush()
+            while True:
+                time.sleep(15)
+                self.wfile.write(b": keepalive\n\n")
+                self.wfile.flush()
+
         def do_GET(self) -> None:
             parsed = urlparse(self.path)
             if parsed.path == "/health":
                 self._send_json(200, {"ok": True, "server": "logics-manager-mcp", "version": _server_version()})
+                return
+            if parsed.path == "/mcp":
+                if not self._authorized():
+                    return
+                try:
+                    self._send_sse_stream()
+                except (BrokenPipeError, ConnectionResetError):
+                    return
                 return
             self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
 
@@ -981,18 +1019,8 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
             if parsed.path != "/mcp":
                 self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
                 return
-            if bearer_token:
-                expected = f"Bearer {bearer_token}"
-                actual = self.headers.get("Authorization", "")
-                if not secrets.compare_digest(actual, expected):
-                    self.send_response(401)
-                    self.send_header("Content-Type", "application/json")
-                    self.send_header("WWW-Authenticate", 'Bearer realm="logics-mcp"')
-                    encoded = json.dumps({"ok": False, "error": "unauthorized", "message": "Missing or invalid bearer token."}, separators=(",", ":")).encode("utf-8")
-                    self.send_header("Content-Length", str(len(encoded)))
-                    self.end_headers()
-                    self.wfile.write(encoded)
-                    return
+            if not self._authorized():
+                return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
             except ValueError:

@@ -479,6 +479,29 @@ def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:
     assert payload["result"]["tools"][0]["name"] == "create_request"
 
 
+def test_mcp_http_transport_accepts_sse_get(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/mcp", headers={"Accept": "text/event-stream"})
+        response = conn.getresponse()
+        content_type = response.getheader("Content-Type")
+    finally:
+        conn.close()
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert response.status == 200
+    assert content_type == "text/event-stream"
+
+
 def test_mcp_http_transport_rejects_missing_bearer_token(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
     try:

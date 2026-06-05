@@ -50,12 +50,13 @@ describe("logics-manager CLI help", () => {
 
     expect(status).toBe(0);
     expect(output).toContain("Logics Manager CLI");
-    expect(output).toContain("Commands:");
+    expect(output).toContain("Common workflows:");
+    expect(output).toContain("Workflow authoring:");
+    expect(output).toContain("Validation:");
     expect(output).toContain("flow");
     expect(output).toContain("Subcommands: new, list, companion, promote, split, close, finish");
     expect(output).toContain("audit");
     expect(output).toContain("self-update");
-    expect(output).toContain("Examples:");
   });
 
   it("colors help output when explicitly forced", () => {

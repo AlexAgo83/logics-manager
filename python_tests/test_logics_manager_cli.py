@@ -25,7 +25,7 @@ def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixtur
     captured = capsys.readouterr()
     assert exit_code == 1
     assert "Logics Manager CLI" in captured.out
-    assert "Examples:" in captured.out
+    assert "Common workflows:" in captured.out
 
 
 def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> None:

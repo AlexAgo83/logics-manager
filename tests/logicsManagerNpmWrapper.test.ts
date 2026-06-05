@@ -1,8 +1,11 @@
 import path from "node:path";
+import fs from "node:fs";
+import os from "node:os";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildCandidates,
   isMissingCommandError,
+  isDirectInvocation,
   isSupportedPythonVersion,
   parsePythonVersion,
   resolvePythonLauncher,
@@ -37,6 +40,15 @@ describe("logics-manager npm wrapper", () => {
   it("recognizes missing command errors", () => {
     expect(isMissingCommandError(new Error("spawn python3 ENOENT"))).toBe(true);
     expect(isMissingCommandError(new Error("random failure"))).toBe(false);
+  });
+
+  it("recognizes direct execution through a symlink path", () => {
+    const realPath = path.join(root, "scripts", "npm", "logics-manager.mjs");
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-manager-wrapper-"));
+    const symlinkPath = path.join(tempRoot, "logics-manager");
+    fs.symlinkSync(realPath, symlinkPath);
+
+    expect(isDirectInvocation(new URL(`file://${realPath}`).href, symlinkPath)).toBe(true);
   });
 
   it("runs the first supported python launcher", () => {

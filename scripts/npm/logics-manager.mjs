@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
+import { realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -91,6 +92,17 @@ export function runLogicsManager(argv = process.argv.slice(2), platform = proces
   return 1;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+export function isDirectInvocation(importUrl = import.meta.url, argvPath = process.argv[1]) {
+  if (!argvPath) {
+    return false;
+  }
+  try {
+    return importUrl === pathToFileURL(realpathSync(argvPath)).href;
+  } catch {
+    return importUrl === pathToFileURL(argvPath).href;
+  }
+}
+
+if (isDirectInvocation()) {
   process.exit(runLogicsManager());
 }

@@ -578,12 +578,26 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
             if warnings:
                 all_warnings.append((rel_path, warnings))
 
+    issues = [{"path": path.as_posix(), "message": issue, "severity": "blocking"} for path, issues in all_issues for issue in issues]
+    warnings: list[dict[str, str]] = []
+    for path, path_warnings in all_warnings:
+        for warning in path_warnings:
+            item = {"path": path.as_posix(), "message": warning, "severity": "warning"}
+            if "Mermaid context signature" in warning:
+                item["repair_command"] = "logics-manager sync refresh-mermaid-signatures"
+            warnings.append(item)
     return {
-        "ok": not all_issues,
-        "issue_count": sum(len(issues) for _path, issues in all_issues),
-        "warning_count": sum(len(warnings) for _path, warnings in all_warnings),
-        "issues": [{"path": path.as_posix(), "message": issue} for path, issues in all_issues for issue in issues],
-        "warnings": [{"path": path.as_posix(), "message": warning} for path, warnings in all_warnings for warning in warnings],
+        "ok": not issues,
+        "can_continue": not issues,
+        "release_ready": not issues and not warnings,
+        "issue_count": len(issues),
+        "warning_count": len(warnings),
+        "strict_count": 0,
+        "finding_count": len(issues) + len(warnings),
+        "issues": issues,
+        "warnings": warnings,
+        "strict": [],
+        "findings": [*issues, *warnings],
     }
 
 
@@ -594,11 +608,11 @@ def render_lint(repo_root: Path, *, require_status: bool = False, output_format:
     if not payload["issues"] and not payload["warnings"]:
         return "Logics lint: OK"
     if not payload["issues"]:
-        lines = ["Logics lint: OK (warnings)"]
+        lines = ["Logics lint: OK (warnings)", f"Blocking issues: {payload['issue_count']}; warnings: {payload['warning_count']}"]
         for warning in payload["warnings"]:
             lines.append(f"- {warning['path']}: WARNING: {warning['message']}")
         return "\n".join(lines)
-    lines = ["Logics lint: FAILED"]
+    lines = ["Logics lint: FAILED", f"Blocking issues: {payload['issue_count']}; warnings: {payload['warning_count']}"]
     for issue in payload["issues"]:
         lines.append(f"- {issue['path']}: {issue['message']}")
     for warning in payload["warnings"]:

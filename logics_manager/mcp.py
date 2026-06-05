@@ -550,8 +550,16 @@ def _audit_status(repo_root: Path) -> dict[str, Any]:
     payload = audit_payload(repo_root, legacy_cutoff_version="1.1.0", group_by_doc=True)
     return {
         "ok": bool(payload.get("ok")),
+        "can_continue": bool(payload.get("can_continue", payload.get("ok"))),
+        "release_ready": bool(payload.get("release_ready", payload.get("ok"))),
         "issue_count": payload.get("issue_count", 0),
+        "warning_count": payload.get("warning_count", 0),
+        "strict_count": payload.get("strict_count", 0),
+        "finding_count": payload.get("finding_count", payload.get("issue_count", 0)),
         "issues": payload.get("issues", []),
+        "warnings": payload.get("warnings", []),
+        "strict": payload.get("strict", []),
+        "findings": payload.get("findings", payload.get("issues", [])),
         "issues_by_doc": payload.get("issues_by_doc", {}),
     }
 

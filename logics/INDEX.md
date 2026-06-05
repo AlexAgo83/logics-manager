@@ -44,6 +44,7 @@
 | [prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api](product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md) | Logics CLI as the primary operator surface and unified runtime API | Active |  | product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md |
 | [prod_010_chatgpt_logics_agent](product/prod_010_chatgpt_logics_agent.md) | ChatGPT Logics Agent | Proposed |  | product/prod_010_chatgpt_logics_agent.md |
 | [prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows](product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md) | Expanded Logics MCP action surface for local ChatGPT workflows | Proposed |  | product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md |
+| [prod_012_reduce_logics_validation_friction_for_agents](product/prod_012_reduce_logics_validation_friction_for_agents.md) | Reduce Logics validation friction for agents | Proposed |  | product/prod_012_reduce_logics_validation_friction_for_agents.md |
 
 ## Requests
 

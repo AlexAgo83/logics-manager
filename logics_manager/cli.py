@@ -70,7 +70,7 @@ def _build_root_help() -> str:
         "",
         "  audit",
         "    Audit request, backlog, and task consistency.",
-        "    Options: --stale-days, --skip-ac-traceability, --skip-gates, --legacy-cutoff-version, --format {text,json}, --group-by-doc, --autofix-ac-traceability, --paths, --refs, --since-version, --token-hygiene, --autofix-structure, --governance-profile",
+        "    Options: --stale-days, --skip-ac-traceability, --skip-gates, --legacy-cutoff-version, --format {text,json}, --group-by-doc, --autofix-ac-traceability, --paths, --refs, --since-version, --token-hygiene, --autofix-structure, --governance-profile {relaxed,standard,strict}",
         "",
         "  index",
         "    Generate `logics/INDEX.md` from the workflow corpus.",

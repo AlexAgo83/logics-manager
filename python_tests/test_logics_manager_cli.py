@@ -380,6 +380,28 @@ def _write_minimal_lint_doc(path: Path, *, title: str, status: str, include_prog
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _write_minimal_product_doc(path: Path, *, title: str, status: str, body: str = "") -> None:
+    path.write_text(
+        "\n".join(
+            [
+                f"## {path.stem} - {title}",
+                "> Date: 2026-06-05",
+                f"> Status: {status}",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "> Related architecture: (none yet)",
+                "> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.",
+                "",
+                "# Overview",
+                body or "Early product framing without complete lineage yet.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)
@@ -435,6 +457,46 @@ def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
     assert payload["ok"] is False
     assert payload["issue_count"] == 1
     assert payload["issues"][0]["code"] == "stale_pending_doc"
+
+
+def test_audit_reports_early_companion_mermaid_and_link_gaps_as_warnings(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    payload = audit_payload(repo_root, group_by_doc=True)
+    output = render_audit(repo_root, group_by_doc=True)
+
+    assert payload["ok"] is True
+    assert payload["can_continue"] is True
+    assert payload["release_ready"] is False
+    assert payload["issue_count"] == 0
+    assert payload["warning_count"] == 2
+    assert {warning["code"] for warning in payload["warnings"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
+    assert "Workflow audit: OK (warnings)" in output
+    assert "WARNING: [companion_doc_missing_mermaid]" in output
+
+
+def test_strict_audit_blocks_companion_mermaid_and_link_gaps(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    payload = audit_payload(repo_root, governance_profile="strict", group_by_doc=True)
+
+    assert payload["ok"] is False
+    assert payload["can_continue"] is False
+    assert payload["issue_count"] == 2
+    assert payload["warning_count"] == 0
+    assert {issue["code"] for issue in payload["issues"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
 
 
 def test_render_index_builds_markdown_and_json(tmp_path: Path) -> None:

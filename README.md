@@ -402,9 +402,16 @@ If the current plugin version is already published, `logics-manager assist next-
 - VSIX package validation: `npm run package:ci`
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
+- Strict Logics governance audit: `npm run audit:logics:strict`
 - Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
 - Security audit policy gate: `npm run audit:ci`
+
+`npm run audit:logics` uses the default active-work profile. It blocks correctness and traceability failures, but reports early companion-doc polish such as missing overview Mermaid diagrams as warnings so drafting and agent handoffs can continue.
+
+`npm run audit:logics:strict` uses the strict governance profile. Use it before release or governance review when companion docs must be complete and warning-class findings should be resolved.
+
+`logics-manager audit --format json` and `logics-manager lint --format json` expose `issue_count`, `warning_count`, `strict_count`, `finding_count`, `can_continue`, and `release_ready`. Agents should treat `issue_count > 0` as blocking active work, and `release_ready: false` as a signal that cleanup remains before release-grade validation.
 
 `npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, Python tests, CLI smoke checks, TypeScript validation, extension tests, and VSIX packaging.
 

@@ -107,6 +107,8 @@ class AuditIssue:
     code: str
     path: Path | None
     message: str
+    severity: str = "blocking"
+    repair_command: str | None = None
 
 
 def _indicator_value(lines: list[str], key: str) -> str | None:
@@ -165,6 +167,15 @@ def _extract_refs(text: str, prefix: str) -> set[str]:
 
 def _has_mermaid_block(text: str) -> bool:
     return "```mermaid" in text
+
+
+def _companion_doc_is_mature(doc: "DocMeta") -> bool:
+    status = _status_normalized(doc.status)
+    if doc.kind.kind == "product":
+        return status in {"active", "validated", "archived"}
+    if doc.kind.kind == "architecture":
+        return status in {"accepted", "superseded", "archived"}
+    return False
 
 
 def _decision_framing_value(text: str, label: str) -> str | None:
@@ -511,11 +522,11 @@ def _rel(repo_root: Path, path: Path | None) -> str:
 
 
 def _sorted_issues(issues: Iterable[AuditIssue], repo_root: Path) -> list[AuditIssue]:
-    unique: dict[tuple[str, str, str], AuditIssue] = {}
+    unique: dict[tuple[str, str, str, str], AuditIssue] = {}
     for issue in issues:
-        key = (_rel(repo_root, issue.path), issue.code, issue.message)
+        key = (issue.severity, _rel(repo_root, issue.path), issue.code, issue.message)
         unique.setdefault(key, issue)
-    return sorted(unique.values(), key=lambda issue: (_rel(repo_root, issue.path), issue.code, issue.message))
+    return sorted(unique.values(), key=lambda issue: (_rel(repo_root, issue.path), issue.severity, issue.code, issue.message))
 
 
 def _scan_hybrid_cache_for_credentials(repo_root: Path) -> list[AuditIssue]:
@@ -584,6 +595,7 @@ def audit_payload(
     docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
 
     issues: list[AuditIssue] = []
+    strict_governance = governance_profile == "strict"
     autofix_targets: dict[Path, set[str]] = {}
     autofix_modified: list[Path] = []
 
@@ -652,20 +664,26 @@ def audit_payload(
         for prefix in ("req", "item", "task", "prod", "adr"):
             linked_refs.update(_extract_refs(doc.text, prefix))
 
+        companion_is_mature = _companion_doc_is_mature(doc)
+
         if not any(ref.startswith(("req_", "item_", "task_")) for ref in linked_refs):
+            primary_link_severity = "blocking" if strict_governance or companion_is_mature else "warning"
             issues.append(
                 AuditIssue(
                     code="companion_doc_missing_primary_link",
                     path=doc.path,
                     message="companion doc has no linked request, backlog item, or task reference",
+                    severity=primary_link_severity,
                 )
             )
         if not _has_mermaid_block(doc.text):
+            mermaid_severity = "blocking" if strict_governance or companion_is_mature else "warning"
             issues.append(
                 AuditIssue(
                     code="companion_doc_missing_mermaid",
                     path=doc.path,
                     message="companion doc is missing its overview Mermaid diagram",
+                    severity=mermaid_severity,
                 )
             )
         placeholders = COMPANION_PLACEHOLDERS.get(doc.kind.kind, ())
@@ -850,20 +868,46 @@ def audit_payload(
 
     by_code: dict[str, int] = {}
     by_path: dict[str, int] = {}
-    serialized: list[dict[str, str]] = []
+    by_severity: dict[str, int] = {}
+    serialized_findings: list[dict[str, str]] = []
     for issue in sorted_issues:
         rel_path = _rel(repo_root, issue.path)
         by_code[issue.code] = by_code.get(issue.code, 0) + 1
         by_path[rel_path] = by_path.get(rel_path, 0) + 1
-        serialized.append({"code": issue.code, "path": rel_path, "message": issue.message})
+        by_severity[issue.severity] = by_severity.get(issue.severity, 0) + 1
+        finding = {"code": issue.code, "path": rel_path, "message": issue.message, "severity": issue.severity}
+        if issue.repair_command:
+            finding["repair_command"] = issue.repair_command
+        serialized_findings.append(finding)
+
+    blocking_findings = [finding for finding in serialized_findings if finding["severity"] == "blocking"]
+    warning_findings = [finding for finding in serialized_findings if finding["severity"] == "warning"]
+    strict_findings = [finding for finding in serialized_findings if finding["severity"] == "strict"]
+    findings_by_doc: dict[str, list[dict[str, str]]] = {}
+    for finding in serialized_findings:
+        findings_by_doc.setdefault(finding["path"], []).append(finding)
+    issues_by_doc: dict[str, list[dict[str, str]]] = {}
+    for finding in blocking_findings:
+        issues_by_doc.setdefault(finding["path"], []).append(finding)
 
     return {
-        "ok": not sorted_issues,
-        "issue_count": len(sorted_issues),
-        "issues": serialized,
+        "ok": not blocking_findings,
+        "can_continue": not blocking_findings,
+        "release_ready": not blocking_findings and not warning_findings and not strict_findings,
+        "issue_count": len(blocking_findings),
+        "warning_count": len(warning_findings),
+        "strict_count": len(strict_findings),
+        "finding_count": len(serialized_findings),
+        "issues": blocking_findings,
+        "warnings": warning_findings,
+        "strict": strict_findings,
+        "findings": serialized_findings,
+        "issues_by_doc": dict(sorted(issues_by_doc.items())),
+        "findings_by_doc": dict(sorted(findings_by_doc.items())),
         "counts": {
             "by_code": dict(sorted(by_code.items())),
             "by_path": dict(sorted(by_path.items())),
+            "by_severity": dict(sorted(by_severity.items())),
         },
         "autofix": {
             "enabled": autofix_ac_traceability or autofix_structure,
@@ -909,25 +953,35 @@ def render_audit(
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
 
-    lines = ["Workflow audit: OK" if payload["ok"] else "Workflow audit: FAILED", f"Workflow docs inspected: {payload['workflow_doc_count']}"]
-    issues = payload["issues"]
-    if not issues:
+    if payload["ok"] and (payload["warning_count"] or payload["strict_count"]):
+        status_line = "Workflow audit: OK (warnings)"
+    else:
+        status_line = "Workflow audit: OK" if payload["ok"] else "Workflow audit: FAILED"
+    lines = [
+        status_line,
+        f"Workflow docs inspected: {payload['workflow_doc_count']}",
+        f"Blocking issues: {payload['issue_count']}; warnings: {payload['warning_count']}; strict-only findings: {payload['strict_count']}",
+    ]
+    findings = payload["findings"]
+    if not findings:
         return "\n".join(lines)
     if not group_by_doc:
-        for issue in issues:
+        for issue in findings:
+            prefix = "WARNING" if issue["severity"] == "warning" else "STRICT" if issue["severity"] == "strict" else "BLOCKING"
             if issue["path"] == "(global)":
-                lines.append(f"- [{issue['code']}] {issue['message']}")
+                lines.append(f"- {prefix}: [{issue['code']}] {issue['message']}")
             else:
-                lines.append(f"- {issue['path']}: [{issue['code']}] {issue['message']}")
+                lines.append(f"- {issue['path']}: {prefix}: [{issue['code']}] {issue['message']}")
         return "\n".join(lines)
 
     grouped: dict[str, list[dict[str, str]]] = {}
-    for issue in issues:
+    for issue in findings:
         grouped.setdefault(issue["path"], []).append(issue)
     for rel_path in sorted(grouped):
         lines.append(f"- {rel_path}")
-        for issue in sorted(grouped[rel_path], key=lambda item: (item["code"], item["message"])):
-            lines.append(f"  - [{issue['code']}] {issue['message']}")
+        for issue in sorted(grouped[rel_path], key=lambda item: (item["severity"], item["code"], item["message"])):
+            prefix = "WARNING" if issue["severity"] == "warning" else "STRICT" if issue["severity"] == "strict" else "BLOCKING"
+            lines.append(f"  - {prefix}: [{issue['code']}] {issue['message']}")
     return "\n".join(lines)
 
 
@@ -948,7 +1002,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--since-version", help="Limit the audit to docs with `From version` >= this semantic version.")
     parser.add_argument("--token-hygiene", action="store_true", help="Enable compact AI context and verbosity checks for workflow docs.")
     parser.add_argument("--autofix-structure", action="store_true", help="Deterministically repair missing schema metadata, AI Context, and missing gate sections.")
-    parser.add_argument("--governance-profile", choices=tuple(GOVERNANCE_PROFILES), default="standard", help="Apply a named governance profile when resolving default audit strictness.")
+    parser.add_argument("--governance-profile", choices=tuple(GOVERNANCE_PROFILES), default="standard", help="Apply a named governance profile; `standard` reports early companion-doc polish as warnings, `strict` promotes governance warnings to blockers.")
     return parser
 
 

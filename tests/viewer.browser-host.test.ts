@@ -20,6 +20,7 @@ function createViewerDom() {
     <button data-action="mark-done" type="button">Done</button>
     <button data-action="mark-obsolete" type="button">Obsolete</button>
     <button data-action="change-status" type="button">Status</button>
+    <button data-viewer-action="edit-document" type="button" disabled>Edit document</button>
     <section id="viewer-document" hidden>
       <div id="viewer-document-title"></div>
       <div id="viewer-document-content"></div>
@@ -65,6 +66,15 @@ function createViewerDom() {
           json: async () => ({
             ok: true,
             document: { path: "logics/request/req_001_demo.md", content: markdown }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/edit")) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            document: { path: "logics/request/req_001_demo.md", command: "open" }
           })
         };
       }
@@ -117,10 +127,12 @@ describe("local viewer browser host", () => {
     const promote = dom.window.document.querySelector('[data-action="promote"]') as HTMLButtonElement | null;
     const open = dom.window.document.querySelector('[data-action="open"]') as HTMLButtonElement | null;
     const read = dom.window.document.querySelector('[data-action="read"]') as HTMLButtonElement | null;
+    const edit = dom.window.document.querySelector('[data-viewer-action="edit-document"]') as HTMLButtonElement | null;
     expect(promote?.hidden).toBe(true);
     expect(open?.hidden).toBe(true);
     expect(read?.textContent).toBe("Read document");
     expect(read?.title).toBe("Read selected document");
+    expect(edit?.disabled).toBe(true);
 
     api.postMessage({ type: "read", id: "req_001_demo" });
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -135,6 +147,23 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector("table")).not.toBeNull();
     expect(content?.querySelector("pre.mermaid")?.textContent).toContain("flowchart TD");
     expect(dom.window.__mermaidRuns).toEqual([1]);
+  });
+
+  it("opens the selected document through the local edit endpoint", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const edit = dom.window.document.querySelector('[data-viewer-action="edit-document"]') as HTMLButtonElement | null;
+    expect(edit?.disabled).toBe(false);
+    edit?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/edit?path=logics%2Frequest%2Freq_001_demo.md");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened logics/request/req_001_demo.md");
   });
 
   it("renders health as a summary with document links", async () => {

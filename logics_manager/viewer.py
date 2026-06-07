@@ -5,6 +5,9 @@ import json
 import mimetypes
 import os
 import re
+import shlex
+import subprocess
+import sys
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
@@ -295,6 +298,14 @@ def viewer_data_payload(repo_root: Path, selected_id: str | None = None) -> dict
 
 
 def read_doc_payload(repo_root: Path, rel_path: str) -> dict[str, Any]:
+    normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
+    return {
+        "path": normalized,
+        "content": _read_text(absolute),
+    }
+
+
+def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
     normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
     absolute = (repo_root / normalized).resolve()
     root = repo_root.resolve()
@@ -302,10 +313,29 @@ def read_doc_payload(repo_root: Path, rel_path: str) -> dict[str, Any]:
         raise ValueError("Document path escapes repository root.")
     if not absolute.is_file():
         raise FileNotFoundError(normalized)
+    return normalized, absolute
+
+
+def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = None) -> dict[str, str]:
+    normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
+    command = _editor_command(absolute)
+    runner = launcher or subprocess.Popen
+    runner(command)
     return {
         "path": normalized,
-        "content": _read_text(absolute),
+        "command": command[0],
     }
+
+
+def _editor_command(path: Path) -> list[str]:
+    configured = os.environ.get("LOGICS_VIEWER_EDITOR") or os.environ.get("VISUAL") or os.environ.get("EDITOR")
+    if configured:
+        return [*shlex.split(configured), str(path)]
+    if sys.platform == "darwin":
+        return ["open", str(path)]
+    if os.name == "nt":
+        return ["cmd", "/c", "start", "", str(path)]
+    return ["xdg-open", str(path)]
 
 
 def _json_bytes(payload: Any) -> bytes:
@@ -396,6 +426,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/refresh":
             self._send_json({"ok": True, "payload": viewer_data_payload(self.server.repo_root)})
+            return
+        if parsed.path == "/api/edit":
+            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            try:
+                self._send_json({"ok": True, "document": edit_doc_payload(self.server.repo_root, rel_path)})
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 

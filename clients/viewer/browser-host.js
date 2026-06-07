@@ -4,6 +4,7 @@
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
+  const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
   let latestItems = [];
   let applyingLocalChrome = false;
   let mermaidInitialized = false;
@@ -38,6 +39,21 @@
   function findItemByPath(relPath) {
     const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
     return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
+  }
+
+  function selectedItem() {
+    const selectedCard = document.querySelector(".card--selected[data-id]");
+    const selectedCardId = selectedCard instanceof HTMLElement ? selectedCard.dataset.id : "";
+    if (selectedCardId) {
+      return latestItems.find((entry) => entry.id === selectedCardId) || null;
+    }
+    try {
+      const state = JSON.parse(window.localStorage.getItem(stateKey) || "null");
+      const selectedId = typeof state?.selectedId === "string" ? state.selectedId : "";
+      return latestItems.find((entry) => entry.id === selectedId) || null;
+    } catch {
+      return null;
+    }
   }
 
   function setDocument(titleText, html) {
@@ -138,6 +154,13 @@
         element.title = "Read selected document";
       });
 
+      const editButton = editDocumentButton();
+      if (editButton instanceof HTMLButtonElement) {
+        const item = selectedItem();
+        editButton.disabled = !item;
+        editButton.title = item ? "Open selected document in the system editor" : "Select a document to edit";
+      }
+
       document.querySelectorAll(".column__menu-item").forEach((element) => {
         if (!(element instanceof HTMLElement)) {
           return;
@@ -198,6 +221,20 @@
   async function showDocumentByPath(relPath) {
     const item = findItemByPath(relPath) || { relPath, title: relPath, id: relPath };
     await showDocument(item);
+  }
+
+  async function editDocument(item) {
+    if (!item || !item.relPath) {
+      setMeta("Select a document to edit.");
+      return;
+    }
+    setMeta("Opening document in system editor...");
+    const response = await fetch(`/api/edit?path=${encodeURIComponent(item.relPath)}`, { method: "POST" });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to open document editor.");
+    }
+    setMeta(`Opened ${data.document.path} in system editor.`);
   }
 
   function countPayloadEntries(payload, keys) {
@@ -322,6 +359,12 @@
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
     });
+    const editButton = editDocumentButton();
+    if (editButton instanceof HTMLElement) {
+      editButton.addEventListener("click", () => {
+        editDocument(selectedItem()).catch((error) => setMeta(error.message));
+      });
+    }
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;

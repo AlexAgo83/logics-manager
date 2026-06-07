@@ -22,7 +22,7 @@ from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager import viewer as viewer_module
-from logics_manager.viewer import collect_viewer_items, create_viewer_server, read_doc_payload, render_start_status
+from logics_manager.viewer import collect_viewer_items, create_viewer_server, edit_doc_payload, read_doc_payload, render_start_status
 from flow_fixtures import write_ac_traceability_chain
 
 
@@ -178,6 +178,22 @@ def test_viewer_read_doc_rejects_paths_outside_repo(tmp_path: Path) -> None:
     assert "Demo" in payload["content"]
     with pytest.raises(ValueError):
         read_doc_payload(repo_root, "../outside.md")
+
+
+def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    doc_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+    launched: list[list[str]] = []
+
+    payload = edit_doc_payload(repo_root, "logics/request/req_001_demo.md", launcher=launched.append)
+
+    assert payload["path"] == "logics/request/req_001_demo.md"
+    assert launched
+    assert launched[0][-1] == str(doc_path)
+    with pytest.raises(ValueError):
+        edit_doc_payload(repo_root, "../outside.md", launcher=launched.append)
 
 
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:

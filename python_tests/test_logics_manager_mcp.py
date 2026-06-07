@@ -196,6 +196,39 @@ def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
     assert pack["estimates"]["doc_count"] >= 1
 
 
+def test_mcp_operator_signal_tools(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    request = call_tool(
+        "create_request",
+        {
+            "title": "Signal MCP request",
+            "needs": ["Expose operator signals to MCP clients."],
+            "context": ["The follow-up marker should remain searchable."],
+            "acceptance_criteria": ["Status and health tools return structured data."],
+        },
+        repo_root=repo_root,
+    )
+    product = call_tool("create_product_brief", {"title": "Signal Product"}, repo_root=repo_root)
+    product_path = repo_root / product["path"]
+    product_path.write_text(
+        product_path.read_text(encoding="utf-8")
+        + "\n# References\n- Follow-up area: expose signals through MCP\n",
+        encoding="utf-8",
+    )
+
+    status = call_tool("get_logics_status", {"limit": 5}, repo_root=repo_root)
+    health = call_tool("get_logics_health", {"limit": 5}, repo_root=repo_root)
+    followups = call_tool("list_logics_followups", {"source_kind": "product", "limit": 5}, repo_root=repo_root)
+    consistency = call_tool("check_product_consistency", {"limit": 5}, repo_root=repo_root)
+
+    assert status["ok"] is True
+    assert status["draft_requests"][0]["ref"] == request["ref"]
+    assert health["doc_count"] >= 2
+    assert followups["ok"] is True
+    assert followups["followups"][0]["text"] == "expose signals through MCP"
+    assert consistency["ok"] is True
+
+
 def test_mcp_lists_companion_docs(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

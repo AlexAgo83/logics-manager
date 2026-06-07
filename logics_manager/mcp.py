@@ -21,6 +21,7 @@ from urllib.request import Request, urlopen
 from .audit import audit_payload
 from .config import ConfigError, find_repo_root
 from .flow import flow_list_payload
+from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
 from .sync import append_workflow_note_payload, build_context_pack_payload, list_logics_docs_payload, read_logics_doc_payload, search_logics_docs_payload, update_workflow_indicators_payload
 
@@ -186,6 +187,37 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["query"],
         ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "get_logics_status",
+        "description": "Summarize open Logics workflow docs and next actions.",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "get_logics_health",
+        "description": "Show Logics workflow health counts and issue signals.",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "list_logics_followups",
+        "description": "List actionable Logics follow-up areas with request creation commands.",
+        "inputSchema": _tool_schema(
+            {
+                "source_kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "architecture"]},
+                "include_closed": {"type": "boolean"},
+                "closed_only": {"type": "boolean"},
+                "limit": {"type": "integer"},
+            }
+        ),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "check_product_consistency",
+        "description": "Check product brief lineage links for active and validated product docs.",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
         "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
@@ -811,6 +843,24 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         except SystemExit as exc:
             raise _mcp_read_error(exc) from exc
         return {"ok": True, **payload}
+    if name == "get_logics_status":
+        return status_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
+    if name == "get_logics_health":
+        return health_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
+    if name == "list_logics_followups":
+        include_closed = bool(args.get("include_closed", False))
+        closed_only = bool(args.get("closed_only", False))
+        if include_closed and closed_only:
+            raise McpToolError("invalid_argument_value", "include_closed and closed_only are mutually exclusive.", details={"arguments": ["include_closed", "closed_only"]})
+        return followups_payload(
+            root,
+            limit=_bounded_int(args.get("limit"), default=50, maximum=200),
+            source_kind=str(args.get("source_kind") or "all"),
+            include_closed=include_closed,
+            closed_only=closed_only,
+        )
+    if name == "check_product_consistency":
+        return product_consistency_payload(root, limit=_bounded_int(args.get("limit"), default=50, maximum=200))
     if name == "finish_task":
         rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
         dry_run = bool(args.get("dry_run", False))

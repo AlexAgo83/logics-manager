@@ -76,6 +76,48 @@ def test_main_renders_the_canonical_claude_instructions_manifest(capsys: pytest.
     assert "python3 -m logics_manager flow finish task" in payload["content"]
 
 
+def test_main_accepts_json_alias_for_native_root_command(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = Path(tempfile.mkdtemp(prefix="logics-json-alias-"))
+    (repo_root / "logics").mkdir()
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["index", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["ok"] is True
+    assert payload["output_path"] == "logics/INDEX.md"
+
+
+def test_main_accepts_json_alias_for_native_subcommand(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = Path(tempfile.mkdtemp(prefix="logics-json-alias-sync-"))
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+    monkeypatch.setattr("logics_manager.config.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "list-docs", "--kind", "request", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["returned_count"] == 1
+    assert payload["items"][0]["ref"] == "req_001_demo"
+
+
 @pytest.mark.parametrize(
     ("argv", "expected_script_suffix", "expected_args"),
     [

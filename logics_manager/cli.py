@@ -37,6 +37,16 @@ ROOT_COMMANDS = (
 )
 
 
+def _expand_json_alias(argv: list[str]) -> list[str]:
+    expanded: list[str] = []
+    for arg in argv:
+        if arg == "--json":
+            expanded.extend(["--format", "json"])
+        else:
+            expanded.append(arg)
+    return expanded
+
+
 def _build_root_help() -> str:
     sections = [
         "Logics Manager CLI",
@@ -119,6 +129,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"logics-manager {get_cli_version()}")
         return 0
 
+    argv = _expand_json_alias(argv)
     command = argv[0]
     if command not in ROOT_COMMANDS:
         raise SystemExit(f"Unsupported command: {command}")

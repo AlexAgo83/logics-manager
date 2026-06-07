@@ -1,10 +1,10 @@
 ## item_369_redesign_local_viewer_corpus_filters_and_sorting - Redesign local viewer corpus filters and sorting
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -73,6 +73,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_205_redesign_local_viewer_corpus_filters_and_sorting` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md`.
 - Generated locally by logics-manager.
+- Task `task_170_redesign_local_viewer_corpus_filters_and_sorting` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_170_redesign_local_viewer_corpus_filters_and_sorting`

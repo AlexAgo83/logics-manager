@@ -261,7 +261,7 @@
 | [req_202_harden_local_viewer_ux_after_first_operator_review](request/req_202_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done |  | request/req_202_harden_local_viewer_ux_after_first_operator_review.md |
 | [req_203_improve_local_viewer_corpus_navigation](request/req_203_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done |  | request/req_203_improve_local_viewer_corpus_navigation.md |
 | [req_204_notify_operators_when_logics_manager_updates_are_available](request/req_204_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done |  | request/req_204_notify_operators_when_logics_manager_updates_are_available.md |
-| [req_205_redesign_local_viewer_corpus_filters_and_sorting](request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Ready |  | request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [req_205_redesign_local_viewer_corpus_filters_and_sorting](request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done |  | request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md |
 
 ## Backlog
 
@@ -635,7 +635,7 @@
 | [item_366_harden_local_viewer_ux_after_first_operator_review](backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md |
 | [item_367_improve_local_viewer_corpus_navigation](backlog/item_367_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done | 100% | backlog/item_367_improve_local_viewer_corpus_navigation.md |
 | [item_368_notify_operators_when_logics_manager_updates_are_available](backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done | 100% | backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md |
-| [item_369_redesign_local_viewer_corpus_filters_and_sorting](backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Ready | 0% | backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [item_369_redesign_local_viewer_corpus_filters_and_sorting](backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done | 100% | backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md |
 
 ## Tasks
 
@@ -804,4 +804,4 @@
 | [task_167_harden_local_viewer_ux_after_first_operator_review](tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md |
 | [task_168_improve_local_viewer_corpus_navigation](tasks/task_168_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done | 100% | tasks/task_168_improve_local_viewer_corpus_navigation.md |
 | [task_169_notify_operators_when_logics_manager_updates_are_available](tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done | 100% | tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md |
-| [task_170_redesign_local_viewer_corpus_filters_and_sorting](tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Ready | 90% | tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [task_170_redesign_local_viewer_corpus_filters_and_sorting](tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done | 100% | tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md |

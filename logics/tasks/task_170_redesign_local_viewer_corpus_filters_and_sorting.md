@@ -1,18 +1,18 @@
 ## task_170_redesign_local_viewer_corpus_filters_and_sorting - Redesign local viewer corpus filters and sorting
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94
 > Confidence: 88
-> Progress: 90
+> Progress: 100%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_369_redesign_local_viewer_corpus_filters_and_sorting`
@@ -49,9 +49,14 @@ flowchart TD
 - [x] `python3 -m logics_manager lint --require-status`
 - [x] `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`
 - [ ] Run `python3 -m logics_manager flow finish task task_170_redesign_local_viewer_corpus_filters_and_sorting.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_369_redesign_local_viewer_corpus_filters_and_sorting`
+- Related request(s): `req_205_redesign_local_viewer_corpus_filters_and_sorting`
 
 # AI Context
 - Summary: Implement redesign local viewer corpus filters and sorting.

@@ -1,7 +1,7 @@
 ## req_205_redesign_local_viewer_corpus_filters_and_sorting - Redesign local viewer corpus filters and sorting
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94
 > Confidence: 88
 > Complexity: High

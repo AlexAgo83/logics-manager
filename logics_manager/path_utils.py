@@ -17,3 +17,15 @@ def resolve_repo_output_path(repo_root: Path, raw_path: str, *, label: str = "--
     resolved = (repo_root / candidate).resolve()
     relative = ensure_relative_to(resolved, repo_root, label=label)
     return resolved, relative.as_posix()
+
+
+def resolve_repo_config_path(repo_root: Path, raw_path: str, *, label: str = "configured path") -> tuple[Path, str]:
+    candidate = Path(raw_path)
+    if any(part == ".." for part in candidate.parts):
+        raise SystemExit(f"Unsupported {label} path `{raw_path}`. Use a repo-relative path or absolute path inside the repository.")
+    resolved = candidate.resolve() if candidate.is_absolute() else (repo_root / candidate).resolve()
+    try:
+        relative = ensure_relative_to(resolved, repo_root, label=label)
+    except SystemExit as exc:
+        raise SystemExit(f"Unsupported {label} path `{raw_path}`. Use a repo-relative path or absolute path inside the repository.") from exc
+    return resolved, relative.as_posix()

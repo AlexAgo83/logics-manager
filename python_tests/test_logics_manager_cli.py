@@ -1751,6 +1751,67 @@ def test_main_runs_native_assist_roi_report(
     assert "- local offload rate: 0.5" in captured.out
 
 
+def test_assist_roi_report_rejects_configured_paths_outside_repo(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "hybrid_assist:",
+                "  audit_log: ../outside.jsonl",
+                "  measurement_log: logics/.cache/hybrid_assist_measurements.jsonl",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="Unsupported configured audit_log path"):
+        main(["assist", "roi-report"])
+
+
+def test_assist_roi_report_accepts_absolute_configured_paths_inside_repo(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    cache_dir = repo_root / "logics" / ".cache"
+    cache_dir.mkdir(parents=True)
+    audit_log = cache_dir / "custom_audit.jsonl"
+    measurement_log = cache_dir / "custom_measurements.jsonl"
+    audit_log.write_text("", encoding="utf-8")
+    measurement_log.write_text("", encoding="utf-8")
+    (repo_root / "logics.yaml").write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "hybrid_assist:",
+                f"  audit_log: {audit_log.as_posix()}",
+                f"  measurement_log: {measurement_log.as_posix()}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["assist", "roi-report", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert payload["sources"]["audit_log"] == "logics/.cache/custom_audit.jsonl"
+    assert payload["sources"]["measurement_log"] == "logics/.cache/custom_measurements.jsonl"
+
+
 def test_main_runs_native_assist_context(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

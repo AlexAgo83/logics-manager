@@ -14,7 +14,7 @@ from typing import Any
 from .config import ConfigError, find_repo_root, load_repo_config
 from .doctor import doctor_payload
 from .lint import lint_payload
-from .path_utils import resolve_repo_output_path
+from .path_utils import resolve_repo_config_path, resolve_repo_output_path
 from .termstyle import colorize_help
 
 
@@ -89,8 +89,9 @@ def _hybrid_measurement_log(config: dict[str, object]) -> str:
     return str(_get_nested(config, "hybrid_assist", "measurement_log", default=DEFAULT_HYBRID_MEASUREMENT_LOG))
 
 
-def _repo_path(repo_root: Path, value: str | None, default: str) -> Path:
-    return (repo_root / (value or default)).resolve()
+def _repo_path(repo_root: Path, value: str | None, default: str, *, label: str) -> Path:
+    resolved, _relative = resolve_repo_config_path(repo_root, value or default, label=label)
+    return resolved
 
 
 def _parse_package_version(repo_root: Path) -> str:
@@ -2237,8 +2238,8 @@ def cmd_test_impact_summary(args: argparse.Namespace) -> dict[str, object]:
 def cmd_roi_report(args: argparse.Namespace) -> dict[str, object]:
     repo_root = find_repo_root(Path.cwd())
     config, config_path = load_repo_config(repo_root)
-    audit_log = _repo_path(repo_root, args.audit_log, _hybrid_audit_log(config))
-    measurement_log = _repo_path(repo_root, args.measurement_log, _hybrid_measurement_log(config))
+    audit_log = _repo_path(repo_root, args.audit_log, _hybrid_audit_log(config), label="configured audit_log")
+    measurement_log = _repo_path(repo_root, args.measurement_log, _hybrid_measurement_log(config), label="configured measurement_log")
     payload = _build_hybrid_roi_report(
         repo_root,
         audit_log=audit_log,

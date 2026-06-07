@@ -1736,6 +1736,65 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     assert "```mermaid" in task_text
 
 
+def test_main_runs_native_flow_closeout_finishes_delivery_chain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    product_path = repo_root / "logics" / "product" / "prod_001_demo_product.md"
+    product_path.write_text(
+        "\n".join(
+            [
+                "## prod_001_demo_product - Demo Product",
+                "> Date: 2026-06-07",
+                "> Status: Proposed",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "> Related architecture: (none yet)",
+                "> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.",
+                "# Overview",
+                "- Demo product brief.",
+                "# References",
+                "- Product back-reference: (none yet)",
+                "- Task back-reference: (none yet)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    assert main(["flow", "deliver", "--from-product", "prod_001_demo_product"]) == 0
+    exit_code = main(
+        [
+            "flow",
+            "closeout",
+            "task_001_demo_product",
+            "--validation",
+            "pytest passed",
+            "--index",
+            "--lint",
+            "--audit",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Closeout: OK" in captured.out
+    assert (repo_root / "logics" / "INDEX.md").is_file()
+    assert "> Status: Done" in (repo_root / "logics" / "tasks" / "task_001_demo_product.md").read_text(encoding="utf-8")
+    assert "> Status: Done" in (repo_root / "logics" / "backlog" / "item_001_demo_product.md").read_text(encoding="utf-8")
+    assert "> Status: Done" in (repo_root / "logics" / "request" / "req_000_demo_product.md").read_text(encoding="utf-8")
+    assert "pytest passed" in (repo_root / "logics" / "tasks" / "task_001_demo_product.md").read_text(encoding="utf-8")
+
+
 def test_main_runs_native_flow_finish_task(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

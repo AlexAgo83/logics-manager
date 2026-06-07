@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .audit import audit_payload
 from .cli_output import print_payload
-from .lint import expected_workflow_mermaid_signature
+from .index import index_payload
+from .lint import expected_workflow_mermaid_signature, lint_payload
 from .path_utils import ensure_relative_to
 from .termstyle import colorize_help
 
@@ -217,6 +219,10 @@ def _build_help() -> str:
             "    Apply deterministic closeout repairs.",
             "    Flags: --format {text,json}, --dry-run",
             "",
+            "  closeout <task>",
+            "    Append validation, repair deterministic gaps, finish, and optionally validate/index.",
+            "    Flags: --validation, --index, --lint, --audit, --format {text,json}, --dry-run",
+            "",
             "  promote request-to-backlog <source>",
             "    Create a backlog slice from a request.",
             "",
@@ -244,6 +250,7 @@ def _build_help() -> str:
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow validate-closeout task_003_fix_docs",
             "  logics-manager flow repair gates task_003_fix_docs",
+            "  logics-manager flow closeout task_003_fix_docs --validation \"pytest passed\" --index --lint --audit",
             "  logics-manager flow promote request-to-backlog req_001_my_request",
             "  logics-manager flow close task task_003_fix_docs --dry-run",
         ]
@@ -459,6 +466,29 @@ def _build_repair_kind_help(kind: str) -> str:
             "",
             "Example:",
             examples[kind],
+        ]
+    )
+
+
+def _build_closeout_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Closeout",
+            "Append validation, repair deterministic gaps, finish, and optionally validate/index.",
+            "",
+            "Usage:",
+            "  logics-manager flow closeout <task> [args...]",
+            "",
+            "Flags:",
+            "  --validation",
+            "  --index",
+            "  --lint",
+            "  --audit",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Example:",
+            '  logics-manager flow closeout task_164 --validation "pytest passed" --index --lint --audit',
         ]
     )
 
@@ -2207,6 +2237,16 @@ def build_parser() -> argparse.ArgumentParser:
     repair_mermaid.add_argument("--dry-run", action="store_true")
     repair_mermaid.set_defaults(func=cmd_repair_mermaid)
 
+    closeout_parser = sub.add_parser("closeout", help="Append validation, repair deterministic gaps, finish, and optionally validate/index.")
+    closeout_parser.add_argument("source")
+    closeout_parser.add_argument("--validation", action="append", default=[])
+    closeout_parser.add_argument("--index", action="store_true")
+    closeout_parser.add_argument("--lint", action="store_true")
+    closeout_parser.add_argument("--audit", action="store_true")
+    closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
+    closeout_parser.add_argument("--dry-run", action="store_true")
+    closeout_parser.set_defaults(func=cmd_closeout)
+
     promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
     promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
 
@@ -2561,6 +2601,148 @@ def cmd_repair_mermaid(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     payload = repair_mermaid_payload(repo_root, args.refs, dry_run=args.dry_run)
     _print_repair_payload(payload, args.format)
+    return payload
+
+
+def _closeout_refs(repo_root: Path, task_path: Path) -> list[str]:
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    refs = {task_path.stem}
+    item_refs = set(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    refs.update(item_refs)
+    refs.update(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    for item_ref in sorted(item_refs):
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is not None:
+            refs.update(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+    return sorted(refs)
+
+
+def closeout_payload(repo_root: Path, source: str, *, validations: list[str], run_index: bool, run_lint: bool, run_audit: bool, dry_run: bool) -> dict[str, object]:
+    task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    task_ref = task_path.stem
+    changed_files: set[str] = set()
+    steps: list[dict[str, object]] = []
+
+    for validation in validations:
+        if validation and validation.strip():
+            if _append_doc_section_bullets_changed(task_path, "Validation", [validation.strip()], dry_run=dry_run):
+                changed_files.add(task_path.relative_to(repo_root).as_posix())
+            steps.append({"kind": "validation", "text": validation.strip(), "dry_run": dry_run})
+
+    gate_payload = repair_gates_payload(repo_root, task_ref, dry_run=dry_run)
+    link_payload = repair_links_payload(repo_root, task_ref, dry_run=dry_run)
+    changed_files.update(gate_payload["changed_files"])
+    changed_files.update(link_payload["changed_files"])
+    steps.extend([gate_payload, link_payload])
+
+    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+    item_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["backlog"].prefix))
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is not None:
+            request_refs.extend(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+    for request_ref in sorted(set(request_refs)):
+        ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run)
+        changed_files.update(ac_payload["changed_files"])
+        steps.append(ac_payload)
+
+    mermaid_refs = _closeout_refs(repo_root, task_path)
+    mermaid_payload = repair_mermaid_payload(repo_root, mermaid_refs, dry_run=dry_run)
+    changed_files.update(mermaid_payload["changed_files"])
+    steps.append(mermaid_payload)
+
+    preflight = validate_closeout_payload(repo_root, task_ref)
+    if preflight["issues"]:
+        return {
+            "command": "closeout",
+            "ok": False,
+            "source": task_path.relative_to(repo_root).as_posix(),
+            "changed_files": sorted(changed_files),
+            "preflight": preflight,
+            "steps": steps,
+            "dry_run": dry_run,
+        }
+
+    finish_payload: dict[str, object] | None = None
+    if not dry_run:
+        _close_chain_for_kind(repo_root, task_path, DOC_KINDS["task"], dry_run=False, quiet=True)
+        finish_issues = _verify_finished_task_chain(repo_root, task_path)
+        if finish_issues:
+            raise SystemExit("Finish verification failed:\n" + "\n".join(f"- {issue}" for issue in finish_issues))
+        changed_files.add(task_path.relative_to(repo_root).as_posix())
+        for ref in mermaid_refs:
+            path, _kind = _resolve_any_workflow_source(repo_root, ref)
+            changed_files.add(path.relative_to(repo_root).as_posix())
+        finish_payload = {"kind": "finish", "ok": True}
+        post_finish_mermaid = repair_mermaid_payload(repo_root, mermaid_refs, dry_run=False)
+        changed_files.update(post_finish_mermaid["changed_files"])
+        steps.append(post_finish_mermaid)
+
+    index_result: dict[str, object] | None = None
+    if run_index:
+        if dry_run:
+            index_result = {"ok": True, "dry_run": True}
+        else:
+            index_result = index_payload(repo_root)
+            changed_files.add(str(index_result["output_path"]))
+
+    lint_result: dict[str, object] | None = None
+    if run_lint:
+        lint_result = lint_payload(repo_root, require_status=True)
+
+    audit_result: dict[str, object] | None = None
+    if run_audit:
+        audit_result = audit_payload(repo_root, legacy_cutoff_version="1.1.0", group_by_doc=True)
+
+    ok = True
+    if lint_result is not None and not lint_result.get("ok", False):
+        ok = False
+    if audit_result is not None and audit_result.get("issue_count", 0):
+        ok = False
+
+    return {
+        "command": "closeout",
+        "ok": ok,
+        "source": task_path.relative_to(repo_root).as_posix(),
+        "changed_files": sorted(changed_files),
+        "preflight": preflight,
+        "finish": finish_payload,
+        "index": index_result,
+        "lint": lint_result,
+        "audit": audit_result,
+        "steps": steps,
+        "dry_run": dry_run,
+    }
+
+
+def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = closeout_payload(
+        repo_root,
+        args.source,
+        validations=args.validation or [],
+        run_index=args.index,
+        run_lint=args.lint,
+        run_audit=args.audit,
+        dry_run=args.dry_run,
+    )
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        status = "OK" if payload["ok"] else "FAILED"
+        print(f"Closeout: {status} for {payload['source']}")
+        print(f"- changed files: {len(payload['changed_files'])}")
+        for rel_path in payload["changed_files"]:
+            print(f"  - {rel_path}")
+        preflight = payload.get("preflight")
+        if isinstance(preflight, dict) and preflight.get("issues"):
+            print("- preflight issues:")
+            for issue in preflight["issues"]:
+                print(f"  - {issue['code']}: {issue['message']} ({issue['path']})")
+        if payload.get("lint") is not None:
+            print(f"- lint ok: {payload['lint'].get('ok')}")
+        if payload.get("audit") is not None:
+            print(f"- audit issues: {payload['audit'].get('issue_count')}")
     return payload
 
 
@@ -2949,6 +3131,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "repair" and len(argv) > 1 and argv[1] in {"gates", "ac-traceability", "links", "mermaid"} and _help_requested(argv, 2):
         _print_help(_build_repair_kind_help(argv[1]))
         return 0
+    if argv[0] == "closeout" and _help_requested(argv, 1):
+        _print_help(_build_closeout_help())
+        return 0
     if argv[0] == "promote" and _help_requested(argv, 1):
         _print_help(_build_promote_help())
         return 0
@@ -2975,9 +3160,11 @@ def main(argv: list[str]) -> int:
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "repair", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     if args.command == "validate-closeout" and isinstance(payload, dict) and not payload.get("ok", False):
+        return 1
+    if args.command == "closeout" and isinstance(payload, dict) and not payload.get("ok", False):
         return 1
     return 0 if isinstance(payload, dict) else 1

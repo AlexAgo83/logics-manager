@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { launchClaudeTerminal, launchCodexOverlayTerminal, maybeShowReadyCodexOverlayHandoff } from "../src/logicsOverlaySupport";
+import { launchClaudeTerminal, launchCodexOverlayTerminal, maybeShowReadyCodexOverlayHandoff } from "../clients/vscode/src/logicsOverlaySupport";
 
 const mocks = vi.hoisted(() => ({
   showInformationMessage: vi.fn(),

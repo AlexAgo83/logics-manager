@@ -3,8 +3,8 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultEnvironmentSnapshot } from "./logicsViewProviderTestUtils";
-import * as viewProviderSupport from "../src/logicsViewProviderSupport";
-import { updateIndicatorsOnDisk } from "../src/logicsProviderUtils";
+import * as viewProviderSupport from "../clients/vscode/src/logicsViewProviderSupport";
+import { updateIndicatorsOnDisk } from "../clients/vscode/src/logicsProviderUtils";
 
 const mocks = vi.hoisted(() => ({
   showErrorMessage: vi.fn(),
@@ -86,7 +86,7 @@ vi.mock("vscode", () => ({
   }
 }));
 
-vi.mock("../src/logicsProviderUtils", () => ({
+vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
   areSamePath: mocks.areSamePath,
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
   buildLogicsRuntimeUpdateCommand: mocks.buildLogicsRuntimeUpdateCommand,
@@ -103,48 +103,48 @@ vi.mock("../src/logicsProviderUtils", () => ({
   updateIndicatorsOnDisk: vi.fn()
 }));
 
-vi.mock("../src/logicsIndexer", () => ({
+vi.mock("../clients/vscode/src/logicsIndexer", () => ({
   canPromote: vi.fn(),
   indexLogics: mocks.indexLogics,
   isRequestProcessed: vi.fn()
 }));
 
-vi.mock("../src/agentRegistry", () => ({
+vi.mock("../clients/vscode/src/agentRegistry", () => ({
   AgentDefinition: class {},
   AgentRegistrySnapshot: class {},
   createEmptyAgentRegistry: mocks.createEmptyAgentRegistry,
   loadAgentRegistry: mocks.loadAgentRegistry
 }));
 
-vi.mock("../src/workflowSupport", () => ({
+vi.mock("../clients/vscode/src/workflowSupport", () => ({
   buildBootstrapCommitMessage: vi.fn(),
   isBootstrapScopedPath: vi.fn(),
   parseGitStatusEntries: vi.fn(() => [])
 }));
 
-vi.mock("../src/logicsWebviewHtml", () => ({
+vi.mock("../clients/vscode/src/logicsWebviewHtml", () => ({
   buildLogicsWebviewHtml: vi.fn(() => "<html></html>")
 }));
 
-vi.mock("../src/logicsCodexWorkspace", () => ({
+vi.mock("../clients/vscode/src/logicsCodexWorkspace", () => ({
   inspectCodexWorkspaceOverlay: mocks.inspectCodexWorkspaceOverlay,
   publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
   shouldPublishRepoKit: mocks.shouldPublishRepoKit
 }));
 
-vi.mock("../src/logicsClaudeGlobalKit", () => ({
+vi.mock("../clients/vscode/src/logicsClaudeGlobalKit", () => ({
   inspectClaudeGlobalKit: mocks.inspectClaudeGlobalKit
 }));
 
-vi.mock("../src/runtimeLaunchers", () => ({
+vi.mock("../clients/vscode/src/runtimeLaunchers", () => ({
   inspectRuntimeLaunchers: mocks.inspectRuntimeLaunchers
 }));
 
-vi.mock("../src/releasePublishSupport", () => ({
+vi.mock("../clients/vscode/src/releasePublishSupport", () => ({
   inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
 }));
 
-vi.mock("../src/logicsEnvironment", () => ({
+vi.mock("../clients/vscode/src/logicsEnvironment", () => ({
   detectClaudeBridgeStatus: mocks.detectClaudeBridgeStatus,
   inspectLogicsEnvironment: vi.fn(async () => ({
     root: "/workspace/mock",
@@ -211,9 +211,9 @@ vi.mock("../src/logicsEnvironment", () => ({
   }))
 }));
 
-import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
-import { LogicsViewProvider } from "../src/logicsViewProvider";
-import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "../src/workflowSupport";
+import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../clients/vscode/src/logicsEnvironment";
+import { LogicsViewProvider } from "../clients/vscode/src/logicsViewProvider";
+import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "../clients/vscode/src/workflowSupport";
 
 describe("LogicsViewProvider", () => {
   let root: string;
@@ -730,7 +730,7 @@ describe("LogicsViewProvider", () => {
   it("shows an actionable error when bootstrap is requested without git on PATH", async () => {
     fs.mkdirSync(path.join(root, "logics", "skills"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "logics.py"), "#!/usr/bin/env python\n", "utf8");
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       root,
       repositoryState: "partial-bootstrap",
@@ -787,7 +787,7 @@ describe("LogicsViewProvider", () => {
       }
       return undefined;
     });
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       root,
       repositoryState: "missing-logics",
@@ -873,7 +873,7 @@ describe("LogicsViewProvider", () => {
     mocks.shouldPublishRepoKit.mockReturnValueOnce(true).mockReturnValue(false);
     (provider as any).refresh = vi.fn().mockResolvedValue(undefined);
 
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment)
       .mockResolvedValueOnce({
       root,

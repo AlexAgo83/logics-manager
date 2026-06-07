@@ -19,7 +19,12 @@ const MIME_TYPES = {
 
 function resolvePath(urlPath) {
   const clean = urlPath.split("?")[0].split("#")[0];
-  const requested = clean === "/" ? "/debug/webview/index.html" : clean;
+  const requested =
+    clean === "/"
+      ? "/debug/webview/index.html"
+      : clean.startsWith("/media/")
+        ? `/clients/shared-web${clean}`
+        : clean;
   const absolute = path.resolve(repoRoot, `.${requested}`);
   if (!absolute.startsWith(repoRoot)) {
     return null;
@@ -42,4 +47,3 @@ createServer((req, res) => {
 }).listen(port, () => {
   console.log(`Webview debug harness running at http://localhost:${port}`);
 });
-

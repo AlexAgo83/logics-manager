@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getEnvironmentOverallState, getEnvironmentSummaryDescription, shouldRecommendCheckEnvironment } from "../src/logicsViewProviderSupport";
+import { getEnvironmentOverallState, getEnvironmentSummaryDescription, shouldRecommendCheckEnvironment } from "../clients/vscode/src/logicsViewProviderSupport";
 
 vi.mock("vscode", () => ({
   window: {

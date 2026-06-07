@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   grantReleaseBranchFastForwardConsent,
   inspectReleaseBranchFastForwardConsent
-} from "../src/releaseBranchConsent";
+} from "../clients/vscode/src/releaseBranchConsent";
 
 describe("release branch fast-forward consent", () => {
   const roots: string[] = [];

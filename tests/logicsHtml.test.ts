@@ -27,10 +27,10 @@ vi.mock("vscode", () => ({
 }));
 
 import * as vscode from "vscode";
-import { buildLogicsCorpusInsightsHtml } from "../src/logicsCorpusInsightsHtml";
-import { buildHybridInsightsHtml } from "../src/logicsHybridInsightsHtml";
-import { buildReadPreviewHtml } from "../src/logicsReadPreviewHtml";
-import { buildLogicsWebviewHtml } from "../src/logicsWebviewHtml";
+import { buildLogicsCorpusInsightsHtml } from "../clients/vscode/src/logicsCorpusInsightsHtml";
+import { buildHybridInsightsHtml } from "../clients/vscode/src/logicsHybridInsightsHtml";
+import { buildReadPreviewHtml } from "../clients/vscode/src/logicsReadPreviewHtml";
+import { buildLogicsWebviewHtml } from "../clients/vscode/src/logicsWebviewHtml";
 
 type WebviewLike = {
   cspSource: string;

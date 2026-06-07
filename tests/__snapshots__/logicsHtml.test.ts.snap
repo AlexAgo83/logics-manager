@@ -767,7 +767,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src webview-csp https: data:; style-src webview-csp 'unsafe-inline'; script-src 'nonce-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="webview:/extension/media/main.css" rel="stylesheet" />
+  <link href="webview:/extension/clients/shared-web/media/main.css" rel="stylesheet" />
   <title>Logics Orchestrator</title>
 </head>
 <body>
@@ -1078,22 +1078,23 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
       </div>
     </aside>
   </div>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/logicsModel.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/uiStatus.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/harnessApi.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/layoutController.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/hostApi.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/toolsPanelLayout.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewSelectors.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewPersistence.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/webviewChrome.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderBoardApp.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderDetails.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/renderMarkdown.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainCore.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractionHandlers.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainInteractions.js"></script>
-  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/media/mainApp.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/logicsModel.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/uiStatus.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/harnessApi.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/layoutController.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/hostApiContract.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/hostApi.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/toolsPanelLayout.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/webviewSelectors.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/webviewPersistence.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/webviewChrome.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/renderBoardApp.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/renderDetails.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/renderMarkdown.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/mainCore.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/mainInteractionHandlers.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/mainInteractions.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/mainApp.js"></script>
 </body>
 </html>"
 `;

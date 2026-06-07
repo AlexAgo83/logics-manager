@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { inspectKitUpdateNeed } from "../src/logicsKitVersionSupport";
+import { inspectKitUpdateNeed } from "../clients/vscode/src/logicsKitVersionSupport";
 
 describe("inspectKitUpdateNeed", () => {
   const roots: string[] = [];

@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../src/logicsEnvironment";
+import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../clients/vscode/src/logicsEnvironment";
 import { createTempRootTracker } from "./helpers/tempRootTracker";
 
 describe("inspectLogicsEnvironment", () => {
@@ -181,7 +181,7 @@ describe("branch-state transitions", () => {
 
   const stubbedOptions = {
     detectGit: async () => true,
-    detectPython: async (): Promise<import("../src/pythonRuntime").PythonCommand | null> =>
+    detectPython: async (): Promise<import("../clients/vscode/src/pythonRuntime").PythonCommand | null> =>
       ({ command: "python", argsPrefix: [], displayLabel: "python" }),
     inspectOverlay: () =>
       ({

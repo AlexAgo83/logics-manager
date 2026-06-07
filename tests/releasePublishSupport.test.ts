@@ -6,7 +6,7 @@ vi.mock("vscode", () => ({
   }
 }));
 
-import { inspectGitHubReleaseCapability } from "../src/releasePublishSupport";
+import { inspectGitHubReleaseCapability } from "../clients/vscode/src/releasePublishSupport";
 
 describe("inspectGitHubReleaseCapability", () => {
   it("rejects non-git repositories", async () => {

@@ -9,7 +9,7 @@ vi.mock("vscode", () => ({
   env: {}
 }));
 
-import { repairClaudeBridgeFiles } from "../src/claudeBridgeSupport";
+import { repairClaudeBridgeFiles } from "../clients/vscode/src/claudeBridgeSupport";
 
 describe("repairClaudeBridgeFiles", () => {
   const roots: string[] = [];

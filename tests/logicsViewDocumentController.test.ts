@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => ({
   runPythonWithOutput: vi.fn()
 }));
 
-vi.mock("../src/logicsEnvironment", () => ({
+vi.mock("../clients/vscode/src/logicsEnvironment", () => ({
   inspectLogicsEnvironment: vi.fn(async () => ({
     hasLogicsDir: true,
     python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
@@ -35,7 +35,7 @@ vi.mock("vscode", () => ({
   }
 }));
 
-vi.mock("../src/logicsProviderUtils", () => ({
+vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
   addLinkToSectionOnDisk: vi.fn(),
   findCreatedDocPathFromOutput: vi.fn(),
   getCanonicalLogicsManagerScriptPath: mocks.getCanonicalLogicsManagerScriptPath,
@@ -48,7 +48,7 @@ vi.mock("../src/logicsProviderUtils", () => ({
   updateManagedReferencesForRename: vi.fn()
 }));
 
-import { LogicsViewDocumentController } from "../src/logicsViewDocumentController";
+import { LogicsViewDocumentController } from "../clients/vscode/src/logicsViewDocumentController";
 
 describe("LogicsViewDocumentController", () => {
   let root: string;
@@ -113,7 +113,7 @@ describe("LogicsViewDocumentController", () => {
 
   it("shows an actionable error when the bundled CLI is missing", async () => {
     mocks.getCanonicalLogicsManagerScriptPath.mockReturnValue(path.join(root, "scripts", "logics-manager.py"));
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       hasLogicsDir: true,
       python: { available: true, command: { command: "python", argsPrefix: [], displayLabel: "python" } }
@@ -145,7 +145,7 @@ describe("LogicsViewDocumentController", () => {
     const scriptPath = path.join(root, "scripts", "logics-manager.py");
     fs.mkdirSync(path.dirname(scriptPath), { recursive: true });
     fs.writeFileSync(scriptPath, "#!/usr/bin/env python3\n", "utf8");
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     vi.mocked(inspectLogicsEnvironment).mockResolvedValue({
       hasLogicsDir: true,
       python: { available: false, command: null }
@@ -247,7 +247,7 @@ describe("LogicsViewDocumentController", () => {
     const agentsOutput = { show: vi.fn() };
     const agentState: { agent?: { id: string; displayName: string; defaultPrompt: string } } = {};
     const registryState = { issues: [] as string[] };
-    const { inspectLogicsEnvironment } = await import("../src/logicsEnvironment");
+    const { inspectLogicsEnvironment } = await import("../clients/vscode/src/logicsEnvironment");
     const envMock = vi.mocked(inspectLogicsEnvironment);
 
     const controller = new LogicsViewDocumentController({

@@ -3,13 +3,13 @@
     "module": "commonjs",
     "target": "ES2020",
     "outDir": "out",
-    "rootDir": "src",
+    "rootDir": "clients/vscode/src",
     "lib": ["ES2020"],
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
     "types": ["node", "vscode"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["clients/vscode/src/**/*.ts"],
   "exclude": ["node_modules", ".vscode-test", "out"]
 }

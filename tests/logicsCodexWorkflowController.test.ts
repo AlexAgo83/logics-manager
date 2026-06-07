@@ -50,11 +50,11 @@ vi.mock("vscode", () => ({
   }
 }));
 
-vi.mock("../src/logicsEnvironment", () => ({
+vi.mock("../clients/vscode/src/logicsEnvironment", () => ({
   inspectLogicsEnvironment: mocks.inspectLogicsEnvironment
 }));
 
-vi.mock("../src/logicsProviderUtils", () => ({
+vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
   buildLogicsKitUpdateCommand: mocks.buildLogicsKitUpdateCommand,
   buildLogicsRuntimeUpdateCommand: mocks.buildLogicsRuntimeUpdateCommand,
   getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
@@ -66,42 +66,42 @@ vi.mock("../src/logicsProviderUtils", () => ({
   runPythonWithOutput: mocks.runPythonWithOutput
 }));
 
-vi.mock("../src/logicsCodexWorkspace", () => ({
+vi.mock("../clients/vscode/src/logicsCodexWorkspace", () => ({
   publishCodexWorkspaceOverlay: mocks.publishCodexWorkspaceOverlay,
   shouldPublishRepoKit: mocks.shouldPublishRepoKit,
   inspectCodexWorkspaceOverlay: mocks.inspectCodexWorkspaceOverlay
 }));
 
-vi.mock("../src/logicsClaudeGlobalKit", () => ({
+vi.mock("../clients/vscode/src/logicsClaudeGlobalKit", () => ({
   inspectClaudeGlobalKit: mocks.inspectClaudeGlobalKit,
   publishClaudeGlobalKit: mocks.publishClaudeGlobalKit
 }));
 
-vi.mock("../src/runtimeLaunchers", () => ({
+vi.mock("../clients/vscode/src/runtimeLaunchers", () => ({
   inspectRuntimeLaunchers: mocks.inspectRuntimeLaunchers
 }));
 
-vi.mock("../src/logicsOverlaySupport", () => ({
+vi.mock("../clients/vscode/src/logicsOverlaySupport", () => ({
   launchClaudeTerminal: mocks.launchClaudeTerminal,
   launchCodexOverlayTerminal: mocks.launchCodexOverlayTerminal,
   maybeShowReadyCodexOverlayHandoff: mocks.maybeShowReadyCodexOverlayHandoff
 }));
 
-vi.mock("../src/claudeBridgeSupport", () => ({
+vi.mock("../clients/vscode/src/claudeBridgeSupport", () => ({
   repairClaudeBridgeFiles: mocks.repairClaudeBridgeFiles
 }));
 
-vi.mock("../src/gitRuntime", () => ({
+vi.mock("../clients/vscode/src/gitRuntime", () => ({
   buildMissingGitMessage: mocks.buildMissingGitMessage,
   isMissingGitFailureDetail: mocks.isMissingGitFailureDetail
 }));
 
-vi.mock("../src/pythonRuntime", () => ({
+vi.mock("../clients/vscode/src/pythonRuntime", () => ({
   buildMissingPythonMessage: mocks.buildMissingPythonMessage,
   isMissingPythonFailureDetail: mocks.isMissingPythonFailureDetail
 }));
 
-import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "../src/logicsCodexWorkflowOperations";
+import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "../clients/vscode/src/logicsCodexWorkflowOperations";
 
 describe("LogicsCodexWorkflowController", () => {
   const roots: string[] = [];

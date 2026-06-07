@@ -10,7 +10,7 @@
 coverage/**
 .coverage
 .coverage.*
-src/**
+clients/vscode/src/**
 tests/**
 debug/**
 .github/**
@@ -26,4 +26,4 @@ scripts/**
 !scripts/logics-manager.py
 changelogs/**
 !dist/**
-!media/**
+!clients/shared-web/media/**

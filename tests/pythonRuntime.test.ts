@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildMissingPythonMessage, getPythonCommandCandidates, isMissingPythonFailureDetail } from "../src/pythonRuntime";
+import { buildMissingPythonMessage, getPythonCommandCandidates, isMissingPythonFailureDetail } from "../clients/vscode/src/pythonRuntime";
 
 describe("pythonRuntime", () => {
   it("includes Windows launcher fallbacks", () => {

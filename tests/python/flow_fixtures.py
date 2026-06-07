@@ -50,7 +50,7 @@ def write_ac_traceability_chain(repo_root: Path) -> dict[str, Path]:
                 "# Definition of Done (DoD)",
                 "- [x] Validation passes.",
                 "# Validation",
-                "- command: `pytest python_tests -q` | result: passed | date: 2026-06-07",
+                "- command: `pytest tests/python -q` | result: passed | date: 2026-06-07",
                 "# Links",
                 "- Request: `req_001_demo`",
             ]

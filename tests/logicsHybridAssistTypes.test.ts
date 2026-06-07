@@ -14,7 +14,7 @@ import {
   parseHybridTriageResult,
   parseHybridValidationChecklistResult,
   parseHybridValidationSummaryResult
-} from "../src/logicsHybridAssistTypes";
+} from "../clients/vscode/src/logicsHybridAssistTypes";
 
 describe("logicsHybridAssistTypes", () => {
   it("parses only record payloads", () => {

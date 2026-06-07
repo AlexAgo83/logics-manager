@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getPythonCommandCandidates } from "../src/pythonRuntime";
+import { getPythonCommandCandidates } from "../clients/vscode/src/pythonRuntime";
 
 const execFileMock = vi.hoisted(() => vi.fn());
 
@@ -20,7 +20,7 @@ describe("pythonRuntime behavior", () => {
       cb(new Error(`${command} not found`), "", `${command} not found`);
     });
 
-    const runtime = await import("../src/pythonRuntime");
+    const runtime = await import("../clients/vscode/src/pythonRuntime");
     const result = await runtime.runPythonCommand("/workspace", "scripts/logics.py", ["flow"]);
 
     expect(result.error?.message).toContain("Python 3.10+ interpreter not found");
@@ -49,7 +49,7 @@ describe("pythonRuntime behavior", () => {
       cb(null, "ok\n", "");
     });
 
-    const runtime = await import("../src/pythonRuntime");
+    const runtime = await import("../clients/vscode/src/pythonRuntime");
     const result = await runtime.runPythonCommand("/workspace", "scripts/logics.py", ["flow"]);
 
     expect(result.stdout).toBe("ok\n");
@@ -101,7 +101,7 @@ describe("pythonRuntime behavior", () => {
       }
     });
 
-    const runtime = await import("../src/pythonRuntime");
+    const runtime = await import("../clients/vscode/src/pythonRuntime");
     const result = await runtime.runPythonCommand("/workspace", "scripts/logics.py", ["flow"]);
 
     expect(result.stdout).toBe("ok\n");

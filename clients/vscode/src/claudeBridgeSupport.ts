@@ -123,5 +123,9 @@ function toPosixRelative(root: string, targetPath: string): string {
 }
 
 function getBundledLogicsManagerScriptPath(): string {
-  return path.join(__dirname, "..", "scripts", "logics-manager.py");
+  const candidates = [
+    path.join(__dirname, "..", "scripts", "logics-manager.py"),
+    path.join(__dirname, "..", "..", "..", "scripts", "logics-manager.py")
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0];
 }

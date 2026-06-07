@@ -38,7 +38,7 @@
       return window.confirm(`Mark ${itemLabel} as done?`);
     }
 
-    return {
+    const api = {
       post,
       ready() {
         post({ type: "ready" });
@@ -205,5 +205,9 @@
         post({ type: mode, id: item.id });
       }
     };
+    if (typeof window.assertCdxLogicsHostApiContract === "function") {
+      window.assertCdxLogicsHostApiContract(api);
+    }
+    return api;
   };
 })();

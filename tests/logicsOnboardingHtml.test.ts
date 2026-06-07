@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("vscode", () => ({}));
 
-import { buildOnboardingHtml } from "../src/logicsOnboardingHtml";
+import { buildOnboardingHtml } from "../clients/vscode/src/logicsOnboardingHtml";
 
 describe("buildOnboardingHtml", () => {
   it("renders prompt examples for each onboarding stage", () => {

@@ -27,35 +27,35 @@ vi.mock("vscode", () => ({
   ProgressLocation: { Notification: 15 }
 }));
 
-vi.mock("../src/logicsProviderUtils", () => ({
+vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
   getBundledLogicsManagerScriptPath: mocks.getBundledLogicsManagerScriptPath,
   runPythonWithOutput: mocks.runPythonWithOutput
 }));
 
-vi.mock("../src/releasePublishSupport", () => ({
+vi.mock("../clients/vscode/src/releasePublishSupport", () => ({
   inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
 }));
 
-vi.mock("../src/gitRuntime", () => ({
+vi.mock("../clients/vscode/src/gitRuntime", () => ({
   runGitCommand: mocks.runGitCommand
 }));
 
-vi.mock("../src/logicsIndexer", () => ({
+vi.mock("../clients/vscode/src/logicsIndexer", () => ({
   canPromote: vi.fn(),
   indexLogics: vi.fn(() => []),
   isRequestProcessed: vi.fn()
 }));
 
-vi.mock("../src/logicsHybridInsightsHtml", () => ({
+vi.mock("../clients/vscode/src/logicsHybridInsightsHtml", () => ({
   buildHybridInsightsHtml: vi.fn(() => "<html></html>")
 }));
 
-vi.mock("../src/logicsViewMessages", () => ({
+vi.mock("../clients/vscode/src/logicsViewMessages", () => ({
   assertNever: vi.fn(),
   parseHybridInsightsPanelMessage: vi.fn()
 }));
 
-import { LogicsHybridAssistController } from "../src/logicsHybridAssistController";
+import { LogicsHybridAssistController } from "../clients/vscode/src/logicsHybridAssistController";
 
 function makeController(root: string) {
   return new LogicsHybridAssistController({

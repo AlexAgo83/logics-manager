@@ -219,21 +219,22 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
   });
 
   const mediaFiles = [
-    "media/logicsModel.js",
-    "media/uiStatus.js",
-    "media/harnessApi.js",
-    "media/layoutController.js",
-    "media/hostApi.js",
-    "media/webviewSelectors.js",
-    "media/webviewPersistence.js",
-    "media/webviewChrome.js",
-    "media/renderBoardApp.js",
-    "media/renderDetails.js",
-    "media/renderMarkdown.js",
-    "media/mainCore.js",
-    "media/mainInteractionHandlers.js",
-    "media/mainInteractions.js",
-    "media/mainApp.js"
+    "clients/shared-web/media/logicsModel.js",
+    "clients/shared-web/media/uiStatus.js",
+    "clients/shared-web/media/harnessApi.js",
+    "clients/shared-web/media/layoutController.js",
+    "clients/shared-web/media/hostApiContract.js",
+    "clients/shared-web/media/hostApi.js",
+    "clients/shared-web/media/webviewSelectors.js",
+    "clients/shared-web/media/webviewPersistence.js",
+    "clients/shared-web/media/webviewChrome.js",
+    "clients/shared-web/media/renderBoardApp.js",
+    "clients/shared-web/media/renderDetails.js",
+    "clients/shared-web/media/renderMarkdown.js",
+    "clients/shared-web/media/mainCore.js",
+    "clients/shared-web/media/mainInteractionHandlers.js",
+    "clients/shared-web/media/mainInteractions.js",
+    "clients/shared-web/media/mainApp.js"
   ];
   for (const relPath of mediaFiles) {
     loadMediaScript(dom, relPath);
@@ -294,7 +295,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("contains CSS rules for split-disabled and collapsed action anchoring", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const bodyRule = getCssRule(css, "body");
     const layoutRules = getCssRules(css, ".layout");
     const layoutRule = layoutRules.find((rule) => rule.includes("flex: 1 1 0;")) || "";
@@ -368,7 +369,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("allows long detail titles and ids to wrap without ellipsis overflow", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const headerTitleRule = css.match(/\.details__header-title\s*\{[^}]+\}/)?.[0] || "";
     const nameValueRule = css.match(/\.details__name-value\s*\{[^}]+\}/)?.[0] || "";
 
@@ -380,7 +381,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("keeps board columns and cards from widening on long supporting-doc text", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const boardRules = css.match(/\.board\s*\{[^}]+\}/g) || [];
     const boardRule = boardRules.find((rule) => rule.includes("overflow-x: auto;")) || "";
     const hiddenBoardRule = getCssRule(css, ".board[hidden]");
@@ -402,7 +403,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("keeps the primary header actions on one line until the narrow breakpoint", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const primaryRowRule = getCssRule(css, ".toolbar__row--primary");
     const buttonsRules = getCssRules(css, ".toolbar__buttons");
     const buttonsRule = buttonsRules.find((rule) => rule.includes("white-space: nowrap;")) || "";
@@ -415,7 +416,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("allows activity entries to wrap long titles and ids without clipping", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const entryRule = getCssRule(css, ".activity-panel__entry");
     const titleRule = getCssRule(css, ".activity-panel__title");
     const metaRule = getCssRule(css, ".activity-panel__meta");
@@ -430,7 +431,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("keeps detail indicators in a stable two-column grid for long labels and values", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const indicatorRule = css.match(/\.details__reference,\s*\.details__indicator\s*\{[^}]+\}/)?.[0] || "";
     const indicatorLabelRule = css.match(/\.details__indicator-label,\s*\.details__reference > div\s*\{[^}]+\}/)?.[0] || "";
     const indicatorValueRule =
@@ -454,7 +455,7 @@ describe("webview collapsed details layout behavior", () => {
   });
 
   it("keeps card badge strips on one row with horizontal overflow instead of wrapping", () => {
-    const css = readCssBundle("media/main.css");
+    const css = readCssBundle("clients/shared-web/media/main.css");
     const badgesRule = css.match(/\.card__badges\s*\{[^}]+\}/)?.[0] || "";
     const stripRule = css.match(/\.card__badges--strip\s*\{[^}]+\}/)?.[0] || "";
     const badgeRule = css.match(/\.card__badge\s*\{[^}]+\}/)?.[0] || "";

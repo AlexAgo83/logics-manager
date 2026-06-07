@@ -24,7 +24,7 @@ const steps = [
   {
     label: "Logics manager CLI tests",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "-m", "pytest", "python_tests/test_logics_manager_cli.py", "-q"]
+    args: [...pythonInvocation.argsPrefix, "-m", "pytest", "tests/python/test_logics_manager_cli.py", "-q"]
   },
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },

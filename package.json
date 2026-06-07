@@ -4,7 +4,7 @@
   "description": "Visual orchestration for Logics workflows inside VS Code.",
   "version": "2.2.0",
   "publisher": "cdx-logics",
-  "icon": "media/icon.png",
+  "icon": "clients/shared-web/media/icon.png",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AlexAgo83/logics-manager.git"
@@ -38,7 +38,7 @@
         {
           "id": "logics",
           "title": "Logics",
-          "icon": "media/logics.svg"
+          "icon": "clients/shared-web/media/logics.svg"
         }
       ]
     },
@@ -47,7 +47,7 @@
         {
           "id": "logics.orchestrator",
           "name": "Orchestrator",
-          "icon": "media/logics.svg",
+          "icon": "clients/shared-web/media/logics.svg",
           "type": "webview"
         }
       ]
@@ -127,7 +127,7 @@
     "test:watch": "vitest",
     "lint": "npm run lint:ts && npm run lint:es",
     "lint:ts": "tsc -p ./ --noEmit",
-    "lint:es": "eslint src/**/*.ts",
+    "lint:es": "eslint clients/vscode/src/**/*.ts",
     "lint:logics": "node scripts/run-python.mjs -m logics_manager lint",
     "audit:logics": "node scripts/run-python.mjs -m logics_manager audit && node scripts/run-python.mjs -m logics_manager lint",
     "audit:logics:strict": "node scripts/run-python.mjs -m logics_manager audit --governance-profile strict && node scripts/run-python.mjs -m logics_manager lint --require-status",

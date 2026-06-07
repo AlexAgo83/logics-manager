@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseHybridInsightsPanelMessage, parseLogicsWebviewMessage } from "../src/logicsViewMessages";
+import { parseHybridInsightsPanelMessage, parseLogicsWebviewMessage } from "../clients/vscode/src/logicsViewMessages";
 
 describe("logicsViewMessages", () => {
   it("parses command and prompt messages with their payloads", () => {

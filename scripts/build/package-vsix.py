@@ -60,7 +60,7 @@ def build_vsix_manifest(package_json: dict[str, object]) -> str:
     <Identity Id="{escape(EXTENSION_ID)}" Version="{escape(version)}" Language="en-US" Publisher="{escape(publisher)}" />
     <DisplayName>{display_name}</DisplayName>
     <Description>{description}</Description>
-    <Icon>extension/media/icon.png</Icon>
+    <Icon>extension/clients/shared-web/media/icon.png</Icon>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Code" Version="[{installation_version},)" />
@@ -70,7 +70,7 @@ def build_vsix_manifest(package_json: dict[str, object]) -> str:
     <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
     <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/README.md" Addressable="true" />
     <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE" Addressable="true" />
-    <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/media/icon.png" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/clients/shared-web/media/icon.png" Addressable="true" />
   </Assets>
 </PackageManifest>
 """
@@ -93,7 +93,7 @@ def build_vsix(output_path: Path) -> None:
             if optional_path.exists():
                 add_file(archive, optional_path, f"{EXTENSION_ROOT}/{optional_name}")
         add_directory(archive, ROOT / "dist", f"{EXTENSION_ROOT}/dist")
-        add_directory(archive, ROOT / "media", f"{EXTENSION_ROOT}/media")
+        add_directory(archive, ROOT / "clients" / "shared-web" / "media", f"{EXTENSION_ROOT}/clients/shared-web/media")
         add_directory(archive, ROOT / "logics_manager", f"{EXTENSION_ROOT}/logics_manager")
         add_file(archive, ROOT / "scripts" / "logics-manager.py", f"{EXTENSION_ROOT}/scripts/logics-manager.py")
 

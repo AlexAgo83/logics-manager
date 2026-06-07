@@ -11,19 +11,19 @@ vi.mock("child_process", () => ({
   execFile: mocks.execFile
 }));
 
-vi.mock("../src/logicsCodexWorkspace", () => ({
+vi.mock("../clients/vscode/src/logicsCodexWorkspace", () => ({
   inspectCodexWorkspaceOverlay: mocks.inspectCodexWorkspaceOverlay
 }));
 
-vi.mock("../src/logicsClaudeGlobalKit", () => ({
+vi.mock("../clients/vscode/src/logicsClaudeGlobalKit", () => ({
   inspectClaudeGlobalKit: mocks.inspectClaudeGlobalKit
 }));
 
-vi.mock("../src/logicsEnvironment", () => ({
+vi.mock("../clients/vscode/src/logicsEnvironment", () => ({
   detectClaudeBridgeStatus: mocks.detectClaudeBridgeStatus
 }));
 
-import { inspectRuntimeLaunchers } from "../src/runtimeLaunchers";
+import { inspectRuntimeLaunchers } from "../clients/vscode/src/runtimeLaunchers";
 
 describe("inspectRuntimeLaunchers", () => {
   beforeEach(() => {

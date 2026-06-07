@@ -65,11 +65,11 @@ vi.mock("vscode", () => ({
   })
 }));
 
-vi.mock("../src/gitRuntime", () => ({
+vi.mock("../clients/vscode/src/gitRuntime", () => ({
   configureGitPathSettingReader: mocks.configureGitPathSettingReader
 }));
 
-vi.mock("../src/logicsViewProvider", () => ({
+vi.mock("../clients/vscode/src/logicsViewProvider", () => ({
   LogicsViewProvider: MockLogicsViewProvider
 }));
 
@@ -152,7 +152,7 @@ describe("extension.activate", () => {
   });
 
   it("registers the provider, commands, and debounced watchers", async () => {
-    const { activate } = await import("../src/extension");
+    const { activate } = await import("../clients/vscode/src/extension");
     const context = { subscriptions: [] } as never;
 
     activate(context);
@@ -195,7 +195,7 @@ describe("extension.activate", () => {
       get: vi.fn(() => ["C:\\Tools\\Git\\bin\\git.exe", "C:\\Tools\\Git\\cmd\\git.exe"])
     });
 
-    const { activate } = await import("../src/extension");
+    const { activate } = await import("../clients/vscode/src/extension");
     const context = { subscriptions: [] } as never;
 
     activate(context);
@@ -213,7 +213,7 @@ describe("extension.activate", () => {
       get: vi.fn(() => ["C:\\Tools\\Git\\bin\\git.exe", 42])
     });
 
-    const { activate } = await import("../src/extension");
+    const { activate } = await import("../clients/vscode/src/extension");
     const context = { subscriptions: [] } as never;
 
     activate(context);
@@ -225,7 +225,7 @@ describe("extension.activate", () => {
   });
 
   it("rebuilds watchers when workspace folders change", async () => {
-    const { activate } = await import("../src/extension");
+    const { activate } = await import("../clients/vscode/src/extension");
     const context = { subscriptions: [] } as never;
 
     activate(context);
@@ -238,7 +238,7 @@ describe("extension.activate", () => {
   });
 
   it("clears an existing refresh timer when watcher changes happen back-to-back", async () => {
-    const { activate } = await import("../src/extension");
+    const { activate } = await import("../clients/vscode/src/extension");
     const context = { subscriptions: [] } as never;
 
     activate(context);

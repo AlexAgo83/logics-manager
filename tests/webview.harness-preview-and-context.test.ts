@@ -161,7 +161,7 @@ describe("webview harness preview, context, and handoff behaviors", () => {
     pushData(dom, {
       root: "/workspace/mock",
       selectedId: item.id,
-      changedPaths: ["src/logicsViewProvider.ts", "media/renderDetails.js"],
+      changedPaths: ["clients/vscode/src/logicsViewProvider.ts", "clients/shared-web/media/renderDetails.js"],
       items: [item]
     });
 

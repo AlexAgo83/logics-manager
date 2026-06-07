@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { afterEach, describe, expect, it } from "vitest";
-import { extractExplicitAgentInvocation, loadAgentRegistry } from "../src/agentRegistry";
+import { extractExplicitAgentInvocation, loadAgentRegistry } from "../clients/vscode/src/agentRegistry";
 
 const tempRoots: string[] = [];
 

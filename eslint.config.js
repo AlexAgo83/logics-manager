@@ -6,7 +6,7 @@ module.exports = [
     ignores: ["dist/**", "coverage/**"]
   },
   {
-    files: ["src/**/*.ts"],
+    files: ["clients/vscode/src/**/*.ts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

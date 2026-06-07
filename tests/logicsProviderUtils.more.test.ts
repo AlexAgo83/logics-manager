@@ -21,20 +21,20 @@ vi.mock("vscode", () => ({
   env: {}
 }));
 
-vi.mock("../src/logicsIndexer", () => ({
+vi.mock("../clients/vscode/src/logicsIndexer", () => ({
   getManagedDocDirectories: mocks.getManagedDocDirectories
 }));
 
-vi.mock("../src/gitRuntime", () => ({
+vi.mock("../clients/vscode/src/gitRuntime", () => ({
   runGitCommand: mocks.runGitCommand
 }));
 
-vi.mock("../src/pythonRuntime", () => ({
+vi.mock("../clients/vscode/src/pythonRuntime", () => ({
   runPythonCommand: mocks.runPythonCommand
 }));
 
-vi.mock("../src/logicsDocMaintenance", async () => {
-  const actual = await vi.importActual<typeof import("../src/logicsDocMaintenance")>("../src/logicsDocMaintenance");
+vi.mock("../clients/vscode/src/logicsDocMaintenance", async () => {
+  const actual = await vi.importActual<typeof import("../clients/vscode/src/logicsDocMaintenance")>("../clients/vscode/src/logicsDocMaintenance");
   return actual;
 });
 
@@ -53,7 +53,7 @@ import {
   runPythonWithOutput,
   updateMainHeadingId,
   updateManagedReferencesForRename
-} from "../src/logicsProviderUtils";
+} from "../clients/vscode/src/logicsProviderUtils";
 
 describe("logicsProviderUtils extra coverage", () => {
   const roots: string[] = [];

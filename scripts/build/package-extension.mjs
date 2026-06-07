@@ -18,7 +18,7 @@ async function ensureVendorArtifacts() {
 }
 
 const buildOptions = {
-  entryPoints: [path.join(root, "src", "extension.ts")],
+  entryPoints: [path.join(root, "clients", "vscode", "src", "extension.ts")],
   outfile: path.join(distDir, "extension.js"),
   bundle: true,
   platform: "node",

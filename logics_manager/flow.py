@@ -1419,7 +1419,7 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
     references = [
         "`logics_manager/flow.py`",
         "`logics_manager/assist.py`",
-        "`python_tests/test_logics_manager_cli.py`",
+        "`tests/python/test_logics_manager_cli.py`",
     ]
     content = "\n".join(
         [

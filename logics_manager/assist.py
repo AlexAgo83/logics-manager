@@ -727,7 +727,7 @@ def _render_diff_risk_text(payload: dict[str, object]) -> str:
 def _summarize_commit_scope(changed_paths: list[str]) -> tuple[str, str]:
     if not changed_paths:
         return "root", "No changes detected; nothing to commit."
-    if any(path.startswith("src/") for path in changed_paths):
+    if any(path.startswith("clients/vscode/src/") or path.startswith("clients/shared-web/media/") for path in changed_paths):
         return "plugin", "Plugin surface changes detected."
     if any(path.startswith("logics_manager/") for path in changed_paths):
         return "python-runtime", "Native Logics manager changes detected."
@@ -772,17 +772,17 @@ def _build_commit_plan(changed_paths: list[str]) -> dict[str, object]:
 def _build_validation_checklist(changed_paths: list[str]) -> dict[str, object]:
     surface = _build_changed_surface_summary(changed_paths)
     checks: list[str] = [
-        "Run `python3 -m pytest python_tests/test_logics_manager_cli.py -q`.",
+        "Run `python3 -m pytest tests/python/test_logics_manager_cli.py -q`.",
         "Run `python3 -m compileall logics_manager`.",
         "Run `npm run lint:logics`.",
     ]
-    if any(path.startswith("src/") for path in changed_paths):
+    if any(path.startswith("clients/vscode/src/") or path.startswith("clients/shared-web/media/") for path in changed_paths):
         checks.append("Run the plugin test suite that exercises the VS Code entrypoints.")
     if any(path.startswith("logics_manager/") for path in changed_paths):
         checks.append("Smoke-test `python3 -m logics_manager --help` and the affected native subcommands.")
     if any(path.startswith("logics/") for path in changed_paths):
         checks.append("Run `python3 -m logics_manager lint --require-status` and inspect the workflow docs manually.")
-    if any(path.startswith("tests/") or path.startswith("python_tests/") for path in changed_paths):
+    if any(path.startswith("tests/") or path.startswith("tests/python/") for path in changed_paths):
         checks.append("Run the focused affected tests before broad regression sweeps.")
     if not changed_paths:
         checks.append("No validation needed beyond a clean smoke check; there are no tracked changes.")
@@ -798,15 +798,15 @@ def _build_test_impact_summary(changed_paths: list[str]) -> dict[str, object]:
     categories = _build_changed_surface_summary(changed_paths)["counts"]
     recommended: list[str] = []
     if "python-runtime" in categories:
-        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+        recommended.append("python3 -m pytest tests/python/test_logics_manager_cli.py -q")
     if "plugin" in categories:
         recommended.append("npm run lint")
     if "workflow-docs" in categories:
         recommended.append("npm run lint:logics")
     if "tests" in categories:
-        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+        recommended.append("python3 -m pytest tests/python/test_logics_manager_cli.py -q")
     if not recommended:
-        recommended.append("python3 -m pytest python_tests/test_logics_manager_cli.py -q")
+        recommended.append("python3 -m pytest tests/python/test_logics_manager_cli.py -q")
     return {
         "summary": "Recommended test order derived from the current change surface.",
         "categories": categories,

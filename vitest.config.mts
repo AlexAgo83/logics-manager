@@ -1,10 +1,10 @@
 const coverageTarget = process.env.CDX_PLUGIN_COVERAGE_TARGET ?? "combined";
 const coverageInclude =
   coverageTarget === "src"
-    ? ["src/**/*.ts"]
+    ? ["clients/vscode/src/**/*.ts"]
     : coverageTarget === "media"
-      ? ["media/**/*.js"]
-      : ["src/**/*.ts", "media/**/*.js"];
+      ? ["clients/shared-web/media/**/*.js"]
+      : ["clients/vscode/src/**/*.ts", "clients/shared-web/media/**/*.js"];
 const coverageReportsDirectory =
   coverageTarget === "src"
     ? "coverage/plugin-src"

@@ -13,7 +13,7 @@ import {
   getGitCommandCandidates,
   isMissingGitFailureDetail,
   runGitCommand
-} from "../src/gitRuntime";
+} from "../clients/vscode/src/gitRuntime";
 
 describe("gitRuntime", () => {
   afterEach(() => {

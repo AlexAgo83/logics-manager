@@ -18,7 +18,7 @@ export function packageVsix(outputPath) {
         "README.md",
         "LICENSE",
         "dist/**",
-        "media/**",
+        "clients/shared-web/media/**",
         "logics_manager/**",
         "scripts/logics-manager.py",
       ],
@@ -41,7 +41,10 @@ export function packageVsix(outputPath) {
     }
 
     copyTree(path.join(root, "dist"), path.join(stageDir, "dist"));
-    copyTree(path.join(root, "media"), path.join(stageDir, "media"));
+    copyTree(
+      path.join(root, "clients", "shared-web", "media"),
+      path.join(stageDir, "clients", "shared-web", "media"),
+    );
     copyTree(path.join(root, "logics_manager"), path.join(stageDir, "logics_manager"));
     fs.mkdirSync(path.join(stageDir, "scripts"), { recursive: true });
     fs.copyFileSync(

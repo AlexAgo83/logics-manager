@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { buildRepoKitSource, existsOrSymlink, inspectPublicationLifecycle, publishSkill } from "../src/logicsGlobalKitLifecycle";
+import { buildRepoKitSource, existsOrSymlink, inspectPublicationLifecycle, publishSkill } from "../clients/vscode/src/logicsGlobalKitLifecycle";
 
 vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs")>();

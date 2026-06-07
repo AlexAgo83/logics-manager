@@ -8,7 +8,7 @@ import {
   parseRenameTarget,
   replaceManagedReferenceTokens,
   validateRenameSuffix
-} from "../src/logicsDocMaintenance";
+} from "../clients/vscode/src/logicsDocMaintenance";
 
 const tempRoots: string[] = [];
 

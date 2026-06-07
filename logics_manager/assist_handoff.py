@@ -117,8 +117,8 @@ def build_handoff(repo_root: Path, since: str) -> dict[str, object]:
         "Review changed files before committing or handing off.",
     ]
     if any(path.startswith("logics_manager/") for path in changed_paths):
-        next_actions.append("Run `PYTHONPATH=\"$PWD\" pytest python_tests -q` for Python CLI changes.")
-    if any(path.startswith("src/") for path in changed_paths):
+        next_actions.append("Run `PYTHONPATH=\"$PWD\" pytest tests/python -q` for Python CLI changes.")
+    if any(path.startswith("clients/vscode/src/") or path.startswith("clients/shared-web/media/") for path in changed_paths):
         next_actions.append("Run the TypeScript/vitest checks for extension changes.")
     return {
         "since": since,

@@ -16,7 +16,7 @@ import {
   parseProgress,
   promotionCommand,
   STAGE_ORDER
-} from "../src/logicsIndexer";
+} from "../clients/vscode/src/logicsIndexer";
 
 const tempRoots: string[] = [];
 
@@ -85,7 +85,7 @@ describe("logicsIndexer", () => {
         "# Context",
         "Derived from `logics/backlog/item_000_feature.md`",
         "# References",
-        "- `src/extension.ts`"
+        "- `clients/vscode/src/extension.ts`"
       ].join("\n")
     );
     write(
@@ -144,7 +144,7 @@ describe("logicsIndexer", () => {
         "## item_002_legacy_links - Legacy Links",
         "# Notes",
         "- References:",
-        "  - `src/extension.ts`",
+        "  - `clients/vscode/src/extension.ts`",
         "  - `logics/request/req_002_docs.md`",
         "- Used by:",
         "  - `logics/tasks/task_020_followup.md`"
@@ -154,7 +154,7 @@ describe("logicsIndexer", () => {
     const items = indexLogics(root);
     const backlog = items.find((item) => item.id === "item_002_legacy_links");
     expect(backlog).toBeDefined();
-    expect(backlog?.references.some((ref) => ref.kind === "manual" && ref.path === "src/extension.ts")).toBe(true);
+    expect(backlog?.references.some((ref) => ref.kind === "manual" && ref.path === "clients/vscode/src/extension.ts")).toBe(true);
     expect(backlog?.references.some((ref) => ref.kind === "manual" && ref.path.includes("req_002_docs"))).toBe(true);
     expect(backlog?.usedBy.some((usage) => usage.id === "task_020_followup")).toBe(true);
   });

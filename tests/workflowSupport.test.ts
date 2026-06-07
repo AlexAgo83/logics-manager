@@ -5,7 +5,7 @@ import {
   isBootstrapScopedPath,
   parseGitStatusEntries,
   renderMarkdownToHtml
-} from "../src/workflowSupport";
+} from "../clients/vscode/src/workflowSupport";
 
 describe("workflowSupport", () => {
   it("renders headings, lists, and Mermaid fences into preview html", () => {

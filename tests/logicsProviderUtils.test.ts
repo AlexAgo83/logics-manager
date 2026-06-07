@@ -26,7 +26,7 @@ import {
   hasMultipleWorkspaceFolders,
   normalizeRelationPath,
   updateIndicatorsOnDisk
-} from "../src/logicsProviderUtils";
+} from "../clients/vscode/src/logicsProviderUtils";
 import { createTempRootTracker } from "./helpers/tempRootTracker";
 
 describe("inspectLogicsBootstrapState", () => {

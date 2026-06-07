@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { discoverKitSkills, inspectClaudeGlobalKit, publishClaudeGlobalKit } from "../src/logicsClaudeGlobalKit";
+import { discoverKitSkills, inspectClaudeGlobalKit, publishClaudeGlobalKit } from "../clients/vscode/src/logicsClaudeGlobalKit";
 
 describe("Claude global runtime", () => {
   const roots: string[] = [];

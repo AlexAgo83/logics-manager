@@ -278,22 +278,23 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   });
 
   const mediaFiles = [
-    "media/logicsModel.js",
-    "media/uiStatus.js",
-    "media/harnessApi.js",
-    "media/layoutController.js",
-    "media/hostApi.js",
-    "media/toolsPanelLayout.js",
-    "media/webviewSelectors.js",
-    "media/webviewPersistence.js",
-    "media/webviewChrome.js",
-    "media/renderBoardApp.js",
-    "media/renderDetails.js",
-    "media/renderMarkdown.js",
-    "media/mainCore.js",
-    "media/mainInteractionHandlers.js",
-    "media/mainInteractions.js",
-    "media/mainApp.js"
+    "clients/shared-web/media/logicsModel.js",
+    "clients/shared-web/media/uiStatus.js",
+    "clients/shared-web/media/harnessApi.js",
+    "clients/shared-web/media/layoutController.js",
+    "clients/shared-web/media/hostApiContract.js",
+    "clients/shared-web/media/hostApi.js",
+    "clients/shared-web/media/toolsPanelLayout.js",
+    "clients/shared-web/media/webviewSelectors.js",
+    "clients/shared-web/media/webviewPersistence.js",
+    "clients/shared-web/media/webviewChrome.js",
+    "clients/shared-web/media/renderBoardApp.js",
+    "clients/shared-web/media/renderDetails.js",
+    "clients/shared-web/media/renderMarkdown.js",
+    "clients/shared-web/media/mainCore.js",
+    "clients/shared-web/media/mainInteractionHandlers.js",
+    "clients/shared-web/media/mainInteractions.js",
+    "clients/shared-web/media/mainApp.js"
   ];
   for (const relPath of mediaFiles) {
     loadMediaScript(dom, relPath);

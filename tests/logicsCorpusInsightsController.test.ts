@@ -25,11 +25,11 @@ vi.mock("vscode", () => ({
   }
 }));
 
-vi.mock("../src/logicsCorpusInsightsHtml", () => ({
+vi.mock("../clients/vscode/src/logicsCorpusInsightsHtml", () => ({
   buildLogicsCorpusInsightsHtml: mocks.buildHtml
 }));
 
-import { LogicsCorpusInsightsController } from "../src/logicsCorpusInsightsController";
+import { LogicsCorpusInsightsController } from "../clients/vscode/src/logicsCorpusInsightsController";
 
 describe("LogicsCorpusInsightsController", () => {
   afterEach(() => {

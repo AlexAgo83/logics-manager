@@ -55,7 +55,7 @@ import {
   buildMissingEnvLocalQuickPickItem,
   ensureLogicsCacheDir,
   getRepositoryEnvFiles
-} from "../src/logicsViewProviderSupport";
+} from "../clients/vscode/src/logicsViewProviderSupport";
 
 vi.mock("vscode", () => ({
   Uri: {

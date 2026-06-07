@@ -7,13 +7,13 @@ def build_changed_surface_summary(changed_paths: list[str]) -> dict[str, object]
     category_counter: Counter[str] = Counter()
     for path in changed_paths:
         normalized = path.replace("\\", "/")
-        if normalized.startswith("src/"):
+        if normalized.startswith("clients/vscode/src/") or normalized.startswith("clients/shared-web/media/"):
             category_counter["plugin"] += 1
         elif normalized.startswith("logics_manager/"):
             category_counter["python-runtime"] += 1
         elif normalized.startswith("logics/"):
             category_counter["workflow-docs"] += 1
-        elif normalized.startswith("tests/") or "/tests/" in normalized or normalized.startswith("python_tests/"):
+        elif normalized.startswith("tests/") or "/tests/" in normalized or normalized.startswith("tests/python/"):
             category_counter["tests"] += 1
         elif normalized.endswith(".md"):
             category_counter["docs"] += 1

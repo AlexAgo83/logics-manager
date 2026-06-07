@@ -99,23 +99,26 @@ function systemIcon() {
 }
 
 export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode.Webview): string {
-  const modelScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "logicsModel.js"));
-  const uiStatusScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "uiStatus.js"));
-  const harnessApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "harnessApi.js"));
-  const layoutControllerScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "layoutController.js"));
-  const hostApiScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "hostApi.js"));
-  const toolsPanelLayoutScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "toolsPanelLayout.js"));
-  const webviewSelectorsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewSelectors.js"));
-  const webviewPersistenceScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewPersistence.js"));
-  const webviewChromeScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webviewChrome.js"));
-  const renderBoardScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderBoardApp.js"));
-  const renderDetailsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderDetails.js"));
-  const renderMarkdownScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "renderMarkdown.js"));
-  const mainCoreScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainCore.js"));
-  const mainInteractionHandlersScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractionHandlers.js"));
-  const mainInteractionsScriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainInteractions.js"));
-  const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "mainApp.js"));
-  const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "main.css"));
+  const mediaUri = (...segments: string[]) =>
+    webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "clients", "shared-web", "media", ...segments));
+  const modelScriptUri = mediaUri("logicsModel.js");
+  const uiStatusScriptUri = mediaUri("uiStatus.js");
+  const harnessApiScriptUri = mediaUri("harnessApi.js");
+  const layoutControllerScriptUri = mediaUri("layoutController.js");
+  const hostApiContractScriptUri = mediaUri("hostApiContract.js");
+  const hostApiScriptUri = mediaUri("hostApi.js");
+  const toolsPanelLayoutScriptUri = mediaUri("toolsPanelLayout.js");
+  const webviewSelectorsScriptUri = mediaUri("webviewSelectors.js");
+  const webviewPersistenceScriptUri = mediaUri("webviewPersistence.js");
+  const webviewChromeScriptUri = mediaUri("webviewChrome.js");
+  const renderBoardScriptUri = mediaUri("renderBoardApp.js");
+  const renderDetailsScriptUri = mediaUri("renderDetails.js");
+  const renderMarkdownScriptUri = mediaUri("renderMarkdown.js");
+  const mainCoreScriptUri = mediaUri("mainCore.js");
+  const mainInteractionHandlersScriptUri = mediaUri("mainInteractionHandlers.js");
+  const mainInteractionsScriptUri = mediaUri("mainInteractions.js");
+  const scriptUri = mediaUri("mainApp.js");
+  const styleUri = mediaUri("main.css");
   const nonce = getNonce();
 
   return `<!DOCTYPE html>
@@ -374,6 +377,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   <script nonce="${nonce}" src="${uiStatusScriptUri}"></script>
   <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>
   <script nonce="${nonce}" src="${layoutControllerScriptUri}"></script>
+  <script nonce="${nonce}" src="${hostApiContractScriptUri}"></script>
   <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
   <script nonce="${nonce}" src="${toolsPanelLayoutScriptUri}"></script>
   <script nonce="${nonce}" src="${webviewSelectorsScriptUri}"></script>

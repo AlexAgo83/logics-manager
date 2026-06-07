@@ -1,7 +1,7 @@
 ## req_207_add_local_viewer_favicon_from_existing_app_assets - Add local viewer favicon from existing app assets
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97
 > Confidence: 95
 > Complexity: Low

@@ -1,10 +1,10 @@
 ## task_172_add_local_viewer_favicon_from_existing_app_assets - Add local viewer favicon from existing app assets
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96
 > Confidence: 94
-> Progress: 0
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,9 +16,9 @@
 - Add or update a focused test covering the referenced favicon path and package inclusion.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_371_add_local_viewer_favicon_from_existing_app_assets`
@@ -53,9 +53,14 @@ flowchart TD
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 - Run `python3 -m logics_manager flow finish task task_172_add_local_viewer_favicon_from_existing_app_assets.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Report
 - Planned. No implementation has been applied yet.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_371_add_local_viewer_favicon_from_existing_app_assets`
+- Related request(s): `req_207_add_local_viewer_favicon_from_existing_app_assets`
 
 # AI Context
 - Summary: Implement a local viewer favicon by reusing existing shared media app assets.

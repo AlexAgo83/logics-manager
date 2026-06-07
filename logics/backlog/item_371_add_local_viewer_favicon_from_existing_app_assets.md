@@ -1,10 +1,10 @@
 ## item_371_add_local_viewer_favicon_from_existing_app_assets - Add local viewer favicon from existing app assets
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96
 > Confidence: 94
-> Progress: 0
+> Progress: 100%
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -77,6 +77,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_207_add_local_viewer_favicon_from_existing_app_assets` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_207_add_local_viewer_favicon_from_existing_app_assets.md`.
 - Generated locally by logics-manager.
+- Task `task_172_add_local_viewer_favicon_from_existing_app_assets` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_172_add_local_viewer_favicon_from_existing_app_assets`

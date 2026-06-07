@@ -194,6 +194,16 @@ describe("local viewer browser host", () => {
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
+  it("declares the local viewer favicon from packaged app assets", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html);
+    const pngIcon = dom.window.document.querySelector('link[rel="icon"][type="image/png"]') as HTMLLinkElement | null;
+    const svgIcon = dom.window.document.querySelector('link[rel="alternate icon"][type="image/svg+xml"]') as HTMLLinkElement | null;
+
+    expect(pngIcon?.getAttribute("href")).toBe("/media/icon.png");
+    expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
+  });
+
   it("lets the hidden attribute override the viewer filter grid layout", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");

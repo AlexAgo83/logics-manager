@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -235,7 +236,11 @@ def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 
 
 
 def _slug_command_title(text: str) -> str:
-    cleaned = re.sub(r"\s+", " ", text.strip(" ."))
+    cleaned = re.sub(r"`([^`]+)`", r"\1", text)
+    cleaned = re.sub(r"[*_]+", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned.strip(" .:-"))
+    if len(cleaned) > 96:
+        cleaned = cleaned[:93].rstrip(" ,.;:") + "..."
     return cleaned[:1].upper() + cleaned[1:] if cleaned else "Follow up"
 
 
@@ -281,6 +286,7 @@ def followups_payload(
             if not _is_actionable_followup(text):
                 continue
             title = _slug_command_title(text)
+            quoted_title = shlex.quote(title)
             followups.append(
                 {
                     "source_ref": doc.ref,
@@ -289,7 +295,7 @@ def followups_payload(
                     "line": index,
                     "text": text,
                     "suggested_title": title,
-                    "suggested_command": f'python3 -m logics_manager flow new request --title "{title}"',
+                    "suggested_command": f"python3 -m logics_manager flow new request --title {quoted_title}",
                 }
             )
     return {

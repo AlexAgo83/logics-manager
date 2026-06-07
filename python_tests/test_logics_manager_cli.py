@@ -254,7 +254,27 @@ def test_followups_payload_suggests_request_commands(tmp_path: Path) -> None:
     item = payload["followups"][0]
     assert item["source_ref"] == "prod_001_demo"
     assert item["text"] == "improve workflow search"
-    assert '--title "Improve workflow search"' in item["suggested_command"]
+    assert "--title 'Improve workflow search'" in item["suggested_command"]
+
+
+def test_followups_payload_cleans_suggested_titles(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    long_tail = " while keeping the generated shell command readable and bounded for operators"
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Proposed",
+        body=f"- Follow-up area: review `product-consistency --strict` behavior{long_tail * 2}\n",
+    )
+
+    payload = followups_payload(repo_root)
+    item = payload["followups"][0]
+
+    assert "`" not in item["suggested_title"]
+    assert item["suggested_title"].startswith("Review product-consistency --strict behavior")
+    assert len(item["suggested_title"]) <= 96
+    assert item["suggested_command"].startswith("python3 -m logics_manager flow new request --title ")
 
 
 def test_followups_payload_skips_non_actionable_markers(tmp_path: Path) -> None:

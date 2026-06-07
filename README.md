@@ -137,6 +137,17 @@ JSON-capable operator commands:
 | `logics-manager assist ...` | Build review, validation, context, and runtime summaries. | `--format json` or `--json` on supported subcommands |
 | `logics-manager flow ...` | Create, promote, split, close, finish, and list docs. | `--format json` or `--json` on supported subcommands |
 
+Operator triage flow:
+
+```bash
+logics-manager status --json
+logics-manager health --json
+logics-manager product-consistency --json
+logics-manager followups --source-kind product --json
+```
+
+Use `status` first when you need the next work signal. Use `health` for corpus-level anomalies. Use `product-consistency --strict` in release checks when active product briefs must have valid lineage. Use `followups` for open actionable follow-up areas; add `--include-closed` only when auditing historical docs.
+
 Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow finish` validate their direct inputs before writing. New workflow docs are created with exclusive filesystem writes, so an ID collision fails instead of overwriting an existing file; rerun the command to allocate a fresh ID after reviewing `git status`/`git diff`. They still operate on Markdown files in the working tree rather than through a database or transaction service; if the filesystem fails mid-write, recover with git status/diff and rerun after cleanup.
 
 To update the installed CLI later:

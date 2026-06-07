@@ -19,6 +19,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from python_tests.flow_fixtures import write_ac_traceability_chain
 
 
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
@@ -1807,60 +1808,9 @@ def test_repair_ac_traceability_records_explicit_proof(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo_root = tmp_path / "logics-repo"
-    (repo_root / "logics" / "request").mkdir(parents=True)
-    (repo_root / "logics" / "backlog").mkdir(parents=True)
-    (repo_root / "logics" / "tasks").mkdir(parents=True)
-    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
-    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
-    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
-
-    request_path.write_text(
-        "\n".join(
-            [
-                "## req_001_demo - Demo Request",
-                "> Status: Ready",
-                "# Acceptance criteria",
-                "- AC1: Deliver demo.",
-                "# Backlog",
-                "- `item_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    backlog_path.write_text(
-        "\n".join(
-            [
-                "## item_001_demo - Demo Backlog",
-                "> Status: Ready",
-                "# Links",
-                "- Request: `req_001_demo`",
-                "- Primary task(s): `task_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    task_path.write_text(
-        "\n".join(
-            [
-                "## task_001_demo - Demo Task",
-                "> Status: Ready",
-                "# Plan",
-                "- [x] Do the work.",
-                "# Backlog",
-                "- `item_001_demo`",
-                "# Definition of Done (DoD)",
-                "- [x] Validation passes.",
-                "# Validation",
-                "- command: `pytest python_tests -q` | result: passed | date: 2026-06-07",
-                "# Links",
-                "- Request: `req_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    paths = write_ac_traceability_chain(repo_root)
+    backlog_path = paths["backlog"]
+    task_path = paths["task"]
 
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
 
@@ -1891,60 +1841,9 @@ def test_repair_ac_traceability_verify_rolls_back_without_proof(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     repo_root = tmp_path / "logics-repo"
-    (repo_root / "logics" / "request").mkdir(parents=True)
-    (repo_root / "logics" / "backlog").mkdir(parents=True)
-    (repo_root / "logics" / "tasks").mkdir(parents=True)
-    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
-    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
-    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
-
-    request_path.write_text(
-        "\n".join(
-            [
-                "## req_001_demo - Demo Request",
-                "> Status: Ready",
-                "# Acceptance criteria",
-                "- AC1: Deliver demo.",
-                "# Backlog",
-                "- `item_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    backlog_path.write_text(
-        "\n".join(
-            [
-                "## item_001_demo - Demo Backlog",
-                "> Status: Ready",
-                "# Links",
-                "- Request: `req_001_demo`",
-                "- Primary task(s): `task_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    task_path.write_text(
-        "\n".join(
-            [
-                "## task_001_demo - Demo Task",
-                "> Status: Ready",
-                "# Plan",
-                "- [x] Do the work.",
-                "# Backlog",
-                "- `item_001_demo`",
-                "# Definition of Done (DoD)",
-                "- [x] Validation passes.",
-                "# Validation",
-                "- command: `pytest python_tests -q` | result: passed | date: 2026-06-07",
-                "# Links",
-                "- Request: `req_001_demo`",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    paths = write_ac_traceability_chain(repo_root)
+    backlog_path = paths["backlog"]
+    task_path = paths["task"]
     original_backlog_text = backlog_path.read_text(encoding="utf-8")
     original_task_text = task_path.read_text(encoding="utf-8")
 

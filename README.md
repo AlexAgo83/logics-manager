@@ -107,6 +107,7 @@ logics-manager flow promote backlog-to-task item_001_example
 logics-manager flow finish task task_001_example
 logics-manager sync context-pack req_001_example --format json
 logics-manager view --open
+logics-manager view --focus req_001_example --read --open
 ```
 
 ### Local Browser Viewer
@@ -124,10 +125,28 @@ Useful options:
 ```bash
 logics-manager view --port 0 --open
 logics-manager view --host 127.0.0.1 --port 9876
+logics-manager view --focus req_001_example --open
+logics-manager view --focus logics/tasks/task_001_example.md --read --open
 logics-manager view --no-open
 ```
 
 Use `--port 0` when the default port is already taken. The viewer is intentionally read-only; use the canonical CLI commands such as `flow promote`, `flow finish`, `lint`, and `audit` for workflow mutations.
+
+Focused viewer links can point directly at a corpus item:
+
+```text
+http://127.0.0.1:8765/?focus=logics/request/req_001_example.md
+http://127.0.0.1:8765/?focus=logics/request/req_001_example.md&read=1
+```
+
+If the viewer server is not already running, start it with the equivalent fallback command:
+
+```bash
+logics-manager view --focus logics/request/req_001_example.md --open
+logics-manager view --focus req_001_example --read --open
+```
+
+This is the recommended assistant handoff pattern: provide the local viewer link for an already-running viewer and the CLI fallback command for a stopped server. Focus targets accept workflow refs such as `req_001_example`, `item_001_example`, or `task_001_example`, plus repo-relative Logics Markdown paths. Traversal and non-Logics paths are rejected.
 
 ### CLI Contracts
 

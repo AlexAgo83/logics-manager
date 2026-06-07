@@ -1,9 +1,9 @@
 ## prod_014_cli_mutation_safety_and_automation_contract - CLI mutation safety and automation contract
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_197_mature_cli_product_contracts`
+> Related backlog: `item_361_mature_cli_product_contracts`
+> Related task: `task_162_mature_cli_product_contracts`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -60,8 +60,8 @@ flowchart TD
 - JSON mode can be piped directly to `jq` for representative `flow`, `sync`, `assist`, and `index` commands.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_361_mature_cli_product_contracts`
+- Task back-reference: `task_162_mature_cli_product_contracts`
 - Second audit finding: `flow close` can mutate an external task file before crashing.
 - Second audit finding: `flow promote` accepts external-looking sources and crashes during repo-relative rendering.
 - Second audit finding: several dry-run output paths still crash during repo-relative rendering.

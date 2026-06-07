@@ -1,9 +1,9 @@
 ## prod_013_cli_primary_usage_audit_and_hardening - CLI primary usage audit and hardening
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_197_mature_cli_product_contracts`
+> Related backlog: `item_361_mature_cli_product_contracts`
+> Related task: `task_162_mature_cli_product_contracts`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -61,8 +61,8 @@ flowchart TD
 - The Python and npm CLI tests cover ref resolution, JSON cleanliness, unknown flags, output path confinement, and dry-run side effects.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_361_mature_cli_product_contracts`
+- Task back-reference: `task_162_mature_cli_product_contracts`
 - Audit finding: `flow` help documents ref inputs, but implementation resolves sources as filesystem paths.
 - Audit finding: `index`, `sync`, and `assist` output paths can escape the repository.
 - Audit finding: root-routed native commands use `parse_known_args` and ignore unknown flags.

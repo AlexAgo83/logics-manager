@@ -1,9 +1,9 @@
 ## prod_015_cli_product_maturity_roadmap - CLI product maturity roadmap
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_197_mature_cli_product_contracts`
+> Related backlog: `item_361_mature_cli_product_contracts`
+> Related task: `task_162_mature_cli_product_contracts`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -66,8 +66,8 @@ flowchart TD
 - Concurrent ID allocation has a regression test or a documented limitation with a chosen mitigation.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_361_mature_cli_product_contracts`
+- Task back-reference: `task_162_mature_cli_product_contracts`
 - Builds on `prod_013_cli_primary_usage_audit_and_hardening`.
 - Builds on `prod_014_cli_mutation_safety_and_automation_contract`.
 - Follow-up area: shared CLI renderer and stdout policy.

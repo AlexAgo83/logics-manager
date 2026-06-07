@@ -19,6 +19,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 from .audit import audit_payload
 from .config import find_repo_root
 from .lint import lint_payload
+from .update_check import get_update_info
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,13 @@ VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
 SHARED_MEDIA_ROOT = REPO_ROOT / "clients" / "shared-web" / "media"
 DIST_VENDOR_ROOT = REPO_ROOT / "dist" / "vendor"
 NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"
+
+
+def _current_version() -> str:
+    try:
+        return (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 def _read_text(path: Path) -> str:
@@ -283,6 +291,7 @@ def viewer_data_payload(repo_root: Path, selected_id: str | None = None) -> dict
     return {
         "root": str(repo_root.resolve()),
         "items": collect_viewer_items(repo_root),
+        "updateInfo": get_update_info(_current_version()).to_payload(),
         "selectedId": selected_id,
         "changedPaths": [],
         "canResetProjectRoot": False,

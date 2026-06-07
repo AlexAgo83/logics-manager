@@ -23,6 +23,7 @@ from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import collect_viewer_items, create_viewer_server, edit_doc_payload, read_doc_payload, render_start_status
+from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
 
 
@@ -123,6 +124,63 @@ def test_main_accepts_json_alias_for_native_subcommand(
     assert exit_code == 0
     assert payload["returned_count"] == 1
     assert payload["items"][0]["ref"] == "req_001_demo"
+
+
+def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:
+    cache_path = tmp_path / "update-check.json"
+    calls = 0
+
+    def fetch_latest() -> str:
+        nonlocal calls
+        calls += 1
+        return "2.3.0"
+
+    assert is_newer_version("2.3.0", "2.2.0") is True
+    assert is_newer_version("2.2.0", "2.2.0") is False
+    first = get_update_info("2.2.0", cache_path=cache_path, now=100, fetch_latest=fetch_latest)
+    second = get_update_info("2.2.0", cache_path=cache_path, now=200, fetch_latest=lambda: "9.9.9")
+
+    assert first.update_available is True
+    assert first.latest_version == "2.3.0"
+    assert second.latest_version == "2.3.0"
+    assert calls == 1
+
+
+def test_cli_update_notice_is_human_only(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics").mkdir()
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.cli.get_update_notice", lambda _version: "update available")
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+
+    exit_code = main(["status"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "update available" in captured.err
+
+
+def test_cli_update_notice_skips_json(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics").mkdir()
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.cli.get_update_notice", lambda _version: "update available")
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+
+    exit_code = main(["status", "--json"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    json.loads(captured.out)
+    assert "update available" not in captured.err
 
 
 def test_root_help_lists_local_viewer_command(capsys: pytest.CaptureFixture[str]) -> None:

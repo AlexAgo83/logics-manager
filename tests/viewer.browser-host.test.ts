@@ -12,6 +12,7 @@ function loadScript(dom: JSDOM, relPath: string) {
 function createViewerDom(options: { editResponse?: { ok: boolean; status?: number; body: unknown } } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
+    <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
     <button id="viewer-document-close" type="button">Close</button>
@@ -56,7 +57,13 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
             ok: true,
             payload: {
               root: "/workspace/logics-manager",
-              items: [{ id: "req_001_demo", title: "Demo", relPath: "logics/request/req_001_demo.md" }]
+              items: [{ id: "req_001_demo", title: "Demo", relPath: "logics/request/req_001_demo.md" }],
+              updateInfo: {
+                currentVersion: "2.2.0",
+                latestVersion: "2.3.0",
+                updateAvailable: true,
+                updateCommand: "logics-manager self-update"
+              }
             }
           })
         };
@@ -205,6 +212,19 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/refresh");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
+  });
+
+  it("renders update availability from viewer payloads", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const banner = dom.window.document.getElementById("viewer-update");
+    expect(banner?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("2.3.0");
+    expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update");
   });
 
   it("renders health as a summary with document links", async () => {

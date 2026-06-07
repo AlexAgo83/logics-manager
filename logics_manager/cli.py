@@ -20,6 +20,7 @@ from .lint import lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import render_doctor
 from .termstyle import colorize_help
+from .update_check import get_update_notice
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -132,6 +133,18 @@ def get_cli_version() -> str:
     return "0.0.0"
 
 
+def _is_json_mode(argv: list[str]) -> bool:
+    return "--json" in argv or any(argv[index] == "--format" and index + 1 < len(argv) and argv[index + 1] == "json" for index in range(len(argv)))
+
+
+def _maybe_print_update_notice(command: str, argv: list[str]) -> None:
+    if command in {"self-update", "mcp", "view"} or _is_json_mode(argv) or not sys.stdout.isatty():
+        return
+    notice = get_update_notice(get_cli_version())
+    if notice:
+        print(notice, file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -149,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     command = argv[0]
     if command not in ROOT_COMMANDS:
         raise SystemExit(f"Unsupported command: {command}")
+    _maybe_print_update_notice(command, argv)
 
     rest = argv[1:]
     if command == "config":

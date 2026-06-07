@@ -5,6 +5,9 @@
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
+  const updateBanner = () => document.getElementById("viewer-update");
+  const updateCopy = () => document.getElementById("viewer-update-copy");
+  const updateCommand = () => document.getElementById("viewer-update-command");
   let latestItems = [];
   let applyingLocalChrome = false;
   let mermaidInitialized = false;
@@ -184,7 +187,28 @@
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
+    renderUpdateNotice(payload.updateInfo);
     applyLocalViewerChrome();
+  }
+
+  function renderUpdateNotice(updateInfo) {
+    const banner = updateBanner();
+    if (!(banner instanceof HTMLElement)) {
+      return;
+    }
+    if (!updateInfo || updateInfo.updateAvailable !== true || !updateInfo.latestVersion) {
+      banner.hidden = true;
+      return;
+    }
+    const copy = updateCopy();
+    const command = updateCommand();
+    if (copy) {
+      copy.textContent = `logics-manager ${updateInfo.latestVersion} is available. Current version: ${updateInfo.currentVersion || "unknown"}.`;
+    }
+    if (command) {
+      command.textContent = updateInfo.updateCommand || "logics-manager self-update";
+    }
+    banner.hidden = false;
   }
 
   async function loadItems(method = "GET") {

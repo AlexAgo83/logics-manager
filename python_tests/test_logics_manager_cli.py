@@ -18,7 +18,7 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc
-from logics_manager.insights import health_payload, status_payload
+from logics_manager.insights import followups_payload, health_payload, status_payload
 
 
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
@@ -235,6 +235,54 @@ def test_main_runs_health_json(
     assert payload["open_workflow_count"] == 1
 
 
+def test_followups_payload_suggests_request_commands(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Validated",
+        body="# References\n- Follow-up area: improve workflow search\n",
+    )
+
+    payload = followups_payload(repo_root)
+
+    assert payload["count"] == 1
+    item = payload["followups"][0]
+    assert item["source_ref"] == "prod_001_demo"
+    assert item["text"] == "improve workflow search"
+    assert '--title "Improve workflow search"' in item["suggested_command"]
+
+
+def test_main_runs_followups_json(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "architecture").mkdir(parents=True)
+    (repo_root / "logics" / "architecture" / "adr_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## adr_001_demo - Demo ADR",
+                "> Status: Proposed",
+                "",
+                "# Notes",
+                "- Architecture follow-up: document module boundaries",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["followups", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["followups"][0]["text"] == "document module boundaries"
+
+
 @pytest.mark.parametrize(
     ("argv", "expected_script_suffix", "expected_args"),
     [
@@ -270,6 +318,7 @@ def test_main_runs_health_json(
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
         (["health", "--format", "json"], None, None),
+        (["followups", "--format", "json"], None, None),
         (["status", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],

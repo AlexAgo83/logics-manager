@@ -232,3 +232,51 @@ def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 
         for item in items:
             lines.append(f"  - {item['ref']} [{item['status']}]: {item['title']}")
     return "\n".join(lines)
+
+
+def _slug_command_title(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text.strip(" ."))
+    return cleaned[:1].upper() + cleaned[1:] if cleaned else "Follow up"
+
+
+def followups_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
+    docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
+    followups: list[dict[str, object]] = []
+    patterns = ("Follow-up area:", "Product follow-up:", "Architecture follow-up:")
+    for doc in docs:
+        for index, line in enumerate(doc.content.splitlines(), start=1):
+            stripped = line.strip().lstrip("- ").strip()
+            matched = next((pattern for pattern in patterns if stripped.startswith(pattern)), None)
+            if not matched:
+                continue
+            text = stripped.removeprefix(matched).strip()
+            title = _slug_command_title(text)
+            followups.append(
+                {
+                    "source_ref": doc.ref,
+                    "source_path": doc.rel_path,
+                    "source_kind": doc.kind,
+                    "line": index,
+                    "text": text,
+                    "suggested_title": title,
+                    "suggested_command": f'python3 -m logics_manager flow new request --title "{title}"',
+                }
+            )
+    return {
+        "ok": True,
+        "count": len(followups),
+        "returned_count": min(len(followups), limit),
+        "followups": followups[:limit],
+    }
+
+
+def render_followups(repo_root: Path, *, output_format: str = "text", limit: int = 50) -> str:
+    payload = followups_payload(repo_root, limit=limit)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+
+    lines = [f"Logics follow-ups: {payload['count']} found"]
+    for item in payload["followups"]:
+        lines.append(f"- {item['source_ref']}:{item['line']} {item['text']}")
+        lines.append(f"  command: {item['suggested_command']}")
+    return "\n".join(lines)

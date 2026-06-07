@@ -1268,7 +1268,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
         item_missing = [
-            f"request-{ac_id} -> This backlog slice. Proof: {text}"
+            f"request-{ac_id} -> This backlog slice. Evidence needed: {text}"
             for ac_id, text in ac_entries
             if not _has_ac_proof(item_before, ac_id)
         ]
@@ -1285,7 +1285,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     for task_path in sorted(linked_task_paths):
         task_before = task_path.read_text(encoding="utf-8")
         task_missing = [
-            f"request-{ac_id} -> This task. Proof: {text}"
+            f"request-{ac_id} -> This task. Evidence needed: {text}"
             for ac_id, text in ac_entries
             if not _has_ac_proof(task_before, ac_id)
         ]

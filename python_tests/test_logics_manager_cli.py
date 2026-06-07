@@ -17,7 +17,7 @@ from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
-from logics_manager.flow import PlannedDoc
+from logics_manager.flow import PlannedDoc, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 
 
@@ -1733,8 +1733,11 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     task_text = task_path.read_text(encoding="utf-8")
     product_text = product_path.read_text(encoding="utf-8")
     assert "- [x] Ready." in request_text
-    assert "request-AC1 -> This backlog slice. Proof: Deliver demo." in backlog_text
-    assert "request-AC1 -> This task. Proof: Deliver demo." in task_text
+    assert "request-AC1 -> This backlog slice. Evidence needed: Deliver demo." in backlog_text
+    assert "request-AC1 -> This task. Evidence needed: Deliver demo." in task_text
+    preflight = validate_closeout_payload(repo_root, "task_001_demo")
+    assert "ac_missing_item_traceability" in {issue["code"] for issue in preflight["issues"]}
+    assert "ac_missing_task_traceability" in {issue["code"] for issue in preflight["issues"]}
     assert "`task_001_demo`" in backlog_text
     assert "> Related task: `task_001_demo`" in product_text
     assert "```mermaid" in request_text

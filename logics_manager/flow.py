@@ -9,6 +9,9 @@ from pathlib import Path
 
 from .audit import audit_payload
 from .cli_output import print_payload
+from .flow_evidence import has_ac_proof as _has_ac_proof
+from .flow_evidence import has_validation_evidence as _has_validation_evidence
+from .flow_evidence import structured_validation_line as _structured_validation_line
 from .index import index_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
 from .path_utils import ensure_relative_to
@@ -974,30 +977,6 @@ def _section_has_checked_checkbox(text: str, heading: str) -> bool:
     return any("- [x]" in line.lower() for line in _section_lines(text.splitlines(), heading))
 
 
-def _has_validation_evidence(text: str) -> bool:
-    concrete_ok_context = ("lint", "audit", "test", "pytest", "npm", "ci", "coverage", "smoke", "package")
-    invalid_markers = ("...", "todo", "tbd", "pending", "needs ", "need ", "not ok", "failed", "failure", "failing")
-    for line in _section_lines(text.splitlines(), "Validation"):
-        stripped = line.strip()
-        if not stripped.startswith("- "):
-            continue
-        value = stripped[2:].strip().lower()
-        if not value or value.startswith("run `") or value.startswith("run the "):
-            continue
-        if any(marker in value for marker in invalid_markers):
-            continue
-        if "command:" in value and "result:" in value and ("date:" in value or "session:" in value):
-            result_match = re.search(r"\bresult:\s*([^|,;]+)", value)
-            result = result_match.group(1).strip() if result_match else ""
-            if result in {"pass", "passed", "ok", "success", "succeeded"}:
-                return True
-        if any(marker in value for marker in ("pass", "validated", "verified", "verification", "regression")):
-            return True
-        if "ok" in value and any(marker in value for marker in concrete_ok_context):
-            return True
-    return False
-
-
 def _request_ac_ids(text: str) -> list[str]:
     ids: list[str] = []
     for line in _section_lines(text.splitlines(), "Acceptance criteria"):
@@ -1005,11 +984,6 @@ def _request_ac_ids(text: str) -> list[str]:
         if match:
             ids.append(f"AC{int(match.group(1))}")
     return ids
-
-
-def _has_ac_proof(text: str, ac_id: str) -> bool:
-    upper = text.upper()
-    return ac_id.upper() in upper and "proof:" in text.lower()
 
 
 def _first_product_path(repo_root: Path, product_ref: str) -> Path | None:
@@ -2692,18 +2666,6 @@ def _restore_file_snapshot(repo_root: Path, snapshot: dict[str, str]) -> None:
     for rel_path, content in snapshot.items():
         path = repo_root / rel_path
         path.write_text(content, encoding="utf-8")
-
-
-def _structured_validation_line(command: str, result: str, note: str | None) -> str:
-    normalized_result = result.strip().lower() or "passed"
-    parts = [
-        f"command: `{command.strip()}`",
-        f"result: {normalized_result}",
-        f"date: {date.today().isoformat()}",
-    ]
-    if note and note.strip():
-        parts.append(f"note: {note.strip()}")
-    return " | ".join(parts)
 
 
 def closeout_payload(

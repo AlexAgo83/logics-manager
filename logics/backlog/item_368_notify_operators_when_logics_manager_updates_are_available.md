@@ -1,10 +1,10 @@
 ## item_368_notify_operators_when_logics_manager_updates_are_available - Notify operators when logics-manager updates are available
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 82
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -73,6 +73,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_204_notify_operators_when_logics_manager_updates_are_available` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_204_notify_operators_when_logics_manager_updates_are_available.md`.
 - Generated locally by logics-manager.
+- Task `task_169_notify_operators_when_logics_manager_updates_are_available` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_169_notify_operators_when_logics_manager_updates_are_available`

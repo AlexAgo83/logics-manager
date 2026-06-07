@@ -1,7 +1,7 @@
 ## req_204_notify_operators_when_logics_manager_updates_are_available - Notify operators when logics-manager updates are available
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 82
 > Complexity: Medium

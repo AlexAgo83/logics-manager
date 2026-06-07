@@ -1896,6 +1896,30 @@ def test_root_commands_reject_unknown_flags(tmp_path: Path, monkeypatch: pytest.
     assert exc_info.value.code == 2
 
 
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["config", "show", "--bogus"],
+        ["doctor", "--bogus"],
+        ["index", "--bogus"],
+        ["lint", "--bogus"],
+        ["flow", "new", "request", "--title", "Unknown Flag", "--bogus"],
+        ["flow", "list", "--bogus"],
+        ["sync", "list-docs", "--bogus"],
+        ["assist", "runtime-status", "--bogus"],
+    ],
+)
+def test_unknown_flags_fail_consistently_in_subprocess(tmp_path: Path, argv: list[str]) -> None:
+    repo_root = tmp_path / "logics-repo"
+    _write_subprocess_json_repo(repo_root)
+
+    result = _run_logics_manager_subprocess(repo_root, argv)
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "unrecognized arguments: --bogus" in result.stderr
+
+
 def test_index_rejects_outside_output_before_writing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

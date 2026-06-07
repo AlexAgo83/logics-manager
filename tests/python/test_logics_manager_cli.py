@@ -19,6 +19,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from logics_manager import viewer as viewer_module
 from logics_manager.viewer import collect_viewer_items, read_doc_payload, render_start_status
 from flow_fixtures import write_ac_traceability_chain
 
@@ -183,6 +184,35 @@ def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
     assert "http://127.0.0.1:8765" in output
     assert "Mode: read-only" in output
     assert "Bind: localhost" in output
+
+
+def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    class FakeViewerServer:
+        server_address = ("127.0.0.1", 8765)
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        def serve_forever(self) -> None:
+            raise KeyboardInterrupt
+
+        def server_close(self) -> None:
+            self.closed = True
+
+    fake_server = FakeViewerServer()
+    monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port: fake_server)
+
+    exit_code = viewer_module.main(["--host", "127.0.0.1", "--port", "8765", "--no-open"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Logics viewer running:" in captured.out
+    assert fake_server.closed is True
 
 
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:

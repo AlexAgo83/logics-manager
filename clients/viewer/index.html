@@ -8,6 +8,7 @@
   <link href="/media/css/layout.css" rel="stylesheet" />
   <link href="/media/css/board.css" rel="stylesheet" />
   <link href="/media/css/details.css" rel="stylesheet" />
+  <link href="/viewer.css" rel="stylesheet" />
   <title>Logics Viewer</title>
 </head>
 <body class="viewer-shell">
@@ -123,12 +124,15 @@
     </aside>
   </div>
 
-  <section class="viewer-document" id="viewer-document" hidden aria-label="Markdown document">
+  <section class="viewer-document" id="viewer-document" hidden aria-label="Markdown document" aria-live="polite">
     <div class="viewer-document__header">
-      <div id="viewer-document-title">Document</div>
+      <div>
+        <div class="viewer-document__eyebrow">Read-only preview</div>
+        <div class="viewer-document__title" id="viewer-document-title">Document</div>
+      </div>
       <button class="btn" id="viewer-document-close" type="button">Close</button>
     </div>
-    <pre id="viewer-document-content"></pre>
+    <div class="viewer-document__content markdown-preview" id="viewer-document-content"></div>
   </section>
 
   <script src="/browser-host.js"></script>

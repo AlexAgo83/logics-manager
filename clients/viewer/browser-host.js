@@ -5,6 +5,27 @@
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
   let latestItems = [];
+  let applyingLocalChrome = false;
+
+  function markdownApi() {
+    if (typeof window.createCdxLogicsMarkdownApi === "function") {
+      return window.createCdxLogicsMarkdownApi();
+    }
+    return null;
+  }
+
+  function escapeHtml(value) {
+    const api = markdownApi();
+    if (api && typeof api.escapeHtml === "function") {
+      return api.escapeHtml(value);
+    }
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
 
   function setMeta(text) {
     const node = meta();
@@ -13,11 +34,90 @@
     }
   }
 
+  function findItemByPath(relPath) {
+    const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
+    return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
+  }
+
+  function setDocument(titleText, html) {
+    const panel = documentPanel();
+    const title = documentTitle();
+    const content = documentContent();
+    if (title) {
+      title.textContent = titleText || "Document";
+    }
+    if (content) {
+      content.innerHTML = html || "";
+    }
+    if (panel) {
+      panel.hidden = false;
+      panel.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function applyLocalViewerChrome() {
+    if (applyingLocalChrome) {
+      return;
+    }
+    applyingLocalChrome = true;
+    try {
+      const hiddenActions = ["promote", "mark-done", "mark-obsolete", "change-status"];
+      hiddenActions.forEach((action) => {
+        document.querySelectorAll(`[data-action="${action}"]`).forEach((element) => {
+          if (!(element instanceof HTMLElement)) {
+            return;
+          }
+          element.hidden = true;
+          element.setAttribute("aria-hidden", "true");
+          if ("disabled" in element) {
+            element.disabled = true;
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-action="open"]').forEach((element) => {
+        if (!(element instanceof HTMLElement)) {
+          return;
+        }
+        element.hidden = true;
+        element.setAttribute("aria-hidden", "true");
+        if ("disabled" in element) {
+          element.disabled = true;
+        }
+      });
+
+      document.querySelectorAll('[data-action="read"]').forEach((element) => {
+        if (!(element instanceof HTMLElement)) {
+          return;
+        }
+        element.textContent = "Read document";
+        element.title = "Read selected document";
+      });
+
+      document.querySelectorAll(".column__menu-item").forEach((element) => {
+        if (!(element instanceof HTMLElement)) {
+          return;
+        }
+        const label = (element.textContent || "").trim().toLowerCase();
+        if (label === "promote" || label === "open") {
+          element.hidden = true;
+          element.setAttribute("aria-hidden", "true");
+        }
+        if (label === "read") {
+          element.textContent = "Read document";
+        }
+      });
+    } finally {
+      applyingLocalChrome = false;
+    }
+  }
+
   function postToApp(payload) {
     latestItems = Array.isArray(payload.items) ? payload.items : [];
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
+    applyLocalViewerChrome();
   }
 
   async function loadItems(method = "GET") {
@@ -40,44 +140,103 @@
       setMeta(data.error || "Unable to read document.");
       return;
     }
-    const panel = documentPanel();
-    const title = documentTitle();
-    const content = documentContent();
-    if (title) {
-      title.textContent = data.document.path;
+    const api = markdownApi();
+    let markdown = data.document.content || "";
+    if (api && typeof api.stripLeadingDocumentFrontMatter === "function") {
+      markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
     }
-    if (content) {
-      content.textContent = data.document.content;
+    const html = api && typeof api.renderMarkdownToHtml === "function"
+      ? api.renderMarkdownToHtml(markdown)
+      : `<pre>${escapeHtml(markdown)}</pre>`;
+    setDocument(data.document.path, html);
+  }
+
+  async function showDocumentByPath(relPath) {
+    const item = findItemByPath(relPath) || { relPath, title: relPath, id: relPath };
+    await showDocument(item);
+  }
+
+  function countPayloadEntries(payload, keys) {
+    for (const key of keys) {
+      if (Array.isArray(payload?.[key])) {
+        return payload[key].length;
+      }
+      if (typeof payload?.[key] === "number") {
+        return payload[key];
+      }
     }
-    if (panel) {
-      panel.hidden = false;
-      panel.scrollIntoView({ block: "nearest" });
-    }
+    return 0;
+  }
+
+  function collectHealthFindings(lintData, auditData) {
+    const findings = [];
+    const append = (source, payload) => {
+      ["issues", "warnings", "findings", "strict"].forEach((key) => {
+        const entries = Array.isArray(payload?.[key]) ? payload[key] : [];
+        entries.forEach((entry) => findings.push({ source, ...entry }));
+      });
+    };
+    append("lint", lintData.payload || {});
+    append("audit", auditData.payload || {});
+    return findings;
+  }
+
+  function renderHealthSummary(lintData, auditData) {
+    const lintPayload = lintData.payload || {};
+    const auditPayload = auditData.payload || {};
+    const blocking = countPayloadEntries(lintPayload, ["issue_count", "issues"]) +
+      countPayloadEntries(auditPayload, ["issue_count", "issues"]);
+    const warnings = countPayloadEntries(lintPayload, ["warning_count", "warnings"]) +
+      countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
+    const findings = collectHealthFindings(lintData, auditData);
+    const releaseReady = Boolean(lintPayload.ok) && Boolean(auditPayload.release_ready ?? auditPayload.ok);
+
+    const cards = [
+      ["Blocking", blocking],
+      ["Warnings", warnings],
+      ["Release ready", releaseReady ? "Yes" : "No"]
+    ]
+      .map(([label, value]) => `
+        <div class="viewer-health__card">
+          <div class="viewer-health__label">${escapeHtml(label)}</div>
+          <div class="viewer-health__value">${escapeHtml(value)}</div>
+        </div>
+      `)
+      .join("");
+
+    const list = findings.length
+      ? findings.slice(0, 50).map((finding) => {
+          const path = finding.path || "";
+          const pathControl = path
+            ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
+            : '<span class="viewer-health__meta">Repository-level finding</span>';
+          const severity = finding.severity || finding.code || finding.source || "finding";
+          return `
+            <li class="viewer-health__issue">
+              ${pathControl}
+              <div>${escapeHtml(finding.message || finding.code || "Validation finding")}</div>
+              <div class="viewer-health__meta">${escapeHtml(finding.source)} · ${escapeHtml(severity)}</div>
+            </li>
+          `;
+        }).join("")
+      : '<li class="viewer-health__empty">No lint or audit findings were reported.</li>';
+
+    return `
+      <div class="viewer-health">
+        <div class="viewer-health__summary">${cards}</div>
+        <section class="viewer-health__section">
+          <h2 class="viewer-health__heading">Validation findings</h2>
+          <ul class="viewer-health__list">${list}</ul>
+        </section>
+      </div>
+    `;
   }
 
   async function showHealth() {
     setMeta("Checking health...");
     const [lintResponse, auditResponse] = await Promise.all([fetch("/api/lint"), fetch("/api/audit")]);
     const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
-    const panel = documentPanel();
-    const title = documentTitle();
-    const content = documentContent();
-    if (title) {
-      title.textContent = "Validation health";
-    }
-    if (content) {
-      content.textContent = JSON.stringify(
-        {
-          lint: lintData.payload,
-          audit: auditData.payload
-        },
-        null,
-        2
-      );
-    }
-    if (panel) {
-      panel.hidden = false;
-    }
+    setDocument("Validation health", renderHealthSummary(lintData, auditData));
     setMeta("Health loaded.");
   }
 
@@ -115,8 +274,20 @@
     };
   };
   window.addEventListener("load", () => {
+    applyLocalViewerChrome();
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
+    });
+    document.addEventListener("click", (event) => {
+      window.setTimeout(() => applyLocalViewerChrome(), 0);
+      const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      const path = target.getAttribute("data-viewer-doc-path");
+      if (path) {
+        showDocumentByPath(path).catch((error) => setMeta(error.message));
+      }
     });
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {
       const panel = documentPanel();

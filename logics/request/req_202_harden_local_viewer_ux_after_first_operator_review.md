@@ -1,9 +1,9 @@
 ## req_202_harden_local_viewer_ux_after_first_operator_review - Harden local viewer UX after first operator review
-> From version: 2.2.0
+> From version: 2.2.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 88%
+> Status: Done
+> Understanding: 96%
+> Confidence: 91%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -78,4 +78,4 @@ flowchart TD
 - Skip when: The work is about VS Code-only webview behavior, remote MCP tunnel exposure, or adding broad browser mutations.
 
 # Backlog
-- none
+- `item_366_harden_local_viewer_ux_after_first_operator_review`

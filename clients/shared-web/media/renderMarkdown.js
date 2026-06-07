@@ -441,6 +441,8 @@
   window.createCdxLogicsMarkdownApi = function createCdxLogicsMarkdownApi() {
     return {
       escapeHtml,
+      renderMarkdownToHtml,
+      stripLeadingDocumentFrontMatter,
       buildReadPreviewDocument
     };
   };

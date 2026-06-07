@@ -257,7 +257,8 @@
 | [req_198_refine_logics_operator_signal_commands](request/req_198_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done |  | request/req_198_refine_logics_operator_signal_commands.md |
 | [req_199_implement_flow_deliver_from_product](request/req_199_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done |  | request/req_199_implement_flow_deliver_from_product.md |
 | [req_200_implement_agent_closeout_loop_ergonomics](request/req_200_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done |  | request/req_200_implement_agent_closeout_loop_ergonomics.md |
-| [req_201_add_a_local_web_viewer_for_cli_driven_logics_work](request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Draft |  | request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [req_201_add_a_local_web_viewer_for_cli_driven_logics_work](request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done |  | request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [req_202_harden_local_viewer_ux_after_first_operator_review](request/req_202_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done |  | request/req_202_harden_local_viewer_ux_after_first_operator_review.md |
 
 ## Backlog
 
@@ -627,7 +628,8 @@
 | [item_362_refine_logics_operator_signal_commands](backlog/item_362_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | backlog/item_362_refine_logics_operator_signal_commands.md |
 | [item_363_implement_flow_deliver_from_product](backlog/item_363_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | backlog/item_363_implement_flow_deliver_from_product.md |
 | [item_364_implement_agent_closeout_loop_ergonomics](backlog/item_364_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | backlog/item_364_implement_agent_closeout_loop_ergonomics.md |
-| [item_365_add_a_local_web_viewer_for_cli_driven_logics_work](backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Ready | 5% | backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [item_365_add_a_local_web_viewer_for_cli_driven_logics_work](backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [item_366_harden_local_viewer_ux_after_first_operator_review](backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md |
 
 ## Tasks
 
@@ -792,4 +794,5 @@
 | [task_163_refine_logics_operator_signal_commands](tasks/task_163_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | tasks/task_163_refine_logics_operator_signal_commands.md |
 | [task_164_implement_flow_deliver_from_product](tasks/task_164_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | tasks/task_164_implement_flow_deliver_from_product.md |
 | [task_165_implement_agent_closeout_loop_ergonomics](tasks/task_165_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | tasks/task_165_implement_agent_closeout_loop_ergonomics.md |
-| [task_166_add_a_local_web_viewer_for_cli_driven_logics_work](tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Ready | 5% | tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [task_166_add_a_local_web_viewer_for_cli_driven_logics_work](tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md |
+| [task_167_harden_local_viewer_ux_after_first_operator_review](tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md |

@@ -5,7 +5,6 @@ import json
 import mimetypes
 import os
 import re
-import signal
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
@@ -328,7 +327,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(content)
+        try:
+            self.wfile.write(content)
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
@@ -353,6 +355,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/browser-host.js":
             self._serve_file(VIEWER_ROOT / "browser-host.js")
+            return
+        if route == "/viewer.css":
+            self._serve_file(VIEWER_ROOT / "viewer.css")
             return
         if route.startswith("/media/"):
             media_path = (SHARED_MEDIA_ROOT / route.removeprefix("/media/")).resolve()
@@ -423,13 +428,10 @@ def main(argv: list[str]) -> int:
     if args.open and not args.no_open:
         webbrowser.open(url)
 
-    def _stop(_signum: int, _frame: object) -> None:
-        server.shutdown()
-
-    previous_sigint = signal.signal(signal.SIGINT, _stop)
     try:
         server.serve_forever()
+    except KeyboardInterrupt:
+        return 0
     finally:
-        signal.signal(signal.SIGINT, previous_sigint)
         server.server_close()
     return 0

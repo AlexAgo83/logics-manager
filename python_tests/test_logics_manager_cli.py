@@ -1464,6 +1464,166 @@ def test_main_runs_native_flow_split_backlog(
     assert "task_001_child_a" in source_path.read_text(encoding="utf-8")
 
 
+def test_main_runs_native_flow_validate_closeout_reports_blockers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo_task.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo_task - Demo Task",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "# Plan",
+                "- [ ] Do the work.",
+                "# Backlog",
+                "- `item_001_missing`",
+                "# Definition of Done (DoD)",
+                "- [ ] Validation passes.",
+                "# Validation",
+                "- Run `python3 -m logics_manager lint --require-status`.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "validate-closeout", "task_001_demo_task"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "Closeout preflight: FAILED" in captured.out
+    assert "task_gate_unchecked" in captured.out
+    assert "validation_evidence_missing" in captured.out
+    assert "flow repair gates task_001_demo_task" in captured.out
+
+
+def test_main_runs_native_flow_validate_closeout_passes_complete_chain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Deliver demo.",
+                "```mermaid",
+                "%% logics-kind: request",
+                "%% logics-signature: request|demo-request|deliver-demo|ac1-deliver-demo",
+                "flowchart TD",
+                "    Trigger[Demo Request] --> Need[Deliver demo]",
+                "    Need --> Outcome[AC1 Deliver demo]",
+                "    Outcome --> Backlog[Backlog]",
+                "```",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# Definition of Ready (DoR)",
+                "- [x] Ready.",
+                "# Backlog",
+                "- `item_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "> Progress: 0%",
+                "# Problem",
+                "- Deliver demo.",
+                "# Scope",
+                "- In:",
+                "  - demo",
+                "```mermaid",
+                "%% logics-kind: backlog",
+                "%% logics-signature: backlog|demo-backlog|req-001-demo|deliver-demo|ac1-deliver-demo",
+                "flowchart TD",
+                "    Request[req 001 demo] --> Problem[Deliver demo]",
+                "    Problem --> Scope[Demo Backlog]",
+                "    Scope --> Acceptance[AC1 Deliver demo]",
+                "    Acceptance --> Tasks[task 001 demo]",
+                "```",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# AC Traceability",
+                "- request-AC1 -> This backlog slice. Proof: Deliver demo.",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Primary task(s): `task_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "product" / "prod_001_demo.md").write_text(
+        "## prod_001_demo - Demo Product\n> Related task: `task_001_demo`\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "tasks" / "task_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "> Progress: 0%",
+                "# Plan",
+                "- [x] Do the work.",
+                "# Backlog",
+                "- `item_001_demo`",
+                "```mermaid",
+                "%% logics-kind: task",
+                "%% logics-signature: task|demo-task|item-001-demo|do-the-work|pytest-passed",
+                "flowchart TD",
+                "    Backlog[Backlog item] --> Build[Implementation]",
+                "    Build --> Validate[Validation]",
+                "    Validate --> Close[Finish workflow]",
+                "```",
+                "# Definition of Done (DoD)",
+                "- [x] Validation passes.",
+                "# AC Traceability",
+                "- request-AC1 -> This task. Proof: Deliver demo.",
+                "# Validation",
+                "- pytest passed.",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Product brief(s): `prod_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.flow._mermaid_closeout_issue", lambda _path, _kind: None)
+
+    assert main(["flow", "validate-closeout", "task_001_demo", "--format", "json"]) == 0
+
+
 def test_main_runs_native_flow_finish_task(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

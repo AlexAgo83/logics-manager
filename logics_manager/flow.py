@@ -209,6 +209,10 @@ def _build_help() -> str:
             "    Create a linked request, backlog item, and task from a product brief.",
             "    Flags: --title, --finish, --format {text,json}, --dry-run",
             "",
+            "  validate-closeout <task>",
+            "    Preflight whether a task can be safely closed.",
+            "    Flags: --format {text,json}",
+            "",
             "  promote request-to-backlog <source>",
             "    Create a backlog slice from a request.",
             "",
@@ -234,6 +238,7 @@ def _build_help() -> str:
             "Examples:",
             '  logics-manager flow new request --title "My request"',
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
+            "  logics-manager flow validate-closeout task_003_fix_docs",
             "  logics-manager flow promote request-to-backlog req_001_my_request",
             "  logics-manager flow close task task_003_fix_docs --dry-run",
         ]
@@ -379,6 +384,24 @@ def _build_deliver_help() -> str:
             "Examples:",
             "  logics-manager flow deliver --from-product prod_017_logics_delivery_loop_ergonomics",
             '  logics-manager flow deliver --from-product logics/product/prod_017_logics_delivery_loop_ergonomics.md --title "Implement flow deliver"',
+        ]
+    )
+
+
+def _build_validate_closeout_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Validate Closeout",
+            "Preflight whether a task can be safely closed.",
+            "",
+            "Usage:",
+            "  logics-manager flow validate-closeout <task> [args...]",
+            "",
+            "Flags:",
+            "  --format {text,json}",
+            "",
+            "Examples:",
+            "  logics-manager flow validate-closeout task_164_implement_flow_deliver_from_product",
         ]
     )
 
@@ -850,6 +873,242 @@ def _is_doc_done(path: Path, kind: DocKind) -> bool:
         if progress_value == "100%":
             return True
     return False
+
+
+def _section_text(text: str, heading: str) -> str:
+    return "\n".join(_section_lines(text.splitlines(), heading)).strip()
+
+
+def _section_has_unchecked_checkbox(text: str, heading: str) -> bool:
+    return any("- [ ]" in line for line in _section_lines(text.splitlines(), heading))
+
+
+def _section_has_checked_checkbox(text: str, heading: str) -> bool:
+    return any("- [x]" in line.lower() for line in _section_lines(text.splitlines(), heading))
+
+
+def _has_validation_evidence(text: str) -> bool:
+    for line in _section_lines(text.splitlines(), "Validation"):
+        stripped = line.strip()
+        if not stripped.startswith("- "):
+            continue
+        value = stripped[2:].strip().lower()
+        if not value or value.startswith("run `") or value.startswith("run the "):
+            continue
+        if any(marker in value for marker in ("pass", "ok", "validated", "verification", "regression")):
+            return True
+    return False
+
+
+def _request_ac_ids(text: str) -> list[str]:
+    ids: list[str] = []
+    for line in _section_lines(text.splitlines(), "Acceptance criteria"):
+        match = re.search(r"\bAC(\d+)\s*:", line, flags=re.IGNORECASE)
+        if match:
+            ids.append(f"AC{int(match.group(1))}")
+    return ids
+
+
+def _has_ac_proof(text: str, ac_id: str) -> bool:
+    upper = text.upper()
+    return ac_id.upper() in upper and "proof:" in text.lower()
+
+
+def _first_product_path(repo_root: Path, product_ref: str) -> Path | None:
+    path = repo_root / "logics" / "product" / f"{product_ref}.md"
+    return path if path.is_file() else None
+
+
+def _mermaid_closeout_issue(path: Path, kind: str) -> str | None:
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"```mermaid\s*\n(.*?)\n```", text, flags=re.DOTALL)
+    if match is None:
+        return "missing Mermaid overview block"
+    signature_match = re.search(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", match.group(1), flags=re.MULTILINE)
+    expected = expected_workflow_mermaid_signature(kind, text.splitlines())
+    if signature_match is None:
+        return "missing Mermaid context signature comment"
+    if expected and signature_match.group(1).strip() != expected:
+        return f"stale Mermaid signature, expected `{expected}`"
+    return None
+
+
+def _closeout_issue(path: Path, code: str, message: str, repair_command: str | None = None) -> dict[str, str]:
+    issue = {
+        "path": path.as_posix(),
+        "code": code,
+        "message": message,
+    }
+    if repair_command:
+        issue["repair_command"] = repair_command
+    return issue
+
+
+def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]:
+    task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    task_ref = task_path.stem
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    raw_task_text = task_path.read_text(encoding="utf-8")
+    issues: list[dict[str, str]] = []
+    related_paths = [task_path.relative_to(repo_root).as_posix()]
+
+    for heading in ("Plan", "Definition of Done (DoD)"):
+        if _section_has_unchecked_checkbox(task_text, heading):
+            issues.append(
+                _closeout_issue(
+                    task_path.relative_to(repo_root),
+                    "task_gate_unchecked",
+                    f"`# {heading}` contains unchecked items",
+                    f"python3 -m logics_manager flow repair gates {task_ref}",
+                )
+            )
+    if not _section_has_checked_checkbox(task_text, "Definition of Done (DoD)"):
+        issues.append(
+            _closeout_issue(
+                task_path.relative_to(repo_root),
+                "task_missing_done_gate",
+                "`# Definition of Done (DoD)` has no checked completion evidence",
+                f"python3 -m logics_manager flow repair gates {task_ref}",
+            )
+        )
+    if not _has_validation_evidence(task_text):
+        issues.append(
+            _closeout_issue(
+                task_path.relative_to(repo_root),
+                "validation_evidence_missing",
+                "`# Validation` has no concrete passing validation evidence",
+                f"python3 -m logics_manager flow closeout {task_ref} --validation \"... passed\"",
+            )
+        )
+
+    mermaid_issue = _mermaid_closeout_issue(task_path, "task")
+    if mermaid_issue:
+        issues.append(
+            _closeout_issue(
+                task_path.relative_to(repo_root),
+                "mermaid_signature_stale",
+                mermaid_issue,
+                f"python3 -m logics_manager flow repair mermaid --refs {task_ref}",
+            )
+        )
+
+    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    if not item_refs:
+        issues.append(_closeout_issue(task_path.relative_to(repo_root), "task_missing_backlog", "task has no linked backlog item reference"))
+
+    request_refs: set[str] = set(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    item_paths: list[Path] = []
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            issues.append(_closeout_issue(task_path.relative_to(repo_root), "task_missing_backlog_target", f"task references missing backlog item `{item_ref}`"))
+            continue
+        item_paths.append(item_path)
+        related_paths.append(item_path.relative_to(repo_root).as_posix())
+        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
+        request_refs.update(_extract_refs(item_text, DOC_KINDS["request"].prefix))
+        if task_ref not in item_text:
+            issues.append(
+                _closeout_issue(
+                    item_path.relative_to(repo_root),
+                    "backlog_missing_task_link",
+                    f"backlog item does not link task `{task_ref}`",
+                    f"python3 -m logics_manager flow repair links {task_ref}",
+                )
+            )
+        mermaid_issue = _mermaid_closeout_issue(item_path, "backlog")
+        if mermaid_issue:
+            issues.append(
+                _closeout_issue(
+                    item_path.relative_to(repo_root),
+                    "mermaid_signature_stale",
+                    mermaid_issue,
+                    f"python3 -m logics_manager flow repair mermaid --refs {item_ref}",
+                )
+            )
+
+    for request_ref in sorted(request_refs):
+        request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
+        if request_path is None:
+            issues.append(_closeout_issue(task_path.relative_to(repo_root), "missing_request_target", f"linked request `{request_ref}` is missing"))
+            continue
+        related_paths.append(request_path.relative_to(repo_root).as_posix())
+        request_text = _strip_mermaid_blocks(request_path.read_text(encoding="utf-8"))
+        if _section_has_unchecked_checkbox(request_text, "Definition of Ready (DoR)"):
+            issues.append(
+                _closeout_issue(
+                    request_path.relative_to(repo_root),
+                    "request_dor_unchecked",
+                    "`# Definition of Ready (DoR)` contains unchecked items",
+                    f"python3 -m logics_manager flow repair gates {task_ref}",
+                )
+            )
+        mermaid_issue = _mermaid_closeout_issue(request_path, "request")
+        if mermaid_issue:
+            issues.append(
+                _closeout_issue(
+                    request_path.relative_to(repo_root),
+                    "mermaid_signature_stale",
+                    mermaid_issue,
+                    f"python3 -m logics_manager flow repair mermaid --refs {request_ref}",
+                )
+            )
+        for ac_id in _request_ac_ids(request_text):
+            if item_paths and not any(_has_ac_proof(path.read_text(encoding="utf-8"), ac_id) for path in item_paths):
+                issues.append(
+                    _closeout_issue(
+                        request_path.relative_to(repo_root),
+                        "ac_missing_item_traceability",
+                        f"`{ac_id}` missing backlog-level proof",
+                        f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
+                    )
+                )
+            if not _has_ac_proof(raw_task_text, ac_id):
+                issues.append(
+                    _closeout_issue(
+                        request_path.relative_to(repo_root),
+                        "ac_missing_task_traceability",
+                        f"`{ac_id}` missing task-level proof",
+                        f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
+                    )
+                )
+
+    product_refs = sorted(_extract_refs(raw_task_text, "prod"))
+    for product_ref in product_refs:
+        product_path = _first_product_path(repo_root, product_ref)
+        if product_path is None:
+            issues.append(_closeout_issue(task_path.relative_to(repo_root), "missing_product_target", f"linked product brief `{product_ref}` is missing"))
+            continue
+        related_paths.append(product_path.relative_to(repo_root).as_posix())
+        product_text = product_path.read_text(encoding="utf-8")
+        if task_ref not in product_text:
+            issues.append(
+                _closeout_issue(
+                    product_path.relative_to(repo_root),
+                    "companion_link_missing",
+                    f"product brief does not link task `{task_ref}`",
+                    f"python3 -m logics_manager flow repair links {task_ref}",
+                )
+            )
+
+    unique_issues = []
+    seen_issue_keys: set[tuple[str, str, str]] = set()
+    for issue in issues:
+        key = (issue["path"], issue["code"], issue["message"])
+        if key in seen_issue_keys:
+            continue
+        seen_issue_keys.add(key)
+        unique_issues.append(issue)
+
+    return {
+        "command": "validate-closeout",
+        "ok": not unique_issues,
+        "source": task_path.relative_to(repo_root).as_posix(),
+        "task_ref": task_ref,
+        "issue_count": len(unique_issues),
+        "issues": unique_issues,
+        "related_paths": sorted(set(related_paths)),
+    }
 
 
 def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
@@ -1654,6 +1913,11 @@ def build_parser() -> argparse.ArgumentParser:
     deliver_parser.add_argument("--dry-run", action="store_true")
     deliver_parser.set_defaults(func=cmd_deliver)
 
+    validate_closeout_parser = sub.add_parser("validate-closeout", help="Preflight whether a task can be safely closed.")
+    validate_closeout_parser.add_argument("source")
+    validate_closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
+    validate_closeout_parser.set_defaults(func=cmd_validate_closeout)
+
     promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
     promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
 
@@ -1951,6 +2215,24 @@ def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
         print(f"- request: {payload['created_request_path']}")
         print(f"- backlog: {payload['created_backlog_path']}")
         print(f"- task: {payload['created_task_path']}")
+    return payload
+
+
+def cmd_validate_closeout(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = validate_closeout_payload(repo_root, args.source)
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        status = "OK" if payload["ok"] else "FAILED"
+        print(f"Closeout preflight: {status} for {payload['source']}")
+        if payload["issues"]:
+            for issue in payload["issues"]:
+                print(f"- {issue['code']}: {issue['message']} ({issue['path']})")
+                if "repair_command" in issue:
+                    print(f"  repair: {issue['repair_command']}")
+        else:
+            print("- no blocking closeout issues found")
     return payload
 
 
@@ -2330,6 +2612,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "deliver" and _help_requested(argv, 1):
         _print_help(_build_deliver_help())
         return 0
+    if argv[0] == "validate-closeout" and _help_requested(argv, 1):
+        _print_help(_build_validate_closeout_help())
+        return 0
     if argv[0] == "promote" and _help_requested(argv, 1):
         _print_help(_build_promote_help())
         return 0
@@ -2356,7 +2641,9 @@ def main(argv: list[str]) -> int:
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "list", "companion", "deliver", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
+    if args.command == "validate-closeout" and isinstance(payload, dict) and not payload.get("ok", False):
+        return 1
     return 0 if isinstance(payload, dict) else 1

@@ -1876,6 +1876,40 @@ def test_main_runs_native_sync_refresh_mermaid_signatures(
     assert "- logics/request/req_001_demo.md" in captured.out
 
 
+def test_main_runs_native_sync_append_note_reports_mermaid_refresh(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "# Validation",
+                "- Run tests.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync.refresh_workflow_mermaid_signature_file", lambda path, kind, dry_run, repo_root=None: True)
+
+    exit_code = main(["sync", "append-note", "task_001_demo", "--section", "validation", "--text", "pytest passed"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Appended validation note" in captured.out
+    assert "Mermaid signature refreshed." in captured.out
+
+
 def test_main_runs_native_sync_schema_status(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

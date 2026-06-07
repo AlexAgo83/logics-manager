@@ -577,9 +577,10 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
             changed = False
         else:
             lines.insert(insert_at, bullet)
+    mermaid_signature_refreshed = False
     if changed and not dry_run:
         path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-        refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
+        mermaid_signature_refreshed = refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
     return {
         "path": path.relative_to(repo_root).as_posix(),
         "ref": path.stem,
@@ -587,6 +588,7 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
         "section": section,
         "text": cleaned,
         "changed": changed,
+        "mermaid_signature_refreshed": mermaid_signature_refreshed,
         "dry_run": dry_run,
     }
 
@@ -1163,6 +1165,8 @@ def cmd_append_note(args: argparse.Namespace) -> dict[str, object]:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
         print(f"Appended {args.section} note to {payload['path']} (changed: {payload['changed']}).")
+        if payload.get("mermaid_signature_refreshed"):
+            print("- Mermaid signature refreshed.")
     return {"command": "sync", "kind": "append-note", "repo_root": repo_root.as_posix(), **payload}
 
 

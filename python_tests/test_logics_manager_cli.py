@@ -2284,6 +2284,36 @@ def test_main_runs_native_assist_handoff(
     assert "- validation: pytest passed." in captured.out
 
 
+def test_assist_handoff_reports_changed_paths_for_committed_range(tmp_path: Path) -> None:
+    from logics_manager.assist import _build_handoff
+
+    repo_root = tmp_path / "git-handoff-repo"
+    repo_root.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=repo_root, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_root, check=True)
+    subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_root, check=True)
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_path.write_text("## task_001_demo - Demo\n> Status: Ready\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "initial"], cwd=repo_root, check=True)
+    since = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, text=True).strip()
+
+    task_path.write_text("## task_001_demo - Demo\n> Status: Done\n# Validation\n- pytest passed.\n", encoding="utf-8")
+    (repo_root / "logics_manager").mkdir()
+    (repo_root / "logics_manager" / "assist.py").write_text("# changed\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "update handoff surfaces"], cwd=repo_root, check=True)
+
+    payload = _build_handoff(repo_root, since)
+
+    assert payload["changed_paths"] == ["logics/tasks/task_001_demo.md", "logics_manager/assist.py"]
+    assert payload["surface"]["counts"] == {"python-runtime": 1, "workflow-docs": 1}
+    assert payload["logics_docs"][0]["path"] == "logics/tasks/task_001_demo.md"
+    assert payload["validations"] == ["pytest passed."]
+
+
 def test_main_runs_native_assist_test_impact_summary(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -661,7 +661,7 @@ def _git_lines(repo_root: Path, args: list[str]) -> list[str]:
 
 
 def _git_range_changed_paths(repo_root: Path, since: str) -> list[str]:
-    return sorted(set(_git_lines(repo_root, ["diff", "--name-only", "--relative=.", f"{since}..HEAD"])))
+    return sorted(set(_git_lines(repo_root, ["diff", "--name-only", f"{since}..HEAD"])))
 
 
 def _git_range_commits(repo_root: Path, since: str) -> list[dict[str, str]]:

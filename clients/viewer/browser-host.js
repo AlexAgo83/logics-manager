@@ -526,8 +526,10 @@
   };
   window.addEventListener("load", () => {
     applyLocalViewerChrome();
-    document.getElementById("viewer-insights")?.addEventListener("click", () => {
-      showCorpusInsights();
+    [document.getElementById("viewer-insights"), document.getElementById("header-logics-insights")].forEach((button) => {
+      button?.addEventListener("click", () => {
+        showCorpusInsights();
+      });
     });
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
       if (!(element instanceof HTMLElement)) {

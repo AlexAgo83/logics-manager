@@ -14,6 +14,7 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     <div id="viewer-meta"></div>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-insights" type="button">Insights</button>
+    <button id="header-logics-insights" type="button">Open corpus insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
     <button data-viewer-preset="blocked" type="button">Blocked</button>
@@ -253,6 +254,18 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Corpus families");
     expect(content?.textContent).toContain("Blocked");
     expect(content?.textContent).toContain("Incomplete chains");
+  });
+
+  it("opens local corpus insights from the toolbar button", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("header-logics-insights")?.dispatchEvent(new dom.window.Event("click"));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.textContent).toContain("Corpus families");
   });
 
   it("applies local corpus presets to the shared viewer filter hook", async () => {

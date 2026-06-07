@@ -1,10 +1,10 @@
 ## item_365_add_a_local_web_viewer_for_cli_driven_logics_work - Add a local web viewer for CLI-driven Logics work
-> From version: 2.2.0
+> From version: 2.2.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 5%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -35,6 +35,7 @@ flowchart TD
 - AC3: The proposal preserves the CLI/runtime as the authority for data and future mutations.
 - AC4: The brief identifies reuse points from the existing webview and the need for a host adapter boundary.
 - AC5: Security and scope guardrails are explicit, especially localhost-only behavior by default.
+- AC6: The concrete viewer experience covers command launch, terminal feedback, layout, initial views, and local API shape.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: The product direction explains why CLI output alone is insufficient for document-heavy Logics work.
@@ -42,6 +43,7 @@ flowchart TD
 - request-AC3 -> This backlog slice. Proof: AC3: The proposal preserves the CLI/runtime as the authority for data and future mutations.
 - request-AC4 -> This backlog slice. Proof: AC4: The brief identifies reuse points from the existing webview and the need for a host adapter boundary.
 - request-AC5 -> This backlog slice. Proof: AC5: Security and scope guardrails are explicit, especially localhost-only behavior by default.
+- request-AC6 -> This backlog slice. Proof: AC6: The concrete viewer experience covers command launch, terminal feedback, layout, initial views, and local API shape.
 
 # Decision framing
 - Product framing: Not needed

@@ -1,10 +1,10 @@
 ## task_166_add_a_local_web_viewer_for_cli_driven_logics_work - Add a local web viewer for CLI-driven Logics work
-> From version: 2.2.0
+> From version: 2.2.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 5%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -33,6 +33,7 @@ flowchart TD
 - AC3: The proposal preserves the CLI/runtime as the authority for data and future mutations.
 - AC4: The brief identifies reuse points from the existing webview and the need for a host adapter boundary.
 - AC5: Security and scope guardrails are explicit, especially localhost-only behavior by default.
+- AC6: The concrete viewer experience covers command launch, terminal feedback, layout, initial views, and local API shape.
 
 # AC Traceability
 - request-AC1 -> Task implementation. Proof: product brief documents the CLI visual feedback gap for document-heavy Logics work.
@@ -40,6 +41,7 @@ flowchart TD
 - request-AC3 -> Task implementation. Proof: product brief keeps CLI/runtime authority for data and future mutations.
 - request-AC4 -> Task implementation. Proof: product brief calls out webview asset reuse and a browser host adapter boundary.
 - request-AC5 -> Task implementation. Proof: product brief requires localhost-only default behavior and explicit tunnel intent.
+- request-AC6 -> Task implementation. Proof: product brief defines the launch command, terminal status output, board/document/health views, layout, and local API endpoints.
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.

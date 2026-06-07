@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .cli_output import print_payload
 from .path_utils import ensure_relative_to
 from .termstyle import colorize_help
 
@@ -1521,7 +1522,7 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
                 print(f"[dry-run] would write: {planned.path}")
                 print(preview)
         if args.format == "json":
-            print(json.dumps(payload, indent=2, sort_keys=True))
+            print_payload(payload, args.format)
         else:
             print(f"Created {doc_kind.kind}: {payload['path']}")
         return payload
@@ -1577,7 +1578,7 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
             print(preview)
 
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Created {doc_kind.kind}: {payload['path']}")
     return payload
@@ -1642,7 +1643,7 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Created companion doc: {payload['path']}")
     return payload
@@ -1682,7 +1683,7 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Created backlog slice from request: {payload['created_path']}")
     return payload
@@ -1725,7 +1726,7 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Created task from backlog: {payload['created_path']}")
     return payload
@@ -1771,7 +1772,7 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Split request into {len(created_refs)} backlog item(s): {', '.join(created_refs)}")
     return payload
@@ -1816,7 +1817,7 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Split backlog item into {len(created_refs)} task(s): {', '.join(created_refs)}")
     return payload
@@ -1836,7 +1837,7 @@ def cmd_close(args: argparse.Namespace) -> dict[str, object]:
         "dry_run": args.dry_run,
     }
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Closed {kind.kind}: {payload['source']}")
     return payload
@@ -1980,7 +1981,7 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
     if args.dry_run:
         payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": True}
         if args.format == "json":
-            print(json.dumps(payload, indent=2, sort_keys=True))
+            print_payload(payload, args.format)
         else:
             print("Dry run: skipped post-close verification.")
         return payload
@@ -1992,7 +1993,7 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 
     payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": False}
     if args.format == "json":
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        print_payload(payload, args.format)
     else:
         print(f"Finish verification: OK for {source_path.relative_to(repo_root)}")
     return payload

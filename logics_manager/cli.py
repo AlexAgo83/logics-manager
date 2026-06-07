@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 from importlib import metadata
 import subprocess
 import sys
@@ -12,6 +11,7 @@ from .bootstrap import bootstrap_payload, render_bootstrap
 from .assist import main as assist_main
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
+from .cli_output import render_payload
 from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .lint import lint_payload, render_lint
@@ -265,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
             payload = index_payload(repo_root, out=parsed.out)
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
-        output = json.dumps(payload, indent=2, sort_keys=True) if parsed.format == "json" else f"Wrote {payload['output_path']}"
+        output = render_payload(payload, parsed.format, f"Wrote {payload['output_path']}")
         print(output)
         return 0 if payload["ok"] else 1
     if command == "lint":

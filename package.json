@@ -139,6 +139,7 @@
     "debug:webview": "node clients/viewer/debug-webview/server.mjs",
     "package:ci": "node scripts/build/package-ci.mjs",
     "package": "npm run compile && node scripts/build/package-release.mjs",
+    "package:npm": "node scripts/build/package-npm.mjs",
     "install:vsix": "npm run package && node scripts/build/install-vsix.mjs",
     "publish:npm": "node scripts/release/publish-npm.mjs",
     "release:changelog:resolve": "node scripts/release/resolve-release-changelog.mjs --validate-current",

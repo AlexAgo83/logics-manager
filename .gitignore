@@ -1,7 +1,8 @@
 node_modules/
 out/
 dist/
-build/
+/build/
+artifacts/
 *.tgz
 .vscode-test/
 *.vsix

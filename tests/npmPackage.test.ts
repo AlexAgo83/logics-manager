@@ -16,30 +16,37 @@ function npmArgs(args: string[]) {
 
 function packPackage() {
   const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-cache-"));
-  const output = execFileSync(npmCommand(), npmArgs(["pack", "--json"]), {
+  const packageDir = fs.mkdtempSync(path.join(os.tmpdir(), "cdx-logics-npm-pack-"));
+  const output = execFileSync(npmCommand(), npmArgs(["pack", "--json", "--pack-destination", packageDir]), {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: cacheDir }
   });
   const payload = JSON.parse(output) as Array<{
     entryCount: number;
+    filename: string;
     files: Array<{ path: string }>;
   }>;
-  return payload[0];
+  fs.rmSync(cacheDir, { recursive: true, force: true });
+  return { ...payload[0], packageDir };
 }
 
 describe("npm package surface", () => {
   it("packages the CLI wrapper without bundling the whole repo", () => {
     const packed = packPackage();
-    const filePaths = packed.files.map((entry) => entry.path);
+    try {
+      const filePaths = packed.files.map((entry) => entry.path);
 
-    expect(packed.entryCount).toBeLessThan(40);
-    expect(filePaths).toContain("VERSION");
-    expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
-    expect(filePaths).toContain("scripts/logics-manager.py");
-    expect(filePaths).toContain("logics_manager/cli.py");
-    expect(filePaths).not.toContain("src/logicsViewProvider.ts");
-    expect(filePaths).not.toContain("tests/logicsManagerNpmWrapper.test.ts");
+      expect(packed.entryCount).toBeLessThan(40);
+      expect(filePaths).toContain("VERSION");
+      expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
+      expect(filePaths).toContain("scripts/logics-manager.py");
+      expect(filePaths).toContain("logics_manager/cli.py");
+      expect(filePaths).not.toContain("src/logicsViewProvider.ts");
+      expect(filePaths).not.toContain("tests/logicsManagerNpmWrapper.test.ts");
+    } finally {
+      fs.rmSync(packed.packageDir, { recursive: true, force: true });
+    }
   });
 
   it("installs and runs the published CLI wrapper from a packed tarball", () => {
@@ -50,7 +57,7 @@ describe("npm package surface", () => {
     try {
       execFileSync(
         npmCommand(),
-        npmArgs(["install", "--ignore-scripts", "--no-package-lock", path.join(root, packed.filename)]),
+        npmArgs(["install", "--ignore-scripts", "--no-package-lock", path.join(packed.packageDir, packed.filename)]),
         {
           cwd: tempRoot,
           encoding: "utf8",
@@ -74,6 +81,7 @@ describe("npm package surface", () => {
     } finally {
       fs.rmSync(tempRoot, { recursive: true, force: true });
       fs.rmSync(cacheDir, { recursive: true, force: true });
+      fs.rmSync(packed.packageDir, { recursive: true, force: true });
     }
   }, 30000);
 });

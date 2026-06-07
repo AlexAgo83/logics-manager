@@ -603,6 +603,22 @@ def _plan_doc(repo_root: Path, directory: str, prefix: str, title: str, dry_run:
     return PlannedDoc(ref=ref, path=path)
 
 
+def _ensure_new_doc_paths_available(paths: list[Path]) -> None:
+    collisions = [path for path in paths if path.exists()]
+    if collisions:
+        rendered = ", ".join(path.as_posix() for path in collisions)
+        raise SystemExit(f"Ref collision while creating Logics doc(s): {rendered}. Re-run the command to allocate a fresh id.")
+
+
+def _write_new_doc(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("x", encoding="utf-8") as handle:
+            handle.write(content)
+    except FileExistsError as exc:
+        raise SystemExit(f"Ref collision while creating Logics doc: {path.as_posix()}. Re-run the command to allocate a fresh id.") from exc
+
+
 def _extract_refs(text: str, prefix: str) -> list[str]:
     pattern = re.compile(rf"\b{re.escape(prefix)}_\d{{3}}_[a-z0-9_]+\b")
     return sorted({match.group(0) for match in pattern.finditer(text)})
@@ -1204,8 +1220,7 @@ def _create_native_companion_docs(
         )
         adr_path = repo_root / "logics" / "architecture" / f"{adr_ref}.md"
         if not args.dry_run:
-            adr_path.parent.mkdir(parents=True, exist_ok=True)
-            adr_path.write_text(adr_content, encoding="utf-8")
+            _write_new_doc(adr_path, adr_content)
         created_architecture_refs.append(adr_ref)
 
     if getattr(args, "auto_create_product_brief", False):
@@ -1219,8 +1234,7 @@ def _create_native_companion_docs(
         )
         product_path = repo_root / "logics" / "product" / f"{product_ref}.md"
         if not args.dry_run:
-            product_path.parent.mkdir(parents=True, exist_ok=True)
-            product_path.write_text(product_content, encoding="utf-8")
+            _write_new_doc(product_path, product_content)
         created_product_refs.append(product_ref)
 
     return created_product_refs, created_architecture_refs
@@ -1512,8 +1526,7 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     if doc_kind.kind == "request":
         content = _build_native_request_doc(repo_root, planned.ref, args.title, args)
         if not args.dry_run:
-            planned.path.parent.mkdir(parents=True, exist_ok=True)
-            planned.path.write_text(content, encoding="utf-8")
+            _write_new_doc(planned.path, content)
             if args.format != "json":
                 print(f"Wrote {planned.path}")
         else:
@@ -1527,6 +1540,8 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
             print(f"Created {doc_kind.kind}: {payload['path']}")
         return payload
     if doc_kind.kind == "backlog":
+        if not args.dry_run:
+            _ensure_new_doc_paths_available([planned.path])
         product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             args.title,
@@ -1545,6 +1560,8 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
             architecture_refs=architecture_refs,
         )
     elif doc_kind.kind == "task":
+        if not args.dry_run:
+            _ensure_new_doc_paths_available([planned.path])
         product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             args.title,
@@ -1567,8 +1584,7 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         raise SystemExit(f"Unsupported doc kind `{doc_kind.kind}` for native creation.")
 
     if not args.dry_run:
-        planned.path.parent.mkdir(parents=True, exist_ok=True)
-        planned.path.write_text(content, encoding="utf-8")
+        _write_new_doc(planned.path, content)
         if args.format != "json":
             print(f"Wrote {planned.path}")
     else:
@@ -1622,8 +1638,7 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
         raise SystemExit(f"Unsupported companion kind `{args.kind}`.")
 
     if not args.dry_run:
-        planned_path.parent.mkdir(parents=True, exist_ok=True)
-        planned_path.write_text(content, encoding="utf-8")
+        _write_new_doc(planned_path, content)
         if args.format != "json":
             print(f"Wrote {planned_path}")
     else:
@@ -1654,6 +1669,9 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
     title = _extract_doc_title(source_path)
     ref, _ = _build_native_backlog_from_request(repo_root, source_path, title)
+    planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
+    if not args.dry_run:
+        _ensure_new_doc_paths_available([planned_path])
     product_refs, architecture_refs = _create_native_companion_docs(
         repo_root,
         title,
@@ -1669,10 +1687,8 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
         product_refs=product_refs,
         architecture_refs=architecture_refs,
     )
-    planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
     if not args.dry_run:
-        planned_path.parent.mkdir(parents=True, exist_ok=True)
-        planned_path.write_text(content, encoding="utf-8")
+        _write_new_doc(planned_path, content)
         _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
     payload = {
         "command": "promote",
@@ -1696,6 +1712,9 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     source_text = source_path.read_text(encoding="utf-8")
     request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
     ref, _ = _build_native_task_from_backlog(repo_root, source_path, title)
+    planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
+    if not args.dry_run:
+        _ensure_new_doc_paths_available([planned_path])
     product_refs, architecture_refs = _create_native_companion_docs(
         repo_root,
         title,
@@ -1712,10 +1731,8 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
         product_refs=product_refs,
         architecture_refs=architecture_refs,
     )
-    planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
     if not args.dry_run:
-        planned_path.parent.mkdir(parents=True, exist_ok=True)
-        planned_path.write_text(content, encoding="utf-8")
+        _write_new_doc(planned_path, content)
         _append_doc_section_bullets(source_path, "Tasks", [f"`{ref}`"], dry_run=False)
     payload = {
         "command": "promote",
@@ -1743,6 +1760,9 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
             source_path,
             title,
         )
+        planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
+        if not args.dry_run:
+            _ensure_new_doc_paths_available([planned_path])
         product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             title,
@@ -1758,10 +1778,8 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
             product_refs=product_refs,
             architecture_refs=architecture_refs,
         )
-        planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
         if not args.dry_run:
-            planned_path.parent.mkdir(parents=True, exist_ok=True)
-            planned_path.write_text(content, encoding="utf-8")
+            _write_new_doc(planned_path, content)
             _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
         created_refs.append(ref)
     payload = {
@@ -1787,6 +1805,9 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     created_refs: list[str] = []
     for title in titles:
         ref, _ = _build_native_task_from_backlog(repo_root, source_path, title)
+        planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
+        if not args.dry_run:
+            _ensure_new_doc_paths_available([planned_path])
         product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             title,
@@ -1803,10 +1824,8 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
             product_refs=product_refs,
             architecture_refs=architecture_refs,
         )
-        planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
         if not args.dry_run:
-            planned_path.parent.mkdir(parents=True, exist_ok=True)
-            planned_path.write_text(content, encoding="utf-8")
+            _write_new_doc(planned_path, content)
             _append_doc_section_bullets(source_path, "Tasks", [f"`{ref}`"], dry_run=False)
         created_refs.append(ref)
     payload = {

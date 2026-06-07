@@ -17,6 +17,7 @@ from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
+from logics_manager.flow import PlannedDoc
 
 
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
@@ -662,6 +663,28 @@ def test_main_runs_native_flow_new_request(
     assert exit_code == 0
     assert (repo_root / "logics" / "request" / "req_000_demo_request.md").is_file()
     assert "Created request:" in captured.out
+
+
+def test_flow_new_does_not_overwrite_colliding_planned_ref(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    target_path = repo_root / "logics" / "request" / "req_000_demo_request.md"
+    target_path.parent.mkdir(parents=True)
+    target_path.write_text("existing content\n", encoding="utf-8")
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.flow._plan_doc",
+        lambda *_args, **_kwargs: PlannedDoc(ref="req_000_demo_request", path=target_path),
+    )
+
+    with pytest.raises(SystemExit, match="Ref collision while creating Logics doc"):
+        main(["flow", "new", "request", "--title", "Demo Request"])
+
+    assert target_path.read_text(encoding="utf-8") == "existing content\n"
 
 
 def test_main_runs_native_flow_new_backlog_with_companions(

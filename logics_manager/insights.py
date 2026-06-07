@@ -349,13 +349,14 @@ def product_consistency_payload(repo_root: Path, *, limit: int = 50) -> dict[str
     docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
     docs_by_ref = {doc.ref: doc for doc in docs}
     product_docs = [doc for doc in docs if doc.kind == "product"]
+    checked_product_docs = [doc for doc in product_docs if doc.status != "Proposed"]
     issues: list[dict[str, object]] = []
     expected = {
         "request": "request",
         "backlog": "backlog",
         "task": "task",
     }
-    for doc in product_docs:
+    for doc in checked_product_docs:
         missing_related: list[str] = []
         broken_related: list[dict[str, str]] = []
         for label, expected_kind in expected.items():
@@ -382,6 +383,8 @@ def product_consistency_payload(repo_root: Path, *, limit: int = 50) -> dict[str
     return {
         "ok": not issues,
         "product_count": len(product_docs),
+        "checked_product_count": len(checked_product_docs),
+        "skipped_product_count": len(product_docs) - len(checked_product_docs),
         "issue_count": len(issues),
         "issues": issues[:limit],
         "truncated": len(issues) > limit,

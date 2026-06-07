@@ -380,12 +380,13 @@ def main(argv: list[str] | None = None) -> int:
     if command == "product-consistency":
         parser = argparse.ArgumentParser(prog="logics-manager product-consistency", add_help=False)
         parser.add_argument("--limit", type=int, default=50)
+        parser.add_argument("--strict", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
         repo_root = find_repo_root(Path.cwd())
         payload = product_consistency_payload(repo_root, limit=parsed.limit)
         print(render_product_consistency(repo_root, output_format=parsed.format, limit=parsed.limit))
-        return 0
+        return 1 if parsed.strict and not payload["ok"] else 0
     if command == "lint":
         parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)
         parser.add_argument("--require-status", action="store_true")

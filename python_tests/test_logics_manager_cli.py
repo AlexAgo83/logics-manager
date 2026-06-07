@@ -407,7 +407,7 @@ def test_product_consistency_payload_reports_broken_related_refs(tmp_path: Path)
     _write_minimal_product_doc(
         repo_root / "logics" / "product" / "prod_001_demo.md",
         title="Demo product",
-        status="Validated",
+        status="Active",
     )
     product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
     product_path.write_text(
@@ -432,7 +432,7 @@ def test_product_consistency_treats_backticked_none_as_missing(tmp_path: Path) -
     _write_minimal_product_doc(
         repo_root / "logics" / "product" / "prod_001_demo.md",
         title="Demo product",
-        status="Validated",
+        status="Active",
     )
     product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
     product_path.write_text(
@@ -457,7 +457,7 @@ def test_main_runs_product_consistency_json(
     _write_minimal_product_doc(
         repo_root / "logics" / "product" / "prod_001_demo.md",
         title="Demo product",
-        status="Validated",
+        status="Active",
     )
     product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
     product_path.write_text(
@@ -480,6 +480,44 @@ def test_main_runs_product_consistency_json(
     assert exit_code == 0
     assert payload["issue_count"] == 1
     assert payload["issues"][0]["missing_related"] == ["backlog", "task"]
+
+
+def test_product_consistency_skips_proposed_unlinked_briefs(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Proposed",
+    )
+
+    payload = product_consistency_payload(repo_root)
+
+    assert payload["ok"] is True
+    assert payload["checked_product_count"] == 0
+    assert payload["skipped_product_count"] == 1
+
+
+def test_main_product_consistency_strict_fails_on_issues(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Active",
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["product-consistency", "--strict", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 1
+    assert payload["issue_count"] == 1
 
 
 @pytest.mark.parametrize(

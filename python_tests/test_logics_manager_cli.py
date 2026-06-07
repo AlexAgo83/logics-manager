@@ -1229,6 +1229,70 @@ def test_main_runs_native_flow_companion_product(
     assert "Created companion doc:" in captured.out
 
 
+def test_main_runs_native_flow_deliver_from_product(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    product_path = repo_root / "logics" / "product" / "prod_001_demo_product.md"
+    product_path.write_text(
+        "\n".join(
+            [
+                "## prod_001_demo_product - Demo Product",
+                "> Date: 2026-06-07",
+                "> Status: Proposed",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "# Overview",
+                "- Demo product brief.",
+                "# References",
+                "- Product back-reference: (none yet)",
+                "- Task back-reference: (none yet)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "deliver", "--from-product", "prod_001_demo_product"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    request_path = repo_root / "logics" / "request" / "req_000_demo_product.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo_product.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo_product.md"
+    assert request_path.is_file()
+    assert backlog_path.is_file()
+    assert task_path.is_file()
+    assert "Created delivery chain from product" in captured.out
+
+    product_text = product_path.read_text(encoding="utf-8")
+    assert "> Related request: `req_000_demo_product`" in product_text
+    assert "> Related backlog: `item_001_demo_product`" in product_text
+    assert "> Related task: `task_001_demo_product`" in product_text
+    assert "- Product back-reference: `item_001_demo_product`" in product_text
+    assert "- Task back-reference: `task_001_demo_product`" in product_text
+    request_text = request_path.read_text(encoding="utf-8")
+    backlog_text = backlog_path.read_text(encoding="utf-8")
+    task_text = task_path.read_text(encoding="utf-8")
+    assert "- Product brief(s): `prod_001_demo_product`" in request_text
+    assert "`item_001_demo_product`" in request_text
+    assert "- [x] Problem statement is explicit and user impact is clear." in request_text
+    assert "`task_001_demo_product`" in backlog_text
+    assert "- Product brief(s): `prod_001_demo_product`" in backlog_text
+    assert "request-AC3 -> This backlog slice. Proof:" in backlog_text
+    assert "- Product brief(s): `prod_001_demo_product`" in task_text
+    assert "request-AC3 -> This task. Proof:" in task_text
+
+
 def test_main_runs_native_flow_promote_request_to_backlog(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

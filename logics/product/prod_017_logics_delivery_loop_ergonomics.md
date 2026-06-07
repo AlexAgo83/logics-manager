@@ -1,9 +1,9 @@
 ## prod_017_logics_delivery_loop_ergonomics - Logics delivery loop ergonomics
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_199_implement_flow_deliver_from_product`
+> Related backlog: `item_363_implement_flow_deliver_from_product`
+> Related task: `task_164_implement_flow_deliver_from_product`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -72,8 +72,8 @@ flowchart TD
 - The delivery-loop workflow is covered by subprocess tests and documented as the recommended agent closeout path.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_363_implement_flow_deliver_from_product`
+- Task back-reference: `task_164_implement_flow_deliver_from_product`
 - Builds on `prod_016_logics_operator_signal_refinement`.
 - Builds on `prod_015_cli_product_maturity_roadmap`.
 - Follow-up area: add `flow deliver --from-product` for one-pass delivery closeout.

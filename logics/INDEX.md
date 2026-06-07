@@ -50,6 +50,7 @@
 | [prod_015_cli_product_maturity_roadmap](product/prod_015_cli_product_maturity_roadmap.md) | CLI product maturity roadmap | Validated |  | product/prod_015_cli_product_maturity_roadmap.md |
 | [prod_016_logics_operator_signal_refinement](product/prod_016_logics_operator_signal_refinement.md) | Logics operator signal refinement | Proposed |  | product/prod_016_logics_operator_signal_refinement.md |
 | [prod_017_logics_delivery_loop_ergonomics](product/prod_017_logics_delivery_loop_ergonomics.md) | Logics delivery loop ergonomics | Proposed |  | product/prod_017_logics_delivery_loop_ergonomics.md |
+| [prod_018_agent_closeout_loop_ergonomics](product/prod_018_agent_closeout_loop_ergonomics.md) | Agent closeout loop ergonomics | Proposed |  | product/prod_018_agent_closeout_loop_ergonomics.md |
 
 ## Requests
 
@@ -252,6 +253,7 @@
 | [req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch](request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done |  | request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Done |  | request/req_197_mature_cli_product_contracts.md |
 | [req_198_refine_logics_operator_signal_commands](request/req_198_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done |  | request/req_198_refine_logics_operator_signal_commands.md |
+| [req_199_implement_flow_deliver_from_product](request/req_199_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done |  | request/req_199_implement_flow_deliver_from_product.md |
 
 ## Backlog
 
@@ -619,6 +621,7 @@
 | [item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch](backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | backlog/item_361_mature_cli_product_contracts.md |
 | [item_362_refine_logics_operator_signal_commands](backlog/item_362_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | backlog/item_362_refine_logics_operator_signal_commands.md |
+| [item_363_implement_flow_deliver_from_product](backlog/item_363_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | backlog/item_363_implement_flow_deliver_from_product.md |
 
 ## Tasks
 
@@ -781,3 +784,4 @@
 | [task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch](tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | tasks/task_162_mature_cli_product_contracts.md |
 | [task_163_refine_logics_operator_signal_commands](tasks/task_163_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | tasks/task_163_refine_logics_operator_signal_commands.md |
+| [task_164_implement_flow_deliver_from_product](tasks/task_164_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | tasks/task_164_implement_flow_deliver_from_product.md |

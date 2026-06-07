@@ -8,6 +8,7 @@ from datetime import date
 from pathlib import Path
 
 from .cli_output import print_payload
+from .lint import expected_workflow_mermaid_signature
 from .path_utils import ensure_relative_to
 from .termstyle import colorize_help
 
@@ -204,6 +205,10 @@ def _build_help() -> str:
             "    Create a companion doc from the integrated runtime.",
             "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
             "",
+            "  deliver --from-product <source>",
+            "    Create a linked request, backlog item, and task from a product brief.",
+            "    Flags: --title, --finish, --format {text,json}, --dry-run",
+            "",
             "  promote request-to-backlog <source>",
             "    Create a backlog slice from a request.",
             "",
@@ -228,6 +233,7 @@ def _build_help() -> str:
             "",
             "Examples:",
             '  logics-manager flow new request --title "My request"',
+            "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow promote request-to-backlog req_001_my_request",
             "  logics-manager flow close task task_003_fix_docs --dry-run",
         ]
@@ -350,6 +356,29 @@ def _build_companion_kind_help(kind: str) -> str:
             "",
             "Examples:",
             f'  logics-manager flow companion {kind} --title "{kind.title()} note"',
+        ]
+    )
+
+
+def _build_deliver_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Deliver",
+            "Create a delivery chain from a product brief.",
+            "",
+            "Usage:",
+            "  logics-manager flow deliver --from-product <source> [args...]",
+            "",
+            "Flags:",
+            "  --from-product <source>",
+            "  --title",
+            "  --finish",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Examples:",
+            "  logics-manager flow deliver --from-product prod_017_logics_delivery_loop_ergonomics",
+            '  logics-manager flow deliver --from-product logics/product/prod_017_logics_delivery_loop_ergonomics.md --title "Implement flow deliver"',
         ]
     )
 
@@ -628,6 +657,53 @@ def _strip_mermaid_blocks(text: str) -> str:
     return re.sub(r"```mermaid\s*\n.*?\n```", "", text, flags=re.DOTALL)
 
 
+def _workflow_mermaid_block(kind: str, signature: str) -> list[str]:
+    if kind == "request":
+        body = [
+            "flowchart TD",
+            "    Need[Request need] --> Backlog[Backlog slice]",
+            "    Backlog --> Task[Delivery task]",
+        ]
+    elif kind == "backlog":
+        body = [
+            "flowchart TD",
+            "    Request[Request source] --> Scope[Backlog scope]",
+            "    Scope --> Task[Delivery task]",
+        ]
+    else:
+        body = [
+            "flowchart TD",
+            "    Backlog[Backlog item] --> Build[Implementation]",
+            "    Build --> Validate[Validation]",
+            "    Validate --> Close[Finish workflow]",
+        ]
+    return [
+        "```mermaid",
+        f"%% logics-kind: {kind}",
+        f"%% logics-signature: {signature}",
+        *body,
+        "```",
+    ]
+
+
+def _with_workflow_mermaid_overview(kind: str, content: str) -> str:
+    lines = content.rstrip().splitlines()
+    signature = expected_workflow_mermaid_signature(kind, lines)
+    if not signature:
+        return content
+    block = _workflow_mermaid_block(kind, signature)
+    heading = {"request": "Context", "backlog": "Scope", "task": "Backlog"}[kind]
+    insert_at = len(lines)
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.lower():
+            insert_at = idx + 1
+            while insert_at < len(lines) and not lines[insert_at].startswith("# "):
+                insert_at += 1
+            break
+    updated = [*lines[:insert_at], "", *block, "", *lines[insert_at:]]
+    return "\n".join(updated).rstrip() + "\n"
+
+
 def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
     path = repo_root / kind.directory / f"{ref}.md"
     return path if path.is_file() else None
@@ -657,6 +733,28 @@ def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Pat
         raise SystemExit(f"Expected a `{kind.prefix}_...` file for kind `{kind.kind}`. Got: {candidate.name}")
     if rel_path.parent != expected_dir:
         raise SystemExit(f"Expected source under `{kind.directory}`. Got: `{rel_path.as_posix()}`.")
+    return candidate
+
+
+def _resolve_product_source(repo_root: Path, source: str) -> Path:
+    raw = Path(source)
+    if raw.is_absolute():
+        candidate = raw.resolve()
+        rel_path = ensure_relative_to(candidate, repo_root, label="source")
+    elif any(part == ".." for part in raw.parts):
+        raise SystemExit("Unsupported product source. Use a prod_... ref or repo-relative product path.")
+    elif len(raw.parts) == 1 and raw.suffix != ".md":
+        candidate = repo_root / "logics" / "product" / f"{source}.md"
+        rel_path = candidate.relative_to(repo_root)
+    else:
+        candidate = (repo_root / raw).resolve()
+        rel_path = ensure_relative_to(candidate, repo_root, label="source")
+    if candidate.parent != (repo_root / "logics" / "product").resolve():
+        raise SystemExit(f"Expected product source under `logics/product`. Got: `{rel_path.as_posix()}`.")
+    if not candidate.is_file():
+        raise SystemExit(f"Product source not found: {rel_path.as_posix()}")
+    if not candidate.stem.startswith("prod_"):
+        raise SystemExit(f"Expected a `prod_...` product brief. Got: {candidate.name}")
     return candidate
 
 
@@ -786,7 +884,7 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
         "`logics_manager/assist.py`",
         "`python_tests/test_logics_manager_cli.py`",
     ]
-    return "\n".join(
+    content = "\n".join(
         [
             f"## {planned_ref} - {title}",
             f"> From version: {from_version}",
@@ -833,6 +931,7 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
             "",
         ]
     ).rstrip() + "\n"
+    return _with_workflow_mermaid_overview("request", content)
 
 
 def _build_native_backlog_doc(
@@ -855,7 +954,7 @@ def _build_native_backlog_doc(
         f"AC1: The backlog slice stays bounded for {title.lower()}.",
         "AC2: The backlog slice is reviewable and promotable into a task.",
     ]
-    return "\n".join(
+    content = "\n".join(
         [
             f"## {planned_ref} - {title}",
             f"> From version: {from_version}",
@@ -883,6 +982,7 @@ def _build_native_backlog_doc(
             "# AC Traceability",
             "- request-AC1 -> This backlog slice. Proof: bounded delivery slice.",
             "- request-AC2 -> This backlog slice. Proof: promotable backlog item.",
+            "- request-AC3 -> This backlog slice. Proof: delivery chain includes a task-ready backlog item.",
             "",
             "# Decision framing",
             "- Product framing: Not needed",
@@ -909,6 +1009,7 @@ def _build_native_backlog_doc(
             "",
         ]
     ).rstrip() + "\n"
+    return _with_workflow_mermaid_overview("backlog", content)
 
 
 def _build_native_task_doc(
@@ -930,7 +1031,7 @@ def _build_native_task_doc(
     request_line = ", ".join(f"`{ref}`" for ref in request_refs) if request_refs else "(none yet)"
     product_line = ", ".join(f"`{ref}`" for ref in product_refs) if product_refs else "(none yet)"
     architecture_line = ", ".join(f"`{ref}`" for ref in architecture_refs) if architecture_refs else "(none yet)"
-    return "\n".join(
+    content = "\n".join(
         [
             f"## {planned_ref} - {title}",
             f"> From version: {from_version}",
@@ -960,6 +1061,13 @@ def _build_native_task_doc(
             "- [ ] Validation passes.",
             "- [ ] Linked docs are synchronized.",
             "",
+            "# AC Traceability",
+            "- request-AC1 -> This task. Proof: implementation delivers the bounded request need.",
+            "- request-AC2 -> This task. Proof: implementation scope is limited to the linked delivery slice.",
+            "- request-AC3 -> This task. Proof: implementation is executable from the promoted backlog item.",
+            "- backlog-AC1 -> This task. Proof: task remains bounded to the linked backlog scope.",
+            "- backlog-AC2 -> This task. Proof: task provides the executable implementation surface.",
+            "",
             "# Validation",
             "- Run `python3 -m logics_manager lint --require-status`.",
             "- Run the task-specific automated tests.",
@@ -980,6 +1088,7 @@ def _build_native_task_doc(
             "",
         ]
     ).rstrip() + "\n"
+    return _with_workflow_mermaid_overview("task", content)
 
 
 def _extract_doc_title(path: Path) -> str:
@@ -1092,6 +1201,79 @@ def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *,
             return
     lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _replace_indicator_line(lines: list[str], label: str, value: str) -> list[str]:
+    prefix = f"> {label}:"
+    updated = False
+    output: list[str] = []
+    insert_at = 1
+    for idx, line in enumerate(lines):
+        if idx > 0 and line.startswith("> "):
+            insert_at = idx + 1
+        if line.startswith(prefix):
+            output.append(f"{prefix} {value}")
+            updated = True
+        else:
+            output.append(line)
+    if not updated:
+        output.insert(insert_at, f"{prefix} {value}")
+    return output
+
+
+def _replace_or_append_prefixed_section_bullet(
+    lines: list[str],
+    heading: str,
+    bullet_prefix: str,
+    rendered_value: str,
+) -> list[str]:
+    heading_idx = None
+    for idx, line in enumerate(lines):
+        if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
+            heading_idx = idx
+            break
+    rendered = f"- {bullet_prefix}: {rendered_value}"
+    if heading_idx is None:
+        return [*lines, "", f"# {heading}", rendered]
+
+    end_idx = heading_idx + 1
+    while end_idx < len(lines) and not lines[end_idx].startswith("# "):
+        end_idx += 1
+
+    output = list(lines)
+    for idx in range(heading_idx + 1, end_idx):
+        if output[idx].strip().startswith(f"- {bullet_prefix}:"):
+            output[idx] = rendered
+            return output
+    output.insert(end_idx, rendered)
+    return output
+
+
+def _update_product_delivery_links(
+    product_path: Path,
+    *,
+    request_ref: str,
+    backlog_ref: str,
+    task_ref: str,
+    dry_run: bool,
+) -> None:
+    if dry_run:
+        return
+    lines = product_path.read_text(encoding="utf-8").splitlines()
+    lines = _replace_indicator_line(lines, "Related request", f"`{request_ref}`")
+    lines = _replace_indicator_line(lines, "Related backlog", f"`{backlog_ref}`")
+    lines = _replace_indicator_line(lines, "Related task", f"`{task_ref}`")
+    lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Product back-reference", f"`{backlog_ref}`")
+    lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Task back-reference", f"`{task_ref}`")
+    product_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _update_request_product_link(request_path: Path, product_ref: str, *, dry_run: bool) -> None:
+    if dry_run:
+        return
+    lines = request_path.read_text(encoding="utf-8").splitlines()
+    lines = _replace_or_append_prefixed_section_bullet(lines, "Companion docs", "Product brief(s)", f"`{product_ref}`")
+    request_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def _build_native_product_brief(
@@ -1351,7 +1533,7 @@ def _build_native_backlog_from_request(
             "",
         ]
     ).rstrip() + "\n"
-    return ref, content
+    return ref, _with_workflow_mermaid_overview("backlog", content)
 
 
 def _build_native_task_from_backlog(
@@ -1424,7 +1606,7 @@ def _build_native_task_from_backlog(
             "",
         ]
     ).rstrip() + "\n"
-    return ref, content
+    return ref, _with_workflow_mermaid_overview("task", content)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1463,6 +1645,14 @@ def build_parser() -> argparse.ArgumentParser:
         kind_parser.add_argument("--format", choices=("text", "json"), default="text")
         kind_parser.add_argument("--dry-run", action="store_true")
         kind_parser.set_defaults(func=cmd_companion)
+
+    deliver_parser = sub.add_parser("deliver", help="Create a delivery chain from a product brief.")
+    deliver_parser.add_argument("--from-product", required=True)
+    deliver_parser.add_argument("--title")
+    deliver_parser.add_argument("--finish", action="store_true")
+    deliver_parser.add_argument("--format", choices=("text", "json"), default="text")
+    deliver_parser.add_argument("--dry-run", action="store_true")
+    deliver_parser.set_defaults(func=cmd_deliver)
 
     promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
     promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
@@ -1661,6 +1851,106 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
         print_payload(payload, args.format)
     else:
         print(f"Created companion doc: {payload['path']}")
+    return payload
+
+
+def _deliver_builder_args(args: argparse.Namespace) -> argparse.Namespace:
+    return argparse.Namespace(
+        from_version=None,
+        understanding="90%",
+        confidence="85%",
+        status="Ready",
+        complexity="Medium",
+        theme="Operator workflow",
+        progress="0%",
+        auto_create_product_brief=False,
+        auto_create_adr=False,
+        dry_run=args.dry_run,
+        fixture=False,
+    )
+
+
+def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    product_path = _resolve_product_source(repo_root, args.from_product)
+    product_ref = product_path.stem
+    title = args.title or _extract_doc_title(product_path)
+    build_args = _deliver_builder_args(args)
+
+    request_planned = _plan_doc(repo_root, DOC_KINDS["request"].directory, DOC_KINDS["request"].prefix, title, dry_run=args.dry_run)
+    backlog_ref = _next_backlog_ref(repo_root, title)
+    task_ref = _next_task_ref(repo_root, title)
+    backlog_path = repo_root / DOC_KINDS["backlog"].directory / f"{backlog_ref}.md"
+    task_path = repo_root / DOC_KINDS["task"].directory / f"{task_ref}.md"
+
+    if not args.dry_run:
+        _ensure_new_doc_paths_available([request_planned.path, backlog_path, task_path])
+
+    request_content = _build_native_request_doc(repo_root, request_planned.ref, title, build_args)
+    backlog_content = _build_native_backlog_doc(
+        repo_root,
+        backlog_ref,
+        title,
+        build_args,
+        request_ref=request_planned.path.relative_to(repo_root).as_posix(),
+        product_refs=[product_ref],
+        architecture_refs=[],
+    )
+    task_content = _build_native_task_doc(
+        repo_root,
+        task_ref,
+        title,
+        build_args,
+        backlog_ref=backlog_ref,
+        request_refs=[request_planned.ref],
+        product_refs=[product_ref],
+        architecture_refs=[],
+    )
+
+    if not args.dry_run:
+        _write_new_doc(request_planned.path, request_content)
+        _write_new_doc(backlog_path, backlog_content)
+        _write_new_doc(task_path, task_content)
+        _append_doc_section_bullets(request_planned.path, "Backlog", [f"`{backlog_ref}`"], dry_run=False)
+        _append_doc_section_bullets(backlog_path, "Tasks", [f"`{task_ref}`"], dry_run=False)
+        _update_request_product_link(request_planned.path, product_ref, dry_run=False)
+        _mark_section_checkboxes_done(request_planned.path, "Definition of Ready (DoR)", dry_run=False)
+        _update_product_delivery_links(
+            product_path,
+            request_ref=request_planned.ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+            dry_run=False,
+        )
+        if args.finish:
+            _close_chain_for_kind(repo_root, task_path, DOC_KINDS["task"], dry_run=False, quiet=args.format == "json")
+
+    payload = {
+        "command": "deliver",
+        "from_product": product_path.relative_to(repo_root).as_posix(),
+        "product_ref": product_ref,
+        "created_request_ref": request_planned.ref,
+        "created_request_path": request_planned.path.relative_to(repo_root).as_posix(),
+        "created_backlog_ref": backlog_ref,
+        "created_backlog_path": backlog_path.relative_to(repo_root).as_posix(),
+        "created_task_ref": task_ref,
+        "created_task_path": task_path.relative_to(repo_root).as_posix(),
+        "finished": bool(args.finish and not args.dry_run),
+        "dry_run": args.dry_run,
+    }
+
+    if args.format == "json":
+        print_payload(payload, args.format)
+    elif args.dry_run:
+        print(f"[dry-run] would create delivery chain from product: {product_path.relative_to(repo_root)}")
+        print(f"- request: {payload['created_request_path']}")
+        print(f"- backlog: {payload['created_backlog_path']}")
+        print(f"- task: {payload['created_task_path']}")
+    else:
+        print(f"Created delivery chain from product: {product_path.relative_to(repo_root)}")
+        print(f"- request: {payload['created_request_path']}")
+        print(f"- backlog: {payload['created_backlog_path']}")
+        print(f"- task: {payload['created_task_path']}")
     return payload
 
 
@@ -2037,6 +2327,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "companion" and len(argv) > 1 and argv[1] in {"product", "architecture"} and _help_requested(argv, 2):
         _print_help(_build_companion_kind_help(argv[1]))
         return 0
+    if argv[0] == "deliver" and _help_requested(argv, 1):
+        _print_help(_build_deliver_help())
+        return 0
     if argv[0] == "promote" and _help_requested(argv, 1):
         _print_help(_build_promote_help())
         return 0
@@ -2063,7 +2356,7 @@ def main(argv: list[str]) -> int:
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "list", "companion", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "list", "companion", "deliver", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     return 0 if isinstance(payload, dict) else 1

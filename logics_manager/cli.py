@@ -15,6 +15,7 @@ from .cli_output import render_payload
 from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .insights import followups_payload, health_payload, render_followups, render_health, render_status, status_payload
+from .insights import product_consistency_payload, render_product_consistency
 from .lint import lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import render_doctor
@@ -33,6 +34,7 @@ ROOT_COMMANDS = (
     "index",
     "health",
     "followups",
+    "product-consistency",
     "status",
     "lint",
     "config",
@@ -83,6 +85,7 @@ def _build_root_help() -> str:
         "  index      Generate logics/INDEX.md from the workflow corpus.",
         "  health     Show workflow health counts and issue signals.",
         "  followups  List follow-up areas with request creation commands.",
+        "  product-consistency  Check product brief lineage links.",
         "  status     Summarize open workflow docs and next actions.",
         "  search     Search workflow docs directly.",
         "",
@@ -355,6 +358,15 @@ def main(argv: list[str] | None = None) -> int:
                 lines.append(f"- {match['ref']}:{match['line']} {match['title']}")
             output = "\n".join(lines)
         print(output)
+        return 0
+    if command == "product-consistency":
+        parser = argparse.ArgumentParser(prog="logics-manager product-consistency", add_help=False)
+        parser.add_argument("--limit", type=int, default=50)
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed = parser.parse_args(rest)
+        repo_root = find_repo_root(Path.cwd())
+        payload = product_consistency_payload(repo_root, limit=parsed.limit)
+        print(render_product_consistency(repo_root, output_format=parsed.format, limit=parsed.limit))
         return 0
     if command == "lint":
         parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)

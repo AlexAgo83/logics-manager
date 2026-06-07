@@ -280,3 +280,80 @@ def render_followups(repo_root: Path, *, output_format: str = "text", limit: int
         lines.append(f"- {item['source_ref']}:{item['line']} {item['text']}")
         lines.append(f"  command: {item['suggested_command']}")
     return "\n".join(lines)
+
+
+def _related_ref(content: str, label: str) -> str | None:
+    prefix = f"> Related {label}:"
+    for line in content.splitlines():
+        if not line.startswith(prefix):
+            continue
+        value = line.split(":", 1)[1].strip()
+        if not value or value.lower().startswith("(none"):
+            return None
+        match = re.search(r"`([^`]+)`", value)
+        return match.group(1) if match else value
+    return None
+
+
+def product_consistency_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
+    docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
+    docs_by_ref = {doc.ref: doc for doc in docs}
+    product_docs = [doc for doc in docs if doc.kind == "product"]
+    issues: list[dict[str, object]] = []
+    expected = {
+        "request": "request",
+        "backlog": "backlog",
+        "task": "task",
+    }
+    for doc in product_docs:
+        missing_related: list[str] = []
+        broken_related: list[dict[str, str]] = []
+        for label, expected_kind in expected.items():
+            ref = _related_ref(doc.content, label)
+            if ref is None:
+                missing_related.append(label)
+                continue
+            target = docs_by_ref.get(ref)
+            if target is None:
+                broken_related.append({"kind": label, "ref": ref, "reason": "missing"})
+            elif target.kind != expected_kind:
+                broken_related.append({"kind": label, "ref": ref, "reason": f"expected {expected_kind}, found {target.kind}"})
+        if missing_related or broken_related:
+            issues.append(
+                {
+                    "ref": doc.ref,
+                    "title": doc.title,
+                    "status": doc.status,
+                    "path": doc.rel_path,
+                    "missing_related": missing_related,
+                    "broken_related": broken_related,
+                }
+            )
+    return {
+        "ok": not issues,
+        "product_count": len(product_docs),
+        "issue_count": len(issues),
+        "issues": issues[:limit],
+        "truncated": len(issues) > limit,
+        "limit": limit,
+    }
+
+
+def render_product_consistency(repo_root: Path, *, output_format: str = "text", limit: int = 50) -> str:
+    payload = product_consistency_payload(repo_root, limit=limit)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+
+    lines = [
+        "Product consistency:",
+        f"- product briefs: {payload['product_count']}",
+        f"- issue signals: {payload['issue_count']}",
+    ]
+    for issue in payload["issues"]:
+        details: list[str] = []
+        if issue["missing_related"]:
+            details.append("missing " + ", ".join(issue["missing_related"]))
+        if issue["broken_related"]:
+            details.append("broken " + ", ".join(item["ref"] for item in issue["broken_related"]))
+        lines.append(f"- {issue['ref']} [{issue['status']}]: {'; '.join(details)}")
+    return "\n".join(lines)

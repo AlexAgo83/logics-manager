@@ -18,7 +18,7 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc
-from logics_manager.insights import followups_payload, health_payload, status_payload
+from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 
 
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
@@ -308,6 +308,67 @@ def test_main_runs_search_shortcut_json(
     assert payload["matches"][0]["ref"] == "req_001_demo"
 
 
+def test_product_consistency_payload_reports_broken_related_refs(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Validated",
+    )
+    product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
+    product_path.write_text(
+        product_path.read_text(encoding="utf-8")
+        .replace("> Related request: (none yet)", "> Related request: `req_001_missing`")
+        .replace("> Related task: (none yet)", "> Related task: `task_001_missing`"),
+        encoding="utf-8",
+    )
+
+    payload = product_consistency_payload(repo_root)
+
+    assert payload["ok"] is False
+    assert payload["issue_count"] == 1
+    issue = payload["issues"][0]
+    assert issue["missing_related"] == ["backlog"]
+    assert [item["ref"] for item in issue["broken_related"]] == ["req_001_missing", "task_001_missing"]
+
+
+def test_main_runs_product_consistency_json(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Validated",
+    )
+    product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
+    product_path.write_text(
+        product_path.read_text(encoding="utf-8").replace("> Related request: (none yet)", "> Related request: `req_001_demo`"),
+        encoding="utf-8",
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Done",
+        links=[],
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["product-consistency", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["issue_count"] == 1
+    assert payload["issues"][0]["missing_related"] == ["backlog", "task"]
+
+
 @pytest.mark.parametrize(
     ("argv", "expected_script_suffix", "expected_args"),
     [
@@ -346,6 +407,7 @@ def test_main_runs_search_shortcut_json(
         (["followups", "--format", "json"], None, None),
         (["status", "--format", "json"], None, None),
         (["search", "runtime", "--format", "json"], None, None),
+        (["product-consistency", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],
 )

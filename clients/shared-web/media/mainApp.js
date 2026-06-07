@@ -724,6 +724,8 @@
         getShowCompanionDocs: () => showCompanionDocs,
         getHideEmptyColumns: () => hideEmptyColumns,
         getSearchQuery: () => searchQuery,
+        getGroupMode: () => groupMode,
+        getSortMode: () => sortMode,
         getAttentionOnly: () => attentionOnly
       })
     : null;

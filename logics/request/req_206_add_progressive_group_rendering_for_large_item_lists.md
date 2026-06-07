@@ -1,7 +1,7 @@
 ## req_206_add_progressive_group_rendering_for_large_item_lists - Add progressive group rendering for large item lists
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94
 > Confidence: 86
 > Complexity: Medium

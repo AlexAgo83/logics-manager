@@ -1,4 +1,5 @@
 (() => {
+  const GROUP_RENDER_PAGE_SIZE = 10;
   const TASK_COLORS = ["#14b8a6", "#2563eb", "#8b5cf6", "#22c55e", "#06b6d4", "#84cc16", "#0ea5e9", "#7c3aed", "#3b82f6", "#0f766e"];
   const REQUEST_COLORS = ["#f97316", "#f59e0b", "#f43f5e", "#fb7185", "#ef4444", "#d97706", "#ec4899", "#be123c", "#fca5a5", "#fdba74"];
   const CLOSED_TASK_STATUSES = new Set(["done", "archived", "obsolete"]);
@@ -133,10 +134,14 @@
       getShowCompanionDocs,
       getHideEmptyColumns,
       getSearchQuery,
+      getGroupMode,
+      getSortMode,
       getAttentionOnly
     } = options;
     let activeTaskColorMap = new Map();
     let activeRequestColorMap = new Map();
+    let groupRenderLimits = new Map();
+    let previousRenderContextKey = "";
 
     function findCardById(id) {
       if (!board || !id) {
@@ -186,6 +191,82 @@
 
     function getVisibleGroupedItems() {
       return groupByStage(getItems().filter((item) => isVisible(item)));
+    }
+
+    function normalizeGroupKey(groupKey) {
+      return String(groupKey || "group");
+    }
+
+    function hasActiveSearch() {
+      return String(getSearchQuery && getSearchQuery() ? getSearchQuery() : "").trim() !== "";
+    }
+
+    function getRenderContextKey() {
+      return [
+        isListMode() ? "list" : "board",
+        typeof getGroupMode === "function" ? getGroupMode() : "stage",
+        typeof getSortMode === "function" ? getSortMode() : "updated-desc",
+        getSearchQuery(),
+        getHideCompleted(),
+        getHideProcessedRequests(),
+        getHideSpec(),
+        getShowCompanionDocs(),
+        getAttentionOnly()
+      ].join("|");
+    }
+
+    function reconcileGroupRenderLimits() {
+      const nextContextKey = getRenderContextKey();
+      if (nextContextKey !== previousRenderContextKey) {
+        groupRenderLimits = new Map();
+        previousRenderContextKey = nextContextKey;
+      }
+    }
+
+    function visibleSliceForGroup(groupKey, items) {
+      const allItems = Array.isArray(items) ? items : [];
+      if (hasActiveSearch() || allItems.length <= GROUP_RENDER_PAGE_SIZE) {
+        return {
+          items: allItems,
+          limit: allItems.length,
+          remaining: 0,
+          total: allItems.length,
+          truncated: false
+        };
+      }
+      const key = normalizeGroupKey(groupKey);
+      const limit = Math.max(GROUP_RENDER_PAGE_SIZE, groupRenderLimits.get(key) || GROUP_RENDER_PAGE_SIZE);
+      const visibleLimit = Math.min(limit, allItems.length);
+      return {
+        items: allItems.slice(0, visibleLimit),
+        limit: visibleLimit,
+        remaining: allItems.length - visibleLimit,
+        total: allItems.length,
+        truncated: visibleLimit < allItems.length
+      };
+    }
+
+    function createShowMoreControl(groupKey, remaining, total) {
+      const revealCount = Math.min(GROUP_RENDER_PAGE_SIZE, Math.max(0, remaining));
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "group-show-more";
+      button.dataset.group = normalizeGroupKey(groupKey);
+      button.textContent = `Show ${revealCount} more`;
+      button.title = `${remaining} of ${total} items hidden in this group`;
+      button.setAttribute("aria-label", `Show ${revealCount} more items in this group, ${remaining} remaining`);
+      button.addEventListener("click", () => {
+        const key = normalizeGroupKey(groupKey);
+        const currentLimit = Math.max(GROUP_RENDER_PAGE_SIZE, groupRenderLimits.get(key) || GROUP_RENDER_PAGE_SIZE);
+        groupRenderLimits.set(key, currentLimit + GROUP_RENDER_PAGE_SIZE);
+        render();
+      });
+      return button;
+    }
+
+    function formatRenderedCount(visibleCount, totalCount) {
+      const normalizedTotal = Math.max(0, totalCount || 0);
+      return `${visibleCount}/${normalizedTotal}`;
     }
 
     function disconnectSentinels() {
@@ -1053,6 +1134,7 @@
           return;
         }
         const totalCount = Math.max(0, stageItems.length || 0);
+        const visibleSlice = visibleSliceForGroup(stage, stageItems);
         const column = document.createElement("div");
         const canCreateFromColumn = isPrimaryFlowStage(stage);
         column.className = "column";
@@ -1070,7 +1152,7 @@
 
         const titleCount = document.createElement("span");
         titleCount.className = "column__title-count";
-        titleCount.textContent = `${stageItems.length}/${totalCount}`;
+        titleCount.textContent = formatRenderedCount(visibleSlice.items.length, totalCount);
         title.appendChild(titleCount);
         header.appendChild(title);
 
@@ -1104,7 +1186,10 @@
           empty.textContent = canCreateFromColumn ? "No items" : "No linked docs";
           body.appendChild(empty);
         } else {
-          stageItems.forEach((item) => body.appendChild(createItemCard(item)));
+          visibleSlice.items.forEach((item) => body.appendChild(createItemCard(item)));
+          if (visibleSlice.truncated) {
+            body.appendChild(createShowMoreControl(stage, visibleSlice.remaining, visibleSlice.total));
+          }
         }
 
         column.appendChild(body);
@@ -1132,6 +1217,7 @@
         }
 
         const stageItems = group.items || [];
+        const visibleSlice = visibleSliceForGroup(group.key, stageItems);
         const isCollapsed = getCollapsedListStages().has(group.key);
 
         const header = document.createElement("button");
@@ -1153,7 +1239,7 @@
 
         const count = document.createElement("span");
         count.className = "list-view__header-count";
-        count.textContent = `${stageItems.length}/${Math.max(0, group.totalCount || 0)}`;
+        count.textContent = formatRenderedCount(visibleSlice.items.length, Math.max(0, group.totalCount || 0));
         header.appendChild(count);
         header.addEventListener("click", () => {
           toggleListStageCollapsed(group.key, !getCollapsedListStages().has(group.key));
@@ -1172,9 +1258,9 @@
             focusListHeader(group.key);
             return;
           }
-          if (event.key === "ArrowDown" && !getCollapsedListStages().has(group.key) && stageItems.length > 0) {
+          if (event.key === "ArrowDown" && !getCollapsedListStages().has(group.key) && visibleSlice.items.length > 0) {
             event.preventDefault();
-            selectItemAndFocus(stageItems[0].id);
+            selectItemAndFocus(visibleSlice.items[0].id);
           }
         });
         section.appendChild(header);
@@ -1189,7 +1275,10 @@
           empty.textContent = group.emptyLabel || "No items";
           body.appendChild(empty);
         } else {
-          stageItems.forEach((item) => body.appendChild(createItemCard(item, true)));
+          visibleSlice.items.forEach((item) => body.appendChild(createItemCard(item, true)));
+          if (visibleSlice.truncated) {
+            body.appendChild(createShowMoreControl(group.key, visibleSlice.remaining, visibleSlice.total));
+          }
         }
         section.appendChild(body);
         listView.appendChild(section);
@@ -1206,6 +1295,7 @@
         closeColumnMenu();
       }
       disconnectSentinels();
+      reconcileGroupRenderLimits();
       board.innerHTML = "";
       const visibleItems = getItems().filter((item) => isVisible(item));
       activeTaskColorMap = buildTaskColorMap(visibleItems);

@@ -138,6 +138,31 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+.group-show-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  width: calc(100% - 20px);
+  margin: 6px 10px;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.group-show-more:hover {
+  background: var(--vscode-list-hoverBackground, #2a2d2e);
+}
+
+.group-show-more:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  outline-offset: 1px;
+}
+
 .card {
   margin: 6px 10px;
   padding: 8px 10px;

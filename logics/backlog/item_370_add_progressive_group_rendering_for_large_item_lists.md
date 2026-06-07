@@ -1,10 +1,10 @@
 ## item_370_add_progressive_group_rendering_for_large_item_lists - Add progressive group rendering for large item lists
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92
 > Confidence: 84
-> Progress: 0
+> Progress: 100%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -81,6 +81,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_206_add_progressive_group_rendering_for_large_item_lists` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_206_add_progressive_group_rendering_for_large_item_lists.md`.
 - Generated locally by logics-manager.
+- Task `task_171_add_progressive_group_rendering_for_large_item_lists` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_171_add_progressive_group_rendering_for_large_item_lists`

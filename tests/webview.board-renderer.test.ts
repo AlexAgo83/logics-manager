@@ -2,6 +2,16 @@ import { describe, expect, it, vi } from "vitest";
 import { baseItem, bootstrapWebview, productItem, pushData, specItem } from "./webviewHarnessTestUtils";
 
 describe("webview board renderer behavior", () => {
+  function makeRequestItems(count: number, titlePrefix = "Large corpus request") {
+    return Array.from({ length: count }, (_, index) => ({
+      ...baseItem,
+      id: `req_${String(index + 1).padStart(3, "0")}_large`,
+      title: `${titlePrefix} ${index + 1}`,
+      relPath: `logics/request/req_${String(index + 1).padStart(3, "0")}_large.md`,
+      path: `/workspace/mock/logics/request/req_${String(index + 1).padStart(3, "0")}_large.md`
+    }));
+  }
+
   function installIntersectionObserverMock(dom: ReturnType<typeof bootstrapWebview>["dom"]) {
     const instances: Array<{
       callback: (entries: Array<Record<string, unknown>>) => void;
@@ -121,6 +131,33 @@ describe("webview board renderer behavior", () => {
     expect(requestCount).toBe("2/2");
   });
 
+  it("renders large board columns progressively with a show more control", () => {
+    const { dom } = bootstrapWebview();
+    const items = makeRequestItems(12);
+
+    pushData(dom, { root: "/workspace/mock", items });
+
+    const board = dom.window.document.getElementById("board");
+    const requestColumn = Array.from(board?.querySelectorAll(".column") || []).find(
+      (c) => (c as HTMLElement).dataset.stage === "request"
+    );
+
+    expect(requestColumn?.querySelectorAll(".card").length).toBe(10);
+    expect(requestColumn?.querySelector(".column__title-count")?.textContent).toBe("10/12");
+    const showMore = requestColumn?.querySelector(".group-show-more") as HTMLButtonElement | null;
+    expect(showMore?.textContent).toBe("Show 2 more");
+    expect(showMore?.title).toContain("2 of 12");
+
+    showMore?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const updatedColumn = Array.from(board?.querySelectorAll(".column") || []).find(
+      (c) => (c as HTMLElement).dataset.stage === "request"
+    );
+    expect(updatedColumn?.querySelectorAll(".card").length).toBe(12);
+    expect(updatedColumn?.querySelector(".column__title-count")?.textContent).toBe("12/12");
+    expect(updatedColumn?.querySelector(".group-show-more")).toBeNull();
+  });
+
   it("opens and closes the column add menu on toggle", () => {
     const { dom } = bootstrapWebview();
 
@@ -195,6 +232,51 @@ describe("webview board renderer behavior", () => {
 
     const firstHeader = headers[0];
     expect(firstHeader?.querySelector(".list-view__header-count")?.textContent).toBe("1/1");
+  });
+
+  it("renders large list groups progressively and reveals the next page on demand", () => {
+    const { dom } = bootstrapWebview();
+    pushData(dom, { root: "/workspace/mock", items: makeRequestItems(13) });
+
+    const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
+    viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const board = dom.window.document.getElementById("board");
+    const requestSection = Array.from(board?.querySelectorAll(".list-view__section") || []).find(
+      (section) => (section as HTMLElement).dataset.group === "request"
+    );
+
+    expect(requestSection?.querySelectorAll(".card").length).toBe(10);
+    expect(requestSection?.querySelector(".list-view__header-count")?.textContent).toBe("10/13");
+    const showMore = requestSection?.querySelector(".group-show-more") as HTMLButtonElement | null;
+    expect(showMore?.textContent).toBe("Show 3 more");
+
+    showMore?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const updatedSection = Array.from(board?.querySelectorAll(".list-view__section") || []).find(
+      (section) => (section as HTMLElement).dataset.group === "request"
+    );
+    expect(updatedSection?.querySelectorAll(".card").length).toBe(13);
+    expect(updatedSection?.querySelector(".list-view__header-count")?.textContent).toBe("13/13");
+  });
+
+  it("does not truncate active search results behind show more controls", () => {
+    const { dom } = bootstrapWebview();
+    pushData(dom, { root: "/workspace/mock", items: makeRequestItems(12, "Needle request") });
+
+    const searchInput = dom.window.document.getElementById("search-input") as HTMLInputElement | null;
+    if (searchInput) {
+      searchInput.value = "Needle";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+
+    const board = dom.window.document.getElementById("board");
+    const requestColumn = Array.from(board?.querySelectorAll(".column") || []).find(
+      (c) => (c as HTMLElement).dataset.stage === "request"
+    );
+    expect(requestColumn?.querySelectorAll(".card").length).toBe(12);
+    expect(requestColumn?.querySelector(".column__title-count")?.textContent).toBe("12/12");
+    expect(requestColumn?.querySelector(".group-show-more")).toBeNull();
   });
 
   it("renders sticky sentinels in list mode and updates them from observer entries", () => {

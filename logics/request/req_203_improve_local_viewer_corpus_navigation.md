@@ -1,7 +1,7 @@
 ## req_203_improve_local_viewer_corpus_navigation - Improve local viewer corpus navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92
 > Confidence: 86
 > Complexity: High

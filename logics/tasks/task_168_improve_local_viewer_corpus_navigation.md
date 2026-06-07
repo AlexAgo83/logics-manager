@@ -1,18 +1,18 @@
 ## task_168_improve_local_viewer_corpus_navigation - Improve local viewer corpus navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92
 > Confidence: 86
-> Progress: 0
+> Progress: 100%
 > Complexity: High
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_367_improve_local_viewer_corpus_navigation`
@@ -46,9 +46,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_168_improve_local_viewer_corpus_navigation.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_367_improve_local_viewer_corpus_navigation`
+- Related request(s): `req_203_improve_local_viewer_corpus_navigation`
 
 # AI Context
 - Summary: Implement improve local viewer corpus navigation.

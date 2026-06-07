@@ -254,8 +254,21 @@ def _is_actionable_followup(text: str) -> bool:
     return True
 
 
-def followups_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
+def followups_payload(
+    repo_root: Path,
+    *,
+    limit: int = 50,
+    source_kind: str = "all",
+    include_closed: bool = False,
+    closed_only: bool = False,
+) -> dict[str, object]:
     docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
+    if source_kind != "all":
+        docs = [doc for doc in docs if doc.kind == source_kind]
+    if closed_only:
+        docs = [doc for doc in docs if doc.status in CLOSED_STATUSES]
+    elif not include_closed:
+        docs = [doc for doc in docs if doc.status not in CLOSED_STATUSES]
     followups: list[dict[str, object]] = []
     patterns = ("Follow-up area:", "Product follow-up:", "Architecture follow-up:")
     for doc in docs:
@@ -283,12 +296,31 @@ def followups_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
         "ok": True,
         "count": len(followups),
         "returned_count": min(len(followups), limit),
+        "filters": {
+            "source_kind": source_kind,
+            "include_closed": include_closed,
+            "closed_only": closed_only,
+        },
         "followups": followups[:limit],
     }
 
 
-def render_followups(repo_root: Path, *, output_format: str = "text", limit: int = 50) -> str:
-    payload = followups_payload(repo_root, limit=limit)
+def render_followups(
+    repo_root: Path,
+    *,
+    output_format: str = "text",
+    limit: int = 50,
+    source_kind: str = "all",
+    include_closed: bool = False,
+    closed_only: bool = False,
+) -> str:
+    payload = followups_payload(
+        repo_root,
+        limit=limit,
+        source_kind=source_kind,
+        include_closed=include_closed,
+        closed_only=closed_only,
+    )
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
 

@@ -322,12 +322,30 @@ def main(argv: list[str] | None = None) -> int:
     if command == "followups":
         parser = argparse.ArgumentParser(prog="logics-manager followups", add_help=False)
         parser.add_argument("--limit", type=int, default=50)
+        parser.add_argument("--source-kind", choices=("all", "request", "backlog", "task", "product", "architecture"), default="all")
+        parser.add_argument("--include-closed", action="store_true")
+        parser.add_argument("--closed-only", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
+        if parsed.include_closed and parsed.closed_only:
+            raise SystemExit("--include-closed and --closed-only are mutually exclusive.")
         repo_root = find_repo_root(Path.cwd())
         try:
-            payload = followups_payload(repo_root, limit=parsed.limit)
-            output = render_followups(repo_root, output_format=parsed.format, limit=parsed.limit)
+            payload = followups_payload(
+                repo_root,
+                limit=parsed.limit,
+                source_kind=parsed.source_kind,
+                include_closed=parsed.include_closed,
+                closed_only=parsed.closed_only,
+            )
+            output = render_followups(
+                repo_root,
+                output_format=parsed.format,
+                limit=parsed.limit,
+                source_kind=parsed.source_kind,
+                include_closed=parsed.include_closed,
+                closed_only=parsed.closed_only,
+            )
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
         print(output)

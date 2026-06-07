@@ -276,10 +276,74 @@ def test_followups_payload_skips_non_actionable_markers(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    payload = followups_payload(repo_root)
+    payload = followups_payload(repo_root, include_closed=True)
 
     assert payload["count"] == 1
     assert payload["followups"][0]["text"] == "define release workflow"
+
+
+def test_followups_payload_defaults_to_open_sources(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_done.md",
+        title="Done backlog",
+        kind="backlog",
+        status="Done",
+        links=[],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_002_ready.md",
+        title="Ready backlog",
+        kind="backlog",
+        status="Ready",
+        links=[],
+    )
+    (repo_root / "logics" / "backlog" / "item_001_done.md").write_text(
+        (repo_root / "logics" / "backlog" / "item_001_done.md").read_text(encoding="utf-8")
+        + "\n- Product follow-up: closed followup\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / "item_002_ready.md").write_text(
+        (repo_root / "logics" / "backlog" / "item_002_ready.md").read_text(encoding="utf-8")
+        + "\n- Product follow-up: open followup\n",
+        encoding="utf-8",
+    )
+
+    payload = followups_payload(repo_root)
+    closed_payload = followups_payload(repo_root, closed_only=True)
+
+    assert [item["text"] for item in payload["followups"]] == ["open followup"]
+    assert [item["text"] for item in closed_payload["followups"]] == ["closed followup"]
+
+
+def test_followups_payload_filters_source_kind(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "architecture").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Proposed",
+        body="- Follow-up area: product followup\n",
+    )
+    (repo_root / "logics" / "architecture" / "adr_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## adr_001_demo - Demo ADR",
+                "> Status: Proposed",
+                "",
+                "- Architecture follow-up: architecture followup",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = followups_payload(repo_root, source_kind="product")
+
+    assert payload["count"] == 1
+    assert payload["followups"][0]["source_kind"] == "product"
+    assert payload["followups"][0]["text"] == "product followup"
 
 
 def test_main_runs_followups_json(
@@ -303,11 +367,12 @@ def test_main_runs_followups_json(
     )
     monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
 
-    exit_code = main(["followups", "--json"])
+    exit_code = main(["followups", "--source-kind", "architecture", "--json"])
 
     captured = capsys.readouterr()
     payload = json.loads(captured.out)
     assert exit_code == 0
+    assert payload["filters"]["source_kind"] == "architecture"
     assert payload["followups"][0]["text"] == "document module boundaries"
 
 

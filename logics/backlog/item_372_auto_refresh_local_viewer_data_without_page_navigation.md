@@ -1,10 +1,10 @@
 ## item_372_auto_refresh_local_viewer_data_without_page_navigation - Auto refresh local viewer data without page navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94
 > Confidence: 86
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -81,6 +81,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_208_auto_refresh_local_viewer_data_without_page_navigation` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md`.
 - Generated locally by logics-manager.
+- Task `task_173_auto_refresh_local_viewer_data_without_page_navigation` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_173_auto_refresh_local_viewer_data_without_page_navigation`

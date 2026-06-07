@@ -1,5 +1,6 @@
 (() => {
   const stateKey = "logics.localViewer.state";
+  const autoRefreshIntervalMs = 60 * 1000;
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
@@ -19,6 +20,9 @@
   let viewerFilterState = { ...defaultFilterState };
   let latestItems = [];
   let applyingLocalChrome = false;
+  let autoRefreshStarted = false;
+  let itemsLoadInFlight = false;
+  let refreshAfterVisible = false;
   let mermaidInitialized = false;
 
   function readStoredState() {
@@ -227,11 +231,13 @@
     }
   }
 
-  function postToApp(payload) {
+  function postToApp(payload, options = {}) {
     latestItems = Array.isArray(payload.items) ? payload.items : [];
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
-    setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
+    if (!options.silent) {
+      setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
+    }
     renderUpdateNotice(payload.updateInfo);
     updateFilterSummary();
     applyLocalViewerChrome();
@@ -257,14 +263,47 @@
     banner.hidden = false;
   }
 
-  async function loadItems(method = "GET") {
-    setMeta("Refreshing...");
-    const response = await fetch(method === "POST" ? "/api/refresh" : "/api/items", { method });
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to load viewer data.");
+  async function loadItems(method = "GET", options = {}) {
+    if (itemsLoadInFlight) {
+      return false;
     }
-    postToApp(data.payload);
+    itemsLoadInFlight = true;
+    try {
+      if (!options.silent) {
+        setMeta("Refreshing...");
+      }
+      const response = await fetch(method === "POST" ? "/api/refresh" : "/api/items", { method });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to load viewer data.");
+      }
+      postToApp(data.payload, { silent: Boolean(options.silent) });
+      return true;
+    } finally {
+      itemsLoadInFlight = false;
+    }
+  }
+
+  function autoRefreshItems() {
+    if (document.hidden) {
+      refreshAfterVisible = true;
+      return;
+    }
+    loadItems("POST", { silent: true }).catch((error) => setMeta(error.message));
+  }
+
+  function startAutoRefresh() {
+    if (autoRefreshStarted) {
+      return;
+    }
+    autoRefreshStarted = true;
+    window.setInterval(autoRefreshItems, autoRefreshIntervalMs);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && refreshAfterVisible) {
+        refreshAfterVisible = false;
+        autoRefreshItems();
+      }
+    });
   }
 
   function statusValue(item) {
@@ -701,5 +740,6 @@
         panel.hidden = true;
       }
     });
+    startAutoRefresh();
   });
 })();

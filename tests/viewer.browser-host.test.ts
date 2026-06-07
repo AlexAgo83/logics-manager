@@ -2,14 +2,19 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vm from "vm";
 import { JSDOM } from "jsdom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 function loadScript(dom: JSDOM, relPath: string) {
   const source = fs.readFileSync(path.resolve(process.cwd(), relPath), "utf8");
   new vm.Script(source, { filename: relPath }).runInContext(dom.getInternalVMContext());
 }
 
-function createViewerDom(options: { editResponse?: { ok: boolean; status?: number; body: unknown }; initialState?: unknown } = {}) {
+function createViewerDom(options: {
+  editResponse?: { ok: boolean; status?: number; body: unknown };
+  hidden?: boolean;
+  initialState?: unknown;
+  refreshGate?: Promise<void>;
+} = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
@@ -64,6 +69,11 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     </section>
   </body></html>`;
   const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
+  Object.defineProperty(dom.window.document, "hidden", { configurable: true, value: Boolean(options.hidden) });
+  Object.defineProperty(dom.window.document, "visibilityState", {
+    configurable: true,
+    value: options.hidden ? "hidden" : "visible"
+  });
   if (options.initialState) {
     dom.window.localStorage.setItem("logics.localViewer.state", JSON.stringify(options.initialState));
   }
@@ -89,6 +99,9 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     value: async (url: string) => {
       calls.push(String(url));
       if (url === "/api/items" || url === "/api/refresh") {
+        if (url === "/api/refresh" && options.refreshGate) {
+          await options.refreshGate;
+        }
         return {
           ok: true,
           json: async () => ({
@@ -174,6 +187,19 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
 }
 
 describe("local viewer browser host", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function setDocumentHidden(dom: JSDOM, hidden: boolean) {
+    Object.defineProperty(dom.window.document, "hidden", { configurable: true, value: hidden });
+    Object.defineProperty(dom.window.document, "visibilityState", {
+      configurable: true,
+      value: hidden ? "hidden" : "visible"
+    });
+    dom.window.document.dispatchEvent(new dom.window.Event("visibilitychange"));
+  }
+
   function setViewerFilter(dom: JSDOM, group: string, value: string) {
     const control = dom.window.document.querySelector(`[data-viewer-filter-group="${group}"]`) as HTMLSelectElement | null;
     if (!control) {
@@ -299,6 +325,68 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/refresh");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
+  });
+
+  it("auto-refreshes visible viewer data without page navigation or closing the document preview", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await vi.advanceTimersByTimeAsync(20);
+    setViewerFilter(dom, "type", "task");
+
+    const locationBefore = dom.window.location.href;
+    const metaBefore = dom.window.document.getElementById("viewer-meta")?.textContent;
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
+    expect(dom.window.location.href).toBe(locationBefore);
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
+    expect((dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement | null)?.value).toBe("task");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toBe(metaBefore);
+  });
+
+  it("does not overlap automatic refreshes while a refresh is already in flight", async () => {
+    vi.useFakeTimers();
+    let releaseRefresh = () => undefined;
+    const refreshGate = new Promise<void>((resolve) => {
+      releaseRefresh = resolve;
+    });
+    const { dom, calls } = createViewerDom({ refreshGate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
+
+    releaseRefresh();
+    await vi.advanceTimersByTimeAsync(0);
+  });
+
+  it("defers automatic refresh while hidden and refreshes when visible again", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom({ hidden: true });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
+
+    setDocumentHidden(dom, false);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
   });
 
   it("renders update availability from viewer payloads", async () => {

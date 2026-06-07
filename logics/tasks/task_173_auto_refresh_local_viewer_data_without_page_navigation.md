@@ -1,10 +1,10 @@
 ## task_173_auto_refresh_local_viewer_data_without_page_navigation - Auto refresh local viewer data without page navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 94
 > Confidence: 86
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -18,9 +18,9 @@
 - Keep automatic refresh meta updates quiet unless an error occurs.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_372_auto_refresh_local_viewer_data_without_page_navigation`
@@ -56,9 +56,14 @@ flowchart TD
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 - Run `python3 -m logics_manager flow finish task task_173_auto_refresh_local_viewer_data_without_page_navigation.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Report
 - Planned. No implementation has been applied yet.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_372_auto_refresh_local_viewer_data_without_page_navigation`
+- Related request(s): `req_208_auto_refresh_local_viewer_data_without_page_navigation`
 
 # AI Context
 - Summary: Implement silent in-place auto-refresh for local viewer data without page navigation.

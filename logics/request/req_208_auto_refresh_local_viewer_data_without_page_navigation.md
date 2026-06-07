@@ -1,7 +1,7 @@
 ## req_208_auto_refresh_local_viewer_data_without_page_navigation - Auto refresh local viewer data without page navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 87
 > Complexity: Medium

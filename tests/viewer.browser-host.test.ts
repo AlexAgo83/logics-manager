@@ -14,6 +14,7 @@ function createViewerDom(options: {
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
+  url?: string;
 } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
@@ -68,7 +69,7 @@ function createViewerDom(options: {
       <div id="viewer-document-content"></div>
     </section>
   </body></html>`;
-  const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
+  const dom = new JSDOM(html, { runScripts: "outside-only", url: options.url || "http://127.0.0.1:8765/" });
   Object.defineProperty(dom.window.document, "hidden", { configurable: true, value: Boolean(options.hidden) });
   Object.defineProperty(dom.window.document, "visibilityState", {
     configurable: true,
@@ -293,6 +294,52 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/edit?path=logics%2Frequest%2Freq_001_demo.md");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened logics/request/req_001_demo.md");
+  });
+
+  it("focuses a corpus item from the viewer URL query", async () => {
+    const { dom } = createViewerDom({ url: "http://127.0.0.1:8765/?focus=task_001_blocked" });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const persistedState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(persistedState?.selectedId).toBe("task_001_blocked");
+    expect(persistedState?.viewerFilterState).toMatchObject({ focus: "all", type: "all" });
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Focused logics/tasks/task_001_blocked.md");
+  });
+
+  it("opens read preview when a focused URL requests read mode", async () => {
+    const { dom, calls } = createViewerDom({
+      url: "http://127.0.0.1:8765/?focus=logics%2Frequest%2Freq_001_demo.md&read=1"
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    expect(calls).toContain("/api/doc?path=logics%2Frequest%2Freq_001_demo.md");
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
+  });
+
+  it("reports invalid or missing viewer focus targets without blocking corpus load", async () => {
+    const invalid = createViewerDom({ url: "http://127.0.0.1:8765/?focus=..%2Foutside.md" });
+    invalid.dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(invalid.dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Invalid focus target");
+
+    const missing = createViewerDom({ url: "http://127.0.0.1:8765/?focus=req_999_missing" });
+    missing.dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(missing.dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Focus target not found: req_999_missing");
   });
 
   it("explains stale viewer servers that do not expose the edit endpoint", async () => {

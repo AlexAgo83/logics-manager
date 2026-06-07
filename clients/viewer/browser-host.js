@@ -24,6 +24,7 @@
   let itemsLoadInFlight = false;
   let refreshAfterVisible = false;
   let mermaidInitialized = false;
+  let focusApplied = false;
 
   function readStoredState() {
     try {
@@ -81,6 +82,13 @@
       .replace(/'/g, "&#39;");
   }
 
+  function cssEscape(value) {
+    if (window.CSS && typeof window.CSS.escape === "function") {
+      return window.CSS.escape(value);
+    }
+    return String(value ?? "").replace(/["\\]/g, "\\$&");
+  }
+
   function setMeta(text) {
     const node = meta();
     if (node) {
@@ -91,6 +99,99 @@
   function findItemByPath(relPath) {
     const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
     return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
+  }
+
+  function normalizeFocusTarget(value) {
+    const normalized = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").replace(/^\//, "").trim();
+    if (!normalized || normalized.startsWith("~") || /^[A-Za-z]:/.test(normalized)) {
+      return "";
+    }
+    if (normalized.split("/").includes("..")) {
+      return "";
+    }
+    return normalized;
+  }
+
+  function focusRequest() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const focus = normalizeFocusTarget(params.get("focus") || "");
+      return {
+        focus,
+        read: params.get("read") === "1" || params.get("read") === "true"
+      };
+    } catch {
+      return { focus: "", read: false };
+    }
+  }
+
+  function findFocusItem(target) {
+    const normalized = normalizeFocusTarget(target);
+    if (!normalized) {
+      return null;
+    }
+    const bare = normalized.endsWith(".md") ? normalized.slice(0, -3).split("/").pop() : normalized;
+    return latestItems.find((entry) => {
+      const relPath = String(entry.relPath || "").replace(/\\/g, "/");
+      const fullPath = String(entry.path || "").replace(/\\/g, "/");
+      return entry.id === normalized ||
+        entry.id === bare ||
+        entry.filename === normalized ||
+        relPath === normalized ||
+        fullPath.endsWith(`/${normalized}`);
+    }) || null;
+  }
+
+  function persistSelectedItem(id) {
+    const storedState = readStoredState();
+    const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
+    writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerFilterState } });
+  }
+
+  function revealFocusedCard(item) {
+    window.setTimeout(() => {
+      const escapedId = cssEscape(item.id);
+      const selector = `.card[data-id="${escapedId}"], [data-id="${escapedId}"]`;
+      const card = document.querySelector(selector);
+      if (card instanceof HTMLElement && typeof card.scrollIntoView === "function") {
+        card.scrollIntoView({ block: "center", inline: "nearest" });
+        card.focus?.({ preventScroll: true });
+      }
+      applyLocalViewerChrome();
+    }, 0);
+  }
+
+  function applyFocusRequest(payload) {
+    if (focusApplied) {
+      return payload;
+    }
+    const request = focusRequest();
+    if (!request.focus) {
+      if (window.location.search.includes("focus=")) {
+        window.setTimeout(() => setMeta("Invalid focus target. Loaded corpus without changing selection."), 0);
+      }
+      focusApplied = true;
+      return payload;
+    }
+    const item = findFocusItem(request.focus);
+    if (!item) {
+      window.setTimeout(() => setMeta(`Focus target not found: ${request.focus}`), 0);
+      focusApplied = true;
+      return payload;
+    }
+    viewerFilterState = { ...viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
+    persistSelectedItem(item.id);
+    focusApplied = true;
+    const nextPayload = { ...payload, selectedId: item.id };
+    window.setTimeout(() => {
+      revealFocusedCard(item);
+      if (request.read) {
+        showDocument(item).catch((error) => setMeta(error.message));
+      } else {
+        setMeta(`Focused ${item.relPath || item.id}.`);
+      }
+    }, 0);
+    return nextPayload;
   }
 
   function selectedItem() {
@@ -233,7 +334,8 @@
 
   function postToApp(payload, options = {}) {
     latestItems = Array.isArray(payload.items) ? payload.items : [];
-    window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
+    const nextPayload = options.silent ? payload : applyFocusRequest(payload);
+    window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     if (!options.silent) {
       setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);

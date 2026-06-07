@@ -22,7 +22,15 @@ from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager import viewer as viewer_module
-from logics_manager.viewer import collect_viewer_items, create_viewer_server, edit_doc_payload, read_doc_payload, render_start_status
+from logics_manager.viewer import (
+    build_viewer_url,
+    collect_viewer_items,
+    create_viewer_server,
+    edit_doc_payload,
+    normalize_viewer_focus_target,
+    read_doc_payload,
+    render_start_status,
+)
 from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
 
@@ -255,11 +263,33 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
 
 
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
-    output = render_start_status("http://127.0.0.1:8765", tmp_path)
+    output = render_start_status("http://127.0.0.1:8765", tmp_path, focus="req_001_demo")
 
     assert "http://127.0.0.1:8765" in output
     assert "Mode: read-only" in output
     assert "Bind: localhost" in output
+    assert "Focus: req_001_demo" in output
+
+
+def test_viewer_focus_targets_are_normalized_and_safe(tmp_path: Path) -> None:
+    repo_root = tmp_path
+
+    assert normalize_viewer_focus_target(repo_root, "req_001_demo") == "logics/request/req_001_demo.md"
+    assert normalize_viewer_focus_target(repo_root, "logics/tasks/task_001_demo.md") == "logics/tasks/task_001_demo.md"
+    assert normalize_viewer_focus_target(repo_root, "logics%2Fbacklog%2Fitem_001_demo.md") == "logics/backlog/item_001_demo.md"
+
+    with pytest.raises(ValueError):
+        normalize_viewer_focus_target(repo_root, "../outside.md")
+    with pytest.raises(ValueError):
+        normalize_viewer_focus_target(repo_root, "/tmp/outside.md")
+    with pytest.raises(ValueError):
+        normalize_viewer_focus_target(repo_root, "README.md")
+
+
+def test_viewer_url_encodes_focus_and_read_mode() -> None:
+    url = build_viewer_url("127.0.0.1", 8765, focus="logics/request/req_001_demo.md", read=True)
+
+    assert url == "http://127.0.0.1:8765?focus=logics%2Frequest%2Freq_001_demo.md&read=1"
 
 
 def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
@@ -282,12 +312,16 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
     fake_server = FakeViewerServer()
     monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
     monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port: fake_server)
+    opened: list[str] = []
+    monkeypatch.setattr(viewer_module.webbrowser, "open", opened.append)
 
-    exit_code = viewer_module.main(["--host", "127.0.0.1", "--port", "8765", "--no-open"])
+    exit_code = viewer_module.main(["--host", "127.0.0.1", "--port", "8765", "--focus", "req_001_demo", "--read", "--open"])
 
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "Logics viewer running:" in captured.out
+    assert "focus=logics%2Frequest%2Freq_001_demo.md&read=1" in captured.out
+    assert opened == ["http://127.0.0.1:8765?focus=logics%2Frequest%2Freq_001_demo.md&read=1"]
     assert fake_server.closed is True
 
 

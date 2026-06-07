@@ -14,7 +14,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 
 from .audit import audit_payload
 from .config import find_repo_root
@@ -141,6 +141,41 @@ def _normalize_ref(value: str) -> str:
         if bare_name.startswith(family.prefixes):
             return f"{family.directory}/{bare_name}.md"
     return normalized
+
+
+def normalize_viewer_focus_target(repo_root: Path, value: str) -> str:
+    raw = unquote(value).replace("\\", "/").strip()
+    if not raw:
+        raise ValueError("Focus target cannot be empty.")
+    if raw.startswith("~") or raw.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", raw):
+        raise ValueError("Focus target must be a workflow ref or repo-relative Logics path.")
+    parts = [part for part in raw.split("/") if part]
+    if any(part == ".." for part in parts):
+        raise ValueError("Focus target cannot contain path traversal.")
+    normalized = _normalize_ref(raw.lstrip("./")).lstrip("/")
+    if "/" not in raw and normalized == raw:
+        raise ValueError("Focus target must be a known workflow ref or repo-relative Logics path.")
+    if "/" in normalized:
+        absolute = (repo_root.resolve() / normalized).resolve()
+        root = repo_root.resolve()
+        if root != absolute and root not in absolute.parents:
+            raise ValueError("Focus target escapes repository root.")
+        allowed_prefixes = tuple(f"{family.directory}/" for family in DOC_FAMILIES)
+        if not normalized.startswith(allowed_prefixes) or not normalized.endswith(".md"):
+            raise ValueError("Focus target must point to a Logics Markdown document.")
+    return normalized
+
+
+def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str:
+    url = f"http://{host}:{port}"
+    query: dict[str, str] = {}
+    if focus:
+        query["focus"] = focus
+    if read:
+        query["read"] = "1"
+    if query:
+        url = f"{url}?{urlencode(query, quote_via=quote)}"
+    return url
 
 
 def _section_links(content: str, section_title: str) -> list[str]:
@@ -448,23 +483,26 @@ def create_viewer_server(repo_root: Path, host: str = "127.0.0.1", port: int = 8
     return LogicsViewerServer((host, port), repo_root)
 
 
-def render_start_status(url: str, repo_root: Path) -> str:
-    return "\n".join(
-        [
-            "Logics viewer running:",
-            url,
-            "",
-            f"Repo: {repo_root.name}",
-            "Mode: read-only",
-            "Bind: localhost",
-        ]
-    )
+def render_start_status(url: str, repo_root: Path, *, focus: str | None = None) -> str:
+    lines = [
+        "Logics viewer running:",
+        url,
+        "",
+        f"Repo: {repo_root.name}",
+        "Mode: read-only",
+        "Bind: localhost",
+    ]
+    if focus:
+        lines.append(f"Focus: {focus}")
+    return "\n".join(lines)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="logics-manager view", description="Start the local read-only Logics browser viewer.")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host. Defaults to 127.0.0.1.")
     parser.add_argument("--port", type=int, default=8765, help="Bind port. Use 0 to select an available port.")
+    parser.add_argument("--focus", help="Open the viewer focused on a workflow ref or repo-relative Logics Markdown path.")
+    parser.add_argument("--read", action="store_true", help="Open the focused item in the read preview. Requires --focus.")
     parser.add_argument("--open", action="store_true", help="Open the viewer in the default browser.")
     parser.add_argument("--no-open", action="store_true", help="Do not open the browser. This is the default.")
     return parser
@@ -473,10 +511,16 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = find_repo_root(Path.cwd())
+    if args.read and not args.focus:
+        raise SystemExit("--read requires --focus.")
+    try:
+        focus = normalize_viewer_focus_target(repo_root, args.focus) if args.focus else None
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     server = create_viewer_server(repo_root, host=args.host, port=args.port)
     host, port = server.server_address[:2]
-    url = f"http://{host}:{port}"
-    print(render_start_status(url, repo_root), flush=True)
+    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
+    print(render_start_status(url, repo_root, focus=focus), flush=True)
     if args.open and not args.no_open:
         webbrowser.open(url)
 

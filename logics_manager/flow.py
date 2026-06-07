@@ -2241,6 +2241,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     repair_gates = repair_sub.add_parser("gates", help="Check task and linked request gate checkboxes.")
     repair_gates.add_argument("source")
+    repair_gates.add_argument("--verify-closeout")
     repair_gates.add_argument("--format", choices=("text", "json"), default="text")
     repair_gates.add_argument("--dry-run", action="store_true")
     repair_gates.set_defaults(func=cmd_repair_gates)
@@ -2249,18 +2250,21 @@ def build_parser() -> argparse.ArgumentParser:
     repair_ac.add_argument("source")
     repair_ac.add_argument("--proof")
     repair_ac.add_argument("--proof-source")
+    repair_ac.add_argument("--verify-closeout")
     repair_ac.add_argument("--format", choices=("text", "json"), default="text")
     repair_ac.add_argument("--dry-run", action="store_true")
     repair_ac.set_defaults(func=cmd_repair_ac_traceability)
 
     repair_links = repair_sub.add_parser("links", help="Repair linked backlog/product references for a task.")
     repair_links.add_argument("source")
+    repair_links.add_argument("--verify-closeout")
     repair_links.add_argument("--format", choices=("text", "json"), default="text")
     repair_links.add_argument("--dry-run", action="store_true")
     repair_links.set_defaults(func=cmd_repair_links)
 
     repair_mermaid = repair_sub.add_parser("mermaid", help="Insert or refresh workflow Mermaid signatures.")
     repair_mermaid.add_argument("--refs", nargs="+", required=True)
+    repair_mermaid.add_argument("--verify-closeout")
     repair_mermaid.add_argument("--format", choices=("text", "json"), default="text")
     repair_mermaid.add_argument("--dry-run", action="store_true")
     repair_mermaid.set_defaults(func=cmd_repair_mermaid)
@@ -2612,30 +2616,73 @@ def _print_repair_payload(payload: dict[str, object], output_format: str) -> Non
         print(f"- {rel_path}")
 
 
+REPAIR_VERIFY_CODES = {
+    "gates": {"task_gate_unchecked", "task_missing_done_gate", "request_dor_unchecked"},
+    "ac-traceability": {"ac_missing_item_traceability", "ac_missing_task_traceability"},
+    "links": {"backlog_missing_task_link", "companion_link_missing"},
+    "mermaid": {"mermaid_signature_stale"},
+}
+
+
+def _repair_verify_snapshot(repo_root: Path, source: str | None, dry_run: bool) -> dict[str, str]:
+    if dry_run or not source:
+        return {}
+    preflight = validate_closeout_payload(repo_root, source)
+    return _snapshot_existing_files(repo_root, list(preflight.get("related_paths", [])))
+
+
+def _finalize_repair_verify(repo_root: Path, payload: dict[str, object], source: str | None, snapshot: dict[str, str]) -> dict[str, object]:
+    if not source or payload.get("dry_run"):
+        return payload
+    preflight = validate_closeout_payload(repo_root, source)
+    payload["preflight"] = preflight
+    relevant_codes = REPAIR_VERIFY_CODES.get(str(payload.get("kind")), set())
+    remaining_relevant = [issue for issue in preflight.get("issues", []) if issue.get("code") in relevant_codes]
+    payload["rolled_back"] = False
+    if remaining_relevant and snapshot:
+        payload["attempted_changed_files"] = payload.get("changed_files", [])
+        _restore_file_snapshot(repo_root, snapshot)
+        payload["changed_files"] = []
+        payload["rolled_back"] = True
+        payload["rollback_reason"] = "repair verification left relevant closeout issues"
+        payload["remaining_relevant_issues"] = remaining_relevant
+    return payload
+
+
 def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
+    verify_source = args.verify_closeout or args.source
+    snapshot = _repair_verify_snapshot(repo_root, verify_source, args.dry_run)
     payload = repair_gates_payload(repo_root, args.source, dry_run=args.dry_run)
+    payload = _finalize_repair_verify(repo_root, payload, verify_source, snapshot)
     _print_repair_payload(payload, args.format)
     return payload
 
 
 def cmd_repair_ac_traceability(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
+    snapshot = _repair_verify_snapshot(repo_root, args.verify_closeout, args.dry_run)
     payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run, proof=args.proof, proof_source=args.proof_source)
+    payload = _finalize_repair_verify(repo_root, payload, args.verify_closeout, snapshot)
     _print_repair_payload(payload, args.format)
     return payload
 
 
 def cmd_repair_links(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
+    verify_source = args.verify_closeout or args.source
+    snapshot = _repair_verify_snapshot(repo_root, verify_source, args.dry_run)
     payload = repair_links_payload(repo_root, args.source, dry_run=args.dry_run)
+    payload = _finalize_repair_verify(repo_root, payload, verify_source, snapshot)
     _print_repair_payload(payload, args.format)
     return payload
 
 
 def cmd_repair_mermaid(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
+    snapshot = _repair_verify_snapshot(repo_root, args.verify_closeout, args.dry_run)
     payload = repair_mermaid_payload(repo_root, args.refs, dry_run=args.dry_run)
+    payload = _finalize_repair_verify(repo_root, payload, args.verify_closeout, snapshot)
     _print_repair_payload(payload, args.format)
     return payload
 

@@ -1885,6 +1885,92 @@ def test_repair_ac_traceability_records_explicit_proof(
     assert "ac_missing_task_traceability" not in issue_codes
 
 
+def test_repair_ac_traceability_verify_rolls_back_without_proof(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# Backlog",
+                "- `item_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    backlog_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Primary task(s): `task_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "# Plan",
+                "- [x] Do the work.",
+                "# Backlog",
+                "- `item_001_demo`",
+                "# Definition of Done (DoD)",
+                "- [x] Validation passes.",
+                "# Validation",
+                "- command: `pytest python_tests -q` | result: passed | date: 2026-06-07",
+                "# Links",
+                "- Request: `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    original_backlog_text = backlog_path.read_text(encoding="utf-8")
+    original_task_text = task_path.read_text(encoding="utf-8")
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    assert main(
+        [
+            "flow",
+            "repair",
+            "ac-traceability",
+            "req_001_demo",
+            "--verify-closeout",
+            "task_001_demo",
+            "--format",
+            "json",
+        ]
+    ) == 0
+    payload = json.loads(capsys.readouterr().out)
+
+    assert payload["rolled_back"] is True
+    assert payload["changed_files"] == []
+    assert "logics/backlog/item_001_demo.md" in payload["attempted_changed_files"]
+    assert backlog_path.read_text(encoding="utf-8") == original_backlog_text
+    assert task_path.read_text(encoding="utf-8") == original_task_text
+
+
 def test_main_runs_native_flow_closeout_finishes_delivery_chain(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

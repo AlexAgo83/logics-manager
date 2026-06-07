@@ -975,6 +975,8 @@ def _section_has_checked_checkbox(text: str, heading: str) -> bool:
 
 
 def _has_validation_evidence(text: str) -> bool:
+    concrete_ok_context = ("lint", "audit", "test", "pytest", "npm", "ci", "coverage", "smoke", "package")
+    invalid_markers = ("...", "todo", "tbd", "pending", "needs ", "need ", "not ok", "failed", "failure", "failing")
     for line in _section_lines(text.splitlines(), "Validation"):
         stripped = line.strip()
         if not stripped.startswith("- "):
@@ -982,7 +984,11 @@ def _has_validation_evidence(text: str) -> bool:
         value = stripped[2:].strip().lower()
         if not value or value.startswith("run `") or value.startswith("run the "):
             continue
-        if any(marker in value for marker in ("pass", "ok", "validated", "verification", "regression")):
+        if any(marker in value for marker in invalid_markers):
+            continue
+        if any(marker in value for marker in ("pass", "validated", "verified", "verification", "regression")):
+            return True
+        if "ok" in value and any(marker in value for marker in concrete_ok_context):
             return True
     return False
 

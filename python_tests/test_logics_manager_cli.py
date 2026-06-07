@@ -1513,6 +1513,36 @@ def test_main_runs_native_flow_validate_closeout_reports_blockers(
     assert "flow repair gates task_001_demo_task" in captured.out
 
 
+def test_validate_closeout_rejects_weak_validation_evidence(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_weak_validation.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_weak_validation - Weak Validation",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "# Plan",
+                "- [x] Do the work.",
+                "# Definition of Done (DoD)",
+                "- [x] Validation passes.",
+                "# Validation",
+                "- ok",
+                "- not ok yet",
+                "- verification pending",
+                "- ... passed",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = validate_closeout_payload(repo_root, "task_001_weak_validation")
+
+    assert "validation_evidence_missing" in {issue["code"] for issue in payload["issues"]}
+
+
 def test_main_runs_native_flow_validate_closeout_passes_complete_chain(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

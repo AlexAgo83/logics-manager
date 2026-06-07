@@ -117,6 +117,25 @@
   color: var(--vscode-textLink-foreground, #4ea1ff);
 }
 
+.viewer-document__content .markdown-preview__diagram {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.viewer-document__content .markdown-preview__diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.viewer-document__content .markdown-preview__mermaid-fallback {
+  padding: 10px 12px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--vscode-errorForeground, #f87171);
+}
+
 .viewer-document__content .markdown-preview__table-wrap {
   overflow-x: auto;
   margin: 16px 0;

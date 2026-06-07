@@ -34,6 +34,11 @@ function createViewerDom() {
     "# Needs",
     "- Render **markdown**.",
     "",
+    "```mermaid",
+    "flowchart TD",
+    "  A --> B",
+    "```",
+    "",
     "| A | B |",
     "| --- | --- |",
     "| `x` | y |"
@@ -86,6 +91,16 @@ function createViewerDom() {
   });
 
   loadScript(dom, "clients/shared-web/media/renderMarkdown.js");
+  new vm.Script(`
+    window.__mermaidRuns = [];
+    window.mermaid = {
+      initialize: () => undefined,
+      run: ({ nodes }) => {
+        window.__mermaidRuns.push(nodes.length);
+        return Promise.resolve();
+      }
+    };
+  `).runInContext(dom.getInternalVMContext());
   loadScript(dom, "clients/viewer/browser-host.js");
   dom.window.dispatchEvent(new dom.window.Event("load"));
   return { dom, calls };
@@ -109,6 +124,8 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "read", id: "req_001_demo" });
     await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     const panel = dom.window.document.getElementById("viewer-document");
     const content = dom.window.document.getElementById("viewer-document-content");
@@ -116,7 +133,8 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector("h1")?.textContent).toBe("Needs");
     expect(content?.querySelector("strong")?.textContent).toBe("markdown");
     expect(content?.querySelector("table")).not.toBeNull();
-    expect(content?.querySelector("pre")).toBeNull();
+    expect(content?.querySelector("pre.mermaid")?.textContent).toContain("flowchart TD");
+    expect(dom.window.__mermaidRuns).toEqual([1]);
   });
 
   it("renders health as a summary with document links", async () => {

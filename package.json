@@ -33,6 +33,7 @@
     "clients/viewer/index.html",
     "clients/viewer/browser-host.js",
     "clients/viewer/viewer.css",
+    "dist/vendor/mermaid.min.js",
     "logics_manager/*.py",
     "logics_manager/**/*.py"
   ],

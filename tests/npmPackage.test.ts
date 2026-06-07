@@ -45,6 +45,8 @@ describe("npm package surface", () => {
       expect(filePaths).toContain("logics_manager/viewer.py");
       expect(filePaths).toContain("clients/viewer/index.html");
       expect(filePaths).toContain("clients/viewer/browser-host.js");
+      expect(filePaths).toContain("clients/viewer/viewer.css");
+      expect(filePaths).toContain("dist/vendor/mermaid.min.js");
       expect(filePaths).toContain("clients/shared-web/media/mainApp.js");
       expect(filePaths).not.toContain("src/logicsViewProvider.ts");
       expect(filePaths).not.toContain("clients/vscode/src/logicsViewProvider.ts");

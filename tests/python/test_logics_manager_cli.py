@@ -6,6 +6,8 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
+from http.client import HTTPConnection
 from pathlib import Path
 
 import pytest
@@ -20,7 +22,7 @@ from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager import viewer as viewer_module
-from logics_manager.viewer import collect_viewer_items, read_doc_payload, render_start_status
+from logics_manager.viewer import collect_viewer_items, create_viewer_server, read_doc_payload, render_start_status
 from flow_fixtures import write_ac_traceability_chain
 
 
@@ -213,6 +215,24 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
     assert exit_code == 0
     assert "Logics viewer running:" in captured.out
     assert fake_server.closed is True
+
+
+def test_viewer_serves_mermaid_vendor_asset(tmp_path: Path) -> None:
+    (tmp_path / "logics").mkdir()
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/vendor/mermaid.min.js")
+        response = conn.getresponse()
+        body = response.read(80)
+        assert response.status == 200
+        assert b"mermaid" in body.lower()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:

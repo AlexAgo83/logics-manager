@@ -39,6 +39,8 @@ STAGE_ORDER = {family.stage: index for index, family in enumerate(DOC_FAMILIES)}
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
 SHARED_MEDIA_ROOT = REPO_ROOT / "clients" / "shared-web" / "media"
+DIST_VENDOR_ROOT = REPO_ROOT / "dist" / "vendor"
+NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"
 
 
 def _read_text(path: Path) -> str:
@@ -358,6 +360,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/viewer.css":
             self._serve_file(VIEWER_ROOT / "viewer.css")
+            return
+        if route == "/vendor/mermaid.min.js":
+            vendor_path = DIST_VENDOR_ROOT / "mermaid.min.js"
+            if not vendor_path.is_file():
+                vendor_path = NODE_MERMAID_ROOT / "mermaid.min.js"
+            self._serve_file(vendor_path)
             return
         if route.startswith("/media/"):
             media_path = (SHARED_MEDIA_ROOT / route.removeprefix("/media/")).resolve()

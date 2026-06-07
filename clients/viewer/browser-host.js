@@ -6,6 +6,7 @@
   const documentContent = () => document.getElementById("viewer-document-content");
   let latestItems = [];
   let applyingLocalChrome = false;
+  let mermaidInitialized = false;
 
   function markdownApi() {
     if (typeof window.createCdxLogicsMarkdownApi === "function") {
@@ -51,7 +52,50 @@
     }
     if (panel) {
       panel.hidden = false;
-      panel.scrollIntoView({ block: "nearest" });
+      if (typeof panel.scrollIntoView === "function") {
+        panel.scrollIntoView({ block: "nearest" });
+      }
+    }
+    renderMermaidDiagrams();
+  }
+
+  function showMermaidFallback(message) {
+    document.querySelectorAll(".markdown-preview__mermaid-fallback").forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      node.hidden = false;
+      if (message) {
+        node.textContent = message;
+      }
+    });
+  }
+
+  function renderMermaidDiagrams() {
+    const nodes = Array.from(document.querySelectorAll(".mermaid"));
+    if (nodes.length === 0) {
+      return;
+    }
+    if (!window.mermaid) {
+      showMermaidFallback("Mermaid preview unavailable. Raw diagram source shown below.");
+      return;
+    }
+    try {
+      if (!mermaidInitialized && typeof window.mermaid.initialize === "function") {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "dark" });
+        mermaidInitialized = true;
+      }
+      if (typeof window.mermaid.run !== "function") {
+        showMermaidFallback("Mermaid preview unavailable. Raw diagram source shown below.");
+        return;
+      }
+      Promise.resolve(window.mermaid.run({ nodes })).catch((error) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        showMermaidFallback(`Mermaid preview unavailable. Raw diagram source shown below. (${detail})`);
+      });
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      showMermaidFallback(`Mermaid preview unavailable. Raw diagram source shown below. (${detail})`);
     }
   }
 

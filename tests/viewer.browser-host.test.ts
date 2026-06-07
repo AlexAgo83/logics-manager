@@ -13,6 +13,7 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <button id="viewer-health" type="button">Health</button>
+    <button data-action="refresh" type="button">Refresh</button>
     <button id="viewer-document-close" type="button">Close</button>
     <button data-action="open" type="button">Open</button>
     <button data-action="read" type="button">Read</button>
@@ -48,7 +49,7 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
   Object.defineProperty(dom.window, "fetch", {
     value: async (url: string) => {
       calls.push(String(url));
-      if (url === "/api/items") {
+      if (url === "/api/items" || url === "/api/refresh") {
         return {
           ok: true,
           json: async () => ({
@@ -189,6 +190,21 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Restart the local viewer");
+  });
+
+  it("refreshes viewer data from the refresh button", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
+    refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/refresh");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
   });
 
   it("renders health as a summary with document links", async () => {

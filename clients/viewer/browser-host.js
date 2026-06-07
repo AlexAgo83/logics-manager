@@ -359,6 +359,14 @@
   };
   window.addEventListener("load", () => {
     applyLocalViewerChrome();
+    document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
+      if (!(element instanceof HTMLElement)) {
+        return;
+      }
+      element.addEventListener("click", () => {
+        loadItems("POST").catch((error) => setMeta(error.message));
+      });
+    });
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
     });

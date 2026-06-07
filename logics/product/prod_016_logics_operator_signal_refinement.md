@@ -1,9 +1,9 @@
 ## prod_016_logics_operator_signal_refinement - Logics operator signal refinement
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_198_refine_logics_operator_signal_commands`
+> Related backlog: `item_362_refine_logics_operator_signal_commands`
+> Related task: `task_163_refine_logics_operator_signal_commands`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -70,8 +70,8 @@ flowchart TD
 - README includes a compact triage flow that starts with `status` and ends with actionable next steps.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_362_refine_logics_operator_signal_commands`
+- Task back-reference: `task_163_refine_logics_operator_signal_commands`
 - Builds on `prod_015_cli_product_maturity_roadmap`.
 - Follow-up area: make follow-up extraction open-work-by-default with filters.
 - Follow-up area: expose operator signal commands through MCP.

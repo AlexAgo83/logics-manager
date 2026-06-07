@@ -250,6 +250,7 @@
 | [req_195_add_bounded_mcp_file_delete_and_rename_capabilities](request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done |  | request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch](request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done |  | request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Done |  | request/req_197_mature_cli_product_contracts.md |
+| [req_198_refine_logics_operator_signal_commands](request/req_198_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done |  | request/req_198_refine_logics_operator_signal_commands.md |
 
 ## Backlog
 
@@ -616,6 +617,7 @@
 | [item_359_add_bounded_mcp_file_delete_and_rename_capabilities](backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch](backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | backlog/item_361_mature_cli_product_contracts.md |
+| [item_362_refine_logics_operator_signal_commands](backlog/item_362_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | backlog/item_362_refine_logics_operator_signal_commands.md |
 
 ## Tasks
 
@@ -777,3 +779,4 @@
 | [task_160_add_bounded_mcp_file_delete_and_rename_capabilities](tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch](tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
 | [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | tasks/task_162_mature_cli_product_contracts.md |
+| [task_163_refine_logics_operator_signal_commands](tasks/task_163_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | tasks/task_163_refine_logics_operator_signal_commands.md |

@@ -51,7 +51,7 @@
 | [prod_016_logics_operator_signal_refinement](product/prod_016_logics_operator_signal_refinement.md) | Logics operator signal refinement | Proposed |  | product/prod_016_logics_operator_signal_refinement.md |
 | [prod_017_logics_delivery_loop_ergonomics](product/prod_017_logics_delivery_loop_ergonomics.md) | Logics delivery loop ergonomics | Proposed |  | product/prod_017_logics_delivery_loop_ergonomics.md |
 | [prod_018_agent_closeout_loop_ergonomics](product/prod_018_agent_closeout_loop_ergonomics.md) | Agent closeout loop ergonomics | Validated |  | product/prod_018_agent_closeout_loop_ergonomics.md |
-| [prod_019_closeout_evidence_hardening_and_modularity_roadmap](product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md) | Closeout evidence hardening and modularity roadmap | Active |  | product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md |
+| [prod_019_closeout_evidence_hardening_and_modularity_roadmap](product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md) | Closeout evidence hardening and modularity roadmap | Validated |  | product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md |
 
 ## Requests
 

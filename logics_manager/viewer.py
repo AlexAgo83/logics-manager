@@ -5,7 +5,6 @@ import json
 import mimetypes
 import os
 import re
-import shlex
 import subprocess
 import sys
 import webbrowser
@@ -318,7 +317,7 @@ def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
 
 def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = None) -> dict[str, str]:
     normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
-    command = _editor_command(absolute)
+    command = _system_editor_command(absolute)
     runner = launcher or subprocess.Popen
     runner(command)
     return {
@@ -327,10 +326,7 @@ def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = N
     }
 
 
-def _editor_command(path: Path) -> list[str]:
-    configured = os.environ.get("LOGICS_VIEWER_EDITOR") or os.environ.get("VISUAL") or os.environ.get("EDITOR")
-    if configured:
-        return [*shlex.split(configured), str(path)]
+def _system_editor_command(path: Path) -> list[str]:
     if sys.platform == "darwin":
         return ["open", str(path)]
     if os.name == "nt":

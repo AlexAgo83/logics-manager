@@ -232,6 +232,9 @@
     const response = await fetch(`/api/edit?path=${encodeURIComponent(item.relPath)}`, { method: "POST" });
     const data = await response.json();
     if (!response.ok || !data.ok) {
+      if (response.status === 404 && data.error === "Not found") {
+        throw new Error("Edit endpoint unavailable. Restart the local viewer so it loads the current logics-manager code.");
+      }
       throw new Error(data.error || "Unable to open document editor.");
     }
     setMeta(`Opened ${data.document.path} in system editor.`);

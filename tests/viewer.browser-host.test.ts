@@ -9,7 +9,7 @@ function loadScript(dom: JSDOM, relPath: string) {
   new vm.Script(source, { filename: relPath }).runInContext(dom.getInternalVMContext());
 }
 
-function createViewerDom() {
+function createViewerDom(options: { editResponse?: { ok: boolean; status?: number; body: unknown } } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <button id="viewer-health" type="button">Health</button>
@@ -70,8 +70,16 @@ function createViewerDom() {
         };
       }
       if (String(url).startsWith("/api/edit")) {
+        if (options.editResponse) {
+          return {
+            ok: options.editResponse.ok,
+            status: options.editResponse.status ?? (options.editResponse.ok ? 200 : 500),
+            json: async () => options.editResponse?.body
+          };
+        }
         return {
           ok: true,
+          status: 200,
           json: async () => ({
             ok: true,
             document: { path: "logics/request/req_001_demo.md", command: "open" }
@@ -164,6 +172,23 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/edit?path=logics%2Frequest%2Freq_001_demo.md");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened logics/request/req_001_demo.md");
+  });
+
+  it("explains stale viewer servers that do not expose the edit endpoint", async () => {
+    const { dom } = createViewerDom({
+      editResponse: { ok: false, status: 404, body: { ok: false, error: "Not found" } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const edit = dom.window.document.querySelector('[data-viewer-action="edit-document"]') as HTMLButtonElement | null;
+    edit?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Restart the local viewer");
   });
 
   it("renders health as a summary with document links", async () => {

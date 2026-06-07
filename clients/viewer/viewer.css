@@ -53,6 +53,47 @@
   color: var(--vscode-textPreformat-foreground, #d7ba7d);
 }
 
+.viewer-filter-panel {
+  align-items: stretch;
+  gap: 14px;
+}
+
+.viewer-filter-panel__section {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.viewer-filter-panel__section--wide {
+  flex: 1 1 320px;
+}
+
+.viewer-filter-panel__label {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.viewer-filter-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.viewer-filter-preset[aria-pressed="true"] {
+  border-color: var(--vscode-button-background, #0e639c);
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+}
+
+.viewer-filter-count {
+  min-height: 18px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+}
+
 .viewer-document {
   position: fixed;
   inset: 64px 20px 20px;
@@ -190,6 +231,61 @@
   gap: 14px;
 }
 
+.viewer-insights {
+  display: grid;
+  gap: 16px;
+}
+
+.viewer-insights__summary,
+.viewer-insights__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.viewer-insights__card {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  padding: 10px;
+  background: var(--vscode-sideBar-background, #252526);
+}
+
+.viewer-insights__label {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.viewer-insights__value {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.viewer-insights__section {
+  display: grid;
+  gap: 8px;
+}
+
+.viewer-insights__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer-insights__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
 .viewer-health__summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -281,6 +377,11 @@
 
   .viewer-document {
     inset: 10px;
+  }
+
+  .viewer-insights__summary,
+  .viewer-insights__grid {
+    grid-template-columns: 1fr;
   }
 
   .viewer-health__summary {

@@ -356,6 +356,9 @@
     }
 
     function isVisible(item) {
+      if (typeof window.__CDX_LOGICS_VIEWER_FILTER__ === "function" && !window.__CDX_LOGICS_VIEWER_FILTER__(item)) {
+        return false;
+      }
       if (getAttentionOnly() && !needsAttention(item)) {
         return false;
       }

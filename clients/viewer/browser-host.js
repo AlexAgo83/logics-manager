@@ -8,6 +8,8 @@
   const updateBanner = () => document.getElementById("viewer-update");
   const updateCopy = () => document.getElementById("viewer-update-copy");
   const updateCommand = () => document.getElementById("viewer-update-command");
+  const filterCount = () => document.getElementById("viewer-filter-count");
+  let activePreset = "";
   let latestItems = [];
   let applyingLocalChrome = false;
   let mermaidInitialized = false;
@@ -188,6 +190,7 @@
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
     renderUpdateNotice(payload.updateInfo);
+    updateFilterSummary();
     applyLocalViewerChrome();
   }
 
@@ -219,6 +222,146 @@
       throw new Error(data.error || "Unable to load viewer data.");
     }
     postToApp(data.payload);
+  }
+
+  function statusValue(item) {
+    return String(item?.indicators?.Status || "").toLowerCase();
+  }
+
+  function isClosed(item) {
+    const status = statusValue(item);
+    return status.includes("done") || status.includes("archived") || status.includes("obsolete");
+  }
+
+  function localPresetPredicate(name) {
+    const now = Date.now();
+    const recentCutoff = now - 14 * 24 * 60 * 60 * 1000;
+    return (item) => {
+      if (!item) {
+        return false;
+      }
+      if (name === "blocked") {
+        return statusValue(item).includes("blocked");
+      }
+      if (name === "needs-promotion") {
+        return ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item);
+      }
+      if (name === "recent") {
+        return (Date.parse(item.updatedAt || "") || 0) >= recentCutoff;
+      }
+      if (name === "unlinked") {
+        return (item.references || []).length === 0 && (item.usedBy || []).length === 0;
+      }
+      if (name === "companions") {
+        return ["product", "architecture", "spec"].includes(item.stage);
+      }
+      return !isClosed(item);
+    };
+  }
+
+  function setControlValue(id, value, eventName) {
+    const element = document.getElementById(id);
+    if (!element) {
+      return;
+    }
+    if (element instanceof HTMLInputElement && element.type === "checkbox") {
+      element.checked = Boolean(value);
+    } else if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement) {
+      element.value = String(value ?? "");
+    }
+    element.dispatchEvent(new Event(eventName, { bubbles: true }));
+  }
+
+  function applyPreset(name) {
+    activePreset = name;
+    window.__CDX_LOGICS_VIEWER_FILTER__ = localPresetPredicate(name);
+    setControlValue("search-input", "", "input");
+    setControlValue("hide-complete", name !== "companions", "change");
+    setControlValue("hide-processed-requests", name === "active", "change");
+    setControlValue("hide-spec", name !== "companions", "change");
+    setControlValue("show-companion-docs", name === "companions" || name === "active", "change");
+    setControlValue("group-by", name === "blocked" ? "status" : "stage", "change");
+    setControlValue("sort-by", "updated-desc", "change");
+    updateFilterSummary();
+  }
+
+  function clearLocalPreset() {
+    activePreset = "";
+    window.__CDX_LOGICS_VIEWER_FILTER__ = null;
+    updateFilterSummary();
+  }
+
+  function updateFilterSummary() {
+    document.querySelectorAll("[data-viewer-preset]").forEach((button) => {
+      if (button instanceof HTMLElement) {
+        button.setAttribute("aria-pressed", button.getAttribute("data-viewer-preset") === activePreset ? "true" : "false");
+      }
+    });
+    const count = filterCount();
+    if (!count) {
+      return;
+    }
+    if (activePreset) {
+      const visibleCount = latestItems.filter(localPresetPredicate(activePreset)).length;
+      count.textContent = `${visibleCount} of ${latestItems.length} docs shown`;
+      return;
+    }
+    count.textContent = "Default view";
+  }
+
+  function buildCorpusInsights() {
+    const countsByStage = latestItems.reduce((acc, item) => {
+      acc[item.stage] = (acc[item.stage] || 0) + 1;
+      return acc;
+    }, {});
+    const active = latestItems.filter((item) => !isClosed(item)).length;
+    const blocked = latestItems.filter((item) => statusValue(item).includes("blocked")).length;
+    const unlinked = latestItems.filter((item) => (item.references || []).length === 0 && (item.usedBy || []).length === 0).length;
+    const incompleteChains = latestItems.filter((item) => ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item)).length;
+    const cards = [
+      ["Docs", latestItems.length],
+      ["Active", active],
+      ["Blocked", blocked],
+      ["Unlinked", unlinked]
+    ].map(([label, value]) => `
+      <div class="viewer-insights__card">
+        <div class="viewer-insights__label">${escapeHtml(label)}</div>
+        <div class="viewer-insights__value">${escapeHtml(value)}</div>
+      </div>
+    `).join("");
+    const stageRows = Object.entries(countsByStage)
+      .sort((left, right) => String(left[0]).localeCompare(String(right[0])))
+      .map(([stage, count]) => `<li class="viewer-insights__item"><span>${escapeHtml(stage)}</span><strong>${escapeHtml(count)}</strong></li>`)
+      .join("");
+    const recentRows = [...latestItems]
+      .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
+      .slice(0, 8)
+      .map((item) => `<li class="viewer-insights__item"><span>${escapeHtml(item.id)}</span><strong>${escapeHtml(item.indicators?.Status || "No status")}</strong></li>`)
+      .join("");
+    return `
+      <div class="viewer-insights">
+        <div class="viewer-insights__summary">${cards}</div>
+        <div class="viewer-insights__grid">
+          <div class="viewer-insights__card">
+            <div class="viewer-insights__label">Incomplete chains</div>
+            <div class="viewer-insights__value">${escapeHtml(incompleteChains)}</div>
+          </div>
+        </div>
+        <section class="viewer-insights__section">
+          <h2>Corpus families</h2>
+          <ul class="viewer-insights__list">${stageRows || '<li class="viewer-insights__item">No docs loaded</li>'}</ul>
+        </section>
+        <section class="viewer-insights__section">
+          <h2>Recent activity</h2>
+          <ul class="viewer-insights__list">${recentRows || '<li class="viewer-insights__item">No recent docs</li>'}</ul>
+        </section>
+      </div>
+    `;
+  }
+
+  function showCorpusInsights() {
+    setDocument("Corpus insights", buildCorpusInsights());
+    setMeta("Corpus insights loaded.");
   }
 
   async function showDocument(item) {
@@ -383,6 +526,9 @@
   };
   window.addEventListener("load", () => {
     applyLocalViewerChrome();
+    document.getElementById("viewer-insights")?.addEventListener("click", () => {
+      showCorpusInsights();
+    });
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
       if (!(element instanceof HTMLElement)) {
         return;
@@ -393,6 +539,15 @@
     });
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
+    });
+    document.querySelectorAll("[data-viewer-preset]").forEach((element) => {
+      if (!(element instanceof HTMLElement)) {
+        return;
+      }
+      element.addEventListener("click", () => applyPreset(element.getAttribute("data-viewer-preset") || "active"));
+    });
+    document.getElementById("filter-reset")?.addEventListener("click", () => {
+      clearLocalPreset();
     });
     const editButton = editDocumentButton();
     if (editButton instanceof HTMLElement) {

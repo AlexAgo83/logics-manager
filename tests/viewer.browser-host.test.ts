@@ -13,8 +13,19 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
+    <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
+    <button data-viewer-preset="blocked" type="button">Blocked</button>
+    <div id="viewer-filter-count"></div>
+    <button id="filter-reset" type="button">Clear filters</button>
+    <input id="search-input" />
+    <input id="hide-complete" type="checkbox" />
+    <input id="hide-processed-requests" type="checkbox" />
+    <input id="hide-spec" type="checkbox" />
+    <input id="show-companion-docs" type="checkbox" />
+    <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option></select>
+    <select id="sort-by"><option value="updated-desc">Updated</option></select>
     <button id="viewer-document-close" type="button">Close</button>
     <button data-action="open" type="button">Open</button>
     <button data-action="read" type="button">Read</button>
@@ -57,7 +68,10 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
             ok: true,
             payload: {
               root: "/workspace/logics-manager",
-              items: [{ id: "req_001_demo", title: "Demo", relPath: "logics/request/req_001_demo.md" }],
+              items: [
+                { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
+                { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
+              ],
               updateInfo: {
                 currentVersion: "2.2.0",
                 latestVersion: "2.3.0",
@@ -225,6 +239,34 @@ describe("local viewer browser host", () => {
     expect(banner?.hidden).toBe(false);
     expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("2.3.0");
     expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update");
+  });
+
+  it("renders local corpus insights from loaded items", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.textContent).toContain("Corpus families");
+    expect(content?.textContent).toContain("Blocked");
+    expect(content?.textContent).toContain("Incomplete chains");
+  });
+
+  it("applies local corpus presets to the shared viewer filter hook", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (dom.window.document.querySelector('[data-viewer-preset="blocked"]') as HTMLButtonElement | null)?.click();
+
+    expect(typeof dom.window.__CDX_LOGICS_VIEWER_FILTER__).toBe("function");
+    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ indicators: { Status: "Blocked" } })).toBe(true);
+    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ indicators: { Status: "Ready" } })).toBe(false);
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 of 2");
   });
 
   it("renders health as a summary with document links", async () => {

@@ -19,6 +19,13 @@ const coverageThresholds =
       functions: 73,
       branches: 62.4
       }
+    : coverageTarget === "media"
+      ? {
+        lines: 75,
+        statements: 75,
+        functions: 75,
+        branches: 60
+      }
     : undefined;
 
 import { defineConfig } from "vitest/config";

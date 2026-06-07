@@ -1,11 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as vm from "vm";
 import { JSDOM } from "jsdom";
 
 function loadMediaScript(dom: JSDOM, relPath: string) {
   const absPath = path.resolve(process.cwd(), relPath);
   const source = fs.readFileSync(absPath, "utf8");
-  dom.window.eval(`${source}\n//# sourceURL=${absPath}\n`);
+  new vm.Script(source, { filename: absPath }).runInContext(dom.getInternalVMContext());
 }
 
 export type BootstrapOptions = {

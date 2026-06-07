@@ -14,10 +14,17 @@ export function packageVsix(outputPath) {
     const extensionManifest = {
       ...packageJson,
       name: EXTENSION_NAME,
+      files: [
+        "README.md",
+        "LICENSE",
+        "dist/**",
+        "media/**",
+        "logics_manager/**",
+        "scripts/logics-manager.py",
+      ],
     };
 
     delete extensionManifest.bin;
-    delete extensionManifest.files;
     delete extensionManifest.publishConfig;
 
     fs.writeFileSync(
@@ -70,6 +77,9 @@ function resolveVsceEntrypoint(root) {
 function copyTree(sourceDir, targetDir) {
   fs.mkdirSync(targetDir, { recursive: true });
   for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    if (shouldSkipPackagedEntry(entry.name)) {
+      continue;
+    }
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
     if (entry.isDirectory()) {
@@ -78,4 +88,8 @@ function copyTree(sourceDir, targetDir) {
     }
     fs.copyFileSync(sourcePath, targetPath);
   }
+}
+
+function shouldSkipPackagedEntry(name) {
+  return name === ".DS_Store" || name === "__pycache__" || name.endsWith(".pyc");
 }

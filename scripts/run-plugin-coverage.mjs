@@ -40,11 +40,6 @@ try {
   console.log(
     `[plugin coverage:${target}] lines=${lines.toFixed(2)}% statements=${statements.toFixed(2)}% functions=${functions.toFixed(2)}% branches=${branches.toFixed(2)}%`
   );
-  if (target === "media") {
-    console.log(
-      "[plugin coverage:media] reported separately for visibility; the current eval-loaded webview runtime is not used as a gate."
-    );
-  }
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   console.warn(`[plugin coverage:${target}] summary unavailable: ${message}`);

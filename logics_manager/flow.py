@@ -1862,6 +1862,7 @@ def _build_native_product_brief(
     related_backlog = f"`{backlog_ref}`" if backlog_ref else "(none yet)"
     related_task = f"`{task_ref}`" if task_ref else "(none yet)"
     related_architecture = ", ".join(f"`{item}`" for item in architecture_refs) if architecture_refs else "(none yet)"
+    signature_slug = _slugify(title) or "product-brief"
     content = "\n".join(
         [
             f"## {ref} - {title}",
@@ -1875,6 +1876,15 @@ def _build_native_product_brief(
             "",
             "# Overview",
             f"Logics should keep a single, predictable product surface for {title.lower()}.",
+            "",
+            "```mermaid",
+            "%% logics-kind: product",
+            f"%% logics-signature: product|{signature_slug}|generated",
+            "flowchart TD",
+            "    Need[Product need] --> Scope[Scope and guardrails]",
+            "    Scope --> Decisions[Key decisions]",
+            "    Decisions --> Signals[Success signals]",
+            "```",
             "",
             "# Goals",
             "- Keep the operator experience bounded and easy to reason about.",

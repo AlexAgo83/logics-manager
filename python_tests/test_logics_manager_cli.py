@@ -1226,6 +1226,10 @@ def test_main_runs_native_flow_companion_product(
     assert created.is_file()
     content = created.read_text(encoding="utf-8")
     assert "> Related request: `req_001_demo`" in content
+    assert "%% logics-kind: product" in content
+    assert "%% logics-signature: product|demo_product|generated" in content
+    payload = audit_payload(repo_root, group_by_doc=True, legacy_cutoff_version="1.1.0")
+    assert "companion_doc_missing_mermaid" not in {warning["code"] for warning in payload["warnings"]}
     assert "Created companion doc:" in captured.out
 
 

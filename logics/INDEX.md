@@ -265,6 +265,7 @@
 | [req_206_add_progressive_group_rendering_for_large_item_lists](request/req_206_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done |  | request/req_206_add_progressive_group_rendering_for_large_item_lists.md |
 | [req_207_add_local_viewer_favicon_from_existing_app_assets](request/req_207_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done |  | request/req_207_add_local_viewer_favicon_from_existing_app_assets.md |
 | [req_208_auto_refresh_local_viewer_data_without_page_navigation](request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done |  | request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md |
+| [req_209_viewer_focus_links](request/req_209_viewer_focus_links.md) | Open focused Logics items in the local viewer | Ready |  | request/req_209_viewer_focus_links.md |
 
 ## Backlog
 
@@ -642,6 +643,7 @@
 | [item_370_add_progressive_group_rendering_for_large_item_lists](backlog/item_370_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done | 100% | backlog/item_370_add_progressive_group_rendering_for_large_item_lists.md |
 | [item_371_add_local_viewer_favicon_from_existing_app_assets](backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md |
 | [item_372_auto_refresh_local_viewer_data_without_page_navigation](backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md |
+| [item_373_open_focused_logics_items_in_the_local_viewer](backlog/item_373_open_focused_logics_items_in_the_local_viewer.md) | Open focused Logics items in the local viewer | Ready | 0% | backlog/item_373_open_focused_logics_items_in_the_local_viewer.md |
 
 ## Tasks
 
@@ -814,3 +816,4 @@
 | [task_171_add_progressive_group_rendering_for_large_item_lists](tasks/task_171_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done | 100% | tasks/task_171_add_progressive_group_rendering_for_large_item_lists.md |
 | [task_172_add_local_viewer_favicon_from_existing_app_assets](tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md |
 | [task_173_auto_refresh_local_viewer_data_without_page_navigation](tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md |
+| [task_174_open_focused_logics_items_in_the_local_viewer](tasks/task_174_open_focused_logics_items_in_the_local_viewer.md) | Open focused Logics items in the local viewer | Ready | 0% | tasks/task_174_open_focused_logics_items_in_the_local_viewer.md |

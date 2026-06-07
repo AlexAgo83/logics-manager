@@ -3,7 +3,7 @@
 > Status: Active
 > Related request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
 > Related backlog: `item_022_align_vs_code_plugin_with_companion_docs_workflow`
-> Related task: `(none yet)`
+> Related task: `task_021_align_vs_code_plugin_with_companion_docs_workflow`
 > Related architecture: `adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 

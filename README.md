@@ -119,6 +119,24 @@ Mutation commands reject `..` traversal and files outside the repository before 
 
 When a command supports `--format json`, stdout is a machine-readable JSON payload. Human-oriented status, diagnostics, and progress text should not be mixed into stdout for JSON mode. This makes JSON-mode commands safe to pipe into tools such as `jq` or consume from scripts.
 
+`--json` is a shorthand for `--format json` on commands that support JSON output.
+
+JSON-capable operator commands:
+
+| Command | Purpose | JSON output |
+| --- | --- | --- |
+| `logics-manager status` | Summarize open workflow docs and next actions. | `--format json` or `--json` |
+| `logics-manager health` | Show workflow health counts and issue signals. | `--format json` or `--json` |
+| `logics-manager followups` | List follow-up areas with request creation commands. | `--format json` or `--json` |
+| `logics-manager product-consistency` | Check product brief lineage links. | `--format json` or `--json` |
+| `logics-manager search <query>` | Search workflow docs directly. | `--format json` or `--json` |
+| `logics-manager index` | Regenerate `logics/INDEX.md`. | `--format json` or `--json` |
+| `logics-manager lint` | Validate doc shape and changed-doc hygiene. | `--format json` or `--json` |
+| `logics-manager audit` | Validate workflow traceability and governance. | `--format json` or `--json` |
+| `logics-manager sync ...` | Read, list, search, repair, and export workflow state. | `--format json` or `--json` on supported subcommands |
+| `logics-manager assist ...` | Build review, validation, context, and runtime summaries. | `--format json` or `--json` on supported subcommands |
+| `logics-manager flow ...` | Create, promote, split, close, finish, and list docs. | `--format json` or `--json` on supported subcommands |
+
 Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow finish` validate their direct inputs before writing. New workflow docs are created with exclusive filesystem writes, so an ID collision fails instead of overwriting an existing file; rerun the command to allocate a fresh ID after reviewing `git status`/`git diff`. They still operate on Markdown files in the working tree rather than through a database or transaction service; if the filesystem fails mid-write, recover with git status/diff and rerun after cleanup.
 
 To update the installed CLI later:

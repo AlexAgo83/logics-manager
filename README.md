@@ -101,11 +101,25 @@ Useful commands:
 
 ```bash
 logics-manager flow list
-logics-manager flow promote request-to-backlog logics/request/req_001_example.md
-logics-manager flow promote backlog-to-task logics/backlog/item_001_example.md
-logics-manager flow finish task logics/tasks/task_001_example.md
+logics-manager flow promote request-to-backlog req_001_example
+logics-manager flow promote backlog-to-task item_001_example
+logics-manager flow finish task task_001_example
 logics-manager sync context-pack req_001_example --format json
 ```
+
+### CLI Contracts
+
+Workflow target arguments accept these forms:
+
+- a workflow ref, such as `req_001_example`, `item_001_example`, or `task_001_example`;
+- a repo-relative Markdown path under the matching Logics directory, such as `logics/request/req_001_example.md`;
+- an absolute path only when it resolves inside the current repository.
+
+Mutation commands reject `..` traversal and files outside the repository before writing. Output paths passed with `--out` must also be repo-relative and remain inside the repository after resolution.
+
+When a command supports `--format json`, stdout is a machine-readable JSON payload. Human-oriented status, diagnostics, and progress text should not be mixed into stdout for JSON mode. This makes JSON-mode commands safe to pipe into tools such as `jq` or consume from scripts.
+
+Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow finish` validate their direct inputs before writing. They still operate on Markdown files in the working tree rather than through a database or transaction service; if the filesystem fails mid-write, recover with git status/diff and rerun after cleanup. ID allocation is collision-aware for normal sequential CLI use, but concurrent agents creating the same next document ID should be serialized until a stronger exclusive-create flow is introduced.
 
 To update the installed CLI later:
 

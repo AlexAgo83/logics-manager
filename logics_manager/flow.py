@@ -986,6 +986,11 @@ def _has_validation_evidence(text: str) -> bool:
             continue
         if any(marker in value for marker in invalid_markers):
             continue
+        if "command:" in value and "result:" in value and ("date:" in value or "session:" in value):
+            result_match = re.search(r"\bresult:\s*([^|,;]+)", value)
+            result = result_match.group(1).strip() if result_match else ""
+            if result in {"pass", "passed", "ok", "success", "succeeded"}:
+                return True
         if any(marker in value for marker in ("pass", "validated", "verified", "verification", "regression")):
             return True
         if "ok" in value and any(marker in value for marker in concrete_ok_context):
@@ -2276,6 +2281,9 @@ def build_parser() -> argparse.ArgumentParser:
     closeout_parser = sub.add_parser("closeout", help="Append validation, repair deterministic gaps, finish, and optionally validate/index.")
     closeout_parser.add_argument("source")
     closeout_parser.add_argument("--validation", action="append", default=[])
+    closeout_parser.add_argument("--validation-command")
+    closeout_parser.add_argument("--validation-result", default="passed")
+    closeout_parser.add_argument("--validation-note")
     closeout_parser.add_argument("--index", action="store_true")
     closeout_parser.add_argument("--lint", action="store_true")
     closeout_parser.add_argument("--audit", action="store_true")
@@ -2673,13 +2681,40 @@ def _restore_file_snapshot(repo_root: Path, snapshot: dict[str, str]) -> None:
         path.write_text(content, encoding="utf-8")
 
 
-def closeout_payload(repo_root: Path, source: str, *, validations: list[str], run_index: bool, run_lint: bool, run_audit: bool, dry_run: bool) -> dict[str, object]:
+def _structured_validation_line(command: str, result: str, note: str | None) -> str:
+    normalized_result = result.strip().lower() or "passed"
+    parts = [
+        f"command: `{command.strip()}`",
+        f"result: {normalized_result}",
+        f"date: {date.today().isoformat()}",
+    ]
+    if note and note.strip():
+        parts.append(f"note: {note.strip()}")
+    return " | ".join(parts)
+
+
+def closeout_payload(
+    repo_root: Path,
+    source: str,
+    *,
+    validations: list[str],
+    run_index: bool,
+    run_lint: bool,
+    run_audit: bool,
+    dry_run: bool,
+    validation_command: str | None = None,
+    validation_result: str = "passed",
+    validation_note: str | None = None,
+) -> dict[str, object]:
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     task_ref = task_path.stem
     changed_files: set[str] = set()
     steps: list[dict[str, object]] = []
     initial_preflight = validate_closeout_payload(repo_root, task_ref)
     rollback_snapshot = {} if dry_run else _snapshot_existing_files(repo_root, list(initial_preflight.get("related_paths", [])))
+
+    if validation_command and validation_command.strip():
+        validations = [*validations, _structured_validation_line(validation_command, validation_result, validation_note)]
 
     for validation in validations:
         if validation and validation.strip():
@@ -2788,6 +2823,9 @@ def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
         repo_root,
         args.source,
         validations=args.validation or [],
+        validation_command=args.validation_command,
+        validation_result=args.validation_result,
+        validation_note=args.validation_note,
         run_index=args.index,
         run_lint=args.lint,
         run_audit=args.audit,

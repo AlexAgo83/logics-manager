@@ -1,6 +1,6 @@
 ## prod_019_closeout_evidence_hardening_and_modularity_roadmap - Closeout evidence hardening and modularity roadmap
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Active
 > Related request: `req_200_implement_agent_closeout_loop_ergonomics`
 > Related backlog: `item_364_implement_agent_closeout_loop_ergonomics`
 > Related task: `task_165_implement_agent_closeout_loop_ergonomics`
@@ -13,6 +13,8 @@ The agent closeout ergonomics work made the final delivery path much stronger: c
 The next product step is to harden the quality of evidence and reduce maintenance risk. The current implementation proves the workflow shape, but several parts still rely on permissive text heuristics, large multipurpose modules, and multi-file mutations without a transaction boundary. Those are acceptable for a first pass, but they should not become the long-term contract for agent-driven closeout.
 
 This brief captures the follow-up roadmap: make validation and AC traceability proof more explicit, make handoff summaries accurate across committed ranges, split the large modules into focused surfaces, and add safer apply/rollback behavior for repair and closeout commands.
+
+Post-release smoke testing of `2.2.0` confirmed the core CLI loop works from both the repo entrypoint and the globally installed binary. It also exposed two concrete follow-up defects: `assist handoff --since <rev>` reports commits but loses changed paths for already committed ranges, and minimal `flow companion product` output can create a product brief that immediately triggers the standard audit warning `companion_doc_missing_mermaid`.
 
 ```mermaid
 %% logics-kind: product
@@ -34,6 +36,7 @@ flowchart TD
 - Harden closeout validation evidence so passing preflight means the task has concrete validation proof, not only a matching word in Markdown.
 - Harden AC traceability so repair commands cannot satisfy proof requirements by echoing acceptance criteria text as proof.
 - Make `assist handoff --since <rev>` report changed paths and surfaces from the Git commit range, even when the worktree is clean.
+- Make generated product companion briefs audit-clean by default, including the required overview Mermaid block.
 - Split closeout, repair, handoff, and test fixtures out of oversized files while preserving the public CLI contract.
 - Add transaction-like behavior for multi-file repair and closeout commands: plan targets, apply changes, run requested checks, and roll back or report recovery steps on failure.
 - Keep the existing local-first CLI workflow and JSON/text outputs stable for agents.
@@ -48,7 +51,7 @@ flowchart TD
 
 # Scope and guardrails
 - In: `flow validate-closeout`, `flow repair`, `flow closeout`, `assist handoff`, and the shared helpers behind those commands.
-- In: validation evidence schema, AC proof rules, Git range summarization, module boundaries, and multi-file mutation safety.
+- In: validation evidence schema, AC proof rules, Git range summarization, companion product generation, module boundaries, and multi-file mutation safety.
 - In: regression tests that distinguish synthetic traceability from real proof.
 - Out: unrelated UI redesign, cloud-hosted orchestration, and broad product strategy changes.
 - Guardrail: repair commands may add missing structural links, but must not invent delivery proof.
@@ -71,6 +74,7 @@ flowchart TD
 - `flow repair ac-traceability` does not create false-positive `Proof:` lines from request AC text alone.
 - A task with real validation evidence and real AC proof passes preflight without additional manual repair.
 - `assist handoff --since <rev>` reports non-zero changed paths for a committed range that includes changed files, even when `git status` is clean.
+- `flow companion product --title ...` emits an audit-clean product brief without requiring a manual Mermaid repair.
 - `logics_manager/flow.py`, `logics_manager/assist.py`, and the CLI test file shrink into focused units without losing command coverage.
 - Multi-file repair and closeout commands can be dry-run, applied, and failed checks can be recovered from predictably.
 - Existing validation remains clean: Python tests pass, Logics lint passes, and workflow audit reports no blockers.
@@ -97,6 +101,7 @@ logics-manager assist handoff --since 5367d38
 - Evidence schema: define and enforce structured validation evidence in task docs.
 - Traceability honesty: split AC structure repair from AC proof recording.
 - Handoff accuracy: fix Git range changed-path detection for clean worktrees.
+- Product companion completeness: include a generated product overview Mermaid block so standard audit stays warning-free.
 - Module boundaries: extract closeout, repair, and handoff helpers into focused files.
 - Transaction safety: add plan/apply/verify recovery behavior for multi-file closeout commands.
 

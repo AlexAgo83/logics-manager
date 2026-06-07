@@ -37,12 +37,18 @@ describe("npm package surface", () => {
     try {
       const filePaths = packed.files.map((entry) => entry.path);
 
-      expect(packed.entryCount).toBeLessThan(40);
+      expect(packed.entryCount).toBeLessThan(75);
       expect(filePaths).toContain("VERSION");
       expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
       expect(filePaths).toContain("scripts/logics-manager.py");
       expect(filePaths).toContain("logics_manager/cli.py");
+      expect(filePaths).toContain("logics_manager/viewer.py");
+      expect(filePaths).toContain("clients/viewer/index.html");
+      expect(filePaths).toContain("clients/viewer/browser-host.js");
+      expect(filePaths).toContain("clients/shared-web/media/mainApp.js");
       expect(filePaths).not.toContain("src/logicsViewProvider.ts");
+      expect(filePaths).not.toContain("clients/vscode/src/logicsViewProvider.ts");
+      expect(filePaths).not.toContain("logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md");
       expect(filePaths).not.toContain("tests/logicsManagerNpmWrapper.test.ts");
     } finally {
       fs.rmSync(packed.packageDir, { recursive: true, force: true });

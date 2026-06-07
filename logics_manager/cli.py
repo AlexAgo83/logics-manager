@@ -37,6 +37,7 @@ ROOT_COMMANDS = (
     "product-consistency",
     "status",
     "lint",
+    "view",
     "config",
     "doctor",
     "mcp",
@@ -88,6 +89,7 @@ def _build_root_help() -> str:
         "  product-consistency  Check product brief lineage links.",
         "  status     Summarize open workflow docs and next actions.",
         "  search     Search workflow docs directly.",
+        "  view       Start a local read-only browser viewer for the Logics corpus.",
         "",
         "Validation:",
         "  lint       Check filenames, headings, indicators, and changed-doc hygiene.",
@@ -240,6 +242,10 @@ def main(argv: list[str] | None = None) -> int:
         from .mcp import main as mcp_main
 
         return mcp_main(rest)
+    if command == "view":
+        from .viewer import main as viewer_main
+
+        return viewer_main(rest)
     if command == "audit":
         audit_parser = build_audit_parser()
         parsed = audit_parser.parse_args(rest)

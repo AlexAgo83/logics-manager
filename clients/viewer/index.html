@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/media/main.css" rel="stylesheet" />
+  <link href="/media/css/toolbar.css" rel="stylesheet" />
+  <link href="/media/css/layout.css" rel="stylesheet" />
+  <link href="/media/css/board.css" rel="stylesheet" />
+  <link href="/media/css/details.css" rel="stylesheet" />
+  <title>Logics Viewer</title>
+</head>
+<body class="viewer-shell">
+  <header class="viewer-topbar" aria-label="Viewer status">
+    <div>
+      <div class="viewer-topbar__title">Logics Viewer</div>
+      <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
+    </div>
+    <div class="viewer-topbar__actions">
+      <button class="btn" id="viewer-health" type="button" title="Show lint and audit health">Health</button>
+      <button class="btn" data-action="refresh" type="button" title="Refresh viewer data">Refresh</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar__row toolbar__row--primary">
+      <div class="toolbar__filters">
+        <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="toolbar__tools">
+          <button class="toolbar__filter" id="tools-toggle" aria-label="Open tools menu" aria-haspopup="menu" aria-expanded="false" aria-controls="tools-panel" title="Open tools menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="5" y="6" width="14" height="2" rx="1" fill="currentColor" />
+              <rect x="5" y="11" width="14" height="2" rx="1" fill="currentColor" />
+              <rect x="5" y="16" width="14" height="2" rx="1" fill="currentColor" />
+            </svg>
+          </button>
+          <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
+            <div class="tools-panel__header">
+              <div class="tools-panel__header-label">Tools</div>
+              <button class="tools-panel__close" type="button" data-tools-panel-close aria-label="Close tools menu" title="Close tools menu">x</button>
+            </div>
+            <div class="tools-panel__section" data-tools-section="recommended">
+              <div class="tools-panel__section-label">Read-only</div>
+              <div class="tools-panel__section-body" data-tools-body="recommended">
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh viewer data">Refresh</button>
+                <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="Open project page">About</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="toolbar__filter toolbar__filter--view" data-action="toggle-view-mode" aria-label="Switch display mode" title="Switch display mode">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+            <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+            <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+            <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </button>
+        <button class="toolbar__filter" id="activity-toggle" aria-label="Toggle activity" aria-pressed="false" title="Toggle activity">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h4l2.2-5 3.6 10 2.2-5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <button class="toolbar__filter" id="attention-toggle" aria-label="Show attention required" aria-pressed="false" title="Show attention required">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l8 14H4z" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="17" r="1" fill="currentColor" /></svg>
+        </button>
+        <button class="toolbar__filter" id="header-logics-insights" aria-label="Open corpus insights" title="Open corpus insights" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 10.5v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="7.5" r="1" fill="currentColor" /></svg>
+        </button>
+      </div>
+      <div class="toolbar__search">
+        <input id="search-input" class="toolbar__search-input" type="search" placeholder="Search docs" aria-label="Search docs" />
+      </div>
+    </div>
+    <div class="filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls">
+      <label class="toggle"><input type="checkbox" id="hide-complete" /><span>Hide completed</span></label>
+      <label class="toggle"><input type="checkbox" id="hide-processed-requests" /><span>Hide processed requests</span></label>
+      <label class="toggle"><input type="checkbox" id="hide-spec" /><span>Hide specs</span></label>
+      <label class="toggle"><input type="checkbox" id="show-companion-docs" /><span>Show companion docs</span></label>
+      <label class="toggle"><input type="checkbox" id="hide-empty-columns" /><span>Hide empty columns</span></label>
+      <label class="toolbar__select-label">Group <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option><option value="theme">Theme</option></select></label>
+      <label class="toolbar__select-label">Sort <select id="sort-by"><option value="updated-desc">Updated</option><option value="id-asc">ID</option><option value="status">Status</option></select></label>
+      <button class="btn" id="filter-reset" type="button">Reset</button>
+    </div>
+  </div>
+
+  <div class="help-banner" id="help-banner" hidden>
+    <span id="help-banner-copy"></span>
+    <button class="help-banner__dismiss" id="help-banner-dismiss" type="button" aria-label="Dismiss">x</button>
+  </div>
+
+  <div class="layout" id="layout">
+    <main class="layout__main" id="layout-main">
+      <div class="board" id="board"></div>
+      <aside class="activity-panel" id="activity-panel" aria-label="Activity"></aside>
+    </main>
+    <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
+    <aside class="details" id="details">
+      <div class="details__header">
+        <div>
+          <div class="details__eyebrow" id="details-eyebrow">Selection</div>
+          <div class="details__header-title" id="details-title">Details</div>
+        </div>
+        <button class="details__toggle" id="details-toggle" aria-label="Collapse details" aria-expanded="true" title="Collapse details">
+          <svg class="details__toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="details__body" id="details-body">
+        <div class="details__empty">Select a card to see details.</div>
+      </div>
+      <div class="details__actions">
+        <button class="btn" data-action="promote" disabled title="Read-only in local viewer">Promote</button>
+        <button class="btn" data-action="mark-done" disabled title="Read-only in local viewer">Done</button>
+        <button class="btn" data-action="mark-obsolete" disabled title="Read-only in local viewer">Obsolete</button>
+        <button class="btn" data-action="change-status" disabled title="Read-only in local viewer">Status</button>
+        <button class="btn" data-action="open" disabled title="Open markdown preview">Open</button>
+        <button class="btn" data-action="read" disabled title="Open markdown preview">Read</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="viewer-document" id="viewer-document" hidden aria-label="Markdown document">
+    <div class="viewer-document__header">
+      <div id="viewer-document-title">Document</div>
+      <button class="btn" id="viewer-document-close" type="button">Close</button>
+    </div>
+    <pre id="viewer-document-content"></pre>
+  </section>
+
+  <script src="/browser-host.js"></script>
+  <script src="/media/logicsModel.js"></script>
+  <script src="/media/uiStatus.js"></script>
+  <script src="/media/harnessApi.js"></script>
+  <script src="/media/layoutController.js"></script>
+  <script src="/media/hostApiContract.js"></script>
+  <script src="/media/hostApi.js"></script>
+  <script src="/media/toolsPanelLayout.js"></script>
+  <script src="/media/webviewSelectors.js"></script>
+  <script src="/media/webviewPersistence.js"></script>
+  <script src="/media/webviewChrome.js"></script>
+  <script src="/media/renderBoardApp.js"></script>
+  <script src="/media/renderDetails.js"></script>
+  <script src="/media/renderMarkdown.js"></script>
+  <script src="/media/mainCore.js"></script>
+  <script src="/media/mainInteractionHandlers.js"></script>
+  <script src="/media/mainInteractions.js"></script>
+  <script src="/media/mainApp.js"></script>
+</body>
+</html>

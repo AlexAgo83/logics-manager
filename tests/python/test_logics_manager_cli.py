@@ -19,6 +19,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from logics_manager.viewer import collect_viewer_items, read_doc_payload, render_start_status
 from flow_fixtures import write_ac_traceability_chain
 
 
@@ -119,6 +120,69 @@ def test_main_accepts_json_alias_for_native_subcommand(
     assert exit_code == 0
     assert payload["returned_count"] == 1
     assert payload["items"][0]["ref"] == "req_001_demo"
+
+
+def test_root_help_lists_local_viewer_command(capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = main(["--help"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "view       Start a local read-only browser viewer" in captured.out
+
+
+def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Ready",
+        links=[],
+    )
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    _write_minimal_workflow_doc(
+        backlog_path,
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=["logics/request/req_001_demo.md"],
+    )
+    backlog_path.write_text(
+        backlog_path.read_text(encoding="utf-8") + "\nPromoted from `logics/request/req_001_demo.md`\n",
+        encoding="utf-8",
+    )
+
+    items = collect_viewer_items(repo_root)
+
+    request = next(item for item in items if item["id"] == "req_001_demo")
+    backlog = next(item for item in items if item["id"] == "item_001_demo")
+    assert request["isPromoted"] is True
+    assert request["usedBy"][0]["id"] == "item_001_demo"
+    assert backlog["references"][0]["path"] == "logics/request/req_001_demo.md"
+
+
+def test_viewer_read_doc_rejects_paths_outside_repo(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    doc_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+
+    payload = read_doc_payload(repo_root, "logics/request/req_001_demo.md")
+
+    assert payload["path"] == "logics/request/req_001_demo.md"
+    assert "Demo" in payload["content"]
+    with pytest.raises(ValueError):
+        read_doc_payload(repo_root, "../outside.md")
+
+
+def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
+    output = render_start_status("http://127.0.0.1:8765", tmp_path)
+
+    assert "http://127.0.0.1:8765" in output
+    assert "Mode: read-only" in output
+    assert "Bind: localhost" in output
 
 
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:

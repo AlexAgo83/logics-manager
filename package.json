@@ -29,6 +29,9 @@
     "pyproject.toml",
     "scripts/logics-manager.py",
     "scripts/npm/",
+    "clients/shared-web/media/",
+    "clients/viewer/index.html",
+    "clients/viewer/browser-host.js",
     "logics_manager/*.py",
     "logics_manager/**/*.py"
   ],

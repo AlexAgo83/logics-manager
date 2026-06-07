@@ -690,7 +690,7 @@ def refresh_workflow_mermaid_signature_file(path: Path, kind: str, dry_run: bool
     return True
 
 
-def _close_eligible_requests(repo_root: Path, dry_run: bool) -> tuple[int, int]:
+def _close_eligible_requests(repo_root: Path, dry_run: bool, *, quiet: bool = False) -> tuple[int, int]:
     request_dir = repo_root / DOC_KINDS["request"]["directory"]
     closed = 0
     scanned = 0
@@ -704,7 +704,8 @@ def _close_eligible_requests(repo_root: Path, dry_run: bool) -> tuple[int, int]:
             continue
         if all(_is_doc_done(item_path, "backlog") for item_path in linked_items):
             _close_doc(request_path, "request", dry_run)
-            print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
+            if not quiet:
+                print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
             closed += 1
     return scanned, closed
 
@@ -1031,7 +1032,7 @@ def _print_help(text: str) -> None:
 
 def cmd_close_eligible_requests(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    scanned, closed = _close_eligible_requests(repo_root, args.dry_run)
+    scanned, closed = _close_eligible_requests(repo_root, args.dry_run, quiet=args.format == "json")
     payload = {
         "command": "sync",
         "kind": "close-eligible-requests",

@@ -2370,14 +2370,14 @@ def cmd_request_draft(args: argparse.Namespace) -> dict[str, object]:
         **_build_request_draft(repo_root, intent=args.intent),
     }
     if args.execution_mode == "execute":
-        out_path = repo_root / payload["path"]
+        out_path, output_path = resolve_repo_output_path(repo_root, str(payload["path"]), label="output")
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(payload["content"], encoding="utf-8")
             payload["written"] = True
         else:
             payload["written"] = False
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        payload["output_path"] = output_path
     else:
         payload["written"] = False
     if args.format == "json":
@@ -2416,14 +2416,14 @@ def cmd_spec_first_pass(args: argparse.Namespace) -> dict[str, object]:
         **_build_spec_first_pass(repo_root, args.ref),
     }
     if args.execution_mode == "execute":
-        out_path = repo_root / payload["path"]
+        out_path, output_path = resolve_repo_output_path(repo_root, str(payload["path"]), label="output")
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(payload["content"], encoding="utf-8")
             payload["written"] = True
         else:
             payload["written"] = False
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        payload["output_path"] = output_path
     else:
         payload["written"] = False
     if args.format == "json":
@@ -2462,16 +2462,16 @@ def cmd_backlog_groom(args: argparse.Namespace) -> dict[str, object]:
         **_build_backlog_groom(repo_root, args.ref),
     }
     if args.execution_mode == "execute":
-        out_path = repo_root / payload["path"]
+        out_path, output_path = resolve_repo_output_path(repo_root, str(payload["path"]), label="output")
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(payload["content"], encoding="utf-8")
             payload["written"] = True
-            request_path = repo_root / payload["request_path"]
+            request_path, _request_output_path = resolve_repo_output_path(repo_root, str(payload["request_path"]), label="request_path")
             _append_section_bullets(request_path, "Backlog", [f"`{payload['ref']}`"], dry_run=False)
         else:
             payload["written"] = False
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        payload["output_path"] = output_path
     else:
         payload["written"] = False
     if args.format == "json":

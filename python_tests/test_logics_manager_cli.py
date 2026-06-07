@@ -1875,3 +1875,78 @@ def test_assist_outside_output_is_rejected_even_in_dry_run(tmp_path: Path, monke
         main(["assist", "runtime-status", "--out", "../runtime.json", "--dry-run"])
 
     assert not (tmp_path / "runtime.json").exists()
+
+
+def test_sync_close_eligible_requests_json_is_clean(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Backlog",
+                "- `item_001_demo_item`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / "item_001_demo_item.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo_item - Demo Backlog",
+                "> Status: Done",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Request",
+                "- `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "close-eligible-requests", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert payload["closed"] == 1
+    assert payload["scanned"] == 1
+
+
+def test_assist_execute_rejects_generated_path_outside_repo(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.assist._build_request_draft",
+        lambda _repo_root, intent: {
+            "ref": "req_001_demo",
+            "title": "Demo",
+            "path": "../outside.md",
+            "content": "# outside\n",
+            "from_version": "1.0.0",
+            "needs": ["Demo"],
+            "acceptance": ["AC1: Demo"],
+        },
+    )
+
+    with pytest.raises(SystemExit, match="Unsupported output path"):
+        main(["assist", "request-draft", "--intent", "demo", "--execution-mode", "execute"])
+
+    assert not (tmp_path / "outside.md").exists()

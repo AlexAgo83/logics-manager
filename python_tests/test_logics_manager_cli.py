@@ -2245,6 +2245,43 @@ def test_main_runs_native_assist_validation_summary(
     assert "- test commands: 1" in captured.out
 
 
+def test_main_runs_native_assist_handoff(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_path.parent.mkdir(parents=True)
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Done",
+                "# Validation",
+                "- pytest passed.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.assist._git_range_changed_paths", lambda _repo_root, _since: ["logics/tasks/task_001_demo.md", "logics_manager/assist.py"])
+    monkeypatch.setattr("logics_manager.assist._git_range_commits", lambda _repo_root, _since: [{"commit": "abc1234", "subject": "feat: demo"}])
+
+    exit_code = main(["assist", "handoff", "--since", "HEAD~1"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Handoff since HEAD~1" in captured.out
+    assert "- commit: abc1234 feat: demo" in captured.out
+    assert "- logics: task_001_demo [Done] logics/tasks/task_001_demo.md" in captured.out
+    assert "- validation: pytest passed." in captured.out
+
+
 def test_main_runs_native_assist_test_impact_summary(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

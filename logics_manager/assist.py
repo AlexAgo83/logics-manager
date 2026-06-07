@@ -643,6 +643,35 @@ def _git_changed_paths(repo_root: Path) -> list[str]:
     return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
 
 
+def _git_lines(repo_root: Path, args: list[str]) -> list[str]:
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    if completed.returncode != 0:
+        return []
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
+def _git_range_changed_paths(repo_root: Path, since: str) -> list[str]:
+    return sorted(set(_git_lines(repo_root, ["diff", "--name-only", "--relative=.", f"{since}..HEAD"])))
+
+
+def _git_range_commits(repo_root: Path, since: str) -> list[dict[str, str]]:
+    commits: list[dict[str, str]] = []
+    for line in _git_lines(repo_root, ["log", "--oneline", f"{since}..HEAD"]):
+        commit, _, subject = line.partition(" ")
+        commits.append({"commit": commit, "subject": subject})
+    return commits
+
+
 def _is_low_risk_generated_path(path: str) -> bool:
     normalized = path.strip().replace("\\", "/")
     filename = normalized.rsplit("/", 1)[-1]
@@ -1348,6 +1377,12 @@ def build_parser() -> argparse.ArgumentParser:
     closure_summary.add_argument("--dry-run", action="store_true")
     closure_summary.set_defaults(func=cmd_closure_summary)
 
+    handoff = sub.add_parser("handoff", help="Summarize commits, changed surfaces, Logics docs, validations, and next actions.")
+    handoff.add_argument("--since", required=True)
+    handoff.add_argument("--format", choices=("text", "json"), default="text")
+    handoff.add_argument("--dry-run", action="store_true")
+    handoff.set_defaults(func=cmd_handoff)
+
     return parser
 
 
@@ -1419,11 +1454,15 @@ def _build_help() -> str:
             "  closure-summary [ref]",
             "    Summarize a delivered request, backlog item, or task.",
             "    Flags: --format {text,json}, --dry-run",
+            "  handoff",
+            "    Summarize commits, changed surfaces, Logics docs, validations, and next actions.",
+            "    Flags: --since, --format {text,json}, --dry-run",
             "",
             "Examples:",
             "  logics-manager assist runtime-status --format json",
             "  logics-manager assist context request req_001_my_request --profile deep",
             "  logics-manager assist request-draft --intent \"Improve onboarding\"",
+            "  logics-manager assist handoff --since HEAD~1",
         ]
     )
 
@@ -1525,6 +1564,21 @@ def _build_command_help(command: str) -> str:
                 "  logics-manager assist closure-summary [ref] [args...]",
                 "",
                 "Flags:",
+                "  --format {text,json}",
+                "  --dry-run",
+            ]
+        )
+    if command == "handoff":
+        return "\n".join(
+            [
+                "Logics Assist Handoff",
+                "Summarize commits, changed surfaces, Logics docs, validations, and next actions.",
+                "",
+                "Usage:",
+                "  logics-manager assist handoff --since <rev> [args...]",
+                "",
+                "Flags:",
+                "  --since",
                 "  --format {text,json}",
                 "  --dry-run",
             ]
@@ -2025,6 +2079,77 @@ def _build_closure_summary(repo_root: Path, ref: str | None) -> dict[str, object
     }
 
 
+def _doc_title_from_path(path: Path) -> str:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return path.stem
+    for line in lines:
+        if line.startswith("## "):
+            payload = line.removeprefix("## ").strip()
+            if " - " in payload:
+                return payload.split(" - ", 1)[1].strip()
+            return payload
+    return path.stem
+
+
+def _validation_lines_from_task(path: Path) -> list[str]:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    values: list[str] = []
+    for line in _section_lines(lines, "Validation"):
+        stripped = line.strip()
+        if not stripped.startswith("- "):
+            continue
+        value = stripped[2:].strip()
+        if value and not value.lower().startswith("run `") and not value.lower().startswith("run the "):
+            values.append(value)
+    return values
+
+
+def _build_handoff(repo_root: Path, since: str) -> dict[str, object]:
+    changed_paths = _git_range_changed_paths(repo_root, since)
+    commits = _git_range_commits(repo_root, since)
+    surface = _build_changed_surface_summary(changed_paths)
+    logics_docs: list[dict[str, object]] = []
+    validations: list[str] = []
+    for rel_path in changed_paths:
+        if not rel_path.startswith("logics/") or not rel_path.endswith(".md"):
+            continue
+        path = repo_root / rel_path
+        kind = path.parent.name
+        entry = {
+            "path": rel_path,
+            "ref": path.stem,
+            "kind": kind,
+            "title": _doc_title_from_path(path),
+            "status": _doc_status(path) if path.is_file() else "Unknown",
+        }
+        logics_docs.append(entry)
+        if kind == "tasks":
+            validations.extend(_validation_lines_from_task(path))
+    next_actions = [
+        "Run lint/audit if not already included in validation evidence.",
+        "Review changed files before committing or handing off.",
+    ]
+    if any(path.startswith("logics_manager/") for path in changed_paths):
+        next_actions.append("Run `PYTHONPATH=\"$PWD\" pytest python_tests -q` for Python CLI changes.")
+    if any(path.startswith("src/") for path in changed_paths):
+        next_actions.append("Run the TypeScript/vitest checks for extension changes.")
+    return {
+        "since": since,
+        "commit_count": len(commits),
+        "commits": commits,
+        "changed_paths": changed_paths,
+        "surface": surface,
+        "logics_docs": logics_docs,
+        "validations": sorted(set(validations)),
+        "next_actions": next_actions,
+    }
+
+
 def _build_context_pack(repo_root: Path, seed_ref: str, *, mode: str, profile: str) -> dict[str, object]:
     docs = _workflow_docs(repo_root)
     selected: list[Path] = []
@@ -2521,6 +2646,34 @@ def cmd_closure_summary(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def cmd_handoff(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    config, config_path = load_repo_config(repo_root)
+    payload = {
+        "command": "assist",
+        "kind": "handoff",
+        "repo_root": repo_root.as_posix(),
+        "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
+        **_build_handoff(repo_root, args.since),
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Handoff since {payload['since']}:")
+        print(f"- commits: {payload['commit_count']}")
+        print(f"- changed paths: {len(payload['changed_paths'])}")
+        print(f"- primary surface: {payload['surface']['primary_category']}")
+        for commit in payload["commits"][:8]:
+            print(f"- commit: {commit['commit']} {commit['subject']}")
+        for doc in payload["logics_docs"][:8]:
+            print(f"- logics: {doc['ref']} [{doc['status']}] {doc['path']}")
+        for validation in payload["validations"][:8]:
+            print(f"- validation: {validation}")
+        for action in payload["next_actions"]:
+            print(f"- next: {action}")
+    return payload
+
+
 def cmd_context(args: argparse.Namespace) -> dict[str, object]:
     repo_root = find_repo_root(Path.cwd())
     config, config_path = load_repo_config(repo_root)
@@ -2587,7 +2740,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in HELP_FLAGS:
         _print_help(_build_help())
         return 0
-    if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and len(argv) > 1 and argv[1] in HELP_FLAGS:
+    if argv[0] in {"runtime-status", "context", "request-draft", "spec-first-pass", "backlog-groom", "closure-summary", "handoff", "roi-report", "diff-risk", "commit-plan", "changed-surface-summary", "doc-consistency", "review-checklist", "validation-checklist", "validation-summary", "test-impact-summary", "claude-bridges", "claude-instructions", "next-step"} and len(argv) > 1 and argv[1] in HELP_FLAGS:
         _print_help(_build_command_help(argv[0]))
         return 0
     parser = build_parser()

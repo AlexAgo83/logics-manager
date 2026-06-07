@@ -125,6 +125,8 @@ def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     (repo_root / "logics" / "request").mkdir(parents=True)
     (repo_root / "logics" / "backlog").mkdir(parents=True)
     (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "architecture").mkdir(parents=True)
     _write_minimal_workflow_doc(
         repo_root / "logics" / "request" / "req_001_demo.md",
         title="Demo request",
@@ -907,6 +909,11 @@ def _run_logics_manager_subprocess(repo_root: Path, argv: list[str]) -> subproce
         ["assist", "runtime-status", "--format", "json"],
         ["assist", "claude-bridges", "--format", "json"],
         ["assist", "claude-instructions", "--format", "json"],
+        ["status", "--json"],
+        ["health", "--json"],
+        ["followups", "--json"],
+        ["search", "Demo", "--json"],
+        ["product-consistency", "--json"],
     ],
 )
 def test_documented_json_commands_emit_parseable_stdout_in_subprocess(tmp_path: Path, argv: list[str]) -> None:

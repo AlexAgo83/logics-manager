@@ -17,7 +17,7 @@ from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
-from logics_manager.flow import PlannedDoc, validate_closeout_payload
+from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 
 
@@ -1832,6 +1832,93 @@ def test_main_runs_native_flow_closeout_finishes_delivery_chain(
     assert "> Status: Done" in (repo_root / "logics" / "backlog" / "item_001_demo_product.md").read_text(encoding="utf-8")
     assert "> Status: Done" in (repo_root / "logics" / "request" / "req_000_demo_product.md").read_text(encoding="utf-8")
     assert "pytest passed" in (repo_root / "logics" / "tasks" / "task_001_demo_product.md").read_text(encoding="utf-8")
+
+
+def test_closeout_rolls_back_failed_repairs(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "# Needs",
+                "- Deliver demo.",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# Definition of Ready (DoR)",
+                "- [ ] Ready.",
+                "# Backlog",
+                "- `item_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    backlog_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "# Problem",
+                "- Deliver demo.",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Primary task(s): `task_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "# Plan",
+                "- [ ] Do the work.",
+                "# Backlog",
+                "- `item_001_demo`",
+                "# Definition of Done (DoD)",
+                "- [ ] Validation passes.",
+                "# Validation",
+                "- validation pending",
+                "# Links",
+                "- Request: `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    original_request_text = request_path.read_text(encoding="utf-8")
+    original_backlog_text = backlog_path.read_text(encoding="utf-8")
+    original_task_text = task_path.read_text(encoding="utf-8")
+
+    payload = closeout_payload(
+        repo_root,
+        "task_001_demo",
+        validations=["pytest passed"],
+        run_index=False,
+        run_lint=False,
+        run_audit=False,
+        dry_run=False,
+    )
+
+    assert payload["ok"] is False
+    assert payload["rolled_back"] is True
+    assert payload["changed_files"] == []
+    assert "logics/tasks/task_001_demo.md" in payload["attempted_changed_files"]
+    assert "ac_missing_item_traceability" in {issue["code"] for issue in payload["preflight"]["issues"]}
+    assert "ac_missing_task_traceability" in {issue["code"] for issue in payload["preflight"]["issues"]}
+    assert request_path.read_text(encoding="utf-8") == original_request_text
+    assert backlog_path.read_text(encoding="utf-8") == original_backlog_text
+    assert task_path.read_text(encoding="utf-8") == original_task_text
 
 
 def test_main_runs_native_flow_finish_task(

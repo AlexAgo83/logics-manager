@@ -2658,11 +2658,28 @@ def _closeout_refs(repo_root: Path, task_path: Path) -> list[str]:
     return sorted(refs)
 
 
+def _snapshot_existing_files(repo_root: Path, rel_paths: list[str]) -> dict[str, str]:
+    snapshot: dict[str, str] = {}
+    for rel_path in rel_paths:
+        path = repo_root / rel_path
+        if path.is_file():
+            snapshot[rel_path] = path.read_text(encoding="utf-8")
+    return snapshot
+
+
+def _restore_file_snapshot(repo_root: Path, snapshot: dict[str, str]) -> None:
+    for rel_path, content in snapshot.items():
+        path = repo_root / rel_path
+        path.write_text(content, encoding="utf-8")
+
+
 def closeout_payload(repo_root: Path, source: str, *, validations: list[str], run_index: bool, run_lint: bool, run_audit: bool, dry_run: bool) -> dict[str, object]:
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     task_ref = task_path.stem
     changed_files: set[str] = set()
     steps: list[dict[str, object]] = []
+    initial_preflight = validate_closeout_payload(repo_root, task_ref)
+    rollback_snapshot = {} if dry_run else _snapshot_existing_files(repo_root, list(initial_preflight.get("related_paths", [])))
 
     for validation in validations:
         if validation and validation.strip():
@@ -2694,12 +2711,20 @@ def closeout_payload(repo_root: Path, source: str, *, validations: list[str], ru
 
     preflight = validate_closeout_payload(repo_root, task_ref)
     if preflight["issues"]:
+        rolled_back = False
+        attempted_changed_files = sorted(changed_files)
+        if rollback_snapshot:
+            _restore_file_snapshot(repo_root, rollback_snapshot)
+            changed_files.clear()
+            rolled_back = True
         return {
             "command": "closeout",
             "ok": False,
             "source": task_path.relative_to(repo_root).as_posix(),
             "changed_files": sorted(changed_files),
+            "attempted_changed_files": attempted_changed_files,
             "preflight": preflight,
+            "rolled_back": rolled_back,
             "steps": steps,
             "dry_run": dry_run,
         }
@@ -2752,6 +2777,7 @@ def closeout_payload(repo_root: Path, source: str, *, validations: list[str], ru
         "lint": lint_result,
         "audit": audit_result,
         "steps": steps,
+        "rolled_back": False,
         "dry_run": dry_run,
     }
 

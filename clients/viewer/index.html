@@ -76,57 +76,67 @@
         <input id="search-input" class="toolbar__search-input" type="search" placeholder="Search docs" aria-label="Search docs" />
       </div>
     </div>
-    <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls">
+    <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
       <div class="viewer-filter-panel__column viewer-filter-panel__column--focus">
         <div class="viewer-filter-panel__section">
-          <div class="viewer-filter-panel__label">Focus</div>
-          <div class="viewer-filter-strip" aria-label="Corpus focus">
-            <button class="btn viewer-filter-chip viewer-filter-chip--primary" type="button" data-viewer-filter-group="focus" data-viewer-filter-value="active">Active work</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="focus" data-viewer-filter-value="all">All docs</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="focus" data-viewer-filter-value="blocked">Blocked</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="focus" data-viewer-filter-value="needs-promotion">Needs promotion</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="focus" data-viewer-filter-value="recent">Recently changed</button>
-          </div>
+          <label class="viewer-filter-select">
+            <span class="viewer-filter-panel__label">Focus</span>
+            <select data-viewer-filter-group="focus" aria-label="Corpus focus">
+              <option value="active">Active work</option>
+              <option value="all">All docs</option>
+              <option value="blocked">Blocked</option>
+              <option value="needs-promotion">Needs promotion</option>
+              <option value="recent">Recently changed</option>
+            </select>
+          </label>
         </div>
       </div>
       <div class="viewer-filter-panel__column viewer-filter-panel__column--narrow">
         <div class="viewer-filter-panel__section">
-          <div class="viewer-filter-panel__label">Type</div>
-          <div class="viewer-filter-grid" aria-label="Document type">
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="all">All</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="workflow">Workflow</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="request">Requests</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="backlog">Backlog</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="task">Tasks</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="type" data-viewer-filter-value="companion">Companions</button>
-          </div>
+          <label class="viewer-filter-select">
+            <span class="viewer-filter-panel__label">Type</span>
+            <select data-viewer-filter-group="type" aria-label="Document type">
+              <option value="all">All</option>
+              <option value="workflow">Workflow</option>
+              <option value="request">Requests</option>
+              <option value="backlog">Backlog</option>
+              <option value="task">Tasks</option>
+              <option value="companion">Companions</option>
+            </select>
+          </label>
         </div>
         <div class="viewer-filter-panel__section">
-          <div class="viewer-filter-panel__label">Status</div>
-          <div class="viewer-filter-grid" aria-label="Status">
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="status" data-viewer-filter-value="any">Any</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="status" data-viewer-filter-value="ready">Ready</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="status" data-viewer-filter-value="in-progress">In progress</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="status" data-viewer-filter-value="blocked">Blocked</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="status" data-viewer-filter-value="done">Done</button>
-          </div>
+          <label class="viewer-filter-select">
+            <span class="viewer-filter-panel__label">Status</span>
+            <select data-viewer-filter-group="status" aria-label="Status">
+              <option value="any">Any</option>
+              <option value="ready">Ready</option>
+              <option value="in-progress">In progress</option>
+              <option value="blocked">Blocked</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
         </div>
         <div class="viewer-filter-panel__section">
-          <div class="viewer-filter-panel__label">Relations</div>
-          <div class="viewer-filter-grid" aria-label="Relationships">
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="relation" data-viewer-filter-value="any">Any</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="relation" data-viewer-filter-value="unlinked">Unlinked</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="relation" data-viewer-filter-value="linked">Linked</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="relation" data-viewer-filter-value="needs-promotion">Needs promotion</button>
-          </div>
+          <label class="viewer-filter-select">
+            <span class="viewer-filter-panel__label">Relations</span>
+            <select data-viewer-filter-group="relation" aria-label="Relationships">
+              <option value="any">Any</option>
+              <option value="unlinked">Unlinked</option>
+              <option value="linked">Linked</option>
+              <option value="needs-promotion">Needs promotion</option>
+            </select>
+          </label>
         </div>
         <div class="viewer-filter-panel__section">
-          <div class="viewer-filter-panel__label">Activity</div>
-          <div class="viewer-filter-grid" aria-label="Activity">
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="activity" data-viewer-filter-value="any">Any</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="activity" data-viewer-filter-value="recent">Recent</button>
-            <button class="btn viewer-filter-chip" type="button" data-viewer-filter-group="activity" data-viewer-filter-value="stale">Stale</button>
-          </div>
+          <label class="viewer-filter-select">
+            <span class="viewer-filter-panel__label">Activity</span>
+            <select data-viewer-filter-group="activity" aria-label="Activity">
+              <option value="any">Any</option>
+              <option value="recent">Recent</option>
+              <option value="stale">Stale</option>
+            </select>
+          </label>
         </div>
       </div>
       <div class="viewer-filter-panel__column viewer-filter-panel__column--organize">

@@ -60,6 +60,10 @@
   gap: 14px;
 }
 
+.viewer-filter-panel[hidden] {
+  display: none !important;
+}
+
 .viewer-filter-panel__column {
   display: grid;
   gap: 12px;
@@ -84,30 +88,27 @@
   text-transform: uppercase;
 }
 
-.viewer-filter-strip,
-.viewer-filter-grid {
-  display: flex;
-  flex-wrap: wrap;
+.viewer-filter-select {
+  display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
-.viewer-filter-grid {
-  max-width: 100%;
+.viewer-filter-select select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-dropdown-background, var(--vscode-input-background, #1f1f1f));
+  color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground, #e5e5e5));
+  padding: 0 8px;
+  font-size: 12px;
 }
 
-.viewer-filter-chip {
-  min-height: 28px;
-  white-space: nowrap;
-}
-
-.viewer-filter-chip--primary {
-  font-weight: 600;
-}
-
-.viewer-filter-chip[aria-pressed="true"] {
-  border-color: var(--vscode-button-background, #0e639c);
-  background: var(--vscode-button-background, #0e639c);
-  color: var(--vscode-button-foreground, #ffffff);
+.viewer-filter-select select:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  outline-offset: 1px;
 }
 
 .viewer-filter-count {

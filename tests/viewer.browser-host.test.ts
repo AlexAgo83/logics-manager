@@ -17,17 +17,30 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     <button id="header-logics-insights" type="button">Open corpus insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
-    <button data-viewer-filter-group="focus" data-viewer-filter-value="active" type="button">Active work</button>
-    <button data-viewer-filter-group="focus" data-viewer-filter-value="blocked" type="button">Blocked</button>
-    <button data-viewer-filter-group="focus" data-viewer-filter-value="needs-promotion" type="button">Needs promotion</button>
-    <button data-viewer-filter-group="focus" data-viewer-filter-value="all" type="button">All docs</button>
-    <button data-viewer-filter-group="type" data-viewer-filter-value="task" type="button">Tasks</button>
-    <button data-viewer-filter-group="type" data-viewer-filter-value="companion" type="button">Companions</button>
-    <button data-viewer-filter-group="status" data-viewer-filter-value="blocked" type="button">Blocked status</button>
-    <button data-viewer-filter-group="status" data-viewer-filter-value="any" type="button">Any status</button>
-    <button data-viewer-filter-group="relation" data-viewer-filter-value="unlinked" type="button">Unlinked</button>
-    <button data-viewer-filter-group="relation" data-viewer-filter-value="needs-promotion" type="button">Needs promotion relation</button>
-    <button data-viewer-filter-group="activity" data-viewer-filter-value="stale" type="button">Stale</button>
+    <select data-viewer-filter-group="focus" aria-label="Corpus focus">
+      <option value="active">Active work</option>
+      <option value="blocked">Blocked</option>
+      <option value="needs-promotion">Needs promotion</option>
+      <option value="all">All docs</option>
+    </select>
+    <select data-viewer-filter-group="type" aria-label="Document type">
+      <option value="all">All</option>
+      <option value="task">Tasks</option>
+      <option value="companion">Companions</option>
+    </select>
+    <select data-viewer-filter-group="status" aria-label="Status">
+      <option value="any">Any status</option>
+      <option value="blocked">Blocked status</option>
+    </select>
+    <select data-viewer-filter-group="relation" aria-label="Relationships">
+      <option value="any">Any</option>
+      <option value="unlinked">Unlinked</option>
+      <option value="needs-promotion">Needs promotion relation</option>
+    </select>
+    <select data-viewer-filter-group="activity" aria-label="Activity">
+      <option value="any">Any</option>
+      <option value="stale">Stale</option>
+    </select>
     <div id="viewer-filter-count"></div>
     <button id="filter-reset" type="button">Clear filters</button>
     <input id="search-input" />
@@ -158,6 +171,42 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
 }
 
 describe("local viewer browser host", () => {
+  function setViewerFilter(dom: JSDOM, group: string, value: string) {
+    const control = dom.window.document.querySelector(`[data-viewer-filter-group="${group}"]`) as HTMLSelectElement | null;
+    if (!control) {
+      throw new Error(`Missing viewer filter group: ${group}`);
+    }
+    control.value = value;
+    control.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+  }
+
+  it("renders the local corpus filter panel closed by default", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html);
+    const panel = dom.window.document.getElementById("filter-panel");
+    const toggle = dom.window.document.getElementById("filter-toggle");
+
+    expect(panel?.hasAttribute("hidden")).toBe(true);
+    expect(panel?.getAttribute("aria-hidden")).toBe("true");
+    expect(toggle?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("lets the hidden attribute override the viewer filter grid layout", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const dom = new JSDOM(html, { pretendToBeVisual: true });
+    const style = dom.window.document.createElement("style");
+    style.textContent = css;
+    dom.window.document.head.appendChild(style);
+
+    const panel = dom.window.document.getElementById("filter-panel") as HTMLDivElement | null;
+
+    expect(panel).not.toBeNull();
+    expect(dom.window.getComputedStyle(panel as HTMLDivElement).display).toBe("none");
+    panel?.removeAttribute("hidden");
+    expect(dom.window.getComputedStyle(panel as HTMLDivElement).display).toBe("grid");
+  });
+
   it("keeps the local surface read-only and renders markdown documents", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
@@ -284,8 +333,8 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    (dom.window.document.querySelector('[data-viewer-filter-group="type"][data-viewer-filter-value="task"]') as HTMLButtonElement | null)?.click();
-    (dom.window.document.querySelector('[data-viewer-filter-group="status"][data-viewer-filter-value="blocked"]') as HTMLButtonElement | null)?.click();
+    setViewerFilter(dom, "type", "task");
+    setViewerFilter(dom, "status", "blocked");
 
     expect(typeof dom.window.__CDX_LOGICS_VIEWER_FILTER__).toBe("function");
     expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(true);
@@ -301,9 +350,7 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const clickFilter = (group: string, value: string) => {
-      (dom.window.document.querySelector(`[data-viewer-filter-group="${group}"][data-viewer-filter-value="${value}"]`) as HTMLButtonElement | null)?.click();
-    };
+    const clickFilter = (group: string, value: string) => setViewerFilter(dom, group, value);
     const reset = () => dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     const matches = (item: Record<string, unknown>) => dom.window.__CDX_LOGICS_VIEWER_FILTER__(item);
 

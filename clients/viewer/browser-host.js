@@ -359,11 +359,16 @@
   }
 
   function updateFilterSummary() {
-    document.querySelectorAll("[data-viewer-filter-group]").forEach((button) => {
-      if (button instanceof HTMLElement) {
-        const group = button.getAttribute("data-viewer-filter-group") || "";
-        const value = button.getAttribute("data-viewer-filter-value") || "";
-        button.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
+    document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
+      if (control instanceof HTMLSelectElement) {
+        const group = control.getAttribute("data-viewer-filter-group") || "";
+        control.value = viewerFilterState[group] || defaultFilterState[group] || "";
+        return;
+      }
+      if (control instanceof HTMLElement) {
+        const group = control.getAttribute("data-viewer-filter-group") || "";
+        const value = control.getAttribute("data-viewer-filter-value") || "";
+        control.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
       }
     });
     const count = filterCount();
@@ -618,6 +623,12 @@
       showHealth().catch((error) => setMeta(error.message));
     });
     document.querySelectorAll("[data-viewer-filter-group]").forEach((element) => {
+      if (element instanceof HTMLSelectElement) {
+        element.addEventListener("change", () => {
+          applyViewerFilter(element.getAttribute("data-viewer-filter-group") || "", element.value || "");
+        });
+        return;
+      }
       if (!(element instanceof HTMLElement)) {
         return;
       }

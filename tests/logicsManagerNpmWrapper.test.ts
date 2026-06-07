@@ -1,6 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
+import { spawnSync } from "node:child_process";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildCandidates,
@@ -91,5 +92,41 @@ describe("logics-manager npm wrapper", () => {
       { command: "python", args: ["--version"] },
       { command: "python", args: [expectedScriptPath, "--help"] }
     ]);
+  });
+
+  it("runs the real npm wrapper against a temporary repo", () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-manager-wrapper-e2e-"));
+    const repoRoot = path.join(tempRoot, "repo");
+    fs.mkdirSync(path.join(repoRoot, "logics", "request"), { recursive: true });
+    fs.mkdirSync(path.join(repoRoot, "logics", "backlog"), { recursive: true });
+    fs.mkdirSync(path.join(repoRoot, "logics", "tasks"), { recursive: true });
+
+    const result = spawnSync(
+      process.execPath,
+      [
+        path.join(root, "scripts", "npm", "logics-manager.mjs"),
+        "flow",
+        "new",
+        "request",
+        "--title",
+        "Wrapper JSON Contract",
+        "--format",
+        "json"
+      ],
+      {
+        cwd: repoRoot,
+        encoding: "utf8"
+      }
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe("");
+    const payload = JSON.parse(result.stdout);
+    expect(payload).toMatchObject({
+      command: "new",
+      kind: "request",
+      path: "logics/request/req_000_wrapper_json_contract.md"
+    });
+    expect(fs.existsSync(path.join(repoRoot, payload.path))).toBe(true);
   });
 });

@@ -48,6 +48,7 @@
 | [prod_013_cli_primary_usage_audit_and_hardening](product/prod_013_cli_primary_usage_audit_and_hardening.md) | CLI primary usage audit and hardening | Proposed |  | product/prod_013_cli_primary_usage_audit_and_hardening.md |
 | [prod_014_cli_mutation_safety_and_automation_contract](product/prod_014_cli_mutation_safety_and_automation_contract.md) | CLI mutation safety and automation contract | Proposed |  | product/prod_014_cli_mutation_safety_and_automation_contract.md |
 | [prod_015_cli_product_maturity_roadmap](product/prod_015_cli_product_maturity_roadmap.md) | CLI product maturity roadmap | Validated |  | product/prod_015_cli_product_maturity_roadmap.md |
+| [prod_016_logics_operator_signal_refinement](product/prod_016_logics_operator_signal_refinement.md) | Logics operator signal refinement | Proposed |  | product/prod_016_logics_operator_signal_refinement.md |
 
 ## Requests
 

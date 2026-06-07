@@ -16,6 +16,7 @@ from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
 from .insights import followups_payload, health_payload, render_followups, render_health, render_status, status_payload
 from .lint import lint_payload, render_lint
+from .sync import search_logics_docs_payload
 from .doctor import render_doctor
 from .termstyle import colorize_help
 
@@ -38,6 +39,7 @@ ROOT_COMMANDS = (
     "doctor",
     "mcp",
     "self-update",
+    "search",
 )
 
 
@@ -82,6 +84,7 @@ def _build_root_help() -> str:
         "  health     Show workflow health counts and issue signals.",
         "  followups  List follow-up areas with request creation commands.",
         "  status     Summarize open workflow docs and next actions.",
+        "  search     Search workflow docs directly.",
         "",
         "Validation:",
         "  lint       Check filenames, headings, indicators, and changed-doc hygiene.",
@@ -326,6 +329,33 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0 if payload["ok"] else 1
+    if command == "search":
+        parser = argparse.ArgumentParser(prog="logics-manager search", add_help=False)
+        parser.add_argument("query")
+        parser.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+        parser.add_argument("--status")
+        parser.add_argument("--limit", type=int, default=20)
+        parser.add_argument("--max-snippet-chars", type=int, default=240)
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed = parser.parse_args(rest)
+        repo_root = find_repo_root(Path.cwd())
+        payload = search_logics_docs_payload(
+            repo_root,
+            parsed.query,
+            kind=parsed.kind,
+            status=parsed.status,
+            limit=parsed.limit,
+            max_snippet_chars=parsed.max_snippet_chars,
+        )
+        if parsed.format == "json":
+            output = render_payload(payload, "json")
+        else:
+            lines = [f"Search `{payload['query']}`: {payload['returned_count']} match(es)"]
+            for match in payload["matches"]:
+                lines.append(f"- {match['ref']}:{match['line']} {match['title']}")
+            output = "\n".join(lines)
+        print(output)
+        return 0
     if command == "lint":
         parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)
         parser.add_argument("--require-status", action="store_true")

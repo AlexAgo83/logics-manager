@@ -283,6 +283,31 @@ def test_main_runs_followups_json(
     assert payload["followups"][0]["text"] == "document module boundaries"
 
 
+def test_main_runs_search_shortcut_json(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["search", "Demo", "--kind", "request", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["returned_count"] == 1
+    assert payload["matches"][0]["ref"] == "req_001_demo"
+
+
 @pytest.mark.parametrize(
     ("argv", "expected_script_suffix", "expected_args"),
     [
@@ -320,6 +345,7 @@ def test_main_runs_followups_json(
         (["health", "--format", "json"], None, None),
         (["followups", "--format", "json"], None, None),
         (["status", "--format", "json"], None, None),
+        (["search", "runtime", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],
 )

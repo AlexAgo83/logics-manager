@@ -262,6 +262,9 @@
 | [req_203_improve_local_viewer_corpus_navigation](request/req_203_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done |  | request/req_203_improve_local_viewer_corpus_navigation.md |
 | [req_204_notify_operators_when_logics_manager_updates_are_available](request/req_204_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done |  | request/req_204_notify_operators_when_logics_manager_updates_are_available.md |
 | [req_205_redesign_local_viewer_corpus_filters_and_sorting](request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done |  | request/req_205_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [req_206_add_progressive_group_rendering_for_large_item_lists](request/req_206_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done |  | request/req_206_add_progressive_group_rendering_for_large_item_lists.md |
+| [req_207_add_local_viewer_favicon_from_existing_app_assets](request/req_207_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done |  | request/req_207_add_local_viewer_favicon_from_existing_app_assets.md |
+| [req_208_auto_refresh_local_viewer_data_without_page_navigation](request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done |  | request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md |
 
 ## Backlog
 
@@ -636,6 +639,9 @@
 | [item_367_improve_local_viewer_corpus_navigation](backlog/item_367_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done | 100% | backlog/item_367_improve_local_viewer_corpus_navigation.md |
 | [item_368_notify_operators_when_logics_manager_updates_are_available](backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done | 100% | backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md |
 | [item_369_redesign_local_viewer_corpus_filters_and_sorting](backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done | 100% | backlog/item_369_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [item_370_add_progressive_group_rendering_for_large_item_lists](backlog/item_370_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done | 100% | backlog/item_370_add_progressive_group_rendering_for_large_item_lists.md |
+| [item_371_add_local_viewer_favicon_from_existing_app_assets](backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md |
+| [item_372_auto_refresh_local_viewer_data_without_page_navigation](backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md |
 
 ## Tasks
 
@@ -805,3 +811,6 @@
 | [task_168_improve_local_viewer_corpus_navigation](tasks/task_168_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Done | 100% | tasks/task_168_improve_local_viewer_corpus_navigation.md |
 | [task_169_notify_operators_when_logics_manager_updates_are_available](tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Done | 100% | tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md |
 | [task_170_redesign_local_viewer_corpus_filters_and_sorting](tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md) | Redesign local viewer corpus filters and sorting | Done | 100% | tasks/task_170_redesign_local_viewer_corpus_filters_and_sorting.md |
+| [task_171_add_progressive_group_rendering_for_large_item_lists](tasks/task_171_add_progressive_group_rendering_for_large_item_lists.md) | Add progressive group rendering for large item lists | Done | 100% | tasks/task_171_add_progressive_group_rendering_for_large_item_lists.md |
+| [task_172_add_local_viewer_favicon_from_existing_app_assets](tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md |
+| [task_173_auto_refresh_local_viewer_data_without_page_navigation](tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md |

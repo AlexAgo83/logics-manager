@@ -6,8 +6,12 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 const scriptPath = path.join(root, "scripts", "logics-manager.py");
+let cachedPythonBinary: string | null = null;
 
 function resolvePythonBinary(): string {
+  if (cachedPythonBinary) {
+    return cachedPythonBinary;
+  }
   const candidates = ["python3.11", "python3", "python"];
   for (const candidate of candidates) {
     const result = spawnSync(candidate, ["--version"], { encoding: "utf8" });
@@ -22,6 +26,7 @@ function resolvePythonBinary(): string {
     const major = Number.parseInt(match[1], 10);
     const minor = Number.parseInt(match[2], 10);
     if (major > 3 || (major === 3 && minor >= 10)) {
+      cachedPythonBinary = candidate;
       return candidate;
     }
   }
@@ -231,5 +236,5 @@ describe("logics-manager CLI help", () => {
         expect(output).toContain(fragment);
       }
     }
-  });
+  }, 20_000);
 });

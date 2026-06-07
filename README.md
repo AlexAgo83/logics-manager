@@ -115,11 +115,11 @@ Workflow target arguments accept these forms:
 - a repo-relative Markdown path under the matching Logics directory, such as `logics/request/req_001_example.md`;
 - an absolute path only when it resolves inside the current repository.
 
-Mutation commands reject `..` traversal and files outside the repository before writing. Output paths passed with `--out` must also be repo-relative and remain inside the repository after resolution.
+Mutation commands reject `..` traversal and files outside the repository before writing. Output paths passed with `--out` must also be repo-relative and remain inside the repository after resolution. Configured log/cache paths in `logics.yaml` may be repo-relative or absolute, but absolute paths must still resolve inside the current repository.
 
 When a command supports `--format json`, stdout is a machine-readable JSON payload. Human-oriented status, diagnostics, and progress text should not be mixed into stdout for JSON mode. This makes JSON-mode commands safe to pipe into tools such as `jq` or consume from scripts.
 
-Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow finish` validate their direct inputs before writing. They still operate on Markdown files in the working tree rather than through a database or transaction service; if the filesystem fails mid-write, recover with git status/diff and rerun after cleanup. ID allocation is collision-aware for normal sequential CLI use, but concurrent agents creating the same next document ID should be serialized until a stronger exclusive-create flow is introduced.
+Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow finish` validate their direct inputs before writing. New workflow docs are created with exclusive filesystem writes, so an ID collision fails instead of overwriting an existing file; rerun the command to allocate a fresh ID after reviewing `git status`/`git diff`. They still operate on Markdown files in the working tree rather than through a database or transaction service; if the filesystem fails mid-write, recover with git status/diff and rerun after cleanup.
 
 To update the installed CLI later:
 

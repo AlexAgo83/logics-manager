@@ -1,10 +1,10 @@
 ## item_361_mature_cli_product_contracts - Mature CLI product contracts
 > From version: 2.1.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,7 +53,7 @@ flowchart TD
 - Product brief(s): `prod_013_cli_primary_usage_audit_and_hardening`, `prod_014_cli_mutation_safety_and_automation_contract`, `prod_015_cli_product_maturity_roadmap`
 - Architecture decision(s): (none yet)
 - Request: `logics/request/req_197_mature_cli_product_contracts.md`
-- Primary task(s): (none yet)
+- Primary task(s): `logics/tasks/task_162_mature_cli_product_contracts.md`
 
 # AI Context
 - Summary: Mature CLI product contracts
@@ -69,6 +69,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_197_mature_cli_product_contracts` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_197_mature_cli_product_contracts.md`.
 - Generated locally by logics-manager.
+- Task `task_162_mature_cli_product_contracts` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_162_mature_cli_product_contracts`

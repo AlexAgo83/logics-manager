@@ -1,9 +1,9 @@
 ## req_197_mature_cli_product_contracts - Mature CLI product contracts
-> From version: 2.1.2
+> From version: 2.1.2 delivered
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -37,7 +37,11 @@ flowchart TD
 - [x] Problem statement is explicit and user impact is clear.
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Dependencies and known risks are listed.
+
+# Risks and dependencies
+- Depends on the native Python CLI and npm wrapper staying aligned on the same entrypoint.
+- Main residual risk is interrupted multi-file Markdown mutation; recovery is documented through `git status`/`git diff` and rerun after cleanup.
 
 # Companion docs
 - Product brief(s): `logics/product/prod_013_cli_primary_usage_audit_and_hardening.md`, `logics/product/prod_014_cli_mutation_safety_and_automation_contract.md`, `logics/product/prod_015_cli_product_maturity_roadmap.md`

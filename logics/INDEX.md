@@ -47,7 +47,7 @@
 | [prod_012_reduce_logics_validation_friction_for_agents](product/prod_012_reduce_logics_validation_friction_for_agents.md) | Reduce Logics validation friction for agents | Proposed |  | product/prod_012_reduce_logics_validation_friction_for_agents.md |
 | [prod_013_cli_primary_usage_audit_and_hardening](product/prod_013_cli_primary_usage_audit_and_hardening.md) | CLI primary usage audit and hardening | Proposed |  | product/prod_013_cli_primary_usage_audit_and_hardening.md |
 | [prod_014_cli_mutation_safety_and_automation_contract](product/prod_014_cli_mutation_safety_and_automation_contract.md) | CLI mutation safety and automation contract | Proposed |  | product/prod_014_cli_mutation_safety_and_automation_contract.md |
-| [prod_015_cli_product_maturity_roadmap](product/prod_015_cli_product_maturity_roadmap.md) | CLI product maturity roadmap | Proposed |  | product/prod_015_cli_product_maturity_roadmap.md |
+| [prod_015_cli_product_maturity_roadmap](product/prod_015_cli_product_maturity_roadmap.md) | CLI product maturity roadmap | Validated |  | product/prod_015_cli_product_maturity_roadmap.md |
 
 ## Requests
 
@@ -248,7 +248,7 @@
 | [req_194_add_capability_to_list_product_briefs_and_adrs](request/req_194_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done |  | request/req_194_add_capability_to_list_product_briefs_and_adrs.md |
 | [req_195_add_bounded_mcp_file_delete_and_rename_capabilities](request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done |  | request/req_195_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch](request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done |  | request/req_196_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
-| [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Draft |  | request/req_197_mature_cli_product_contracts.md |
+| [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Done |  | request/req_197_mature_cli_product_contracts.md |
 
 ## Backlog
 
@@ -614,7 +614,7 @@
 | [item_358_add_capability_to_list_product_briefs_and_adrs](backlog/item_358_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done | 100% | backlog/item_358_add_capability_to_list_product_briefs_and_adrs.md |
 | [item_359_add_bounded_mcp_file_delete_and_rename_capabilities](backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | backlog/item_359_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch](backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | backlog/item_360_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
-| [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Ready | 0% | backlog/item_361_mature_cli_product_contracts.md |
+| [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | backlog/item_361_mature_cli_product_contracts.md |
 
 ## Tasks
 
@@ -775,4 +775,4 @@
 | [task_159_add_capability_to_list_product_briefs_and_adrs](tasks/task_159_add_capability_to_list_product_briefs_and_adrs.md) | Add capability to list product briefs and ADRs | Done | 100% | tasks/task_159_add_capability_to_list_product_briefs_and_adrs.md |
 | [task_160_add_bounded_mcp_file_delete_and_rename_capabilities](tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md) | Add bounded MCP file delete and rename capabilities | Done | 100% | tasks/task_160_add_bounded_mcp_file_delete_and_rename_capabilities.md |
 | [task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch](tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md) | Add quick commands for local MCP server and tunnel launch | Done | 100% | tasks/task_161_add_quick_commands_for_local_mcp_server_and_tunnel_launch.md |
-| [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Ready | 0% | tasks/task_162_mature_cli_product_contracts.md |
+| [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | tasks/task_162_mature_cli_product_contracts.md |

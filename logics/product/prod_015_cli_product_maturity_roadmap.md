@@ -1,6 +1,6 @@
 ## prod_015_cli_product_maturity_roadmap - CLI product maturity roadmap
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Validated
 > Related request: `req_197_mature_cli_product_contracts`
 > Related backlog: `item_361_mature_cli_product_contracts`
 > Related task: `task_162_mature_cli_product_contracts`
@@ -64,6 +64,12 @@ flowchart TD
 - A linked request, backlog item, and task exist for CLI maturity work, and the product briefs reference them.
 - Multi-file mutation commands either complete fully or leave a clear recovery path.
 - Concurrent ID allocation has a regression test or a documented limitation with a chosen mitigation.
+
+# Delivery notes
+- Implemented shared CLI payload rendering for high-use native commands.
+- Added subprocess coverage for JSON contracts and the real npm wrapper.
+- Enforced configured log/cache path boundaries for `assist roi-report`.
+- Added exclusive creation for new workflow docs so ID collisions fail without overwriting existing files.
 
 # References
 - Product back-reference: `item_361_mature_cli_product_contracts`

@@ -1,20 +1,20 @@
 ## task_162_mature_cli_product_contracts - Mature CLI product contracts
 > From version: 2.1.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] CLI contract documentation is updated.
-- [ ] Representative subprocess tests cover JSON output and npm wrapper execution.
-- [ ] Shared helper or documented helper direction exists for CLI output/path handling.
-- [ ] Product brief links are synchronized.
-- [ ] Validation passes.
+- [x] CLI contract documentation is updated.
+- [x] Representative subprocess tests cover JSON output and npm wrapper execution.
+- [x] Shared helper or documented helper direction exists for CLI output/path handling.
+- [x] Product brief links are synchronized.
+- [x] Validation passes.
 
 # Backlog
 - `item_361_mature_cli_product_contracts`
@@ -44,9 +44,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_162_mature_cli_product_contracts.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Report
 - Track implementation notes and validation results for the CLI maturity roadmap.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_361_mature_cli_product_contracts`
+- Related request(s): `req_197_mature_cli_product_contracts`
 
 # AI Context
 - Summary: Implement mature cli product contracts.

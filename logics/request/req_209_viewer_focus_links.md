@@ -1,7 +1,7 @@
 ## req_209_viewer_focus_links - Open focused Logics items in the local viewer
 > From version: 2.3.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 86%
 > Complexity: Medium

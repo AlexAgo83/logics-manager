@@ -1,21 +1,21 @@
 ## task_174_open_focused_logics_items_in_the_local_viewer - Open focused Logics items in the local viewer
 > From version: 2.3.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The viewer can open and focus a Logics item from a URL query target.
-- [ ] The CLI can launch the viewer with `--focus <ref-or-path>` and `--open`.
-- [ ] Focused loads select, reveal, and open details for the target item without workflow mutations.
-- [ ] Assistant-facing docs explain both the viewer link and fallback command.
-- [ ] Focus parsing and browser-host behavior are covered by focused tests.
-- [ ] Validation passes.
+- [x] The viewer can open and focus a Logics item from a URL query target.
+- [x] The CLI can launch the viewer with `--focus <ref-or-path>` and `--open`.
+- [x] Focused loads select, reveal, and open details for the target item without workflow mutations.
+- [x] Assistant-facing docs explain both the viewer link and fallback command.
+- [x] Focus parsing and browser-host behavior are covered by focused tests.
+- [x] Validation passes.
 
 # Backlog
 - `item_373_open_focused_logics_items_in_the_local_viewer`
@@ -54,6 +54,8 @@ flowchart TD
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 - Run `python3 -m logics_manager flow finish task task_174_open_focused_logics_items_in_the_local_viewer.md` after implementation.
+- Finish workflow executed on 2026-06-07.
+- Linked backlog/request close verification passed.
 
 # Implementation plan
 1. Extend `logics_manager/viewer.py` with safe focus-target parsing and `logics-manager view --focus <ref-or-path>`.
@@ -73,6 +75,9 @@ flowchart TD
 
 # Report
 - Implementation not started. This task prepares the delivery path for viewer focus links and assistant handoff guidance.
+- Finished on 2026-06-07.
+- Linked backlog item(s): `item_373_open_focused_logics_items_in_the_local_viewer`
+- Related request(s): `req_209_viewer_focus_links`
 
 # AI Context
 - Summary: Implement local viewer focus links and `logics-manager view --focus` so assistants can give users a direct focused item link plus a robust fallback command.

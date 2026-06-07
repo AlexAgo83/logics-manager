@@ -170,3 +170,65 @@ def render_status(repo_root: Path, *, output_format: str = "text", limit: int = 
         for item in items:
             lines.append(f"  - {item['ref']} [{item['status']}]: {item['title']}")
     return "\n".join(lines)
+
+
+def health_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
+    docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
+    workflow_docs = [doc for doc in docs if doc.kind in WORKFLOW_KINDS]
+    missing_status = [doc for doc in docs if not doc.status]
+    done_without_full_progress = [
+        doc for doc in workflow_docs if doc.status == "Done" and doc.kind in {"backlog", "task"} and doc.progress != 100
+    ]
+    complete_progress_not_done = [
+        doc for doc in workflow_docs if doc.progress == 100 and doc.status not in CLOSED_STATUSES
+    ]
+    blocked_docs = [doc for doc in workflow_docs if doc.status == "Blocked"]
+    open_docs = [doc for doc in workflow_docs if doc.status not in CLOSED_STATUSES]
+
+    task_text = "\n".join(doc.content for doc in workflow_docs if doc.kind == "task")
+    backlog_without_task = [
+        doc
+        for doc in open_docs
+        if doc.kind == "backlog" and doc.status in {"Ready", "In progress", "Blocked"} and doc.ref not in task_text
+    ]
+
+    issue_groups = {
+        "missing_status": missing_status,
+        "done_without_full_progress": done_without_full_progress,
+        "complete_progress_not_done": complete_progress_not_done,
+        "blocked_docs": blocked_docs,
+        "backlog_without_task": backlog_without_task,
+    }
+    issue_count = sum(len(items) for items in issue_groups.values())
+    return {
+        "ok": issue_count == 0,
+        "doc_count": len(docs),
+        "workflow_doc_count": len(workflow_docs),
+        "open_workflow_count": len(open_docs),
+        "counts": _status_counts(docs),
+        "issue_count": issue_count,
+        "issues": {key: [_doc_summary(doc) for doc in items[:limit]] for key, items in issue_groups.items()},
+    }
+
+
+def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 10) -> str:
+    payload = health_payload(repo_root, limit=limit)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+
+    lines = [
+        "Logics health:",
+        f"- docs: {payload['doc_count']}",
+        f"- workflow docs: {payload['workflow_doc_count']}",
+        f"- open workflow docs: {payload['open_workflow_count']}",
+        f"- issue signals: {payload['issue_count']}",
+    ]
+    issues = payload["issues"]
+    for key, items in issues.items():
+        if not items:
+            continue
+        label = key.replace("_", " ")
+        lines.append(f"- {label}:")
+        for item in items:
+            lines.append(f"  - {item['ref']} [{item['status']}]: {item['title']}")
+    return "\n".join(lines)

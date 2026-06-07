@@ -14,7 +14,7 @@ from .audit import render_audit
 from .cli_output import render_payload
 from .config import ConfigError, find_repo_root, render_config_show
 from .index import index_payload, render_index
-from .insights import render_status, status_payload
+from .insights import health_payload, render_health, render_status, status_payload
 from .lint import lint_payload, render_lint
 from .doctor import render_doctor
 from .termstyle import colorize_help
@@ -30,6 +30,7 @@ ROOT_COMMANDS = (
     "assist",
     "audit",
     "index",
+    "health",
     "status",
     "lint",
     "config",
@@ -77,6 +78,7 @@ def _build_root_help() -> str:
         "                          schema-status, read-doc, list-docs, search-docs,",
         "                          update-indicators, append-note, context-pack, export-graph",
         "  index      Generate logics/INDEX.md from the workflow corpus.",
+        "  health     Show workflow health counts and issue signals.",
         "  status     Summarize open workflow docs and next actions.",
         "",
         "Validation:",
@@ -269,7 +271,7 @@ def main(argv: list[str] | None = None) -> int:
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
         print(output)
-        return 0 if payload["ok"] else 1
+        return 0
     if command == "index":
         parser = argparse.ArgumentParser(prog="logics-manager index", add_help=False)
         parser.add_argument("--out", default="logics/INDEX.md")
@@ -295,7 +297,20 @@ def main(argv: list[str] | None = None) -> int:
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
         print(output)
-        return 0 if payload["ok"] else 1
+        return 0
+    if command == "health":
+        parser = argparse.ArgumentParser(prog="logics-manager health", add_help=False)
+        parser.add_argument("--limit", type=int, default=10)
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parsed = parser.parse_args(rest)
+        repo_root = find_repo_root(Path.cwd())
+        try:
+            payload = health_payload(repo_root, limit=parsed.limit)
+            output = render_health(repo_root, output_format=parsed.format, limit=parsed.limit)
+        except ConfigError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(output)
+        return 0
     if command == "lint":
         parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)
         parser.add_argument("--require-status", action="store_true")

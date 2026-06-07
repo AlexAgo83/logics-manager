@@ -18,7 +18,7 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc
-from logics_manager.insights import status_payload
+from logics_manager.insights import health_payload, status_payload
 
 
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
@@ -179,6 +179,62 @@ def test_main_runs_status_json(
     assert payload["active_tasks"][0]["ref"] == "task_001_demo"
 
 
+def test_health_payload_reports_workflow_signals(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Done",
+        links=[],
+    )
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        (repo_root / "logics" / "backlog" / "item_001_demo.md").read_text(encoding="utf-8").replace("> Progress: 0%", "> Progress: 90%"),
+        encoding="utf-8",
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_001_demo.md",
+        title="Demo task",
+        kind="task",
+        status="Blocked",
+        links=[],
+    )
+
+    payload = health_payload(repo_root)
+
+    assert payload["ok"] is False
+    assert payload["issue_count"] == 2
+    assert payload["issues"]["done_without_full_progress"][0]["ref"] == "item_001_demo"
+    assert payload["issues"]["blocked_docs"][0]["ref"] == "task_001_demo"
+
+
+def test_main_runs_health_json(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["health", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["doc_count"] == 1
+    assert payload["open_workflow_count"] == 1
+
+
 @pytest.mark.parametrize(
     ("argv", "expected_script_suffix", "expected_args"),
     [
@@ -213,6 +269,7 @@ def test_main_runs_status_json(
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
+        (["health", "--format", "json"], None, None),
         (["status", "--format", "json"], None, None),
         (["config", "show", "--format", "json"], None, None),
     ],

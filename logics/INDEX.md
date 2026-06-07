@@ -259,6 +259,7 @@
 | [req_200_implement_agent_closeout_loop_ergonomics](request/req_200_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done |  | request/req_200_implement_agent_closeout_loop_ergonomics.md |
 | [req_201_add_a_local_web_viewer_for_cli_driven_logics_work](request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done |  | request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [req_202_harden_local_viewer_ux_after_first_operator_review](request/req_202_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done |  | request/req_202_harden_local_viewer_ux_after_first_operator_review.md |
+| [req_203_improve_local_viewer_corpus_navigation](request/req_203_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready |  | request/req_203_improve_local_viewer_corpus_navigation.md |
 
 ## Backlog
 
@@ -630,6 +631,7 @@
 | [item_364_implement_agent_closeout_loop_ergonomics](backlog/item_364_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | backlog/item_364_implement_agent_closeout_loop_ergonomics.md |
 | [item_365_add_a_local_web_viewer_for_cli_driven_logics_work](backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [item_366_harden_local_viewer_ux_after_first_operator_review](backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md |
+| [item_367_improve_local_viewer_corpus_navigation](backlog/item_367_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready | 0 | backlog/item_367_improve_local_viewer_corpus_navigation.md |
 
 ## Tasks
 
@@ -796,3 +798,4 @@
 | [task_165_implement_agent_closeout_loop_ergonomics](tasks/task_165_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | tasks/task_165_implement_agent_closeout_loop_ergonomics.md |
 | [task_166_add_a_local_web_viewer_for_cli_driven_logics_work](tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [task_167_harden_local_viewer_ux_after_first_operator_review](tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md |
+| [task_168_improve_local_viewer_corpus_navigation](tasks/task_168_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready | 0 | tasks/task_168_improve_local_viewer_corpus_navigation.md |

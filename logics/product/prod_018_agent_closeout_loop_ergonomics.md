@@ -1,9 +1,9 @@
 ## prod_018_agent_closeout_loop_ergonomics - Agent closeout loop ergonomics
 > Date: 2026-06-07
 > Status: Proposed
-> Related request: (none yet)
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related request: `req_200_implement_agent_closeout_loop_ergonomics`
+> Related backlog: `item_364_implement_agent_closeout_loop_ergonomics`
+> Related task: `task_165_implement_agent_closeout_loop_ergonomics`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -86,8 +86,8 @@ logics-manager assist handoff --since HEAD~1
 - Lint and audit stay clean after closeout without requiring the agent to discover hidden ordering rules.
 
 # References
-- Product back-reference: (none yet)
-- Task back-reference: (none yet)
+- Product back-reference: `item_364_implement_agent_closeout_loop_ergonomics`
+- Task back-reference: `task_165_implement_agent_closeout_loop_ergonomics`
 - Builds on `prod_017_logics_delivery_loop_ergonomics`.
 - Follow-up area: add `flow closeout` or complete `flow deliver --finish --validate`.
 - Follow-up area: add read-only closeout preflight.

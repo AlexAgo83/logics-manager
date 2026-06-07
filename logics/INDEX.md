@@ -254,6 +254,7 @@
 | [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Done |  | request/req_197_mature_cli_product_contracts.md |
 | [req_198_refine_logics_operator_signal_commands](request/req_198_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done |  | request/req_198_refine_logics_operator_signal_commands.md |
 | [req_199_implement_flow_deliver_from_product](request/req_199_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done |  | request/req_199_implement_flow_deliver_from_product.md |
+| [req_200_implement_agent_closeout_loop_ergonomics](request/req_200_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Draft |  | request/req_200_implement_agent_closeout_loop_ergonomics.md |
 
 ## Backlog
 
@@ -622,6 +623,7 @@
 | [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | backlog/item_361_mature_cli_product_contracts.md |
 | [item_362_refine_logics_operator_signal_commands](backlog/item_362_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | backlog/item_362_refine_logics_operator_signal_commands.md |
 | [item_363_implement_flow_deliver_from_product](backlog/item_363_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | backlog/item_363_implement_flow_deliver_from_product.md |
+| [item_364_implement_agent_closeout_loop_ergonomics](backlog/item_364_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Ready | 0% | backlog/item_364_implement_agent_closeout_loop_ergonomics.md |
 
 ## Tasks
 
@@ -785,3 +787,4 @@
 | [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | tasks/task_162_mature_cli_product_contracts.md |
 | [task_163_refine_logics_operator_signal_commands](tasks/task_163_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | tasks/task_163_refine_logics_operator_signal_commands.md |
 | [task_164_implement_flow_deliver_from_product](tasks/task_164_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | tasks/task_164_implement_flow_deliver_from_product.md |
+| [task_165_implement_agent_closeout_loop_ergonomics](tasks/task_165_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Ready | 0% | tasks/task_165_implement_agent_closeout_loop_ergonomics.md |

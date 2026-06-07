@@ -136,7 +136,7 @@
     "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run package:ci",
     "ci:check": "node scripts/ci-check.mjs",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
-    "debug:webview": "node debug/webview/server.mjs",
+    "debug:webview": "node clients/viewer/debug-webview/server.mjs",
     "package:ci": "node scripts/build/package-ci.mjs",
     "package": "npm run compile && node scripts/build/package-release.mjs",
     "install:vsix": "npm run package && node scripts/build/install-vsix.mjs",

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, "..", "..");
+const repoRoot = path.resolve(__dirname, "..", "..", "..");
 const port = Number(process.env.PORT || 4173);
 
 const MIME_TYPES = {
@@ -21,7 +21,7 @@ function resolvePath(urlPath) {
   const clean = urlPath.split("?")[0].split("#")[0];
   const requested =
     clean === "/"
-      ? "/debug/webview/index.html"
+      ? "/clients/viewer/debug-webview/index.html"
       : clean.startsWith("/media/")
         ? `/clients/shared-web${clean}`
         : clean;

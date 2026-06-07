@@ -1624,6 +1624,118 @@ def test_main_runs_native_flow_validate_closeout_passes_complete_chain(
     assert main(["flow", "validate-closeout", "task_001_demo", "--format", "json"]) == 0
 
 
+def test_main_runs_native_flow_repair_closeout_helpers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
+
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Deliver demo.",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# Definition of Ready (DoR)",
+                "- [ ] Ready.",
+                "# Backlog",
+                "- `item_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    backlog_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "> Progress: 0%",
+                "# Problem",
+                "- Deliver demo.",
+                "# Links",
+                "- Request: `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> From version: 2.1.2",
+                "> Schema version: 1.0",
+                "> Progress: 0%",
+                "# Plan",
+                "- [ ] Do the work.",
+                "# Backlog",
+                "- `item_001_demo`",
+                "# Definition of Done (DoD)",
+                "- [ ] Validation passes.",
+                "# Validation",
+                "- pytest passed.",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Product brief(s): `prod_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    product_path.write_text(
+        "\n".join(
+            [
+                "## prod_001_demo - Demo Product",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "# References",
+                "- Product back-reference: (none yet)",
+                "- Task back-reference: (none yet)",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    assert main(["flow", "repair", "gates", "task_001_demo"]) == 0
+    assert main(["flow", "repair", "ac-traceability", "req_001_demo"]) == 0
+    assert main(["flow", "repair", "links", "task_001_demo"]) == 0
+    assert main(["flow", "repair", "mermaid", "--refs", "req_001_demo", "item_001_demo", "task_001_demo"]) == 0
+
+    request_text = request_path.read_text(encoding="utf-8")
+    backlog_text = backlog_path.read_text(encoding="utf-8")
+    task_text = task_path.read_text(encoding="utf-8")
+    product_text = product_path.read_text(encoding="utf-8")
+    assert "- [x] Ready." in request_text
+    assert "request-AC1 -> This backlog slice. Proof: Deliver demo." in backlog_text
+    assert "request-AC1 -> This task. Proof: Deliver demo." in task_text
+    assert "`task_001_demo`" in backlog_text
+    assert "> Related task: `task_001_demo`" in product_text
+    assert "```mermaid" in request_text
+    assert "```mermaid" in backlog_text
+    assert "```mermaid" in task_text
+
+
 def test_main_runs_native_flow_finish_task(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

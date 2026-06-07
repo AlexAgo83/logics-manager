@@ -77,7 +77,7 @@ def _build_root_help() -> str:
         "",
         "Workflow authoring:",
         "  flow       Create, promote, split, close, and finish workflow docs.",
-        "             Subcommands: new, list, companion, deliver, validate-closeout, promote, split, close, finish",
+        "             Subcommands: new, list, companion, deliver, validate-closeout, repair, promote, split, close, finish",
         "  sync       Maintain generated workflow state and doc metadata.",
         "             Subcommands: close-eligible-requests, refresh-mermaid-signatures,",
         "                          schema-status, read-doc, list-docs, search-docs,",
@@ -222,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
             target = parsed.python_package if manager == "pip" else parsed.package
             print(f"Updated {target} via {manager}.")
         return result.returncode
-    if command == "flow" and (rest[:1] in (["new"], ["list"], ["companion"], ["deliver"], ["validate-closeout"], ["promote"], ["split"], ["close"], ["finish"]) or rest[:1] in HELP_ARGV):
+    if command == "flow" and (rest[:1] in (["new"], ["list"], ["companion"], ["deliver"], ["validate-closeout"], ["repair"], ["promote"], ["split"], ["close"], ["finish"]) or rest[:1] in HELP_ARGV):
         from .flow import main as flow_main
 
         return flow_main(rest)

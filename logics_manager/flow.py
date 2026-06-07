@@ -213,6 +213,10 @@ def _build_help() -> str:
             "    Preflight whether a task can be safely closed.",
             "    Flags: --format {text,json}",
             "",
+            "  repair <gates|ac-traceability|links|mermaid>",
+            "    Apply deterministic closeout repairs.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
             "  promote request-to-backlog <source>",
             "    Create a backlog slice from a request.",
             "",
@@ -239,6 +243,7 @@ def _build_help() -> str:
             '  logics-manager flow new request --title "My request"',
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow validate-closeout task_003_fix_docs",
+            "  logics-manager flow repair gates task_003_fix_docs",
             "  logics-manager flow promote request-to-backlog req_001_my_request",
             "  logics-manager flow close task task_003_fix_docs --dry-run",
         ]
@@ -402,6 +407,58 @@ def _build_validate_closeout_help() -> str:
             "",
             "Examples:",
             "  logics-manager flow validate-closeout task_164_implement_flow_deliver_from_product",
+        ]
+    )
+
+
+def _build_repair_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Repair",
+            "Apply deterministic closeout repairs.",
+            "",
+            "Usage:",
+            "  logics-manager flow repair <gates|ac-traceability|links|mermaid> [args...]",
+            "",
+            "Commands:",
+            "  gates <task>",
+            "    Check task Plan/DoD and linked request DoR boxes.",
+            "  ac-traceability <request>",
+            "    Add missing request AC traceability entries to linked backlog/task docs.",
+            "  links <task>",
+            "    Ensure linked backlog/product docs reference the task chain.",
+            "  mermaid --refs <refs...>",
+            "    Insert or refresh workflow Mermaid signatures for selected docs.",
+            "",
+            "Flags:",
+            "  --format {text,json}",
+            "  --dry-run",
+        ]
+    )
+
+
+def _build_repair_kind_help(kind: str) -> str:
+    examples = {
+        "gates": "  logics-manager flow repair gates task_164_implement_flow_deliver_from_product",
+        "ac-traceability": "  logics-manager flow repair ac-traceability req_199_implement_flow_deliver_from_product",
+        "links": "  logics-manager flow repair links task_164_implement_flow_deliver_from_product",
+        "mermaid": "  logics-manager flow repair mermaid --refs req_199 item_363 task_164",
+    }
+    usage = "  logics-manager flow repair mermaid --refs <refs...> [args...]" if kind == "mermaid" else f"  logics-manager flow repair {kind} <source> [args...]"
+    return "\n".join(
+        [
+            f"Logics Flow Repair {kind.title()}",
+            "Apply a deterministic closeout repair.",
+            "",
+            "Usage:",
+            usage,
+            "",
+            "Flags:",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Example:",
+            examples[kind],
         ]
     )
 
@@ -1111,6 +1168,201 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
     }
 
 
+def _changed_rel(repo_root: Path, changed_paths: set[Path], path: Path, before: str | None) -> None:
+    if before is not None and path.read_text(encoding="utf-8") != before:
+        changed_paths.add(path.relative_to(repo_root))
+
+
+def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict[str, object]:
+    task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    changed_paths: set[Path] = set()
+    planned_paths: set[Path] = set()
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    request_refs: set[str] = set(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+
+    before = task_path.read_text(encoding="utf-8")
+    if _section_has_unchecked_checkbox(before, "Plan") or _section_has_unchecked_checkbox(before, "Definition of Done (DoD)"):
+        planned_paths.add(task_path.relative_to(repo_root))
+    _mark_section_checkboxes_done(task_path, "Plan", dry_run)
+    _mark_section_checkboxes_done(task_path, "Definition of Done (DoD)", dry_run)
+    if not dry_run:
+        _changed_rel(repo_root, changed_paths, task_path, before)
+
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            continue
+        request_refs.update(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+
+    for request_ref in sorted(request_refs):
+        request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
+        if request_path is None:
+            continue
+        before = request_path.read_text(encoding="utf-8")
+        if _section_has_unchecked_checkbox(before, "Definition of Ready (DoR)"):
+            planned_paths.add(request_path.relative_to(repo_root))
+        _mark_section_checkboxes_done(request_path, "Definition of Ready (DoR)", dry_run)
+        if not dry_run:
+            _changed_rel(repo_root, changed_paths, request_path, before)
+
+    return {
+        "command": "repair",
+        "kind": "gates",
+        "source": task_path.relative_to(repo_root).as_posix(),
+        "changed_files": sorted(path.as_posix() for path in (planned_paths if dry_run else changed_paths)),
+        "dry_run": dry_run,
+    }
+
+
+def _request_ac_entries(request_path: Path) -> list[tuple[str, str]]:
+    entries: list[tuple[str, str]] = []
+    for line in _section_lines(request_path.read_text(encoding="utf-8").splitlines(), "Acceptance criteria"):
+        match = re.search(r"\bAC(\d+)\s*:\s*(.+)", line, flags=re.IGNORECASE)
+        if match:
+            entries.append((f"AC{int(match.group(1))}", match.group(2).strip()))
+    return entries
+
+
+def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict[str, object]:
+    request_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], source)
+    request_ref = request_path.stem
+    ac_entries = _request_ac_entries(request_path)
+    changed_paths: set[Path] = set()
+    linked_items = _collect_docs_linking_ref(repo_root, DOC_KINDS["backlog"], request_ref)
+    linked_task_paths = {
+        path
+        for path in _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], request_ref)
+    }
+
+    for item_path in linked_items:
+        item_before = item_path.read_text(encoding="utf-8")
+        item_missing = [
+            f"request-{ac_id} -> This backlog slice. Proof: {text}"
+            for ac_id, text in ac_entries
+            if not _has_ac_proof(item_before, ac_id)
+        ]
+        if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
+            changed_paths.add(item_path.relative_to(repo_root))
+
+        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8") if not dry_run else item_before)
+        for task_ref in sorted(_extract_refs(item_text, DOC_KINDS["task"].prefix)):
+            task_path = _resolve_doc_path(repo_root, DOC_KINDS["task"], task_ref)
+            if task_path is None:
+                continue
+            linked_task_paths.add(task_path)
+
+    for task_path in sorted(linked_task_paths):
+        task_before = task_path.read_text(encoding="utf-8")
+        task_missing = [
+            f"request-{ac_id} -> This task. Proof: {text}"
+            for ac_id, text in ac_entries
+            if not _has_ac_proof(task_before, ac_id)
+        ]
+        if _append_doc_section_bullets_changed(task_path, "AC Traceability", task_missing, dry_run=dry_run):
+            changed_paths.add(task_path.relative_to(repo_root))
+
+    return {
+        "command": "repair",
+        "kind": "ac-traceability",
+        "source": request_path.relative_to(repo_root).as_posix(),
+        "changed_files": sorted(path.as_posix() for path in changed_paths),
+        "dry_run": dry_run,
+    }
+
+
+def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict[str, object]:
+    task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    task_ref = task_path.stem
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    request_refs = sorted(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    product_refs = sorted(_extract_refs(task_path.read_text(encoding="utf-8"), "prod"))
+    changed_paths: set[Path] = set()
+
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            continue
+        if _append_doc_section_bullets_changed(item_path, "Tasks", [f"`{task_ref}`"], dry_run=dry_run):
+            changed_paths.add(item_path.relative_to(repo_root))
+        before = item_path.read_text(encoding="utf-8")
+        lines = before.splitlines()
+        lines = _replace_or_append_prefixed_section_bullet(lines, "Links", "Primary task(s)", f"`{task_ref}`")
+        if request_refs:
+            lines = _replace_or_append_prefixed_section_bullet(lines, "Links", "Request", f"`{request_refs[0]}`")
+        after = "\n".join(lines).rstrip() + "\n"
+        if after != before:
+            changed_paths.add(item_path.relative_to(repo_root))
+            if not dry_run:
+                item_path.write_text(after, encoding="utf-8")
+
+    for product_ref in product_refs:
+        product_path = _first_product_path(repo_root, product_ref)
+        if product_path is None:
+            continue
+        before = product_path.read_text(encoding="utf-8")
+        backlog_ref = item_refs[0] if item_refs else None
+        request_ref = request_refs[0] if request_refs else None
+        lines = before.splitlines()
+        if request_ref:
+            lines = _replace_indicator_line(lines, "Related request", f"`{request_ref}`")
+        if backlog_ref:
+            lines = _replace_indicator_line(lines, "Related backlog", f"`{backlog_ref}`")
+            lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Product back-reference", f"`{backlog_ref}`")
+        lines = _replace_indicator_line(lines, "Related task", f"`{task_ref}`")
+        lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Task back-reference", f"`{task_ref}`")
+        after = "\n".join(lines).rstrip() + "\n"
+        if after != before:
+            changed_paths.add(product_path.relative_to(repo_root))
+            if not dry_run:
+                product_path.write_text(after, encoding="utf-8")
+
+    return {
+        "command": "repair",
+        "kind": "links",
+        "source": task_path.relative_to(repo_root).as_posix(),
+        "changed_files": sorted(path.as_posix() for path in changed_paths),
+        "dry_run": dry_run,
+    }
+
+
+def _resolve_any_workflow_source(repo_root: Path, source: str) -> tuple[Path, str]:
+    for kind in ("request", "backlog", "task"):
+        try:
+            return _resolve_workflow_source(repo_root, DOC_KINDS[kind], source), kind
+        except SystemExit:
+            continue
+    raise SystemExit(f"Workflow source not found: {source}")
+
+
+def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -> dict[str, object]:
+    changed_paths: set[Path] = set()
+    for ref in refs:
+        path, kind = _resolve_any_workflow_source(repo_root, ref)
+        before = path.read_text(encoding="utf-8")
+        if "```mermaid" not in before:
+            repaired = _with_workflow_mermaid_overview(kind, before)
+            if repaired != before:
+                changed_paths.add(path.relative_to(repo_root))
+                if not dry_run:
+                    path.write_text(repaired, encoding="utf-8")
+        else:
+            signature = expected_workflow_mermaid_signature(kind, before.splitlines())
+            repaired = re.sub(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", f"%% logics-signature: {signature}", before, count=1, flags=re.MULTILINE)
+            if repaired != before:
+                changed_paths.add(path.relative_to(repo_root))
+                if not dry_run:
+                    path.write_text(repaired, encoding="utf-8")
+    return {
+        "command": "repair",
+        "kind": "mermaid",
+        "refs": refs,
+        "changed_files": sorted(path.as_posix() for path in changed_paths),
+        "dry_run": dry_run,
+    }
+
+
 def _add_common_doc_args(parser: argparse.ArgumentParser, kind: str) -> None:
     parser.add_argument("--from-version")
     parser.add_argument("--understanding", default="90%")
@@ -1460,6 +1712,16 @@ def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *,
             return
     lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _append_doc_section_bullets_changed(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> bool:
+    if not bullets:
+        return False
+    before = path.read_text(encoding="utf-8") if path.is_file() else ""
+    _append_doc_section_bullets(path, heading, bullets, dry_run=dry_run)
+    if dry_run:
+        return any(f"- {bullet}" not in before for bullet in bullets)
+    return path.read_text(encoding="utf-8") != before
 
 
 def _replace_indicator_line(lines: list[str], label: str, value: str) -> list[str]:
@@ -1918,6 +2180,33 @@ def build_parser() -> argparse.ArgumentParser:
     validate_closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
     validate_closeout_parser.set_defaults(func=cmd_validate_closeout)
 
+    repair_parser = sub.add_parser("repair", help="Apply deterministic closeout repairs.")
+    repair_sub = repair_parser.add_subparsers(dest="repair_kind", required=True)
+
+    repair_gates = repair_sub.add_parser("gates", help="Check task and linked request gate checkboxes.")
+    repair_gates.add_argument("source")
+    repair_gates.add_argument("--format", choices=("text", "json"), default="text")
+    repair_gates.add_argument("--dry-run", action="store_true")
+    repair_gates.set_defaults(func=cmd_repair_gates)
+
+    repair_ac = repair_sub.add_parser("ac-traceability", help="Add missing AC traceability entries.")
+    repair_ac.add_argument("source")
+    repair_ac.add_argument("--format", choices=("text", "json"), default="text")
+    repair_ac.add_argument("--dry-run", action="store_true")
+    repair_ac.set_defaults(func=cmd_repair_ac_traceability)
+
+    repair_links = repair_sub.add_parser("links", help="Repair linked backlog/product references for a task.")
+    repair_links.add_argument("source")
+    repair_links.add_argument("--format", choices=("text", "json"), default="text")
+    repair_links.add_argument("--dry-run", action="store_true")
+    repair_links.set_defaults(func=cmd_repair_links)
+
+    repair_mermaid = repair_sub.add_parser("mermaid", help="Insert or refresh workflow Mermaid signatures.")
+    repair_mermaid.add_argument("--refs", nargs="+", required=True)
+    repair_mermaid.add_argument("--format", choices=("text", "json"), default="text")
+    repair_mermaid.add_argument("--dry-run", action="store_true")
+    repair_mermaid.set_defaults(func=cmd_repair_mermaid)
+
     promote_parser = sub.add_parser("promote", help="Promote between Logics stages.")
     promote_sub = promote_parser.add_subparsers(dest="promotion", required=True)
 
@@ -2233,6 +2522,45 @@ def cmd_validate_closeout(args: argparse.Namespace) -> dict[str, object]:
                     print(f"  repair: {issue['repair_command']}")
         else:
             print("- no blocking closeout issues found")
+    return payload
+
+
+def _print_repair_payload(payload: dict[str, object], output_format: str) -> None:
+    if output_format == "json":
+        print_payload(payload, output_format)
+        return
+    action = "would change" if payload.get("dry_run") else "changed"
+    changed_files = payload.get("changed_files", [])
+    print(f"Repair {payload['kind']}: {action} {len(changed_files)} file(s).")
+    for rel_path in changed_files:
+        print(f"- {rel_path}")
+
+
+def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = repair_gates_payload(repo_root, args.source, dry_run=args.dry_run)
+    _print_repair_payload(payload, args.format)
+    return payload
+
+
+def cmd_repair_ac_traceability(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run)
+    _print_repair_payload(payload, args.format)
+    return payload
+
+
+def cmd_repair_links(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = repair_links_payload(repo_root, args.source, dry_run=args.dry_run)
+    _print_repair_payload(payload, args.format)
+    return payload
+
+
+def cmd_repair_mermaid(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = repair_mermaid_payload(repo_root, args.refs, dry_run=args.dry_run)
+    _print_repair_payload(payload, args.format)
     return payload
 
 
@@ -2615,6 +2943,12 @@ def main(argv: list[str]) -> int:
     if argv[0] == "validate-closeout" and _help_requested(argv, 1):
         _print_help(_build_validate_closeout_help())
         return 0
+    if argv[0] == "repair" and _help_requested(argv, 1):
+        _print_help(_build_repair_help())
+        return 0
+    if argv[0] == "repair" and len(argv) > 1 and argv[1] in {"gates", "ac-traceability", "links", "mermaid"} and _help_requested(argv, 2):
+        _print_help(_build_repair_kind_help(argv[1]))
+        return 0
     if argv[0] == "promote" and _help_requested(argv, 1):
         _print_help(_build_promote_help())
         return 0
@@ -2641,7 +2975,7 @@ def main(argv: list[str]) -> int:
         return 0
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "promote", "split", "close", "finish"}:
+    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "repair", "promote", "split", "close", "finish"}:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     if args.command == "validate-closeout" and isinstance(payload, dict) and not payload.get("ok", False):

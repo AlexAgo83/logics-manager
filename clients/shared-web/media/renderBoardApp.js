@@ -246,6 +246,17 @@
       };
     }
 
+    function ensureGroupRenderLimit(groupKey, minVisibleCount) {
+      if (hasActiveSearch()) {
+        return;
+      }
+      const key = normalizeGroupKey(groupKey);
+      const currentLimit = Math.max(GROUP_RENDER_PAGE_SIZE, groupRenderLimits.get(key) || GROUP_RENDER_PAGE_SIZE);
+      if (minVisibleCount > currentLimit) {
+        groupRenderLimits.set(key, minVisibleCount);
+      }
+    }
+
     function createShowMoreControl(groupKey, remaining, total) {
       const revealCount = Math.min(GROUP_RENDER_PAGE_SIZE, Math.max(0, remaining));
       const button = document.createElement("button");
@@ -430,11 +441,13 @@
       }
 
       if (direction === "up" && itemIndex > 0) {
+        ensureGroupRenderLimit(item.stage, itemIndex);
         selectItemAndFocus(stageItems[itemIndex - 1].id);
         return;
       }
 
       if (direction === "down" && itemIndex < stageItems.length - 1) {
+        ensureGroupRenderLimit(item.stage, itemIndex + 2);
         selectItemAndFocus(stageItems[itemIndex + 1].id);
         return;
       }
@@ -451,6 +464,7 @@
           continue;
         }
         const targetIndex = Math.min(itemIndex, nextItems.length - 1);
+        ensureGroupRenderLimit(nextStage, targetIndex + 1);
         selectItemAndFocus(nextItems[targetIndex].id);
         return;
       }
@@ -466,11 +480,13 @@
       }
 
       if (direction === "up" && itemIndex > 0) {
+        ensureGroupRenderLimit(currentGroup.key, itemIndex);
         selectItemAndFocus(stageItems[itemIndex - 1].id);
         return;
       }
 
       if (direction === "down" && itemIndex < stageItems.length - 1) {
+        ensureGroupRenderLimit(currentGroup.key, itemIndex + 2);
         selectItemAndFocus(stageItems[itemIndex + 1].id);
         return;
       }

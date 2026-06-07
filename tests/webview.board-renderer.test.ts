@@ -6,7 +6,7 @@ describe("webview board renderer behavior", () => {
     return Array.from({ length: count }, (_, index) => ({
       ...baseItem,
       id: `req_${String(index + 1).padStart(3, "0")}_large`,
-      title: `${titlePrefix} ${index + 1}`,
+      title: `${titlePrefix} ${String(index + 1).padStart(3, "0")}`,
       relPath: `logics/request/req_${String(index + 1).padStart(3, "0")}_large.md`,
       path: `/workspace/mock/logics/request/req_${String(index + 1).padStart(3, "0")}_large.md`
     }));
@@ -158,6 +158,25 @@ describe("webview board renderer behavior", () => {
     expect(updatedColumn?.querySelector(".group-show-more")).toBeNull();
   });
 
+  it("extends a progressive board group before keyboard selection moves past rendered items", () => {
+    const { dom } = bootstrapWebview();
+    pushData(dom, { root: "/workspace/mock", items: makeRequestItems(12) });
+
+    const board = dom.window.document.getElementById("board");
+    const tenthCard = board?.querySelector('[data-id="req_010_large"]');
+
+    tenthCard?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+
+    const updatedColumn = Array.from(board?.querySelectorAll(".column") || []).find(
+      (c) => (c as HTMLElement).dataset.stage === "request"
+    );
+    const nextCard = updatedColumn?.querySelector('[data-id="req_011_large"]');
+    expect(nextCard).toBeTruthy();
+    expect(nextCard?.classList.contains("card--selected")).toBe(true);
+    expect(updatedColumn?.querySelector(".column__title-count")?.textContent).toBe("11/12");
+    expect(updatedColumn?.querySelector(".group-show-more")?.textContent).toBe("Show 1 more");
+  });
+
   it("opens and closes the column add menu on toggle", () => {
     const { dom } = bootstrapWebview();
 
@@ -258,6 +277,28 @@ describe("webview board renderer behavior", () => {
     );
     expect(updatedSection?.querySelectorAll(".card").length).toBe(13);
     expect(updatedSection?.querySelector(".list-view__header-count")?.textContent).toBe("13/13");
+  });
+
+  it("extends a progressive list group before keyboard selection moves past rendered items", () => {
+    const { dom } = bootstrapWebview();
+    pushData(dom, { root: "/workspace/mock", items: makeRequestItems(12) });
+
+    const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
+    viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const board = dom.window.document.getElementById("board");
+    const tenthCard = board?.querySelector('[data-id="req_010_large"]');
+
+    tenthCard?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+
+    const updatedSection = Array.from(board?.querySelectorAll(".list-view__section") || []).find(
+      (section) => (section as HTMLElement).dataset.group === "request"
+    );
+    const nextCard = updatedSection?.querySelector('[data-id="req_011_large"]');
+    expect(nextCard).toBeTruthy();
+    expect(nextCard?.classList.contains("card--selected")).toBe(true);
+    expect(updatedSection?.querySelector(".list-view__header-count")?.textContent).toBe("11/12");
+    expect(updatedSection?.querySelector(".group-show-more")?.textContent).toBe("Show 1 more");
   });
 
   it("does not truncate active search results behind show more controls", () => {

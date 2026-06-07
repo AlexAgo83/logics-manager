@@ -260,6 +260,7 @@
 | [req_201_add_a_local_web_viewer_for_cli_driven_logics_work](request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done |  | request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [req_202_harden_local_viewer_ux_after_first_operator_review](request/req_202_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done |  | request/req_202_harden_local_viewer_ux_after_first_operator_review.md |
 | [req_203_improve_local_viewer_corpus_navigation](request/req_203_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready |  | request/req_203_improve_local_viewer_corpus_navigation.md |
+| [req_204_notify_operators_when_logics_manager_updates_are_available](request/req_204_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Ready |  | request/req_204_notify_operators_when_logics_manager_updates_are_available.md |
 
 ## Backlog
 
@@ -632,6 +633,7 @@
 | [item_365_add_a_local_web_viewer_for_cli_driven_logics_work](backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [item_366_harden_local_viewer_ux_after_first_operator_review](backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | backlog/item_366_harden_local_viewer_ux_after_first_operator_review.md |
 | [item_367_improve_local_viewer_corpus_navigation](backlog/item_367_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready | 0 | backlog/item_367_improve_local_viewer_corpus_navigation.md |
+| [item_368_notify_operators_when_logics_manager_updates_are_available](backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Ready | 0 | backlog/item_368_notify_operators_when_logics_manager_updates_are_available.md |
 
 ## Tasks
 
@@ -799,3 +801,4 @@
 | [task_166_add_a_local_web_viewer_for_cli_driven_logics_work](tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md) | Add a local web viewer for CLI-driven Logics work | Done | 100% | tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md |
 | [task_167_harden_local_viewer_ux_after_first_operator_review](tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md) | Harden local viewer UX after first operator review | Done | 100% | tasks/task_167_harden_local_viewer_ux_after_first_operator_review.md |
 | [task_168_improve_local_viewer_corpus_navigation](tasks/task_168_improve_local_viewer_corpus_navigation.md) | Improve local viewer corpus navigation | Ready | 0 | tasks/task_168_improve_local_viewer_corpus_navigation.md |
+| [task_169_notify_operators_when_logics_manager_updates_are_available](tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md) | Notify operators when logics-manager updates are available | Ready | 0 | tasks/task_169_notify_operators_when_logics_manager_updates_are_available.md |

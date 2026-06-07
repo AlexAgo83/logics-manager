@@ -50,7 +50,7 @@
 | [prod_015_cli_product_maturity_roadmap](product/prod_015_cli_product_maturity_roadmap.md) | CLI product maturity roadmap | Validated |  | product/prod_015_cli_product_maturity_roadmap.md |
 | [prod_016_logics_operator_signal_refinement](product/prod_016_logics_operator_signal_refinement.md) | Logics operator signal refinement | Proposed |  | product/prod_016_logics_operator_signal_refinement.md |
 | [prod_017_logics_delivery_loop_ergonomics](product/prod_017_logics_delivery_loop_ergonomics.md) | Logics delivery loop ergonomics | Proposed |  | product/prod_017_logics_delivery_loop_ergonomics.md |
-| [prod_018_agent_closeout_loop_ergonomics](product/prod_018_agent_closeout_loop_ergonomics.md) | Agent closeout loop ergonomics | Proposed |  | product/prod_018_agent_closeout_loop_ergonomics.md |
+| [prod_018_agent_closeout_loop_ergonomics](product/prod_018_agent_closeout_loop_ergonomics.md) | Agent closeout loop ergonomics | Validated |  | product/prod_018_agent_closeout_loop_ergonomics.md |
 
 ## Requests
 
@@ -254,7 +254,7 @@
 | [req_197_mature_cli_product_contracts](request/req_197_mature_cli_product_contracts.md) | Mature CLI product contracts | Done |  | request/req_197_mature_cli_product_contracts.md |
 | [req_198_refine_logics_operator_signal_commands](request/req_198_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done |  | request/req_198_refine_logics_operator_signal_commands.md |
 | [req_199_implement_flow_deliver_from_product](request/req_199_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done |  | request/req_199_implement_flow_deliver_from_product.md |
-| [req_200_implement_agent_closeout_loop_ergonomics](request/req_200_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Draft |  | request/req_200_implement_agent_closeout_loop_ergonomics.md |
+| [req_200_implement_agent_closeout_loop_ergonomics](request/req_200_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done |  | request/req_200_implement_agent_closeout_loop_ergonomics.md |
 
 ## Backlog
 
@@ -623,7 +623,7 @@
 | [item_361_mature_cli_product_contracts](backlog/item_361_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | backlog/item_361_mature_cli_product_contracts.md |
 | [item_362_refine_logics_operator_signal_commands](backlog/item_362_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | backlog/item_362_refine_logics_operator_signal_commands.md |
 | [item_363_implement_flow_deliver_from_product](backlog/item_363_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | backlog/item_363_implement_flow_deliver_from_product.md |
-| [item_364_implement_agent_closeout_loop_ergonomics](backlog/item_364_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Ready | 0% | backlog/item_364_implement_agent_closeout_loop_ergonomics.md |
+| [item_364_implement_agent_closeout_loop_ergonomics](backlog/item_364_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | backlog/item_364_implement_agent_closeout_loop_ergonomics.md |
 
 ## Tasks
 
@@ -787,4 +787,4 @@
 | [task_162_mature_cli_product_contracts](tasks/task_162_mature_cli_product_contracts.md) | Mature CLI product contracts | Done | 100% | tasks/task_162_mature_cli_product_contracts.md |
 | [task_163_refine_logics_operator_signal_commands](tasks/task_163_refine_logics_operator_signal_commands.md) | Refine Logics operator signal commands | Done | 100% | tasks/task_163_refine_logics_operator_signal_commands.md |
 | [task_164_implement_flow_deliver_from_product](tasks/task_164_implement_flow_deliver_from_product.md) | Implement flow deliver from product | Done | 100% | tasks/task_164_implement_flow_deliver_from_product.md |
-| [task_165_implement_agent_closeout_loop_ergonomics](tasks/task_165_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Ready | 0% | tasks/task_165_implement_agent_closeout_loop_ergonomics.md |
+| [task_165_implement_agent_closeout_loop_ergonomics](tasks/task_165_implement_agent_closeout_loop_ergonomics.md) | Implement agent closeout loop ergonomics | Done | 100% | tasks/task_165_implement_agent_closeout_loop_ergonomics.md |

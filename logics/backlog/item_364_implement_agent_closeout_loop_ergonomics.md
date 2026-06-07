@@ -1,10 +1,10 @@
 ## item_364_implement_agent_closeout_loop_ergonomics - Implement agent closeout loop ergonomics
 > From version: 2.1.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,8 +43,8 @@ flowchart TD
 # Links
 - Product brief(s): `prod_018_agent_closeout_loop_ergonomics`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_200_implement_agent_closeout_loop_ergonomics.md`
-- Primary task(s): (none yet)
+- Request: `req_200_implement_agent_closeout_loop_ergonomics`
+- Primary task(s): `task_165_implement_agent_closeout_loop_ergonomics`
 
 # AI Context
 - Summary: Implement agent closeout loop ergonomics
@@ -58,6 +58,7 @@ flowchart TD
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_165_implement_agent_closeout_loop_ergonomics` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_165_implement_agent_closeout_loop_ergonomics`

@@ -1802,6 +1802,89 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     assert "```mermaid" in task_text
 
 
+def test_repair_ac_traceability_records_explicit_proof(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "# Acceptance criteria",
+                "- AC1: Deliver demo.",
+                "# Backlog",
+                "- `item_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    backlog_path.write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo Backlog",
+                "> Status: Ready",
+                "# Links",
+                "- Request: `req_001_demo`",
+                "- Primary task(s): `task_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "# Plan",
+                "- [x] Do the work.",
+                "# Backlog",
+                "- `item_001_demo`",
+                "# Definition of Done (DoD)",
+                "- [x] Validation passes.",
+                "# Validation",
+                "- command: `pytest python_tests -q` | result: passed | date: 2026-06-07",
+                "# Links",
+                "- Request: `req_001_demo`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    assert main(
+        [
+            "flow",
+            "repair",
+            "ac-traceability",
+            "req_001_demo",
+            "--proof",
+            "AC1 covered by closeout regression.",
+            "--proof-source",
+            "task_001_demo",
+        ]
+    ) == 0
+
+    assert "request-AC1 -> This backlog slice. Proof: AC1 covered by closeout regression. Source: `task_001_demo`" in backlog_path.read_text(encoding="utf-8")
+    assert "request-AC1 -> This task. Proof: AC1 covered by closeout regression. Source: `task_001_demo`" in task_path.read_text(encoding="utf-8")
+    payload = validate_closeout_payload(repo_root, "task_001_demo")
+    issue_codes = {issue["code"] for issue in payload["issues"]}
+    assert "ac_missing_item_traceability" not in issue_codes
+    assert "ac_missing_task_traceability" not in issue_codes
+
+
 def test_main_runs_native_flow_closeout_finishes_delivery_chain(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

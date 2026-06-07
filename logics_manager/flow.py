@@ -1265,7 +1265,16 @@ def _request_ac_entries(request_path: Path) -> list[tuple[str, str]]:
     return entries
 
 
-def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict[str, object]:
+def _ac_traceability_entry(ac_id: str, target: str, text: str, proof: str | None, proof_source: str | None) -> str:
+    if proof and proof.strip():
+        rendered = f"request-{ac_id} -> {target}. Proof: {proof.strip()}"
+        if proof_source and proof_source.strip():
+            rendered += f" Source: `{proof_source.strip()}`"
+        return rendered
+    return f"request-{ac_id} -> {target}. Evidence needed: {text}"
+
+
+def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: bool, proof: str | None = None, proof_source: str | None = None) -> dict[str, object]:
     request_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], source)
     request_ref = request_path.stem
     ac_entries = _request_ac_entries(request_path)
@@ -1279,7 +1288,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
         item_missing = [
-            f"request-{ac_id} -> This backlog slice. Evidence needed: {text}"
+            _ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source)
             for ac_id, text in ac_entries
             if not _has_ac_proof(item_before, ac_id)
         ]
@@ -1296,7 +1305,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     for task_path in sorted(linked_task_paths):
         task_before = task_path.read_text(encoding="utf-8")
         task_missing = [
-            f"request-{ac_id} -> This task. Evidence needed: {text}"
+            _ac_traceability_entry(ac_id, "This task", text, proof, proof_source)
             for ac_id, text in ac_entries
             if not _has_ac_proof(task_before, ac_id)
         ]
@@ -1307,6 +1316,8 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         "command": "repair",
         "kind": "ac-traceability",
         "source": request_path.relative_to(repo_root).as_posix(),
+        "proof_recorded": bool(proof and proof.strip()),
+        "proof_source": proof_source.strip() if proof_source and proof_source.strip() else None,
         "changed_files": sorted(path.as_posix() for path in changed_paths),
         "dry_run": dry_run,
     }
@@ -2262,6 +2273,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     repair_ac = repair_sub.add_parser("ac-traceability", help="Add missing AC traceability entries.")
     repair_ac.add_argument("source")
+    repair_ac.add_argument("--proof")
+    repair_ac.add_argument("--proof-source")
     repair_ac.add_argument("--format", choices=("text", "json"), default="text")
     repair_ac.add_argument("--dry-run", action="store_true")
     repair_ac.set_defaults(func=cmd_repair_ac_traceability)
@@ -2634,7 +2647,7 @@ def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_repair_ac_traceability(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run)
+    payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run, proof=args.proof, proof_source=args.proof_source)
     _print_repair_payload(payload, args.format)
     return payload
 

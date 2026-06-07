@@ -2395,8 +2395,8 @@ def test_main_runs_native_assist_handoff(
     )
 
     monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
-    monkeypatch.setattr("logics_manager.assist._git_range_changed_paths", lambda _repo_root, _since: ["logics/tasks/task_001_demo.md", "logics_manager/assist.py"])
-    monkeypatch.setattr("logics_manager.assist._git_range_commits", lambda _repo_root, _since: [{"commit": "abc1234", "subject": "feat: demo"}])
+    monkeypatch.setattr("logics_manager.assist_handoff._git_range_changed_paths", lambda _repo_root, _since: ["logics/tasks/task_001_demo.md", "logics_manager/assist.py"])
+    monkeypatch.setattr("logics_manager.assist_handoff._git_range_commits", lambda _repo_root, _since: [{"commit": "abc1234", "subject": "feat: demo"}])
 
     exit_code = main(["assist", "handoff", "--since", "HEAD~1"])
     captured = capsys.readouterr()

@@ -1,10 +1,10 @@
 ## item_365_add_a_local_web_viewer_for_cli_driven_logics_work - Add a local web viewer for CLI-driven Logics work
 > From version: 2.2.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 5%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -73,6 +73,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_201_add_a_local_web_viewer_for_cli_driven_logics_work` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`.
 - Generated locally by logics-manager.
+- Task `task_166_add_a_local_web_viewer_for_cli_driven_logics_work` was finished via `logics-manager flow finish task` on 2026-06-07.
 
 # Tasks
 - `task_166_add_a_local_web_viewer_for_cli_driven_logics_work`

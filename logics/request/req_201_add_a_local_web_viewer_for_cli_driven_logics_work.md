@@ -1,7 +1,7 @@
 ## req_201_add_a_local_web_viewer_for_cli_driven_logics_work - Add a local web viewer for CLI-driven Logics work
 > From version: 2.2.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

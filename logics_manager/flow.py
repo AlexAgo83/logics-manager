@@ -1754,6 +1754,26 @@ def _append_doc_section_bullets_changed(path: Path, heading: str, bullets: list[
     return path.read_text(encoding="utf-8") != before
 
 
+def _remove_section_placeholder_bullets(path: Path, heading: str, placeholders: set[str], *, dry_run: bool) -> bool:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    target = heading.strip().lower()
+    in_section = False
+    changed = False
+    output: list[str] = []
+    for line in lines:
+        if line.startswith("# "):
+            in_section = line[2:].strip().lower() == target
+            output.append(line)
+            continue
+        if in_section and line.strip().lower() in placeholders:
+            changed = True
+            continue
+        output.append(line)
+    if changed and not dry_run:
+        path.write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
+    return changed
+
+
 def _replace_indicator_line(lines: list[str], label: str, value: str) -> list[str]:
     prefix = f"> {label}:"
     updated = False
@@ -2506,6 +2526,10 @@ def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
         _write_new_doc(task_path, task_content)
         _append_doc_section_bullets(request_planned.path, "Backlog", [f"`{backlog_ref}`"], dry_run=False)
         _append_doc_section_bullets(backlog_path, "Tasks", [f"`{task_ref}`"], dry_run=False)
+        _remove_section_placeholder_bullets(request_planned.path, "Backlog", {"- none"}, dry_run=False)
+        backlog_lines = backlog_path.read_text(encoding="utf-8").splitlines()
+        backlog_lines = _replace_or_append_prefixed_section_bullet(backlog_lines, "Links", "Primary task(s)", f"`{task_ref}`")
+        backlog_path.write_text("\n".join(backlog_lines).rstrip() + "\n", encoding="utf-8")
         _update_request_product_link(request_planned.path, product_ref, dry_run=False)
         _mark_section_checkboxes_done(request_planned.path, "Definition of Ready (DoR)", dry_run=False)
         _update_product_delivery_links(
@@ -2515,6 +2539,7 @@ def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
             task_ref=task_ref,
             dry_run=False,
         )
+        repair_mermaid_payload(repo_root, [request_planned.ref, backlog_ref, task_ref], dry_run=False)
         if args.finish:
             _close_chain_for_kind(repo_root, task_path, DOC_KINDS["task"], dry_run=False, quiet=args.format == "json")
 

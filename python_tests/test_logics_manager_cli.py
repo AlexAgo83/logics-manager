@@ -1285,8 +1285,10 @@ def test_main_runs_native_flow_deliver_from_product(
     task_text = task_path.read_text(encoding="utf-8")
     assert "- Product brief(s): `prod_001_demo_product`" in request_text
     assert "`item_001_demo_product`" in request_text
+    assert "- none" not in request_text
     assert "- [x] Problem statement is explicit and user impact is clear." in request_text
     assert "`task_001_demo_product`" in backlog_text
+    assert "- Primary task(s): `task_001_demo_product`" in backlog_text
     assert "- Product brief(s): `prod_001_demo_product`" in backlog_text
     assert "request-AC3 -> This backlog slice. Proof:" in backlog_text
     assert "- Product brief(s): `prod_001_demo_product`" in task_text

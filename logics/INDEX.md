@@ -45,6 +45,8 @@
 | [prod_010_chatgpt_logics_agent](product/prod_010_chatgpt_logics_agent.md) | ChatGPT Logics Agent | Proposed |  | product/prod_010_chatgpt_logics_agent.md |
 | [prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows](product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md) | Expanded Logics MCP action surface for local ChatGPT workflows | Proposed |  | product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md |
 | [prod_012_reduce_logics_validation_friction_for_agents](product/prod_012_reduce_logics_validation_friction_for_agents.md) | Reduce Logics validation friction for agents | Proposed |  | product/prod_012_reduce_logics_validation_friction_for_agents.md |
+| [prod_013_cli_primary_usage_audit_and_hardening](product/prod_013_cli_primary_usage_audit_and_hardening.md) | CLI primary usage audit and hardening | Proposed |  | product/prod_013_cli_primary_usage_audit_and_hardening.md |
+| [prod_014_cli_mutation_safety_and_automation_contract](product/prod_014_cli_mutation_safety_and_automation_contract.md) | CLI mutation safety and automation contract | Proposed |  | product/prod_014_cli_mutation_safety_and_automation_contract.md |
 
 ## Requests
 

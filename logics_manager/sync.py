@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .config import find_repo_root
 from .lint import expected_workflow_mermaid_signature
+from .path_utils import resolve_repo_output_path
 from .termstyle import colorize_help
 
 
@@ -1168,13 +1169,16 @@ def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     payload = _build_context_pack(repo_root, args.ref, mode=args.mode, profile=args.profile, config=None)
     if args.out:
-        out_path = (repo_root / args.out).resolve()
+        out_path, output_path = resolve_repo_output_path(repo_root, args.out)
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
         if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(serialized, encoding="utf-8")
-        print(f"Wrote {out_path.relative_to(repo_root)}")
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        payload["output_path"] = output_path
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Wrote {output_path}")
     else:
         if args.format == "json":
             print(json.dumps(payload, indent=2, sort_keys=True))
@@ -1189,13 +1193,16 @@ def cmd_export_graph(args: argparse.Namespace) -> dict[str, object]:
     payload = _graph_payload(repo_root, config=None)
     payload["repo_root"] = repo_root.as_posix()
     if args.out:
-        out_path = (repo_root / args.out).resolve()
+        out_path, output_path = resolve_repo_output_path(repo_root, args.out)
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
         if not args.dry_run:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(serialized, encoding="utf-8")
-        print(f"Wrote {out_path.relative_to(repo_root)}")
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        payload["output_path"] = output_path
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Wrote {output_path}")
     else:
         if args.format == "json":
             print(json.dumps(payload, indent=2, sort_keys=True))

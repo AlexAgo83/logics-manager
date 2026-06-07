@@ -8,6 +8,7 @@ from os import path as os_path
 from pathlib import Path
 
 from .config import find_repo_root
+from .path_utils import resolve_repo_output_path
 
 
 @dataclass(frozen=True)
@@ -91,7 +92,7 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
     for title, rel_dir, show_progress in SECTION_DEFINITIONS:
         sections.append((title, _collect_entries(repo_root, rel_dir), show_progress))
 
-    out_path = (repo_root / out).resolve()
+    out_path, output_path = resolve_repo_output_path(repo_root, out)
     out_dir = out_path.parent
     content = "\n".join(
         [
@@ -104,15 +105,10 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content, encoding="utf-8")
 
-    try:
-        printable = out_path.relative_to(repo_root)
-    except ValueError:
-        printable = out_path
-
     counts = {key: len(entries) for key, (_, entries, _) in zip(SECTION_COUNT_KEYS, sections)}
     return {
         "ok": True,
-        "output_path": printable.as_posix(),
+        "output_path": output_path,
         "counts": counts,
     }
 

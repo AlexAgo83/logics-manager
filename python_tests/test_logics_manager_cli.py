@@ -1701,3 +1701,177 @@ def test_main_runs_native_assist_context(
     assert exit_code == 0
     assert "Assist context: request-draft" in captured.out
     assert "- ref: req_001_demo" in captured.out
+
+
+def test_flow_promote_accepts_request_ref_and_emits_clean_json(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Draft",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Clarify scope",
+                "# Context",
+                "- Context note",
+                "# Acceptance criteria",
+                "- AC1: Validate scope",
+                "# Backlog",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "promote", "request-to-backlog", "req_001_demo", "--dry-run", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert captured.err == ""
+    assert payload["source"] == "logics/request/req_001_demo.md"
+    assert payload["created_path"] == "logics/backlog/item_001_demo_request.md"
+    assert not (repo_root / payload["created_path"]).exists()
+
+
+def test_flow_close_rejects_external_task_before_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    external_task = tmp_path / "task_999_external.md"
+    original = "\n".join(
+        [
+            "## task_999_external - External",
+            "> Status: Ready",
+            "> From version: 1.0.0",
+            "> Schema version: 1.0",
+            "> Progress: 0%",
+            "# Backlog",
+            "- none",
+        ]
+    ) + "\n"
+    external_task.write_text(original, encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="Unsupported source"):
+        main(["flow", "close", "task", external_task.as_posix()])
+
+    assert external_task.read_text(encoding="utf-8") == original
+
+
+def test_flow_close_accepts_task_ref_and_emits_clean_json(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "> Progress: 0%",
+                "# Backlog",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "close", "task", "task_001_demo", "--dry-run", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert payload == {
+        "command": "close",
+        "dry_run": True,
+        "kind": "task",
+        "source": "logics/tasks/task_001_demo.md",
+    }
+    assert "> Status: Ready" in task_path.read_text(encoding="utf-8")
+
+
+def test_root_commands_reject_unknown_flags(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(["lint", "--bogus"])
+
+    assert exc_info.value.code == 2
+
+
+def test_index_rejects_outside_output_before_writing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+    outside = tmp_path / "outside.md"
+
+    with pytest.raises(SystemExit, match="Unsupported --out path"):
+        main(["index", "--out", "../outside.md"])
+
+    assert not outside.exists()
+
+
+def test_sync_outside_output_is_rejected_even_in_dry_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.sync._build_context_pack",
+        lambda _repo_root, ref, mode, profile, config=None: {
+            "ref": ref,
+            "mode": mode,
+            "profile": profile,
+            "estimates": {"doc_count": 0, "char_count": 0},
+            "docs": [],
+            "changed_paths": [],
+            "budgets": {"max_docs": 0},
+        },
+    )
+
+    with pytest.raises(SystemExit, match="Unsupported --out path"):
+        main(["sync", "context-pack", "req_001_demo", "--out", "../ctx.json", "--dry-run"])
+
+    assert not (tmp_path / "ctx.json").exists()
+
+
+def test_assist_outside_output_is_rejected_even_in_dry_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="Unsupported --out path"):
+        main(["assist", "runtime-status", "--out", "../runtime.json", "--dry-run"])
+
+    assert not (tmp_path / "runtime.json").exists()

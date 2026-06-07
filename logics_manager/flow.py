@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .path_utils import ensure_relative_to
 from .termstyle import colorize_help
 
 
@@ -587,7 +588,8 @@ def _find_repo_root(start: Path) -> Path:
 
 def _plan_doc(repo_root: Path, directory: str, prefix: str, title: str, dry_run: bool = False) -> PlannedDoc:
     target_dir = repo_root / directory
-    target_dir.mkdir(parents=True, exist_ok=True)
+    if not dry_run:
+        target_dir.mkdir(parents=True, exist_ok=True)
     slug = _slugify(title)
     highest = -1
     pattern = re.compile(rf"^{re.escape(prefix)}_(\d+)_.*\.md$")
@@ -612,6 +614,33 @@ def _strip_mermaid_blocks(text: str) -> str:
 def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
     path = repo_root / kind.directory / f"{ref}.md"
     return path if path.is_file() else None
+
+
+def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Path:
+    raw = Path(source)
+    if raw.is_absolute():
+        candidate = raw.resolve()
+        rel_path = ensure_relative_to(candidate, repo_root, label="source")
+    elif any(part == ".." for part in raw.parts):
+        raise SystemExit(f"Unsupported source `{source}`. Use a {kind.prefix}_... ref or repo-relative Logics path.")
+    elif len(raw.parts) == 1 and raw.suffix != ".md":
+        path = _resolve_doc_path(repo_root, kind, source)
+        if path is None:
+            raise SystemExit(f"Source not found: {source}")
+        return path
+    else:
+        candidate = (repo_root / raw).resolve()
+        rel_path = ensure_relative_to(candidate, repo_root, label="source")
+    expected_dir = Path(kind.directory)
+    if candidate.parent != (repo_root / kind.directory).resolve():
+        raise SystemExit(f"Expected source under `{kind.directory}`. Got: `{rel_path.as_posix()}`.")
+    if not candidate.is_file():
+        raise SystemExit(f"Source not found: {rel_path.as_posix()}")
+    if not candidate.stem.startswith(f"{kind.prefix}_"):
+        raise SystemExit(f"Expected a `{kind.prefix}_...` file for kind `{kind.kind}`. Got: {candidate.name}")
+    if rel_path.parent != expected_dir:
+        raise SystemExit(f"Expected source under `{kind.directory}`. Got: `{rel_path.as_posix()}`.")
+    return candidate
 
 
 def _append_section_bullets(path: Path, heading: str, bullets: list[str], dry_run: bool) -> None:
@@ -1484,12 +1513,17 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         if not args.dry_run:
             planned.path.parent.mkdir(parents=True, exist_ok=True)
             planned.path.write_text(content, encoding="utf-8")
-            print(f"Wrote {planned.path}")
+            if args.format != "json":
+                print(f"Wrote {planned.path}")
         else:
-            preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
-            print(f"[dry-run] would write: {planned.path}")
-            print(preview)
-        print(f"Created {doc_kind.kind}: {payload['path']}")
+            if args.format != "json":
+                preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+                print(f"[dry-run] would write: {planned.path}")
+                print(preview)
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Created {doc_kind.kind}: {payload['path']}")
         return payload
     if doc_kind.kind == "backlog":
         product_refs, architecture_refs = _create_native_companion_docs(
@@ -1534,13 +1568,18 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
     if not args.dry_run:
         planned.path.parent.mkdir(parents=True, exist_ok=True)
         planned.path.write_text(content, encoding="utf-8")
-        print(f"Wrote {planned.path}")
+        if args.format != "json":
+            print(f"Wrote {planned.path}")
     else:
-        preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
-        print(f"[dry-run] would write: {planned.path}")
-        print(preview)
+        if args.format != "json":
+            preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+            print(f"[dry-run] would write: {planned.path}")
+            print(preview)
 
-    print(f"Created {doc_kind.kind}: {payload['path']}")
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Created {doc_kind.kind}: {payload['path']}")
     return payload
 
 
@@ -1584,11 +1623,13 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
     if not args.dry_run:
         planned_path.parent.mkdir(parents=True, exist_ok=True)
         planned_path.write_text(content, encoding="utf-8")
-        print(f"Wrote {planned_path}")
+        if args.format != "json":
+            print(f"Wrote {planned_path}")
     else:
-        preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
-        print(f"[dry-run] would write: {planned_path}")
-        print(preview)
+        if args.format != "json":
+            preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+            print(f"[dry-run] would write: {planned_path}")
+            print(preview)
 
     payload = {
         "command": "companion",
@@ -1609,9 +1650,7 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
     title = _extract_doc_title(source_path)
     ref, _ = _build_native_backlog_from_request(repo_root, source_path, title)
     product_refs, architecture_refs = _create_native_companion_docs(
@@ -1651,9 +1690,7 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
 
 def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["backlog"], args.source)
     title = _extract_doc_title(source_path)
     source_text = source_path.read_text(encoding="utf-8")
     request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
@@ -1696,9 +1733,7 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
@@ -1744,9 +1779,7 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["backlog"], args.source)
     source_text = source_path.read_text(encoding="utf-8")
     request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
     titles = _split_titles([title for group in args.title for title in group])
@@ -1792,14 +1825,9 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
 def cmd_close(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     kind = DOC_KINDS[args.kind]
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
-    if not source_path.stem.startswith(f"{kind.prefix}_"):
-        raise SystemExit(f"Expected a `{kind.prefix}_...` file for kind `{kind.kind}`. Got: {source_path.name}")
+    source_path = _resolve_workflow_source(repo_root, kind, args.source)
 
-    _close_chain_for_kind(repo_root, source_path, kind, dry_run=args.dry_run)
-    print(f"Closed {kind.kind}: {source_path.relative_to(repo_root)}")
+    _close_chain_for_kind(repo_root, source_path, kind, dry_run=args.dry_run, quiet=args.format == "json")
 
     payload = {
         "command": "close",
@@ -1809,6 +1837,8 @@ def cmd_close(args: argparse.Namespace) -> dict[str, object]:
     }
     if args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"Closed {kind.kind}: {payload['source']}")
     return payload
 
 
@@ -1885,7 +1915,7 @@ def _record_finished_task_follow_up(repo_root: Path, task_path: Path, dry_run: b
     _append_section_bullets(task_path, "Report", report_bullets, dry_run)
 
 
-def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool) -> None:
+def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool, *, quiet: bool = False) -> None:
     request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
     if request_path is None:
         return
@@ -1897,10 +1927,11 @@ def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool)
     if all(_is_doc_done(item_path, DOC_KINDS["backlog"]) for item_path in linked_items):
         if not _is_doc_done(request_path, DOC_KINDS["request"]):
             _close_doc(request_path, DOC_KINDS["request"], dry_run)
-            print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
+            if not quiet:
+                print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
 
 
-def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, dry_run: bool) -> None:
+def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, dry_run: bool, quiet: bool = False) -> None:
     _close_doc(source_path, kind, dry_run)
 
     text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
@@ -1919,35 +1950,32 @@ def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *
             if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
                 if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
                     _close_doc(item_path, DOC_KINDS["backlog"], dry_run)
-                    print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
+                    if not quiet:
+                        print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
 
             item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
             for request_ref in sorted(_extract_refs(item_text, DOC_KINDS["request"].prefix)):
                 if request_ref in processed_request_refs:
                     continue
                 processed_request_refs.add(request_ref)
-                _maybe_close_request_chain(repo_root, request_ref, dry_run)
+                _maybe_close_request_chain(repo_root, request_ref, dry_run, quiet=quiet)
 
     if kind.kind == "backlog":
         for request_ref in sorted(_extract_refs(text, DOC_KINDS["request"].prefix)):
             if request_ref in processed_request_refs:
                 continue
             processed_request_refs.add(request_ref)
-            _maybe_close_request_chain(repo_root, request_ref, dry_run)
+            _maybe_close_request_chain(repo_root, request_ref, dry_run, quiet=quiet)
 
     if kind.kind == "request":
-        _maybe_close_request_chain(repo_root, source_path.stem, dry_run)
+        _maybe_close_request_chain(repo_root, source_path.stem, dry_run, quiet=quiet)
 
 
 def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    source_path = Path(args.source).resolve()
-    if not source_path.is_file():
-        raise SystemExit(f"Source not found: {source_path}")
-    if not source_path.stem.startswith(f"{DOC_KINDS['task'].prefix}_"):
-        raise SystemExit(f"Expected a `{DOC_KINDS['task'].prefix}_...` task file. Got: {source_path.name}")
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], args.source)
 
-    _close_chain_for_kind(repo_root, source_path, DOC_KINDS["task"], dry_run=args.dry_run)
+    _close_chain_for_kind(repo_root, source_path, DOC_KINDS["task"], dry_run=args.dry_run, quiet=args.format == "json")
 
     if args.dry_run:
         payload = {"command": "finish", "kind": "task", "source": source_path.relative_to(repo_root).as_posix(), "dry_run": True}

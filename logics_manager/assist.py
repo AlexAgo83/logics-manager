@@ -14,6 +14,7 @@ from typing import Any
 from .config import ConfigError, find_repo_root, load_repo_config
 from .doctor import doctor_payload
 from .lint import lint_payload
+from .path_utils import resolve_repo_output_path
 from .termstyle import colorize_help
 
 
@@ -2251,13 +2252,16 @@ def cmd_roi_report(args: argparse.Namespace) -> dict[str, object]:
     payload["config_path"] = str(config_path.relative_to(repo_root)) if config_path is not None else None
 
     if args.out:
-        out_path = (repo_root / args.out).resolve()
+        out_path, output_path = resolve_repo_output_path(repo_root, args.out)
+        payload["output_path"] = output_path
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(serialized, encoding="utf-8")
-        print(f"Wrote {out_path.relative_to(repo_root)}")
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Wrote {output_path}")
     elif args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
@@ -2307,13 +2311,16 @@ def cmd_runtime_status(args: argparse.Namespace) -> dict[str, object]:
     }
 
     if args.out:
-        out_path = (repo_root / args.out).resolve()
+        out_path, output_path = resolve_repo_output_path(repo_root, args.out)
+        payload["output_path"] = output_path
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(serialized, encoding="utf-8")
-        print(f"Wrote {out_path.relative_to(repo_root)}")
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Wrote {output_path}")
     elif args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
@@ -2554,13 +2561,16 @@ def cmd_context(args: argparse.Namespace) -> dict[str, object]:
     }
 
     if args.out:
-        out_path = (repo_root / args.out).resolve()
+        out_path, output_path = resolve_repo_output_path(repo_root, args.out)
+        payload["output_path"] = output_path
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
         if not args.dry_run:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(serialized, encoding="utf-8")
-        print(f"Wrote {out_path.relative_to(repo_root)}")
-        payload["output_path"] = out_path.relative_to(repo_root).as_posix()
+        if args.format == "json":
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print(f"Wrote {output_path}")
     elif args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

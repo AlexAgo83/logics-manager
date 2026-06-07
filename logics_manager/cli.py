@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from importlib import metadata
 import subprocess
 import sys
@@ -129,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
         config_args = rest[1:]
         parser = argparse.ArgumentParser(prog="logics-manager config show", add_help=False)
         parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed, _unknown = parser.parse_known_args(config_args)
+        parsed = parser.parse_args(config_args)
         repo_root = find_repo_root(Path.cwd())
         try:
             output = render_config_show(repo_root, output_format=parsed.format)
@@ -141,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         doctor_args = rest
         parser = argparse.ArgumentParser(prog="logics-manager doctor", add_help=False)
         parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed, _unknown = parser.parse_known_args(doctor_args)
+        parsed = parser.parse_args(doctor_args)
         repo_root = find_repo_root(Path.cwd())
         try:
             output = render_doctor(repo_root, output_format=parsed.format)
@@ -153,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
         parser = argparse.ArgumentParser(prog="logics-manager bootstrap", add_help=False)
         parser.add_argument("--check", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed, _unknown = parser.parse_known_args(rest)
+        parsed = parser.parse_args(rest)
         try:
             repo_root = find_repo_root(Path.cwd())
         except ConfigError:
@@ -167,7 +168,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
         parser.add_argument("--dry-run", action="store_true")
-        parsed, _unknown = parser.parse_known_args(rest)
+        parsed = parser.parse_args(rest)
 
         manager = parsed.manager
         if manager == "auto":
@@ -216,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         return mcp_main(rest)
     if command == "audit":
         audit_parser = build_audit_parser()
-        parsed, _unknown = audit_parser.parse_known_args(rest)
+        parsed = audit_parser.parse_args(rest)
         repo_root = find_repo_root(Path.cwd())
         try:
             payload = audit_payload(
@@ -258,20 +259,20 @@ def main(argv: list[str] | None = None) -> int:
         parser = argparse.ArgumentParser(prog="logics-manager index", add_help=False)
         parser.add_argument("--out", default="logics/INDEX.md")
         parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed, _unknown = parser.parse_known_args(rest)
+        parsed = parser.parse_args(rest)
         repo_root = find_repo_root(Path.cwd())
         try:
             payload = index_payload(repo_root, out=parsed.out)
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
-        output = render_index(repo_root, out=parsed.out, output_format=parsed.format) if parsed.format == "json" else f"Wrote {payload['output_path']}"
+        output = json.dumps(payload, indent=2, sort_keys=True) if parsed.format == "json" else f"Wrote {payload['output_path']}"
         print(output)
         return 0 if payload["ok"] else 1
     if command == "lint":
         parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)
         parser.add_argument("--require-status", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed, _unknown = parser.parse_known_args(rest)
+        parsed = parser.parse_args(rest)
         repo_root = find_repo_root(Path.cwd())
         try:
             payload = lint_payload(repo_root, require_status=parsed.require_status)

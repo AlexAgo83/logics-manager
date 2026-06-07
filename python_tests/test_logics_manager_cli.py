@@ -255,6 +255,33 @@ def test_followups_payload_suggests_request_commands(tmp_path: Path) -> None:
     assert '--title "Improve workflow search"' in item["suggested_command"]
 
 
+def test_followups_payload_skips_non_actionable_markers(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Done",
+        links=[],
+    )
+    path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        + "\n# Decision framing\n"
+        + "- Product follow-up: none\n"
+        + "- Architecture follow-up: No architecture decision follow-up is expected based on current signals.\n"
+        + "- Architecture follow-up: Covered by `adr_001_demo`; no new ADR is required unless scope changes.\n"
+        + "- Product follow-up: define release workflow\n",
+        encoding="utf-8",
+    )
+
+    payload = followups_payload(repo_root)
+
+    assert payload["count"] == 1
+    assert payload["followups"][0]["text"] == "define release workflow"
+
+
 def test_main_runs_followups_json(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

@@ -239,6 +239,21 @@ def _slug_command_title(text: str) -> str:
     return cleaned[:1].upper() + cleaned[1:] if cleaned else "Follow up"
 
 
+def _is_actionable_followup(text: str) -> bool:
+    normalized = re.sub(r"\s+", " ", text.strip(" .")).lower()
+    if normalized in {"none", "n/a", "not needed", "no follow-up"}:
+        return False
+    if normalized.startswith("no ") and "follow-up" in normalized:
+        return False
+    if normalized.startswith("no ") and "is required" in normalized:
+        return False
+    if "no new adr is required" in normalized:
+        return False
+    if "no new architecture decision" in normalized:
+        return False
+    return True
+
+
 def followups_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
     docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS + COMPANION_KINDS)
     followups: list[dict[str, object]] = []
@@ -250,6 +265,8 @@ def followups_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
             if not matched:
                 continue
             text = stripped.removeprefix(matched).strip()
+            if not _is_actionable_followup(text):
+                continue
             title = _slug_command_title(text)
             followups.append(
                 {

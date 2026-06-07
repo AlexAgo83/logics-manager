@@ -95,6 +95,7 @@ The CLI is the stable contract for Logics. It supports:
 - closing tasks, backlog items, and requests with consistency checks;
 - linting and auditing workflow traceability;
 - exporting indexes, context packs, and graph data;
+- serving a read-only local browser viewer for the Logics corpus;
 - serving the bounded MCP tool surface.
 
 Useful commands:
@@ -105,7 +106,28 @@ logics-manager flow promote request-to-backlog req_001_example
 logics-manager flow promote backlog-to-task item_001_example
 logics-manager flow finish task task_001_example
 logics-manager sync context-pack req_001_example --format json
+logics-manager view --open
 ```
+
+### Local Browser Viewer
+
+Use the CLI viewer when you want to inspect the Logics corpus outside VS Code:
+
+```bash
+logics-manager view --open
+```
+
+The viewer starts a localhost-only, read-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
+
+Useful options:
+
+```bash
+logics-manager view --port 0 --open
+logics-manager view --host 127.0.0.1 --port 9876
+logics-manager view --no-open
+```
+
+Use `--port 0` when the default port is already taken. The viewer is intentionally read-only; use the canonical CLI commands such as `flow promote`, `flow finish`, `lint`, and `audit` for workflow mutations.
 
 ### CLI Contracts
 
@@ -347,6 +369,7 @@ Windows notes:
 - Create a fixture request with `logics-manager flow new request --title "Smoke test"` and confirm the compact synthetic request shape is generated.
 - Create a backlog item and a task from the UI and confirm markdown is generated.
 - Open `Read` on a Mermaid-bearing doc and confirm the graph is rendered.
+- Run `logics-manager view --port 0 --open`, confirm the browser viewer loads repository docs, then stop it with `Ctrl+C`.
 - Promote request -> backlog and confirm links are updated.
 - Confirm request/backlog/task generation fails fast if a Mermaid signature or traceability block is stale instead of waiting for audit to find it later.
 - Promote backlog -> task and confirm task document is generated.
@@ -390,6 +413,22 @@ npm run dev
 ```
 
 `npm run dev` requires the `code` CLI on PATH, so the F5 path above remains the safest cross-platform dev entrypoint.
+
+### Browser UI Debugging
+
+Use the real local viewer for repository data:
+
+```bash
+logics-manager view --open
+```
+
+Use the mock webview harness only when developing the shared browser/webview UI without VS Code:
+
+```bash
+npm run debug:webview
+```
+
+The harness runs at `http://localhost:4173/` and supports mock scenarios such as `/?scenario=empty` and `/?scenario=error`. It does not execute real VS Code commands or workflow writes.
 
 ## Deploy / Release (VSIX)
 
@@ -446,6 +485,7 @@ If the current plugin version is already published, `logics-manager assist next-
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
 - Strict Logics governance audit: `npm run audit:logics:strict`
+- Local browser viewer smoke: `logics-manager view --port 0 --open`
 - Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
 - Security audit policy gate: `npm run audit:ci`

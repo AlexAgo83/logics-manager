@@ -109,6 +109,7 @@ def test_main_accepts_json_alias_for_native_subcommand(
     )
     monkeypatch.setattr("logics_manager.config.find_repo_root", lambda _cwd: repo_root)
     monkeypatch.setattr("logics_manager.sync.find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
 
     exit_code = main(["sync", "list-docs", "--kind", "request", "--json"])
 
@@ -331,6 +332,26 @@ def test_product_consistency_payload_reports_broken_related_refs(tmp_path: Path)
     issue = payload["issues"][0]
     assert issue["missing_related"] == ["backlog"]
     assert [item["ref"] for item in issue["broken_related"]] == ["req_001_missing", "task_001_missing"]
+
+
+def test_product_consistency_treats_backticked_none_as_missing(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Validated",
+    )
+    product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
+    product_path.write_text(
+        product_path.read_text(encoding="utf-8").replace("> Related task: (none yet)", "> Related task: `(none yet)`"),
+        encoding="utf-8",
+    )
+
+    payload = product_consistency_payload(repo_root)
+
+    assert payload["issues"][0]["missing_related"] == ["request", "backlog", "task"]
+    assert payload["issues"][0]["broken_related"] == []
 
 
 def test_main_runs_product_consistency_json(

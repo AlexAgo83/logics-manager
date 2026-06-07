@@ -288,7 +288,8 @@ def _related_ref(content: str, label: str) -> str | None:
         if not line.startswith(prefix):
             continue
         value = line.split(":", 1)[1].strip()
-        if not value or value.lower().startswith("(none"):
+        normalized = value.strip("`").strip().lower()
+        if not normalized or normalized.startswith("(none"):
             return None
         match = re.search(r"`([^`]+)`", value)
         return match.group(1) if match else value

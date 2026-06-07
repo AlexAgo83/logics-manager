@@ -402,6 +402,75 @@ def _write_minimal_product_doc(path: Path, *, title: str, status: str, body: str
     )
 
 
+def _write_subprocess_json_repo(repo_root: Path) -> None:
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics.yaml").write_text("version: 1\n", encoding="utf-8")
+    _write_minimal_lint_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        status="Draft",
+        include_progress=False,
+    )
+    _write_minimal_lint_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo.md",
+        title="Demo backlog",
+        status="Ready",
+        include_progress=True,
+    )
+    _write_minimal_lint_doc(
+        repo_root / "logics" / "tasks" / "task_001_demo.md",
+        title="Demo task",
+        status="Ready",
+        include_progress=True,
+    )
+
+
+def _run_logics_manager_subprocess(repo_root: Path, argv: list[str]) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    source_root = Path(__file__).resolve().parents[1]
+    env["PYTHONPATH"] = os.pathsep.join([str(source_root), env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
+    return subprocess.run(
+        [sys.executable, "-m", "logics_manager", *argv],
+        cwd=repo_root,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["config", "show", "--format", "json"],
+        ["doctor", "--format", "json"],
+        ["index", "--format", "json"],
+        ["lint", "--format", "json"],
+        ["audit", "--skip-ac-traceability", "--skip-gates", "--format", "json"],
+        ["flow", "new", "request", "--title", "Subprocess Contract", "--format", "json"],
+        ["flow", "list", "--kind", "request", "--format", "json"],
+        ["sync", "schema-status", "--format", "json"],
+        ["sync", "list-docs", "--format", "json"],
+        ["assist", "runtime-status", "--format", "json"],
+        ["assist", "claude-bridges", "--format", "json"],
+        ["assist", "claude-instructions", "--format", "json"],
+    ],
+)
+def test_documented_json_commands_emit_parseable_stdout_in_subprocess(tmp_path: Path, argv: list[str]) -> None:
+    repo_root = tmp_path / "logics-repo"
+    _write_subprocess_json_repo(repo_root)
+
+    result = _run_logics_manager_subprocess(repo_root, argv)
+
+    assert result.returncode in (0, 1), result.stderr
+    assert result.stderr == ""
+    payload = json.loads(result.stdout)
+    assert isinstance(payload, dict)
+
+
 def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

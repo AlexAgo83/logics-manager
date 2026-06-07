@@ -9,7 +9,14 @@
   const updateCopy = () => document.getElementById("viewer-update-copy");
   const updateCommand = () => document.getElementById("viewer-update-command");
   const filterCount = () => document.getElementById("viewer-filter-count");
-  let activePreset = "";
+  const defaultFilterState = {
+    focus: "active",
+    type: "all",
+    status: "any",
+    relation: "any",
+    activity: "any"
+  };
+  let viewerFilterState = { ...defaultFilterState };
   let latestItems = [];
   let applyingLocalChrome = false;
   let mermaidInitialized = false;
@@ -233,30 +240,83 @@
     return status.includes("done") || status.includes("archived") || status.includes("obsolete");
   }
 
-  function localPresetPredicate(name) {
-    const now = Date.now();
-    const recentCutoff = now - 14 * 24 * 60 * 60 * 1000;
-    return (item) => {
-      if (!item) {
-        return false;
-      }
-      if (name === "blocked") {
-        return statusValue(item).includes("blocked");
-      }
-      if (name === "needs-promotion") {
-        return ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item);
-      }
-      if (name === "recent") {
-        return (Date.parse(item.updatedAt || "") || 0) >= recentCutoff;
-      }
-      if (name === "unlinked") {
-        return (item.references || []).length === 0 && (item.usedBy || []).length === 0;
-      }
-      if (name === "companions") {
-        return ["product", "architecture", "spec"].includes(item.stage);
-      }
-      return !isClosed(item);
-    };
+  function hasLinks(item) {
+    return (item.references || []).length > 0 || (item.usedBy || []).length > 0;
+  }
+
+  function needsPromotion(item) {
+    return ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item);
+  }
+
+  function updatedWithin(item, days) {
+    const timestamp = Date.parse(item.updatedAt || "") || 0;
+    return timestamp > 0 && timestamp >= Date.now() - days * 24 * 60 * 60 * 1000;
+  }
+
+  function isStale(item) {
+    const timestamp = Date.parse(item.updatedAt || "") || 0;
+    return timestamp > 0 && timestamp < Date.now() - 30 * 24 * 60 * 60 * 1000 && !isClosed(item);
+  }
+
+  function matchesViewerFilter(item) {
+    if (!item) {
+      return false;
+    }
+    const status = statusValue(item);
+    if (viewerFilterState.focus === "active" && isClosed(item)) {
+      return false;
+    }
+    if (viewerFilterState.focus === "blocked" && !status.includes("blocked")) {
+      return false;
+    }
+    if (viewerFilterState.focus === "needs-promotion" && !needsPromotion(item)) {
+      return false;
+    }
+    if (viewerFilterState.focus === "recent" && !updatedWithin(item, 14)) {
+      return false;
+    }
+
+    if (viewerFilterState.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
+      return false;
+    }
+    if (viewerFilterState.type === "companion" && !["product", "architecture", "spec"].includes(item.stage)) {
+      return false;
+    }
+    if (!["all", "workflow", "companion"].includes(viewerFilterState.type) && item.stage !== viewerFilterState.type) {
+      return false;
+    }
+
+    if (viewerFilterState.status === "ready" && !status.includes("ready")) {
+      return false;
+    }
+    if (viewerFilterState.status === "in-progress" && !status.includes("in progress")) {
+      return false;
+    }
+    if (viewerFilterState.status === "blocked" && !status.includes("blocked")) {
+      return false;
+    }
+    if (viewerFilterState.status === "done" && !isClosed(item)) {
+      return false;
+    }
+
+    if (viewerFilterState.relation === "unlinked" && hasLinks(item)) {
+      return false;
+    }
+    if (viewerFilterState.relation === "linked" && !hasLinks(item)) {
+      return false;
+    }
+    if (viewerFilterState.relation === "needs-promotion" && !needsPromotion(item)) {
+      return false;
+    }
+
+    if (viewerFilterState.activity === "recent" && !updatedWithin(item, 14)) {
+      return false;
+    }
+    if (viewerFilterState.activity === "stale" && !isStale(item)) {
+      return false;
+    }
+
+    return true;
   }
 
   function setControlValue(id, value, eventName) {
@@ -272,41 +332,50 @@
     element.dispatchEvent(new Event(eventName, { bubbles: true }));
   }
 
-  function applyPreset(name) {
-    activePreset = name;
-    window.__CDX_LOGICS_VIEWER_FILTER__ = localPresetPredicate(name);
-    setControlValue("search-input", "", "input");
-    setControlValue("hide-complete", name !== "companions", "change");
-    setControlValue("hide-processed-requests", name === "active", "change");
-    setControlValue("hide-spec", name !== "companions", "change");
-    setControlValue("show-companion-docs", name === "companions" || name === "active", "change");
-    setControlValue("group-by", name === "blocked" ? "status" : "stage", "change");
-    setControlValue("sort-by", "updated-desc", "change");
+  function applyViewerFilter(group, value) {
+    if (!Object.prototype.hasOwnProperty.call(defaultFilterState, group)) {
+      return;
+    }
+    viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
+    window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
+    setControlValue("hide-complete", false, "change");
+    setControlValue("hide-processed-requests", false, "change");
+    setControlValue("hide-spec", false, "change");
+    setControlValue("show-companion-docs", true, "change");
+    setControlValue("hide-empty-columns", true, "change");
     updateFilterSummary();
   }
 
   function clearLocalPreset() {
-    activePreset = "";
-    window.__CDX_LOGICS_VIEWER_FILTER__ = null;
+    viewerFilterState = { ...defaultFilterState };
+    window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
+    setControlValue("search-input", "", "input");
+    setControlValue("hide-complete", false, "change");
+    setControlValue("hide-processed-requests", false, "change");
+    setControlValue("hide-spec", false, "change");
+    setControlValue("show-companion-docs", true, "change");
+    setControlValue("hide-empty-columns", true, "change");
     updateFilterSummary();
   }
 
   function updateFilterSummary() {
-    document.querySelectorAll("[data-viewer-preset]").forEach((button) => {
+    document.querySelectorAll("[data-viewer-filter-group]").forEach((button) => {
       if (button instanceof HTMLElement) {
-        button.setAttribute("aria-pressed", button.getAttribute("data-viewer-preset") === activePreset ? "true" : "false");
+        const group = button.getAttribute("data-viewer-filter-group") || "";
+        const value = button.getAttribute("data-viewer-filter-value") || "";
+        button.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
       }
     });
     const count = filterCount();
     if (!count) {
       return;
     }
-    if (activePreset) {
-      const visibleCount = latestItems.filter(localPresetPredicate(activePreset)).length;
-      count.textContent = `${visibleCount} of ${latestItems.length} docs shown`;
-      return;
-    }
-    count.textContent = "Default view";
+    const visibleCount = latestItems.filter(matchesViewerFilter).length;
+    const activeLabels = Object.entries(viewerFilterState)
+      .filter(([key, value]) => value !== defaultFilterState[key])
+      .map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
+    const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · Active work";
+    count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
   }
 
   function buildCorpusInsights() {
@@ -525,6 +594,12 @@
     };
   };
   window.addEventListener("load", () => {
+    window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
+    setControlValue("hide-complete", false, "change");
+    setControlValue("hide-processed-requests", false, "change");
+    setControlValue("hide-spec", false, "change");
+    setControlValue("show-companion-docs", true, "change");
+    setControlValue("hide-empty-columns", true, "change");
     applyLocalViewerChrome();
     [document.getElementById("viewer-insights"), document.getElementById("header-logics-insights")].forEach((button) => {
       button?.addEventListener("click", () => {
@@ -542,11 +617,13 @@
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
     });
-    document.querySelectorAll("[data-viewer-preset]").forEach((element) => {
+    document.querySelectorAll("[data-viewer-filter-group]").forEach((element) => {
       if (!(element instanceof HTMLElement)) {
         return;
       }
-      element.addEventListener("click", () => applyPreset(element.getAttribute("data-viewer-preset") || "active"));
+      element.addEventListener("click", () => {
+        applyViewerFilter(element.getAttribute("data-viewer-filter-group") || "", element.getAttribute("data-viewer-filter-value") || "");
+      });
     });
     document.getElementById("filter-reset")?.addEventListener("click", () => {
       clearLocalPreset();

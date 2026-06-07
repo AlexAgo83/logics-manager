@@ -17,7 +17,17 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     <button id="header-logics-insights" type="button">Open corpus insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
-    <button data-viewer-preset="blocked" type="button">Blocked</button>
+    <button data-viewer-filter-group="focus" data-viewer-filter-value="active" type="button">Active work</button>
+    <button data-viewer-filter-group="focus" data-viewer-filter-value="blocked" type="button">Blocked</button>
+    <button data-viewer-filter-group="focus" data-viewer-filter-value="needs-promotion" type="button">Needs promotion</button>
+    <button data-viewer-filter-group="focus" data-viewer-filter-value="all" type="button">All docs</button>
+    <button data-viewer-filter-group="type" data-viewer-filter-value="task" type="button">Tasks</button>
+    <button data-viewer-filter-group="type" data-viewer-filter-value="companion" type="button">Companions</button>
+    <button data-viewer-filter-group="status" data-viewer-filter-value="blocked" type="button">Blocked status</button>
+    <button data-viewer-filter-group="status" data-viewer-filter-value="any" type="button">Any status</button>
+    <button data-viewer-filter-group="relation" data-viewer-filter-value="unlinked" type="button">Unlinked</button>
+    <button data-viewer-filter-group="relation" data-viewer-filter-value="needs-promotion" type="button">Needs promotion relation</button>
+    <button data-viewer-filter-group="activity" data-viewer-filter-value="stale" type="button">Stale</button>
     <div id="viewer-filter-count"></div>
     <button id="filter-reset" type="button">Clear filters</button>
     <input id="search-input" />
@@ -268,18 +278,54 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Corpus families");
   });
 
-  it("applies local corpus presets to the shared viewer filter hook", async () => {
+  it("combines local corpus filter axes through the shared viewer filter hook", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    (dom.window.document.querySelector('[data-viewer-preset="blocked"]') as HTMLButtonElement | null)?.click();
+    (dom.window.document.querySelector('[data-viewer-filter-group="type"][data-viewer-filter-value="task"]') as HTMLButtonElement | null)?.click();
+    (dom.window.document.querySelector('[data-viewer-filter-group="status"][data-viewer-filter-value="blocked"]') as HTMLButtonElement | null)?.click();
 
     expect(typeof dom.window.__CDX_LOGICS_VIEWER_FILTER__).toBe("function");
-    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ indicators: { Status: "Blocked" } })).toBe(true);
-    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ indicators: { Status: "Ready" } })).toBe(false);
+    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(true);
+    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "request", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(false);
+    expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Ready" }, references: [], usedBy: [] })).toBe(false);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 of 2");
+  });
+
+  it("supports corpus-management filters for relationships, companion docs, stale work, and promotion gaps", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const clickFilter = (group: string, value: string) => {
+      (dom.window.document.querySelector(`[data-viewer-filter-group="${group}"][data-viewer-filter-value="${value}"]`) as HTMLButtonElement | null)?.click();
+    };
+    const reset = () => dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const matches = (item: Record<string, unknown>) => dom.window.__CDX_LOGICS_VIEWER_FILTER__(item);
+
+    clickFilter("focus", "all");
+    clickFilter("type", "companion");
+    expect(matches({ stage: "product", indicators: { Status: "Ready" }, references: [], usedBy: [] })).toBe(true);
+    expect(matches({ stage: "task", indicators: { Status: "Ready" }, references: [], usedBy: [] })).toBe(false);
+
+    reset();
+    clickFilter("relation", "unlinked");
+    expect(matches({ stage: "task", indicators: { Status: "Ready" }, references: [], usedBy: [] })).toBe(true);
+    expect(matches({ stage: "task", indicators: { Status: "Ready" }, references: ["req_001_demo"], usedBy: [] })).toBe(false);
+
+    reset();
+    clickFilter("activity", "stale");
+    expect(matches({ stage: "task", indicators: { Status: "Ready" }, references: [], usedBy: [], updatedAt: "2025-01-01T00:00:00Z" })).toBe(true);
+    expect(matches({ stage: "task", indicators: { Status: "Done" }, references: [], usedBy: [], updatedAt: "2025-01-01T00:00:00Z" })).toBe(false);
+
+    reset();
+    clickFilter("focus", "needs-promotion");
+    expect(matches({ stage: "request", indicators: { Status: "Ready" }, references: [], usedBy: [], isPromoted: false })).toBe(true);
+    expect(matches({ stage: "request", indicators: { Status: "Ready" }, references: [], usedBy: [], isPromoted: true })).toBe(false);
   });
 
   it("renders health as a summary with document links", async () => {

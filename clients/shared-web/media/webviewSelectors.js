@@ -303,6 +303,8 @@
         if (statusDelta !== 0) {
           return statusDelta;
         }
+      } else if (sortMode === "title-asc") {
+        return normalizeSearchValue(left.title).localeCompare(normalizeSearchValue(right.title));
       }
 
       return normalizeSearchValue(left.title).localeCompare(normalizeSearchValue(right.title));

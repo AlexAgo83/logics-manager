@@ -1,6 +1,6 @@
 ## prod_019_closeout_evidence_hardening_and_modularity_roadmap - Closeout evidence hardening and modularity roadmap
 > Date: 2026-06-07
-> Status: Active
+> Status: Validated
 > Related request: `req_200_implement_agent_closeout_loop_ergonomics`
 > Related backlog: `item_364_implement_agent_closeout_loop_ergonomics`
 > Related task: `task_165_implement_agent_closeout_loop_ergonomics`
@@ -98,12 +98,20 @@ logics-manager assist handoff --since 5367d38
 ```
 
 # Follow-up delivery slices
-- Evidence schema: define and enforce structured validation evidence in task docs.
-- Traceability honesty: split AC structure repair from AC proof recording.
-- Handoff accuracy: fix Git range changed-path detection for clean worktrees.
-- Product companion completeness: include a generated product overview Mermaid block so standard audit stays warning-free.
-- Module boundaries: extract closeout, repair, and handoff helpers into focused files.
-- Transaction safety: add plan/apply/verify recovery behavior for multi-file closeout commands.
+- Done: Evidence schema now accepts explicit validation lines with command, result, date/session, and optional note; `flow closeout` can write them with `--validation-command`, `--validation-result`, and `--validation-note`.
+- Done: Traceability honesty keeps generated structure as `Evidence needed` unless an operator supplies real proof; `flow repair ac-traceability` can now record explicit `--proof` and `--proof-source`.
+- Done: Handoff accuracy uses Git commit-range changed paths for clean worktrees.
+- Done: Product companion completeness generates an overview Mermaid block by default.
+- Done: Module boundaries were improved by extracting handoff/surface helpers, flow evidence helpers, and shared flow test fixtures while preserving CLI entrypoints.
+- Done: Transaction safety covers `flow closeout` rollback and repair verification/rollback via `--verify-closeout`.
+
+# Completion evidence
+- Commits: `f3884fc`, `78e8d49`, `fbc2a65`, `72d3553`, `f78ed17`, `5b98959`, `6d6cbc3`, `b1e3c93`, `13e1e86`, `b370b54`, `af802ab`.
+- Validation: `PYTHONPATH="$PWD" pytest python_tests -q`.
+- Validation: `npm run test -- --run`.
+- Validation: `npm run lint`.
+- Validation: `python3 -m logics_manager lint --require-status`.
+- Validation: `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 
 # References
 - Product back-reference: `item_364_implement_agent_closeout_loop_ergonomics`

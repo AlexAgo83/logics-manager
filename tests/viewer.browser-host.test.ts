@@ -9,7 +9,7 @@ function loadScript(dom: JSDOM, relPath: string) {
   new vm.Script(source, { filename: relPath }).runInContext(dom.getInternalVMContext());
 }
 
-function createViewerDom(options: { editResponse?: { ok: boolean; status?: number; body: unknown } } = {}) {
+function createViewerDom(options: { editResponse?: { ok: boolean; status?: number; body: unknown }; initialState?: unknown } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
@@ -64,6 +64,9 @@ function createViewerDom(options: { editResponse?: { ok: boolean; status?: numbe
     </section>
   </body></html>`;
   const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
+  if (options.initialState) {
+    dom.window.localStorage.setItem("logics.localViewer.state", JSON.stringify(options.initialState));
+  }
   const calls: string[] = [];
   const markdown = [
     "## req_001_demo - Demo",
@@ -341,6 +344,35 @@ describe("local viewer browser host", () => {
     expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "request", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(false);
     expect(dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Ready" }, references: [], usedBy: [] })).toBe(false);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 of 2");
+  });
+
+  it("persists local corpus filter axes across viewer reloads", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    setViewerFilter(dom, "focus", "all");
+    setViewerFilter(dom, "type", "task");
+    setViewerFilter(dom, "status", "blocked");
+
+    const persistedState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(persistedState?.viewerFilterState).toMatchObject({
+      focus: "all",
+      type: "task",
+      status: "blocked"
+    });
+
+    const reloaded = createViewerDom({ initialState: persistedState });
+    const reloadedApi = reloaded.dom.window.acquireVsCodeApi();
+    reloadedApi.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect((reloaded.dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("all");
+    expect((reloaded.dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement | null)?.value).toBe("task");
+    expect((reloaded.dom.window.document.querySelector('[data-viewer-filter-group="status"]') as HTMLSelectElement | null)?.value).toBe("blocked");
+    expect(reloaded.dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(true);
+    expect(reloaded.dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "request", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(false);
   });
 
   it("supports corpus-management filters for relationships, companion docs, stale work, and promotion gaps", async () => {

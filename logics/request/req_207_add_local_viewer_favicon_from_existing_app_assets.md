@@ -1,9 +1,9 @@
 ## req_207_add_local_viewer_favicon_from_existing_app_assets - Add local viewer favicon from existing app assets
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 96
-> Confidence: 94
+> Status: Ready
+> Understanding: 97
+> Confidence: 95
 > Complexity: Low
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -76,3 +76,4 @@ flowchart TD
 
 # Backlog
 - none
+- `item_371_add_local_viewer_favicon_from_existing_app_assets`

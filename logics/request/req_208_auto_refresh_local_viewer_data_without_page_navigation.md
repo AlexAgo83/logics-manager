@@ -1,9 +1,9 @@
 ## req_208_auto_refresh_local_viewer_data_without_page_navigation - Auto refresh local viewer data without page navigation
 > From version: 2.2.0
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 94
-> Confidence: 86
+> Status: Ready
+> Understanding: 95
+> Confidence: 87
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -77,3 +77,4 @@ flowchart TD
 
 # Backlog
 - none
+- `item_372_auto_refresh_local_viewer_data_without_page_navigation`

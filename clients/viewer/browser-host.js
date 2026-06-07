@@ -21,6 +21,42 @@
   let applyingLocalChrome = false;
   let mermaidInitialized = false;
 
+  function readStoredState() {
+    try {
+      return JSON.parse(window.localStorage.getItem(stateKey) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  function sanitizeViewerFilterState(value) {
+    const nextState = { ...defaultFilterState };
+    if (!value || typeof value !== "object") {
+      return nextState;
+    }
+    Object.keys(defaultFilterState).forEach((key) => {
+      if (typeof value[key] === "string" && value[key]) {
+        nextState[key] = value[key];
+      }
+    });
+    return nextState;
+  }
+
+  function hydrateViewerFilterState() {
+    const storedState = readStoredState();
+    viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
+  }
+
+  function writeStoredState(value) {
+    window.localStorage.setItem(stateKey, JSON.stringify(value || null));
+  }
+
+  function persistViewerFilterState() {
+    const storedState = readStoredState();
+    const nextState = storedState && typeof storedState === "object" ? storedState : {};
+    writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
+  }
+
   function markdownApi() {
     if (typeof window.createCdxLogicsMarkdownApi === "function") {
       return window.createCdxLogicsMarkdownApi();
@@ -60,7 +96,7 @@
       return latestItems.find((entry) => entry.id === selectedCardId) || null;
     }
     try {
-      const state = JSON.parse(window.localStorage.getItem(stateKey) || "null");
+      const state = readStoredState();
       const selectedId = typeof state?.selectedId === "string" ? state.selectedId : "";
       return latestItems.find((entry) => entry.id === selectedId) || null;
     } catch {
@@ -338,6 +374,7 @@
     }
     viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
+    persistViewerFilterState();
     setControlValue("hide-complete", false, "change");
     setControlValue("hide-processed-requests", false, "change");
     setControlValue("hide-spec", false, "change");
@@ -349,6 +386,7 @@
   function clearLocalPreset() {
     viewerFilterState = { ...defaultFilterState };
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
+    persistViewerFilterState();
     setControlValue("search-input", "", "input");
     setControlValue("hide-complete", false, "change");
     setControlValue("hide-processed-requests", false, "change");
@@ -587,18 +625,19 @@
         setMeta("This action is read-only in the local viewer. Use the CLI for workflow changes.");
       },
       getState() {
-        try {
-          return JSON.parse(window.localStorage.getItem(stateKey) || "null");
-        } catch {
-          return null;
-        }
+        return readStoredState();
       },
       setState(value) {
-        window.localStorage.setItem(stateKey, JSON.stringify(value || null));
+        const nextState = value && typeof value === "object" ? { ...value } : null;
+        if (nextState) {
+          nextState.viewerFilterState = sanitizeViewerFilterState(nextState.viewerFilterState || viewerFilterState);
+        }
+        writeStoredState(nextState);
       }
     };
   };
   window.addEventListener("load", () => {
+    hydrateViewerFilterState();
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     setControlValue("hide-complete", false, "change");
     setControlValue("hide-processed-requests", false, "change");

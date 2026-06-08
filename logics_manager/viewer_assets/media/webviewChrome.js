@@ -70,6 +70,7 @@
             getShouldRecommendCheckEnvironment
           })
         : null;
+    let visibleActivityLimit = 10;
 
     function setButtonIcon(button, svgMarkup) {
       if (!button) {
@@ -155,6 +156,7 @@
       }
 
       const entries = getActivityEntries();
+      const visibleEntries = entries.slice(0, visibleActivityLimit);
       activityPanel.innerHTML = "";
 
       const header = document.createElement("div");
@@ -171,29 +173,39 @@
         empty.textContent = "No recent activity is available yet.";
         list.appendChild(empty);
       } else {
-        entries.forEach((entry) => {
+        visibleEntries.forEach((entry) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = "activity-panel__entry";
           button.dataset.id = entry.id;
 
-          const title = document.createElement("div");
+          const marker = document.createElement("span");
+          marker.className = "activity-panel__marker";
+          marker.textContent = entry.marker || String(entry.stage || "?").slice(0, 1).toUpperCase() || "?";
+          marker.title = entry.label || "Updated";
+          button.appendChild(marker);
+
+          const body = document.createElement("span");
+          body.className = "activity-panel__body";
+
+          const title = document.createElement("span");
           title.className = "activity-panel__title";
           title.textContent = entry.title;
-          button.appendChild(title);
+          body.appendChild(title);
 
-          const meta = document.createElement("div");
+          const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
-          meta.textContent = `${entry.label} • ${getStageLabel(entry.stage)} • ${entry.id}`;
-          button.appendChild(meta);
+          meta.textContent = `${entry.label} - ${getStageLabel(entry.stage)} - ${entry.id}`;
+          body.appendChild(meta);
 
-          const updated = document.createElement("div");
+          const updated = document.createElement("span");
           updated.className = "activity-panel__updated";
           updated.textContent =
             toolsPanelLayout && typeof toolsPanelLayout.formatActivityUpdated === "function"
               ? toolsPanelLayout.formatActivityUpdated(entry.updatedAt)
               : "Updated: Unknown";
-          button.appendChild(updated);
+          body.appendChild(updated);
+          button.appendChild(body);
 
           button.addEventListener("click", () => {
             selectItemAndRender(entry.id);
@@ -204,6 +216,17 @@
 
           list.appendChild(button);
         });
+        if (entries.length > visibleEntries.length) {
+          const reveal = document.createElement("button");
+          reveal.type = "button";
+          reveal.className = "activity-panel__reveal";
+          reveal.textContent = `Show next ${Math.min(10, entries.length - visibleEntries.length)}`;
+          reveal.addEventListener("click", () => {
+            visibleActivityLimit += 10;
+            renderActivityPanel();
+          });
+          list.appendChild(reveal);
+        }
       }
 
       activityPanel.appendChild(list);

@@ -223,25 +223,26 @@
       return [...getItems()]
         .filter((item) => !(getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))))
         .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
-        .slice(0, 12)
         .map((item) => {
-          const statusValue = getStatusValue(item);
           let label = "Updated";
-          if (statusValue.includes("obsolete")) {
-            label = "Marked obsolete";
-          } else if (statusValue.includes("done") || statusValue.includes("complete")) {
-            label = "Marked done";
+          let marker = String(item.stage || "?").slice(0, 1).toUpperCase() || "?";
+          if (item.activityType === "status-change") {
+            label = "Status changed";
+            marker = "S";
           } else if (item.isPromoted) {
             label = "Promoted";
+            marker = "P";
           } else if (isPrimaryFlowStage(item.stage) && (collectCompanionDocs(item).length > 0 || collectSpecs(item).length > 0)) {
             label = "Linked companion docs";
+            marker = "L";
           }
           return {
             id: item.id,
             title: item.title,
             stage: item.stage,
             updatedAt: item.updatedAt,
-            label
+            label,
+            marker
           };
         });
     }

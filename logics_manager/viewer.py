@@ -5,6 +5,7 @@ import json
 import mimetypes
 import os
 import re
+import socket
 import subprocess
 import sys
 import webbrowser
@@ -328,9 +329,16 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
     return items
 
 
-def viewer_data_payload(repo_root: Path, selected_id: str | None = None) -> dict[str, Any]:
+def viewer_data_payload(
+    repo_root: Path,
+    selected_id: str | None = None,
+    *,
+    auto_refresh_interval_seconds: int = 60,
+) -> dict[str, Any]:
     return {
         "root": str(repo_root.resolve()),
+        "repoName": repo_root.resolve().name,
+        "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
         "selectedId": selected_id,
@@ -389,8 +397,15 @@ def _json_bytes(payload: Any) -> bytes:
 
 
 class LogicsViewerServer(ThreadingHTTPServer):
-    def __init__(self, server_address: tuple[str, int], repo_root: Path):
+    def __init__(
+        self,
+        server_address: tuple[str, int],
+        repo_root: Path,
+        *,
+        auto_refresh_interval_seconds: int = 60,
+    ):
         self.repo_root = repo_root.resolve()
+        self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         super().__init__(server_address, LogicsViewerRequestHandler)
 
 
@@ -453,7 +468,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._serve_file(media_path)
             return
         if route == "/api/items":
-            self._send_json({"ok": True, "payload": viewer_data_payload(self.server.repo_root)})
+            self._send_json(
+                {
+                    "ok": True,
+                    "payload": viewer_data_payload(
+                        self.server.repo_root,
+                        auto_refresh_interval_seconds=self.server.auto_refresh_interval_seconds,
+                    ),
+                }
+            )
             return
         if route == "/api/doc":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -473,7 +496,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/api/refresh":
-            self._send_json({"ok": True, "payload": viewer_data_payload(self.server.repo_root)})
+            self._send_json(
+                {
+                    "ok": True,
+                    "payload": viewer_data_payload(
+                        self.server.repo_root,
+                        auto_refresh_interval_seconds=self.server.auto_refresh_interval_seconds,
+                    ),
+                }
+            )
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -487,19 +518,52 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 
 
-def create_viewer_server(repo_root: Path, host: str = "127.0.0.1", port: int = 8765) -> LogicsViewerServer:
-    return LogicsViewerServer((host, port), repo_root)
+def create_viewer_server(
+    repo_root: Path,
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    *,
+    auto_refresh_interval_seconds: int = 60,
+) -> LogicsViewerServer:
+    return LogicsViewerServer(
+        (host, port),
+        repo_root,
+        auto_refresh_interval_seconds=auto_refresh_interval_seconds,
+    )
 
 
-def render_start_status(url: str, repo_root: Path, *, focus: str | None = None) -> str:
+def _network_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str | None:
+    if host not in {"0.0.0.0", "::", ""}:
+        return None
+    try:
+        candidate = socket.gethostbyname(socket.gethostname())
+    except OSError:
+        return None
+    if not candidate or candidate.startswith("127."):
+        return None
+    return build_viewer_url(candidate, port, focus=focus, read=read)
+
+
+def render_start_status(
+    url: str,
+    repo_root: Path,
+    *,
+    focus: str | None = None,
+    network_url: str | None = None,
+    bind_host: str = "localhost",
+    auto_refresh_interval_seconds: int = 60,
+) -> str:
     lines = [
         "Logics viewer running:",
-        url,
+        f"Local: {url}",
         "",
         f"Repo: {repo_root.name}",
         "Mode: read-only",
-        "Bind: localhost",
+        f"Bind: {bind_host}",
+        f"Auto refresh: {auto_refresh_interval_seconds}s",
     ]
+    if network_url:
+        lines.insert(2, f"Network: {network_url}")
     if focus:
         lines.append(f"Focus: {focus}")
     return "\n".join(lines)
@@ -509,6 +573,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="logics-manager view", description="Start the local read-only Logics browser viewer.")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host. Defaults to 127.0.0.1.")
     parser.add_argument("--port", type=int, default=8765, help="Bind port. Use 0 to select an available port.")
+    parser.add_argument(
+        "--refresh-interval",
+        type=int,
+        default=60,
+        help="Automatic refresh interval in seconds. Defaults to 60; positive shorter intervals are allowed.",
+    )
     parser.add_argument("--focus", help="Open the viewer focused on a workflow ref or repo-relative Logics Markdown path.")
     parser.add_argument("--read", action="store_true", help="Open the focused item in the read preview. Requires --focus.")
     parser.add_argument("--open", action="store_true", help="Open the viewer in the default browser.")
@@ -519,16 +589,34 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = find_repo_root(Path.cwd())
+    if args.refresh_interval <= 0:
+        raise SystemExit("--refresh-interval must be a positive number of seconds.")
     if args.read and not args.focus:
         raise SystemExit("--read requires --focus.")
     try:
         focus = normalize_viewer_focus_target(repo_root, args.focus) if args.focus else None
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    server = create_viewer_server(repo_root, host=args.host, port=args.port)
+    server = create_viewer_server(
+        repo_root,
+        host=args.host,
+        port=args.port,
+        auto_refresh_interval_seconds=args.refresh_interval,
+    )
     host, port = server.server_address[:2]
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
-    print(render_start_status(url, repo_root, focus=focus), flush=True)
+    network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
+    print(
+        render_start_status(
+            url,
+            repo_root,
+            focus=focus,
+            network_url=network_url,
+            bind_host=str(host),
+            auto_refresh_interval_seconds=args.refresh_interval,
+        ),
+        flush=True,
+    )
     if args.open and not args.no_open:
         webbrowser.open(url)
 

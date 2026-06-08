@@ -16,6 +16,27 @@
   line-height: 1.25;
 }
 
+.viewer-topbar__identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.viewer-topbar__repo {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--vscode-badge-background, #4d4d4d);
+  color: var(--vscode-badge-foreground, #ffffff);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
 .viewer-topbar__meta {
   margin-top: 2px;
   font-size: 12px;
@@ -28,6 +49,24 @@
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
+}
+
+.viewer-auto-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  border: 1px solid var(--vscode-button-border, var(--vscode-panel-border, #333333));
+  border-radius: 4px;
+  padding: 0 8px;
+  background: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+  font-size: 12px;
+  user-select: none;
+}
+
+.viewer-auto-refresh input {
+  margin: 0;
 }
 
 .viewer-update {
@@ -412,10 +451,15 @@
 
   .viewer-topbar__actions {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .viewer-topbar__actions .btn {
     flex: 1 1 0;
+  }
+
+  .viewer-auto-refresh {
+    flex: 0 0 auto;
   }
 
   .viewer-document {

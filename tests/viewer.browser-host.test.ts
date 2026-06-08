@@ -18,9 +18,10 @@ function createViewerDom(options: {
 } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
+    <span id="viewer-repo-pill"></span>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
+    <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
     <button id="viewer-insights" type="button">Insights</button>
-    <button id="header-logics-insights" type="button">Open corpus insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button data-action="refresh" type="button">Refresh</button>
     <select data-viewer-filter-group="focus" aria-label="Corpus focus">
@@ -109,6 +110,8 @@ function createViewerDom(options: {
             ok: true,
             payload: {
               root: "/workspace/logics-manager",
+              repoName: "logics-manager",
+              autoRefreshIntervalSeconds: 60,
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -395,7 +398,29 @@ describe("local viewer browser host", () => {
     expect(dom.window.location.href).toBe(locationBefore);
     expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
     expect((dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement | null)?.value).toBe("task");
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toBe(metaBefore);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain(metaBefore?.split(" · next auto refresh")[0] || "");
+  });
+
+  it("lets users disable automatic refresh without disabling manual refresh", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const auto = dom.window.document.getElementById("viewer-auto-refresh") as HTMLInputElement | null;
+    auto!.checked = false;
+    auto?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
+
+    const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
+    refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
   });
 
   it("does not overlap automatic refreshes while a refresh is already in flight", async () => {
@@ -463,16 +488,10 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Incomplete chains");
   });
 
-  it("opens local corpus insights from the toolbar button", async () => {
-    const { dom } = createViewerDom();
-    const api = dom.window.acquireVsCodeApi();
+  it("does not render the redundant toolbar corpus insights button in the local viewer shell", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
 
-    api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("header-logics-insights")?.dispatchEvent(new dom.window.Event("click"));
-
-    const content = dom.window.document.getElementById("viewer-document-content");
-    expect(content?.textContent).toContain("Corpus families");
+    expect(html).not.toContain("header-logics-insights");
   });
 
   it("combines local corpus filter axes through the shared viewer filter hook", async () => {

@@ -1,6 +1,5 @@
 (() => {
   const stateKey = "logics.localViewer.state";
-  const autoRefreshIntervalMs = 60 * 1000;
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
@@ -10,6 +9,9 @@
   const updateCopy = () => document.getElementById("viewer-update-copy");
   const updateCommand = () => document.getElementById("viewer-update-command");
   const filterCount = () => document.getElementById("viewer-filter-count");
+  const repoPill = () => document.getElementById("viewer-repo-pill");
+  const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
+  const defaultAutoRefreshIntervalMs = 60 * 1000;
   const defaultFilterState = {
     focus: "active",
     type: "all",
@@ -19,6 +21,12 @@
   };
   let viewerFilterState = { ...defaultFilterState };
   let latestItems = [];
+  let latestRepoRoot = "";
+  let latestMetaText = "Read-only local viewer";
+  let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
+  let nextAutoRefreshAt = 0;
+  let autoRefreshEnabled = true;
+  let autoRefreshTimeoutId = 0;
   let applyingLocalChrome = false;
   let autoRefreshStarted = false;
   let itemsLoadInFlight = false;
@@ -90,10 +98,43 @@
   }
 
   function setMeta(text) {
+    latestMetaText = text;
+    renderMeta();
+  }
+
+  function renderMeta() {
     const node = meta();
     if (node) {
-      node.textContent = text;
+      const parts = [latestMetaText];
+      if (autoRefreshEnabled && nextAutoRefreshAt > 0) {
+        const seconds = Math.max(0, Math.ceil((nextAutoRefreshAt - Date.now()) / 1000));
+        parts.push(`next auto refresh in ${seconds}s`);
+      }
+      node.textContent = parts.join(" · ");
     }
+  }
+
+  function scheduleNextAutoRefresh() {
+    if (autoRefreshTimeoutId) {
+      window.clearTimeout(autoRefreshTimeoutId);
+      autoRefreshTimeoutId = 0;
+    }
+    nextAutoRefreshAt = autoRefreshEnabled ? Date.now() + autoRefreshIntervalMs : 0;
+    if (autoRefreshEnabled) {
+      autoRefreshTimeoutId = window.setTimeout(autoRefreshItems, autoRefreshIntervalMs);
+    }
+    renderMeta();
+  }
+
+  function updateRepositoryIdentity(payload) {
+    latestRepoRoot = String(payload.root || latestRepoRoot || "");
+    const pill = repoPill();
+    if (!pill) {
+      return;
+    }
+    const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+    pill.textContent = repoName;
+    pill.title = latestRepoRoot || repoName;
   }
 
   function findItemByPath(relPath) {
@@ -334,12 +375,18 @@
 
   function postToApp(payload, options = {}) {
     latestItems = Array.isArray(payload.items) ? payload.items : [];
+    const intervalSeconds = Number(payload.autoRefreshIntervalSeconds);
+    autoRefreshIntervalMs = Number.isFinite(intervalSeconds) && intervalSeconds > 0
+      ? intervalSeconds * 1000
+      : defaultAutoRefreshIntervalMs;
+    updateRepositoryIdentity(payload);
     const nextPayload = options.silent ? payload : applyFocusRequest(payload);
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     if (!options.silent) {
       setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
     }
+    scheduleNextAutoRefresh();
     renderUpdateNotice(payload.updateInfo);
     updateFilterSummary();
     applyLocalViewerChrome();
@@ -387,6 +434,9 @@
   }
 
   function autoRefreshItems() {
+    if (!autoRefreshEnabled) {
+      return;
+    }
     if (document.hidden) {
       refreshAfterVisible = true;
       return;
@@ -399,13 +449,24 @@
       return;
     }
     autoRefreshStarted = true;
-    window.setInterval(autoRefreshItems, autoRefreshIntervalMs);
+    window.setInterval(() => {
+      renderMeta();
+    }, 1000);
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden && refreshAfterVisible) {
         refreshAfterVisible = false;
         autoRefreshItems();
       }
     });
+  }
+
+  function setAutoRefreshEnabled(enabled) {
+    autoRefreshEnabled = Boolean(enabled);
+    const control = autoRefreshControl();
+    if (control instanceof HTMLInputElement) {
+      control.checked = autoRefreshEnabled;
+    }
+    scheduleNextAutoRefresh();
   }
 
   function statusValue(item) {
@@ -786,11 +847,18 @@
     setControlValue("show-companion-docs", true, "change");
     setControlValue("hide-empty-columns", true, "change");
     applyLocalViewerChrome();
-    [document.getElementById("viewer-insights"), document.getElementById("header-logics-insights")].forEach((button) => {
+    [document.getElementById("viewer-insights")].forEach((button) => {
       button?.addEventListener("click", () => {
         showCorpusInsights();
       });
     });
+    const autoControl = autoRefreshControl();
+    if (autoControl instanceof HTMLInputElement) {
+      autoControl.addEventListener("change", () => {
+        setAutoRefreshEnabled(autoControl.checked);
+      });
+      setAutoRefreshEnabled(autoControl.checked);
+    }
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
       if (!(element instanceof HTMLElement)) {
         return;

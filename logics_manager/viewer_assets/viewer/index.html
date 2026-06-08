@@ -16,13 +16,20 @@
 <body class="viewer-shell">
   <header class="viewer-topbar" aria-label="Viewer status">
     <div>
-      <div class="viewer-topbar__title">Logics Viewer</div>
+      <div class="viewer-topbar__identity">
+        <div class="viewer-topbar__title">Logics Viewer</div>
+        <span class="viewer-topbar__repo" id="viewer-repo-pill" title="">repository</span>
+      </div>
       <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
     </div>
     <div class="viewer-topbar__actions">
+      <label class="viewer-auto-refresh" title="Toggle automatic refresh">
+        <input id="viewer-auto-refresh" type="checkbox" checked />
+        <span>Auto</span>
+      </label>
+      <button class="btn" data-action="refresh" type="button" title="Refresh viewer data">Refresh</button>
       <button class="btn" id="viewer-insights" type="button" title="Show corpus insights">Insights</button>
       <button class="btn" id="viewer-health" type="button" title="Show lint and audit health">Health</button>
-      <button class="btn" data-action="refresh" type="button" title="Refresh viewer data">Refresh</button>
     </div>
   </header>
 
@@ -34,28 +41,6 @@
             <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
           </svg>
         </button>
-        <div class="toolbar__tools">
-          <button class="toolbar__filter" id="tools-toggle" aria-label="Open tools menu" aria-haspopup="menu" aria-expanded="false" aria-controls="tools-panel" title="Open tools menu">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect x="5" y="6" width="14" height="2" rx="1" fill="currentColor" />
-              <rect x="5" y="11" width="14" height="2" rx="1" fill="currentColor" />
-              <rect x="5" y="16" width="14" height="2" rx="1" fill="currentColor" />
-            </svg>
-          </button>
-          <div class="tools-panel" id="tools-panel" aria-hidden="true" role="menu">
-            <div class="tools-panel__header">
-              <div class="tools-panel__header-label">Tools</div>
-              <button class="tools-panel__close" type="button" data-tools-panel-close aria-label="Close tools menu" title="Close tools menu">x</button>
-            </div>
-            <div class="tools-panel__section" data-tools-section="recommended">
-              <div class="tools-panel__section-label">Read-only</div>
-              <div class="tools-panel__section-body" data-tools-body="recommended">
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="refresh" title="Refresh viewer data">Refresh</button>
-                <button class="tools-panel__item" type="button" role="menuitem" data-action="about" title="Open project page">About</button>
-              </div>
-            </div>
-          </div>
-        </div>
         <button class="toolbar__filter toolbar__filter--view" data-action="toggle-view-mode" aria-label="Switch display mode" title="Switch display mode">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
@@ -67,11 +52,8 @@
         <button class="toolbar__filter" id="activity-toggle" aria-label="Toggle activity" aria-pressed="false" title="Toggle activity">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h4l2.2-5 3.6 10 2.2-5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
-        <button class="toolbar__filter" id="attention-toggle" aria-label="Show attention required" aria-pressed="false" title="Show attention required">
+        <button class="toolbar__filter" id="attention-toggle" aria-label="Show blocked, orphaned, unprocessed, or inconsistent items" aria-pressed="false" title="Show blocked, orphaned, unprocessed, or inconsistent items">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l8 14H4z" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="17" r="1" fill="currentColor" /></svg>
-        </button>
-        <button class="toolbar__filter" id="header-logics-insights" aria-label="Open corpus insights" title="Open corpus insights">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 10.5v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="7.5" r="1" fill="currentColor" /></svg>
         </button>
       </div>
       <div class="toolbar__search">

@@ -263,11 +263,20 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
 
 
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
-    output = render_start_status("http://127.0.0.1:8765", tmp_path, focus="req_001_demo")
+    output = render_start_status(
+        "http://127.0.0.1:8765",
+        tmp_path,
+        focus="req_001_demo",
+        network_url="http://192.168.1.20:8765",
+        bind_host="0.0.0.0",
+        auto_refresh_interval_seconds=15,
+    )
 
     assert "http://127.0.0.1:8765" in output
+    assert "http://192.168.1.20:8765" in output
     assert "Mode: read-only" in output
-    assert "Bind: localhost" in output
+    assert "Bind: 0.0.0.0" in output
+    assert "Auto refresh: 15s" in output
     assert "Focus: req_001_demo" in output
 
 
@@ -311,7 +320,7 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
 
     fake_server = FakeViewerServer()
     monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
-    monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port: fake_server)
+    monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port, **_kwargs: fake_server)
     opened: list[str] = []
     monkeypatch.setattr(viewer_module.webbrowser, "open", opened.append)
 
@@ -320,6 +329,7 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "Logics viewer running:" in captured.out
+    assert "Local: http://127.0.0.1:8765" in captured.out
     assert "focus=logics%2Frequest%2Freq_001_demo.md&read=1" in captured.out
     assert opened == ["http://127.0.0.1:8765?focus=logics%2Frequest%2Freq_001_demo.md&read=1"]
     assert fake_server.closed is True

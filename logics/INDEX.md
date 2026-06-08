@@ -266,6 +266,9 @@
 | [req_207_add_local_viewer_favicon_from_existing_app_assets](request/req_207_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done |  | request/req_207_add_local_viewer_favicon_from_existing_app_assets.md |
 | [req_208_auto_refresh_local_viewer_data_without_page_navigation](request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done |  | request/req_208_auto_refresh_local_viewer_data_without_page_navigation.md |
 | [req_209_viewer_focus_links](request/req_209_viewer_focus_links.md) | Open focused Logics items in the local viewer | Done |  | request/req_209_viewer_focus_links.md |
+| [req_210_improve_local_logics_viewer_controls_and_activity_signals](request/req_210_improve_local_logics_viewer_controls_and_activity_signals.md) | Improve local Logics viewer controls and activity signals | Draft |  | request/req_210_improve_local_logics_viewer_controls_and_activity_signals.md |
+| [req_211_improve_viewer_repository_identity_and_recent_activity_scanning](request/req_211_improve_viewer_repository_identity_and_recent_activity_scanning.md) | Improve viewer repository identity and recent activity scanning | Draft |  | request/req_211_improve_viewer_repository_identity_and_recent_activity_scanning.md |
+| [req_212_expand_viewer_health_navigation_and_corpus_insights](request/req_212_expand_viewer_health_navigation_and_corpus_insights.md) | Expand viewer health navigation and corpus insights | Draft |  | request/req_212_expand_viewer_health_navigation_and_corpus_insights.md |
 
 ## Backlog
 
@@ -644,6 +647,9 @@
 | [item_371_add_local_viewer_favicon_from_existing_app_assets](backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | backlog/item_371_add_local_viewer_favicon_from_existing_app_assets.md |
 | [item_372_auto_refresh_local_viewer_data_without_page_navigation](backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | backlog/item_372_auto_refresh_local_viewer_data_without_page_navigation.md |
 | [item_373_open_focused_logics_items_in_the_local_viewer](backlog/item_373_open_focused_logics_items_in_the_local_viewer.md) | Open focused Logics items in the local viewer | Done | 100% | backlog/item_373_open_focused_logics_items_in_the_local_viewer.md |
+| [item_374_improve_local_logics_viewer_controls_and_activity_signals](backlog/item_374_improve_local_logics_viewer_controls_and_activity_signals.md) | Improve local Logics viewer controls and activity signals | Ready | 0% | backlog/item_374_improve_local_logics_viewer_controls_and_activity_signals.md |
+| [item_375_improve_viewer_repository_identity_and_recent_activity_scanning](backlog/item_375_improve_viewer_repository_identity_and_recent_activity_scanning.md) | Improve viewer repository identity and recent activity scanning | Ready | 0% | backlog/item_375_improve_viewer_repository_identity_and_recent_activity_scanning.md |
+| [item_376_expand_viewer_health_navigation_and_corpus_insights](backlog/item_376_expand_viewer_health_navigation_and_corpus_insights.md) | Expand viewer health navigation and corpus insights | Ready | 0% | backlog/item_376_expand_viewer_health_navigation_and_corpus_insights.md |
 
 ## Tasks
 
@@ -817,3 +823,6 @@
 | [task_172_add_local_viewer_favicon_from_existing_app_assets](tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md) | Add local viewer favicon from existing app assets | Done | 100% | tasks/task_172_add_local_viewer_favicon_from_existing_app_assets.md |
 | [task_173_auto_refresh_local_viewer_data_without_page_navigation](tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md) | Auto refresh local viewer data without page navigation | Done | 100% | tasks/task_173_auto_refresh_local_viewer_data_without_page_navigation.md |
 | [task_174_open_focused_logics_items_in_the_local_viewer](tasks/task_174_open_focused_logics_items_in_the_local_viewer.md) | Open focused Logics items in the local viewer | Done | 100% | tasks/task_174_open_focused_logics_items_in_the_local_viewer.md |
+| [task_175_improve_local_logics_viewer_controls_and_activity_signals](tasks/task_175_improve_local_logics_viewer_controls_and_activity_signals.md) | Improve local Logics viewer controls and activity signals | Ready | 0% | tasks/task_175_improve_local_logics_viewer_controls_and_activity_signals.md |
+| [task_176_improve_viewer_repository_identity_and_recent_activity_scanning](tasks/task_176_improve_viewer_repository_identity_and_recent_activity_scanning.md) | Improve viewer repository identity and recent activity scanning | Ready | 0% | tasks/task_176_improve_viewer_repository_identity_and_recent_activity_scanning.md |
+| [task_177_expand_viewer_health_navigation_and_corpus_insights](tasks/task_177_expand_viewer_health_navigation_and_corpus_insights.md) | Expand viewer health navigation and corpus insights | Ready | 0% | tasks/task_177_expand_viewer_health_navigation_and_corpus_insights.md |

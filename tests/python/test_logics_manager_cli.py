@@ -968,6 +968,31 @@ def test_main_runs_self_update_with_npm(
     assert recorded["check"] is False
 
 
+def test_main_prefers_npm_self_update_when_running_from_npm_package(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
+    monkeypatch.setattr("logics_manager.cli._is_running_from_npm_package", lambda: True)
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: "2.1.1",
+    )
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update"])
+
+    assert exit_code == 0
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["check"] is False
+
+
 def test_main_runs_self_update_with_pip(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -991,6 +1016,65 @@ def test_main_runs_self_update_with_pip(
     assert exit_code == 0
     assert "Updated logics-manager via pip." in captured.out
     assert recorded["command"] == [sys.executable, "-m", "pip", "install", "--upgrade", "logics-manager"]
+    assert recorded["check"] is False
+
+
+def test_main_blocks_pip_self_update_in_externally_managed_python(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: "2.0.3",
+    )
+    monkeypatch.setattr("logics_manager.cli._is_externally_managed_python", lambda: True)
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update", "--manager", "pip"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "externally managed" in captured.out
+    assert "pipx install --force logics-manager" in captured.out
+    assert "command" not in recorded
+
+
+def test_main_allows_explicit_break_system_packages_for_pip_self_update(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: "2.0.3",
+    )
+    monkeypatch.setattr("logics_manager.cli._is_externally_managed_python", lambda: True)
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update", "--manager", "pip", "--break-system-packages"])
+
+    assert exit_code == 0
+    assert recorded["command"] == [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--upgrade",
+        "logics-manager",
+        "--break-system-packages",
+    ]
     assert recorded["check"] is False
 
 

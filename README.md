@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
-![Version](https://img.shields.io/badge/version-v2.3.0-4C8BF5)
+![Version](https://img.shields.io/badge/version-v2.3.1-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
@@ -56,6 +56,15 @@ Install the CLI from this repository:
 ```bash
 python3.11 -m pip install .
 logics-manager --help
+```
+
+On Debian, Ubuntu, or WSL environments where Python is externally managed, use `pipx` instead of installing into the system Python:
+
+```bash
+sudo apt update
+sudo apt install pipx python3-venv
+pipx ensurepath
+pipx install logics-manager
 ```
 
 Or install the npm package:
@@ -196,6 +205,32 @@ To update the installed CLI later:
 ```bash
 logics-manager self-update
 ```
+
+If `self-update` reports an externally managed Python environment, migrate the Python install through `pipx`:
+
+```bash
+sudo apt update
+sudo apt install pipx python3-venv
+pipx ensurepath
+pipx install --force logics-manager
+```
+
+For npm installs, update with:
+
+```bash
+npm install -g @grifhinz/logics-manager@latest
+```
+
+If npm reports a successful update but `logics-manager --version` still shows an older version, another installation is earlier on `PATH`. Diagnose it with:
+
+```bash
+command -v -a logics-manager
+npm prefix -g
+npm list -g @grifhinz/logics-manager --depth=0
+"$(npm prefix -g)/bin/logics-manager" --version
+```
+
+If the direct npm binary shows the expected version, remove the older Python install or move the npm global `bin` directory earlier on `PATH`.
 
 ## VS Code Extension
 

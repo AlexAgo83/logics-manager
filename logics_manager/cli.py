@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import json
 from importlib import metadata
 import subprocess
 import sys
+import sysconfig
 from shutil import which
 from pathlib import Path
 
@@ -133,6 +135,48 @@ def get_cli_version() -> str:
     return "0.0.0"
 
 
+def _is_running_inside_venv() -> bool:
+    return sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+
+
+def _is_externally_managed_python() -> bool:
+    if _is_running_inside_venv():
+        return False
+    stdlib = sysconfig.get_path("stdlib")
+    return bool(stdlib and (Path(stdlib) / "EXTERNALLY-MANAGED").exists())
+
+
+def _is_running_from_npm_package() -> bool:
+    package_json = Path(__file__).resolve().parents[1] / "package.json"
+    try:
+        payload = json.loads(package_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return payload.get("name") == DEFAULT_SELF_UPDATE_PACKAGE
+
+
+def _print_externally_managed_update_guidance(package_name: str) -> None:
+    print(
+        "\n".join(
+            [
+                "This Python installation is externally managed, so pip cannot safely update logics-manager in the system environment.",
+                "",
+                "Recommended fix:",
+                "  sudo apt update",
+                "  sudo apt install pipx python3-venv",
+                "  pipx ensurepath",
+                f"  pipx install --force {package_name}",
+                "",
+                "If you installed the npm package instead, run:",
+                f"  npm install -g {DEFAULT_SELF_UPDATE_PACKAGE}@latest",
+                "",
+                "Advanced override, at your own risk:",
+                f"  logics-manager self-update --manager pip --break-system-packages",
+            ]
+        )
+    )
+
+
 def _is_json_mode(argv: list[str]) -> bool:
     return "--json" in argv or any(argv[index] == "--format" and index + 1 < len(argv) and argv[index + 1] == "json" for index in range(len(argv)))
 
@@ -208,20 +252,29 @@ def main(argv: list[str] | None = None) -> int:
         parser.add_argument("--manager", choices=("auto", "pip", "npm"), default="auto")
         parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
+        parser.add_argument("--break-system-packages", action="store_true")
         parser.add_argument("--dry-run", action="store_true")
         parsed = parser.parse_args(rest)
 
         manager = parsed.manager
         if manager == "auto":
-            try:
-                metadata.version(parsed.python_package)
-            except metadata.PackageNotFoundError:
-                manager = "npm" if which("npm") else "pip"
+            if _is_running_from_npm_package() and which("npm"):
+                manager = "npm"
             else:
-                manager = "pip"
+                try:
+                    metadata.version(parsed.python_package)
+                except metadata.PackageNotFoundError:
+                    manager = "npm" if which("npm") else "pip"
+                else:
+                    manager = "pip"
 
         if manager == "pip":
+            if _is_externally_managed_python() and not parsed.break_system_packages:
+                _print_externally_managed_update_guidance(parsed.python_package)
+                return 1
             command = [sys.executable, "-m", "pip", "install", "--upgrade", parsed.python_package]
+            if parsed.break_system_packages:
+                command.append("--break-system-packages")
         else:
             npm = which("npm")
             if not npm:

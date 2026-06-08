@@ -1109,7 +1109,20 @@
   async function showGitStatus() {
     setMeta("Checking Git status...");
     const response = await fetch("/api/git-status");
-    const data = await response.json();
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (response.status === 404) {
+      setDocument("Git status", renderGitStatus({
+        state: "unavailable",
+        message: "Git status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
+      }));
+      setMeta("Restart the local viewer to enable Git status.");
+      return;
+    }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load Git status.");
     }

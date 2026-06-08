@@ -11,6 +11,7 @@ function loadScript(dom: JSDOM, relPath: string) {
 
 function createViewerDom(options: {
   editResponse?: { ok: boolean; status?: number; body: unknown };
+  gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
@@ -156,6 +157,18 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/git-status") {
+        if (options.gitResponse) {
+          return {
+            ok: options.gitResponse.ok,
+            status: options.gitResponse.status ?? (options.gitResponse.ok ? 200 : 500),
+            json: async () => {
+              if (options.gitResponse?.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return options.gitResponse?.body || {};
+            }
+          };
+        }
         return {
           ok: true,
           json: async () => ({
@@ -569,6 +582,22 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("main");
     expect(content?.textContent).toContain("Staged");
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
+  });
+
+  it("explains stale viewer servers that do not expose the Git status endpoint", async () => {
+    const { dom } = createViewerDom({
+      gitResponse: { ok: false, status: 404, body: { ok: false, error: "Not found" } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Restart the local viewer");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Restart the local viewer");
   });
 
   it("does not render the redundant toolbar corpus insights button in the local viewer shell", () => {

@@ -418,12 +418,14 @@ describe("webview collapsed details layout behavior", () => {
   it("allows activity entries to wrap long titles and ids without clipping", () => {
     const css = readCssBundle("clients/shared-web/media/main.css");
     const entryRule = getCssRule(css, ".activity-panel__entry");
+    const bodyRule = getCssRule(css, ".activity-panel__body");
     const titleRule = getCssRule(css, ".activity-panel__title");
     const metaRule = getCssRule(css, ".activity-panel__meta");
 
-    expect(entryRule.includes("display: flex;")).toBe(true);
-    expect(entryRule.includes("flex-direction: column;")).toBe(true);
+    expect(entryRule.includes("display: grid;")).toBe(true);
+    expect(entryRule.includes("grid-template-columns: 24px minmax(0, 1fr);")).toBe(true);
     expect(entryRule.includes("white-space: normal;")).toBe(true);
+    expect(bodyRule.includes("min-width: 0;")).toBe(true);
     expect(titleRule.includes("overflow-wrap: anywhere;")).toBe(true);
     expect(titleRule.includes("word-break: break-word;")).toBe(true);
     expect(metaRule.includes("overflow-wrap: anywhere;")).toBe(true);

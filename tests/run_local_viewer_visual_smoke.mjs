@@ -44,6 +44,9 @@ async function startViewer() {
 }
 
 function findChrome() {
+  if (process.env.LOCAL_VIEWER_SMOKE_FORCE_JSDOM === "1") {
+    return "";
+  }
   const candidates = process.platform === "darwin"
     ? ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "google-chrome", "chromium", "chromium-browser"]
     : ["google-chrome", "chromium", "chromium-browser", "chrome"];
@@ -271,18 +274,34 @@ async function runJsdomFallback(url) {
       beforeParse(window) {
         Object.defineProperty(window, "innerWidth", { configurable: true, value: viewport.width });
         Object.defineProperty(window, "innerHeight", { configurable: true, value: viewport.height });
+        window.matchMedia = (query) => ({
+          matches: /\(\s*max-width\s*:\s*(\d+)px\s*\)/.test(query)
+            ? viewport.width <= Number(query.match(/\d+/)?.[0] || 0)
+            : false,
+          media: query,
+          onchange: null,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+          addListener: () => undefined,
+          removeListener: () => undefined,
+          dispatchEvent: () => false
+        });
         window.fetch = (input, init) => fetch(new URL(String(input), window.location.href), init);
         window.scrollTo = () => undefined;
       }
     });
-    await waitFor(() => dom.window.document.readyState === "complete", `${viewport.name} load`);
-    dom.window.acquireVsCodeApi?.().postMessage({ type: "ready" });
-    await waitFor(() => text(dom, "#viewer-filter-count").includes("docs shown"), `${viewport.name} payload`);
-    writeFileSync(join(artifactsDir, `${viewport.name}.html`), dom.serialize());
-    if (browserErrors.length) {
-      throw new Error(`${viewport.name}: ${browserErrors.join("\n")}`);
+    try {
+      await waitFor(() => dom.window.document.readyState === "complete", `${viewport.name} load`);
+      dom.window.acquireVsCodeApi?.().postMessage({ type: "ready" });
+      await waitFor(() => text(dom, "#viewer-filter-count").includes("docs shown"), `${viewport.name} payload`);
+      writeFileSync(join(artifactsDir, `${viewport.name}.html`), dom.serialize());
+      if (browserErrors.length) {
+        throw new Error(`${viewport.name}: ${browserErrors.join("\n")}`);
+      }
+      results.push({ viewport, fallback: true, filterCount: text(dom, "#viewer-filter-count") });
+    } finally {
+      dom.window.close();
     }
-    results.push({ viewport, fallback: true, filterCount: text(dom, "#viewer-filter-count") });
   }
   return results;
 }

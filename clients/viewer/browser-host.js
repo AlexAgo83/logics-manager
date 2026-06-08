@@ -496,6 +496,37 @@
     return timestamp > 0 && timestamp < Date.now() - 30 * 24 * 60 * 60 * 1000 && !isClosed(item);
   }
 
+  function isRecent(item, days = 7) {
+    return updatedWithin(item, days);
+  }
+
+  function hasMissingOrAmbiguousStatus(item) {
+    const rawStatus = String(item?.indicators?.Status || "").trim();
+    if (!rawStatus) {
+      return true;
+    }
+    const normalized = rawStatus.toLowerCase();
+    return !["draft", "ready", "in progress", "blocked", "done", "archived", "obsolete"].includes(normalized);
+  }
+
+  function isSafeLogicsDocPath(value) {
+    const path = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").trim();
+    if (!path || path.startsWith("/") || path.startsWith("~") || /^[A-Za-z]:/.test(path)) {
+      return false;
+    }
+    if (path.split("/").includes("..") || !path.endsWith(".md")) {
+      return false;
+    }
+    return [
+      "logics/request/",
+      "logics/backlog/",
+      "logics/tasks/",
+      "logics/product/",
+      "logics/architecture/",
+      "logics/specs/"
+    ].some((prefix) => path.startsWith(prefix));
+  }
+
   function matchesViewerFilter(item) {
     if (!item) {
       return false;
@@ -623,58 +654,159 @@
     count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
   }
 
-  function buildCorpusInsights() {
-    const countsByStage = latestItems.reduce((acc, item) => {
-      acc[item.stage] = (acc[item.stage] || 0) + 1;
+  function countBy(items, selector) {
+    return items.reduce((acc, item) => {
+      const key = selector(item) || "unknown";
+      acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
-    const active = latestItems.filter((item) => !isClosed(item)).length;
-    const blocked = latestItems.filter((item) => statusValue(item).includes("blocked")).length;
-    const unlinked = latestItems.filter((item) => (item.references || []).length === 0 && (item.usedBy || []).length === 0).length;
-    const incompleteChains = latestItems.filter((item) => ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item)).length;
-    const cards = [
-      ["Docs", latestItems.length],
-      ["Active", active],
-      ["Blocked", blocked],
-      ["Unlinked", unlinked]
-    ].map(([label, value]) => `
+  }
+
+  function renderMetricCards(entries) {
+    return entries.map(([label, value]) => `
       <div class="viewer-insights__card">
         <div class="viewer-insights__label">${escapeHtml(label)}</div>
         <div class="viewer-insights__value">${escapeHtml(value)}</div>
       </div>
     `).join("");
+  }
+
+  function renderInsightRows(items, emptyText = "No signals") {
+    if (!items.length) {
+      return `<li class="viewer-insights__item">${escapeHtml(emptyText)}</li>`;
+    }
+    return items.map(([label, value]) => `
+      <li class="viewer-insights__item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
+    `).join("");
+  }
+
+  function itemLabel(item) {
+    return `${item.id || item.relPath || "doc"} - ${item.indicators?.Status || "No status"}`;
+  }
+
+  function buildCorpusInsights(lintData = null, auditData = null) {
+    const docs = latestItems;
+    const itemPaths = new Set(docs.map((item) => item.relPath).filter(Boolean));
+    const countsByStage = countBy(docs, (item) => item.stage);
+    const closed = docs.filter(isClosed);
+    const open = docs.filter((item) => !isClosed(item));
+    const blocked = docs.filter((item) => statusValue(item).includes("blocked"));
+    const missingStatus = docs.filter(hasMissingOrAmbiguousStatus);
+    const recentlyModified = docs.filter((item) => isRecent(item, 7));
+    const incompleteChains = docs.filter((item) => ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item));
+    const unlinked = docs.filter((item) => (item.references || []).length === 0 && (item.usedBy || []).length === 0);
+    const brokenRefs = [];
+    const relationshipCounts = {};
+    docs.forEach((item) => {
+      relationshipCounts[item.stage] = (relationshipCounts[item.stage] || 0) + (item.references || []).length + (item.usedBy || []).length;
+      (item.references || []).forEach((ref) => {
+        if (ref.path && !itemPaths.has(ref.path)) {
+          brokenRefs.push(`${item.id} -> ${ref.path}`);
+        }
+      });
+    });
+    const mostReferenced = [...docs]
+      .sort((left, right) => (right.usedBy || []).length - (left.usedBy || []).length)
+      .filter((item) => (item.usedBy || []).length > 0)
+      .slice(0, 8);
+    const recentRows = [...docs]
+      .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
+      .slice(0, 8);
+    const staleActive = open.filter(isStale).slice(0, 8);
+    const qualityFindings = lintData && auditData ? collectHealthFindings(lintData, auditData) : [];
+    const qualityBySource = countBy(qualityFindings, (finding) => finding.source || finding.code || "finding");
+    const qualityByDocType = countBy(qualityFindings, (finding) => {
+      const path = String(finding.path || "");
+      const matched = docs.find((item) => item.relPath === path);
+      return matched?.stage || (path ? "unknown document" : "repository");
+    });
+    const concentratedIssues = Object.entries(countBy(qualityFindings, (finding) => finding.path || "repository"))
+      .sort((left, right) => Number(right[1]) - Number(left[1]))
+      .slice(0, 8);
+    const actions = [];
+    if (blocked.length) {
+      actions.push([`Review blocked workflow docs`, blocked.length]);
+    }
+    if (incompleteChains.length) {
+      actions.push([`Promote or close incomplete workflow chains`, incompleteChains.length]);
+    }
+    if (brokenRefs.length) {
+      actions.push([`Repair broken references`, brokenRefs.length]);
+    }
+    if (qualityFindings.length) {
+      actions.push([`Run lint/audit and fix concentrated issues`, qualityFindings.length]);
+    }
+    if (missingStatus.length) {
+      actions.push([`Normalize missing or ambiguous statuses`, missingStatus.length]);
+    }
+    if (!actions.length) {
+      actions.push(["No immediate operator action detected", "OK"]);
+    }
+
     const stageRows = Object.entries(countsByStage)
       .sort((left, right) => String(left[0]).localeCompare(String(right[0])))
-      .map(([stage, count]) => `<li class="viewer-insights__item"><span>${escapeHtml(stage)}</span><strong>${escapeHtml(count)}</strong></li>`)
-      .join("");
-    const recentRows = [...latestItems]
-      .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
-      .slice(0, 8)
-      .map((item) => `<li class="viewer-insights__item"><span>${escapeHtml(item.id)}</span><strong>${escapeHtml(item.indicators?.Status || "No status")}</strong></li>`)
-      .join("");
+      .map(([stage, count]) => [stage, count]);
     return `
       <div class="viewer-insights">
-        <div class="viewer-insights__summary">${cards}</div>
-        <div class="viewer-insights__grid">
-          <div class="viewer-insights__card">
-            <div class="viewer-insights__label">Incomplete chains</div>
-            <div class="viewer-insights__value">${escapeHtml(incompleteChains)}</div>
-          </div>
-        </div>
+        <div class="viewer-insights__summary">${renderMetricCards([
+          ["Docs", docs.length],
+          ["Open", open.length],
+          ["Closed", closed.length],
+          ["Blocked", blocked.length],
+          ["Missing status", missingStatus.length],
+          ["Modified 7d", recentlyModified.length]
+        ])}</div>
         <section class="viewer-insights__section">
-          <h2>Corpus families</h2>
-          <ul class="viewer-insights__list">${stageRows || '<li class="viewer-insights__item">No docs loaded</li>'}</ul>
+          <h2>Overview</h2>
+          <ul class="viewer-insights__list">${renderInsightRows(stageRows, "No docs loaded")}</ul>
         </section>
         <section class="viewer-insights__section">
-          <h2>Recent activity</h2>
-          <ul class="viewer-insights__list">${recentRows || '<li class="viewer-insights__item">No recent docs</li>'}</ul>
+          <h2>Flow health</h2>
+          <ul class="viewer-insights__list">${renderInsightRows([
+            ["Incomplete workflow chains", incompleteChains.length],
+            ["Promotion gaps", incompleteChains.filter((item) => item.stage === "request" || item.stage === "backlog").length],
+            ["Orphan or unlinked docs", unlinked.length],
+            ["Broken reference risks", brokenRefs.length]
+          ])}</ul>
+        </section>
+        <section class="viewer-insights__section">
+          <h2>Activity</h2>
+          <ul class="viewer-insights__list">${renderInsightRows([
+            ["Latest changes", recentRows.map(itemLabel).join(", ") || "None"],
+            ["Stale active docs", staleActive.map(itemLabel).join(", ") || "None"],
+            ["Recently active docs", recentlyModified.slice(0, 8).map(itemLabel).join(", ") || "None"],
+            ["Activity classification", `recent ${recentlyModified.length}, stale ${open.filter(isStale).length}, quiet ${Math.max(0, open.length - recentlyModified.length)}`]
+          ])}</ul>
+        </section>
+        <section class="viewer-insights__section">
+          <h2>Traceability</h2>
+          <ul class="viewer-insights__list">${renderInsightRows([
+            ["Most referenced docs", mostReferenced.map((item) => `${item.id} (${(item.usedBy || []).length})`).join(", ") || "None"],
+            ["Unlinked docs", unlinked.slice(0, 8).map((item) => item.id).join(", ") || "None"],
+            ["Broken references", brokenRefs.slice(0, 8).join(", ") || "None"],
+            ["Relationships by type", Object.entries(relationshipCounts).map(([stage, count]) => `${stage} ${count}`).join(", ") || "None"]
+          ])}</ul>
+        </section>
+        <section class="viewer-insights__section">
+          <h2>Quality signals</h2>
+          <ul class="viewer-insights__list">${renderInsightRows([
+            ["Lint/audit categories", Object.entries(qualityBySource).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
+            ["Findings by document type", Object.entries(qualityByDocType).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
+            ["Concentrated issues", concentratedIssues.map(([key, count]) => `${key} ${count}`).join(", ") || "None"]
+          ])}</ul>
+        </section>
+        <section class="viewer-insights__section">
+          <h2>Operator actions</h2>
+          <ul class="viewer-insights__list">${renderInsightRows(actions)}</ul>
         </section>
       </div>
     `;
   }
 
-  function showCorpusInsights() {
-    setDocument("Corpus insights", buildCorpusInsights());
+  async function showCorpusInsights() {
+    const [lintResponse, auditResponse] = await Promise.all([fetch("/api/lint"), fetch("/api/audit")]);
+    const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
+    setDocument("Corpus insights", buildCorpusInsights(lintData, auditData));
     setMeta("Corpus insights loaded.");
   }
 
@@ -772,9 +904,9 @@
     const list = findings.length
       ? findings.slice(0, 50).map((finding) => {
           const path = finding.path || "";
-          const pathControl = path
+          const pathControl = path && isSafeLogicsDocPath(path)
             ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
-            : '<span class="viewer-health__meta">Repository-level finding</span>';
+            : `<span class="viewer-health__meta">${escapeHtml(path ? `Repository-level or unsafe path: ${path}` : "Repository-level finding")}</span>`;
           const severity = finding.severity || finding.code || finding.source || "finding";
           return `
             <li class="viewer-health__issue">
@@ -849,7 +981,7 @@
     applyLocalViewerChrome();
     [document.getElementById("viewer-insights")].forEach((button) => {
       button?.addEventListener("click", () => {
-        showCorpusInsights();
+        showCorpusInsights().catch((error) => setMeta(error.message));
       });
     });
     const autoControl = autoRefreshControl();

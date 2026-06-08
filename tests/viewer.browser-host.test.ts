@@ -98,6 +98,7 @@ function createViewerDom(options: {
   ].join("\n");
 
   Object.defineProperty(dom.window, "fetch", {
+    configurable: true,
     value: async (url: string) => {
       calls.push(String(url));
       if (url === "/api/items" || url === "/api/refresh") {
@@ -481,11 +482,17 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
-    expect(content?.textContent).toContain("Corpus families");
+    expect(content?.textContent).toContain("Overview");
+    expect(content?.textContent).toContain("Flow health");
+    expect(content?.textContent).toContain("Activity");
+    expect(content?.textContent).toContain("Traceability");
+    expect(content?.textContent).toContain("Quality signals");
+    expect(content?.textContent).toContain("Operator actions");
     expect(content?.textContent).toContain("Blocked");
-    expect(content?.textContent).toContain("Incomplete chains");
+    expect(content?.textContent).toContain("Incomplete workflow chains");
   });
 
   it("does not render the redundant toolbar corpus insights button in the local viewer shell", () => {
@@ -591,5 +598,34 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls.some((call) => call.startsWith("/api/doc"))).toBe(true);
+  });
+
+  it("renders unsafe health paths without a clickable document control", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      value: async (url: string) => {
+        if (url === "/api/lint") {
+          return {
+            ok: true,
+            json: async () => ({
+              ok: true,
+              payload: { ok: false, issues: [{ path: "../outside.md", message: "Unsafe path", severity: "blocking" }] }
+            })
+          };
+        }
+        return originalFetch(url);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-health")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.textContent).toContain("Repository-level or unsafe path: ../outside.md");
+    expect(content?.querySelector('[data-viewer-doc-path="../outside.md"]')).toBeNull();
   });
 });

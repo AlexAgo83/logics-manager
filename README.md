@@ -215,6 +215,12 @@ pipx ensurepath
 pipx install --force logics-manager
 ```
 
+If `logics-manager` is already installed through `pipx`, update that managed environment directly:
+
+```bash
+pipx upgrade logics-manager
+```
+
 For npm installs, update with:
 
 ```bash

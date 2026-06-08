@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from importlib import metadata
 import subprocess
 import sys
@@ -146,6 +147,17 @@ def _is_externally_managed_python() -> bool:
     return bool(stdlib and (Path(stdlib) / "EXTERNALLY-MANAGED").exists())
 
 
+def _is_running_from_pipx(package_name: str = DEFAULT_SELF_UPDATE_PY_PACKAGE) -> bool:
+    expected = package_name.replace("_", "-").lower()
+    candidates = [Path(sys.prefix), Path(sys.executable)]
+    for candidate in candidates:
+        parts = [part.lower() for part in candidate.parts]
+        for index, part in enumerate(parts[:-2]):
+            if part == "pipx" and parts[index + 1] == "venvs" and parts[index + 2] == expected:
+                return True
+    return False
+
+
 def _is_running_from_npm_package() -> bool:
     package_json = Path(__file__).resolve().parents[1] / "package.json"
     try:
@@ -155,13 +167,58 @@ def _is_running_from_npm_package() -> bool:
     return payload.get("name") == DEFAULT_SELF_UPDATE_PACKAGE
 
 
+def _find_executable_paths(command: str) -> list[str]:
+    paths: list[str] = []
+    seen: set[str] = set()
+    names = [command]
+    if sys.platform == "win32":
+        extensions = [suffix.lower() for suffix in os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";") if suffix]
+        if Path(command).suffix.lower() not in extensions:
+            names = [command + extension for extension in extensions]
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        if not directory:
+            continue
+        for name in names:
+            candidate = Path(directory) / name
+            try:
+                resolved = str(candidate.resolve())
+            except OSError:
+                resolved = str(candidate)
+            if resolved in seen:
+                continue
+            if candidate.exists() and os.access(candidate, os.X_OK):
+                seen.add(resolved)
+                paths.append(str(candidate))
+    return paths
+
+
+def _print_path_conflict_guidance(paths: list[str]) -> None:
+    if len(paths) <= 1:
+        return
+    print(
+        "\n".join(
+            [
+                "",
+                "Multiple logics-manager executables are on PATH. If --version still shows an older release, an earlier install is taking precedence.",
+                "Diagnose with:",
+                "  command -v -a logics-manager",
+                "  pipx list",
+                "  npm list -g @grifhinz/logics-manager --depth=0",
+            ]
+        )
+    )
+
+
 def _print_externally_managed_update_guidance(package_name: str) -> None:
     print(
         "\n".join(
             [
                 "This Python installation is externally managed, so pip cannot safely update logics-manager in the system environment.",
                 "",
-                "Recommended fix:",
+                "If this command was installed with pipx, update it with:",
+                f"  pipx upgrade {package_name}",
+                "",
+                "Otherwise migrate the Python install through pipx:",
                 "  sudo apt update",
                 "  sudo apt install pipx python3-venv",
                 "  pipx ensurepath",
@@ -249,7 +306,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if payload["ok"] else 1
     if command == "self-update":
         parser = argparse.ArgumentParser(prog="logics-manager self-update", add_help=False)
-        parser.add_argument("--manager", choices=("auto", "pip", "npm"), default="auto")
+        parser.add_argument("--manager", choices=("auto", "pip", "pipx", "npm"), default="auto")
         parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
         parser.add_argument("--break-system-packages", action="store_true")
@@ -260,6 +317,8 @@ def main(argv: list[str] | None = None) -> int:
         if manager == "auto":
             if _is_running_from_npm_package() and which("npm"):
                 manager = "npm"
+            elif _is_running_from_pipx(parsed.python_package) and which("pipx"):
+                manager = "pipx"
             else:
                 try:
                     metadata.version(parsed.python_package)
@@ -275,6 +334,12 @@ def main(argv: list[str] | None = None) -> int:
             command = [sys.executable, "-m", "pip", "install", "--upgrade", parsed.python_package]
             if parsed.break_system_packages:
                 command.append("--break-system-packages")
+        elif manager == "pipx":
+            pipx = which("pipx")
+            if not pipx:
+                print("pipx was not found on PATH. Install pipx or update with --manager pip/npm.")
+                return 1
+            command = [pipx, "upgrade", parsed.python_package]
         else:
             npm = which("npm")
             if not npm:
@@ -289,7 +354,11 @@ def main(argv: list[str] | None = None) -> int:
         result = subprocess.run(command, check=False)
         if result.returncode == 0:
             target = parsed.python_package if manager == "pip" else parsed.package
+            if manager == "pipx":
+                target = parsed.python_package
             print(f"Updated {target} via {manager}.")
+            if manager == "npm":
+                _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
         return result.returncode
     if command == "flow" and (rest[:1] in (["new"], ["list"], ["companion"], ["deliver"], ["validate-closeout"], ["repair"], ["closeout"], ["promote"], ["split"], ["close"], ["finish"]) or rest[:1] in HELP_ARGV):
         from .flow import main as flow_main

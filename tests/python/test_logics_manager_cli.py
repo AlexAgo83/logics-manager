@@ -993,6 +993,68 @@ def test_main_prefers_npm_self_update_when_running_from_npm_package(
     assert recorded["check"] is False
 
 
+def test_main_prefers_pipx_self_update_when_running_from_pipx(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda command: "/usr/bin/pipx" if command == "pipx" else "/usr/bin/npm")
+    monkeypatch.setattr("logics_manager.cli._is_running_from_npm_package", lambda: False)
+    monkeypatch.setattr("logics_manager.cli._is_running_from_pipx", lambda _package_name: True)
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: "2.1.1",
+    )
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Updated logics-manager via pipx." in captured.out
+    assert recorded["command"] == ["/usr/bin/pipx", "upgrade", "logics-manager"]
+    assert recorded["check"] is False
+
+
+def test_main_runs_explicit_pipx_self_update(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda command: "/usr/bin/pipx" if command == "pipx" else None)
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update", "--manager", "pipx"])
+
+    assert exit_code == 0
+    assert recorded["command"] == ["/usr/bin/pipx", "upgrade", "logics-manager"]
+    assert recorded["check"] is False
+
+
+def test_main_reports_missing_pipx_for_explicit_pipx_self_update(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("logics_manager.cli.which", lambda _command: None)
+
+    exit_code = main(["self-update", "--manager", "pipx"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "pipx was not found on PATH" in captured.out
+
+
 def test_main_runs_self_update_with_pip(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -1042,8 +1104,33 @@ def test_main_blocks_pip_self_update_in_externally_managed_python(
 
     assert exit_code == 1
     assert "externally managed" in captured.out
+    assert "pipx upgrade logics-manager" in captured.out
     assert "pipx install --force logics-manager" in captured.out
     assert "command" not in recorded
+
+
+def test_main_warns_about_path_conflict_after_npm_self_update(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
+    monkeypatch.setattr("logics_manager.cli._find_executable_paths", lambda _command: ["/home/user/.local/bin/logics-manager", "/usr/bin/logics-manager"])
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["self-update", "--manager", "npm"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert "Multiple logics-manager executables are on PATH" in captured.out
+    assert "pipx list" in captured.out
 
 
 def test_main_allows_explicit_break_system_packages_for_pip_self_update(

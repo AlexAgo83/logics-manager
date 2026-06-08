@@ -1,10 +1,10 @@
 ## item_375_improve_viewer_repository_identity_and_recent_activity_scanning - Improve viewer repository identity and recent activity scanning
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -79,6 +79,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_211_improve_viewer_repository_identity_and_recent_activity_scanning` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_211_improve_viewer_repository_identity_and_recent_activity_scanning.md`.
 - Generated locally by logics-manager.
+- Task `task_176_improve_viewer_repository_identity_and_recent_activity_scanning` was finished via `logics-manager flow finish task` on 2026-06-08.
 
 # Tasks
 - `task_176_improve_viewer_repository_identity_and_recent_activity_scanning`

@@ -1,7 +1,7 @@
 ## req_210_improve_local_logics_viewer_controls_and_activity_signals - Improve local Logics viewer controls and activity signals
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

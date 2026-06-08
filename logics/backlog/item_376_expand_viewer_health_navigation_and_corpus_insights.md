@@ -1,10 +1,10 @@
 ## item_376_expand_viewer_health_navigation_and_corpus_insights - Expand viewer health navigation and corpus insights
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -86,6 +86,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_212_expand_viewer_health_navigation_and_corpus_insights` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_212_expand_viewer_health_navigation_and_corpus_insights.md`.
 - Generated locally by logics-manager.
+- Task `task_177_expand_viewer_health_navigation_and_corpus_insights` was finished via `logics-manager flow finish task` on 2026-06-08.
 
 # Tasks
 - `task_177_expand_viewer_health_navigation_and_corpus_insights`

@@ -1,7 +1,7 @@
 ## req_212_expand_viewer_health_navigation_and_corpus_insights - Expand viewer health navigation and corpus insights
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

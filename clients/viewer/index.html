@@ -28,6 +28,7 @@
         <span>Auto</span>
       </label>
       <button class="btn" data-action="refresh" type="button" title="Refresh viewer data">Refresh</button>
+      <button class="btn" id="viewer-git" type="button" title="Show Git status">Git</button>
       <button class="btn" id="viewer-insights" type="button" title="Show corpus insights">Insights</button>
       <button class="btn" id="viewer-health" type="button" title="Show lint and audit health">Health</button>
     </div>
@@ -51,6 +52,9 @@
         </button>
         <button class="toolbar__filter" id="activity-toggle" aria-label="Toggle activity" aria-pressed="false" title="Toggle activity">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h4l2.2-5 3.6 10 2.2-5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <button class="toolbar__filter" id="activity-clear" aria-label="Clear local activity history" title="Clear local activity history">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 10v8m4-8v8m4-8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
         <button class="toolbar__filter" id="attention-toggle" aria-label="Show blocked, orphaned, unprocessed, or inconsistent items" aria-pressed="false" title="Show blocked, orphaned, unprocessed, or inconsistent items">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l8 14H4z" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="17" r="1" fill="currentColor" /></svg>

@@ -27,6 +27,7 @@ from logics_manager.viewer import (
     collect_viewer_items,
     create_viewer_server,
     edit_doc_payload,
+    git_status_payload,
     normalize_viewer_focus_target,
     read_doc_payload,
     render_start_status,
@@ -260,6 +261,66 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
     assert launched[0][-1] == str(doc_path)
     with pytest.raises(ValueError):
         edit_doc_payload(repo_root, "../outside.md", launcher=launched.append)
+
+
+def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "\n".join(
+                    [
+                        "## main...origin/main [ahead 2, behind 1]",
+                        "M  staged.md",
+                        " M modified.md",
+                        " D deleted.md",
+                        "R  old.md -> renamed.md",
+                        "?? untracked.md",
+                    ]
+                ),
+                "",
+            )
+        if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "abc1234 latest commit", "")
+        raise AssertionError(args)
+
+    payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["branch"] == "main"
+    assert payload["tracking"] == "origin/main"
+    assert payload["ahead"] == 2
+    assert payload["behind"] == 1
+    assert payload["clean"] is False
+    assert payload["counts"] == {"staged": 1, "modified": 1, "deleted": 1, "renamed": 1, "untracked": 1}
+    assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md"}
+    assert payload["latestCommit"] == "abc1234 latest commit"
+    assert ["git", "status", "--porcelain=v1", "-b"] in calls
+    assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+
+
+def test_viewer_git_status_payload_handles_unavailable_non_repo_and_errors(tmp_path: Path) -> None:
+    assert git_status_payload(tmp_path, which=lambda _name: None)["state"] == "unavailable"
+
+    def non_repo(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 128, "", "not a git repository")
+
+    assert git_status_payload(tmp_path, runner=non_repo, which=lambda _name: "/usr/bin/git")["state"] == "not-repository"
+
+    def failing_status(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        return subprocess.CompletedProcess(args, 1, "", "fatal: bad revision")
+
+    payload = git_status_payload(tmp_path, runner=failing_status, which=lambda _name: "/usr/bin/git")
+    assert payload["state"] == "error"
+    assert "fatal: bad revision" in payload["message"]
 
 
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:

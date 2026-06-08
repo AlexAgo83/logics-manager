@@ -259,6 +259,103 @@
   background: var(--vscode-textCodeBlock-background, #111111);
 }
 
+.viewer-insights__rows,
+.viewer-git__files {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer-insights__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 84%, transparent);
+  font-size: 12px;
+}
+
+.viewer-insights__row[hidden] {
+  display: none !important;
+}
+
+.viewer-insights__doc,
+.viewer-insights__action,
+.viewer-insights__reveal,
+.viewer-health__path {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.viewer-insights__doc:hover,
+.viewer-insights__action:hover,
+.viewer-insights__reveal:hover,
+.viewer-health__path:hover {
+  text-decoration: underline;
+}
+
+.viewer-git,
+.viewer-insights,
+.viewer-health {
+  display: grid;
+  gap: 14px;
+}
+
+.viewer-git__summary,
+.viewer-insights__summary,
+.viewer-health__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.viewer-git__section h2 {
+  margin-bottom: 8px;
+}
+
+.viewer-git__files li {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  overflow-wrap: anywhere;
+}
+
+.viewer-git__commit,
+.viewer-git__state {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .viewer-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .viewer-topbar__actions {
+    flex-wrap: wrap;
+  }
+
+  .viewer-document {
+    inset: 8px;
+  }
+}
+
 .viewer-document__content a {
   color: var(--vscode-textLink-foreground, #4ea1ff);
 }

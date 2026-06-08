@@ -21,8 +21,10 @@ function createViewerDom(options: {
     <span id="viewer-repo-pill"></span>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
+    <button id="viewer-git" type="button">Git</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
+    <button id="activity-clear" type="button">Clear activity</button>
     <button data-action="refresh" type="button">Refresh</button>
     <select data-viewer-filter-group="focus" aria-label="Corpus focus">
       <option value="active">Active work</option>
@@ -153,6 +155,32 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/git-status") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              branch: "main",
+              tracking: "origin/main",
+              ahead: 1,
+              behind: 0,
+              clean: false,
+              dirty: true,
+              latestCommit: "abc1234 Demo commit",
+              counts: { staged: 1, modified: 1, deleted: 0, renamed: 0, untracked: 1 },
+              groups: {
+                staged: [{ path: "logics/request/req_001_demo.md" }],
+                modified: [{ path: "clients/viewer/browser-host.js" }],
+                deleted: [],
+                renamed: [],
+                untracked: [{ path: "new-file.md" }]
+              }
+            }
+          })
+        };
+      }
       if (url === "/api/lint") {
         return {
           ok: true,
@@ -233,6 +261,15 @@ describe("local viewer browser host", () => {
 
     expect(pngIcon?.getAttribute("href")).toBe("/media/icon.png");
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
+  });
+
+  it("orders local viewer topbar actions as Auto Refresh Git Insights Health", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html);
+    const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions label, .viewer-topbar__actions button"))
+      .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
+
+    expect(labels).toEqual(["Auto", "Refresh", "Git", "Insights", "Health"]);
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {
@@ -493,6 +530,45 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Operator actions");
     expect(content?.textContent).toContain("Blocked");
     expect(content?.textContent).toContain("Incomplete workflow chains");
+    expect(content?.querySelector("[data-viewer-filter-group]")).not.toBeNull();
+    expect(content?.querySelector("[data-viewer-doc-path]")).not.toBeNull();
+  });
+
+  it("applies and clears insight-derived filters through normal viewer controls", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const action = dom.window.document.querySelector('[data-viewer-filter-group="focus"][data-viewer-filter-value="blocked"]') as HTMLButtonElement | null;
+    action?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("blocked");
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
+
+    dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("active");
+  });
+
+  it("renders the local Git status screen from the read-only endpoint", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/git-status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(content?.textContent).toContain("Branch");
+    expect(content?.textContent).toContain("main");
+    expect(content?.textContent).toContain("Staged");
+    expect(content?.textContent).toContain("logics/request/req_001_demo.md");
   });
 
   it("does not render the redundant toolbar corpus insights button in the local viewer shell", () => {
@@ -627,5 +703,51 @@ describe("local viewer browser host", () => {
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Repository-level or unsafe path: ../outside.md");
     expect(content?.querySelector('[data-viewer-doc-path="../outside.md"]')).toBeNull();
+  });
+
+  it("stores bounded local activity snapshots and marks real status changes only after a known previous status", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const firstState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(firstState?.activitySnapshot?.["logics/request/req_001_demo.md"]?.status).toBe("Ready");
+    expect(firstState?.activityHistory?.[0]?.type).toBe("updated");
+
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      value: async (url: string) => {
+        if (url === "/api/refresh") {
+          return {
+            ok: true,
+            json: async () => ({
+              ok: true,
+              payload: {
+                root: "/workspace/logics-manager",
+                repoName: "logics-manager",
+                autoRefreshIntervalSeconds: 60,
+                items: [
+                  { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
+                ],
+                updateInfo: {}
+              }
+            })
+          };
+        }
+        return originalFetch(url);
+      }
+    });
+
+    api.postMessage({ type: "refresh" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const secondState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(secondState?.activityHistory?.[0]?.type).toBe("status-change");
+    expect(secondState?.activityHistory?.length).toBeLessThanOrEqual(80);
+
+    dom.window.document.getElementById("activity-clear")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const cleared = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(cleared?.activityHistory).toBeUndefined();
+    expect(cleared?.viewerFilterState).toBeDefined();
   });
 });

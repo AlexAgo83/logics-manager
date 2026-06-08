@@ -5,6 +5,7 @@ import json
 import mimetypes
 import os
 import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -392,6 +393,108 @@ def _system_editor_command(path: Path) -> list[str]:
     return ["xdg-open", str(path)]
 
 
+def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["git", *args]
+    git_runner = runner or subprocess.run
+    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
+
+
+def _sanitize_git_ref(value: str) -> str:
+    ref = value.strip()
+    ref = re.sub(r"://[^/@\s]+@", "://", ref)
+    ref = re.sub(r"^[^/@\s]+@", "", ref)
+    return ref[:200]
+
+
+def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
+    if not line or line.startswith("## "):
+        return None
+    if line.startswith("?? "):
+        return "untracked", {"path": line[3:].strip()}
+    if len(line) < 4:
+        return None
+    staged = line[0]
+    worktree = line[1]
+    raw_path = line[3:].strip()
+    if " -> " in raw_path:
+        before, after = raw_path.split(" -> ", 1)
+        return "renamed", {"path": after.strip(), "from": before.strip()}
+    if staged == "R":
+        return "renamed", {"path": raw_path}
+    if staged not in {" ", "?", "!"}:
+        return "staged", {"path": raw_path, "code": staged}
+    if worktree == "D":
+        return "deleted", {"path": raw_path, "code": worktree}
+    if worktree not in {" ", "?", "!"}:
+        return "modified", {"path": raw_path, "code": worktree}
+    return None
+
+
+def _parse_git_branch_line(line: str) -> dict[str, Any]:
+    branch = line[3:].strip() if line.startswith("## ") else ""
+    tracking = ""
+    ahead = 0
+    behind = 0
+    if "..." in branch:
+        branch, tracking_part = branch.split("...", 1)
+        if " [" in tracking_part:
+            tracking, details = tracking_part.split(" [", 1)
+            for detail in details.rstrip("]").split(", "):
+                if detail.startswith("ahead "):
+                    ahead = int(detail.removeprefix("ahead ") or "0")
+                if detail.startswith("behind "):
+                    behind = int(detail.removeprefix("behind ") or "0")
+        else:
+            tracking = tracking_part
+    return {
+        "branch": _sanitize_git_ref(branch or "HEAD"),
+        "tracking": _sanitize_git_ref(tracking),
+        "ahead": ahead,
+        "behind": behind,
+    }
+
+
+def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH."}
+    try:
+        inside = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run Git status: {exc}"}
+    if inside.returncode != 0 or inside.stdout.strip().lower() != "true":
+        return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
+
+    try:
+        status = _run_read_only_git(repo_root, ["status", "--porcelain=v1", "-b"], runner=runner)
+        commit = _run_read_only_git(repo_root, ["log", "-1", "--pretty=format:%h %s"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to collect Git status: {exc}"}
+    if status.returncode != 0:
+        message = (status.stderr or status.stdout or "Git status failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message}
+
+    lines = status.stdout.splitlines()
+    branch_info = _parse_git_branch_line(lines[0]) if lines else {"branch": "HEAD", "tracking": "", "ahead": 0, "behind": 0}
+    groups: dict[str, list[dict[str, str]]] = {key: [] for key in ("staged", "modified", "deleted", "renamed", "untracked")}
+    for line in lines[1:]:
+        classified = _classify_porcelain_entry(line)
+        if classified:
+            group, entry = classified
+            groups[group].append(entry)
+    counts = {key: len(value) for key, value in groups.items()}
+    dirty = any(counts.values())
+    return {
+        "state": "ok",
+        **branch_info,
+        "clean": not dirty,
+        "dirty": dirty,
+        "counts": counts,
+        "groups": groups,
+        "latestCommit": (commit.stdout.strip() if commit.returncode == 0 else "")[:300],
+    }
+
+
 def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
@@ -490,6 +593,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/audit":
             self._send_json({"ok": True, "payload": audit_payload(self.server.repo_root)})
+            return
+        if route == "/api/git-status":
+            self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 

@@ -11,6 +11,8 @@
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
+  const activityClearControl = () => document.getElementById("activity-clear");
+  const activityStorageLimit = 80;
   const defaultAutoRefreshIntervalMs = 60 * 1000;
   const defaultFilterState = {
     focus: "active",
@@ -68,6 +70,52 @@
     const storedState = readStoredState();
     const nextState = storedState && typeof storedState === "object" ? storedState : {};
     writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
+  }
+
+  function updateStoredActivity(nextItems) {
+    const storedState = readStoredState();
+    const baseState = storedState && typeof storedState === "object" ? storedState : {};
+    const previousSnapshot = baseState.activitySnapshot && typeof baseState.activitySnapshot === "object"
+      ? baseState.activitySnapshot
+      : {};
+    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const nextSnapshot = {};
+    const now = new Date().toISOString();
+    const decorated = nextItems.map((item) => {
+      const relPath = String(item.relPath || item.path || item.id || "");
+      const status = String(item?.indicators?.Status || "").trim();
+      if (relPath) {
+        nextSnapshot[relPath] = { status, updatedAt: item.updatedAt || "" };
+      }
+      const previous = relPath ? previousSnapshot[relPath] : null;
+      const previousStatus = String(previous?.status || "").trim();
+      const statusChanged = Boolean(previousStatus && status && previousStatus !== status);
+      if (relPath && (statusChanged || !previous)) {
+        history.unshift({ path: relPath, at: now, status, previousStatus, type: statusChanged ? "status-change" : "updated" });
+      }
+      return statusChanged ? { ...item, activityType: "status-change" } : item;
+    });
+    writeStoredState({
+      ...baseState,
+      viewerFilterState: { ...viewerFilterState },
+      activitySnapshot: nextSnapshot,
+      activityHistory: history.slice(0, activityStorageLimit)
+    });
+    return decorated;
+  }
+
+  function clearActivityHistory() {
+    const storedState = readStoredState();
+    const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
+    delete nextState.activitySnapshot;
+    delete nextState.activityHistory;
+    writeStoredState(nextState);
+    latestItems = latestItems.map((item) => {
+      const clone = { ...item };
+      delete clone.activityType;
+      return clone;
+    });
+    setMeta("Local activity history cleared.");
   }
 
   function markdownApi() {
@@ -374,13 +422,14 @@
   }
 
   function postToApp(payload, options = {}) {
-    latestItems = Array.isArray(payload.items) ? payload.items : [];
+    latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
     const intervalSeconds = Number(payload.autoRefreshIntervalSeconds);
     autoRefreshIntervalMs = Number.isFinite(intervalSeconds) && intervalSeconds > 0
       ? intervalSeconds * 1000
       : defaultAutoRefreshIntervalMs;
     updateRepositoryIdentity(payload);
-    const nextPayload = options.silent ? payload : applyFocusRequest(payload);
+    const payloadWithActivity = { ...payload, items: latestItems };
+    const nextPayload = options.silent ? payloadWithActivity : applyFocusRequest(payloadWithActivity);
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     if (!options.silent) {
@@ -680,6 +729,76 @@
     `).join("");
   }
 
+  function renderDocRows(items, emptyText = "None", limit = 6) {
+    if (!items.length) {
+      return `<li class="viewer-insights__row viewer-insights__row--empty">${escapeHtml(emptyText)}</li>`;
+    }
+    const rows = items.map((item, index) => {
+      const path = item.relPath || item.path || "";
+      const control = path && isSafeLogicsDocPath(path)
+        ? `<button class="viewer-insights__doc" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(item.id || path)}</button>`
+        : `<span class="viewer-insights__doc">${escapeHtml(item.id || path || item.title)}</span>`;
+      return `
+        <li class="viewer-insights__row" ${index >= limit ? "hidden data-viewer-hidden-row" : ""}>
+          ${control}
+          <span>${escapeHtml(item.indicators?.Status || item.stage || "No status")}</span>
+        </li>
+      `;
+    });
+    const hiddenCount = Math.max(0, items.length - limit);
+    if (hiddenCount > 0) {
+      rows.push(`<li class="viewer-insights__row"><button class="viewer-insights__reveal" type="button" data-viewer-reveal>Show ${hiddenCount} more</button></li>`);
+    }
+    return rows.join("");
+  }
+
+  function renderPathRows(paths, emptyText = "None", limit = 6) {
+    if (!paths.length) {
+      return `<li class="viewer-insights__row viewer-insights__row--empty">${escapeHtml(emptyText)}</li>`;
+    }
+    const rows = paths.map((path, index) => {
+      const control = isSafeLogicsDocPath(path)
+        ? `<button class="viewer-insights__doc" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
+        : `<span class="viewer-insights__doc">${escapeHtml(path)}</span>`;
+      return `<li class="viewer-insights__row" ${index >= limit ? "hidden data-viewer-hidden-row" : ""}>${control}</li>`;
+    });
+    const hiddenCount = Math.max(0, paths.length - limit);
+    if (hiddenCount > 0) {
+      rows.push(`<li class="viewer-insights__row"><button class="viewer-insights__reveal" type="button" data-viewer-reveal>Show ${hiddenCount} more</button></li>`);
+    }
+    return rows.join("");
+  }
+
+  function renderActionRows(actions) {
+    return actions.map((action) => {
+      if (action.filter) {
+        return `
+          <li class="viewer-insights__row">
+            <button class="viewer-insights__action" type="button" data-viewer-filter-group="${escapeHtml(action.filter.group)}" data-viewer-filter-value="${escapeHtml(action.filter.value)}">${escapeHtml(action.label)}</button>
+            <strong>${escapeHtml(action.value)}</strong>
+          </li>
+        `;
+      }
+      if (action.health) {
+        return `
+          <li class="viewer-insights__row">
+            <button class="viewer-insights__action" type="button" data-viewer-open-health>${escapeHtml(action.label)}</button>
+            <strong>${escapeHtml(action.value)}</strong>
+          </li>
+        `;
+      }
+      if (action.path && isSafeLogicsDocPath(action.path)) {
+        return `
+          <li class="viewer-insights__row">
+            <button class="viewer-insights__action" type="button" data-viewer-doc-path="${escapeHtml(action.path)}">${escapeHtml(action.label)}</button>
+            <strong>${escapeHtml(action.value)}</strong>
+          </li>
+        `;
+      }
+      return `<li class="viewer-insights__row"><span>${escapeHtml(action.label)}</span><strong>${escapeHtml(action.value)}</strong></li>`;
+    }).join("");
+  }
+
   function itemLabel(item) {
     return `${item.id || item.relPath || "doc"} - ${item.indicators?.Status || "No status"}`;
   }
@@ -725,22 +844,22 @@
       .slice(0, 8);
     const actions = [];
     if (blocked.length) {
-      actions.push([`Review blocked workflow docs`, blocked.length]);
+      actions.push({ label: "Review blocked workflow docs", value: blocked.length, filter: { group: "focus", value: "blocked" } });
     }
     if (incompleteChains.length) {
-      actions.push([`Promote or close incomplete workflow chains`, incompleteChains.length]);
+      actions.push({ label: "Promote or close incomplete workflow chains", value: incompleteChains.length, filter: { group: "focus", value: "needs-promotion" } });
     }
     if (brokenRefs.length) {
-      actions.push([`Repair broken references`, brokenRefs.length]);
+      actions.push({ label: "Repair broken references", value: brokenRefs.length, health: true });
     }
     if (qualityFindings.length) {
-      actions.push([`Run lint/audit and fix concentrated issues`, qualityFindings.length]);
+      actions.push({ label: "Open validation health", value: qualityFindings.length, health: true });
     }
     if (missingStatus.length) {
-      actions.push([`Normalize missing or ambiguous statuses`, missingStatus.length]);
+      actions.push({ label: "Normalize missing or ambiguous statuses", value: missingStatus.length, path: missingStatus[0]?.relPath || "" });
     }
     if (!actions.length) {
-      actions.push(["No immediate operator action detected", "OK"]);
+      actions.push({ label: "No immediate operator action detected", value: "OK" });
     }
 
     const stageRows = Object.entries(countsByStage)
@@ -768,6 +887,7 @@
             ["Orphan or unlinked docs", unlinked.length],
             ["Broken reference risks", brokenRefs.length]
           ])}</ul>
+          <ul class="viewer-insights__rows">${renderDocRows(incompleteChains, "No incomplete chains")}</ul>
         </section>
         <section class="viewer-insights__section">
           <h2>Activity</h2>
@@ -777,6 +897,7 @@
             ["Recently active docs", recentlyModified.slice(0, 8).map(itemLabel).join(", ") || "None"],
             ["Activity classification", `recent ${recentlyModified.length}, stale ${open.filter(isStale).length}, quiet ${Math.max(0, open.length - recentlyModified.length)}`]
           ])}</ul>
+          <ul class="viewer-insights__rows">${renderDocRows(recentRows, "No recent documents")}</ul>
         </section>
         <section class="viewer-insights__section">
           <h2>Traceability</h2>
@@ -786,6 +907,7 @@
             ["Broken references", brokenRefs.slice(0, 8).join(", ") || "None"],
             ["Relationships by type", Object.entries(relationshipCounts).map(([stage, count]) => `${stage} ${count}`).join(", ") || "None"]
           ])}</ul>
+          <ul class="viewer-insights__rows">${renderDocRows(unlinked, "No unlinked documents")}${renderPathRows(brokenRefs, "No broken references")}</ul>
         </section>
         <section class="viewer-insights__section">
           <h2>Quality signals</h2>
@@ -794,10 +916,11 @@
             ["Findings by document type", Object.entries(qualityByDocType).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
             ["Concentrated issues", concentratedIssues.map(([key, count]) => `${key} ${count}`).join(", ") || "None"]
           ])}</ul>
+          <ul class="viewer-insights__rows">${renderPathRows(concentratedIssues.map(([key, count]) => `${key} (${count})`), "No concentrated issues")}</ul>
         </section>
         <section class="viewer-insights__section">
           <h2>Operator actions</h2>
-          <ul class="viewer-insights__list">${renderInsightRows(actions)}</ul>
+          <ul class="viewer-insights__rows">${renderActionRows(actions)}</ul>
         </section>
       </div>
     `;
@@ -937,6 +1060,63 @@
     setMeta("Health loaded.");
   }
 
+  function renderGitStatus(payload) {
+    if (!payload || payload.state !== "ok") {
+      return `
+        <div class="viewer-git">
+          <div class="viewer-git__state">${escapeHtml(payload?.message || "Git status is unavailable.")}</div>
+        </div>
+      `;
+    }
+    const counts = payload.counts || {};
+    const summary = [
+      ["Branch", payload.branch || "HEAD"],
+      ["Tracking", payload.tracking || "None"],
+      ["Ahead", payload.ahead || 0],
+      ["Behind", payload.behind || 0],
+      ["State", payload.clean ? "Clean" : "Dirty"],
+      ["Staged", counts.staged || 0],
+      ["Modified/deleted", Number(counts.modified || 0) + Number(counts.deleted || 0)],
+      ["Untracked", counts.untracked || 0]
+    ];
+    const cards = renderMetricCards(summary);
+    const groupLabels = { staged: "Staged", modified: "Modified", deleted: "Deleted", renamed: "Renamed", untracked: "Untracked" };
+    const groups = Object.entries(groupLabels).map(([key, label]) => {
+      const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
+      if (!entries.length) {
+        return "";
+      }
+      return `
+        <section class="viewer-git__section">
+          <h2>${escapeHtml(label)}</h2>
+          <ul class="viewer-git__files">${entries.map((entry) => `
+            <li><code>${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</code></li>
+          `).join("")}</ul>
+        </section>
+      `;
+    }).join("");
+    const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
+    return `
+      <div class="viewer-git">
+        <div class="viewer-git__summary">${cards}</div>
+        ${payload.latestCommit ? `<p class="viewer-git__commit">Latest commit: <code>${escapeHtml(payload.latestCommit)}</code></p>` : ""}
+        ${clean}
+        ${groups}
+      </div>
+    `;
+  }
+
+  async function showGitStatus() {
+    setMeta("Checking Git status...");
+    const response = await fetch("/api/git-status");
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load Git status.");
+    }
+    setDocument("Git status", renderGitStatus(data.payload));
+    setMeta("Git status loaded.");
+  }
+
   window.acquireVsCodeApi = function acquireVsCodeApi() {
     return {
       postMessage(message) {
@@ -1002,6 +1182,12 @@
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       showHealth().catch((error) => setMeta(error.message));
     });
+    document.getElementById("viewer-git")?.addEventListener("click", () => {
+      showGitStatus().catch((error) => setMeta(error.message));
+    });
+    activityClearControl()?.addEventListener("click", () => {
+      clearActivityHistory();
+    });
     document.querySelectorAll("[data-viewer-filter-group]").forEach((element) => {
       if (element instanceof HTMLSelectElement) {
         element.addEventListener("change", () => {
@@ -1028,10 +1214,30 @@
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
-      if (!(target instanceof HTMLElement)) {
+      const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
+      const filterTarget = event.target instanceof Element ? event.target.closest("[data-viewer-filter-group][data-viewer-filter-value]") : null;
+      const revealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-reveal]") : null;
+      if (revealTarget instanceof HTMLElement) {
+        const list = revealTarget.closest("ul");
+        list?.querySelectorAll("[data-viewer-hidden-row]").forEach((row) => {
+          if (row instanceof HTMLElement) {
+            row.hidden = false;
+            row.removeAttribute("data-viewer-hidden-row");
+          }
+        });
+        revealTarget.closest("li")?.remove();
         return;
       }
-      const path = target.getAttribute("data-viewer-doc-path");
+      if (healthTarget instanceof HTMLElement) {
+        showHealth().catch((error) => setMeta(error.message));
+        return;
+      }
+      if (filterTarget instanceof HTMLElement) {
+        applyViewerFilter(filterTarget.getAttribute("data-viewer-filter-group") || "", filterTarget.getAttribute("data-viewer-filter-value") || "");
+        setMeta("Insight filter applied. Clear filters restores the normal viewer view.");
+        return;
+      }
+      const path = target instanceof HTMLElement ? target.getAttribute("data-viewer-doc-path") : "";
       if (path) {
         showDocumentByPath(path).catch((error) => setMeta(error.message));
       }

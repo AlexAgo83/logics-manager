@@ -2,6 +2,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
+import { WebSocket } from "ws";
 
 const repoRoot = process.cwd();
 const artifactsDir = join(repoRoot, "artifacts", "local-viewer-smoke");

@@ -1,0 +1,213 @@
+(() => {
+  window.createCdxLogicsHostApi = function createCdxLogicsHostApi(options) {
+    const {
+      vscode,
+      debugLog,
+      showStatus,
+      isHarnessMode,
+      handleHarnessChangeProjectRoot,
+      applyHarnessRoot,
+      openHarnessItem,
+      harnessBridge,
+      setCanResetProjectRoot,
+      projectGithubUrl
+    } = options;
+
+    function post(message) {
+      debugLog("host:post", message);
+      vscode.postMessage(message);
+    }
+
+    function invokeHostOnly(type, payload, label) {
+      if (isHarnessMode) {
+        showStatus(`${label} requires the VS Code extension host. Action forwarded to harness mock.`, "warn");
+      }
+      post({ type, ...payload });
+    }
+
+    function confirmLifecycleAction(item, action) {
+      if (!item) {
+        return false;
+      }
+      const itemLabel = item.title ? `${item.id} (${item.title})` : item.id;
+      if (action === "obsolete") {
+        return window.confirm(
+          `Mark ${itemLabel} as obsolete?\n\nThis is a more cautionary lifecycle change and should only be used when the item should no longer be pursued.`
+        );
+      }
+      return window.confirm(`Mark ${itemLabel} as done?`);
+    }
+
+    const api = {
+      post,
+      ready() {
+        post({ type: "ready" });
+      },
+      refresh() {
+        post({ type: "refresh" });
+      },
+      createItem(kind) {
+        invokeHostOnly("create-item", { kind }, "Create item");
+      },
+      newRequest() {
+        invokeHostOnly("new-request", {}, "New Request");
+      },
+      createCompanionDoc(id, preferredKind) {
+        invokeHostOnly("create-companion-doc", { id, preferredKind }, "Create companion doc");
+      },
+      renameEntry(id) {
+        invokeHostOnly("rename-entry", { id }, "Rename entry");
+      },
+      addReference(id) {
+        invokeHostOnly("add-reference", { id }, "Add reference");
+      },
+      addUsedBy(id) {
+        invokeHostOnly("add-used-by", { id }, "Add used-by link");
+      },
+      fixDocs() {
+        invokeHostOnly("fix-docs", {}, "Fix Logics");
+      },
+      newGuidedRequest() {
+        invokeHostOnly("new-request-guided", {}, "New Request");
+      },
+      launchCodexOverlay() {
+        invokeHostOnly("launch-codex-overlay", {}, "Launch Codex");
+      },
+      launchClaude() {
+        invokeHostOnly("launch-claude", {}, "Launch Claude");
+      },
+      bootstrapLogics() {
+        invokeHostOnly("bootstrap-logics", {}, "Bootstrap Logics");
+      },
+      updateLogicsKit() {
+        invokeHostOnly("update-logics-kit", {}, "Update Logics Kit");
+      },
+      syncCodexOverlay() {
+        invokeHostOnly("sync-codex-overlay", {}, "Publish Global Codex Kit");
+      },
+      repairLogicsKit() {
+        invokeHostOnly("repair-logics-kit", {}, "Repair Logics Kit");
+      },
+      checkEnvironment() {
+        invokeHostOnly("check-environment", {}, "Check Environment");
+      },
+      checkHybridRuntime() {
+        invokeHostOnly("check-hybrid-runtime", {}, "Check Hybrid Runtime");
+      },
+      openHybridInsights() {
+        invokeHostOnly("open-hybrid-insights", {}, "Hybrid Insights");
+      },
+      openLogicsInsights() {
+        invokeHostOnly("open-logics-insights", {}, "Logics Insights");
+      },
+      assistCommitAll() {
+        invokeHostOnly("assist-commit-all", {}, "Commit All Changes");
+      },
+      assistNextStep() {
+        invokeHostOnly("assist-next-step", {}, "Suggest Next Step");
+      },
+      assistTriage(id) {
+        invokeHostOnly("assist-triage", id ? { id } : {}, "Triage Item");
+      },
+      assistDiffRisk() {
+        invokeHostOnly("assist-diff-risk", {}, "Assess Diff Risk");
+      },
+      assistSummarizeValidation() {
+        invokeHostOnly("assist-summarize-validation", {}, "Summarize Validation");
+      },
+      assistSummarizeChangelog() {
+        invokeHostOnly("assist-summarize-changelog", {}, "Generate Changelog Summary");
+      },
+      assistPrepareRelease() {
+        invokeHostOnly("assist-prepare-release", {}, "Prepare Release");
+      },
+      assistPublishRelease() {
+        invokeHostOnly("assist-publish-release", {}, "Publish Release");
+      },
+      assistValidationChecklist() {
+        invokeHostOnly("assist-validation-checklist", {}, "Validation Checklist");
+      },
+      assistDocConsistency() {
+        invokeHostOnly("assist-doc-consistency", {}, "Doc Consistency");
+      },
+      openOnboarding() {
+        invokeHostOnly("open-onboarding", {}, "Getting Started");
+      },
+      selectAgent() {
+        invokeHostOnly("select-agent", {}, "Select Agent");
+      },
+      injectPrompt(prompt, options) {
+        if (!prompt) {
+          return;
+        }
+        invokeHostOnly("inject-prompt", { prompt, options }, "Copy for Assistant");
+      },
+      promote(id) {
+        invokeHostOnly("promote", { id }, "Promote");
+      },
+      markDone(item) {
+        if (!confirmLifecycleAction(item, "done")) {
+          return;
+        }
+        invokeHostOnly("mark-done", { id: item.id }, "Mark as done");
+      },
+      markObsolete(item) {
+        if (!confirmLifecycleAction(item, "obsolete")) {
+          return;
+        }
+        invokeHostOnly("mark-obsolete", { id: item.id }, "Mark as obsolete");
+      },
+      changeStatus(item) {
+        if (!item) {
+          return;
+        }
+        invokeHostOnly("change-status", { id: item.id }, "Change status");
+      },
+      async changeProjectRoot() {
+        if (isHarnessMode) {
+          await handleHarnessChangeProjectRoot();
+          return;
+        }
+        post({ type: "change-project-root" });
+      },
+      resetProjectRoot() {
+        if (isHarnessMode) {
+          applyHarnessRoot(null);
+          if (harnessBridge && typeof harnessBridge.resetProjectRoot === "function") {
+            harnessBridge.resetProjectRoot();
+          }
+          setCanResetProjectRoot(false);
+          showStatus("Harness project root reset to default mock workspace.", "info");
+          return;
+        }
+        post({ type: "reset-project-root" });
+      },
+      about() {
+        if (isHarnessMode) {
+          const opened = window.open(projectGithubUrl, "_blank", "noopener,noreferrer");
+          if (!opened) {
+            showStatus("Popup blocked by the browser. Enable popups to open project page.", "warn");
+          }
+          return;
+        }
+        post({ type: "about" });
+      },
+      openItem(item, mode) {
+        if (!item) {
+          return;
+        }
+        if (isHarnessMode) {
+          if (typeof openHarnessItem === "function") {
+            openHarnessItem(item, mode);
+          }
+          return;
+        }
+        post({ type: mode, id: item.id });
+      }
+    };
+    if (typeof window.assertCdxLogicsHostApiContract === "function") {
+      window.assertCdxLogicsHostApiContract(api);
+    }
+    return api;
+  };
+})();

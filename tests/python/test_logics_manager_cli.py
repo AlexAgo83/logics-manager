@@ -343,6 +343,39 @@ def test_viewer_serves_mermaid_vendor_asset(tmp_path: Path) -> None:
         thread.join(timeout=5)
 
 
+def test_viewer_serves_packaged_static_assets_when_source_clients_are_absent(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "logics").mkdir()
+    monkeypatch.setattr(viewer_module, "VIEWER_ROOT", viewer_module.PACKAGE_VIEWER_ASSETS_ROOT / "viewer")
+    monkeypatch.setattr(viewer_module, "SHARED_MEDIA_ROOT", viewer_module.PACKAGE_VIEWER_ASSETS_ROOT / "media")
+    monkeypatch.setattr(viewer_module, "DIST_VENDOR_ROOT", tmp_path / "missing-vendor")
+    monkeypatch.setattr(viewer_module, "NODE_MERMAID_ROOT", tmp_path / "missing-node-mermaid")
+
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        for route, expected in (
+            ("/", b"Logics Viewer"),
+            ("/browser-host.js", b"stateKey"),
+            ("/viewer.css", b"viewer-topbar"),
+            ("/media/main.css", b":root"),
+            ("/vendor/mermaid.min.js", b"mermaid"),
+        ):
+            conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+            conn.request("GET", route)
+            response = conn.getresponse()
+            body = response.read(4096)
+            assert response.status == 200, route
+            assert expected in body, route
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "request").mkdir(parents=True)

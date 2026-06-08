@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logics-manager"
-version = "2.3.2"
+version = "2.3.3"
 description = "Canonical Logics CLI"
 requires-python = ">=3.10"
 
@@ -12,4 +12,19 @@ requires-python = ">=3.10"
 logics-manager = "logics_manager.cli:main"
 
 [tool.setuptools]
-packages = ["logics_manager"]
+packages = [
+  "logics_manager",
+  "logics_manager.viewer_assets",
+  "logics_manager.viewer_assets.media",
+  "logics_manager.viewer_assets.media.css",
+  "logics_manager.viewer_assets.vendor",
+  "logics_manager.viewer_assets.viewer",
+]
+
+[tool.setuptools.package-data]
+logics_manager = [
+  "viewer_assets/media/*",
+  "viewer_assets/media/css/*",
+  "viewer_assets/vendor/*",
+  "viewer_assets/viewer/*",
+]

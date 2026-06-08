@@ -1,0 +1,123 @@
+.layout {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.layout__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.layout--horizontal {
+  flex-direction: row;
+}
+
+.layout--stacked {
+  flex-direction: column;
+  position: relative;
+}
+
+.splitter {
+  display: none;
+  position: relative;
+  flex: 0 0 14px;
+  height: 14px;
+  width: 100%;
+  background: transparent;
+  cursor: row-resize;
+  touch-action: none;
+  z-index: 3;
+}
+
+.splitter::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+}
+
+.splitter::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  background: var(--vscode-descriptionForeground, #9da5b4);
+  border-radius: 999px;
+  box-shadow:
+    0 -4px 0 var(--vscode-descriptionForeground, #9da5b4),
+    0 4px 0 var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.splitter:hover::before,
+.splitter--dragging::before {
+  background: var(--vscode-button-background, #0e639c);
+}
+
+.splitter:hover::after,
+.splitter--dragging::after {
+  background: var(--vscode-button-background, #0e639c);
+  box-shadow:
+    0 -4px 0 var(--vscode-button-background, #0e639c),
+    0 4px 0 var(--vscode-button-background, #0e639c);
+}
+
+.layout--stacked .splitter {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.layout--horizontal .splitter {
+  display: none !important;
+}
+
+.layout--stacked.layout--split-disabled .splitter {
+  display: none;
+}
+
+.layout--stacked .layout__main {
+  flex: 1 1 auto;
+  min-height: 0;
+  z-index: 0;
+}
+
+.layout--horizontal .layout__main {
+  min-width: 0;
+  min-height: 0;
+}
+
+.layout--horizontal .details {
+  flex: 0 0 300px;
+  min-height: 0;
+}
+
+.layout--stacked .details {
+  min-height: 220px;
+  border-top: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.is-resizing {
+  cursor: row-resize;
+  user-select: none;
+}

@@ -1,18 +1,18 @@
 ## task_180_add_reliable_local_activity_snapshots_to_the_viewer - Add reliable local activity snapshots to the viewer
-> From version: 2.3.3
+> From version: 2.3.3+viewer-delivery
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90
-> Confidence: 80
-> Progress: 0
+> Status: Done
+> Understanding: 100
+> Confidence: 95
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer activity
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_379_add_reliable_local_activity_snapshots_to_the_viewer`
@@ -45,9 +45,17 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_180_add_reliable_local_activity_snapshots_to_the_viewer.md` after implementation.
+- Finish workflow executed on 2026-06-08.
+- Linked backlog/request close verification passed.
 
 # Report
-- Not started.
+- Added localStorage-backed activity snapshots keyed by stable repo-relative document path.
+- Status-change markers are emitted only when a previous known status differs from the refreshed status; first load and new docs remain general updates.
+- Activity history is bounded to 80 entries and can be cleared with the new activity clear control without clearing viewer filter preferences.
+- Existing activity selection, double-click read behavior, and timestamp rendering are covered by existing webview tests plus the new viewer smoke.
+- Finished on 2026-06-08.
+- Linked backlog item(s): `item_379_add_reliable_local_activity_snapshots_to_the_viewer`
+- Related request(s): `req_215_add_reliable_local_activity_snapshots_to_the_viewer`
 
 # AI Context
 - Summary: Implement add reliable local activity snapshots to the viewer.

@@ -1,18 +1,18 @@
 ## task_182_add_local_viewer_git_status_summary - Add local viewer Git status summary
-> From version: 2.3.3
+> From version: 2.3.3+viewer-delivery
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95
-> Confidence: 90
-> Progress: 0
+> Status: Done
+> Understanding: 100
+> Confidence: 95
+> Progress: 100%
 > Complexity: Medium
 > Theme: Developer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_381_add_local_viewer_git_status_summary`
@@ -50,9 +50,17 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_182_add_local_viewer_git_status_summary.md` after implementation.
+- Finish workflow executed on 2026-06-08.
+- Linked backlog/request close verification passed.
 
 # Report
-- Not started.
+- Added a read-only Git status collector and `/api/git-status` endpoint in `logics_manager/viewer.py`.
+- Added the `Git` topbar control between `Refresh` and `Insights`, rendering branch, tracking, ahead/behind, clean/dirty state, counts, latest commit, and grouped file changes in the shared secondary viewer surface.
+- Git unavailable, non-worktree, and command-failure states render short safe messages; remote/tracking strings are sanitized and only read-only Git commands are used.
+- Python and browser-host tests cover collector states, topbar order, Git screen rendering, and packaged viewer assets.
+- Finished on 2026-06-08.
+- Linked backlog item(s): `item_381_add_local_viewer_git_status_summary`
+- Related request(s): `req_217_add_local_viewer_git_status_summary`
 
 # AI Context
 - Summary: Implement add local viewer git status summary.

@@ -1,10 +1,10 @@
 ## item_377_dogfood_local_logics_viewer_on_real_corpora - Dogfood local Logics viewer on real corpora
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 85
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,6 +76,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_213_dogfood_local_logics_viewer_on_real_corpora` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_213_dogfood_local_logics_viewer_on_real_corpora.md`.
 - Generated locally by logics-manager.
+- Task `task_178_dogfood_local_logics_viewer_on_real_corpora` was finished via `logics-manager flow finish task` on 2026-06-08.
 
 # Tasks
 - `task_178_dogfood_local_logics_viewer_on_real_corpora`

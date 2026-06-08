@@ -1,7 +1,7 @@
 ## req_215_add_reliable_local_activity_snapshots_to_the_viewer - Add reliable local activity snapshots to the viewer
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 80
 > Complexity: Medium

@@ -1,18 +1,18 @@
 ## task_181_add_visual_regression_smoke_coverage_for_the_local_viewer - Add visual regression smoke coverage for the local viewer
-> From version: 2.3.3
+> From version: 2.3.3+viewer-delivery
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90
-> Confidence: 80
-> Progress: 0
+> Status: Done
+> Understanding: 100
+> Confidence: 95
+> Progress: 100%
 > Complexity: Medium
 > Theme: Testing
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_380_add_visual_regression_smoke_coverage_for_the_local_viewer`
@@ -45,9 +45,17 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_181_add_visual_regression_smoke_coverage_for_the_local_viewer.md` after implementation.
+- Finish workflow executed on 2026-06-08.
+- Linked backlog/request close verification passed.
 
 # Report
-- Not started.
+- Added `tests/run_local_viewer_visual_smoke.mjs` and `npm run test:viewer-smoke`.
+- The smoke starts `python3 -m logics_manager view --port 0`, opens it in headless Chrome when available, captures desktop/tablet/mobile screenshots, and falls back to bounded JSDOM payload checks when no browser is installed.
+- The smoke verifies the topbar, repository pill, board, details, read preview, Insights, Health, Auto off/on, Refresh, recent activity selection, and double-click read behavior.
+- Integrated the smoke into `scripts/ci-check.mjs` so CI exercises local source code rather than a published package.
+- Finished on 2026-06-08.
+- Linked backlog item(s): `item_380_add_visual_regression_smoke_coverage_for_the_local_viewer`
+- Related request(s): `req_216_add_visual_regression_smoke_coverage_for_the_local_viewer`
 
 # AI Context
 - Summary: Implement add visual regression smoke coverage for the local viewer.

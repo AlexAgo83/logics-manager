@@ -1,18 +1,18 @@
 ## task_179_make_local_viewer_corpus_insights_actionable - Make local viewer corpus insights actionable
-> From version: 2.3.3
+> From version: 2.3.3+viewer-delivery
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95
-> Confidence: 85
-> Progress: 0
+> Status: Done
+> Understanding: 100
+> Confidence: 95
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer insights
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_378_make_local_viewer_corpus_insights_actionable`
@@ -45,9 +45,17 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_179_make_local_viewer_corpus_insights_actionable.md` after implementation.
+- Finish workflow executed on 2026-06-08.
+- Linked backlog/request close verification passed.
 
 # Report
-- Not started.
+- Implemented compact actionable Insights rows for flow health, activity, traceability, quality signals, and operator actions.
+- Insight rows now open safe Logics document previews, apply existing local viewer filters, reveal bounded long lists without reordering, or open Health.
+- Turning an insight-applied filter off through Clear filters restores the default viewer filter state.
+- Validation covered by `tests/viewer.browser-host.test.ts` and the local viewer visual smoke.
+- Finished on 2026-06-08.
+- Linked backlog item(s): `item_378_make_local_viewer_corpus_insights_actionable`
+- Related request(s): `req_214_make_local_viewer_corpus_insights_actionable`
 
 # AI Context
 - Summary: Implement make local viewer corpus insights actionable.

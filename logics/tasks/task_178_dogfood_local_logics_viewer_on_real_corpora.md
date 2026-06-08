@@ -1,18 +1,18 @@
 ## task_178_dogfood_local_logics_viewer_on_real_corpora - Dogfood local Logics viewer on real corpora
-> From version: 2.3.3
+> From version: 2.3.3+viewer-delivery
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 95
-> Confidence: 85
-> Progress: 0
+> Status: Done
+> Understanding: 100
+> Confidence: 95
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX validation
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_377_dogfood_local_logics_viewer_on_real_corpora`
@@ -45,9 +45,19 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_178_dogfood_local_logics_viewer_on_real_corpora.md` after implementation.
+- Finish workflow executed on 2026-06-08.
+- Linked backlog/request close verification passed.
 
 # Report
-- Not started.
+- Exercised the local viewer from `python3 -m logics_manager view --port 0 --no-open --refresh-interval 60` through the new headless smoke harness.
+- Covered desktop, tablet, and mobile viewports with screenshots in `artifacts/local-viewer-smoke/`.
+- Covered topbar controls, repository pill, Auto/Refresh, Insights, Health, attention/activity surfaces, read preview, and recent activity double-click read.
+- Must fix: none remaining from this pass.
+- Should fix: keep the new smoke in CI so future viewer layout regressions are caught before release.
+- Nice to have: replace the JSDOM fallback with a cross-platform installed browser lane if CI runners ever stop shipping Chrome/Chromium.
+- Finished on 2026-06-08.
+- Linked backlog item(s): `item_377_dogfood_local_logics_viewer_on_real_corpora`
+- Related request(s): `req_213_dogfood_local_logics_viewer_on_real_corpora`
 
 # AI Context
 - Summary: Implement dogfood local logics viewer on real corpora.

@@ -1,7 +1,7 @@
 ## req_216_add_visual_regression_smoke_coverage_for_the_local_viewer - Add visual regression smoke coverage for the local viewer
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 80
 > Complexity: Medium

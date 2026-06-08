@@ -1,10 +1,10 @@
 ## item_380_add_visual_regression_smoke_coverage_for_the_local_viewer - Add visual regression smoke coverage for the local viewer
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 80
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: Testing
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,6 +76,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_216_add_visual_regression_smoke_coverage_for_the_local_viewer` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_216_add_visual_regression_smoke_coverage_for_the_local_viewer.md`.
 - Generated locally by logics-manager.
+- Task `task_181_add_visual_regression_smoke_coverage_for_the_local_viewer` was finished via `logics-manager flow finish task` on 2026-06-08.
 
 # Tasks
 - `task_181_add_visual_regression_smoke_coverage_for_the_local_viewer`

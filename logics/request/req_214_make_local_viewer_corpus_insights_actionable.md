@@ -1,7 +1,7 @@
 ## req_214_make_local_viewer_corpus_insights_actionable - Make local viewer corpus insights actionable
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 85
 > Complexity: Medium

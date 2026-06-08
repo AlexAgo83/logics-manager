@@ -1,7 +1,7 @@
 ## req_217_add_local_viewer_git_status_summary - Add local viewer Git status summary
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 90
 > Complexity: Medium

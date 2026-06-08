@@ -1,10 +1,10 @@
 ## item_381_add_local_viewer_git_status_summary - Add local viewer Git status summary
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 90
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: Developer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -87,6 +87,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_217_add_local_viewer_git_status_summary` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_217_add_local_viewer_git_status_summary.md`.
 - Generated locally by logics-manager.
+- Task `task_182_add_local_viewer_git_status_summary` was finished via `logics-manager flow finish task` on 2026-06-08.
 
 # Tasks
 - `task_182_add_local_viewer_git_status_summary`

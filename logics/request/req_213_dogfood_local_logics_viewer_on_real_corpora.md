@@ -1,7 +1,7 @@
 ## req_213_dogfood_local_logics_viewer_on_real_corpora - Dogfood local Logics viewer on real corpora
 > From version: 2.3.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 85
 > Complexity: Medium

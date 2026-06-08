@@ -273,6 +273,7 @@
 | [req_214_make_local_viewer_corpus_insights_actionable](request/req_214_make_local_viewer_corpus_insights_actionable.md) | Make local viewer corpus insights actionable | Ready |  | request/req_214_make_local_viewer_corpus_insights_actionable.md |
 | [req_215_add_reliable_local_activity_snapshots_to_the_viewer](request/req_215_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Ready |  | request/req_215_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [req_216_add_visual_regression_smoke_coverage_for_the_local_viewer](request/req_216_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Ready |  | request/req_216_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
+| [req_217_add_local_viewer_git_status_summary](request/req_217_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Ready |  | request/req_217_add_local_viewer_git_status_summary.md |
 
 ## Backlog
 
@@ -658,6 +659,7 @@
 | [item_378_make_local_viewer_corpus_insights_actionable](backlog/item_378_make_local_viewer_corpus_insights_actionable.md) | Make local viewer corpus insights actionable | Ready | 0 | backlog/item_378_make_local_viewer_corpus_insights_actionable.md |
 | [item_379_add_reliable_local_activity_snapshots_to_the_viewer](backlog/item_379_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Ready | 0 | backlog/item_379_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [item_380_add_visual_regression_smoke_coverage_for_the_local_viewer](backlog/item_380_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Ready | 0 | backlog/item_380_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
+| [item_381_add_local_viewer_git_status_summary](backlog/item_381_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Ready | 0 | backlog/item_381_add_local_viewer_git_status_summary.md |
 
 ## Tasks
 
@@ -838,3 +840,4 @@
 | [task_179_make_local_viewer_corpus_insights_actionable](tasks/task_179_make_local_viewer_corpus_insights_actionable.md) | Make local viewer corpus insights actionable | Ready | 0 | tasks/task_179_make_local_viewer_corpus_insights_actionable.md |
 | [task_180_add_reliable_local_activity_snapshots_to_the_viewer](tasks/task_180_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Ready | 0 | tasks/task_180_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [task_181_add_visual_regression_smoke_coverage_for_the_local_viewer](tasks/task_181_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Ready | 0 | tasks/task_181_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
+| [task_182_add_local_viewer_git_status_summary](tasks/task_182_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Ready | 0 | tasks/task_182_add_local_viewer_git_status_summary.md |

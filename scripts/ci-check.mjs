@@ -29,6 +29,7 @@ const steps = [
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },
   { label: "Unit tests + coverage", command: npmCommand(), args: ["run", "test:coverage"] },
+  { label: "Local viewer visual smoke", command: npmCommand(), args: ["run", "test:viewer-smoke"] },
   { label: "Extension smoke checks", command: npmCommand(), args: ["run", "test:smoke"] },
   { label: "npm CLI smoke checks", command: npmCommand(), args: ["run", "test:npm-cli"] },
   { label: "Logics docs lint", command: npmCommand(), args: ["run", "lint:logics"] },

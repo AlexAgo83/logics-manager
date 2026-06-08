@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 import { WebSocket } from "ws";
 
@@ -50,12 +50,23 @@ function findChrome() {
   }
   const candidates = process.platform === "darwin"
     ? ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "google-chrome", "chromium", "chromium-browser"]
-    : ["google-chrome", "chromium", "chromium-browser", "chrome"];
+    : process.platform === "win32"
+      ? [
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+          "chrome",
+          "chrome.exe",
+          "msedge",
+          "msedge.exe"
+        ]
+      : ["google-chrome", "chromium", "chromium-browser", "chrome"];
   for (const candidate of candidates) {
-    if (candidate.startsWith("/") && existsSync(candidate)) {
+    if (isAbsolute(candidate) && existsSync(candidate)) {
       return candidate;
     }
-    if (!candidate.startsWith("/") && spawnSync(candidate, ["--version"], { encoding: "utf8" }).status === 0) {
+    if (!isAbsolute(candidate) && spawnSync(candidate, ["--version"], { encoding: "utf8" }).status === 0) {
       return candidate;
     }
   }

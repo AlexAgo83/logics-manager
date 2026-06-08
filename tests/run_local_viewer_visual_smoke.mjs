@@ -132,14 +132,16 @@ async function startChrome(chrome, viewport) {
   const child = spawn(chrome, args, { stdio: ["ignore", "pipe", "pipe"] });
   let wsUrl = "";
   const output = [];
-  child.stderr.on("data", (chunk) => {
+  const captureDevToolsOutput = (chunk) => {
     const text = chunk.toString();
     output.push(text);
     const match = text.match(/DevTools listening on (ws:\/\/[^\s]+)/);
     if (match) {
       wsUrl = match[1];
     }
-  });
+  };
+  child.stdout.on("data", captureDevToolsOutput);
+  child.stderr.on("data", captureDevToolsOutput);
   await waitFor(() => Boolean(wsUrl), "Chrome DevTools URL", () => output.join(""));
   const port = Number(new URL(wsUrl).port);
   const pageWsUrl = await waitForPageTarget(port);

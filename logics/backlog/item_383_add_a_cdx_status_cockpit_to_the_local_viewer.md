@@ -1,10 +1,10 @@
 ## item_383_add_a_cdx_status_cockpit_to_the_local_viewer - Add a CDX status cockpit to the local viewer
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -66,7 +66,7 @@ flowchart TD
 # Links
 - Product brief(s): `prod_022_cdx_status_cockpit_for_the_local_viewer`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_219_add_a_cdx_status_cockpit_to_the_local_viewer.md`
+- Request: `req_219_add_a_cdx_status_cockpit_to_the_local_viewer`
 - Primary task(s): `task_184_add_a_cdx_status_cockpit_to_the_local_viewer`
 
 # AI Context
@@ -81,6 +81,7 @@ flowchart TD
 
 # Notes
 - Generated locally by logics-manager, then expanded from the linked product brief.
+- Task `task_184_add_a_cdx_status_cockpit_to_the_local_viewer` was finished via `logics-manager flow finish task` on 2026-06-09.
 
 # References
 - `logics/product/prod_022_cdx_status_cockpit_for_the_local_viewer.md`

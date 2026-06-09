@@ -1,10 +1,10 @@
 ## task_184_add_a_cdx_status_cockpit_to_the_local_viewer - Add a CDX status cockpit to the local viewer
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,14 +15,14 @@
 - CDX must remain optional: missing or broken CDX state should not prevent normal Logics viewer usage.
 
 # Plan
-- [ ] 1. Add backend CDX detection and a bounded read-only status collector for `cdx status --json`.
-- [ ] 2. Add `/api/cdx-status` with unavailable, timeout, failed-command, invalid-JSON, and ok payload states.
-- [ ] 3. Add the `CDX` topbar button next to `Git` in source and packaged viewer assets.
-- [ ] 4. Render the CDX status screen with summary cards, provider/session lists, and safe command suggestions.
-- [ ] 5. Integrate manual and automatic refresh when the CDX screen is open.
-- [ ] 6. Add focused Python and browser-host tests, then run viewer regression validation.
-- [ ] 7. Update linked Logics docs if implementation scope changes and checkpoint the completed slice.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] 1. Add backend CDX detection and a bounded read-only status collector for `cdx status --json`.
+- [x] 2. Add `/api/cdx-status` with unavailable, timeout, failed-command, invalid-JSON, and ok payload states.
+- [x] 3. Add the `CDX` topbar button next to `Git` in source and packaged viewer assets.
+- [x] 4. Render the CDX status screen with summary cards, provider/session lists, and safe command suggestions.
+- [x] 5. Integrate manual and automatic refresh when the CDX screen is open.
+- [x] 6. Add focused Python and browser-host tests, then run viewer regression validation.
+- [x] 7. Update linked Logics docs if implementation scope changes and checkpoint the completed slice.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 
 # Backlog
 - `item_383_add_a_cdx_status_cockpit_to_the_local_viewer`
@@ -38,13 +38,13 @@ flowchart TD
 ```
 
 # Definition of Done (DoD)
-- [ ] Backend CDX status collection is read-only, timeout-bounded, and optional.
-- [ ] The local viewer exposes a `CDX` button next to `Git` without breaking non-CDX environments.
-- [ ] The CDX screen renders structured status as cards/lists, not pasted terminal text.
-- [ ] Missing/failed/timeout/invalid JSON states render safely.
-- [ ] Refresh updates the CDX screen when it is open.
-- [ ] No mutating CDX controls are exposed.
-- [ ] Validation passes and linked docs remain synchronized.
+- [x] Backend CDX status collection is read-only, timeout-bounded, and optional.
+- [x] The local viewer exposes a `CDX` button next to `Git` without breaking non-CDX environments.
+- [x] The CDX screen renders structured status as cards/lists, not pasted terminal text.
+- [x] Missing/failed/timeout/invalid JSON states render safely.
+- [x] Refresh updates the CDX screen when it is open.
+- [x] No mutating CDX controls are exposed.
+- [x] Validation passes and linked docs remain synchronized.
 
 # AC Traceability
 - request-AC1 -> Plan 1, Plan 2, DoD 1. Proof: CDX detection and optional backend state are task outputs.
@@ -70,9 +70,15 @@ flowchart TD
 - Run `npm run test:viewer-smoke`.
 - Run `logics-manager lint --require-status`.
 - Run `logics-manager audit` before closeout.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py. vitest passed: npm test. viewer smoke passed: npm run test:viewer-smoke. audit passed: logics-manager audit.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_383_add_a_cdx_status_cockpit_to_the_local_viewer`
+- Related request(s): `req_219_add_a_cdx_status_cockpit_to_the_local_viewer`
 
 # AI Context
 - Summary: Implement optional read-only CDX status visibility in the local viewer.

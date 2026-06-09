@@ -1,7 +1,7 @@
 ## req_219_add_a_cdx_status_cockpit_to_the_local_viewer - Add a CDX status cockpit to the local viewer
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -35,6 +35,8 @@
   let refreshAfterVisible = false;
   let mermaidInitialized = false;
   let focusApplied = false;
+  let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+  let gitBadgeSeenState = { main: true, history: true, changes: true };
 
   function readStoredState() {
     try {
@@ -183,6 +185,93 @@
     const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
     pill.textContent = repoName;
     pill.title = latestRepoRoot || repoName;
+  }
+
+  function normalizeGitBadgeCounts(payload) {
+    const counts = payload && typeof payload === "object" ? payload.badgeCounts || {} : {};
+    return {
+      unpushedCommits: Math.max(0, Number(counts.unpushedCommits || payload?.ahead || 0)),
+      uncommittedFiles: Math.max(0, Number(counts.uncommittedFiles || 0))
+    };
+  }
+
+  function renderGitBadge(kind, count) {
+    const value = Number(count || 0);
+    if (value <= 0) {
+      return "";
+    }
+    const label = kind === "commits"
+      ? `${value} commits locaux non pushés`
+      : `${value} fichiers modifiés non commités`;
+    return `<span class="viewer-git-badge viewer-git-badge--${kind}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${escapeHtml(value)}</span>`;
+  }
+
+  function gitBadgeHtml(scope) {
+    const commitsVisible = latestGitBadgeCounts.unpushedCommits > 0 && (
+      scope === "main" ? !gitBadgeSeenState.main : scope === "history" && !gitBadgeSeenState.history
+    );
+    const filesVisible = latestGitBadgeCounts.uncommittedFiles > 0 && (
+      scope === "main" ? !gitBadgeSeenState.main : scope === "changes" && !gitBadgeSeenState.changes
+    );
+    const html = [
+      commitsVisible ? renderGitBadge("commits", latestGitBadgeCounts.unpushedCommits) : "",
+      filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
+    ].filter(Boolean).join("");
+    return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
+  }
+
+  function updateMainGitBadges() {
+    const button = document.getElementById("viewer-git");
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    button.querySelector('[data-viewer-git-badges="main"]')?.remove();
+    const html = gitBadgeHtml("main");
+    if (html) {
+      button.insertAdjacentHTML("beforeend", html);
+    }
+  }
+
+  function setGitBadgeCountsFromPayload(payload, options = {}) {
+    latestGitBadgeCounts = normalizeGitBadgeCounts(payload);
+    gitBadgeSeenState = {
+      main: latestGitBadgeCounts.unpushedCommits <= 0 && latestGitBadgeCounts.uncommittedFiles <= 0,
+      history: latestGitBadgeCounts.unpushedCommits <= 0,
+      changes: latestGitBadgeCounts.uncommittedFiles <= 0
+    };
+    if (options.updateMain !== false) {
+      updateMainGitBadges();
+    }
+  }
+
+  async function refreshGitBadgeCounters() {
+    try {
+      const response = await fetch("/api/git-status");
+      const data = await response.json();
+      if (response.ok && data.ok && data.payload?.state === "ok") {
+        setGitBadgeCountsFromPayload(data.payload);
+      }
+    } catch {
+      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      gitBadgeSeenState = { main: true, history: true, changes: true };
+      updateMainGitBadges();
+    }
+  }
+
+  function markGitBadgesViewed(scope) {
+    if (scope === "main") {
+      gitBadgeSeenState.main = true;
+    }
+    if (scope === "history") {
+      gitBadgeSeenState.history = true;
+    }
+    if (scope === "changes") {
+      gitBadgeSeenState.changes = true;
+    }
+    updateMainGitBadges();
+    if (scope === "history" || scope === "changes") {
+      document.querySelector(`[data-viewer-git-domain="${scope}"] [data-viewer-git-badges="${scope}"]`)?.remove();
+    }
   }
 
   function findItemByPath(relPath) {
@@ -492,6 +581,8 @@
     await loadItems(method, options);
     if (isGitStatusOpen()) {
       await showGitStatus({ preserve: true, silent: Boolean(options.silent) });
+    } else if (method === "POST") {
+      await refreshGitBadgeCounters();
     }
   }
 
@@ -1136,7 +1227,7 @@
     ];
     const domains = domainDefs.map(([key, label, count], index) => `
       <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
-        <span>${escapeHtml(label)}</span><strong>${escapeHtml(count)}</strong>
+        <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
     const renderFileSections = (allowedKeys) => groupDefs.filter(([key]) => allowedKeys.includes(key)).map(([key, label]) => {
@@ -1266,6 +1357,9 @@
 
   function applyGitDomain(domain) {
     const selected = domain || "changes";
+    if (selected === "history" || selected === "changes") {
+      markGitBadgesViewed(selected);
+    }
     document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
       if (node instanceof HTMLElement) {
         const active = node.getAttribute("data-viewer-git-domain") === selected;
@@ -1320,6 +1414,14 @@
     }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load Git status.");
+    }
+    setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
+    markGitBadgesViewed("main");
+    if ((previous.domain || "changes") === "changes") {
+      markGitBadgesViewed("changes");
+    }
+    if ((previous.domain || "changes") === "history") {
+      markGitBadgesViewed("history");
     }
     setDocument("Git status", renderGitStatus(data.payload));
     applyGitDomain(previous.domain || "changes");
@@ -1397,6 +1499,7 @@
       showHealth().catch((error) => setMeta(error.message));
     });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
+      markGitBadgesViewed("main");
       showGitStatus().catch((error) => setMeta(error.message));
     });
     activityClearControl()?.addEventListener("click", () => {

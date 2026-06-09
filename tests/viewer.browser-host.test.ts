@@ -624,6 +624,98 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("HEAD -> main");
   });
 
+  it("shows Git badge counters after refresh and hides main badges after opening Git", async () => {
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 2,
+            behind: 0,
+            clean: false,
+            dirty: true,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [{ hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+            badgeCounts: { unpushedCommits: 2, uncommittedFiles: 3 },
+            counts: { staged: 1, modified: 2, deleted: 0, renamed: 0, untracked: 0 },
+            groups: {
+              staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }],
+              modified: [{ path: "a.md" }, { path: "b.md" }],
+              deleted: [],
+              renamed: [],
+              untracked: []
+            }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const gitButton = dom.window.document.getElementById("viewer-git");
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
+
+    gitButton?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')).toBeNull();
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.querySelector('[data-viewer-git-domain="changes"] [data-viewer-git-badges="changes"]')).toBeNull();
+    expect(content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"]')?.textContent).toContain("2");
+  });
+
+  it("keeps the History Git badge until the History subview is opened", async () => {
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 4,
+            behind: 0,
+            clean: true,
+            dirty: false,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [{ hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+            badgeCounts: { unpushedCommits: 4, uncommittedFiles: 0 },
+            counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+            groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    const historyBadge = content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"] .viewer-git-badge');
+    expect(historyBadge?.textContent).toContain("4");
+    expect(historyBadge?.getAttribute("title")).toContain("commits locaux non pushés");
+
+    const historyDomain = content?.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
+    historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"]')).toBeNull();
+  });
+
   it("refreshes the open Git screen when the viewer refresh button is used", async () => {
     const firstGitPayload = {
       ok: true,

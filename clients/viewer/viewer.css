@@ -51,6 +51,42 @@
   flex: 0 0 auto;
 }
 
+.viewer-topbar__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewer-git-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+
+.viewer-git-badge {
+  display: inline-grid;
+  min-width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.viewer-git-badge--commits {
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 24%, transparent);
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
+.viewer-git-badge--files {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+}
+
 .viewer-auto-refresh {
   display: inline-flex;
   align-items: center;
@@ -357,6 +393,13 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 9px;
+}
+
+.viewer-git__domain-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
 }
 
 .viewer-git__domain.is-active,

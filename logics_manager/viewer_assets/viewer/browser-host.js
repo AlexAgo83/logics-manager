@@ -1097,7 +1097,7 @@
       ["staged", "Staged", stagedCount],
       ["worktree", "Worktree", modifiedCount + deletedCount + renamedCount],
       ["untracked", "Untracked", untrackedCount],
-      ["history", "History", payload.latestCommit ? 1 : 0],
+      ["history", "History", Array.isArray(payload.recentCommits) ? payload.recentCommits.length : (payload.latestCommit ? 1 : 0)],
       ["remote", "Remote", payload.tracking ? 1 : 0]
     ];
     const domains = domainDefs.map(([key, label, count], index) => `
@@ -1125,9 +1125,27 @@
       `;
     }).join("");
     const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
-    const history = payload.latestCommit
-      ? `<section class="viewer-git__section" data-viewer-git-section="history" data-viewer-git-domain="history"><h2>History</h2><p class="viewer-git__commit">Latest commit: <code>${escapeHtml(payload.latestCommit)}</code></p></section>`
-      : "";
+    const recentCommits = Array.isArray(payload.recentCommits) ? payload.recentCommits : [];
+    const historyRows = recentCommits.length
+      ? recentCommits.map((commit) => `
+        <li class="viewer-git__commit-row">
+          <div class="viewer-git__commit-main">
+            <code>${escapeHtml(commit.hash || "")}</code>
+            <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
+          </div>
+          <div class="viewer-git__commit-meta">
+            <span>${escapeHtml([commit.author, commit.date].filter(Boolean).join(" · ") || "Unknown")}</span>
+            ${commit.refs ? `<span class="viewer-git__commit-refs">${escapeHtml(commit.refs)}</span>` : ""}
+          </div>
+        </li>
+      `).join("")
+      : `<li class="viewer-git__commit-row">${escapeHtml(payload.latestCommit || "No commit history available.")}</li>`;
+    const history = `
+      <section class="viewer-git__section" data-viewer-git-section="history" data-viewer-git-domain="history">
+        <h2>History</h2>
+        <ul class="viewer-git__commits">${historyRows}</ul>
+      </section>
+    `;
     const remote = `
       <section class="viewer-git__section" data-viewer-git-section="remote" data-viewer-git-domain="remote">
         <h2>Remote</h2>

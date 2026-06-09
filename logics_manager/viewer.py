@@ -464,6 +464,25 @@ def _parse_git_branch_line(line: str) -> dict[str, Any]:
     }
 
 
+def _parse_recent_git_commits(output: str) -> list[dict[str, str]]:
+    commits: list[dict[str, str]] = []
+    for line in output.splitlines():
+        parts = line.split("\x1f")
+        if len(parts) < 5:
+            continue
+        commit_hash, subject, author, date, refs = parts[:5]
+        commits.append(
+            {
+                "hash": _sanitize_git_ref(commit_hash),
+                "subject": subject.strip()[:240],
+                "author": author.strip()[:120],
+                "date": date.strip()[:40],
+                "refs": _sanitize_git_ref(refs),
+            }
+        )
+    return commits
+
+
 def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     git_which = which or shutil.which
     if not git_which("git"):
@@ -478,6 +497,11 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     try:
         status = _run_read_only_git(repo_root, ["status", "--porcelain=v1", "-b"], runner=runner)
         commit = _run_read_only_git(repo_root, ["log", "-1", "--pretty=format:%h %s"], runner=runner)
+        recent_commits = _run_read_only_git(
+            repo_root,
+            ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
+            runner=runner,
+        )
     except (OSError, subprocess.SubprocessError) as exc:
         return {"state": "error", "message": f"Unable to collect Git status: {exc}"}
     if status.returncode != 0:
@@ -502,6 +526,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         "counts": counts,
         "groups": groups,
         "latestCommit": (commit.stdout.strip() if commit.returncode == 0 else "")[:300],
+        "recentCommits": _parse_recent_git_commits(recent_commits.stdout) if recent_commits.returncode == 0 else [],
     }
 
 

@@ -289,6 +289,14 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
             )
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "abc1234 latest commit", "")
+        if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "abc1234\x1flatest commit\x1fAlex\x1f2026-06-09\x1fHEAD -> main, tag: v2.4.0\n"
+                "def5678\x1fprevious commit\x1fSam\x1f2026-06-08\x1forigin/main",
+                "",
+            )
         raise AssertionError(args)
 
     payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
@@ -303,7 +311,12 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": ""}
     assert payload["groups"]["modified"][0]["logicsType"] == ""
     assert payload["latestCommit"] == "abc1234 latest commit"
+    assert payload["recentCommits"] == [
+        {"hash": "abc1234", "subject": "latest commit", "author": "Alex", "date": "2026-06-09", "refs": "HEAD -> main, tag: v2.4.0"},
+        {"hash": "def5678", "subject": "previous commit", "author": "Sam", "date": "2026-06-08", "refs": "origin/main"},
+    ]
     assert ["git", "status", "--porcelain=v1", "-b"] in calls
+    assert ["git", "log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
 
@@ -326,6 +339,8 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
                 "",
             )
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, "", "")
         raise AssertionError(args)
 

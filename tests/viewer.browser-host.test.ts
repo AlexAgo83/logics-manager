@@ -182,6 +182,10 @@ function createViewerDom(options: {
               clean: false,
               dirty: true,
               latestCommit: "abc1234 Demo commit",
+              recentCommits: [
+                { hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" },
+                { hash: "def5678", subject: "Previous commit", author: "Sam", date: "2026-06-08", refs: "origin/main" }
+              ],
               counts: { staged: 1, modified: 1, deleted: 0, renamed: 0, untracked: 1 },
               groups: {
                 staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }],
@@ -605,6 +609,11 @@ describe("local viewer browser host", () => {
     const stagedDomain = content?.querySelector('[data-viewer-git-domain="staged"]') as HTMLElement | null;
     stagedDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(stagedDomain?.getAttribute("aria-pressed")).toBe("true");
+    const historyDomain = content?.querySelector('.viewer-git__domain[data-viewer-git-domain="history"]') as HTMLElement | null;
+    historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(historyDomain?.textContent).toContain("2");
+    expect(content?.textContent).toContain("Demo commit");
+    expect(content?.textContent).toContain("HEAD -> main");
   });
 
   it("explains stale viewer servers that do not expose the Git status endpoint", async () => {

@@ -427,7 +427,7 @@ def _markdown_file_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str,
 
 def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, "-m", "logics_manager", *args]
-    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_subprocess_env())
     if result.returncode != 0:
         raise McpToolError(
             "command_failed",
@@ -439,7 +439,7 @@ def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProces
 
 def _run_json_command(repo_root: Path, args: list[str]) -> dict[str, Any]:
     command = [sys.executable, "-m", "logics_manager", *args]
-    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_subprocess_env())
     payload = _json_from_stdout_or_none(result.stdout)
     if payload is None:
         raise McpToolError(
@@ -448,6 +448,14 @@ def _run_json_command(repo_root: Path, args: list[str]) -> dict[str, Any]:
             details={"command": ["python3", "-m", "logics_manager", *args], "stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode},
         )
     return payload
+
+
+def _subprocess_env() -> dict[str, str]:
+    env = os.environ.copy()
+    source_root = str(Path(__file__).resolve().parents[1])
+    existing = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = source_root if not existing else os.pathsep.join([source_root, existing])
+    return env
 
 
 def _json_from_stdout(stdout: str) -> dict[str, Any]:

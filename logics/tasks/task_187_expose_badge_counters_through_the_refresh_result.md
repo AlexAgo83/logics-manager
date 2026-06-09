@@ -1,19 +1,19 @@
 ## task_187_expose_badge_counters_through_the_refresh_result - Expose badge counters through the refresh result
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Refresh exposes both badge counters in a stable data contract.
-- [ ] The UI can consume the counters without issuing separate Git commands.
-- [ ] Errors or unavailable counts are represented consistently with existing refresh payload patterns.
-- [ ] Validation passes.
+- [x] Refresh exposes both badge counters in a stable data contract.
+- [x] The UI can consume the counters without issuing separate Git commands.
+- [x] Errors or unavailable counts are represented consistently with existing refresh payload patterns.
+- [x] Validation passes.
 
 # Backlog
 - `item_384_compute_git_badge_counters_on_refresh`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update tests covering the refresh payload shape.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant refresh/API tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_384_compute_git_badge_counters_on_refresh`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Expose Git badge counters through the refresh state consumed by the UI.

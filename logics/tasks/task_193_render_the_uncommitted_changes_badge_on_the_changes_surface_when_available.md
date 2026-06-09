@@ -1,19 +1,19 @@
 ## task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available - Render the uncommitted changes badge on the changes surface when available
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] A local changes control/surface shows the uncommitted files badge when such a surface exists.
-- [ ] If no dedicated surface exists, the fallback behavior is documented in implementation notes.
-- [ ] The badge uses the same count source as the main Git button.
-- [ ] Validation passes.
+- [x] A local changes control/surface shows the uncommitted files badge when such a surface exists.
+- [x] If no dedicated surface exists, the fallback behavior is documented in implementation notes.
+- [x] The badge uses the same count source as the main Git button.
+- [x] Validation passes.
 
 # Backlog
 - `item_386_render_git_notification_badges_in_the_ui`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update component/state tests for the changes badge or documented fallback.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant frontend tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_386_render_git_notification_badges_in_the_ui`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Render uncommitted files badge on the local changes surface when available.

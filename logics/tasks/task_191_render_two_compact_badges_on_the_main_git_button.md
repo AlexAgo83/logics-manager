@@ -1,19 +1,19 @@
 ## task_191_render_two_compact_badges_on_the_main_git_button - Render two compact badges on the main Git button
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The main Git button can show the unpushed commits badge and uncommitted files badge together.
-- [ ] Badges are compact and do not obscure the existing button label/icon.
-- [ ] Hidden badges do not reserve awkward empty space.
-- [ ] Validation passes.
+- [x] The main Git button can show the unpushed commits badge and uncommitted files badge together.
+- [x] Badges are compact and do not obscure the existing button label/icon.
+- [x] Hidden badges do not reserve awkward empty space.
+- [x] Validation passes.
 
 # Backlog
 - `item_386_render_git_notification_badges_in_the_ui`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update component tests or visual smoke coverage for the main Git button.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant frontend tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_386_render_git_notification_badges_in_the_ui`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Render compact dual badges on the main Git button.

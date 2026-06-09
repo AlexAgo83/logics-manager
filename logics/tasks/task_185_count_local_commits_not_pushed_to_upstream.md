@@ -1,19 +1,19 @@
 ## task_185_count_local_commits_not_pushed_to_upstream - Count local commits not pushed to upstream
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The refresh path can count commits in `HEAD` that are absent from the configured upstream.
-- [ ] Missing upstream configuration is handled without a blocking refresh failure.
-- [ ] The implementation follows existing Git helper/error patterns.
-- [ ] Validation passes.
+- [x] The refresh path can count commits in `HEAD` that are absent from the configured upstream.
+- [x] Missing upstream configuration is handled without a blocking refresh failure.
+- [x] The implementation follows existing Git helper/error patterns.
+- [x] Validation passes.
 
 # Backlog
 - `item_384_compute_git_badge_counters_on_refresh`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update focused tests for upstream-present and upstream-missing cases.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant Git refresh test suite.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_384_compute_git_badge_counters_on_refresh`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Count local commits not pushed to upstream for Git badge data.

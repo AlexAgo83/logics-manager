@@ -1,19 +1,19 @@
 ## task_190_reset_badge_visibility_when_refresh_detects_counts - Reset badge visibility when refresh detects counts
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] A refresh with counts greater than zero can make badges visible again.
-- [ ] A refresh with zero counts keeps corresponding badges hidden.
-- [ ] Reset logic does not erase actual Git state.
-- [ ] Validation passes.
+- [x] A refresh with counts greater than zero can make badges visible again.
+- [x] A refresh with zero counts keeps corresponding badges hidden.
+- [x] Reset logic does not erase actual Git state.
+- [x] Validation passes.
 
 # Backlog
 - `item_385_track_git_badge_visibility_and_viewed_state`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update tests for refresh-after-viewed and refresh-with-zero cases.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant UI/state tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_385_track_git_badge_visibility_and_viewed_state`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Reset Git badge visibility from refresh counts.

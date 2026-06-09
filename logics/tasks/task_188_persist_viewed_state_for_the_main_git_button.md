@@ -1,19 +1,19 @@
 ## task_188_persist_viewed_state_for_the_main_git_button - Persist viewed state for the main Git button
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Opening the Git window marks main Git button badges as viewed.
-- [ ] Viewed main-button badges are hidden there without clearing Git counters.
-- [ ] State follows existing UI state management patterns.
-- [ ] Validation passes.
+- [x] Opening the Git window marks main Git button badges as viewed.
+- [x] Viewed main-button badges are hidden there without clearing Git counters.
+- [x] State follows existing UI state management patterns.
+- [x] Validation passes.
 
 # Backlog
 - `item_385_track_git_badge_visibility_and_viewed_state`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update UI/state tests for opening the Git window.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant frontend tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_385_track_git_badge_visibility_and_viewed_state`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Track viewed state for the main Git button badges.

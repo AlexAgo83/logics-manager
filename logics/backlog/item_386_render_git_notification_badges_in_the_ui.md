@@ -1,10 +1,10 @@
 ## item_386_render_git_notification_badges_in_the_ui - Render Git notification badges in the UI
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -59,10 +59,11 @@ flowchart TD
 - request-AC9 -> This backlog slice. Proof: Missing upstream configuration, unavailable Git, or Git command failures are handled without blocking the rest of the refresh.
 
 # Links
-- Request: `logics/request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md`
+- Request: `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 
+- Primary task(s): `task_194_add_badge_colors_placement_and_hover_tooltips`
 # AI Context
 - Summary: Render compact Git notification badges with distinct colors and tooltips.
 - Keywords: git, badge, tooltip, history, changes, ui
@@ -76,6 +77,10 @@ flowchart TD
 # Notes
 - Avoid aggressive warning colors unless the existing design language already uses them for this severity.
 - Keep badges small enough to read but not dominate the Git control.
+- Task `task_191_render_two_compact_badges_on_the_main_git_button` was finished via `logics-manager flow finish task` on 2026-06-09.
+- Task `task_192_render_the_unpushed_commits_badge_on_the_git_history_control` was finished via `logics-manager flow finish task` on 2026-06-09.
+- Task `task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available` was finished via `logics-manager flow finish task` on 2026-06-09.
+- Task `task_194_add_badge_colors_placement_and_hover_tooltips` was finished via `logics-manager flow finish task` on 2026-06-09.
 
 # Tasks
 - `task_191_render_two_compact_badges_on_the_main_git_button`

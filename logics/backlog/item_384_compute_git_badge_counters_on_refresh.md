@@ -1,10 +1,10 @@
 ## item_384_compute_git_badge_counters_on_refresh - Compute Git badge counters on refresh
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,10 +55,11 @@ flowchart TD
 - request-AC9 -> This backlog slice. Proof: Missing upstream configuration, unavailable Git, or Git command failures are handled without blocking the rest of the refresh.
 
 # Links
-- Request: `logics/request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md`
+- Request: `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
 
+- Primary task(s): `task_187_expose_badge_counters_through_the_refresh_result`
 # AI Context
 - Summary: Compute unpushed commit and uncommitted file counts during refresh.
 - Keywords: git, refresh, counters, upstream, status
@@ -72,6 +73,9 @@ flowchart TD
 # Notes
 - Prefer existing Git helpers and status parsing over adding independent parsing with different semantics.
 - If upstream is absent, avoid noisy failure states in normal use.
+- Task `task_185_count_local_commits_not_pushed_to_upstream` was finished via `logics-manager flow finish task` on 2026-06-09.
+- Task `task_186_count_modified_and_uncommitted_files_consistently_with_git_status` was finished via `logics-manager flow finish task` on 2026-06-09.
+- Task `task_187_expose_badge_counters_through_the_refresh_result` was finished via `logics-manager flow finish task` on 2026-06-09.
 
 # Tasks
 - `task_185_count_local_commits_not_pushed_to_upstream`

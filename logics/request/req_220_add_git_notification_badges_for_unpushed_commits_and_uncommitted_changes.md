@@ -1,7 +1,7 @@
 ## req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes - Add Git notification badges for unpushed commits and uncommitted changes
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

@@ -1,19 +1,19 @@
 ## task_189_persist_viewed_state_for_git_history_and_changes_subviews - Persist viewed state for Git History and changes subviews
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Opening History marks the unpushed commits badge as viewed for History.
-- [ ] Opening the local changes surface marks the uncommitted files badge as viewed when that surface exists.
-- [ ] Subview viewed state is independent from the main Git button viewed state.
-- [ ] Validation passes.
+- [x] Opening History marks the unpushed commits badge as viewed for History.
+- [x] Opening the local changes surface marks the uncommitted files badge as viewed when that surface exists.
+- [x] Subview viewed state is independent from the main Git button viewed state.
+- [x] Validation passes.
 
 # Backlog
 - `item_385_track_git_badge_visibility_and_viewed_state`
@@ -37,9 +37,15 @@ flowchart TD
 - Add or update UI/state tests for opening History and the changes surface.
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the relevant frontend tests.
+- pytest passed: python3 -m pytest tests/python/test_logics_manager_cli.py -k viewer_git_status_payload. vitest passed: npm test -- tests/viewer.browser-host.test.ts. compile passed: npm run compile.
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation pending.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_385_track_git_badge_visibility_and_viewed_state`
+- Related request(s): `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 
 # AI Context
 - Summary: Track viewed state for Git subview badges.

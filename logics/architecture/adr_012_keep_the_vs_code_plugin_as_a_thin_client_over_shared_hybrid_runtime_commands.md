@@ -1,6 +1,6 @@
 ## adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands - Keep the VS Code plugin as a thin client over shared hybrid runtime commands
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: plugin/runtime coherence, cross-agent messaging clarity, maintainability, audit visibility
 > Related request: `req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging`
 > Related backlog: `item_156_add_plugin_tool_actions_for_high_value_hybrid_assist_flows_through_shared_runtime_commands`

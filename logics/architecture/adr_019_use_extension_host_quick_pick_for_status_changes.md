@@ -1,6 +1,6 @@
 ## adr_019_use_extension_host_quick_pick_for_status_changes - Use extension-host quick pick for status changes
 > Date: 2026-04-11
-> Status: Accepted
+> Status: Settled
 > Drivers: Keep the status change flow inside the extension host, reuse the existing markdown indicator writer, and avoid opening a file editor for a common workflow action.
 > Related request: `req_154_add_a_manual_status_selector_button_in_the_detail_panel_to_change_item_status_directly`
 > Related backlog: `item_280_add_status_selector_button_ui_and_per_type_status_set_in_the_detail_panel`, `item_281_implement_status_write_to_markdown_file_and_board_refresh_on_status_change`

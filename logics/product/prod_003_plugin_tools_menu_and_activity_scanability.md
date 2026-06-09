@@ -1,6 +1,6 @@
 ## prod_003_plugin_tools_menu_and_activity_scanability - Plugin tools menu and activity scanability
 > Date: 2026-04-09
-> Status: Validated
+> Status: Settled
 > Related request: `req_112_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`, `req_113_show_updated_timestamps_in_activity_cells`
 > Related backlog: `item_199_restructure_the_tools_menu_information_architecture_without_moving_actions_out_of_the_menu`, `item_200_show_updated_timestamps_in_activity_cells`
 > Related task: `task_107_orchestration_delivery_for_req_107_to_req_117_across_maintenance_hardening_ui_refinement_and_modularization`

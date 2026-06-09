@@ -1,6 +1,6 @@
 ## adr_009_treat_logics_task_waves_as_coherent_documented_commit_checkpoints - Treat Logics task waves as coherent documented commit checkpoints
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Keep tasks execution-ready instead of vague, make documentation updates part of the delivery wave that changes behavior, encourage clean git checkpoints without forcing commits after every micro-step, and preserve operator review over commit creation.
 > Related request: `req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints`
 > Related backlog: `item_098_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints`

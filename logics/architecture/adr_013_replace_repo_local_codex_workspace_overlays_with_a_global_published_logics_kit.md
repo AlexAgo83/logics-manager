@@ -1,6 +1,6 @@
 ## adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit - Replace repo-local Codex workspace overlays with a global published Logics kit
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: operator simplicity, deterministic global runtime provenance, zero-touch migration, plugin/runtime coherence
 > Related request: `req_099_replace_repo_local_codex_overlays_with_a_global_published_logics_kit_and_managed_migration`
 > Related backlog: `item_167_define_a_global_logics_kit_publication_manifest_and_version_resolution_policy`, `item_168_publish_and_auto_upgrade_the_global_codex_logics_kit_from_canonical_repo_sources_in_the_plugin`, `item_169_migrate_plugin_docs_and_existing_overlay_ux_to_the_global_published_kit_model`

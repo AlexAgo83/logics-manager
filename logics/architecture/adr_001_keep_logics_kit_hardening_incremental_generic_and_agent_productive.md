@@ -1,6 +1,6 @@
 ## adr_001_keep_logics_kit_hardening_incremental_generic_and_agent_productive - Keep Logics kit hardening incremental, generic, and agent-productive
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Reduce repetitive cleanup, preserve shared-submodule reuse, improve workflow generation safely, and keep the kit effective for both downstream repos and the agent itself.
 > Related request: `req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage`
 > Related backlog: `item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage`

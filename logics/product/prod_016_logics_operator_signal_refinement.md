@@ -1,6 +1,6 @@
 ## prod_016_logics_operator_signal_refinement - Logics operator signal refinement
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_198_refine_logics_operator_signal_commands`
 > Related backlog: `item_362_refine_logics_operator_signal_commands`
 > Related task: `task_163_refine_logics_operator_signal_commands`

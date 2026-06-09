@@ -1,6 +1,6 @@
 ## adr_007_centralize_plugin_relationship_reasoning_for_context_packs_attention_explain_and_dependency_map - Centralize plugin relationship reasoning for context packs attention explain and dependency map
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Avoid duplicate graph traversal logic, keep context assembly and attention explanations consistent, preserve the Markdown-backed Logics model, and make a dependency map feasible without a separate relationship subsystem.
 > Related request: `req_056_add_codex_context_pack_attention_explain_and_dependency_map`
 > Related backlog: `item_065_build_codex_context_pack_for_related_logics_docs`, `item_066_explain_attention_reasons_and_suggested_remediation`, `item_067_add_dependency_map_for_logics_workflow_relationships`

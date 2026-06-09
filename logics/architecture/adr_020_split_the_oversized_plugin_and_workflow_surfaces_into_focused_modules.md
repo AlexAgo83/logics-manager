@@ -1,6 +1,6 @@
 ## adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules - Split the oversized plugin and workflow surfaces into focused modules
 > Date: 2026-04-11
-> Status: Accepted
+> Status: Settled
 > Drivers: Reduce cognitive load, lower change risk on oversized files, and preserve thin entrypoints around focused helpers.
 > Related request: `req_158_address_post_audit_improvements_across_workflow_traceability_docs_and_oversized_source_files`
 > Related backlog: `item_287_create_modularization_plan_for_the_five_oversized_source_files`

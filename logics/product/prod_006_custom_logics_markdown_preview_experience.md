@@ -1,6 +1,6 @@
 ## prod_006_custom_logics_markdown_preview_experience - Custom Logics markdown preview experience
 > Date: 2026-04-09
-> Status: Validated
+> Status: Settled
 > Related request: `req_142_add_a_polished_logics_markdown_preview_screen`
 > Related backlog: `item_265_add_a_polished_logics_markdown_preview_screen`
 > Related task: `task_121_add_a_polished_logics_markdown_preview_screen`

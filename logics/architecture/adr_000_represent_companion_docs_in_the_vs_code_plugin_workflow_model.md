@@ -1,6 +1,6 @@
 ## adr_000_represent_companion_docs_in_the_vs_code_plugin_workflow_model - Represent companion docs in the VS Code plugin workflow model
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Centralize managed-doc typing, preserve delivery-first UX, support companion docs without board noise, and keep reference maintenance coherent.
 > Related request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
 > Related backlog: `item_022_align_vs_code_plugin_with_companion_docs_workflow`

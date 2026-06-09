@@ -1,6 +1,6 @@
 ## adr_021_keep_media_coverage_at_zero_and_rely_on_smoke_tests_for_webview_regressions - Keep media coverage at zero and rely on smoke tests for webview regressions
 > Date: 2026-04-12
-> Status: Accepted
+> Status: Settled
 > Drivers: Keep the eval-loaded webview runtime outside the Node/Vitest coverage gate, avoid brittle browser-side instrumentation, and use the existing smoke harness as the regression fence.
 > Related request: `logics/request/req_171_address_post_audit_coverage_regressions_dead_shim_and_file_size_drift.md`
 > Related backlog: `logics/backlog/item_316_improve_extension_ts_branch_coverage_and_maintain_overall_coverage_floor.md`

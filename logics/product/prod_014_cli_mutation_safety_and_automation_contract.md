@@ -1,6 +1,6 @@
 ## prod_014_cli_mutation_safety_and_automation_contract - CLI mutation safety and automation contract
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_197_mature_cli_product_contracts`
 > Related backlog: `item_361_mature_cli_product_contracts`
 > Related task: `task_162_mature_cli_product_contracts`

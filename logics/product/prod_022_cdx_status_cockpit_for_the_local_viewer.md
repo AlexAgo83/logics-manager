@@ -1,6 +1,6 @@
 ## prod_022_cdx_status_cockpit_for_the_local_viewer - CDX status cockpit for the local viewer
 > Date: 2026-06-09
-> Status: Proposed
+> Status: Accepted
 > Related request: `req_219_add_a_cdx_status_cockpit_to_the_local_viewer`
 > Related backlog: `item_383_add_a_cdx_status_cockpit_to_the_local_viewer`
 > Related task: `task_184_add_a_cdx_status_cockpit_to_the_local_viewer`

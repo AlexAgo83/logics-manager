@@ -1,6 +1,6 @@
 ## prod_020_local_web_viewer_for_cli_driven_logics_work - Local web viewer for CLI-driven Logics work
 > Date: 2026-06-07
-> Status: Active
+> Status: Settled
 > Related request: `req_201_add_a_local_web_viewer_for_cli_driven_logics_work`
 > Related backlog: `item_365_add_a_local_web_viewer_for_cli_driven_logics_work`
 > Related task: `task_166_add_a_local_web_viewer_for_cli_driven_logics_work`

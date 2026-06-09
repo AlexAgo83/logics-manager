@@ -1,6 +1,6 @@
 ## adr_017_route_logics_document_reads_to_a_native_preview - Route Logics document reads to a native preview
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Keep Logics document reading inside the plugin, avoid drift with the generic VS Code markdown preview, preserve the existing theme and navigation model, and keep open/read/double-click behavior routed through one preview entrypoint.
 > Related request: `req_142_add_a_polished_logics_markdown_preview_screen`
 > Related backlog: `item_265_add_a_polished_logics_markdown_preview_screen`

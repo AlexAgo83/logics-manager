@@ -1,6 +1,6 @@
 ## prod_000_companion_docs_ux_for_the_vs_code_plugin - Companion docs UX for the VS Code plugin
 > Date: 2026-04-09
-> Status: Active
+> Status: Settled
 > Related request: `req_022_align_vs_code_plugin_with_companion_docs_workflow`
 > Related backlog: `item_022_align_vs_code_plugin_with_companion_docs_workflow`
 > Related task: `task_021_align_vs_code_plugin_with_companion_docs_workflow`

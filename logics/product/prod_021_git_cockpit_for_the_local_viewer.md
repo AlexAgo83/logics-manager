@@ -1,6 +1,6 @@
 ## prod_021_git_cockpit_for_the_local_viewer - Git cockpit for the local viewer
 > Date: 2026-06-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_218_add_a_git_cockpit_to_the_local_viewer`
 > Related backlog: `item_382_add_a_git_cockpit_to_the_local_viewer`
 > Related task: `task_183_add_a_git_cockpit_to_the_local_viewer`

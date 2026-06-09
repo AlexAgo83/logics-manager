@@ -1,6 +1,6 @@
 ## adr_015_make_bootstrap_recovery_branch_aware - Make bootstrap recovery branch-aware
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: truthful repository-state recomputation after branch switches, explicit branch-local recovery UX, reuse of the canonical bootstrap contract, and regression protection across branch-state transitions
 > Related request: `req_118_handle_branch_switches_to_branches_without_logics_bootstrap_and_offer_setup_repair`
 > Related backlog: `item_205_detect_and_refresh_logics_bootstrap_state_after_git_branch_switches`, `item_206_make_branch_local_bootstrap_recovery_and_setup_repair_explicit_in_the_plugin_ux`, `item_207_add_regression_coverage_for_branch_switch_bootstrap_degradation_and_repair`

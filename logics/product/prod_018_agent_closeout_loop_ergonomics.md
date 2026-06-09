@@ -1,6 +1,6 @@
 ## prod_018_agent_closeout_loop_ergonomics - Agent closeout loop ergonomics
 > Date: 2026-06-07
-> Status: Validated
+> Status: Settled
 > Related request: `req_200_implement_agent_closeout_loop_ergonomics`
 > Related backlog: `item_364_implement_agent_closeout_loop_ergonomics`
 > Related task: `task_165_implement_agent_closeout_loop_ergonomics`

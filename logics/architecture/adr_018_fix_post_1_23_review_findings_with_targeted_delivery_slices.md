@@ -1,6 +1,6 @@
 ## adr_018_fix_post_1_23_review_findings_with_targeted_delivery_slices - Fix post-1.23 review findings with targeted delivery slices
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Preserve semantic correctness, keep state ownership explicit, and add durable render coverage without broad refactors.
 > Related request: `req_148_fix_post_1_23_review_findings_across_indexer_semantics_render_consistency_and_test_coverage`
 > Related backlog: `item_272_fix_isprocessedworkflowstatus_divergence_parseprogress_clamp_and_totalcount_semantics`, `item_273_fix_activetoolsview_dual_state_collectlinkedworkflowitems_proxy_and_openlinkeditem_safety`, `item_274_add_missing_render_tests_for_corpusinsightshtml_untested_functions_and_badge_edge_cases`

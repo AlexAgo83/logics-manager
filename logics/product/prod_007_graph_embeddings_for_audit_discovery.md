@@ -1,6 +1,6 @@
 ## prod_007_graph_embeddings_for_audit_discovery - Graph embeddings for audit discovery
 > Date: 2026-04-12
-> Status: Active
+> Status: Settled
 > Related request: `req_170_address_codebase_audit_findings_from_april_2026_settings_hooks_graph_embeddings_and_test_fragmentation`
 > Related backlog: `item_313_fix_settings_hooks_format_and_initialize_graph_embeddings`
 > Related task: `task_134_wave_1_maintenance_hardening_graph_embeddings_coverage_and_static_analysis`

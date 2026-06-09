@@ -1,6 +1,6 @@
 ## prod_017_logics_delivery_loop_ergonomics - Logics delivery loop ergonomics
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_199_implement_flow_deliver_from_product`
 > Related backlog: `item_363_implement_flow_deliver_from_product`
 > Related task: `task_164_implement_flow_deliver_from_product`

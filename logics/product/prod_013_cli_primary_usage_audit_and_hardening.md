@@ -1,6 +1,6 @@
 ## prod_013_cli_primary_usage_audit_and_hardening - CLI primary usage audit and hardening
 > Date: 2026-06-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_197_mature_cli_product_contracts`
 > Related backlog: `item_361_mature_cli_product_contracts`
 > Related task: `task_162_mature_cli_product_contracts`

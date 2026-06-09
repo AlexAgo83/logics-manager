@@ -1,6 +1,6 @@
 ## adr_003_harden_extension_runtime_with_explicit_packaging_and_workspace_selection - Harden extension runtime with explicit packaging and workspace selection
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Ship a cleaner VSIX, support richer agent definitions safely, reduce brittle prompt injection, and remove ambiguous multi-root behavior.
 > Related request: `req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`
 > Related backlog: `item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior`

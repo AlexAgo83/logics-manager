@@ -1,6 +1,6 @@
 ## prod_010_chatgpt_logics_agent - ChatGPT Logics Agent
 > Date: 2026-05-27 (dogfooding update)
-> Status: Proposed
+> Status: Settled
 > Related request: `req_191_build_a_chatgpt_logics_agent`
 > Related backlog: `item_352_build_a_chatgpt_logics_agent`
 > Related task: `task_153_build_a_chatgpt_logics_agent`

@@ -1,6 +1,6 @@
 ## prod_015_cli_product_maturity_roadmap - CLI product maturity roadmap
 > Date: 2026-06-07
-> Status: Validated
+> Status: Settled
 > Related request: `req_197_mature_cli_product_contracts`
 > Related backlog: `item_361_mature_cli_product_contracts`
 > Related task: `task_162_mature_cli_product_contracts`

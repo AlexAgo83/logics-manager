@@ -1,6 +1,6 @@
 ## adr_002_keep_the_plugin_webview_as_a_modular_vanilla_frontend - Keep the plugin webview as a modular vanilla frontend
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Improve maintainability, preserve CSP/package simplicity, avoid framework overhead, and reduce regression risk in the webview.
 > Related request: `req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework`
 > Related backlog: `item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework`

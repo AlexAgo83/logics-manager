@@ -1,6 +1,6 @@
 ## prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows - Expanded Logics MCP action surface for local ChatGPT workflows
 > Date: 2026-05-27
-> Status: Proposed
+> Status: Settled
 > Related request: `req_192_expand_local_chatgpt_mcp_action_surface`
 > Related backlog: `item_353_read_list_search_and_context_mcp_tools`, `item_354_closure_and_deterministic_maintenance_mcp_tools`, `item_355_controlled_workflow_document_mutation_mcp_tools`, `item_356_split_and_audit_repair_mcp_tools`, `item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode`
 > Related task: `task_154_read_list_search_and_context_mcp_tools`, `task_155_closure_and_deterministic_maintenance_mcp_tools`, `task_156_controlled_workflow_document_mutation_mcp_tools`, `task_157_split_and_audit_repair_mcp_tools`, `task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode`

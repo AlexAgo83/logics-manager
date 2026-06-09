@@ -1,6 +1,6 @@
 ## prod_012_reduce_logics_validation_friction_for_agents - Reduce Logics validation friction for agents
 > Date: 2026-06-05
-> Status: Proposed
+> Status: Settled
 > Related request: `req_192_expand_local_chatgpt_mcp_action_surface`, `req_183_make_mermaid_refresh_the_last_step_in_logics_doc_maintenance`, `req_114_fix_false_positive_mermaid_signature_warnings_after_signature_refresh`
 > Related backlog: `item_356_split_and_audit_repair_mcp_tools`, `item_201_fix_false_positive_mermaid_signature_warnings_after_signature_refresh`
 > Related task: `task_157_split_and_audit_repair_mcp_tools`

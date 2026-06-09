@@ -1,6 +1,6 @@
 ## adr_005_define_responsive_layout_scroll_and_sizing_rules_for_plugin_views - Define responsive layout, scroll, and sizing rules for plugin views
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: Stop recurring layout regressions in board/list/details views, keep the plugin within the visible webview viewport, prevent detail-panel loss in stacked mode, and preserve readable board columns under width pressure.
 > Related request: `req_045_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `req_048_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `req_053_preserve_readable_board_columns_by_preventing_column_compression`
 > Related backlog: `item_050_move_secondary_view_controls_into_a_toggleable_second_toolbar_row`, `item_053_strengthen_webview_regression_tests_for_list_filters_and_layout_css`, `item_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls`, `item_062_preserve_readable_board_columns_by_preventing_column_compression`

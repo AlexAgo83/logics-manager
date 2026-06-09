@@ -1,6 +1,6 @@
 ## adr_022_chatgpt_logics_agent_mcp_contract - ChatGPT Logics Agent MCP Contract
 > Date: 2026-05-27 (agent ergonomics update)
-> Status: Proposed
+> Status: Settled
 > Drivers: local-first ChatGPT integration, bounded write actions, canonical Logics workflow, Codex handoff clarity
 > Related request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`
 > Related backlog: `logics/backlog/item_352_build_a_chatgpt_logics_agent.md`

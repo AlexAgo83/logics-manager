@@ -1,6 +1,6 @@
 ## adr_010_pin_github_actions_to_a_node_24_compatible_baseline - Pin GitHub Actions to a Node 24 compatible baseline
 > Date: 2026-04-09
-> Status: Accepted
+> Status: Settled
 > Drivers: GitHub runner compatibility, CI stability on Ubuntu and Windows, predictable release automation
 > Related request: `req_079_migrate_github_actions_off_node_20_before_runner_deprecation`
 > Related backlog: `item_102_migrate_github_actions_off_node_20_before_runner_deprecation`

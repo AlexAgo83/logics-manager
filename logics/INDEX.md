@@ -278,6 +278,7 @@
 | [req_217_add_local_viewer_git_status_summary](request/req_217_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done |  | request/req_217_add_local_viewer_git_status_summary.md |
 | [req_218_add_a_git_cockpit_to_the_local_viewer](request/req_218_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Done |  | request/req_218_add_a_git_cockpit_to_the_local_viewer.md |
 | [req_219_add_a_cdx_status_cockpit_to_the_local_viewer](request/req_219_add_a_cdx_status_cockpit_to_the_local_viewer.md) | Add a CDX status cockpit to the local viewer | Draft |  | request/req_219_add_a_cdx_status_cockpit_to_the_local_viewer.md |
+| [req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes](request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md) | Add Git notification badges for unpushed commits and uncommitted changes | Done |  | request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md |
 
 ## Backlog
 
@@ -666,6 +667,9 @@
 | [item_381_add_local_viewer_git_status_summary](backlog/item_381_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done | 100% | backlog/item_381_add_local_viewer_git_status_summary.md |
 | [item_382_add_a_git_cockpit_to_the_local_viewer](backlog/item_382_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Done | 100% | backlog/item_382_add_a_git_cockpit_to_the_local_viewer.md |
 | [item_383_add_a_cdx_status_cockpit_to_the_local_viewer](backlog/item_383_add_a_cdx_status_cockpit_to_the_local_viewer.md) | Add a CDX status cockpit to the local viewer | Ready | 0% | backlog/item_383_add_a_cdx_status_cockpit_to_the_local_viewer.md |
+| [item_384_compute_git_badge_counters_on_refresh](backlog/item_384_compute_git_badge_counters_on_refresh.md) | Compute Git badge counters on refresh | Done | 100% | backlog/item_384_compute_git_badge_counters_on_refresh.md |
+| [item_385_track_git_badge_visibility_and_viewed_state](backlog/item_385_track_git_badge_visibility_and_viewed_state.md) | Track Git badge visibility and viewed state | Done | 100% | backlog/item_385_track_git_badge_visibility_and_viewed_state.md |
+| [item_386_render_git_notification_badges_in_the_ui](backlog/item_386_render_git_notification_badges_in_the_ui.md) | Render Git notification badges in the UI | Done | 100% | backlog/item_386_render_git_notification_badges_in_the_ui.md |
 
 ## Tasks
 
@@ -849,3 +853,13 @@
 | [task_182_add_local_viewer_git_status_summary](tasks/task_182_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done | 100% | tasks/task_182_add_local_viewer_git_status_summary.md |
 | [task_183_add_a_git_cockpit_to_the_local_viewer](tasks/task_183_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Done | 100% | tasks/task_183_add_a_git_cockpit_to_the_local_viewer.md |
 | [task_184_add_a_cdx_status_cockpit_to_the_local_viewer](tasks/task_184_add_a_cdx_status_cockpit_to_the_local_viewer.md) | Add a CDX status cockpit to the local viewer | Ready | 0% | tasks/task_184_add_a_cdx_status_cockpit_to_the_local_viewer.md |
+| [task_185_count_local_commits_not_pushed_to_upstream](tasks/task_185_count_local_commits_not_pushed_to_upstream.md) | Count local commits not pushed to upstream | Done | 100% | tasks/task_185_count_local_commits_not_pushed_to_upstream.md |
+| [task_186_count_modified_and_uncommitted_files_consistently_with_git_status](tasks/task_186_count_modified_and_uncommitted_files_consistently_with_git_status.md) | Count modified and uncommitted files consistently with Git status | Done | 100% | tasks/task_186_count_modified_and_uncommitted_files_consistently_with_git_status.md |
+| [task_187_expose_badge_counters_through_the_refresh_result](tasks/task_187_expose_badge_counters_through_the_refresh_result.md) | Expose badge counters through the refresh result | Done | 100% | tasks/task_187_expose_badge_counters_through_the_refresh_result.md |
+| [task_188_persist_viewed_state_for_the_main_git_button](tasks/task_188_persist_viewed_state_for_the_main_git_button.md) | Persist viewed state for the main Git button | Done | 100% | tasks/task_188_persist_viewed_state_for_the_main_git_button.md |
+| [task_189_persist_viewed_state_for_git_history_and_changes_subviews](tasks/task_189_persist_viewed_state_for_git_history_and_changes_subviews.md) | Persist viewed state for Git History and changes subviews | Done | 100% | tasks/task_189_persist_viewed_state_for_git_history_and_changes_subviews.md |
+| [task_190_reset_badge_visibility_when_refresh_detects_counts](tasks/task_190_reset_badge_visibility_when_refresh_detects_counts.md) | Reset badge visibility when refresh detects counts | Done | 100% | tasks/task_190_reset_badge_visibility_when_refresh_detects_counts.md |
+| [task_191_render_two_compact_badges_on_the_main_git_button](tasks/task_191_render_two_compact_badges_on_the_main_git_button.md) | Render two compact badges on the main Git button | Done | 100% | tasks/task_191_render_two_compact_badges_on_the_main_git_button.md |
+| [task_192_render_the_unpushed_commits_badge_on_the_git_history_control](tasks/task_192_render_the_unpushed_commits_badge_on_the_git_history_control.md) | Render the unpushed commits badge on the Git History control | Done | 100% | tasks/task_192_render_the_unpushed_commits_badge_on_the_git_history_control.md |
+| [task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available](tasks/task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available.md) | Render the uncommitted changes badge on the changes surface when available | Done | 100% | tasks/task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available.md |
+| [task_194_add_badge_colors_placement_and_hover_tooltips](tasks/task_194_add_badge_colors_placement_and_hover_tooltips.md) | Add badge colors, placement, and hover tooltips | Done | 100% | tasks/task_194_add_badge_colors_placement_and_hover_tooltips.md |

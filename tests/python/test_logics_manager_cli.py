@@ -235,6 +235,16 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
     assert backlog["references"][0]["path"] == "logics/request/req_001_demo.md"
 
 
+def test_viewer_current_version_falls_back_to_installed_metadata(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(viewer_module, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(viewer_module.metadata, "version", lambda _name: "2.5.0")
+
+    assert viewer_module._current_version() == "2.5.0"
+
+
 def test_viewer_read_doc_rejects_paths_outside_repo(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "request").mkdir(parents=True)
@@ -1432,7 +1442,12 @@ def test_main_warns_about_path_conflict_after_npm_self_update(
     assert exit_code == 0
     assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
     assert "Multiple logics-manager executables are on PATH" in captured.out
+    assert "/home/user/.local/bin/logics-manager" in captured.out
+    assert "type -a logics-manager" in captured.out
+    assert "whence -a logics-manager" in captured.out
+    assert "command -v -a" not in captured.out
     assert "pipx list" in captured.out
+    assert "rehash" in captured.out
 
 
 def test_main_allows_explicit_break_system_packages_for_pip_self_update(

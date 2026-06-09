@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from importlib import metadata
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
@@ -56,8 +57,14 @@ NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"
 
 def _current_version() -> str:
     try:
-        return (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip() or "0.0.0"
+        version = (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     except OSError:
+        version = ""
+    if version:
+        return version
+    try:
+        return metadata.version("logics-manager")
+    except metadata.PackageNotFoundError:
         return "0.0.0"
 
 

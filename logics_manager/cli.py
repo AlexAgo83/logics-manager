@@ -195,15 +195,21 @@ def _find_executable_paths(command: str) -> list[str]:
 def _print_path_conflict_guidance(paths: list[str]) -> None:
     if len(paths) <= 1:
         return
+    path_lines = [f"  - {path}" for path in paths]
     print(
         "\n".join(
             [
                 "",
                 "Multiple logics-manager executables are on PATH. If --version still shows an older release, an earlier install is taking precedence.",
+                "Detected executables:",
+                *path_lines,
                 "Diagnose with:",
-                "  command -v -a logics-manager",
+                "  type -a logics-manager",
+                "  whence -a logics-manager  # zsh",
                 "  pipx list",
                 "  npm list -g @grifhinz/logics-manager --depth=0",
+                "",
+                "If you recently changed installs in zsh, run `rehash` or open a new terminal before retrying.",
             ]
         )
     )

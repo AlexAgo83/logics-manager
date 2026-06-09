@@ -230,13 +230,15 @@ npm install -g @grifhinz/logics-manager@latest
 If npm reports a successful update but `logics-manager --version` still shows an older version, another installation is earlier on `PATH`. Diagnose it with:
 
 ```bash
-command -v -a logics-manager
+type -a logics-manager
+whence -a logics-manager  # zsh
+pipx list
 npm prefix -g
 npm list -g @grifhinz/logics-manager --depth=0
 "$(npm prefix -g)/bin/logics-manager" --version
 ```
 
-If the direct npm binary shows the expected version, remove the older Python install or move the npm global `bin` directory earlier on `PATH`.
+If the direct npm binary shows the expected version, remove the older Python install or move the npm global `bin` directory earlier on `PATH`. In zsh, run `rehash` or open a new terminal after changing installs so the shell forgets any cached command location.
 
 ## VS Code Extension
 

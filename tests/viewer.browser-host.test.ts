@@ -771,6 +771,7 @@ describe("local viewer browser host", () => {
                   status: "enabled",
                   auth_status: "authenticated",
                   available_pct: 7,
+                  credits: "9.6752125000",
                   reset_at: "Jun 11 15:04"
                 },
                 {
@@ -801,13 +802,20 @@ describe("local viewer browser host", () => {
     expect(text).toContain("codex");
     expect(text).toContain("claude");
     expect(text).toContain("Sessions");
+    expect(text).toContain("SESSION");
+    expect(text).toContain("PROV.");
+    expect(text).toContain("RESET WEEK");
     expect(text).toContain("work2");
     expect(text).toContain("corvus");
-    expect(text).toContain("lowest_available_pct");
+    expect(text).toContain("Lowest Remaining");
+    expect(text).toContain("Remaining");
     expect(text).toContain("7%");
+    expect(text).toContain("9.68");
+    expect(text).toMatch(/in \d+[dhm]/);
     expect(text).toContain("cdx status --json");
     expect(text).not.toContain("No provider status reported.");
     expect(text).not.toContain("No sessions reported.");
+    expect(text.indexOf("corvus")).toBeLessThan(text.indexOf("work2"));
   });
 
   it("renders unavailable CDX states without breaking the viewer", async () => {
@@ -844,7 +852,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("starting");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Starting");
 
     const cdxCallsBeforeRefresh = calls.filter((call) => call === "/api/cdx-status").length;
     refreshed = true;

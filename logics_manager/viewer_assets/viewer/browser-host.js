@@ -1310,7 +1310,7 @@
 
   function cdxSessions(status) {
     const explicitSessions = pickFirstArray(status, ["sessions", "activeSessions", "active_sessions"]);
-    return explicitSessions.length ? explicitSessions : cdxRows(status);
+    return sortCdxSessionsByRemaining(explicitSessions.length ? explicitSessions : cdxRows(status));
   }
 
   function cdxReadiness(status) {
@@ -1331,34 +1331,283 @@
       enabled_sessions: enabled,
       active_sessions: active,
       authenticated_sessions: authenticated,
-      lowest_available_pct: lowestAvailable === null ? "not reported" : `${lowestAvailable}%`
+      lowest_remaining: lowestAvailable === null ? "not reported" : `${lowestAvailable}%`
     };
   }
 
   function renderCdxObjectRows(value, emptyText) {
     const rows = objectEntries(value).slice(0, 12).map(([key, entry]) => `
       <li class="viewer-cdx__row">
-        <span>${escapeHtml(key)}</span>
+        <span>${escapeHtml(cdxLabel(key))}</span>
         <strong>${escapeHtml(typeof entry === "object" ? JSON.stringify(entry) : entry)}</strong>
       </li>
     `).join("");
     return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
   }
 
-  function renderCdxEntityRows(entries, emptyText) {
+  function cdxLabel(value) {
+    return String(value || "")
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function cdxStateClass(value) {
+    const state = String(value || "").toLowerCase();
+    if (["ready", "ok", "active", "enabled", "authenticated"].some((entry) => state.includes(entry))) {
+      return "ok";
+    }
+    if (["starting", "pending", "warning", "low", "limited"].some((entry) => state.includes(entry))) {
+      return "warn";
+    }
+    if (["error", "failed", "disabled", "unavailable", "unauthenticated"].some((entry) => state.includes(entry))) {
+      return "bad";
+    }
+    return "neutral";
+  }
+
+  function cdxRemainingPct(item) {
+    const value = item?.remaining_pct ?? item?.remainingPct ?? item?.available_pct ?? item?.availablePct ?? item?.lowest_available_pct ?? item?.lowestAvailablePct;
+    const percent = Number(value);
+    return Number.isFinite(percent) ? Math.max(0, Math.min(100, Math.round(percent))) : null;
+  }
+
+  function cdxPct(value) {
+    const percent = Number(value);
+    return Number.isFinite(percent) ? `${Math.max(0, Math.min(100, Math.round(percent)))}%` : "-";
+  }
+
+  function cdxField(item, keys, fallback = "-") {
+    for (const key of keys) {
+      const value = item?.[key];
+      if (value !== undefined && value !== null && value !== "") {
+        return value;
+      }
+    }
+    return fallback;
+  }
+
+  function cdxRemainingClass(percent) {
+    if (percent === null) {
+      return "neutral";
+    }
+    if (percent <= 10) {
+      return "bad";
+    }
+    if (percent <= 30) {
+      return "warn";
+    }
+    return "ok";
+  }
+
+  function sortCdxSessionsByRemaining(entries) {
+    return [...entries].sort((left, right) => {
+      const leftRemaining = cdxRemainingPct(left);
+      const rightRemaining = cdxRemainingPct(right);
+      if (leftRemaining === null && rightRemaining === null) {
+        return 0;
+      }
+      if (leftRemaining === null) {
+        return 1;
+      }
+      if (rightRemaining === null) {
+        return -1;
+      }
+      return rightRemaining - leftRemaining;
+    });
+  }
+
+  function formatCdxValue(key, value) {
+    if (["reset_at", "resetAt", "resets_at", "resetsAt", "reset_5h_at", "reset5hAt", "reset_week_at", "resetWeekAt", "updated_at", "updatedAt"].includes(key)) {
+      return formatCdxResetAt(value);
+    }
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+    return value;
+  }
+
+  function parseCdxDate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) {
+      return null;
+    }
+    const shortDate = raw.match(/^([A-Za-z]{3,})\s+(\d{1,2})\s+(\d{1,2}:\d{2})$/);
+    if (shortDate) {
+      const year = new Date().getFullYear();
+      const timestamp = Date.parse(`${shortDate[1]} ${shortDate[2]} ${year} ${shortDate[3]}`);
+      return Number.isFinite(timestamp) ? timestamp : null;
+    }
+    const timestamp = Date.parse(raw);
+    if (Number.isFinite(timestamp)) {
+      return timestamp;
+    }
+    return null;
+  }
+
+  function formatRelativeTime(timestamp) {
+    const diffMs = timestamp - Date.now();
+    const absMs = Math.abs(diffMs);
+    const minutes = Math.round(absMs / 60000);
+    if (minutes < 1) {
+      return diffMs >= 0 ? "now" : "just now";
+    }
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    const remainingMinutes = minutes % 60;
+    let body = "";
+    if (days > 0) {
+      body = `${days}d${remainingHours > 0 ? ` ${remainingHours}h` : ""}`;
+    } else if (hours > 0) {
+      body = `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ""}`;
+    } else {
+      body = `${minutes}m`;
+    }
+    return diffMs >= 0 ? `in ${body}` : `${body} ago`;
+  }
+
+  function formatCdxResetAt(value) {
+    const raw = String(value || "").trim();
+    if (!raw) {
+      return "-";
+    }
+    const timestamp = parseCdxDate(raw);
+    return timestamp === null ? raw : formatRelativeTime(timestamp);
+  }
+
+  function formatCdxCredits(value) {
+    const text = String(value ?? "").trim();
+    if (!text || text === "-") {
+      return "-";
+    }
+    const number = Number(text);
+    return Number.isFinite(number) ? number.toFixed(2) : text;
+  }
+
+  function renderCdxBadge(value, fallback = "reported") {
+    const label = String(value || fallback || "reported");
+    return `<span class="viewer-cdx__badge viewer-cdx__badge--${cdxStateClass(label)}">${escapeHtml(cdxLabel(label))}</span>`;
+  }
+
+  function cdxDetailEntries(item, excludedKeys) {
+    return objectEntries(item)
+      .filter(([key, value]) => !excludedKeys.includes(key) && value !== undefined && value !== null && value !== "")
+      .slice(0, 6);
+  }
+
+  function renderCdxDetailPills(item, excludedKeys) {
+    const details = cdxDetailEntries(item, excludedKeys).map(([key, value]) => `
+      <span class="viewer-cdx__pill"><span>${escapeHtml(cdxLabel(key))}</span><strong>${escapeHtml(formatCdxValue(key, value))}</strong></span>
+    `).join("");
+    return details ? `<div class="viewer-cdx__pills">${details}</div>` : "";
+  }
+
+  function renderCdxRemainingPill(item) {
+    const percent = cdxRemainingPct(item);
+    if (percent === null) {
+      return "";
+    }
+    return `
+      <span class="viewer-cdx__remaining viewer-cdx__remaining--${cdxRemainingClass(percent)}" title="${escapeHtml(percent)}% usage remaining">
+        <span>Remaining</span>
+        <strong>${escapeHtml(percent)}%</strong>
+      </span>
+    `;
+  }
+
+  function cdxSessionBlock(item) {
+    const explicit = cdxField(item, ["block", "blocked", "blocking"], "");
+    if (explicit && explicit !== true) {
+      return explicit;
+    }
+    const fiveHour = Number(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN));
+    const week = Number(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN));
+    if (Number.isFinite(fiveHour) && fiveHour <= 0) {
+      return "5H";
+    }
+    if (Number.isFinite(week) && week <= 1) {
+      return "WEEK";
+    }
+    return explicit === true ? "YES" : "-";
+  }
+
+  function renderCdxSessionTable(sessions, emptyText) {
+    if (!sessions.length) {
+      return `<div class="viewer-cdx__empty">${escapeHtml(emptyText)}</div>`;
+    }
+    const rows = sessions.slice(0, 24).map((entry) => {
+      const item = entry && typeof entry === "object" ? entry : { value: entry };
+      const name = cdxField(item, ["session_name", "name", "id", "value"]);
+      const sessionName = `${name}${item.active ? "*" : ""}`;
+      const status = cdxField(item, ["status", "state"]);
+      const auth = String(cdxField(item, ["auth_status", "authStatus"], "-")).replace("authenticated", "logged");
+      const block = cdxSessionBlock(item);
+      return `
+        <tr>
+          <td class="viewer-cdx__session-name">${escapeHtml(sessionName)}</td>
+          <td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>
+          <td>${renderCdxBadge(status)}</td>
+          <td>${escapeHtml(auth)}</td>
+          <td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>
+          <td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>
+          <td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>
+          <td>${escapeHtml(block)}</td>
+          <td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>
+          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>
+          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>
+          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>
+        </tr>
+      `;
+    }).join("");
+    return `
+      <div class="viewer-cdx__table-wrap">
+        <table class="viewer-cdx__table">
+          <thead>
+            <tr>
+              <th>SESSION</th>
+              <th>PROV.</th>
+              <th>STATUS</th>
+              <th>AUTH</th>
+              <th>OK</th>
+              <th>5H</th>
+              <th>WEEK</th>
+              <th>BLOCK</th>
+              <th>CR</th>
+              <th>RESET 5H</th>
+              <th>RESET WEEK</th>
+              <th>UPDATED</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderCdxEntityRows(entries, emptyText, options = {}) {
+    const titleKeys = options.titleKeys || ["name", "session_name", "id", "provider", "model", "value"];
+    const stateKeys = options.stateKeys || ["state", "status", "readiness", "available", "auth_status"];
+    const excludedKeys = [...titleKeys, ...stateKeys, "available_pct", "availablePct", "remaining_pct", "remainingPct", "lowest_available_pct", "lowestAvailablePct"];
     const rows = entries.slice(0, 16).map((entry) => {
       const item = entry && typeof entry === "object" ? entry : { value: entry };
-      const name = item.name || item.session_name || item.id || item.provider || item.model || item.value || "entry";
-      const state = item.state || item.status || item.readiness || item.available || "";
-      const detail = objectEntries(item)
-        .filter(([key]) => !["name", "session_name", "id", "provider", "model", "state", "status", "readiness", "available"].includes(key))
-        .slice(0, 4)
-        .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}`)
-        .join(" · ");
+      const name = titleKeys.map((key) => item[key]).find(Boolean) || "entry";
+      const state = stateKeys.map((key) => item[key]).find((value) => value !== undefined && value !== null && value !== "") || "";
+      const subtitle = options.subtitleKeys
+        ? options.subtitleKeys.map((key) => item[key]).filter(Boolean).join(" · ")
+        : "";
       return `
         <li class="viewer-cdx__entity">
-          <div class="viewer-cdx__entity-main"><strong>${escapeHtml(name)}</strong>${state ? `<span>${escapeHtml(state)}</span>` : ""}</div>
-          ${detail ? `<div class="viewer-cdx__meta">${escapeHtml(detail)}</div>` : ""}
+          <div class="viewer-cdx__entity-main">
+            <div>
+              <strong>${escapeHtml(name)}</strong>
+              ${subtitle ? `<div class="viewer-cdx__meta">${escapeHtml(subtitle)}</div>` : ""}
+            </div>
+            <div class="viewer-cdx__entity-status">
+              ${renderCdxRemainingPill(item)}
+              ${renderCdxBadge(state)}
+            </div>
+          </div>
+          ${renderCdxDetailPills(item, excludedKeys)}
         </li>
       `;
     }).join("");
@@ -1383,37 +1632,50 @@
     if (!commands.length) {
       commands.push("cdx status --json");
     }
+    const runtimeState = status.state || status.status || status.availability || "ok";
+    const readinessCount = objectEntries(readiness).length;
     const cards = [
-      ["State", status.state || status.status || status.availability || "ok"],
+      ["Runtime", runtimeState],
       ["Providers", providers.length],
       ["Sessions", sessions.length],
-      ["Readiness", objectEntries(readiness).length ? "Available" : "Not reported"]
+      ["Readiness", readinessCount ? `${readinessCount} signals` : "Not reported"]
     ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
-        <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+        <div class="viewer-cdx__value">${label === "Runtime" ? renderCdxBadge(value) : escapeHtml(value)}</div>
       </div>
     `).join("");
-    const commandRows = commands.slice(0, 10).map((command) => `<li><code>${escapeHtml(command)}</code></li>`).join("");
+    const commandRows = commands.slice(0, 10).map((command, index) => `
+      <li>
+        <span>${escapeHtml(index + 1)}</span>
+        <code>${escapeHtml(command)}</code>
+      </li>
+    `).join("");
     return `
       <div class="viewer-cdx">
         <div class="viewer-cdx__summary">${cards}</div>
-        <section class="viewer-cdx__section">
-          <h2 class="viewer-cdx__heading">Providers</h2>
-          <ul class="viewer-cdx__list">${renderCdxEntityRows(providers, "No provider status reported.")}</ul>
-        </section>
-        <section class="viewer-cdx__section">
-          <h2 class="viewer-cdx__heading">Sessions</h2>
-          <ul class="viewer-cdx__list">${renderCdxEntityRows(sessions, "No sessions reported.")}</ul>
-        </section>
-        <section class="viewer-cdx__section">
-          <h2 class="viewer-cdx__heading">Readiness and quota</h2>
-          <ul class="viewer-cdx__list">${renderCdxObjectRows(readiness, "No readiness or quota details reported.")}</ul>
-        </section>
-        <section class="viewer-cdx__section">
-          <h2 class="viewer-cdx__heading">Safe next commands</h2>
-          <ul class="viewer-cdx__commands">${commandRows || '<li class="viewer-cdx__empty">No suggested commands reported.</li>'}</ul>
-        </section>
+        <div class="viewer-cdx__workspace">
+          <div class="viewer-cdx__stack">
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Sessions</h2>
+              ${renderCdxSessionTable(sessions, "No sessions reported.")}
+            </section>
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Providers</h2>
+              <ul class="viewer-cdx__list">${renderCdxEntityRows(providers, "No provider status reported.", { subtitleKeys: ["model"] })}</ul>
+            </section>
+          </div>
+          <div class="viewer-cdx__stack">
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Readiness and quota</h2>
+              <ul class="viewer-cdx__list">${renderCdxObjectRows(readiness, "No readiness or quota details reported.")}</ul>
+            </section>
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Safe next commands</h2>
+              <ul class="viewer-cdx__commands">${commandRows || '<li class="viewer-cdx__empty">No suggested commands reported.</li>'}</ul>
+            </section>
+          </div>
+        </div>
       </div>
     `;
   }

@@ -48,6 +48,15 @@ flowchart TD
 - request-AC5 -> This backlog slice.
 - request-AC6 -> This backlog slice.
 - request-AC8 -> This backlog slice.
+- request-AC1 -> This backlog slice. Proof: After refresh, the main Git button can show a badge with the count of local commits not pushed to the configured upstream branch.
+- request-AC2 -> This backlog slice. Proof: After refresh, the main Git button can show a second badge with the count of modified/uncommitted files.
+- request-AC3 -> This backlog slice. Proof: Each badge is hidden when its count is zero.
+- request-AC4 -> This backlog slice. Proof: Opening the Git window marks badges on the main Git button as seen and hides them there without implying the Git state is resolved.
+- request-AC5 -> This backlog slice. Proof: The unpushed commits badge remains visible on the Git History control until History is opened.
+- request-AC6 -> This backlog slice. Proof: The uncommitted files badge remains visible on the relevant changes surface/control, when one exists, until that surface is opened.
+- request-AC7 -> This backlog slice. Proof: A subsequent refresh can show the badges again when counts greater than zero are detected.
+- request-AC8 -> This backlog slice. Proof: Each badge has its own color, compact placement, and a hover tooltip explaining the count.
+- request-AC9 -> This backlog slice. Proof: Missing upstream configuration, unavailable Git, or Git command failures are handled without blocking the rest of the refresh.
 
 # Links
 - Request: `logics/request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md`

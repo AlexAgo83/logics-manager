@@ -44,6 +44,17 @@ flowchart TD
 - AC8: Each badge has its own color, compact placement, and a hover tooltip explaining the count.
 - AC9: Missing upstream configuration, unavailable Git, or Git command failures are handled without blocking the rest of the refresh.
 
+# AC Traceability
+- AC1 -> `item_384_compute_git_badge_counters_on_refresh`, `task_185_count_local_commits_not_pushed_to_upstream`, `task_187_expose_badge_counters_through_the_refresh_result`, `task_191_render_two_compact_badges_on_the_main_git_button`. Proof: backend badge counters expose unpushed commits and viewer refresh displays the commits badge on the main Git button.
+- AC2 -> `item_384_compute_git_badge_counters_on_refresh`, `task_186_count_modified_and_uncommitted_files_consistently_with_git_status`, `task_187_expose_badge_counters_through_the_refresh_result`, `task_191_render_two_compact_badges_on_the_main_git_button`. Proof: backend badge counters expose uncommitted files and viewer refresh displays the files badge on the main Git button.
+- AC3 -> `item_386_render_git_notification_badges_in_the_ui`, `task_191_render_two_compact_badges_on_the_main_git_button`, `task_192_render_the_unpushed_commits_badge_on_the_git_history_control`, `task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available`. Proof: `gitBadgeHtml` returns no badge for zero counts and tests cover zero-count hidden states.
+- AC4 -> `item_385_track_git_badge_visibility_and_viewed_state`, `task_188_persist_viewed_state_for_the_main_git_button`. Proof: opening the Git screen marks main badges viewed and tests assert the main Git button badges disappear while Git state remains visible.
+- AC5 -> `item_385_track_git_badge_visibility_and_viewed_state`, `item_386_render_git_notification_badges_in_the_ui`, `task_189_persist_viewed_state_for_git_history_and_changes_subviews`, `task_192_render_the_unpushed_commits_badge_on_the_git_history_control`. Proof: History keeps the unpushed commits badge after opening Git and removes it only when the History domain is opened.
+- AC6 -> `item_385_track_git_badge_visibility_and_viewed_state`, `item_386_render_git_notification_badges_in_the_ui`, `task_189_persist_viewed_state_for_git_history_and_changes_subviews`, `task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available`. Proof: the Changes domain is the existing local changes surface and marks the files badge viewed when opened.
+- AC7 -> `item_385_track_git_badge_visibility_and_viewed_state`, `task_190_reset_badge_visibility_when_refresh_detects_counts`. Proof: refresh resets badge visibility from the latest positive badge counts.
+- AC8 -> `item_386_render_git_notification_badges_in_the_ui`, `task_194_add_badge_colors_placement_and_hover_tooltips`. Proof: CSS defines distinct compact badge colors and badge markup includes French hover tooltips.
+- AC9 -> `item_384_compute_git_badge_counters_on_refresh`, `task_185_count_local_commits_not_pushed_to_upstream`, `task_187_expose_badge_counters_through_the_refresh_result`. Proof: upstream inspection returns safe unavailable metadata without blocking Git status payload collection.
+
 # Scope
 - In:
   - compute Git badge counters during refresh;

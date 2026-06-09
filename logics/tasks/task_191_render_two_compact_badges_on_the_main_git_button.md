@@ -50,3 +50,14 @@ flowchart TD
 # Links
 - Request: `req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes`
 - Backlog: `item_386_render_git_notification_badges_in_the_ui`
+
+# AC Traceability
+- request-AC1 -> This task. Proof: After refresh, the main Git button can show a badge with the count of local commits not pushed to the configured upstream branch.
+- request-AC2 -> This task. Proof: After refresh, the main Git button can show a second badge with the count of modified/uncommitted files.
+- request-AC3 -> This task. Proof: Each badge is hidden when its count is zero.
+- request-AC4 -> This task. Proof: Opening the Git window marks badges on the main Git button as seen and hides them there without implying the Git state is resolved.
+- request-AC5 -> This task. Proof: The unpushed commits badge remains visible on the Git History control until History is opened.
+- request-AC6 -> This task. Proof: The uncommitted files badge remains visible on the relevant changes surface/control, when one exists, until that surface is opened.
+- request-AC7 -> This task. Proof: A subsequent refresh can show the badges again when counts greater than zero are detected.
+- request-AC8 -> This task. Proof: Each badge has its own color, compact placement, and a hover tooltip explaining the count.
+- request-AC9 -> This task. Proof: Missing upstream configuration, unavailable Git, or Git command failures are handled without blocking the rest of the refresh.

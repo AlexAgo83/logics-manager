@@ -542,6 +542,9 @@
         throw new Error(data.error || "Unable to load viewer data.");
       }
       postToApp(data.payload, { silent: Boolean(options.silent) });
+      if (method !== "POST") {
+        await refreshGitBadgeCounters();
+      }
       return true;
     } finally {
       itemsLoadInFlight = false;

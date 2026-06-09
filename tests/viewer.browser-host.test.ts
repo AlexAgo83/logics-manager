@@ -789,6 +789,47 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
   });
 
+  it("shows Git badge counters on initial viewer load", async () => {
+    const { dom, calls } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 2,
+            behind: 0,
+            clean: false,
+            dirty: true,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [{ hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+            badgeCounts: { unpushedCommits: 2, uncommittedFiles: 3 },
+            counts: { staged: 1, modified: 2, deleted: 0, renamed: 0, untracked: 0 },
+            groups: {
+              staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }],
+              modified: [{ path: "a.md" }, { path: "b.md" }],
+              deleted: [],
+              renamed: [],
+              untracked: []
+            }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const gitButton = dom.window.document.getElementById("viewer-git");
+    expect(calls).toContain("/api/git-status");
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
+  });
+
   it("keeps Git badge counters visible while counts stay positive", async () => {
     const { dom } = createViewerDom({
       gitResponse: {

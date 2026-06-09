@@ -24,6 +24,7 @@ from logics_manager.insights import followups_payload, health_payload, product_c
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
+    cdx_status_payload,
     collect_viewer_items,
     create_viewer_server,
     edit_doc_payload,
@@ -412,6 +413,89 @@ def test_viewer_git_status_payload_handles_unavailable_non_repo_and_errors(tmp_p
     payload = git_status_payload(tmp_path, runner=failing_status, which=lambda _name: "/usr/bin/git")
     assert payload["state"] == "error"
     assert "fatal: bad revision" in payload["message"]
+
+
+def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 5
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "availability": "ready",
+                        "providers": [{"name": "openai", "state": "ready"}],
+                        "sessions": [{"id": "session-1", "status": "active"}],
+                        "nextCommands": ["cdx status", "cdx session list"],
+                    }
+                ),
+                "",
+            )
+        raise AssertionError(args)
+
+    payload = cdx_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload["state"] == "ok"
+    assert payload["message"] == ""
+    assert payload["status"]["availability"] == "ready"
+    assert payload["status"]["providers"][0]["name"] == "openai"
+    assert calls == [["cdx", "status", "--json"]]
+
+
+def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invalid_json(tmp_path: Path) -> None:
+    assert cdx_status_payload(tmp_path, which=lambda _name: None)["state"] == "unavailable"
+
+    def timeout_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        raise subprocess.TimeoutExpired(args, 5)
+
+    assert cdx_status_payload(tmp_path, runner=timeout_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "timeout"
+
+    def failing_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 2, "", "cdx auth expired")
+
+    failed = cdx_status_payload(tmp_path, runner=failing_runner, which=lambda _name: "/usr/bin/cdx")
+    assert failed["state"] == "error"
+    assert failed["message"] == "cdx auth expired"
+
+    def invalid_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "{not-json", "")
+
+    assert cdx_status_payload(tmp_path, runner=invalid_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+    def array_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "[]", "")
+
+    assert cdx_status_payload(tmp_path, runner=array_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_cdx_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    (tmp_path / "logics").mkdir()
+    monkeypatch.setattr(
+        viewer_module,
+        "cdx_status_payload",
+        lambda repo_root: {"state": "ok", "message": "", "status": {"availability": "ready", "root": str(repo_root)}},
+    )
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/cdx-status")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["state"] == "ok"
+        assert payload["payload"]["status"]["availability"] == "ready"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:

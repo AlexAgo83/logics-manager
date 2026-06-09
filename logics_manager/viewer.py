@@ -399,6 +399,12 @@ def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None =
     return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
 
 
+def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["cdx", *args]
+    cdx_runner = runner or subprocess.run
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
+
+
 def _logics_doc_type(rel_path: str) -> str:
     normalized = rel_path.replace("\\", "/").lstrip("/")
     for family in DOC_FAMILIES:
@@ -626,6 +632,32 @@ def git_diff_payload(
     }
 
 
+def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"state": "unavailable", "message": "CDX is not available on PATH.", "status": {}}
+
+    try:
+        status = _run_read_only_cdx(repo_root, ["status", "--json"], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX status timed out.", "status": {}}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX status: {exc}", "status": {}}
+
+    if status.returncode != 0:
+        message = (status.stderr or status.stdout or "CDX status failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "status": {}}
+
+    try:
+        parsed = json.loads(status.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "message": "CDX status returned invalid JSON.", "status": {}}
+    if not isinstance(parsed, dict):
+        return {"state": "invalid-json", "message": "CDX status JSON must be an object.", "status": {}}
+
+    return {"state": "ok", "message": "", "status": parsed}
+
+
 def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
@@ -727,6 +759,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/git-status":
             self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})
+            return
+        if route == "/api/cdx-status":
+            self._send_json({"ok": True, "payload": cdx_status_payload(self.server.repo_root)})
             return
         if route == "/api/git-diff":
             params = parse_qs(parsed.query)

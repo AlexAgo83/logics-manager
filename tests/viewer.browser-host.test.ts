@@ -682,6 +682,66 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
   });
 
+  it("maps CDX status rows into providers sessions and readiness", async () => {
+    const { dom } = createViewerDom({
+      cdxResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            message: "",
+            status: {
+              ok: true,
+              message: "Collected session status rows",
+              rows: [
+                {
+                  session_name: "work2",
+                  provider: "codex",
+                  enabled: true,
+                  active: true,
+                  status: "enabled",
+                  auth_status: "authenticated",
+                  available_pct: 7,
+                  reset_at: "Jun 11 15:04"
+                },
+                {
+                  session_name: "corvus",
+                  provider: "claude",
+                  enabled: true,
+                  active: false,
+                  status: "enabled",
+                  auth_status: "authenticated",
+                  available_pct: 100,
+                  reset_at: "Jun 15 18:00"
+                }
+              ]
+            }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Providers");
+    expect(text).toContain("codex");
+    expect(text).toContain("claude");
+    expect(text).toContain("Sessions");
+    expect(text).toContain("work2");
+    expect(text).toContain("corvus");
+    expect(text).toContain("lowest_available_pct");
+    expect(text).toContain("7%");
+    expect(text).toContain("cdx status --json");
+    expect(text).not.toContain("No provider status reported.");
+    expect(text).not.toContain("No sessions reported.");
+  });
+
   it("renders unavailable CDX states without breaking the viewer", async () => {
     const { dom } = createViewerDom({
       cdxResponse: {
@@ -729,7 +789,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
   });
 
-  it("shows Git badge counters after refresh and hides main badges after opening Git", async () => {
+  it("keeps Git badge counters visible while counts stay positive", async () => {
     const { dom } = createViewerDom({
       gitResponse: {
         ok: true,
@@ -773,13 +833,14 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')).toBeNull();
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
+    expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
     const content = dom.window.document.getElementById("viewer-document-content");
-    expect(content?.querySelector('[data-viewer-git-domain="changes"] [data-viewer-git-badges="changes"]')).toBeNull();
+    expect(content?.querySelector('[data-viewer-git-domain="changes"] [data-viewer-git-badges="changes"]')?.textContent).toContain("3");
     expect(content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"]')?.textContent).toContain("2");
   });
 
-  it("keeps the History Git badge until the History subview is opened", async () => {
+  it("keeps the History Git badge visible after the History subview is opened", async () => {
     const { dom } = createViewerDom({
       gitResponse: {
         ok: true,
@@ -818,7 +879,7 @@ describe("local viewer browser host", () => {
     const historyDomain = content?.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
     historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect(content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"]')).toBeNull();
+    expect(content?.querySelector('[data-viewer-git-domain="history"] [data-viewer-git-badges="history"]')?.textContent).toContain("4");
   });
 
   it("refreshes the open Git screen when the viewer refresh button is used", async () => {

@@ -36,7 +36,6 @@
   let mermaidInitialized = false;
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
-  let gitBadgeSeenState = { main: true, history: true, changes: true };
 
   function readStoredState() {
     try {
@@ -208,10 +207,10 @@
 
   function gitBadgeHtml(scope) {
     const commitsVisible = latestGitBadgeCounts.unpushedCommits > 0 && (
-      scope === "main" ? !gitBadgeSeenState.main : scope === "history" && !gitBadgeSeenState.history
+      scope === "main" || scope === "history"
     );
     const filesVisible = latestGitBadgeCounts.uncommittedFiles > 0 && (
-      scope === "main" ? !gitBadgeSeenState.main : scope === "changes" && !gitBadgeSeenState.changes
+      scope === "main" || scope === "changes"
     );
     const html = [
       commitsVisible ? renderGitBadge("commits", latestGitBadgeCounts.unpushedCommits) : "",
@@ -234,11 +233,6 @@
 
   function setGitBadgeCountsFromPayload(payload, options = {}) {
     latestGitBadgeCounts = normalizeGitBadgeCounts(payload);
-    gitBadgeSeenState = {
-      main: latestGitBadgeCounts.unpushedCommits <= 0 && latestGitBadgeCounts.uncommittedFiles <= 0,
-      history: latestGitBadgeCounts.unpushedCommits <= 0,
-      changes: latestGitBadgeCounts.uncommittedFiles <= 0
-    };
     if (options.updateMain !== false) {
       updateMainGitBadges();
     }
@@ -253,24 +247,7 @@
       }
     } catch {
       latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
-      gitBadgeSeenState = { main: true, history: true, changes: true };
       updateMainGitBadges();
-    }
-  }
-
-  function markGitBadgesViewed(scope) {
-    if (scope === "main") {
-      gitBadgeSeenState.main = true;
-    }
-    if (scope === "history") {
-      gitBadgeSeenState.history = true;
-    }
-    if (scope === "changes") {
-      gitBadgeSeenState.changes = true;
-    }
-    updateMainGitBadges();
-    if (scope === "history" || scope === "changes") {
-      document.querySelector(`[data-viewer-git-domain="${scope}"] [data-viewer-git-badges="${scope}"]`)?.remove();
     }
   }
 
@@ -1226,6 +1203,67 @@
     return [];
   }
 
+  function cdxRows(status) {
+    return asArray(status?.rows);
+  }
+
+  function cdxProviders(status) {
+    const explicitProviders = pickFirstArray(status, ["providers", "providerStatus", "provider_status"]);
+    if (explicitProviders.length) {
+      return explicitProviders;
+    }
+    const grouped = new Map();
+    cdxRows(status).forEach((row) => {
+      const provider = String(row.provider || "unknown");
+      const current = grouped.get(provider) || { name: provider, enabled: 0, active: 0, authenticated: 0, sessions: 0, lowest_available_pct: null };
+      current.sessions += 1;
+      if (row.enabled) {
+        current.enabled += 1;
+      }
+      if (row.active) {
+        current.active += 1;
+      }
+      if (String(row.auth_status || "").toLowerCase() === "authenticated") {
+        current.authenticated += 1;
+      }
+      if (typeof row.available_pct === "number") {
+        current.lowest_available_pct = current.lowest_available_pct === null
+          ? row.available_pct
+          : Math.min(current.lowest_available_pct, row.available_pct);
+      }
+      current.state = current.active > 0 ? "active" : current.enabled > 0 ? "enabled" : "disabled";
+      grouped.set(provider, current);
+    });
+    return Array.from(grouped.values());
+  }
+
+  function cdxSessions(status) {
+    const explicitSessions = pickFirstArray(status, ["sessions", "activeSessions", "active_sessions"]);
+    return explicitSessions.length ? explicitSessions : cdxRows(status);
+  }
+
+  function cdxReadiness(status) {
+    const explicitReadiness = pickFirstObject(status, ["readiness", "quota", "quotas", "limits"]);
+    if (objectEntries(explicitReadiness).length) {
+      return explicitReadiness;
+    }
+    const rows = cdxRows(status);
+    if (!rows.length) {
+      return {};
+    }
+    const enabled = rows.filter((row) => row.enabled).length;
+    const active = rows.filter((row) => row.active).length;
+    const authenticated = rows.filter((row) => String(row.auth_status || "").toLowerCase() === "authenticated").length;
+    const availableValues = rows.map((row) => row.available_pct).filter((value) => typeof value === "number");
+    const lowestAvailable = availableValues.length ? Math.min(...availableValues) : null;
+    return {
+      enabled_sessions: enabled,
+      active_sessions: active,
+      authenticated_sessions: authenticated,
+      lowest_available_pct: lowestAvailable === null ? "not reported" : `${lowestAvailable}%`
+    };
+  }
+
   function renderCdxObjectRows(value, emptyText) {
     const rows = objectEntries(value).slice(0, 12).map(([key, entry]) => `
       <li class="viewer-cdx__row">
@@ -1239,10 +1277,10 @@
   function renderCdxEntityRows(entries, emptyText) {
     const rows = entries.slice(0, 16).map((entry) => {
       const item = entry && typeof entry === "object" ? entry : { value: entry };
-      const name = item.name || item.id || item.provider || item.model || item.value || "entry";
+      const name = item.name || item.session_name || item.id || item.provider || item.model || item.value || "entry";
       const state = item.state || item.status || item.readiness || item.available || "";
       const detail = objectEntries(item)
-        .filter(([key]) => !["name", "id", "provider", "model", "state", "status", "readiness", "available"].includes(key))
+        .filter(([key]) => !["name", "session_name", "id", "provider", "model", "state", "status", "readiness", "available"].includes(key))
         .slice(0, 4)
         .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}`)
         .join(" · ");
@@ -1265,12 +1303,15 @@
       `;
     }
     const status = payload.status || {};
-    const providers = pickFirstArray(status, ["providers", "providerStatus", "provider_status"]);
-    const sessions = pickFirstArray(status, ["sessions", "activeSessions", "active_sessions"]);
-    const readiness = pickFirstObject(status, ["readiness", "quota", "quotas", "limits"]);
+    const providers = cdxProviders(status);
+    const sessions = cdxSessions(status);
+    const readiness = cdxReadiness(status);
     const commands = pickFirstArray(status, ["nextCommands", "next_commands", "safeCommands", "safe_commands", "commands"])
       .map((entry) => typeof entry === "string" ? entry : (entry.command || entry.value || entry.name || ""))
       .filter(Boolean);
+    if (!commands.length) {
+      commands.push("cdx status --json");
+    }
     const cards = [
       ["State", status.state || status.status || status.availability || "ok"],
       ["Providers", providers.length],
@@ -1504,9 +1545,6 @@
 
   function applyGitDomain(domain) {
     const selected = domain || "changes";
-    if (selected === "history" || selected === "changes") {
-      markGitBadgesViewed(selected);
-    }
     document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
       if (node instanceof HTMLElement) {
         const active = node.getAttribute("data-viewer-git-domain") === selected;
@@ -1563,13 +1601,7 @@
       throw new Error(data.error || "Unable to load Git status.");
     }
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
-    markGitBadgesViewed("main");
-    if ((previous.domain || "changes") === "changes") {
-      markGitBadgesViewed("changes");
-    }
-    if ((previous.domain || "changes") === "history") {
-      markGitBadgesViewed("history");
-    }
+    updateMainGitBadges();
     setDocument("Git status", renderGitStatus(data.payload));
     applyGitDomain(previous.domain || "changes");
     const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
@@ -1646,7 +1678,6 @@
       showHealth().catch((error) => setMeta(error.message));
     });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
-      markGitBadgesViewed("main");
       showGitStatus().catch((error) => setMeta(error.message));
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {

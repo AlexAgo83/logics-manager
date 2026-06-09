@@ -483,6 +483,40 @@ def _parse_recent_git_commits(output: str) -> list[dict[str, str]]:
     return commits
 
 
+def _count_unique_git_status_paths(groups: dict[str, list[dict[str, str]]]) -> int:
+    paths: set[str] = set()
+    for entries in groups.values():
+        for entry in entries:
+            path = entry.get("path", "").strip()
+            if path:
+                paths.add(path)
+    return len(paths)
+
+
+def _git_unpushed_commit_count(repo_root: Path, *, runner: Any | None = None) -> dict[str, Any]:
+    try:
+        upstream = _run_read_only_git(repo_root, ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"available": False, "count": 0, "message": f"Unable to inspect upstream: {exc}"}
+    if upstream.returncode != 0:
+        return {"available": False, "count": 0, "message": "No upstream branch detected."}
+
+    tracking = _sanitize_git_ref(upstream.stdout.strip())
+    try:
+        unpushed = _run_read_only_git(repo_root, ["rev-list", "--count", "@{u}..HEAD"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"available": False, "count": 0, "tracking": tracking, "message": f"Unable to count unpushed commits: {exc}"}
+    if unpushed.returncode != 0:
+        message = (unpushed.stderr or unpushed.stdout or "Unable to count unpushed commits.").strip().splitlines()[0]
+        return {"available": False, "count": 0, "tracking": tracking, "message": message}
+
+    try:
+        count = max(0, int(unpushed.stdout.strip() or "0"))
+    except ValueError:
+        count = 0
+    return {"available": True, "count": count, "tracking": tracking, "message": ""}
+
+
 def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     git_which = which or shutil.which
     if not git_which("git"):
@@ -502,6 +536,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
             ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
             runner=runner,
         )
+        unpushed = _git_unpushed_commit_count(repo_root, runner=runner)
     except (OSError, subprocess.SubprocessError) as exc:
         return {"state": "error", "message": f"Unable to collect Git status: {exc}"}
     if status.returncode != 0:
@@ -517,6 +552,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
             group, entry = classified
             groups[group].append(entry)
     counts = {key: len(value) for key, value in groups.items()}
+    uncommitted_files = _count_unique_git_status_paths(groups)
     dirty = any(counts.values())
     return {
         "state": "ok",
@@ -524,6 +560,18 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         "clean": not dirty,
         "dirty": dirty,
         "counts": counts,
+        "badgeCounts": {
+            "unpushedCommits": int(unpushed.get("count", 0)),
+            "uncommittedFiles": uncommitted_files,
+        },
+        "badgeAvailability": {
+            "unpushedCommits": bool(unpushed.get("available")),
+            "uncommittedFiles": True,
+        },
+        "badgeMessages": {
+            "unpushedCommits": str(unpushed.get("message", "")),
+            "uncommittedFiles": "",
+        },
         "groups": groups,
         "latestCommit": (commit.stdout.strip() if commit.returncode == 0 else "")[:300],
         "recentCommits": _parse_recent_git_commits(recent_commits.stdout) if recent_commits.returncode == 0 else [],

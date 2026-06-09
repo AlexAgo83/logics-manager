@@ -297,6 +297,10 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
                 "def5678\x1fprevious commit\x1fSam\x1f2026-06-08\x1forigin/main",
                 "",
             )
+        if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
+        if args[1:] == ["rev-list", "--count", "@{u}..HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "2\n", "")
         raise AssertionError(args)
 
     payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
@@ -308,6 +312,9 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["behind"] == 1
     assert payload["clean"] is False
     assert payload["counts"] == {"staged": 1, "modified": 1, "deleted": 1, "renamed": 1, "untracked": 1}
+    assert payload["badgeCounts"] == {"unpushedCommits": 2, "uncommittedFiles": 5}
+    assert payload["badgeAvailability"] == {"unpushedCommits": True, "uncommittedFiles": True}
+    assert payload["badgeMessages"] == {"unpushedCommits": "", "uncommittedFiles": ""}
     assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": ""}
     assert payload["groups"]["modified"][0]["logicsType"] == ""
     assert payload["latestCommit"] == "abc1234 latest commit"
@@ -316,6 +323,7 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
         {"hash": "def5678", "subject": "previous commit", "author": "Sam", "date": "2026-06-08", "refs": "origin/main"},
     ]
     assert ["git", "status", "--porcelain=v1", "-b"] in calls
+    assert ["git", "rev-list", "--count", "@{u}..HEAD"] in calls
     assert ["git", "log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
@@ -342,6 +350,8 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")
         raise AssertionError(args)
 
     payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
@@ -349,6 +359,10 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
     assert payload["groups"]["modified"][0]["logicsType"] == "request"
     assert payload["groups"]["staged"][0]["logicsType"] == "task"
     assert payload["groups"]["untracked"][0]["logicsType"] == "product"
+    assert payload["badgeCounts"]["unpushedCommits"] == 0
+    assert payload["badgeCounts"]["uncommittedFiles"] == 3
+    assert payload["badgeAvailability"]["unpushedCommits"] is False
+    assert payload["badgeMessages"]["unpushedCommits"] == "No upstream branch detected."
 
 
 def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:

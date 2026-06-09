@@ -399,6 +399,14 @@ def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None =
     return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
 
 
+def _logics_doc_type(rel_path: str) -> str:
+    normalized = rel_path.replace("\\", "/").lstrip("/")
+    for family in DOC_FAMILIES:
+        if normalized.startswith(f"{family.directory}/"):
+            return family.stage
+    return ""
+
+
 def _sanitize_git_ref(value: str) -> str:
     ref = value.strip()
     ref = re.sub(r"://[^/@\s]+@", "://", ref)
@@ -410,7 +418,8 @@ def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
     if not line or line.startswith("## "):
         return None
     if line.startswith("?? "):
-        return "untracked", {"path": line[3:].strip()}
+        path = line[3:].strip()
+        return "untracked", {"path": path, "logicsType": _logics_doc_type(path)}
     if len(line) < 4:
         return None
     staged = line[0]
@@ -418,15 +427,16 @@ def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
     raw_path = line[3:].strip()
     if " -> " in raw_path:
         before, after = raw_path.split(" -> ", 1)
-        return "renamed", {"path": after.strip(), "from": before.strip()}
+        path = after.strip()
+        return "renamed", {"path": path, "from": before.strip(), "logicsType": _logics_doc_type(path)}
     if staged == "R":
-        return "renamed", {"path": raw_path}
+        return "renamed", {"path": raw_path, "logicsType": _logics_doc_type(raw_path)}
     if staged not in {" ", "?", "!"}:
-        return "staged", {"path": raw_path, "code": staged}
+        return "staged", {"path": raw_path, "code": staged, "logicsType": _logics_doc_type(raw_path)}
     if worktree == "D":
-        return "deleted", {"path": raw_path, "code": worktree}
+        return "deleted", {"path": raw_path, "code": worktree, "logicsType": _logics_doc_type(raw_path)}
     if worktree not in {" ", "?", "!"}:
-        return "modified", {"path": raw_path, "code": worktree}
+        return "modified", {"path": raw_path, "code": worktree, "logicsType": _logics_doc_type(raw_path)}
     return None
 
 
@@ -492,6 +502,54 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         "counts": counts,
         "groups": groups,
         "latestCommit": (commit.stdout.strip() if commit.returncode == 0 else "")[:300],
+    }
+
+
+def git_diff_payload(
+    repo_root: Path,
+    rel_path: str,
+    *,
+    cached: bool = False,
+    max_chars: int = 20000,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH."}
+    normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
+    if not normalized or normalized.startswith("~") or normalized.startswith("/") or ".." in normalized.split("/"):
+        return {"state": "error", "message": "Unsafe Git path."}
+    try:
+        inside = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run Git diff: {exc}"}
+    if inside.returncode != 0 or inside.stdout.strip().lower() != "true":
+        return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
+
+    args = ["diff", "--no-ext-diff", "--unified=80"]
+    if cached:
+        args.append("--cached")
+    args.extend(["--", normalized])
+    try:
+        diff = _run_read_only_git(repo_root, args, runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to collect Git diff: {exc}"}
+    if diff.returncode != 0:
+        message = (diff.stderr or diff.stdout or "Git diff failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message}
+    content = diff.stdout
+    truncated = len(content) > max_chars
+    if truncated:
+        content = content[:max_chars]
+    return {
+        "state": "ok",
+        "path": normalized,
+        "mode": "staged" if cached else "worktree",
+        "diff": content,
+        "truncated": truncated,
+        "logicsType": _logics_doc_type(normalized),
+        "message": "" if content else "No diff is available for this file in the selected mode.",
     }
 
 
@@ -596,6 +654,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/git-status":
             self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})
+            return
+        if route == "/api/git-diff":
+            params = parse_qs(parsed.query)
+            rel_path = params.get("path", [""])[0]
+            cached = params.get("cached", [""])[0].lower() in {"1", "true", "yes"}
+            self._send_json({"ok": True, "payload": git_diff_payload(self.server.repo_root, rel_path, cached=cached)})
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 

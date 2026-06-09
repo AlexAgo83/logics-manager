@@ -27,6 +27,7 @@ from logics_manager.viewer import (
     collect_viewer_items,
     create_viewer_server,
     edit_doc_payload,
+    git_diff_payload,
     git_status_payload,
     normalize_viewer_focus_target,
     read_doc_payload,
@@ -299,10 +300,71 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["behind"] == 1
     assert payload["clean"] is False
     assert payload["counts"] == {"staged": 1, "modified": 1, "deleted": 1, "renamed": 1, "untracked": 1}
-    assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md"}
+    assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": ""}
+    assert payload["groups"]["modified"][0]["logicsType"] == ""
     assert payload["latestCommit"] == "abc1234 latest commit"
     assert ["git", "status", "--porcelain=v1", "-b"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+
+
+def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "\n".join(
+                    [
+                        "## main",
+                        " M logics/request/req_001_demo.md",
+                        "A  logics/tasks/task_001_demo.md",
+                        "?? logics/product/prod_001_demo.md",
+                    ]
+                ),
+                "",
+            )
+        if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        raise AssertionError(args)
+
+    payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["groups"]["modified"][0]["logicsType"] == "request"
+    assert payload["groups"]["staged"][0]["logicsType"] == "task"
+    assert payload["groups"]["untracked"][0]["logicsType"] == "product"
+
+
+def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"]:
+            return subprocess.CompletedProcess(args, 0, "diff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+" + ("x" * 20), "")
+        raise AssertionError(args)
+
+    payload = git_diff_payload(
+        tmp_path,
+        "logics/request/req_001_demo.md",
+        cached=True,
+        max_chars=32,
+        runner=runner,
+        which=lambda _name: "/usr/bin/git",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["mode"] == "staged"
+    assert payload["path"] == "logics/request/req_001_demo.md"
+    assert payload["logicsType"] == "request"
+    assert payload["truncated"] is True
+    assert len(payload["diff"]) == 32
+    assert ["git", "diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"] in calls
+    assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+    assert git_diff_payload(tmp_path, "../outside.md", which=lambda _name: "/usr/bin/git")["state"] == "error"
 
 
 def test_viewer_git_status_payload_handles_unavailable_non_repo_and_errors(tmp_path: Path) -> None:

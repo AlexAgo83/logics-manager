@@ -714,6 +714,21 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 of 2");
   });
 
+  it("keeps settled companion docs out of active work", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const matches = (item: Record<string, unknown>) => dom.window.__CDX_LOGICS_VIEWER_FILTER__(item);
+
+    expect(matches({ stage: "product", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
+    expect(matches({ stage: "architecture", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
+    expect(matches({ stage: "architecture", indicators: { Status: "Superseded" }, references: [], usedBy: [] })).toBe(false);
+    expect(matches({ stage: "product", indicators: { Status: "Accepted" }, references: [], usedBy: [] })).toBe(true);
+  });
+
   it("persists local corpus filter axes across viewer reloads", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

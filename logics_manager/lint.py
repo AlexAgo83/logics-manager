@@ -25,7 +25,7 @@ KINDS = {
     "request": Kind("logics/request", "req", False, ("From version", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
     "backlog": Kind("logics/backlog", "item", True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
     "task": Kind("logics/tasks", "task", True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "product": Kind("logics/product", "prod", False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), ("Draft", "Proposed", "Active", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
+    "product": Kind("logics/product", "prod", False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
     "architecture": Kind("logics/architecture", "adr", False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
 }
 

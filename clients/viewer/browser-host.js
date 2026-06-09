@@ -537,7 +537,13 @@
 
   function isClosed(item) {
     const status = statusValue(item);
-    return status.includes("done") || status.includes("archived") || status.includes("obsolete");
+    return (
+      status.includes("done") ||
+      status.includes("archived") ||
+      status.includes("obsolete") ||
+      status.includes("superseded") ||
+      status.includes("settled")
+    );
   }
 
   function hasLinks(item) {
@@ -568,7 +574,22 @@
       return true;
     }
     const normalized = rawStatus.toLowerCase();
-    return !["draft", "ready", "in progress", "blocked", "done", "archived", "obsolete"].includes(normalized);
+    return ![
+      "draft",
+      "ready",
+      "in progress",
+      "blocked",
+      "done",
+      "active",
+      "proposed",
+      "accepted",
+      "validated",
+      "rejected",
+      "superseded",
+      "settled",
+      "archived",
+      "obsolete"
+    ].includes(normalized);
   }
 
   function isSafeLogicsDocPath(value) {

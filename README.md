@@ -380,7 +380,7 @@ Use these as quick starting points when you want the plugin or the shared Logics
 - If you think "let's do..." -> task
 
 Companion doc statuses are intentionally separate from workflow statuses:
-product briefs use `Draft`, `Proposed`, `Active`, `Validated`, `Rejected`,
+product briefs use `Draft`, `Proposed`, `Active`, `Accepted`, `Validated`, `Rejected`,
 `Superseded`, `Settled`, or `Archived`; ADRs use `Draft`, `Proposed`,
 `Accepted`, `Validated`, `Rejected`, `Superseded`, `Settled`, or `Archived`.
 Use `Settled` when the subject is closed, consumed by delivery, and no longer

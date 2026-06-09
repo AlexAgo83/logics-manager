@@ -40,7 +40,7 @@ const STATUS_OPTIONS_BY_STAGE: Record<LogicsStage, readonly string[]> = {
   request: ["Draft", "Ready", "Done", "Archived"],
   backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
   task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
-  product: ["Draft", "Proposed", "Active", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+  product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
   architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
   spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Archived"]
 };

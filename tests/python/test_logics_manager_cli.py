@@ -1726,6 +1726,11 @@ def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, m
         title="Demo product",
         status="Settled",
     )
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_002_accepted.md",
+        title="Accepted product",
+        status="Accepted",
+    )
     _write_minimal_architecture_doc(
         repo_root / "logics" / "architecture" / "adr_001_demo.md",
         title="Demo ADR",

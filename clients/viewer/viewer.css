@@ -365,9 +365,39 @@
   background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, var(--vscode-textLink-foreground, #4ea1ff));
 }
 
-.viewer-git__list,
+.viewer-git__content,
 .viewer-git__detail {
   min-width: 0;
+}
+
+.viewer-git__panel {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, transparent);
+}
+
+.viewer-git__panel[hidden] {
+  display: none !important;
+}
+
+.viewer-git__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.viewer-git__panel-header strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
 }
 
 .viewer-git__files li {

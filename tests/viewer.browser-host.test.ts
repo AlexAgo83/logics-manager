@@ -609,9 +609,13 @@ describe("local viewer browser host", () => {
     const stagedDomain = content?.querySelector('[data-viewer-git-domain="staged"]') as HTMLElement | null;
     stagedDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(stagedDomain?.getAttribute("aria-pressed")).toBe("true");
+    expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(false);
+    expect((content?.querySelector('[data-viewer-git-panel="changes"]') as HTMLElement | null)?.hidden).toBe(true);
     const historyDomain = content?.querySelector('.viewer-git__domain[data-viewer-git-domain="history"]') as HTMLElement | null;
     historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(historyDomain?.textContent).toContain("2");
+    expect((content?.querySelector('[data-viewer-git-panel="history"]') as HTMLElement | null)?.hidden).toBe(false);
+    expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(true);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
   });

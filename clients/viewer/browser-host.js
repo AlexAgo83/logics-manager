@@ -1105,13 +1105,13 @@
         <span>${escapeHtml(label)}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
-    const fileSections = groupDefs.map(([key, label, domain]) => {
+    const renderFileSections = (allowedKeys) => groupDefs.filter(([key]) => allowedKeys.includes(key)).map(([key, label]) => {
       const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
       if (!entries.length) {
         return "";
       }
       return `
-        <section class="viewer-git__section" data-viewer-git-section="${escapeHtml(key)}" data-viewer-git-domain="${escapeHtml(domain)}">
+        <section class="viewer-git__section">
           <h2>${escapeHtml(label)}</h2>
           <ul class="viewer-git__files">${entries.map((entry) => `
             <li>
@@ -1124,6 +1124,10 @@
         </section>
       `;
     }).join("");
+    const changesSections = renderFileSections(["staged", "modified", "deleted", "renamed", "untracked"]);
+    const stagedSections = renderFileSections(["staged"]);
+    const worktreeSections = renderFileSections(["modified", "deleted", "renamed"]);
+    const untrackedSections = renderFileSections(["untracked"]);
     const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
     const recentCommits = Array.isArray(payload.recentCommits) ? payload.recentCommits : [];
     const historyRows = recentCommits.length
@@ -1141,13 +1145,13 @@
       `).join("")
       : `<li class="viewer-git__commit-row">${escapeHtml(payload.latestCommit || "No commit history available.")}</li>`;
     const history = `
-      <section class="viewer-git__section" data-viewer-git-section="history" data-viewer-git-domain="history">
+      <section class="viewer-git__section">
         <h2>History</h2>
         <ul class="viewer-git__commits">${historyRows}</ul>
       </section>
     `;
     const remote = `
-      <section class="viewer-git__section" data-viewer-git-section="remote" data-viewer-git-domain="remote">
+      <section class="viewer-git__section">
         <h2>Remote</h2>
         <p class="viewer-git__state">${escapeHtml(payload.tracking ? `Tracking ${payload.tracking}` : "No upstream branch detected.")}</p>
         <p class="viewer-git__state">${escapeHtml(`Ahead ${payload.ahead || 0}, behind ${payload.behind || 0}`)}</p>
@@ -1158,11 +1162,32 @@
         <div class="viewer-git__summary">${cards}</div>
         <div class="viewer-git__workspace">
           <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
-          <div class="viewer-git__list" aria-label="Git files and metadata">
-            ${clean}
-            ${fileSections || '<p class="viewer-git__state">No file changes detected.</p>'}
-            ${history}
-            ${remote}
+          <div class="viewer-git__content" aria-label="Git domain content">
+            <section class="viewer-git__panel" data-viewer-git-panel="changes">
+              <header class="viewer-git__panel-header"><span>Changes</span><strong>${escapeHtml(stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount)} files</strong></header>
+              ${clean}
+              ${changesSections || '<p class="viewer-git__state">No file changes detected.</p>'}
+            </section>
+            <section class="viewer-git__panel" data-viewer-git-panel="staged" hidden>
+              <header class="viewer-git__panel-header"><span>Staged</span><strong>${escapeHtml(stagedCount)} files</strong></header>
+              ${stagedSections || '<p class="viewer-git__state">No staged files.</p>'}
+            </section>
+            <section class="viewer-git__panel" data-viewer-git-panel="worktree" hidden>
+              <header class="viewer-git__panel-header"><span>Worktree</span><strong>${escapeHtml(modifiedCount + deletedCount + renamedCount)} files</strong></header>
+              ${worktreeSections || '<p class="viewer-git__state">No modified, deleted, or renamed files.</p>'}
+            </section>
+            <section class="viewer-git__panel" data-viewer-git-panel="untracked" hidden>
+              <header class="viewer-git__panel-header"><span>Untracked</span><strong>${escapeHtml(untrackedCount)} files</strong></header>
+              ${untrackedSections || '<p class="viewer-git__state">No untracked files.</p>'}
+            </section>
+            <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
+              <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(recentCommits.length || (payload.latestCommit ? 1 : 0))} commits</strong></header>
+              ${history}
+            </section>
+            <section class="viewer-git__panel" data-viewer-git-panel="remote" hidden>
+              <header class="viewer-git__panel-header"><span>Remote</span><strong>${escapeHtml(payload.tracking || "none")}</strong></header>
+              ${remote}
+            </section>
           </div>
           <section class="viewer-git__detail" aria-label="Git diff">
             <div class="viewer-git__detail-title">Diff preview</div>
@@ -1207,19 +1232,17 @@
 
   function applyGitDomain(domain) {
     const selected = domain || "changes";
-    document.querySelectorAll("[data-viewer-git-domain]").forEach((node) => {
-      if (!(node instanceof HTMLElement)) {
-        return;
-      }
-      const isDomainButton = node.classList.contains("viewer-git__domain");
-      if (isDomainButton) {
+    document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
+      if (node instanceof HTMLElement) {
         const active = node.getAttribute("data-viewer-git-domain") === selected;
         node.classList.toggle("is-active", active);
         node.setAttribute("aria-pressed", active ? "true" : "false");
-        return;
       }
-      const sectionDomain = node.getAttribute("data-viewer-git-domain") || "";
-      node.hidden = selected !== "changes" && sectionDomain !== selected;
+    });
+    document.querySelectorAll("[data-viewer-git-panel]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.hidden = node.getAttribute("data-viewer-git-panel") !== selected;
+      }
     });
   }
 

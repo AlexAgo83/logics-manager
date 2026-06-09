@@ -23,11 +23,26 @@
       <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
     </div>
     <div class="viewer-topbar__actions">
-      <label class="viewer-auto-refresh" title="Toggle automatic refresh">
-        <input id="viewer-auto-refresh" type="checkbox" checked />
-        <span>Auto</span>
-      </label>
-      <button class="btn" data-action="refresh" type="button" title="Refresh viewer data">Refresh</button>
+      <div class="viewer-refresh-menu">
+        <button class="btn" id="viewer-refresh-menu-button" type="button" title="Refresh options" aria-haspopup="menu" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
+        <div class="viewer-refresh-menu__panel" id="viewer-refresh-menu" role="menu" aria-label="Refresh options" hidden>
+          <label class="viewer-auto-refresh" title="Toggle automatic refresh">
+            <input id="viewer-auto-refresh" type="checkbox" checked />
+            <span>Auto</span>
+          </label>
+          <label class="viewer-refresh-menu__interval">
+            <span>Interval</span>
+            <select id="viewer-refresh-interval" aria-label="Automatic refresh interval">
+              <option value="5">5 sec</option>
+              <option value="10">10 sec</option>
+              <option value="15" selected>15 sec</option>
+              <option value="30">30 sec</option>
+              <option value="60">60 sec</option>
+            </select>
+          </label>
+          <button class="btn" data-action="refresh" type="button" title="Refresh viewer data now">Now</button>
+        </div>
+      </div>
       <button class="btn" id="viewer-git" type="button" title="Show Git status">Git</button>
       <button class="btn" id="viewer-cdx" type="button" title="Show CDX status">CDX</button>
       <button class="btn" id="viewer-insights" type="button" title="Show corpus insights">Insights</button>

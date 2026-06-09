@@ -11,8 +11,13 @@
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
+  const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
+  const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
+  const refreshMenuPanel = () => document.getElementById("viewer-refresh-menu");
   const activityClearControl = () => document.getElementById("activity-clear");
   const activityStorageLimit = 80;
+  const minAutoRefreshIntervalSeconds = 5;
+  const maxAutoRefreshIntervalSeconds = 60;
   const defaultAutoRefreshIntervalMs = 15 * 1000;
   const defaultFilterState = {
     focus: "active",
@@ -29,6 +34,7 @@
   let nextAutoRefreshAt = 0;
   let autoRefreshEnabled = true;
   let autoRefreshTimeoutId = 0;
+  let autoRefreshIntervalTouched = false;
   let applyingLocalChrome = false;
   let autoRefreshStarted = false;
   let itemsLoadInFlight = false;
@@ -161,6 +167,38 @@
       }
       node.textContent = parts.join(" · ");
     }
+  }
+
+  function normalizeAutoRefreshIntervalSeconds(value) {
+    const seconds = Math.round(Number(value));
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return defaultAutoRefreshIntervalMs / 1000;
+    }
+    return Math.min(maxAutoRefreshIntervalSeconds, Math.max(minAutoRefreshIntervalSeconds, seconds));
+  }
+
+  function updateRefreshIntervalControl() {
+    const control = refreshIntervalControl();
+    if (!(control instanceof HTMLSelectElement)) {
+      return;
+    }
+    const seconds = String(Math.round(autoRefreshIntervalMs / 1000));
+    if (![...control.options].some((option) => option.value === seconds)) {
+      const option = document.createElement("option");
+      option.value = seconds;
+      option.textContent = `${seconds} sec`;
+      control.appendChild(option);
+    }
+    control.value = seconds;
+  }
+
+  function setAutoRefreshIntervalSeconds(value, options = {}) {
+    autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(value) * 1000;
+    if (options.user) {
+      autoRefreshIntervalTouched = true;
+    }
+    updateRefreshIntervalControl();
+    scheduleNextAutoRefresh();
   }
 
   function scheduleNextAutoRefresh() {
@@ -489,10 +527,10 @@
 
   function postToApp(payload, options = {}) {
     latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
-    const intervalSeconds = Number(payload.autoRefreshIntervalSeconds);
-    autoRefreshIntervalMs = Number.isFinite(intervalSeconds) && intervalSeconds > 0
-      ? intervalSeconds * 1000
-      : defaultAutoRefreshIntervalMs;
+    if (!autoRefreshIntervalTouched) {
+      autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(payload.autoRefreshIntervalSeconds) * 1000;
+      updateRefreshIntervalControl();
+    }
     updateRepositoryIdentity(payload);
     const payloadWithActivity = { ...payload, items: latestItems };
     const nextPayload = options.silent ? payloadWithActivity : applyFocusRequest(payloadWithActivity);
@@ -505,6 +543,7 @@
     renderUpdateNotice(payload.updateInfo);
     updateFilterSummary();
     applyLocalViewerChrome();
+    bindRefreshMenuControls();
   }
 
   function renderUpdateNotice(updateInfo) {
@@ -608,6 +647,35 @@
       control.checked = autoRefreshEnabled;
     }
     scheduleNextAutoRefresh();
+  }
+
+  function setRefreshMenuOpen(open) {
+    const panel = refreshMenuPanel();
+    const button = refreshMenuButton();
+    if (!panel) {
+      return;
+    }
+    panel.hidden = !open;
+    if (button instanceof HTMLElement) {
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+  }
+
+  function bindRefreshMenuControls() {
+    const button = refreshMenuButton();
+    if (button) {
+      button.onclick = (event) => {
+        event.stopPropagation();
+        const panel = refreshMenuPanel();
+        setRefreshMenuOpen(Boolean(panel?.hidden));
+      };
+    }
+    const panel = refreshMenuPanel();
+    if (panel) {
+      panel.onclick = (event) => {
+        event.stopPropagation();
+      };
+    }
   }
 
   function statusValue(item) {
@@ -1669,11 +1737,41 @@
       });
       setAutoRefreshEnabled(autoControl.checked);
     }
+    const intervalControl = refreshIntervalControl();
+    if (intervalControl instanceof HTMLSelectElement) {
+      updateRefreshIntervalControl();
+      intervalControl.addEventListener("change", () => {
+        setAutoRefreshIntervalSeconds(intervalControl.value, { user: true });
+      });
+    }
+    bindRefreshMenuControls();
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      const button = refreshMenuButton();
+      const panel = refreshMenuPanel();
+      try {
+        if (target && (
+          button?.contains(target) ||
+          panel?.contains(target)
+        )) {
+          return;
+        }
+      } catch {
+        // Ignore non-node event targets and close the menu below.
+      }
+      setRefreshMenuOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setRefreshMenuOpen(false);
+      }
+    });
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
       if (!(element instanceof HTMLElement)) {
         return;
       }
       element.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
         refreshViewer("POST").catch((error) => setMeta(error.message));
       });
     });

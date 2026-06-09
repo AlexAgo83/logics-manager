@@ -26,13 +26,25 @@ function createViewerDom(options: {
     <div id="viewer-meta"></div>
     <span id="viewer-repo-pill"></span>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
-    <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
     <button id="viewer-git" type="button">Git</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button id="activity-clear" type="button">Clear activity</button>
-    <button data-action="refresh" type="button">Refresh</button>
+    <div class="viewer-refresh-menu">
+      <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
+      <div id="viewer-refresh-menu" hidden>
+        <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
+        <button data-action="refresh" type="button">Now</button>
+        <select id="viewer-refresh-interval">
+          <option value="5">5 sec</option>
+          <option value="10">10 sec</option>
+          <option value="15" selected>15 sec</option>
+          <option value="30">30 sec</option>
+          <option value="60">60 sec</option>
+        </select>
+      </div>
+    </div>
     <select data-viewer-filter-group="focus" aria-label="Corpus focus">
       <option value="active">Active work</option>
       <option value="blocked">Blocked</option>
@@ -337,13 +349,13 @@ describe("local viewer browser host", () => {
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
   });
 
-  it("orders local viewer topbar actions as Auto Refresh Git CDX Insights Health", () => {
+  it("orders local viewer topbar actions as Refresh Git CDX Insights Health", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
-    const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions label, .viewer-topbar__actions button"))
+    const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Auto", "Refresh", "Git", "CDX", "Insights", "Health"]);
+    expect(labels).toEqual(["Refresh", "Git", "CDX", "Insights", "Health"]);
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {
@@ -487,6 +499,62 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/refresh");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
+  });
+
+  it("opens refresh options and configures the interval from the payload", async () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async () => ({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          payload: {
+            root: "/workspace/logics-manager",
+            repoName: "logics-manager",
+            autoRefreshIntervalSeconds: 15,
+            items: [],
+            updateInfo: {}
+          }
+        })
+      })
+    });
+    loadScript(dom, "clients/viewer/browser-host.js");
+    dom.window.dispatchEvent(new dom.window.Event("load"));
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const menuButton = dom.window.document.getElementById("viewer-refresh-menu-button") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-refresh-menu") as HTMLElement | null;
+    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
+    expect(menu?.hidden).toBe(true);
+
+    menuButton?.click();
+
+    expect(menu?.hidden).toBe(false);
+    expect(menuButton?.getAttribute("aria-expanded")).toBe("true");
+    expect(interval?.value).toBe("15");
+  });
+
+  it("lets users change automatic refresh interval within the supported bounds", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
+    interval!.value = "5";
+    interval?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(4_999);
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
   });
 
   it("auto-refreshes visible viewer data without page navigation or closing the document preview", async () => {

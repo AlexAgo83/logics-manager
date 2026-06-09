@@ -13,7 +13,7 @@
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const activityClearControl = () => document.getElementById("activity-clear");
   const activityStorageLimit = 80;
-  const defaultAutoRefreshIntervalMs = 60 * 1000;
+  const defaultAutoRefreshIntervalMs = 15 * 1000;
   const defaultFilterState = {
     focus: "active",
     type: "all",

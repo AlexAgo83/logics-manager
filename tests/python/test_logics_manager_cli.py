@@ -341,6 +341,12 @@ def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
     assert "Focus: req_001_demo" in output
 
 
+def test_viewer_refresh_interval_defaults_to_15_seconds() -> None:
+    args = viewer_module.build_parser().parse_args([])
+
+    assert args.refresh_interval == 15
+
+
 def test_viewer_focus_targets_are_normalized_and_safe(tmp_path: Path) -> None:
     repo_root = tmp_path
 

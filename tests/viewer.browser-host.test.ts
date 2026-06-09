@@ -115,7 +115,7 @@ function createViewerDom(options: {
             payload: {
               root: "/workspace/logics-manager",
               repoName: "logics-manager",
-              autoRefreshIntervalSeconds: 60,
+              autoRefreshIntervalSeconds: 15,
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -443,7 +443,7 @@ describe("local viewer browser host", () => {
     const metaBefore = dom.window.document.getElementById("viewer-meta")?.textContent;
     expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
 
-    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(15_000);
 
     expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
     expect(dom.window.location.href).toBe(locationBefore);
@@ -463,7 +463,7 @@ describe("local viewer browser host", () => {
     const auto = dom.window.document.getElementById("viewer-auto-refresh") as HTMLInputElement | null;
     auto!.checked = false;
     auto?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(15_000);
 
     expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
 
@@ -486,8 +486,8 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await vi.advanceTimersByTimeAsync(0);
 
-    await vi.advanceTimersByTimeAsync(60_000);
-    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(15_000);
+    await vi.advanceTimersByTimeAsync(15_000);
 
     expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
 
@@ -502,7 +502,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await vi.advanceTimersByTimeAsync(0);
-    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(15_000);
 
     expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
 
@@ -755,7 +755,7 @@ describe("local viewer browser host", () => {
               payload: {
                 root: "/workspace/logics-manager",
                 repoName: "logics-manager",
-                autoRefreshIntervalSeconds: 60,
+                autoRefreshIntervalSeconds: 15,
                 items: [
                   { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
                 ],

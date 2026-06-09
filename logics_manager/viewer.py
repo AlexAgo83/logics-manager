@@ -334,7 +334,7 @@ def viewer_data_payload(
     repo_root: Path,
     selected_id: str | None = None,
     *,
-    auto_refresh_interval_seconds: int = 60,
+    auto_refresh_interval_seconds: int = 15,
 ) -> dict[str, Any]:
     return {
         "root": str(repo_root.resolve()),
@@ -505,7 +505,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         server_address: tuple[str, int],
         repo_root: Path,
         *,
-        auto_refresh_interval_seconds: int = 60,
+        auto_refresh_interval_seconds: int = 15,
     ):
         self.repo_root = repo_root.resolve()
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
@@ -629,7 +629,7 @@ def create_viewer_server(
     host: str = "127.0.0.1",
     port: int = 8765,
     *,
-    auto_refresh_interval_seconds: int = 60,
+    auto_refresh_interval_seconds: int = 15,
 ) -> LogicsViewerServer:
     return LogicsViewerServer(
         (host, port),
@@ -657,7 +657,7 @@ def render_start_status(
     focus: str | None = None,
     network_url: str | None = None,
     bind_host: str = "localhost",
-    auto_refresh_interval_seconds: int = 60,
+    auto_refresh_interval_seconds: int = 15,
 ) -> str:
     lines = [
         "Logics viewer running:",
@@ -682,8 +682,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--refresh-interval",
         type=int,
-        default=60,
-        help="Automatic refresh interval in seconds. Defaults to 60; positive shorter intervals are allowed.",
+        default=15,
+        help="Automatic refresh interval in seconds. Defaults to 15; positive intervals are allowed.",
     )
     parser.add_argument("--focus", help="Open the viewer focused on a workflow ref or repo-relative Logics Markdown path.")
     parser.add_argument("--read", action="store_true", help="Open the focused item in the read preview. Requires --focus.")

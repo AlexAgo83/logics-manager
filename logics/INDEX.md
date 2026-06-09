@@ -53,6 +53,7 @@
 | [prod_018_agent_closeout_loop_ergonomics](product/prod_018_agent_closeout_loop_ergonomics.md) | Agent closeout loop ergonomics | Validated |  | product/prod_018_agent_closeout_loop_ergonomics.md |
 | [prod_019_closeout_evidence_hardening_and_modularity_roadmap](product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md) | Closeout evidence hardening and modularity roadmap | Validated |  | product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md |
 | [prod_020_local_web_viewer_for_cli_driven_logics_work](product/prod_020_local_web_viewer_for_cli_driven_logics_work.md) | Local web viewer for CLI-driven Logics work | Active |  | product/prod_020_local_web_viewer_for_cli_driven_logics_work.md |
+| [prod_021_git_cockpit_for_the_local_viewer](product/prod_021_git_cockpit_for_the_local_viewer.md) | Git cockpit for the local viewer | Proposed |  | product/prod_021_git_cockpit_for_the_local_viewer.md |
 
 ## Requests
 
@@ -274,6 +275,7 @@
 | [req_215_add_reliable_local_activity_snapshots_to_the_viewer](request/req_215_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Done |  | request/req_215_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [req_216_add_visual_regression_smoke_coverage_for_the_local_viewer](request/req_216_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Done |  | request/req_216_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
 | [req_217_add_local_viewer_git_status_summary](request/req_217_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done |  | request/req_217_add_local_viewer_git_status_summary.md |
+| [req_218_add_a_git_cockpit_to_the_local_viewer](request/req_218_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Draft |  | request/req_218_add_a_git_cockpit_to_the_local_viewer.md |
 
 ## Backlog
 
@@ -660,6 +662,7 @@
 | [item_379_add_reliable_local_activity_snapshots_to_the_viewer](backlog/item_379_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Done | 100% | backlog/item_379_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [item_380_add_visual_regression_smoke_coverage_for_the_local_viewer](backlog/item_380_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Done | 100% | backlog/item_380_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
 | [item_381_add_local_viewer_git_status_summary](backlog/item_381_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done | 100% | backlog/item_381_add_local_viewer_git_status_summary.md |
+| [item_382_add_a_git_cockpit_to_the_local_viewer](backlog/item_382_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Ready | 0% | backlog/item_382_add_a_git_cockpit_to_the_local_viewer.md |
 
 ## Tasks
 
@@ -841,3 +844,4 @@
 | [task_180_add_reliable_local_activity_snapshots_to_the_viewer](tasks/task_180_add_reliable_local_activity_snapshots_to_the_viewer.md) | Add reliable local activity snapshots to the viewer | Done | 100% | tasks/task_180_add_reliable_local_activity_snapshots_to_the_viewer.md |
 | [task_181_add_visual_regression_smoke_coverage_for_the_local_viewer](tasks/task_181_add_visual_regression_smoke_coverage_for_the_local_viewer.md) | Add visual regression smoke coverage for the local viewer | Done | 100% | tasks/task_181_add_visual_regression_smoke_coverage_for_the_local_viewer.md |
 | [task_182_add_local_viewer_git_status_summary](tasks/task_182_add_local_viewer_git_status_summary.md) | Add local viewer Git status summary | Done | 100% | tasks/task_182_add_local_viewer_git_status_summary.md |
+| [task_183_add_a_git_cockpit_to_the_local_viewer](tasks/task_183_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Ready | 0% | tasks/task_183_add_a_git_cockpit_to_the_local_viewer.md |

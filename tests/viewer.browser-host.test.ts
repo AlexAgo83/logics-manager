@@ -771,8 +771,12 @@ describe("local viewer browser host", () => {
                   status: "enabled",
                   auth_status: "authenticated",
                   available_pct: 7,
+                  remaining_5h_pct: 0,
+                  remaining_week_pct: 3,
                   credits: "9.6752125000",
-                  reset_at: "Jun 11 15:04"
+                  reset_5h_at: "Jun 10 03:03",
+                  reset_week_at: "Jun 11 15:04",
+                  updated_at: new Date(Date.now() - 90_000).toISOString()
                 },
                 {
                   session_name: "corvus",
@@ -782,7 +786,11 @@ describe("local viewer browser host", () => {
                   status: "enabled",
                   auth_status: "authenticated",
                   available_pct: 100,
-                  reset_at: "Jun 15 18:00"
+                  remaining_5h_pct: 100,
+                  remaining_week_pct: 100,
+                  reset_5h_at: "Jun 10 04:50",
+                  reset_week_at: "Jun 15 18:00",
+                  updated_at: new Date(Date.now() - 8 * 60_000).toISOString()
                 }
               ]
             }
@@ -810,8 +818,11 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Lowest Remaining");
     expect(text).toContain("Remaining");
     expect(text).toContain("7%");
+    expect(text).toContain("100%");
+    expect(text).toContain("5H");
     expect(text).toContain("9.68");
     expect(text).toMatch(/in \d+[dhm]/);
+    expect(text).toMatch(/\d+m ago/);
     expect(text).toContain("cdx status --json");
     expect(text).not.toContain("No provider status reported.");
     expect(text).not.toContain("No sessions reported.");

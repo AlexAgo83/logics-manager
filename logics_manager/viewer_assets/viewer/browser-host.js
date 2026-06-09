@@ -577,10 +577,18 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "Git status");
   }
 
+  function isCdxStatusOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX status");
+  }
+
   async function refreshViewer(method = "POST", options = {}) {
     await loadItems(method, options);
     if (isGitStatusOpen()) {
       await showGitStatus({ preserve: true, silent: Boolean(options.silent) });
+    } else if (isCdxStatusOpen()) {
+      await showCdxStatus({ silent: Boolean(options.silent) });
     } else if (method === "POST") {
       await refreshGitBadgeCounters();
     }
@@ -1185,6 +1193,145 @@
     setMeta("Health loaded.");
   }
 
+  function objectEntries(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? Object.entries(value) : [];
+  }
+
+  function asArray(value) {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (value && typeof value === "object") {
+      return Object.entries(value).map(([key, entry]) => ({ name: key, ...(entry && typeof entry === "object" ? entry : { value: entry }) }));
+    }
+    return [];
+  }
+
+  function pickFirstObject(status, keys) {
+    for (const key of keys) {
+      if (status?.[key] && typeof status[key] === "object" && !Array.isArray(status[key])) {
+        return status[key];
+      }
+    }
+    return {};
+  }
+
+  function pickFirstArray(status, keys) {
+    for (const key of keys) {
+      const entries = asArray(status?.[key]);
+      if (entries.length) {
+        return entries;
+      }
+    }
+    return [];
+  }
+
+  function renderCdxObjectRows(value, emptyText) {
+    const rows = objectEntries(value).slice(0, 12).map(([key, entry]) => `
+      <li class="viewer-cdx__row">
+        <span>${escapeHtml(key)}</span>
+        <strong>${escapeHtml(typeof entry === "object" ? JSON.stringify(entry) : entry)}</strong>
+      </li>
+    `).join("");
+    return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
+  }
+
+  function renderCdxEntityRows(entries, emptyText) {
+    const rows = entries.slice(0, 16).map((entry) => {
+      const item = entry && typeof entry === "object" ? entry : { value: entry };
+      const name = item.name || item.id || item.provider || item.model || item.value || "entry";
+      const state = item.state || item.status || item.readiness || item.available || "";
+      const detail = objectEntries(item)
+        .filter(([key]) => !["name", "id", "provider", "model", "state", "status", "readiness", "available"].includes(key))
+        .slice(0, 4)
+        .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}`)
+        .join(" · ");
+      return `
+        <li class="viewer-cdx__entity">
+          <div class="viewer-cdx__entity-main"><strong>${escapeHtml(name)}</strong>${state ? `<span>${escapeHtml(state)}</span>` : ""}</div>
+          ${detail ? `<div class="viewer-cdx__meta">${escapeHtml(detail)}</div>` : ""}
+        </li>
+      `;
+    }).join("");
+    return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
+  }
+
+  function renderCdxStatus(payload) {
+    if (!payload || payload.state !== "ok") {
+      return `
+        <div class="viewer-cdx">
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX status is unavailable.")}</div>
+        </div>
+      `;
+    }
+    const status = payload.status || {};
+    const providers = pickFirstArray(status, ["providers", "providerStatus", "provider_status"]);
+    const sessions = pickFirstArray(status, ["sessions", "activeSessions", "active_sessions"]);
+    const readiness = pickFirstObject(status, ["readiness", "quota", "quotas", "limits"]);
+    const commands = pickFirstArray(status, ["nextCommands", "next_commands", "safeCommands", "safe_commands", "commands"])
+      .map((entry) => typeof entry === "string" ? entry : (entry.command || entry.value || entry.name || ""))
+      .filter(Boolean);
+    const cards = [
+      ["State", status.state || status.status || status.availability || "ok"],
+      ["Providers", providers.length],
+      ["Sessions", sessions.length],
+      ["Readiness", objectEntries(readiness).length ? "Available" : "Not reported"]
+    ].map(([label, value]) => `
+      <div class="viewer-cdx__card">
+        <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+        <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+      </div>
+    `).join("");
+    const commandRows = commands.slice(0, 10).map((command) => `<li><code>${escapeHtml(command)}</code></li>`).join("");
+    return `
+      <div class="viewer-cdx">
+        <div class="viewer-cdx__summary">${cards}</div>
+        <section class="viewer-cdx__section">
+          <h2 class="viewer-cdx__heading">Providers</h2>
+          <ul class="viewer-cdx__list">${renderCdxEntityRows(providers, "No provider status reported.")}</ul>
+        </section>
+        <section class="viewer-cdx__section">
+          <h2 class="viewer-cdx__heading">Sessions</h2>
+          <ul class="viewer-cdx__list">${renderCdxEntityRows(sessions, "No sessions reported.")}</ul>
+        </section>
+        <section class="viewer-cdx__section">
+          <h2 class="viewer-cdx__heading">Readiness and quota</h2>
+          <ul class="viewer-cdx__list">${renderCdxObjectRows(readiness, "No readiness or quota details reported.")}</ul>
+        </section>
+        <section class="viewer-cdx__section">
+          <h2 class="viewer-cdx__heading">Safe next commands</h2>
+          <ul class="viewer-cdx__commands">${commandRows || '<li class="viewer-cdx__empty">No suggested commands reported.</li>'}</ul>
+        </section>
+      </div>
+    `;
+  }
+
+  async function showCdxStatus(options = {}) {
+    if (!options.silent) {
+      setMeta("Checking CDX status...");
+    }
+    const response = await fetch("/api/cdx-status");
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (response.status === 404) {
+      setDocument("CDX status", renderCdxStatus({
+        state: "unavailable",
+        message: "CDX status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
+      }));
+      setMeta("Restart the local viewer to enable CDX status.");
+      return;
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX status.");
+    }
+    setDocument("CDX status", renderCdxStatus(data.payload));
+    setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
+  }
+
   function renderGitStatus(payload) {
     if (!payload || payload.state !== "ok") {
       return `
@@ -1501,6 +1648,9 @@
     document.getElementById("viewer-git")?.addEventListener("click", () => {
       markGitBadgesViewed("main");
       showGitStatus().catch((error) => setMeta(error.message));
+    });
+    document.getElementById("viewer-cdx")?.addEventListener("click", () => {
+      showCdxStatus().catch((error) => setMeta(error.message));
     });
     activityClearControl()?.addEventListener("click", () => {
       clearActivityHistory();

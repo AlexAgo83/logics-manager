@@ -344,6 +344,7 @@
 }
 
 .viewer-git,
+.viewer-cdx,
 .viewer-insights,
 .viewer-health {
   display: grid;
@@ -351,11 +352,96 @@
 }
 
 .viewer-git__summary,
+.viewer-cdx__summary,
 .viewer-insights__summary,
 .viewer-health__summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
+}
+
+.viewer-cdx__card,
+.viewer-cdx__section {
+  min-width: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-cdx__card {
+  padding: 10px;
+}
+
+.viewer-cdx__label,
+.viewer-cdx__meta {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
+.viewer-cdx__value {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__section {
+  padding: 10px;
+}
+
+.viewer-cdx__heading {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.viewer-cdx__list,
+.viewer-cdx__commands {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer-cdx__row,
+.viewer-cdx__entity {
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #333333) 72%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 76%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__row,
+.viewer-cdx__entity-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.viewer-cdx__row strong,
+.viewer-cdx__entity-main span {
+  min-width: 0;
+  text-align: right;
+}
+
+.viewer-cdx__commands code {
+  display: block;
+  min-width: 0;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: var(--vscode-textCodeBlock-background, #111111);
+  color: var(--vscode-textPreformat-foreground, #d7ba7d);
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__state,
+.viewer-cdx__empty {
+  margin: 0;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  overflow-wrap: anywhere;
 }
 
 .viewer-git__section h2 {

@@ -10,6 +10,9 @@ function loadScript(dom: JSDOM, relPath: string) {
 }
 
 function createViewerDom(options: {
+  cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -25,6 +28,7 @@ function createViewerDom(options: {
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
     <button id="viewer-git" type="button">Git</button>
+    <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button id="activity-clear" type="button">Clear activity</button>
@@ -202,6 +206,39 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/cdx-status") {
+        const queuedCdxResponse = options.cdxResponses?.shift();
+        const cdxResponse = queuedCdxResponse || options.cdxResponseFactory?.() || options.cdxResponse;
+        if (cdxResponse) {
+          return {
+            ok: cdxResponse.ok,
+            status: cdxResponse.status ?? (cdxResponse.ok ? 200 : 500),
+            json: async () => {
+              if (cdxResponse.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return cdxResponse.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              status: {
+                availability: "ready",
+                providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
+                sessions: [{ id: "session-1", status: "active", title: "Logics work" }],
+                readiness: { auth: "ready", quota: "ok" },
+                nextCommands: ["cdx status", "cdx session list"]
+              }
+            }
+          })
+        };
+      }
       if (String(url).startsWith("/api/git-diff")) {
         return {
           ok: true,
@@ -300,13 +337,13 @@ describe("local viewer browser host", () => {
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
   });
 
-  it("orders local viewer topbar actions as Auto Refresh Git Insights Health", () => {
+  it("orders local viewer topbar actions as Auto Refresh Git CDX Insights Health", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions label, .viewer-topbar__actions button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Auto", "Refresh", "Git", "Insights", "Health"]);
+    expect(labels).toEqual(["Auto", "Refresh", "Git", "CDX", "Insights", "Health"]);
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {
@@ -622,6 +659,74 @@ describe("local viewer browser host", () => {
     expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(true);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
+  });
+
+  it("renders the local CDX status screen from the read-only endpoint", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/cdx-status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+    expect(content?.textContent).toContain("Providers");
+    expect(content?.textContent).toContain("openai");
+    expect(content?.textContent).toContain("Sessions");
+    expect(content?.textContent).toContain("session-1");
+    expect(content?.textContent).toContain("Readiness and quota");
+    expect(content?.textContent).toContain("cdx status");
+    expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
+  });
+
+  it("renders unavailable CDX states without breaking the viewer", async () => {
+    const { dom } = createViewerDom({
+      cdxResponse: {
+        ok: true,
+        body: { ok: true, payload: { state: "unavailable", message: "CDX is not available on PATH.", status: {} } }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("CDX is not available on PATH.");
+  });
+
+  it("refreshes the open CDX screen when the viewer refresh button is used", async () => {
+    let refreshed = false;
+    const { dom, calls } = createViewerDom({
+      cdxResponseFactory: () => ({
+        ok: true,
+        body: refreshed
+          ? { ok: true, payload: { state: "ok", message: "", status: { availability: "ready", providers: [{ name: "anthropic", state: "ready" }], sessions: [], readiness: {}, nextCommands: ["cdx status"] } } }
+          : { ok: true, payload: { state: "ok", message: "", status: { availability: "starting", providers: [], sessions: [], readiness: {}, nextCommands: [] } } }
+      })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("starting");
+
+    const cdxCallsBeforeRefresh = calls.filter((call) => call === "/api/cdx-status").length;
+    refreshed = true;
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.filter((call) => call === "/api/cdx-status").length).toBeGreaterThan(cdxCallsBeforeRefresh);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
   });
 
   it("shows Git badge counters after refresh and hides main badges after opening Git", async () => {

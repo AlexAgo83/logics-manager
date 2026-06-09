@@ -37,7 +37,7 @@ describe("webview harness preview, context, and handoff behaviors", () => {
 
     const html = openedDocuments[0] || "";
     expect(html.includes('class="mermaid"')).toBe(true);
-    expect(html.includes("/node_modules/mermaid/dist/mermaid.min.js")).toBe(true);
+    expect(html.includes("/vendor/mermaid.min.js")).toBe(true);
     expect(html.includes("Mermaid preview unavailable")).toBe(true);
     expect(html.includes("File: <code>logics/request/req_000_kickoff.md</code>")).toBe(true);
   });

@@ -1,10 +1,10 @@
 ## task_183_add_a_git_cockpit_to_the_local_viewer - Add a Git cockpit to the local viewer
 > From version: 2.4.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,13 +15,13 @@
 - The linked product brief and backlog intentionally defer commit, push, reset, checkout, stash, and conflict-resolution actions.
 
 # Plan
-- [ ] 1. Add a read-only Git status hydration path for the viewer server, using structured Git output where practical.
-- [ ] 2. Add a Git cockpit entrypoint in the viewer UI with a compact status band and grouped changed-file list.
-- [ ] 3. Render selected-file diff details with safe truncation or explicit unsupported-state messaging.
-- [ ] 4. Add Logics document markers for changed files under `logics/`.
-- [ ] 5. Preserve existing viewer flows and add focused regression coverage.
-- [ ] 6. Validate, update the linked Logics docs if scope changes, and checkpoint the implementation.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] 1. Add a read-only Git status hydration path for the viewer server, using structured Git output where practical.
+- [x] 2. Add a Git cockpit entrypoint in the viewer UI with a compact status band and grouped changed-file list.
+- [x] 3. Render selected-file diff details with safe truncation or explicit unsupported-state messaging.
+- [x] 4. Add Logics document markers for changed files under `logics/`.
+- [x] 5. Preserve existing viewer flows and add focused regression coverage.
+- [x] 6. Validate, update the linked Logics docs if scope changes, and checkpoint the implementation.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 
 # Backlog
 - `item_382_add_a_git_cockpit_to_the_local_viewer`
@@ -37,12 +37,12 @@ flowchart TD
 ```
 
 # Definition of Done (DoD)
-- [ ] Git cockpit entrypoint is reachable in the local viewer.
-- [ ] Status band shows branch, dirty state, staged/unstaged counts, and upstream ahead/behind when available.
-- [ ] Changed files are grouped by Git state and Logics workflow files are marked.
-- [ ] Selected file diff preview renders or shows a clear truncation/unsupported-state message.
-- [ ] No mutating Git actions are exposed in the first slice.
-- [ ] Validation passes and linked docs remain synchronized.
+- [x] Git cockpit entrypoint is reachable in the local viewer.
+- [x] Status band shows branch, dirty state, staged/unstaged counts, and upstream ahead/behind when available.
+- [x] Changed files are grouped by Git state and Logics workflow files are marked.
+- [x] Selected file diff preview renders or shows a clear truncation/unsupported-state message.
+- [x] No mutating Git actions are exposed in the first slice.
+- [x] Validation passes and linked docs remain synchronized.
 
 # AC Traceability
 - request-AC1 -> Plan 2, DoD 1. Proof: the task adds a dedicated Git cockpit entrypoint.
@@ -63,9 +63,15 @@ flowchart TD
 - Run `logics-manager product-consistency`.
 - Run focused viewer server/UI tests that cover Git status hydration, grouped changes, and diff selection.
 - Run existing viewer regression tests touched by the implementation.
+- python3 -m pytest tests/python/test_logics_manager_cli.py: 185 passed; npm test -- tests/viewer.browser-host.test.ts tests/webview.harness-preview-and-context.test.ts: 31 passed; logics-manager lint --require-status: OK; logics-manager product-consistency: 0 issue signals; npm run test:viewer-smoke: passed
+- Finish workflow executed on 2026-06-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-06-09.
+- Linked backlog item(s): `item_382_add_a_git_cockpit_to_the_local_viewer`
+- Related request(s): `req_218_add_a_git_cockpit_to_the_local_viewer`
 
 # AI Context
 - Summary: Implement the first read-only Git cockpit for the local viewer.

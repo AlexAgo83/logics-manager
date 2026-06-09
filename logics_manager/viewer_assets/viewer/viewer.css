@@ -326,13 +326,108 @@
   margin-bottom: 8px;
 }
 
-.viewer-git__files li {
+.viewer-git__workspace {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.45fr) minmax(220px, 0.9fr) minmax(280px, 1.3fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.viewer-git__domains {
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-git__domain,
+.viewer-git__file {
+  width: 100%;
   min-width: 0;
-  padding: 7px 9px;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-foreground, #dddddd);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.viewer-git__domain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+}
+
+.viewer-git__domain.is-active,
+.viewer-git__file.is-active {
+  border-color: var(--vscode-focusBorder, #4ea1ff);
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, var(--vscode-textLink-foreground, #4ea1ff));
+}
+
+.viewer-git__list,
+.viewer-git__detail {
+  min-width: 0;
+}
+
+.viewer-git__files li {
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.viewer-git__file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+}
+
+.viewer-git__file-path {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-git__file-kind {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 18%, transparent);
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font-size: 11px;
+}
+
+.viewer-git__detail {
+  padding: 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-git__detail-title {
+  margin-bottom: 8px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.viewer-git__diff {
+  min-height: 160px;
+  overflow-wrap: anywhere;
+}
+
+.viewer-git__diff-meta {
+  margin-bottom: 8px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
+.viewer-git__diff pre {
+  max-height: 58vh;
+  overflow: auto;
+  margin: 0;
+  white-space: pre;
 }
 
 .viewer-git__commit,
@@ -353,6 +448,10 @@
 
   .viewer-document {
     inset: 8px;
+  }
+
+  .viewer-git__workspace {
+    grid-template-columns: 1fr;
   }
 }
 

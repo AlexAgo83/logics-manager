@@ -1069,41 +1069,140 @@
       `;
     }
     const counts = payload.counts || {};
+    const stagedCount = Number(counts.staged || 0);
+    const modifiedCount = Number(counts.modified || 0);
+    const deletedCount = Number(counts.deleted || 0);
+    const renamedCount = Number(counts.renamed || 0);
+    const untrackedCount = Number(counts.untracked || 0);
     const summary = [
       ["Branch", payload.branch || "HEAD"],
       ["Tracking", payload.tracking || "None"],
       ["Ahead", payload.ahead || 0],
       ["Behind", payload.behind || 0],
       ["State", payload.clean ? "Clean" : "Dirty"],
-      ["Staged", counts.staged || 0],
-      ["Modified/deleted", Number(counts.modified || 0) + Number(counts.deleted || 0)],
-      ["Untracked", counts.untracked || 0]
+      ["Staged", stagedCount],
+      ["Worktree", modifiedCount + deletedCount + renamedCount],
+      ["Untracked", untrackedCount]
     ];
     const cards = renderMetricCards(summary);
-    const groupLabels = { staged: "Staged", modified: "Modified", deleted: "Deleted", renamed: "Renamed", untracked: "Untracked" };
-    const groups = Object.entries(groupLabels).map(([key, label]) => {
+    const groupDefs = [
+      ["staged", "Staged", "staged"],
+      ["modified", "Modified", "worktree"],
+      ["deleted", "Deleted", "worktree"],
+      ["renamed", "Renamed", "worktree"],
+      ["untracked", "Untracked", "untracked"]
+    ];
+    const domainDefs = [
+      ["changes", "Changes", stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount],
+      ["staged", "Staged", stagedCount],
+      ["worktree", "Worktree", modifiedCount + deletedCount + renamedCount],
+      ["untracked", "Untracked", untrackedCount],
+      ["history", "History", payload.latestCommit ? 1 : 0],
+      ["remote", "Remote", payload.tracking ? 1 : 0]
+    ];
+    const domains = domainDefs.map(([key, label, count], index) => `
+      <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
+        <span>${escapeHtml(label)}</span><strong>${escapeHtml(count)}</strong>
+      </button>
+    `).join("");
+    const fileSections = groupDefs.map(([key, label, domain]) => {
       const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
       if (!entries.length) {
         return "";
       }
       return `
-        <section class="viewer-git__section">
+        <section class="viewer-git__section" data-viewer-git-section="${escapeHtml(key)}" data-viewer-git-domain="${escapeHtml(domain)}">
           <h2>${escapeHtml(label)}</h2>
           <ul class="viewer-git__files">${entries.map((entry) => `
-            <li><code>${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</code></li>
+            <li>
+              <button class="viewer-git__file" type="button" data-viewer-git-file="${escapeHtml(entry.path)}" data-viewer-git-cached="${key === "staged" ? "1" : "0"}">
+                <span class="viewer-git__file-path">${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</span>
+                ${entry.logicsType ? `<span class="viewer-git__file-kind">${escapeHtml(entry.logicsType)}</span>` : ""}
+              </button>
+            </li>
           `).join("")}</ul>
         </section>
       `;
     }).join("");
     const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
+    const history = payload.latestCommit
+      ? `<section class="viewer-git__section" data-viewer-git-section="history" data-viewer-git-domain="history"><h2>History</h2><p class="viewer-git__commit">Latest commit: <code>${escapeHtml(payload.latestCommit)}</code></p></section>`
+      : "";
+    const remote = `
+      <section class="viewer-git__section" data-viewer-git-section="remote" data-viewer-git-domain="remote">
+        <h2>Remote</h2>
+        <p class="viewer-git__state">${escapeHtml(payload.tracking ? `Tracking ${payload.tracking}` : "No upstream branch detected.")}</p>
+        <p class="viewer-git__state">${escapeHtml(`Ahead ${payload.ahead || 0}, behind ${payload.behind || 0}`)}</p>
+      </section>
+    `;
     return `
       <div class="viewer-git">
         <div class="viewer-git__summary">${cards}</div>
-        ${payload.latestCommit ? `<p class="viewer-git__commit">Latest commit: <code>${escapeHtml(payload.latestCommit)}</code></p>` : ""}
-        ${clean}
-        ${groups}
+        <div class="viewer-git__workspace">
+          <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
+          <div class="viewer-git__list" aria-label="Git files and metadata">
+            ${clean}
+            ${fileSections || '<p class="viewer-git__state">No file changes detected.</p>'}
+            ${history}
+            ${remote}
+          </div>
+          <section class="viewer-git__detail" aria-label="Git diff">
+            <div class="viewer-git__detail-title">Diff preview</div>
+            <div class="viewer-git__diff" data-viewer-git-diff>Select a changed file to preview its diff.</div>
+          </section>
+        </div>
       </div>
     `;
+  }
+
+  function setActiveGitFile(button) {
+    document.querySelectorAll("[data-viewer-git-file]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle("is-active", node === button);
+      }
+    });
+  }
+
+  async function loadGitDiff(path, cached, button = null) {
+    const diffPanel = document.querySelector("[data-viewer-git-diff]");
+    if (!(diffPanel instanceof HTMLElement) || !path) {
+      return;
+    }
+    if (button instanceof HTMLElement) {
+      setActiveGitFile(button);
+    }
+    diffPanel.textContent = "Loading diff...";
+    const params = new URLSearchParams({ path });
+    if (cached) {
+      params.set("cached", "1");
+    }
+    const response = await fetch(`/api/git-diff?${params.toString()}`);
+    const data = await response.json();
+    const payload = data.payload || {};
+    if (!response.ok || !data.ok || payload.state !== "ok") {
+      diffPanel.textContent = payload.message || data.error || "Unable to load diff.";
+      return;
+    }
+    const content = payload.diff || payload.message || "No diff is available for this file.";
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${escapeHtml(content)}</code></pre>`;
+  }
+
+  function applyGitDomain(domain) {
+    const selected = domain || "changes";
+    document.querySelectorAll("[data-viewer-git-domain]").forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      const isDomainButton = node.classList.contains("viewer-git__domain");
+      if (isDomainButton) {
+        const active = node.getAttribute("data-viewer-git-domain") === selected;
+        node.classList.toggle("is-active", active);
+        node.setAttribute("aria-pressed", active ? "true" : "false");
+        return;
+      }
+      const sectionDomain = node.getAttribute("data-viewer-git-domain") || "";
+      node.hidden = selected !== "changes" && sectionDomain !== selected;
+    });
   }
 
   async function showGitStatus() {
@@ -1127,6 +1226,11 @@
       throw new Error(data.error || "Unable to load Git status.");
     }
     setDocument("Git status", renderGitStatus(data.payload));
+    applyGitDomain("changes");
+    const firstFile = document.querySelector("[data-viewer-git-file]");
+    if (firstFile instanceof HTMLElement) {
+      await loadGitDiff(firstFile.getAttribute("data-viewer-git-file") || "", firstFile.getAttribute("data-viewer-git-cached") === "1", firstFile);
+    }
     setMeta("Git status loaded.");
   }
 
@@ -1230,6 +1334,8 @@
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
       const filterTarget = event.target instanceof Element ? event.target.closest("[data-viewer-filter-group][data-viewer-filter-value]") : null;
       const revealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-reveal]") : null;
+      const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
+      const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       if (revealTarget instanceof HTMLElement) {
         const list = revealTarget.closest("ul");
         list?.querySelectorAll("[data-viewer-hidden-row]").forEach((row) => {
@@ -1239,6 +1345,18 @@
           }
         });
         revealTarget.closest("li")?.remove();
+        return;
+      }
+      if (gitDomainTarget instanceof HTMLElement) {
+        applyGitDomain(gitDomainTarget.getAttribute("data-viewer-git-domain") || "changes");
+        return;
+      }
+      if (gitFileTarget instanceof HTMLElement) {
+        loadGitDiff(
+          gitFileTarget.getAttribute("data-viewer-git-file") || "",
+          gitFileTarget.getAttribute("data-viewer-git-cached") === "1",
+          gitFileTarget
+        ).catch((error) => setMeta(error.message));
         return;
       }
       if (healthTarget instanceof HTMLElement) {

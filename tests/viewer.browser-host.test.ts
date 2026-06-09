@@ -184,12 +184,28 @@ function createViewerDom(options: {
               latestCommit: "abc1234 Demo commit",
               counts: { staged: 1, modified: 1, deleted: 0, renamed: 0, untracked: 1 },
               groups: {
-                staged: [{ path: "logics/request/req_001_demo.md" }],
+                staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }],
                 modified: [{ path: "clients/viewer/browser-host.js" }],
                 deleted: [],
                 renamed: [],
                 untracked: [{ path: "new-file.md" }]
               }
+            }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/git-diff")) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              path: "logics/request/req_001_demo.md",
+              mode: "staged",
+              diff: "diff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+Demo",
+              truncated: false,
+              logicsType: "request"
             }
           })
         };
@@ -574,14 +590,21 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/git-status");
+    expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
     expect(content?.textContent).toContain("Branch");
     expect(content?.textContent).toContain("main");
     expect(content?.textContent).toContain("Staged");
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
+    expect(content?.textContent).toContain("request");
+    expect(content?.textContent).toContain("diff --git");
+    const stagedDomain = content?.querySelector('[data-viewer-git-domain="staged"]') as HTMLElement | null;
+    stagedDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(stagedDomain?.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("explains stale viewer servers that do not expose the Git status endpoint", async () => {

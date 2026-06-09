@@ -249,7 +249,10 @@ describe("logicsViewProviderSupport more coverage", () => {
     ).toEqual(["Draft", "Ready", "Done", "Archived"]);
     expect(
       getValidStatusesForItem.call({}, { stage: "architecture" } as never)
-    ).toContain("Superseded");
+    ).toEqual(["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"]);
+    expect(
+      getValidStatusesForItem.call({}, { stage: "product" } as never)
+    ).toEqual(["Draft", "Proposed", "Active", "Validated", "Rejected", "Superseded", "Settled", "Archived"]);
 
     expect(resolveProjectRoot.call({ projectRootOverride: null })).toEqual({ root: "/workspace" });
     expect(canResetProjectRoot.call({ projectRootOverride: "/workspace" })).toBe(false);

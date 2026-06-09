@@ -749,6 +749,23 @@ def test_followups_payload_defaults_to_open_sources(tmp_path: Path) -> None:
     assert [item["text"] for item in closed_payload["followups"]] == ["closed followup"]
 
 
+def test_followups_payload_treats_settled_companion_docs_as_closed(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Settled",
+        body="- Product follow-up: settled followup\n",
+    )
+
+    payload = followups_payload(repo_root)
+    closed_payload = followups_payload(repo_root, closed_only=True)
+
+    assert payload["followups"] == []
+    assert [item["text"] for item in closed_payload["followups"]] == ["settled followup"]
+
+
 def test_followups_payload_filters_source_kind(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "product").mkdir(parents=True)
@@ -1455,6 +1472,28 @@ def _write_minimal_product_doc(path: Path, *, title: str, status: str, body: str
     )
 
 
+def _write_minimal_architecture_doc(path: Path, *, title: str, status: str, body: str = "") -> None:
+    path.write_text(
+        "\n".join(
+            [
+                f"## {path.stem} - {title}",
+                "> Date: 2026-06-05",
+                f"> Status: {status}",
+                "> Drivers: Keep the decision record explicit.",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "> Reminder: Update status, linked refs, context, decision, consequences, and supersession markers when you edit this ADR.",
+                "",
+                "# Context",
+                body or "Decision context.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def _write_subprocess_json_repo(repo_root: Path) -> None:
     (repo_root / "logics" / "request").mkdir(parents=True)
     (repo_root / "logics" / "backlog").mkdir(parents=True)
@@ -1675,6 +1714,36 @@ def test_render_lint_reports_ok_for_minimal_consistent_repo(tmp_path: Path, monk
     assert payload["ok"] is True
     assert payload["issue_count"] == 0
     assert "Logics lint: OK" in render_lint(repo_root, output_format="text")
+
+
+def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "architecture").mkdir(parents=True)
+
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product",
+        status="Settled",
+    )
+    _write_minimal_architecture_doc(
+        repo_root / "logics" / "architecture" / "adr_001_demo.md",
+        title="Demo ADR",
+        status="Validated",
+    )
+    _write_minimal_architecture_doc(
+        repo_root / "logics" / "architecture" / "adr_002_closed.md",
+        title="Closed ADR",
+        status="Settled",
+    )
+
+    monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: set())
+    monkeypatch.setattr("logics_manager.lint._git_untracked_paths", lambda _repo_root: set())
+
+    payload = lint_payload(repo_root, require_status=True)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
 
 
 def test_main_runs_native_lint(

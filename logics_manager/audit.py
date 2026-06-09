@@ -172,9 +172,9 @@ def _has_mermaid_block(text: str) -> bool:
 def _companion_doc_is_mature(doc: "DocMeta") -> bool:
     status = _status_normalized(doc.status)
     if doc.kind.kind == "product":
-        return status in {"active", "validated", "archived"}
+        return status in {"active", "validated", "settled", "archived"}
     if doc.kind.kind == "architecture":
-        return status in {"accepted", "superseded", "archived"}
+        return status in {"accepted", "validated", "superseded", "settled", "archived"}
     return False
 
 

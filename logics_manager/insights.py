@@ -10,7 +10,7 @@ from pathlib import Path
 WORKFLOW_KINDS = ("request", "backlog", "task")
 COMPANION_KINDS = ("product", "architecture")
 OPEN_STATUSES = {"Draft", "Ready", "In progress", "Blocked"}
-CLOSED_STATUSES = {"Done", "Archived"}
+CLOSED_STATUSES = {"Done", "Settled", "Archived"}
 
 
 @dataclass(frozen=True)

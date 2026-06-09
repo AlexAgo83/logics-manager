@@ -11,7 +11,9 @@ function loadScript(dom: JSDOM, relPath: string) {
 
 function createViewerDom(options: {
   editResponse?: { ok: boolean; status?: number; body: unknown };
+  gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  gitResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
@@ -157,15 +159,17 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/git-status") {
-        if (options.gitResponse) {
+        const queuedGitResponse = options.gitResponses?.shift();
+        const gitResponse = queuedGitResponse || options.gitResponseFactory?.() || options.gitResponse;
+        if (gitResponse) {
           return {
-            ok: options.gitResponse.ok,
-            status: options.gitResponse.status ?? (options.gitResponse.ok ? 200 : 500),
+            ok: gitResponse.ok,
+            status: gitResponse.status ?? (gitResponse.ok ? 200 : 500),
             json: async () => {
-              if (options.gitResponse?.rawBody !== undefined) {
+              if (gitResponse.rawBody !== undefined) {
                 throw new Error("Invalid JSON");
               }
-              return options.gitResponse?.body || {};
+              return gitResponse.body || {};
             }
           };
         }
@@ -618,6 +622,58 @@ describe("local viewer browser host", () => {
     expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(true);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
+  });
+
+  it("refreshes the open Git screen when the viewer refresh button is used", async () => {
+    const firstGitPayload = {
+      ok: true,
+      payload: {
+        state: "ok",
+        branch: "main",
+        tracking: "origin/main",
+        ahead: 0,
+        behind: 0,
+        clean: false,
+        dirty: true,
+        latestCommit: "abc1234 First commit",
+        recentCommits: [{ hash: "abc1234", subject: "First commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+        counts: { staged: 1, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+        groups: { staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }], modified: [], deleted: [], renamed: [], untracked: [] }
+      }
+    };
+    const secondGitPayload = {
+      ok: true,
+      payload: {
+        ...firstGitPayload.payload,
+        branch: "feature/git-refresh",
+        latestCommit: "def5678 Refreshed commit",
+        recentCommits: [{ hash: "def5678", subject: "Refreshed commit", author: "Alex", date: "2026-06-10", refs: "HEAD -> feature/git-refresh" }]
+      }
+    };
+    let refreshed = false;
+    const { dom, calls } = createViewerDom({
+      gitResponseFactory: () => ({ ok: true, body: refreshed ? secondGitPayload : firstGitPayload })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const gitCallsBeforeRefresh = calls.filter((call) => call === "/api/git-status").length;
+
+    refreshed = true;
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls.filter((call) => call === "/api/git-status").length).toBeGreaterThan(gitCallsBeforeRefresh);
+    expect(calls).toContain("/api/refresh");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(content?.textContent).toContain("feature/git-refresh");
+    expect(content?.textContent).toContain("Refreshed commit");
   });
 
   it("explains stale viewer servers that do not expose the Git status endpoint", async () => {

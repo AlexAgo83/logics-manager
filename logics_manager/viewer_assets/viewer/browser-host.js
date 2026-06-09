@@ -482,6 +482,19 @@
     }
   }
 
+  function isGitStatusOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "Git status");
+  }
+
+  async function refreshViewer(method = "POST", options = {}) {
+    await loadItems(method, options);
+    if (isGitStatusOpen()) {
+      await showGitStatus({ preserve: true, silent: Boolean(options.silent) });
+    }
+  }
+
   function autoRefreshItems() {
     if (!autoRefreshEnabled) {
       return;
@@ -490,7 +503,7 @@
       refreshAfterVisible = true;
       return;
     }
-    loadItems("POST", { silent: true }).catch((error) => setMeta(error.message));
+    refreshViewer("POST", { silent: true }).catch((error) => setMeta(error.message));
   }
 
   function startAutoRefresh() {
@@ -1246,8 +1259,29 @@
     });
   }
 
-  async function showGitStatus() {
-    setMeta("Checking Git status...");
+  function currentGitViewState() {
+    const activeDomain = document.querySelector(".viewer-git__domain.is-active[data-viewer-git-domain]");
+    const activeFile = document.querySelector(".viewer-git__file.is-active[data-viewer-git-file]");
+    return {
+      domain: activeDomain instanceof HTMLElement ? activeDomain.getAttribute("data-viewer-git-domain") || "changes" : "changes",
+      path: activeFile instanceof HTMLElement ? activeFile.getAttribute("data-viewer-git-file") || "" : "",
+      cached: activeFile instanceof HTMLElement && activeFile.getAttribute("data-viewer-git-cached") === "1",
+    };
+  }
+
+  function findGitFileButton(path, cached) {
+    return Array.from(document.querySelectorAll("[data-viewer-git-file]")).find((node) => (
+      node instanceof HTMLElement &&
+      node.getAttribute("data-viewer-git-file") === path &&
+      (node.getAttribute("data-viewer-git-cached") === "1") === Boolean(cached)
+    )) || null;
+  }
+
+  async function showGitStatus(options = {}) {
+    const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
+    if (!options.silent) {
+      setMeta("Checking Git status...");
+    }
     const response = await fetch("/api/git-status");
     let data = {};
     try {
@@ -1267,12 +1301,13 @@
       throw new Error(data.error || "Unable to load Git status.");
     }
     setDocument("Git status", renderGitStatus(data.payload));
-    applyGitDomain("changes");
-    const firstFile = document.querySelector("[data-viewer-git-file]");
+    applyGitDomain(previous.domain || "changes");
+    const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
+    const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
     if (firstFile instanceof HTMLElement) {
       await loadGitDiff(firstFile.getAttribute("data-viewer-git-file") || "", firstFile.getAttribute("data-viewer-git-cached") === "1", firstFile);
     }
-    setMeta("Git status loaded.");
+    setMeta(options.silent ? "Git status refreshed." : "Git status loaded.");
   }
 
   window.acquireVsCodeApi = function acquireVsCodeApi() {
@@ -1286,7 +1321,7 @@
           return;
         }
         if (message.type === "refresh") {
-          loadItems("POST").catch((error) => setMeta(error.message));
+          refreshViewer("POST").catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "open" || message.type === "read") {
@@ -1334,7 +1369,7 @@
         return;
       }
       element.addEventListener("click", () => {
-        loadItems("POST").catch((error) => setMeta(error.message));
+        refreshViewer("POST").catch((error) => setMeta(error.message));
       });
     });
     document.getElementById("viewer-health")?.addEventListener("click", () => {

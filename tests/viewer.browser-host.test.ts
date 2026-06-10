@@ -715,6 +715,8 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
     expect(content?.textContent).toContain("request");
     expect(content?.textContent).toContain("diff --git");
+    expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");
+    expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Demo");
     const stagedDomain = content?.querySelector('[data-viewer-git-domain="staged"]') as HTMLElement | null;
     stagedDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(stagedDomain?.getAttribute("aria-pressed")).toBe("true");

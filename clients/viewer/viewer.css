@@ -871,6 +871,35 @@
   white-space: pre;
 }
 
+.viewer-git__diff-line {
+  display: block;
+  min-height: 1.35em;
+  padding: 0 8px;
+  border-left: 3px solid transparent;
+}
+
+.viewer-git__diff-line--add {
+  border-left-color: #2ea043;
+  background: rgba(46, 160, 67, 0.16);
+  color: #7ee787;
+}
+
+.viewer-git__diff-line--delete {
+  border-left-color: #f85149;
+  background: rgba(248, 81, 73, 0.16);
+  color: #ffaaa5;
+}
+
+.viewer-git__diff-line--hunk {
+  border-left-color: var(--vscode-textLink-foreground, #4ea1ff);
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 14%, transparent);
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
+.viewer-git__diff-line--meta {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
 .viewer-git__commit,
 .viewer-git__state {
   margin: 0;

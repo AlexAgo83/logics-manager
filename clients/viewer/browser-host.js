@@ -1852,6 +1852,29 @@
     });
   }
 
+  function gitDiffLineKind(line) {
+    if (line.startsWith("+") && !line.startsWith("+++")) {
+      return "add";
+    }
+    if (line.startsWith("-") && !line.startsWith("---")) {
+      return "delete";
+    }
+    if (line.startsWith("@@")) {
+      return "hunk";
+    }
+    if (line.startsWith("diff --git") || line.startsWith("index ") || line.startsWith("+++") || line.startsWith("---")) {
+      return "meta";
+    }
+    return "context";
+  }
+
+  function renderGitDiffPreview(content) {
+    return String(content)
+      .split("\n")
+      .map((line) => `<span class="viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}">${escapeHtml(line || " ")}</span>`)
+      .join("");
+  }
+
   async function loadGitDiff(path, cached, button = null) {
     const diffPanel = document.querySelector("[data-viewer-git-diff]");
     if (!(diffPanel instanceof HTMLElement) || !path) {
@@ -1873,7 +1896,7 @@
       return;
     }
     const content = payload.diff || payload.message || "No diff is available for this file.";
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${escapeHtml(content)}</code></pre>`;
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
   }
 
   function applyGitDomain(domain) {

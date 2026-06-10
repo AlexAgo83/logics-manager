@@ -496,7 +496,38 @@ def _parse_recent_git_commits(output: str) -> list[dict[str, str]]:
     return commits
 
 
-def _count_unique_git_status_paths(groups: dict[str, list[dict[str, str]]]) -> int:
+def _parse_git_numstat(output: str) -> dict[str, dict[str, int]]:
+    stats: dict[str, dict[str, int]] = {}
+    for line in output.splitlines():
+        parts = line.split("\t")
+        if len(parts) < 3:
+            continue
+        raw_additions, raw_deletions, raw_path = parts[:3]
+        try:
+            additions = int(raw_additions)
+            deletions = int(raw_deletions)
+        except ValueError:
+            continue
+        path = raw_path.strip()
+        if " => " in path:
+            path = path.split(" => ", 1)[1].strip("{}")
+        if path:
+            stats[path] = {"additions": additions, "deletions": deletions}
+    return stats
+
+
+def _attach_git_change_stats(groups: dict[str, list[dict[str, Any]]], staged_stats: dict[str, dict[str, int]], worktree_stats: dict[str, dict[str, int]]) -> None:
+    for key, entries in groups.items():
+        stats_source = staged_stats if key == "staged" else worktree_stats
+        for entry in entries:
+            path = str(entry.get("path", ""))
+            stats = stats_source.get(path) or staged_stats.get(path) or worktree_stats.get(path)
+            if stats:
+                entry["additions"] = stats["additions"]
+                entry["deletions"] = stats["deletions"]
+
+
+def _count_unique_git_status_paths(groups: dict[str, list[dict[str, Any]]]) -> int:
     paths: set[str] = set()
     for entries in groups.values():
         for entry in entries:
@@ -543,6 +574,8 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
 
     try:
         status = _run_read_only_git(repo_root, ["status", "--porcelain=v1", "-b"], runner=runner)
+        staged_numstat = _run_read_only_git(repo_root, ["diff", "--no-ext-diff", "--numstat", "--cached"], runner=runner)
+        worktree_numstat = _run_read_only_git(repo_root, ["diff", "--no-ext-diff", "--numstat"], runner=runner)
         commit = _run_read_only_git(repo_root, ["log", "-1", "--pretty=format:%h %s"], runner=runner)
         recent_commits = _run_read_only_git(
             repo_root,
@@ -558,12 +591,18 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
 
     lines = status.stdout.splitlines()
     branch_info = _parse_git_branch_line(lines[0]) if lines else {"branch": "HEAD", "tracking": "", "ahead": 0, "behind": 0}
-    groups: dict[str, list[dict[str, str]]] = {key: [] for key in ("staged", "modified", "deleted", "renamed", "untracked")}
+    groups: dict[str, list[dict[str, Any]]] = {key: [] for key in ("staged", "modified", "deleted", "renamed", "untracked")}
     for line in lines[1:]:
         classified = _classify_porcelain_entry(line)
         if classified:
             group, entry = classified
             groups[group].append(entry)
+    if staged_numstat.returncode == 0 or worktree_numstat.returncode == 0:
+        _attach_git_change_stats(
+            groups,
+            _parse_git_numstat(staged_numstat.stdout if staged_numstat.returncode == 0 else ""),
+            _parse_git_numstat(worktree_numstat.stdout if worktree_numstat.returncode == 0 else ""),
+        )
     counts = {key: len(value) for key, value in groups.items()}
     uncommitted_files = _count_unique_git_status_paths(groups)
     dirty = any(counts.values())

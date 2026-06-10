@@ -1751,6 +1751,14 @@
         <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
+    const renderChangeStats = (entry) => {
+      const additions = Number(entry?.additions);
+      const deletions = Number(entry?.deletions);
+      if (!Number.isFinite(additions) || !Number.isFinite(deletions)) {
+        return "";
+      }
+      return `<span class="viewer-git__file-changes" title="Line changes"><span class="viewer-git__file-additions">+${escapeHtml(additions)}</span><span class="viewer-git__file-deletions">-${escapeHtml(deletions)}</span></span>`;
+    };
     const renderFileSections = (allowedKeys) => groupDefs.filter(([key]) => allowedKeys.includes(key)).map(([key, label]) => {
       const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
       if (!entries.length) {
@@ -1763,6 +1771,7 @@
             <li>
               <button class="viewer-git__file" type="button" data-viewer-git-file="${escapeHtml(entry.path)}" data-viewer-git-cached="${key === "staged" ? "1" : "0"}">
                 <span class="viewer-git__file-path">${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</span>
+                ${renderChangeStats(entry)}
                 ${entry.logicsType ? `<span class="viewer-git__file-kind">${escapeHtml(entry.logicsType)}</span>` : ""}
               </button>
             </li>
@@ -1852,6 +1861,29 @@
     });
   }
 
+  function gitDiffLineKind(line) {
+    if (line.startsWith("+") && !line.startsWith("+++")) {
+      return "add";
+    }
+    if (line.startsWith("-") && !line.startsWith("---")) {
+      return "delete";
+    }
+    if (line.startsWith("@@")) {
+      return "hunk";
+    }
+    if (line.startsWith("diff --git") || line.startsWith("index ") || line.startsWith("+++") || line.startsWith("---")) {
+      return "meta";
+    }
+    return "context";
+  }
+
+  function renderGitDiffPreview(content) {
+    return String(content)
+      .split("\n")
+      .map((line) => `<span class="viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}">${escapeHtml(line || " ")}</span>`)
+      .join("");
+  }
+
   async function loadGitDiff(path, cached, button = null) {
     const diffPanel = document.querySelector("[data-viewer-git-diff]");
     if (!(diffPanel instanceof HTMLElement) || !path) {
@@ -1873,7 +1905,7 @@
       return;
     }
     const content = payload.diff || payload.message || "No diff is available for this file.";
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${escapeHtml(content)}</code></pre>`;
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
   }
 
   function applyGitDomain(domain) {

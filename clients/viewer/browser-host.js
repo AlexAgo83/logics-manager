@@ -1751,6 +1751,14 @@
         <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
+    const renderChangeStats = (entry) => {
+      const additions = Number(entry?.additions);
+      const deletions = Number(entry?.deletions);
+      if (!Number.isFinite(additions) || !Number.isFinite(deletions)) {
+        return "";
+      }
+      return `<span class="viewer-git__file-changes" title="Line changes"><span class="viewer-git__file-additions">+${escapeHtml(additions)}</span><span class="viewer-git__file-deletions">-${escapeHtml(deletions)}</span></span>`;
+    };
     const renderFileSections = (allowedKeys) => groupDefs.filter(([key]) => allowedKeys.includes(key)).map(([key, label]) => {
       const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
       if (!entries.length) {
@@ -1763,6 +1771,7 @@
             <li>
               <button class="viewer-git__file" type="button" data-viewer-git-file="${escapeHtml(entry.path)}" data-viewer-git-cached="${key === "staged" ? "1" : "0"}">
                 <span class="viewer-git__file-path">${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</span>
+                ${renderChangeStats(entry)}
                 ${entry.logicsType ? `<span class="viewer-git__file-kind">${escapeHtml(entry.logicsType)}</span>` : ""}
               </button>
             </li>

@@ -829,6 +829,23 @@
   overflow-wrap: anywhere;
 }
 
+.viewer-git__file-changes {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+}
+
+.viewer-git__file-additions {
+  color: #7ee787;
+}
+
+.viewer-git__file-deletions {
+  color: #ffaaa5;
+}
+
 .viewer-git__file-kind {
   flex: 0 0 auto;
   padding: 2px 6px;

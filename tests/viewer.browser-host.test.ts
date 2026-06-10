@@ -208,8 +208,8 @@ function createViewerDom(options: {
               ],
               counts: { staged: 1, modified: 1, deleted: 0, renamed: 0, untracked: 1 },
               groups: {
-                staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request" }],
-                modified: [{ path: "clients/viewer/browser-host.js" }],
+                staged: [{ path: "logics/request/req_001_demo.md", logicsType: "request", additions: 3, deletions: 1 }],
+                modified: [{ path: "clients/viewer/browser-host.js", additions: 8, deletions: 2 }],
                 deleted: [],
                 renamed: [],
                 untracked: [{ path: "new-file.md" }]
@@ -713,6 +713,7 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("main");
     expect(content?.textContent).toContain("Staged");
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
+    expect(content?.textContent).toContain("+3-1");
     expect(content?.textContent).toContain("request");
     expect(content?.textContent).toContain("diff --git");
     expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");

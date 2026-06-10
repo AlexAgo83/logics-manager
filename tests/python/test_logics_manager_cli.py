@@ -298,6 +298,10 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
                 ),
                 "",
             )
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat", "--cached"]:
+            return subprocess.CompletedProcess(args, 0, "3\t1\tstaged.md\n0\t2\trenamed.md\n", "")
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat"]:
+            return subprocess.CompletedProcess(args, 0, "5\t0\tmodified.md\n0\t4\tdeleted.md\n", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "abc1234 latest commit", "")
         if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
@@ -326,8 +330,12 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["badgeCounts"] == {"unpushedCommits": 2, "uncommittedFiles": 5}
     assert payload["badgeAvailability"] == {"unpushedCommits": True, "uncommittedFiles": True}
     assert payload["badgeMessages"] == {"unpushedCommits": "", "uncommittedFiles": ""}
-    assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": ""}
+    assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": "", "additions": 0, "deletions": 2}
     assert payload["groups"]["modified"][0]["logicsType"] == ""
+    assert payload["groups"]["modified"][0]["additions"] == 5
+    assert payload["groups"]["modified"][0]["deletions"] == 0
+    assert payload["groups"]["staged"][0]["additions"] == 3
+    assert payload["groups"]["staged"][0]["deletions"] == 1
     assert payload["latestCommit"] == "abc1234 latest commit"
     assert payload["recentCommits"] == [
         {"hash": "abc1234", "subject": "latest commit", "author": "Alex", "date": "2026-06-09", "refs": "HEAD -> main, tag: v2.4.0"},
@@ -357,6 +365,10 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
                 ),
                 "",
             )
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat", "--cached"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:

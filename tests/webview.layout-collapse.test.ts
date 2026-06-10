@@ -359,6 +359,7 @@ describe("webview collapsed details layout behavior", () => {
     expect(horizontalDetailsRule.includes("min-height: 0;")).toBe(true);
     expect(stackedDetailsRule.includes("position: absolute;")).toBe(true);
     expect(stackedDetailsRule.includes("bottom: 0;")).toBe(true);
+    expect(stackedDetailsRule.includes("width: 100%;")).toBe(true);
     expect(stackedDetailsRule.includes("min-height: 220px;")).toBe(true);
     expect(stackedDetailsRule.includes("overflow: hidden;")).toBe(true);
     expect(stackedDetailsRule.includes("z-index: 2;")).toBe(true);

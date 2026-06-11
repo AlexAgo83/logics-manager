@@ -515,7 +515,7 @@ function createViewerDom(options: {
                 strengthId: "deep",
                 strength: { id: "deep", label: "Deep" },
                 scope: "open-logics-workflow",
-                command: ["cdx", "run", "--json", "--session", "session-1", "--strength", "deep", "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"],
+                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "read-only", "--timeout-seconds", "300", "--json"],
                 warnings: [],
                 requiresConfirmation: true,
                 canRun: true
@@ -536,7 +536,7 @@ function createViewerDom(options: {
                 missionId: "corpus-ready",
                 sessionId: "session-1",
                 strength: { id: "deep", label: "Deep" },
-                command: ["cdx", "run", "--json", "--session", "session-1", "--strength", "deep", "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"],
+                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "read-only", "--timeout-seconds", "300", "--json"],
                 canRun: true
               },
               run: {
@@ -1553,7 +1553,8 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/cdx-mission-plan");
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("cdx run --json --session session-1 --strength deep");
+    expect(text).toContain("cdx run session-1 --cwd /workspace/logics-manager");
+    expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
 
     dom.window.document.querySelector('[data-viewer-cdx-run]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

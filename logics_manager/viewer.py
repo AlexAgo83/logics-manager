@@ -45,9 +45,9 @@ DOC_FAMILIES = (
 
 STAGE_ORDER = {family.stage: index for index, family in enumerate(DOC_FAMILIES)}
 CDX_MISSION_STRENGTHS = {
-    "standard": {"id": "standard", "label": "Standard", "timeout": 180},
-    "deep": {"id": "deep", "label": "Deep", "timeout": 300},
-    "max": {"id": "max", "label": "Max", "timeout": 600},
+    "standard": {"id": "standard", "label": "Standard", "timeout": 180, "reasoningEffort": "medium", "power": "medium"},
+    "deep": {"id": "deep", "label": "Deep", "timeout": 300, "reasoningEffort": "high", "power": "high"},
+    "max": {"id": "max", "label": "Max", "timeout": 600, "reasoningEffort": "high", "power": "high"},
 }
 CDX_MISSION_CATALOG = {
     "full-audit": {
@@ -1325,15 +1325,136 @@ def _latest_release_tag(repo_root: Path, *, runner: Any | None = None, which: An
     return ""
 
 
-def _cdx_mission_command(mission_id: str, *, session: str, strength: str, release_tag: str = "") -> list[str]:
-    base = ["run", "--json", "--session", session, "--strength", strength]
+def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "") -> str:
     if mission_id == "full-audit":
-        return [*base, "--mission", "full-audit", "--scope", "repository"]
+        return "\n".join([
+            "Run a full repository audit for this Logics Manager checkout.",
+            "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
+            "Do not modify files.",
+            "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
+        ])
     if mission_id == "release-review":
-        return [*base, "--mission", "release-review", "--since", release_tag]
+        return "\n".join([
+            f"Review repository changes since the latest release tag {release_tag}.",
+            "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
+            "Do not modify files.",
+            "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
+        ])
     if mission_id == "corpus-ready":
-        return [*base, "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"]
+        return "\n".join([
+            "Prepare the open Logics workflow corpus for development.",
+            "Analyze requests, backlog items, tasks, docs, lint/audit state, and workflow consistency.",
+            "Do not modify files and do not run destructive commands.",
+            "Return JSON only with this schema:",
+            '{"summary":"...","actions":[{"type":"promote-request-to-backlog","target":"req_..."},{"type":"promote-backlog-to-task","target":"item_..."},{"type":"refresh-corpus-context","target":""}],"notes":["..."]}',
+            "Allowed action types are exactly: promote-request-to-backlog, promote-backlog-to-task, refresh-corpus-context.",
+            "Use only targets that exist in the repository. Omit actions that are not clearly justified.",
+        ])
     raise ValueError("Unknown CDX mission.")
+
+
+def _cdx_mission_command(
+    repo_root: Path,
+    mission_id: str,
+    *,
+    session: str,
+    strength: dict[str, Any],
+    release_tag: str = "",
+) -> list[str]:
+    prompt = _cdx_mission_prompt(mission_id, release_tag=release_tag)
+    timeout = int(strength.get("timeout") or 180)
+    reasoning_effort = str(strength.get("reasoningEffort") or "medium")
+    power = str(strength.get("power") or "medium")
+    permission = "read-only"
+    return [
+        "run",
+        session,
+        "--cwd",
+        str(repo_root),
+        "--prompt",
+        prompt,
+        "--kind",
+        "assistant",
+        "--reasoning-effort",
+        reasoning_effort,
+        "--power",
+        power,
+        "--permission",
+        permission,
+        "--timeout-seconds",
+        str(timeout),
+        "--json",
+    ]
+
+
+def _parse_json_from_text(text: str) -> dict[str, Any] | None:
+    raw = text.strip()
+    if not raw:
+        return None
+    candidates = [raw]
+    fence_match = re.search(r"```(?:json)?\s*(.*?)```", raw, re.IGNORECASE | re.DOTALL)
+    if fence_match:
+        candidates.insert(0, fence_match.group(1).strip())
+    decoder = json.JSONDecoder()
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            pass
+        for index, char in enumerate(candidate):
+            if char != "{":
+                continue
+            try:
+                parsed, _end = decoder.raw_decode(candidate[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict):
+                return parsed
+    return None
+
+
+def _read_cdx_output_path(parsed: dict[str, Any]) -> str:
+    candidates = [
+        parsed.get("stdout"),
+        parsed.get("output"),
+    ]
+    artifacts = parsed.get("artifacts") if isinstance(parsed.get("artifacts"), dict) else {}
+    candidates.extend([
+        parsed.get("stdout_path"),
+        parsed.get("stdoutPath"),
+        artifacts.get("stdout_path"),
+        artifacts.get("stdoutPath"),
+    ])
+    for candidate in candidates:
+        if not isinstance(candidate, str) or not candidate.strip():
+            continue
+        value = candidate.strip()
+        if "\n" in value or value.lstrip().startswith("{") or value.lstrip().startswith("```"):
+            return value[:12000]
+        path = Path(value).expanduser()
+        if not path.is_file():
+            continue
+        try:
+            with path.open("r", encoding="utf-8", errors="replace") as handle:
+                return handle.read(12000)
+        except OSError:
+            continue
+    return ""
+
+
+def _merge_cdx_mission_output(parsed: Any) -> dict[str, Any] | None:
+    if not isinstance(parsed, dict):
+        return None
+    merged = dict(parsed)
+    embedded = _parse_json_from_text(_read_cdx_output_path(parsed))
+    if embedded:
+        merged["missionOutput"] = embedded
+        if isinstance(embedded.get("actions"), list) and "actions" not in merged:
+            merged["actions"] = embedded["actions"]
+        if "summary" in embedded and "summary" not in merged:
+            merged["summary"] = embedded["summary"]
+    return merged
 
 
 def _extract_cdx_usage(parsed: Any) -> dict[str, Any]:
@@ -1407,7 +1528,7 @@ def cdx_mission_plan_payload(
     if status_payload.get("state") != "ok":
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
-    command = _cdx_mission_command(mission_id, session=session, strength=strength, release_tag=release_tag)
+    command = _cdx_mission_command(repo_root, mission_id, session=session, strength=strength_def, release_tag=release_tag)
     plan = {
         "mission": mission,
         "missionId": mission_id,
@@ -1457,6 +1578,7 @@ def cdx_mission_run_payload(
             parsed = json.loads(result.stdout)
         except json.JSONDecodeError:
             parsed = None
+    parsed = _merge_cdx_mission_output(parsed)
     usage = _extract_cdx_usage(parsed)
     run_id = ""
     if isinstance(parsed, dict):

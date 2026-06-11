@@ -780,19 +780,19 @@ def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path:
 
     assert payload["state"] == "ok"
     assert payload["plan"]["releaseTag"] == "v2.4.0"
-    assert payload["plan"]["command"] == [
-        "cdx",
-        "run",
-        "--json",
-        "--session",
-        "work",
-        "--strength",
-        "deep",
-        "--mission",
-        "release-review",
-        "--since",
-        "v2.4.0",
-    ]
+    command = payload["plan"]["command"]
+    assert command[:4] == ["cdx", "run", "work", "--cwd"]
+    assert command[4] == str(tmp_path)
+    assert "--session" not in command
+    assert "--mission" not in command
+    assert "--scope" not in command
+    assert "--prompt" in command
+    assert "--json" in command
+    prompt = command[command.index("--prompt") + 1]
+    assert "since the latest release tag v2.4.0" in prompt
+    assert command[command.index("--reasoning-effort") + 1] == "high"
+    assert command[command.index("--power") + 1] == "high"
+    assert command[command.index("--timeout-seconds") + 1] == "300"
 
 
 def test_viewer_cdx_mission_plan_rejects_unknown_strength_and_unusable_session(tmp_path: Path) -> None:
@@ -824,7 +824,14 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         if args == ["cdx", "status", "--json"]:
             return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
         assert kwargs["timeout"] == 180
-        assert args == ["cdx", "run", "--json", "--session", "work", "--strength", "standard", "--mission", "full-audit", "--scope", "repository"]
+        assert args[:4] == ["cdx", "run", "work", "--cwd"]
+        assert args[4] == str(tmp_path)
+        assert "--session" not in args
+        assert "--mission" not in args
+        assert "--scope" not in args
+        assert args[args.index("--prompt") + 1].startswith("Run a full repository audit")
+        assert args[args.index("--permission") + 1] == "read-only"
+        assert args[args.index("--timeout-seconds") + 1] == "180"
         return subprocess.CompletedProcess(args, 0, json.dumps({"runId": "run-42", "usage": {"input_tokens": 10, "output_tokens": 5}}), "")
 
     payload = cdx_mission_run_payload(
@@ -838,6 +845,54 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
     assert payload["run"]["runId"] == "run-42"
     assert payload["run"]["usage"]["totalTokens"] == 15
     assert calls[0] == ["cdx", "status", "--json"]
+
+
+def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "corpus-ready", "sessionId": "work", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    args = payload["plan"]["arguments"]
+    assert args[:4] == ["run", "work", "--cwd", str(tmp_path)]
+    assert "--session" not in args
+    assert "--mission" not in args
+    assert "--scope" not in args
+    assert "--plan-only" not in args
+    prompt = args[args.index("--prompt") + 1]
+    assert "Return JSON only" in prompt
+    assert "promote-request-to-backlog" in prompt
+    assert "promote-backlog-to-task" in prompt
+    assert "refresh-corpus-context" in prompt
+
+
+def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:
+    output_path = tmp_path / "cdx-stdout.json"
+    output_path.write_text(json.dumps({"summary": "Ready", "actions": [{"type": "refresh-corpus-context", "target": ""}]}), encoding="utf-8")
+
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        return subprocess.CompletedProcess(args, 0, json.dumps({"run_id": "run-42", "stdout_path": str(output_path), "usage": {"total_tokens": 12}}), "")
+
+    payload = cdx_mission_run_payload(
+        tmp_path,
+        {"missionId": "corpus-ready", "sessionId": "work", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["run"]["parsed"]["actions"] == [{"type": "refresh-corpus-context", "target": ""}]
+    assert payload["run"]["parsed"]["missionOutput"]["summary"] == "Ready"
 
 
 def test_viewer_cdx_mission_apply_plan_runs_only_allowlisted_logics_actions(tmp_path: Path) -> None:

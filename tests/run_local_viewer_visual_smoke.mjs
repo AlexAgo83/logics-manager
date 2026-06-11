@@ -17,8 +17,11 @@ const viewports = [
 const viewer = await startViewer();
 try {
   const chrome = findChrome();
-  const results = chrome ? await runChromeSmoke(chrome, viewer.url) : await runJsdomFallback(viewer.url);
-  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url: viewer.url, mode: chrome ? "chrome" : "jsdom", results }, null, 2));
+  const windowsCiServerOnly = process.platform === "win32" && process.env.CI === "true";
+  const results = windowsCiServerOnly
+    ? await runServerSmoke(viewer.url)
+    : chrome ? await runChromeSmoke(chrome, viewer.url) : await runJsdomFallback(viewer.url);
+  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url: viewer.url, mode: windowsCiServerOnly ? "server" : chrome ? "chrome" : "jsdom", results }, null, 2));
 } finally {
   viewer.process.kill();
 }
@@ -46,6 +49,9 @@ async function startViewer() {
 
 function findChrome() {
   if (process.env.LOCAL_VIEWER_SMOKE_FORCE_JSDOM === "1") {
+    return "";
+  }
+  if (process.platform === "win32" && process.env.CI === "true") {
     return "";
   }
   const candidates = process.platform === "darwin"
@@ -114,6 +120,21 @@ async function runChromeSmoke(chrome, url) {
     }
   }
   return results;
+}
+
+async function runServerSmoke(url) {
+  const htmlResponse = await fetch(url);
+  const html = await htmlResponse.text();
+  if (!htmlResponse.ok || !html.includes('id="board"') || !html.includes('id="viewer-meta"')) {
+    throw new Error("Windows CI server smoke did not return the viewer shell.");
+  }
+  const itemsResponse = await fetch(new URL("/api/items", url));
+  const items = await itemsResponse.json();
+  if (!itemsResponse.ok || !items?.ok || !Array.isArray(items?.payload?.items)) {
+    throw new Error("Windows CI server smoke did not return a valid item payload.");
+  }
+  writeFileSync(join(artifactsDir, "windows-ci-server.html"), html);
+  return [{ viewport: { name: "windows-ci-server", width: 0, height: 0 }, serverOnly: true, items: items.payload.items.length }];
 }
 
 async function startChrome(chrome, viewport) {

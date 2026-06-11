@@ -24,6 +24,9 @@ from logics_manager.insights import followups_payload, health_payload, product_c
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
+    cdx_mission_apply_plan_payload,
+    cdx_mission_plan_payload,
+    cdx_mission_run_payload,
     cdx_run_report_payload,
     cdx_runs_payload,
     cdx_status_payload,
@@ -719,6 +722,116 @@ def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:
     assert payload["state"] == "ok"
     assert payload["report"]["run"]["run_id"] == "run-1"
     assert payload["report"]["task_report"]["kind"] == "code-review"
+
+
+def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:4] == ["tag", "--sort=-version:refname", "--list"]:
+            return subprocess.CompletedProcess(args, 0, "v2.4.0\nv2.3.0\n", "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "release-review", "sessionId": "work", "strengthId": "deep"},
+        cdx_runner=cdx_runner,
+        git_runner=git_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["releaseTag"] == "v2.4.0"
+    assert payload["plan"]["command"] == [
+        "cdx",
+        "run",
+        "--json",
+        "--session",
+        "work",
+        "--strength",
+        "deep",
+        "--mission",
+        "release-review",
+        "--since",
+        "v2.4.0",
+    ]
+
+
+def test_viewer_cdx_mission_plan_rejects_unknown_strength_and_unusable_session(tmp_path: Path) -> None:
+    assert cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "strengthId": "turbo"},
+        which=lambda name: f"/usr/bin/{name}",
+    )["state"] == "error"
+
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "known"}]}), "")
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "outside;rm", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["sessionId"] == "known"
+
+
+def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        assert kwargs["timeout"] == 180
+        assert args == ["cdx", "run", "--json", "--session", "work", "--strength", "standard", "--mission", "full-audit", "--scope", "repository"]
+        return subprocess.CompletedProcess(args, 0, json.dumps({"runId": "run-42", "usage": {"input_tokens": 10, "output_tokens": 5}}), "")
+
+    payload = cdx_mission_run_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["run"]["runId"] == "run-42"
+    assert payload["run"]["usage"]["totalTokens"] == 15
+    assert calls[0] == ["cdx", "status", "--json"]
+
+
+def test_viewer_cdx_mission_apply_plan_runs_only_allowlisted_logics_actions(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        return subprocess.CompletedProcess(args, 0, "done", "")
+
+    payload = cdx_mission_apply_plan_payload(
+        tmp_path,
+        {"actions": [{"type": "promote-request-to-backlog", "target": "req_239"}]},
+        runner=runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert calls == [["logics-manager", "flow", "request", "backlog", "req_239"]]
+
+    rejected = cdx_mission_apply_plan_payload(
+        tmp_path,
+        {"actions": [{"type": "shell", "target": "rm"}]},
+        runner=runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert rejected["state"] == "error"
+    assert "Unsupported" in rejected["message"]
 
 
 def test_create_request_from_cdx_report_writes_traceable_request(tmp_path: Path) -> None:

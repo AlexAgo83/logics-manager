@@ -44,6 +44,38 @@ DOC_FAMILIES = (
 )
 
 STAGE_ORDER = {family.stage: index for index, family in enumerate(DOC_FAMILIES)}
+CDX_MISSION_STRENGTHS = {
+    "standard": {"id": "standard", "label": "Standard", "timeout": 180},
+    "deep": {"id": "deep", "label": "Deep", "timeout": 300},
+    "max": {"id": "max", "label": "Max", "timeout": 600},
+}
+CDX_MISSION_CATALOG = {
+    "full-audit": {
+        "id": "full-audit",
+        "title": "Audit complet",
+        "description": "Inspecte le repository complet avec un rapport CDX exploitable.",
+        "scope": "repository",
+        "requiresReleaseTag": False,
+        "requiresPlanConfirmation": False,
+    },
+    "release-review": {
+        "id": "release-review",
+        "title": "Review depuis derniere release",
+        "description": "Compare l'etat courant avec le dernier tag de version disponible.",
+        "scope": "latest-release",
+        "requiresReleaseTag": True,
+        "requiresPlanConfirmation": False,
+    },
+    "corpus-ready": {
+        "id": "corpus-ready",
+        "title": "Preparer le corpus pret a dev",
+        "description": "Produit un plan corpus avant toute application Logics deterministe.",
+        "scope": "open-logics-workflow",
+        "requiresReleaseTag": False,
+        "requiresPlanConfirmation": True,
+    },
+}
+CDX_DEFAULT_MISSION_ID = "full-audit"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
 VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
@@ -582,6 +614,18 @@ def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None =
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
     return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
+
+
+def _run_cdx_mission(repo_root: Path, args: list[str], *, timeout: int, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["cdx", *args]
+    cdx_runner = runner or subprocess.run
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=timeout)
+
+
+def _run_logics_flow(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["logics-manager", "flow", *args]
+    flow_runner = runner or subprocess.run
+    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=30)
 
 
 def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
@@ -1152,6 +1196,261 @@ def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None =
     return {"state": "ok", "message": "", "report": report}
 
 
+def cdx_mission_catalog_payload() -> dict[str, Any]:
+    return {
+        "missions": list(CDX_MISSION_CATALOG.values()),
+        "strengths": list(CDX_MISSION_STRENGTHS.values()),
+        "defaultMissionId": CDX_DEFAULT_MISSION_ID,
+        "defaultStrengthId": "standard",
+    }
+
+
+def _cdx_status_sessions(status_payload: dict[str, Any]) -> list[str]:
+    status = status_payload.get("status") if isinstance(status_payload.get("status"), dict) else {}
+    sessions = status.get("sessions") if isinstance(status.get("sessions"), list) else []
+    ids: list[str] = []
+    for session in sessions:
+        if not isinstance(session, dict):
+            continue
+        session_id = str(session.get("id") or session.get("name") or "").strip()
+        if session_id:
+            ids.append(session_id)
+    return ids
+
+
+def _normalize_cdx_session(value: Any, status_payload: dict[str, Any] | None = None) -> str:
+    session = str(value or "").strip()
+    if not re.match(r"^[A-Za-z0-9_.:@/-]{1,120}$", session):
+        return ""
+    if status_payload is None:
+        return session
+    known_sessions = _cdx_status_sessions(status_payload)
+    if known_sessions and session not in known_sessions:
+        return ""
+    return session
+
+
+def _latest_release_tag(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return ""
+    commands = [
+        ["tag", "--sort=-version:refname", "--list", "v[0-9]*"],
+        ["tag", "--sort=-version:refname", "--list", "[0-9]*"],
+        ["describe", "--tags", "--abbrev=0"],
+    ]
+    for args in commands:
+        try:
+            result = _run_read_only_git(repo_root, args, runner=runner)
+        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+            continue
+        if result.returncode != 0:
+            continue
+        tag = (result.stdout or "").strip().splitlines()[0] if (result.stdout or "").strip() else ""
+        if tag:
+            return tag[:200]
+    return ""
+
+
+def _cdx_mission_command(mission_id: str, *, session: str, strength: str, release_tag: str = "") -> list[str]:
+    base = ["run", "--json", "--session", session, "--strength", strength]
+    if mission_id == "full-audit":
+        return [*base, "--mission", "full-audit", "--scope", "repository"]
+    if mission_id == "release-review":
+        return [*base, "--mission", "release-review", "--since", release_tag]
+    if mission_id == "corpus-ready":
+        return [*base, "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"]
+    raise ValueError("Unknown CDX mission.")
+
+
+def _extract_cdx_usage(parsed: Any) -> dict[str, Any]:
+    if not isinstance(parsed, dict):
+        return {"available": False, "message": "CDX did not return structured usage."}
+    candidates = [
+        parsed.get("usage"),
+        parsed.get("tokenUsage"),
+        parsed.get("tokens"),
+        (parsed.get("run") or {}).get("usage") if isinstance(parsed.get("run"), dict) else None,
+        (parsed.get("result") or {}).get("usage") if isinstance(parsed.get("result"), dict) else None,
+    ]
+    usage = next((candidate for candidate in candidates if isinstance(candidate, dict)), None)
+    if usage is None:
+        return {"available": False, "message": "Token usage was not exposed by CDX for this run."}
+    input_tokens = usage.get("input_tokens", usage.get("inputTokens", usage.get("prompt_tokens", usage.get("promptTokens"))))
+    output_tokens = usage.get("output_tokens", usage.get("outputTokens", usage.get("completion_tokens", usage.get("completionTokens"))))
+    total_tokens = usage.get("total_tokens", usage.get("totalTokens"))
+    if total_tokens is None and isinstance(input_tokens, int) and isinstance(output_tokens, int):
+        total_tokens = input_tokens + output_tokens
+    return {
+        "available": True,
+        "inputTokens": input_tokens,
+        "outputTokens": output_tokens,
+        "totalTokens": total_tokens,
+        "raw": usage,
+    }
+
+
+def _bounded_process_text(value: str, limit: int = 12000) -> str:
+    text = value.strip()
+    if len(text) <= limit:
+        return text
+    return f"{text[:limit]}\n... truncated ..."
+
+
+def cdx_mission_plan_payload(
+    repo_root: Path,
+    body: dict[str, Any],
+    *,
+    cdx_runner: Any | None = None,
+    git_runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    tool_which = which or shutil.which
+    if not tool_which("cdx"):
+        return {"state": "unavailable", "message": "CDX executable is not available on PATH.", "plan": None}
+    mission_id = str(body.get("missionId") or CDX_DEFAULT_MISSION_ID)
+    mission = CDX_MISSION_CATALOG.get(mission_id)
+    if mission is None:
+        return {"state": "error", "message": "Unknown CDX mission.", "plan": None}
+    strength = str(body.get("strengthId") or "standard")
+    strength_def = CDX_MISSION_STRENGTHS.get(strength)
+    if strength_def is None:
+        return {"state": "error", "message": "Unknown CDX mission strength.", "plan": None}
+
+    status_payload = cdx_status_payload(repo_root, runner=cdx_runner, which=which)
+    session = _normalize_cdx_session(body.get("sessionId"), status_payload if status_payload.get("state") == "ok" else None)
+    if not session:
+        sessions = _cdx_status_sessions(status_payload)
+        session = sessions[0] if sessions else ""
+    if not session:
+        return {"state": "error", "message": "No usable CDX session is available.", "plan": None, "status": status_payload}
+
+    release_tag = ""
+    warnings: list[str] = []
+    if mission.get("requiresReleaseTag"):
+        release_tag = _latest_release_tag(repo_root, runner=git_runner, which=which)
+        if not release_tag:
+            return {"state": "error", "message": "No release tag was found for this mission.", "plan": None, "status": status_payload}
+    if status_payload.get("state") != "ok":
+        warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
+
+    command = _cdx_mission_command(mission_id, session=session, strength=strength, release_tag=release_tag)
+    plan = {
+        "mission": mission,
+        "missionId": mission_id,
+        "sessionId": session,
+        "strength": strength_def,
+        "strengthId": strength,
+        "scope": mission["scope"],
+        "releaseTag": release_tag,
+        "command": ["cdx", *command],
+        "arguments": command,
+        "warnings": warnings,
+        "requiresConfirmation": bool(mission.get("requiresPlanConfirmation")),
+        "canRun": True,
+    }
+    if mission_id == "corpus-ready":
+        plan["allowedPlanActions"] = [
+            "promote-request-to-backlog",
+            "promote-backlog-to-task",
+            "refresh-corpus-context",
+        ]
+    return {"state": "ok", "message": "", "plan": plan, "catalog": cdx_mission_catalog_payload(), "status": status_payload}
+
+
+def cdx_mission_run_payload(
+    repo_root: Path,
+    body: dict[str, Any],
+    *,
+    cdx_runner: Any | None = None,
+    git_runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    plan_payload = cdx_mission_plan_payload(repo_root, body, cdx_runner=cdx_runner, git_runner=git_runner, which=which)
+    if plan_payload.get("state") != "ok":
+        return {"state": plan_payload.get("state") or "error", "message": plan_payload.get("message") or "Unable to plan CDX mission.", "plan": plan_payload.get("plan"), "run": None}
+    plan = plan_payload["plan"]
+    timeout = int(plan["strength"].get("timeout") or 180)
+    try:
+        result = _run_cdx_mission(repo_root, list(plan["arguments"]), timeout=timeout, runner=cdx_runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX mission timed out.", "plan": plan, "run": None}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX mission: {exc}", "plan": plan, "run": None}
+
+    parsed: Any = None
+    if result.stdout.strip():
+        try:
+            parsed = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            parsed = None
+    usage = _extract_cdx_usage(parsed)
+    run_id = ""
+    if isinstance(parsed, dict):
+        run = parsed.get("run") if isinstance(parsed.get("run"), dict) else {}
+        run_id = str(parsed.get("run_id") or parsed.get("runId") or run.get("run_id") or run.get("runId") or "")
+    run_payload = {
+        "returnCode": result.returncode,
+        "runId": run_id,
+        "stdout": _bounded_process_text(result.stdout or ""),
+        "stderr": _bounded_process_text(result.stderr or ""),
+        "parsed": parsed if isinstance(parsed, dict) else None,
+        "usage": usage,
+    }
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "CDX mission failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "plan": plan, "run": run_payload}
+    return {"state": "ok", "message": "", "plan": plan, "run": run_payload}
+
+
+def cdx_mission_apply_plan_payload(repo_root: Path, body: dict[str, Any], *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    tool_which = which or shutil.which
+    if not tool_which("logics-manager"):
+        return {"state": "unavailable", "message": "logics-manager executable is not available on PATH.", "results": []}
+    actions = body.get("actions") if isinstance(body.get("actions"), list) else []
+    if not actions:
+        return {"state": "error", "message": "No corpus plan actions were provided.", "results": []}
+
+    allowed: dict[str, list[str]] = {
+        "promote-request-to-backlog": ["request", "backlog"],
+        "promote-backlog-to-task": ["backlog", "task"],
+        "refresh-corpus-context": ["corpus", "prepare"],
+    }
+    results: list[dict[str, Any]] = []
+    for action in actions:
+        if not isinstance(action, dict):
+            return {"state": "error", "message": "Corpus plan actions must be objects.", "results": results}
+        action_type = str(action.get("type") or "")
+        command = allowed.get(action_type)
+        if command is None:
+            return {"state": "error", "message": f"Unsupported corpus plan action: {action_type}", "results": results}
+        target = str(action.get("target") or "").strip()
+        args = [*command]
+        if target:
+            if not re.match(r"^[A-Za-z0-9_.:/-]{1,160}$", target):
+                return {"state": "error", "message": "Invalid corpus plan action target.", "results": results}
+            args.append(target)
+        try:
+            result = _run_logics_flow(repo_root, args, runner=runner)
+        except subprocess.TimeoutExpired:
+            return {"state": "timeout", "message": "Logics corpus plan application timed out.", "results": results}
+        except (OSError, subprocess.SubprocessError) as exc:
+            return {"state": "error", "message": f"Unable to apply corpus plan action: {exc}", "results": results}
+        item = {
+            "type": action_type,
+            "target": target,
+            "command": ["logics-manager", "flow", *args],
+            "returnCode": result.returncode,
+            "stdout": _bounded_process_text(result.stdout or "", 4000),
+            "stderr": _bounded_process_text(result.stderr or "", 4000),
+        }
+        results.append(item)
+        if result.returncode != 0:
+            message = (result.stderr or result.stdout or "Corpus plan action failed.").strip().splitlines()[0]
+            return {"state": "error", "message": message, "results": results}
+    return {"state": "ok", "message": "", "results": results}
+
+
 def _slugify_viewer_doc(text: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
     return slug[:80] or "cdx_code_review_findings"
@@ -1420,6 +1719,33 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/cdx-mission-plan":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": cdx_mission_plan_payload(self.server.repo_root, body)})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            return
+        if parsed.path == "/api/cdx-mission-run":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": cdx_mission_run_payload(self.server.repo_root, body)})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            return
+        if parsed.path == "/api/cdx-mission-apply-plan":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": cdx_mission_apply_plan_payload(self.server.repo_root, body)})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

@@ -120,6 +120,10 @@
   z-index: 2;
 }
 
+.layout--stacked .details.details--collapsed {
+  min-height: 0;
+}
+
 .is-resizing {
   cursor: row-resize;
   user-select: none;

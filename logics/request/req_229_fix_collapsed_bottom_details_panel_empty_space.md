@@ -1,7 +1,7 @@
 ## req_229_fix_collapsed_bottom_details_panel_empty_space - Fix collapsed bottom details panel empty space
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

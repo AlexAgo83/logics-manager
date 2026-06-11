@@ -1,10 +1,10 @@
 ## item_403_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged - Avoid unnecessary viewer refresh work when state is unchanged
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -82,6 +82,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_237_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_237_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged.md`.
 - Generated locally by logics-manager.
+- Delivered with in-memory no-change signatures, manual no-change feedback, force refresh bypass, and focused browser-host tests.
 
 # Tasks
 - `task_211_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged`

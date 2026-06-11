@@ -24,6 +24,7 @@ function createViewerDom(options: {
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
+  refreshItemUpdatedAt?: string;
   url?: string;
 } = {}) {
   const html = `<!doctype html><html><body>
@@ -158,7 +159,7 @@ function createViewerDom(options: {
               ],
               autoRefreshIntervalSeconds: 15,
               items: [
-                { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
+                { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
               ],
               updateInfo: {
@@ -726,7 +727,10 @@ describe("local viewer browser host", () => {
   });
 
   it("keeps the focused item selected when viewer data refreshes", async () => {
-    const { dom, calls } = createViewerDom({ url: "http://127.0.0.1:8765/?focus=req_001_demo" });
+    const { dom, calls } = createViewerDom({
+      url: "http://127.0.0.1:8765/?focus=req_001_demo",
+      refreshItemUpdatedAt: "2026-06-01T10:05:00"
+    });
     const api = dom.window.acquireVsCodeApi();
     const payloads: Array<{ selectedId?: string }> = [];
     dom.window.addEventListener("message", (event) => {
@@ -743,6 +747,71 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/refresh");
     expect(payloads.map((payload) => payload.selectedId)).toEqual(["req_001_demo", "req_001_demo"]);
+  });
+
+  it("skips replacing viewer data and shows feedback when refresh state is unchanged", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const payloads: unknown[] = [];
+    dom.window.addEventListener("message", (event) => {
+      if (event.data?.type === "data") {
+        payloads.push(event.data.payload);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/refresh");
+    expect(payloads).toHaveLength(1);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Checked just now");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("no viewer changes");
+  });
+
+  it("force refresh bypasses unchanged-state preservation", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const payloads: unknown[] = [];
+    dom.window.addEventListener("message", (event) => {
+      if (event.data?.type === "data") {
+        payloads.push(event.data.payload);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    api.postMessage({ type: "refresh", force: true });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(payloads).toHaveLength(2);
+  });
+
+  it("preserves active Git detail content when refresh signatures are unchanged", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    const firstDiffCalls = calls.filter((call) => call.startsWith("/api/git-diff?")).length;
+    const stagedDomain = content?.querySelector('[data-viewer-git-domain="staged"]') as HTMLElement | null;
+    stagedDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const activeBefore = content?.querySelector(".viewer-git__domain.is-active")?.getAttribute("data-viewer-git-domain");
+
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(activeBefore).toBe("staged");
+    expect(content?.querySelector(".viewer-git__domain.is-active")?.getAttribute("data-viewer-git-domain")).toBe("staged");
+    expect(calls.filter((call) => call.startsWith("/api/git-diff?")).length).toBe(firstDiffCalls);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("no viewer changes");
   });
 
   it("opens read preview when a focused URL requests read mode", async () => {
@@ -806,7 +875,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/refresh");
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Checked just now");
   });
 
   it("switches the active project from the topbar project menu", async () => {

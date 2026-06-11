@@ -1,18 +1,18 @@
 ## task_211_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged - Avoid unnecessary viewer refresh work when state is unchanged
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_403_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged`
@@ -44,6 +44,9 @@
 
 # Report
 - Implementation complete.
+- Added deterministic in-memory signatures for corpus/project/capability data plus Git, CDX, and CI runtime payloads.
+- Manual refresh now confirms no-change checks without replacing active document content; force refresh is available via message payloads and Shift-click.
+- Validation: `npx vitest run tests/viewer.browser-host.test.ts` and `python3 -m logics_manager lint --require-status`.
 
 # AI Context
 - Summary: Implement deterministic no-change refresh detection in the local viewer to avoid redundant rerenders.

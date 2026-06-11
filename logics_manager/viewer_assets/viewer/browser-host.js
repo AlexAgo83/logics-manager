@@ -65,6 +65,10 @@
   };
   let connectionState = "connected";
   let lastSuccessfulSyncAt = 0;
+  let latestViewerStateSignature = "";
+  let latestGitStatusSignature = "";
+  let latestCdxStatusSignature = "";
+  let latestCiStatusSignature = "";
 
   function readStoredState() {
     try {
@@ -85,6 +89,59 @@
       }
     });
     return nextState;
+  }
+
+  function stableStringify(value) {
+    if (Array.isArray(value)) {
+      return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
+    }
+    if (value && typeof value === "object") {
+      return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+    }
+    return JSON.stringify(value);
+  }
+
+  function viewerStateSignature(payload) {
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    const projects = Array.isArray(payload?.projects) ? payload.projects : [];
+    return stableStringify({
+      root: payload?.root || "",
+      repository: payload?.repository || {},
+      capabilities: normalizeCapabilities(payload),
+      projects: projects.map((project) => ({
+        id: project?.id || "",
+        active: Boolean(project?.active),
+        available: project?.available !== false,
+        hasLogics: project?.hasLogics !== false,
+        root: project?.root || ""
+      })),
+      items: items.map((item) => ({
+        id: item?.id || "",
+        relPath: item?.relPath || "",
+        stage: item?.stage || "",
+        status: item?.indicators?.Status || item?.status || "",
+        updatedAt: item?.updatedAt || ""
+      }))
+    });
+  }
+
+  function gitStatusSignature(payload) {
+    return stableStringify({
+      state: payload?.state || "",
+      branch: payload?.branch || "",
+      tracking: payload?.tracking || "",
+      ahead: Number(payload?.ahead || 0),
+      behind: Number(payload?.behind || 0),
+      clean: Boolean(payload?.clean),
+      counts: payload?.counts || {},
+      badgeCounts: payload?.badgeCounts || {},
+      latestCommit: payload?.latestCommit || "",
+      recentCommitsHasMore: Boolean(payload?.recentCommitsHasMore)
+    });
+  }
+
+  function runtimeStatusSignature(payload) {
+    return stableStringify(payload || {});
   }
 
   function hydrateViewerFilterState() {
@@ -623,6 +680,7 @@
       }
       const data = await response.json();
       if (response.ok && data.ok) {
+        latestCiStatusSignature = runtimeStatusSignature(data.payload);
         updateMainCiBadge(data.payload);
       }
     } catch {
@@ -685,6 +743,7 @@
       }
       const data = await response.json();
       if (response.ok && data.ok) {
+        latestCdxStatusSignature = runtimeStatusSignature(data.payload);
         updateMainCdxBadge(data.payload);
       }
     } catch {
@@ -709,6 +768,7 @@
       const response = await fetch("/api/git-status");
       const data = await response.json();
       if (response.ok && data.ok && data.payload?.state === "ok") {
+        latestGitStatusSignature = gitStatusSignature(data.payload);
         setGitBadgeCountsFromPayload(data.payload);
       }
     } catch {
@@ -958,6 +1018,15 @@
 
   function postToApp(payload, options = {}) {
     markConnectionHealthy({ silent: Boolean(options.silent) });
+    const nextSignature = viewerStateSignature(payload);
+    if (!options.force && latestViewerStateSignature && nextSignature === latestViewerStateSignature) {
+      if (!options.silent) {
+        setMeta(`Checked just now · no viewer changes (${new Date().toLocaleTimeString()})`);
+      }
+      scheduleNextAutoRefresh();
+      return false;
+    }
+    latestViewerStateSignature = nextSignature;
     latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
     if (!autoRefreshIntervalTouched) {
       autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(payload.autoRefreshIntervalSeconds) * 1000;
@@ -980,6 +1049,7 @@
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
+    return true;
   }
 
   function renderUpdateNotice(updateInfo) {
@@ -1016,11 +1086,11 @@
       if (!response.ok || !data.ok) {
         throw new Error(data.error || "Unable to load viewer data.");
       }
-      postToApp(data.payload, { silent: Boolean(options.silent) });
+      const changed = postToApp(data.payload, { silent: Boolean(options.silent), force: Boolean(options.force) });
       if (method !== "POST") {
         await refreshGitBadgeCounters();
       }
-      return true;
+      return changed;
     } catch (error) {
       markConnectionDisconnected(error);
       throw error;
@@ -1054,17 +1124,22 @@
   }
 
   async function refreshViewer(method = "POST", options = {}) {
-    await loadItems(method, options);
+    const changed = await loadItems(method, options);
     if (isGitStatusOpen()) {
-      await showGitStatus({ preserve: true, silent: Boolean(options.silent) });
+      await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCiStatusOpen()) {
-      await showCiStatus({ silent: Boolean(options.silent) });
+      await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCdxStatusOpen()) {
-      await showCdxStatus({ silent: Boolean(options.silent) });
+      await showCdxStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCdxRunsOpen()) {
-      await showCdxRuns({ silent: Boolean(options.silent) });
+      if (changed || options.force) {
+        await showCdxRuns({ silent: Boolean(options.silent) });
+      }
     } else if (method === "POST") {
       await refreshGitBadgeCounters();
+    }
+    if (!changed && !options.silent && !options.force) {
+      setMeta(`Checked just now · no viewer changes (${new Date().toLocaleTimeString()})`);
     }
   }
 
@@ -2467,6 +2542,15 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX status.");
     }
+    const nextCdxSignature = runtimeStatusSignature(data.payload);
+    if (options.skipUnchanged && !options.force && latestCdxStatusSignature && nextCdxSignature === latestCdxStatusSignature) {
+      updateMainCdxBadge(data.payload);
+      if (!options.silent) {
+        setMeta(`Checked CDX status just now · no changes (${new Date().toLocaleTimeString()})`);
+      }
+      return;
+    }
+    latestCdxStatusSignature = nextCdxSignature;
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
@@ -2716,6 +2800,15 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CI status.");
     }
+    const nextCiSignature = runtimeStatusSignature(data.payload);
+    if (options.skipUnchanged && !options.force && latestCiStatusSignature && nextCiSignature === latestCiStatusSignature) {
+      updateMainCiBadge(data.payload);
+      if (!options.silent) {
+        setMeta(`Checked CI status just now · no changes (${new Date().toLocaleTimeString()})`);
+      }
+      return;
+    }
+    latestCiStatusSignature = nextCiSignature;
     updateMainCiBadge(data.payload);
     setDocument("CI status", renderCiStatus(data.payload));
     setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
@@ -3042,6 +3135,16 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load Git status.");
     }
+    const nextGitSignature = gitStatusSignature(data.payload);
+    if (options.skipUnchanged && !options.force && latestGitStatusSignature && nextGitSignature === latestGitStatusSignature) {
+      setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
+      updateMainGitBadges();
+      if (!options.silent) {
+        setMeta(`Checked Git status just now · no changes (${new Date().toLocaleTimeString()})`);
+      }
+      return;
+    }
+    latestGitStatusSignature = nextGitSignature;
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
     updateMainGitBadges();
     setDocument("Git status", renderGitStatus(data.payload));
@@ -3065,7 +3168,7 @@
           return;
         }
         if (message.type === "refresh") {
-          refreshViewer("POST").catch((error) => setMeta(error.message));
+          refreshViewer("POST", { force: Boolean(message.force) }).catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "bootstrap-logics") {
@@ -3146,9 +3249,9 @@
       if (!(element instanceof HTMLElement)) {
         return;
       }
-      element.addEventListener("click", () => {
+      element.addEventListener("click", (event) => {
         setRefreshMenuOpen(false);
-        refreshViewer("POST").catch((error) => setMeta(error.message));
+        refreshViewer("POST", { force: Boolean(event.shiftKey) }).catch((error) => setMeta(error.message));
       });
     });
     document.getElementById("viewer-health")?.addEventListener("click", () => {

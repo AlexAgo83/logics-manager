@@ -366,13 +366,13 @@ describe("local viewer browser host", () => {
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
   });
 
-  it("orders local viewer topbar actions as Refresh Git CDX Insights Health", () => {
+  it("orders local viewer topbar actions as Settings Git CI CDX", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Refresh", "Git", "CDX", "Insights", "Health"]);
+    expect(labels).toEqual(["Settings", "Git", "CI", "CDX"]);
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {

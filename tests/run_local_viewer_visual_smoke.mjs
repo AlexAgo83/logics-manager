@@ -244,6 +244,14 @@ function browserExerciseScript(name) {
     };
     (async () => {
       if (window.acquireVsCodeApi) window.acquireVsCodeApi().postMessage({ type: "ready" });
+      await waitFor(() => text("#viewer-filter-count").includes("docs shown"), "payload");
+      if (document.querySelectorAll(".card[data-id]").length === 0) {
+        const focus = document.querySelector('[data-viewer-filter-group="focus"]');
+        if (focus instanceof HTMLSelectElement) {
+          focus.value = "all";
+          focus.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }
       await waitFor(() => document.querySelectorAll(".card[data-id]").length > 0, "cards");
       if (!text(".viewer-topbar").trim()) throw new Error("topbar blank");
       if (!text("#viewer-repo-pill").trim()) throw new Error("repo pill blank");

@@ -285,6 +285,9 @@
 | [req_224_add_progressive_reveal_to_git_history_commits](request/req_224_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done |  | request/req_224_add_progressive_reveal_to_git_history_commits.md |
 | [req_225_show_local_viewer_server_connection_status](request/req_225_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done |  | request/req_225_show_local_viewer_server_connection_status.md |
 | [req_226_show_github_actions_ci_status_in_local_viewer](request/req_226_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done |  | request/req_226_show_github_actions_ci_status_in_local_viewer.md |
+| [req_227_group_viewer_utility_actions_under_settings_menu](request/req_227_group_viewer_utility_actions_under_settings_menu.md) | Group viewer utility actions under settings menu | Done |  | request/req_227_group_viewer_utility_actions_under_settings_menu.md |
+| [req_228_show_active_assistant_indicator_on_cdx_button](request/req_228_show_active_assistant_indicator_on_cdx_button.md) | Show active assistant indicator on CDX button | Done |  | request/req_228_show_active_assistant_indicator_on_cdx_button.md |
+| [req_229_fix_collapsed_bottom_details_panel_empty_space](request/req_229_fix_collapsed_bottom_details_panel_empty_space.md) | Fix collapsed bottom details panel empty space | Done |  | request/req_229_fix_collapsed_bottom_details_panel_empty_space.md |
 
 ## Backlog
 
@@ -682,6 +685,9 @@
 | [item_390_add_progressive_reveal_to_git_history_commits](backlog/item_390_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done | 100% | backlog/item_390_add_progressive_reveal_to_git_history_commits.md |
 | [item_391_show_local_viewer_server_connection_status](backlog/item_391_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done | 100% | backlog/item_391_show_local_viewer_server_connection_status.md |
 | [item_392_show_github_actions_ci_status_in_local_viewer](backlog/item_392_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done | 100% | backlog/item_392_show_github_actions_ci_status_in_local_viewer.md |
+| [item_393_group_viewer_utility_actions_under_settings_menu](backlog/item_393_group_viewer_utility_actions_under_settings_menu.md) | Group viewer utility actions under settings menu | Done | 100% | backlog/item_393_group_viewer_utility_actions_under_settings_menu.md |
+| [item_394_show_active_assistant_indicator_on_cdx_button](backlog/item_394_show_active_assistant_indicator_on_cdx_button.md) | Show active assistant indicator on CDX button | Done | 100% | backlog/item_394_show_active_assistant_indicator_on_cdx_button.md |
+| [item_395_fix_collapsed_bottom_details_panel_empty_space](backlog/item_395_fix_collapsed_bottom_details_panel_empty_space.md) | Fix collapsed bottom details panel empty space | Done | 100% | backlog/item_395_fix_collapsed_bottom_details_panel_empty_space.md |
 
 ## Tasks
 
@@ -881,3 +887,6 @@
 | [task_198_add_progressive_reveal_to_git_history_commits](tasks/task_198_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done | 100% | tasks/task_198_add_progressive_reveal_to_git_history_commits.md |
 | [task_199_show_local_viewer_server_connection_status](tasks/task_199_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done | 100% | tasks/task_199_show_local_viewer_server_connection_status.md |
 | [task_200_show_github_actions_ci_status_in_local_viewer](tasks/task_200_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done | 100% | tasks/task_200_show_github_actions_ci_status_in_local_viewer.md |
+| [task_201_group_viewer_utility_actions_under_settings_menu](tasks/task_201_group_viewer_utility_actions_under_settings_menu.md) | Group viewer utility actions under settings menu | Done | 100% | tasks/task_201_group_viewer_utility_actions_under_settings_menu.md |
+| [task_202_show_active_assistant_indicator_on_cdx_button](tasks/task_202_show_active_assistant_indicator_on_cdx_button.md) | Show active assistant indicator on CDX button | Done | 100% | tasks/task_202_show_active_assistant_indicator_on_cdx_button.md |
+| [task_203_fix_collapsed_bottom_details_panel_empty_space](tasks/task_203_fix_collapsed_bottom_details_panel_empty_space.md) | Fix collapsed bottom details panel empty space | Done | 100% | tasks/task_203_fix_collapsed_bottom_details_panel_empty_space.md |

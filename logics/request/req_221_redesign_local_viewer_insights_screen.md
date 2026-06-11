@@ -1,7 +1,7 @@
 ## req_221_redesign_local_viewer_insights_screen - Redesign local viewer Insights screen
 > From version: 2.5.2 (linked)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 86%
 > Complexity: Medium

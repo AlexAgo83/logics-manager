@@ -1,7 +1,7 @@
 ## req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout - Fix bottom details panel width in narrow breakdown layout
 > From version: 2.5.2 (linked)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 86%
 > Complexity: Low

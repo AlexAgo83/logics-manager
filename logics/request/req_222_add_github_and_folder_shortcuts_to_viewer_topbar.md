@@ -1,7 +1,7 @@
 ## req_222_add_github_and_folder_shortcuts_to_viewer_topbar - Add GitHub and folder shortcuts to viewer topbar
 > From version: 2.5.2 (linked)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 86%
 > Complexity: Low

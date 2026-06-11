@@ -1,18 +1,18 @@
 ## task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout - Fix bottom details panel width in narrow breakdown layout
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout`
@@ -39,9 +39,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout`
+- Related request(s): `req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout`
 
 # AI Context
 - Summary: Implement fix bottom details panel width in narrow breakdown layout.

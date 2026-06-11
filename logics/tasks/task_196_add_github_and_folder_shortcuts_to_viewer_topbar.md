@@ -1,18 +1,18 @@
 ## task_196_add_github_and_folder_shortcuts_to_viewer_topbar - Add GitHub and folder shortcuts to viewer topbar
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_388_add_github_and_folder_shortcuts_to_viewer_topbar`
@@ -41,9 +41,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_196_add_github_and_folder_shortcuts_to_viewer_topbar.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_388_add_github_and_folder_shortcuts_to_viewer_topbar`
+- Related request(s): `req_222_add_github_and_folder_shortcuts_to_viewer_topbar`
 
 # AI Context
 - Summary: Implement add github and folder shortcuts to viewer topbar.

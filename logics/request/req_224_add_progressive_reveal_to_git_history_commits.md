@@ -1,7 +1,7 @@
 ## req_224_add_progressive_reveal_to_git_history_commits - Add progressive reveal to Git history commits
 > From version: 2.5.2 (linked)
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 96%
 > Confidence: 86%
 > Complexity: Low

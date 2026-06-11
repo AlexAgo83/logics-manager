@@ -1119,6 +1119,100 @@ def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
     return {"state": "ok", "message": "", "runs": [run for run in runs if isinstance(run, dict)]}
 
 
+def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not run_id:
+        return {"state": "error", "message": "Missing CDX run id.", "report": None}
+    if not cdx_which("cdx"):
+        return {"state": "unavailable", "message": "CDX executable is not available on PATH.", "report": None}
+    try:
+        result = _run_read_only_cdx(repo_root, ["run-report", run_id, "--json"], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX run report timed out.", "report": None}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX run-report: {exc}", "report": None}
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "CDX run-report failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "report": None}
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "message": "CDX run-report returned invalid JSON.", "report": None}
+    report = parsed.get("report") if isinstance(parsed, dict) else None
+    if not isinstance(report, dict):
+        return {"state": "invalid-json", "message": "CDX run-report JSON must include a report object.", "report": None}
+    return {"state": "ok", "message": "", "report": report}
+
+
+def _slugify_viewer_doc(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+    return slug[:80] or "cdx_code_review_findings"
+
+
+def _next_viewer_request_ref(repo_root: Path, title: str) -> str:
+    request_dir = repo_root / "logics" / "request"
+    highest = -1
+    if request_dir.is_dir():
+        for path in request_dir.glob("req_*.md"):
+            match = re.match(r"^req_(\d{3})_", path.stem)
+            if match:
+                highest = max(highest, int(match.group(1)))
+    return f"req_{highest + 1:03d}_{_slugify_viewer_doc(title)}"
+
+
+def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, Any]) -> dict[str, Any]:
+    report = report_payload.get("report") if isinstance(report_payload.get("report"), dict) else report_payload
+    run = report.get("run") if isinstance(report.get("run"), dict) else {}
+    task_report = report.get("task_report") if isinstance(report.get("task_report"), dict) else {}
+    run_id = str(run.get("run_id") or task_report.get("run_id") or "unknown")
+    findings = task_report.get("findings") if isinstance(task_report.get("findings"), list) else []
+    title = f"Address CDX code review findings for {run_id}"
+    ref = _next_viewer_request_ref(repo_root, title)
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True, exist_ok=True)
+    rel_path = f"logics/request/{ref}.md"
+    path = repo_root / rel_path
+    finding_lines = []
+    for index, finding in enumerate(findings, start=1):
+        if not isinstance(finding, dict):
+            continue
+        location = finding.get("path") or finding.get("file") or "unknown path"
+        if finding.get("line"):
+            location = f"{location}:{finding['line']}"
+        severity = finding.get("severity") or "unknown"
+        message = finding.get("message") or finding.get("title") or "Review finding"
+        finding_lines.append(f"- F{index} [{severity}] `{location}`: {message}")
+    if not finding_lines:
+        finding_lines.append("- No structured findings were reported. Review the CDX artifacts linked below.")
+    text = "\n".join([
+        f"## {ref} - {title}",
+        "> Status: Draft",
+        "> Understanding: 70%",
+        "> Confidence: 70%",
+        "> Complexity: Medium",
+        "> Theme: Code review follow-up",
+        "",
+        "# Needs",
+        f"- Follow up on CDX code-review run `{run_id}`.",
+        f"- Summary: {task_report.get('summary') or 'No structured summary provided.'}",
+        "",
+        "# Findings",
+        *finding_lines,
+        "",
+        "# Traceability",
+        f"- CDX run id: `{run_id}`",
+        f"- Transcript: `{(report.get('artifacts') or {}).get('transcript_path') or ''}`",
+        f"- Stdout: `{(report.get('artifacts') or {}).get('stdout_path') or ''}`",
+        "",
+        "# Acceptance Criteria",
+        "- AC1: Each actionable finding is reviewed and either fixed, documented as not applicable, or split into follow-up work.",
+        "- AC2: Validation evidence is added before closing this request.",
+        "",
+    ])
+    path.write_text(text, encoding="utf-8")
+    return {"id": ref, "path": rel_path, "title": title}
+
+
 def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
@@ -1258,6 +1352,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/cdx-runs":
             self._send_json({"ok": True, "payload": cdx_runs_payload(self.server.repo_root)})
             return
+        if route == "/api/cdx-run-report":
+            run_id = parse_qs(parsed.query).get("runId", [""])[0]
+            self._send_json({"ok": True, "payload": cdx_run_report_payload(self.server.repo_root, run_id)})
+            return
         if route == "/api/git-diff":
             params = parse_qs(parsed.query)
             rel_path = params.get("path", [""])[0]
@@ -1296,6 +1394,22 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": self.server.viewer_payload(), "bootstrap": bootstrap})
             except SystemExit as exc:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/cdx-report-request":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                report_payload = cdx_run_report_payload(self.server.repo_root, str(body.get("runId") or ""))
+                if report_payload.get("state") != "ok":
+                    self._send_error_json(HTTPStatus.BAD_GATEWAY, str(report_payload.get("message") or "Unable to load CDX report."))
+                    return
+                created = create_request_from_cdx_report(self.server.repo_root, report_payload)
+                self._send_json({"ok": True, "created": created, "payload": self.server.viewer_payload(selected_id=created["id"])})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return

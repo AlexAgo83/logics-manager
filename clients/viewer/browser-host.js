@@ -2197,6 +2197,7 @@
         <td>${escapeHtml(run.kind || "assistant")}</td>
         <td>${escapeHtml(run.session || "-")}</td>
         <td>${escapeHtml(run.cwd || "-")}</td>
+        <td><button class="viewer-cdx__mode" type="button" data-viewer-cdx-report="${escapeHtml(run.run_id || "")}">Report</button></td>
       </tr>
     `).join("");
     return `
@@ -2206,10 +2207,48 @@
           <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runs.length)} reported</span></div>
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
-              <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th></tr></thead>
-              <tbody>${rows || '<tr><td colspan="5" class="viewer-cdx__empty">No assistant runs reported.</td></tr>'}</tbody>
+              <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th><th>REPORT</th></tr></thead>
+              <tbody>${rows || '<tr><td colspan="6" class="viewer-cdx__empty">No assistant runs reported.</td></tr>'}</tbody>
             </table>
           </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderCdxReport(payload) {
+    if (!payload || payload.state !== "ok" || !payload.report) {
+      return `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("runs")}
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX run report is unavailable.")}</div>
+        </div>
+      `;
+    }
+    const report = payload.report || {};
+    const run = report.run || {};
+    const taskReport = report.task_report || {};
+    const findings = Array.isArray(taskReport.findings) ? taskReport.findings : [];
+    const findingRows = findings.map((finding, index) => {
+      const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
+      return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
+    }).join("");
+    const canCreate = taskReport.kind === "code-review";
+    return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("runs")}
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+          <ul class="viewer-cdx__list">
+            <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.run_id || taskReport.run_id || "-")}</strong></li>
+            <li class="viewer-cdx__row"><span>Kind</span><strong>${escapeHtml(taskReport.kind || run.kind || "assistant")}</strong></li>
+            <li class="viewer-cdx__row"><span>Summary</span><strong>${escapeHtml(taskReport.summary || "No summary reported.")}</strong></li>
+          </ul>
+          ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
+        </section>
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Findings</h2><span>${escapeHtml(findings.length)} reported</span></div>
+          <ul class="viewer-cdx__list">${findingRows || '<li class="viewer-cdx__empty">No structured findings reported.</li>'}</ul>
         </section>
       </div>
     `;
@@ -2270,6 +2309,38 @@
     }
     setDocument("CDX runs", renderCdxRuns(data.payload));
     setMeta(options.silent ? "CDX runs refreshed." : "CDX runs loaded.");
+  }
+
+  async function showCdxReport(runId) {
+    if (!runId) {
+      return;
+    }
+    setMeta("Loading CDX report...");
+    const response = await fetch(`/api/cdx-run-report?${new URLSearchParams({ runId }).toString()}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX report.");
+    }
+    setDocument("CDX run report", renderCdxReport(data.payload));
+    setMeta("CDX report loaded.");
+  }
+
+  async function createRequestFromCdxReport(runId) {
+    if (!runId) {
+      return;
+    }
+    setMeta("Creating Logics request from CDX report...");
+    const response = await fetch("/api/cdx-report-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ runId })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to create Logics request.");
+    }
+    postToApp(data.payload);
+    setMeta(`Created ${data.created?.id || "Logics request"} from CDX report.`);
   }
 
   function renderCiBadge(value) {
@@ -2814,6 +2885,16 @@
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+      const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
+      const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
+      if (cdxReportTarget instanceof HTMLElement) {
+        showCdxReport(cdxReportTarget.getAttribute("data-viewer-cdx-report") || "").catch((error) => setMeta(error.message));
+        return;
+      }
+      if (cdxCreateRequestTarget instanceof HTMLElement) {
+        createRequestFromCdxReport(cdxCreateRequestTarget.getAttribute("data-viewer-cdx-create-request") || "").catch((error) => setMeta(error.message));
+        return;
+      }
       if (cdxModeTarget instanceof HTMLElement) {
         const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
         if (mode === "runs") {

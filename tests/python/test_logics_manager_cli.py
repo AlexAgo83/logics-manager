@@ -24,10 +24,12 @@ from logics_manager.insights import followups_payload, health_payload, product_c
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
+    cdx_run_report_payload,
     cdx_runs_payload,
     cdx_status_payload,
     ci_status_payload,
     collect_viewer_items,
+    create_request_from_cdx_report,
     create_viewer_server,
     edit_doc_payload,
     github_repo_url,
@@ -668,6 +670,46 @@ def test_viewer_cdx_runs_payload_handles_unavailable_and_invalid_json(tmp_path: 
         return subprocess.CompletedProcess(args, 0, "{}", "")
 
     assert cdx_runs_payload(tmp_path, runner=invalid_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args[-3:] == ["run-report", "run-1", "--json"]
+        return subprocess.CompletedProcess(args, 0, json.dumps({
+            "ok": True,
+            "report": {
+                "run": {"run_id": "run-1", "status": "succeeded"},
+                "task_report": {"kind": "code-review", "summary": "One issue.", "findings": []},
+            },
+        }), "")
+
+    payload = cdx_run_report_payload(tmp_path, "run-1", runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload["state"] == "ok"
+    assert payload["report"]["run"]["run_id"] == "run-1"
+    assert payload["report"]["task_report"]["kind"] == "code-review"
+
+
+def test_create_request_from_cdx_report_writes_traceable_request(tmp_path: Path) -> None:
+    report = {
+        "report": {
+            "run": {"run_id": "run-1", "status": "succeeded"},
+            "artifacts": {"transcript_path": "/tmp/run.log", "stdout_path": "/tmp/run.out"},
+            "task_report": {
+                "kind": "code-review",
+                "run_id": "run-1",
+                "summary": "One issue.",
+                "findings": [{"severity": "high", "path": "src/app.py", "line": 12, "message": "Missing validation."}],
+            },
+        }
+    }
+
+    created = create_request_from_cdx_report(tmp_path, report)
+
+    assert created["id"].startswith("req_000_address_cdx_code_review_findings")
+    text = (tmp_path / created["path"]).read_text(encoding="utf-8")
+    assert "CDX run id: `run-1`" in text
+    assert "`src/app.py:12`: Missing validation." in text
 
 
 def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Path) -> None:

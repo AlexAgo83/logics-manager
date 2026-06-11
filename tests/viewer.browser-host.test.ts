@@ -362,6 +362,58 @@ function createViewerDom(options: {
           })
         };
       }
+      if (String(url).startsWith("/api/cdx-run-report")) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              report: {
+                run: { run_id: "run-1", status: "succeeded", kind: "code-review" },
+                artifacts: { transcript_path: "/tmp/run.log", stdout_path: "/tmp/run.out" },
+                task_report: {
+                  kind: "code-review",
+                  run_id: "run-1",
+                  summary: "One issue found.",
+                  findings: [{ severity: "high", path: "src/app.py", line: 12, message: "Missing validation." }]
+                }
+              }
+            }
+          })
+        };
+      }
+      if (url === "/api/cdx-report-request") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            created: { id: "req_999_address_cdx_code_review_findings", path: "logics/request/req_999_address_cdx_code_review_findings.md" },
+            payload: {
+              root: "/workspace/logics-manager",
+              repoName: "logics-manager",
+              repository: { root: "/workspace/logics-manager", githubUrl: "https://github.com/AlexAgo83/logics-manager" },
+              capabilities: options.capabilities ?? {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                git: { state: "ready", available: true, message: "Git repository detected." },
+                ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+                cdx: { state: "ready", available: true, message: "CDX executable detected." },
+                cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+              },
+              projects: [
+                { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
+              ],
+              autoRefreshIntervalSeconds: 15,
+              selectedId: "req_999_address_cdx_code_review_findings",
+              items: [
+                { id: "req_999_address_cdx_code_review_findings", title: "Address CDX code review findings", stage: "request", relPath: "logics/request/req_999_address_cdx_code_review_findings.md", references: [], usedBy: [], indicators: { Status: "Draft" }, isPromoted: false, updatedAt: "2026-06-04T10:00:00" }
+              ],
+              updateInfo: {}
+            }
+          })
+        };
+      }
       if (String(url).startsWith("/api/git-diff")) {
         return {
           ok: true,
@@ -1016,6 +1068,31 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Assistant runs");
     expect(text).toContain("run-1");
     expect(text).toContain("code-review");
+  });
+
+  it("opens a CDX run report and creates a Logics request from findings", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.some((call) => call.startsWith("/api/cdx-run-report"))).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Missing validation.");
+
+    dom.window.document.querySelector('[data-viewer-cdx-create-request="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-report-request");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

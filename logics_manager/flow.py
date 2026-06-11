@@ -800,6 +800,8 @@ def _workflow_mermaid_block(kind: str, signature: str) -> list[str]:
 
 
 def _with_workflow_mermaid_overview(kind: str, content: str) -> str:
+    if kind == "task":
+        return content
     lines = content.rstrip().splitlines()
     signature = expected_workflow_mermaid_signature(kind, lines)
     if not signature:
@@ -995,6 +997,8 @@ def _mermaid_closeout_issue(path: Path, kind: str) -> str | None:
     text = path.read_text(encoding="utf-8")
     match = re.search(r"```mermaid\s*\n(.*?)\n```", text, flags=re.DOTALL)
     if match is None:
+        if kind == "task":
+            return None
         return "missing Mermaid overview block"
     signature_match = re.search(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", match.group(1), flags=re.MULTILINE)
     expected = expected_workflow_mermaid_signature(kind, text.splitlines())
@@ -1625,7 +1629,7 @@ def _build_native_task_doc(
             "",
         ]
     ).rstrip() + "\n"
-    return _with_workflow_mermaid_overview("task", content)
+    return content
 
 
 def _extract_doc_title(path: Path) -> str:
@@ -2183,7 +2187,7 @@ def _build_native_task_from_backlog(
             "",
         ]
     ).rstrip() + "\n"
-    return ref, _with_workflow_mermaid_overview("task", content)
+    return ref, content
 
 
 def build_parser() -> argparse.ArgumentParser:

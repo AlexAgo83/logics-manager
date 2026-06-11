@@ -2951,7 +2951,7 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     assert "> Related task: `task_001_demo`" in product_text
     assert "```mermaid" in request_text
     assert "```mermaid" in backlog_text
-    assert "```mermaid" in task_text
+    assert "```mermaid" not in task_text
 
 
 def test_repair_ac_traceability_records_explicit_proof(

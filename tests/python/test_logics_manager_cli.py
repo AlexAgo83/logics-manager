@@ -25,6 +25,7 @@ from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
     cdx_status_payload,
+    ci_status_payload,
     collect_viewer_items,
     create_viewer_server,
     edit_doc_payload,
@@ -315,6 +316,111 @@ def test_viewer_repository_shortcuts_hide_non_github_remotes(tmp_path: Path) -> 
     assert github_repo_url(tmp_path, which=lambda _name: None) == ""
 
 
+def test_viewer_ci_status_payload_hides_without_github_actions(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(tmp_path, git_runner=runner, which=lambda name: "/usr/bin/tool" if name == "git" else None)
+
+    assert payload["state"] == "hidden"
+    assert payload["visible"] is False
+    assert payload["message"] == "No GitHub Actions workflows detected."
+
+
+def test_viewer_ci_status_payload_reports_unavailable_without_gh(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(tmp_path, git_runner=runner, which=lambda name: "/usr/bin/git" if name == "git" else None)
+
+    assert payload["state"] == "unavailable"
+    assert payload["visible"] is True
+    assert payload["badgeState"] == "unavailable"
+    assert payload["repositoryUrl"] == "https://github.com/Example/repo"
+
+
+def test_viewer_ci_status_payload_reads_github_actions_runs(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+    gh_calls: list[list[str]] = []
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "feature/demo\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "abc123\n", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%s"]:
+            return subprocess.CompletedProcess(args, 0, "Implement CI view", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%an"]:
+            return subprocess.CompletedProcess(args, 0, "Alex", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        gh_calls.append(args)
+        if args[:2] == ["gh", "api"] and args[2].startswith("repos/Example/repo/actions/runs?"):
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {
+                                "id": 42,
+                                "name": "CI",
+                                "status": "completed",
+                                "conclusion": "failure",
+                                "head_branch": "feature/demo",
+                                "head_sha": "abc123",
+                                "event": "push",
+                                "html_url": "https://github.com/Example/repo/actions/runs/42",
+                                "created_at": "2026-06-11T10:00:00Z",
+                                "updated_at": "2026-06-11T10:03:00Z",
+                                "run_started_at": "2026-06-11T10:01:00Z",
+                                "head_commit": {"message": "Implement CI view\n\nbody", "author": {"name": "Alex"}},
+                            }
+                        ]
+                    }
+                ),
+                "",
+            )
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/runs/42/jobs?per_page=100":
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps({"jobs": [{"name": "test", "status": "completed", "conclusion": "failure", "html_url": "https://github.com/Example/repo/actions/runs/42/job/1"}]}),
+                "",
+            )
+        raise AssertionError(args)
+
+    payload = ci_status_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["visible"] is True
+    assert payload["branch"] == "feature/demo"
+    assert payload["headSha"] == "abc123"
+    assert payload["badgeState"] == "failing"
+    assert payload["run"]["matchSource"] == "head"
+    assert payload["run"]["commitMessage"] == "Implement CI view"
+    assert payload["jobs"] == [{"name": "test", "status": "completed", "conclusion": "failure", "htmlUrl": "https://github.com/Example/repo/actions/runs/42/job/1", "startedAt": "", "completedAt": ""}]
+    assert ["gh", "api", "repos/Example/repo/actions/runs?per_page=10&branch=feature%2Fdemo"] in gh_calls
+
+
 def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 
@@ -411,7 +517,7 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "", "")
-        if args[1:] == ["log", "-8", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-50", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")

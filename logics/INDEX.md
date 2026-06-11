@@ -54,7 +54,7 @@
 | [prod_019_closeout_evidence_hardening_and_modularity_roadmap](product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md) | Closeout evidence hardening and modularity roadmap | Settled |  | product/prod_019_closeout_evidence_hardening_and_modularity_roadmap.md |
 | [prod_020_local_web_viewer_for_cli_driven_logics_work](product/prod_020_local_web_viewer_for_cli_driven_logics_work.md) | Local web viewer for CLI-driven Logics work | Settled |  | product/prod_020_local_web_viewer_for_cli_driven_logics_work.md |
 | [prod_021_git_cockpit_for_the_local_viewer](product/prod_021_git_cockpit_for_the_local_viewer.md) | Git cockpit for the local viewer | Settled |  | product/prod_021_git_cockpit_for_the_local_viewer.md |
-| [prod_022_cdx_status_cockpit_for_the_local_viewer](product/prod_022_cdx_status_cockpit_for_the_local_viewer.md) | CDX status cockpit for the local viewer | Accepted |  | product/prod_022_cdx_status_cockpit_for_the_local_viewer.md |
+| [prod_022_cdx_status_cockpit_for_the_local_viewer](product/prod_022_cdx_status_cockpit_for_the_local_viewer.md) | CDX status cockpit for the local viewer | Settled |  | product/prod_022_cdx_status_cockpit_for_the_local_viewer.md |
 
 ## Requests
 
@@ -279,6 +279,12 @@
 | [req_218_add_a_git_cockpit_to_the_local_viewer](request/req_218_add_a_git_cockpit_to_the_local_viewer.md) | Add a Git cockpit to the local viewer | Done |  | request/req_218_add_a_git_cockpit_to_the_local_viewer.md |
 | [req_219_add_a_cdx_status_cockpit_to_the_local_viewer](request/req_219_add_a_cdx_status_cockpit_to_the_local_viewer.md) | Add a CDX status cockpit to the local viewer | Done |  | request/req_219_add_a_cdx_status_cockpit_to_the_local_viewer.md |
 | [req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes](request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md) | Add Git notification badges for unpushed commits and uncommitted changes | Done |  | request/req_220_add_git_notification_badges_for_unpushed_commits_and_uncommitted_changes.md |
+| [req_221_redesign_local_viewer_insights_screen](request/req_221_redesign_local_viewer_insights_screen.md) | Redesign local viewer Insights screen | Done |  | request/req_221_redesign_local_viewer_insights_screen.md |
+| [req_222_add_github_and_folder_shortcuts_to_viewer_topbar](request/req_222_add_github_and_folder_shortcuts_to_viewer_topbar.md) | Add GitHub and folder shortcuts to viewer topbar | Done |  | request/req_222_add_github_and_folder_shortcuts_to_viewer_topbar.md |
+| [req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout](request/req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md) | Fix bottom details panel width in narrow breakdown layout | Done |  | request/req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md |
+| [req_224_add_progressive_reveal_to_git_history_commits](request/req_224_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done |  | request/req_224_add_progressive_reveal_to_git_history_commits.md |
+| [req_225_show_local_viewer_server_connection_status](request/req_225_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done |  | request/req_225_show_local_viewer_server_connection_status.md |
+| [req_226_show_github_actions_ci_status_in_local_viewer](request/req_226_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done |  | request/req_226_show_github_actions_ci_status_in_local_viewer.md |
 
 ## Backlog
 
@@ -670,6 +676,12 @@
 | [item_384_compute_git_badge_counters_on_refresh](backlog/item_384_compute_git_badge_counters_on_refresh.md) | Compute Git badge counters on refresh | Done | 100% | backlog/item_384_compute_git_badge_counters_on_refresh.md |
 | [item_385_track_git_badge_visibility_and_viewed_state](backlog/item_385_track_git_badge_visibility_and_viewed_state.md) | Track Git badge visibility and viewed state | Done | 100% | backlog/item_385_track_git_badge_visibility_and_viewed_state.md |
 | [item_386_render_git_notification_badges_in_the_ui](backlog/item_386_render_git_notification_badges_in_the_ui.md) | Render Git notification badges in the UI | Done | 100% | backlog/item_386_render_git_notification_badges_in_the_ui.md |
+| [item_387_redesign_local_viewer_insights_screen](backlog/item_387_redesign_local_viewer_insights_screen.md) | Redesign local viewer Insights screen | Done | 100% | backlog/item_387_redesign_local_viewer_insights_screen.md |
+| [item_388_add_github_and_folder_shortcuts_to_viewer_topbar](backlog/item_388_add_github_and_folder_shortcuts_to_viewer_topbar.md) | Add GitHub and folder shortcuts to viewer topbar | Done | 100% | backlog/item_388_add_github_and_folder_shortcuts_to_viewer_topbar.md |
+| [item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout](backlog/item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md) | Fix bottom details panel width in narrow breakdown layout | Done | 100% | backlog/item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md |
+| [item_390_add_progressive_reveal_to_git_history_commits](backlog/item_390_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done | 100% | backlog/item_390_add_progressive_reveal_to_git_history_commits.md |
+| [item_391_show_local_viewer_server_connection_status](backlog/item_391_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done | 100% | backlog/item_391_show_local_viewer_server_connection_status.md |
+| [item_392_show_github_actions_ci_status_in_local_viewer](backlog/item_392_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done | 100% | backlog/item_392_show_github_actions_ci_status_in_local_viewer.md |
 
 ## Tasks
 
@@ -863,3 +875,9 @@
 | [task_192_render_the_unpushed_commits_badge_on_the_git_history_control](tasks/task_192_render_the_unpushed_commits_badge_on_the_git_history_control.md) | Render the unpushed commits badge on the Git History control | Done | 100% | tasks/task_192_render_the_unpushed_commits_badge_on_the_git_history_control.md |
 | [task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available](tasks/task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available.md) | Render the uncommitted changes badge on the changes surface when available | Done | 100% | tasks/task_193_render_the_uncommitted_changes_badge_on_the_changes_surface_when_available.md |
 | [task_194_add_badge_colors_placement_and_hover_tooltips](tasks/task_194_add_badge_colors_placement_and_hover_tooltips.md) | Add badge colors, placement, and hover tooltips | Done | 100% | tasks/task_194_add_badge_colors_placement_and_hover_tooltips.md |
+| [task_195_redesign_local_viewer_insights_screen](tasks/task_195_redesign_local_viewer_insights_screen.md) | Redesign local viewer Insights screen | Done | 100% | tasks/task_195_redesign_local_viewer_insights_screen.md |
+| [task_196_add_github_and_folder_shortcuts_to_viewer_topbar](tasks/task_196_add_github_and_folder_shortcuts_to_viewer_topbar.md) | Add GitHub and folder shortcuts to viewer topbar | Done | 100% | tasks/task_196_add_github_and_folder_shortcuts_to_viewer_topbar.md |
+| [task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout](tasks/task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md) | Fix bottom details panel width in narrow breakdown layout | Done | 100% | tasks/task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout.md |
+| [task_198_add_progressive_reveal_to_git_history_commits](tasks/task_198_add_progressive_reveal_to_git_history_commits.md) | Add progressive reveal to Git history commits | Done | 100% | tasks/task_198_add_progressive_reveal_to_git_history_commits.md |
+| [task_199_show_local_viewer_server_connection_status](tasks/task_199_show_local_viewer_server_connection_status.md) | Show local viewer server connection status | Done | 100% | tasks/task_199_show_local_viewer_server_connection_status.md |
+| [task_200_show_github_actions_ci_status_in_local_viewer](tasks/task_200_show_github_actions_ci_status_in_local_viewer.md) | Show GitHub Actions CI status in local viewer | Done | 100% | tasks/task_200_show_github_actions_ci_status_in_local_viewer.md |

@@ -15,6 +15,7 @@
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
+  const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
@@ -49,6 +50,7 @@
   let mermaidInitialized = false;
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+  let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
   let connectionState = "connected";
   let lastSuccessfulSyncAt = 0;
 
@@ -364,6 +366,85 @@
     }
   }
 
+  function ciBadgeTone(value) {
+    const state = String(value || "").toLowerCase();
+    if (state === "passing") {
+      return "passing";
+    }
+    if (state === "failing") {
+      return "failing";
+    }
+    if (state === "running" || state === "queued") {
+      return "running";
+    }
+    if (state === "cancelled") {
+      return "cancelled";
+    }
+    if (state === "unavailable") {
+      return "unavailable";
+    }
+    return "unknown";
+  }
+
+  function ciBadgeLabel(value) {
+    const state = ciBadgeTone(value);
+    if (state === "passing") {
+      return "pass";
+    }
+    if (state === "failing") {
+      return "fail";
+    }
+    if (state === "running") {
+      return String(value || "").toLowerCase() === "queued" ? "queue" : "run";
+    }
+    if (state === "cancelled") {
+      return "cancel";
+    }
+    if (state === "unavailable") {
+      return "auth";
+    }
+    return "n/a";
+  }
+
+  function renderCiButtonBadge(payload) {
+    const state = payload?.badgeState || payload?.state || "unknown";
+    const label = ciBadgeLabel(state);
+    const tone = ciBadgeTone(state);
+    return `<span class="viewer-ci-badge viewer-ci-badge--${escapeHtml(tone)}" data-viewer-ci-badge title="${escapeHtml(payload?.message || `CI ${label}`)}">${escapeHtml(label)}</span>`;
+  }
+
+  function updateMainCiBadge(payload = latestCiStatus) {
+    latestCiStatus = payload && typeof payload === "object" ? payload : { visible: false, badgeState: "unknown", message: "" };
+    const button = ciButton();
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    button.querySelector("[data-viewer-ci-badge]")?.remove();
+    if (!latestCiStatus.visible) {
+      button.hidden = true;
+      return;
+    }
+    button.hidden = false;
+    button.title = latestCiStatus.message || "Show GitHub Actions CI status";
+    button.insertAdjacentHTML("beforeend", renderCiButtonBadge(latestCiStatus));
+  }
+
+  async function refreshCiBadgeCounters() {
+    try {
+      const response = await fetch("/api/ci-status");
+      if (response.status === 404) {
+        updateMainCiBadge({ visible: false, badgeState: "unknown", message: "CI status endpoint unavailable." });
+        return;
+      }
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        updateMainCiBadge(data.payload);
+      }
+    } catch {
+      updateMainCiBadge({ visible: false, badgeState: "unknown", message: "CI status unavailable." });
+    }
+  }
+
   function setGitBadgeCountsFromPayload(payload, options = {}) {
     latestGitBadgeCounts = normalizeGitBadgeCounts(payload);
     if (options.updateMain !== false) {
@@ -637,6 +718,7 @@
     }
     scheduleNextAutoRefresh();
     renderUpdateNotice(payload.updateInfo);
+    refreshCiBadgeCounters();
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
@@ -701,10 +783,18 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "CDX status");
   }
 
+  function isCiStatusOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CI status");
+  }
+
   async function refreshViewer(method = "POST", options = {}) {
     await loadItems(method, options);
     if (isGitStatusOpen()) {
       await showGitStatus({ preserve: true, silent: Boolean(options.silent) });
+    } else if (isCiStatusOpen()) {
+      await showCiStatus({ silent: Boolean(options.silent) });
     } else if (isCdxStatusOpen()) {
       await showCdxStatus({ silent: Boolean(options.silent) });
     } else if (method === "POST") {
@@ -1851,6 +1941,103 @@
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
   }
 
+  function renderCiBadge(value) {
+    const tone = ciBadgeTone(value);
+    return `<span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(tone)}">${escapeHtml(ciBadgeLabel(value))}</span>`;
+  }
+
+  function formatCiDate(value) {
+    const timestamp = Date.parse(String(value || ""));
+    if (!Number.isFinite(timestamp)) {
+      return "";
+    }
+    return new Date(timestamp).toLocaleString();
+  }
+
+  function renderCiStatus(payload) {
+    if (!payload || !payload.visible) {
+      return `
+        <div class="viewer-ci">
+          <div class="viewer-ci__state">${escapeHtml(payload?.message || "GitHub Actions CI is not configured for this repository.")}</div>
+        </div>
+      `;
+    }
+    const run = payload.run && typeof payload.run === "object" ? payload.run : null;
+    const jobs = Array.isArray(payload.jobs) ? payload.jobs : [];
+    const state = payload.badgeState || run?.badgeState || payload.state || "unknown";
+    const cards = renderMetricCards([
+      ["State", ciBadgeLabel(state)],
+      ["Branch", run?.branch || payload.branch || "Unknown"],
+      ["Commit", (run?.headSha || payload.headSha || "").slice(0, 7) || "Unknown"],
+      ["Match", run?.matchSource === "head" ? "Current HEAD" : "Latest branch run"]
+    ]);
+    const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in GitHub</a>` : "";
+    const runRows = run ? [
+      ["Workflow", run.workflowName || run.name || "GitHub Actions"],
+      ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
+      ["Event", run.event || "Unknown"],
+      ["Commit", run.commitMessage || payload.subject || "Unknown"],
+      ["Author", run.author || payload.author || "Unknown"],
+      ["Started", formatCiDate(run.runStartedAt || run.createdAt) || "Unknown"],
+      ["Updated", formatCiDate(run.updatedAt) || "Unknown"]
+    ].map(([label, value]) => `
+      <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
+    `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || "No GitHub Actions run found for this branch.")}</li>`;
+    const jobRows = jobs.length ? jobs.map((job) => {
+      const jobState = ciBadgeTone(job.conclusion || job.status);
+      const content = `
+        <span>${escapeHtml(job.name || "Job")}</span>
+        <strong>${escapeHtml([job.status, job.conclusion].filter(Boolean).join(" / ") || "unknown")}</strong>
+      `;
+      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
+    }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
+    return `
+      <div class="viewer-ci">
+        <div class="viewer-ci__summary">${cards}</div>
+        <div class="viewer-ci__workspace">
+          <section class="viewer-ci__section">
+            <div class="viewer-ci__heading"><h2>Latest run</h2>${renderCiBadge(state)}</div>
+            <ul class="viewer-ci__list">${runRows}</ul>
+            ${runUrl}
+          </section>
+          <section class="viewer-ci__section">
+            <div class="viewer-ci__heading"><h2>Jobs</h2><span>${escapeHtml(jobs.length)} reported</span></div>
+            <ul class="viewer-ci__jobs">${jobRows}</ul>
+          </section>
+        </div>
+      </div>
+    `;
+  }
+
+  async function showCiStatus(options = {}) {
+    if (!options.silent) {
+      setMeta("Checking CI status...");
+    }
+    const response = await fetch("/api/ci-status");
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (response.status === 404) {
+      setDocument("CI status", renderCiStatus({
+        visible: true,
+        state: "unavailable",
+        badgeState: "unavailable",
+        message: "CI status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
+      }));
+      setMeta("Restart the local viewer to enable CI status.");
+      return;
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CI status.");
+    }
+    updateMainCiBadge(data.payload);
+    setDocument("CI status", renderCiStatus(data.payload));
+    setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
+  }
+
   function renderGitStatus(payload) {
     if (!payload || payload.state !== "ok") {
       return `
@@ -2226,6 +2413,9 @@
     });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
       showGitStatus().catch((error) => setMeta(error.message));
+    });
+    ciButton()?.addEventListener("click", () => {
+      showCiStatus().catch((error) => setMeta(error.message));
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       showCdxStatus().catch((error) => setMeta(error.message));

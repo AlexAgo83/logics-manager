@@ -1,7 +1,7 @@
 ## req_226_show_github_actions_ci_status_in_local_viewer - Show GitHub Actions CI status in local viewer
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

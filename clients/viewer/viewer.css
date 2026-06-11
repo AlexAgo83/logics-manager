@@ -123,6 +123,47 @@
   color: #f59e0b;
 }
 
+.viewer-ci-badge {
+  display: inline-grid;
+  min-width: 18px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-radius: 999px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.viewer-ci-badge--passing,
+.viewer-ci__badge--passing {
+  background: rgba(34, 197, 94, 0.14);
+  color: #22c55e;
+}
+
+.viewer-ci-badge--failing,
+.viewer-ci__badge--failing {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+}
+
+.viewer-ci-badge--running,
+.viewer-ci__badge--running {
+  background: rgba(245, 158, 11, 0.16);
+  color: #f59e0b;
+}
+
+.viewer-ci-badge--cancelled,
+.viewer-ci-badge--unavailable,
+.viewer-ci-badge--unknown,
+.viewer-ci__badge--cancelled,
+.viewer-ci__badge--unavailable,
+.viewer-ci__badge--unknown {
+  background: color-mix(in srgb, var(--vscode-descriptionForeground, #aaaaaa) 14%, transparent);
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
 .viewer-refresh-menu {
   position: relative;
   display: inline-flex;
@@ -452,6 +493,7 @@
 
 .viewer-git__summary,
 .viewer-cdx__summary,
+.viewer-ci__summary,
 .viewer-insights__summary,
 .viewer-health__summary {
   display: grid;
@@ -464,6 +506,114 @@
   grid-template-columns: minmax(280px, 1.35fr) minmax(240px, 0.85fr);
   gap: 12px;
   align-items: start;
+}
+
+.viewer-ci {
+  display: grid;
+  gap: 12px;
+}
+
+.viewer-ci__workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(240px, 0.85fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.viewer-ci__section {
+  min-width: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  padding: 12px;
+}
+
+.viewer-ci__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.viewer-ci__heading h2 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.viewer-ci__heading span {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
+.viewer-ci__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.viewer-ci__list,
+.viewer-ci__jobs {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer-ci__row,
+.viewer-ci__job,
+.viewer-ci__empty {
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #333333) 74%, transparent);
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: var(--vscode-sideBar-background, #252526);
+  font-size: 12px;
+}
+
+.viewer-ci__row,
+.viewer-ci__job,
+.viewer-ci__job a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.viewer-ci__job a {
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.viewer-ci__row span,
+.viewer-ci__job span {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-ci__row strong,
+.viewer-ci__job strong {
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.viewer-ci__link {
+  display: inline-flex;
+  margin-top: 10px;
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font-size: 12px;
+}
+
+.viewer-ci__state,
+.viewer-ci__empty {
+  color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
 .viewer-cdx__stack {
@@ -1016,6 +1166,10 @@
   }
 
   .viewer-git__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-ci__workspace {
     grid-template-columns: 1fr;
   }
 }

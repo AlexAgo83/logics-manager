@@ -1,18 +1,18 @@
 ## task_200_show_github_actions_ci_status_in_local_viewer - Show GitHub Actions CI status in local viewer
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_392_show_github_actions_ci_status_in_local_viewer`
@@ -66,9 +66,14 @@ flowchart TD
 - Manually verify CI button hidden when no workflows are configured.
 - Manually verify CI button visible with badge when GitHub Actions is configured.
 - Run `logics-manager flow finish task logics/tasks/task_200_show_github_actions_ci_status_in_local_viewer.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Pending implementation.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_392_show_github_actions_ci_status_in_local_viewer`
+- Related request(s): `req_226_show_github_actions_ci_status_in_local_viewer`
 
 # AI Context
 - Summary: Implement show github actions ci status in local viewer.

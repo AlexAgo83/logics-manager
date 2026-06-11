@@ -1,10 +1,10 @@
 ## item_392_show_github_actions_ci_status_in_local_viewer - Show GitHub Actions CI status in local viewer
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -87,6 +87,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_226_show_github_actions_ci_status_in_local_viewer` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_226_show_github_actions_ci_status_in_local_viewer.md`.
 - Generated locally by logics-manager.
+- Task `task_200_show_github_actions_ci_status_in_local_viewer` was finished via `logics-manager flow finish task` on 2026-06-11.
 
 # Tasks
 - `task_200_show_github_actions_ci_status_in_local_viewer`

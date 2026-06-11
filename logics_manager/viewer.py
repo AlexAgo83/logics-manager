@@ -427,6 +427,12 @@ def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None =
     return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
 
 
+def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["gh", *args]
+    gh_runner = runner or subprocess.run
+    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=8)
+
+
 def _logics_doc_type(rel_path: str) -> str:
     normalized = rel_path.replace("\\", "/").lstrip("/")
     for family in DOC_FAMILIES:
@@ -458,6 +464,14 @@ def _github_web_url_from_remote(value: str) -> str:
     return f"https://github.com/{owner}/{repo}"
 
 
+def _github_owner_repo_from_web_url(value: str) -> tuple[str, str] | None:
+    match = re.match(r"^https://github\.com/([^/\s]+)/([^/\s]+?)/?$", value.strip())
+    if not match:
+        return None
+    owner, repo = match.groups()
+    return owner, repo
+
+
 def github_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
     git_which = which or shutil.which
     if not git_which("git"):
@@ -481,6 +495,13 @@ def github_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | 
     if not candidates:
         return ""
     return sorted(candidates, key=lambda entry: entry[0])[0][1]
+
+
+def _has_github_actions_workflows(repo_root: Path) -> bool:
+    workflows_dir = repo_root / ".github" / "workflows"
+    if not workflows_dir.is_dir():
+        return False
+    return any(path.is_file() and path.suffix.lower() in {".yml", ".yaml"} for path in workflows_dir.iterdir())
 
 
 def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
@@ -734,6 +755,164 @@ def git_diff_payload(
     }
 
 
+def _current_git_ci_context(repo_root: Path, *, runner: Any | None = None) -> dict[str, str]:
+    context = {"branch": "", "headSha": "", "subject": "", "author": ""}
+    commands = {
+        "branch": ["rev-parse", "--abbrev-ref", "HEAD"],
+        "headSha": ["rev-parse", "HEAD"],
+        "subject": ["log", "-1", "--pretty=format:%s"],
+        "author": ["log", "-1", "--pretty=format:%an"],
+    }
+    for key, args in commands.items():
+        try:
+            result = _run_read_only_git(repo_root, args, runner=runner)
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if result.returncode == 0:
+            context[key] = result.stdout.strip()[:240]
+    if context["branch"] == "HEAD":
+        context["branch"] = ""
+    return context
+
+
+def _ci_badge_state(status: str, conclusion: str) -> str:
+    normalized_status = status.strip().lower()
+    normalized_conclusion = conclusion.strip().lower()
+    if normalized_status in {"queued", "in_progress", "waiting", "requested", "pending"}:
+        return "running" if normalized_status == "in_progress" else "queued"
+    if normalized_conclusion == "success":
+        return "passing"
+    if normalized_conclusion in {"failure", "timed_out", "action_required"}:
+        return "failing"
+    if normalized_conclusion == "cancelled":
+        return "cancelled"
+    return "unknown"
+
+
+def _parse_github_actions_run(run: dict[str, Any], *, match_source: str) -> dict[str, Any]:
+    status = str(run.get("status") or "")
+    conclusion = str(run.get("conclusion") or "")
+    commit = run.get("head_commit") if isinstance(run.get("head_commit"), dict) else {}
+    author = commit.get("author") if isinstance(commit.get("author"), dict) else {}
+    return {
+        "id": run.get("id"),
+        "name": str(run.get("name") or run.get("display_title") or "GitHub Actions"),
+        "workflowName": str(run.get("name") or "GitHub Actions"),
+        "status": status,
+        "conclusion": conclusion,
+        "badgeState": _ci_badge_state(status, conclusion),
+        "branch": str(run.get("head_branch") or ""),
+        "headSha": str(run.get("head_sha") or ""),
+        "event": str(run.get("event") or ""),
+        "htmlUrl": str(run.get("html_url") or ""),
+        "createdAt": str(run.get("created_at") or ""),
+        "updatedAt": str(run.get("updated_at") or ""),
+        "runStartedAt": str(run.get("run_started_at") or ""),
+        "commitMessage": str(commit.get("message") or run.get("display_title") or "").splitlines()[0][:240],
+        "author": str(author.get("name") or ""),
+        "matchSource": match_source,
+    }
+
+
+def _parse_github_actions_jobs(output: str) -> list[dict[str, str]]:
+    try:
+        parsed = json.loads(output or "{}")
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(parsed, dict):
+        return []
+    jobs = parsed.get("jobs")
+    if not isinstance(jobs, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for job in jobs[:30]:
+        if not isinstance(job, dict):
+            continue
+        rows.append(
+            {
+                "name": str(job.get("name") or "Job"),
+                "status": str(job.get("status") or ""),
+                "conclusion": str(job.get("conclusion") or ""),
+                "htmlUrl": str(job.get("html_url") or ""),
+                "startedAt": str(job.get("started_at") or ""),
+                "completedAt": str(job.get("completed_at") or ""),
+            }
+        )
+    return rows
+
+
+def ci_status_payload(repo_root: Path, *, git_runner: Any | None = None, gh_runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    git_which = which or shutil.which
+    github_url = github_repo_url(repo_root, runner=git_runner, which=git_which)
+    if not github_url:
+        return {"state": "hidden", "visible": False, "message": "No GitHub remote detected."}
+    owner_repo = _github_owner_repo_from_web_url(github_url)
+    if not owner_repo:
+        return {"state": "hidden", "visible": False, "message": "GitHub remote could not be parsed."}
+    if not _has_github_actions_workflows(repo_root):
+        return {"state": "hidden", "visible": False, "message": "No GitHub Actions workflows detected."}
+    if not git_which("gh"):
+        return {
+            "state": "unavailable",
+            "visible": True,
+            "message": "GitHub CLI is not available on PATH.",
+            "repositoryUrl": github_url,
+            "badgeState": "unavailable",
+        }
+
+    owner, repo = owner_repo
+    context = _current_git_ci_context(repo_root, runner=git_runner)
+    branch = context.get("branch", "")
+    head_sha = context.get("headSha", "")
+    endpoint = f"repos/{owner}/{repo}/actions/runs?per_page=10"
+    if branch:
+        endpoint = f"{endpoint}&branch={quote(branch, safe='')}"
+    try:
+        runs_result = _run_read_only_gh(repo_root, ["api", endpoint], runner=gh_runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "visible": True, "message": "GitHub Actions status timed out.", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "visible": True, "message": f"Unable to collect GitHub Actions status: {exc}", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+    if runs_result.returncode != 0:
+        message = (runs_result.stderr or runs_result.stdout or "GitHub Actions status failed.").strip().splitlines()[0]
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+
+    try:
+        parsed = json.loads(runs_result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "visible": True, "message": "GitHub Actions status returned invalid JSON.", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+    workflow_runs = parsed.get("workflow_runs") if isinstance(parsed, dict) else None
+    runs = [run for run in workflow_runs if isinstance(run, dict)] if isinstance(workflow_runs, list) else []
+    if not runs:
+        return {"state": "ok", "visible": True, "message": "No GitHub Actions runs found for the current branch.", "repositoryUrl": github_url, **context, "badgeState": "unknown", "run": None, "jobs": []}
+
+    selected = next((run for run in runs if head_sha and str(run.get("head_sha") or "") == head_sha), None)
+    match_source = "head" if selected else "branch-latest"
+    if selected is None:
+        selected = runs[0]
+    run_payload = _parse_github_actions_run(selected, match_source=match_source)
+    jobs: list[dict[str, str]] = []
+    run_id = run_payload.get("id")
+    if run_id:
+        try:
+            jobs_result = _run_read_only_gh(repo_root, ["api", f"repos/{owner}/{repo}/actions/runs/{run_id}/jobs?per_page=100"], runner=gh_runner)
+        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+            jobs_result = None
+        if jobs_result is not None and jobs_result.returncode == 0:
+            jobs = _parse_github_actions_jobs(jobs_result.stdout)
+
+    return {
+        "state": "ok",
+        "visible": True,
+        "message": "",
+        "repositoryUrl": github_url,
+        **context,
+        "badgeState": run_payload["badgeState"],
+        "run": run_payload,
+        "jobs": jobs,
+    }
+
+
 def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     cdx_which = which or shutil.which
     if not cdx_which("cdx"):
@@ -861,6 +1040,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/git-status":
             self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})
+            return
+        if route == "/api/ci-status":
+            self._send_json({"ok": True, "payload": ci_status_payload(self.server.repo_root)})
             return
         if route == "/api/cdx-status":
             self._send_json({"ok": True, "payload": cdx_status_payload(self.server.repo_root)})

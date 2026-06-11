@@ -3694,6 +3694,133 @@ def test_main_runs_native_sync_context_pack(
     assert "- docs: 1" in captured.out
 
 
+def test_sync_read_doc_text_includes_bounded_content(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Agents need useful body text.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "read-doc", "req_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "req_001_demo (request): Demo Request" in captured.out
+    assert "# Needs" in captured.out
+    assert "Agents need useful body text." in captured.out
+
+
+def test_flow_show_reads_workflow_doc_content(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    task_dir = repo_root / "logics" / "tasks"
+    task_dir.mkdir(parents=True)
+    (task_dir / "task_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "# Validation",
+                "- pytest will run.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "show", "task_001_demo", "--section", "Validation"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "task_001_demo (task): Demo Task" in captured.out
+    assert "# Validation" in captured.out
+    assert "pytest will run." in captured.out
+
+
+def test_flow_unknown_subcommand_suggests_show(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit, match=r"Unsupported flow subcommand: read\. Use `logics-manager flow show <ref>`"):
+        main(["flow", "read", "task_001_demo"])
+
+
+def test_sync_context_pack_accepts_multiple_refs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "## req_001_demo - Demo Request\n> Status: Ready\n> Schema version: 1.0\n# Needs\n- One.\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "tasks" / "task_001_demo.md").write_text(
+        "## task_001_demo - Demo Task\n> Status: Ready\n> Schema version: 1.0\n# Validation\n- Two.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "context-pack", "req_001_demo", "task_001_demo", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert payload["refs"] == ["req_001_demo", "task_001_demo"]
+    assert {doc["ref"] for doc in payload["docs"]} == {"req_001_demo", "task_001_demo"}
+
+
+def test_sync_refresh_mermaid_signatures_can_scope_targets(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text("## req_001_demo - Demo Request\n", encoding="utf-8")
+    (repo_root / "logics" / "tasks" / "task_001_demo.md").write_text("## task_001_demo - Demo Task\n", encoding="utf-8")
+    seen: list[str] = []
+
+    def refresh(path: Path, _kind: str, _dry_run: bool, repo_root: Path | None = None) -> bool:
+        assert repo_root is not None
+        seen.append(path.relative_to(repo_root).as_posix())
+        return True
+
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync.refresh_workflow_mermaid_signature_file", refresh)
+
+    exit_code = main(["sync", "refresh-mermaid-signatures", "task_001_demo", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert seen == ["logics/tasks/task_001_demo.md"]
+    assert payload["scanned_files"] == ["logics/tasks/task_001_demo.md"]
+
+
 def test_main_runs_native_sync_export_graph(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -259,11 +259,23 @@ def _build_context_pack(
     profile: str,
     config: dict[str, object] | None = None,
 ) -> dict[str, object]:
+    seed_refs = [ref for ref in seed_ref.split(",") if ref]
     docs = _load_workflow_docs(repo_root)
-    seed = docs.get(seed_ref)
-    if seed is None:
-        raise SystemExit(f"Unknown workflow ref `{seed_ref}`.")
-    ordered = _workflow_neighborhood(seed, docs)[: _context_profile_limit(profile)]
+    seeds = [docs.get(ref) for ref in seed_refs]
+    missing = [ref for ref, doc in zip(seed_refs, seeds) if doc is None]
+    if missing:
+        raise SystemExit(f"Unknown workflow ref(s): {', '.join(f'`{ref}`' for ref in missing)}.")
+    ordered: list[WorkflowDocModel] = []
+    seen: set[str] = set()
+    per_seed_limit = _context_profile_limit(profile)
+    for seed in seeds:
+        if seed is None:
+            continue
+        for doc in _workflow_neighborhood(seed, docs)[:per_seed_limit]:
+            if doc.ref in seen:
+                continue
+            ordered.append(doc)
+            seen.add(doc.ref)
     changed_paths = _git_changed_paths(repo_root) if mode == "diff-first" else []
     cache_key = _context_pack_cache_key(
         repo_root,
@@ -281,7 +293,8 @@ def _build_context_pack(
         "ref": seed_ref,
         "mode": mode,
         "profile": profile,
-        "budgets": {"max_docs": _context_profile_limit(profile)},
+        "refs": seed_refs,
+        "budgets": {"max_docs": per_seed_limit * max(1, len(seed_refs)), "max_docs_per_ref": per_seed_limit},
         "changed_paths": changed_paths,
         "docs": pack_docs,
         "estimates": {
@@ -725,6 +738,8 @@ def build_parser() -> argparse.ArgumentParser:
     close_eligible.set_defaults(func=cmd_close_eligible_requests)
 
     refresh_mermaid = sub.add_parser("refresh-mermaid-signatures", help="Refresh stale workflow Mermaid signatures without rewriting the full diagram body.")
+    refresh_mermaid.add_argument("sources", nargs="*", help="Optional workflow refs or paths to scope the refresh.")
+    refresh_mermaid.add_argument("--changed-only", action="store_true", help="Refresh only changed workflow docs.")
     refresh_mermaid.add_argument("--format", choices=("text", "json"), default="text")
     refresh_mermaid.add_argument("--dry-run", action="store_true")
     refresh_mermaid.set_defaults(func=cmd_refresh_mermaid_signatures)
@@ -779,7 +794,7 @@ def build_parser() -> argparse.ArgumentParser:
     append_note.set_defaults(func=cmd_append_note)
 
     context_pack = sub.add_parser("context-pack", help="Build a compact context pack from workflow docs.")
-    context_pack.add_argument("ref", help="Seed workflow ref for the context pack.")
+    context_pack.add_argument("refs", nargs="+", help="Seed workflow ref(s) for the context pack.")
     context_pack.add_argument("--mode", choices=("summary-only", "diff-first", "full"), default="summary-only")
     context_pack.add_argument("--profile", choices=("tiny", "normal", "deep"), default="normal")
     context_pack.add_argument("--out", help="Write the JSON artifact to this relative path.")
@@ -812,13 +827,14 @@ def _build_help() -> str:
             "",
             "  refresh-mermaid-signatures",
             "    Refresh stale Mermaid signatures without rewriting diagram bodies.",
-            "    Flags: --format {text,json}, --dry-run",
+            "    Args: [refs-or-paths...]",
+            "    Flags: --changed-only, --format {text,json}, --dry-run",
             "",
             "  schema-status [sources...]",
             "    Report schema-version coverage for selected workflow docs.",
             "    Flags: --format {text,json}",
             "",
-            "  context-pack <ref>",
+            "  context-pack <refs...>",
             "    Build a compact JSON context pack from workflow docs.",
             "    Flags: --mode {summary-only,diff-first,full}, --profile {tiny,normal,deep}, --out, --format {text,json}, --dry-run",
             "",
@@ -848,7 +864,7 @@ def _build_help() -> str:
             "",
             "Examples:",
             "  logics-manager sync schema-status",
-            "  logics-manager sync context-pack req_001_my_request --out logics/context-pack.json",
+            "  logics-manager sync context-pack req_001_my_request task_002_fix_bug --out logics/context-pack.json",
             "  logics-manager sync export-graph --format json",
         ]
     )
@@ -879,9 +895,10 @@ def _build_subcommand_help(command: str) -> str:
                 "Refresh stale workflow Mermaid signatures without rewriting diagram bodies.",
                 "",
                 "Usage:",
-                "  logics-manager sync refresh-mermaid-signatures [args...]",
+                "  logics-manager sync refresh-mermaid-signatures [refs-or-paths...] [args...]",
                 "",
                 "Flags:",
+                "  --changed-only",
                 "  --format {text,json}",
                 "  --dry-run",
             ]
@@ -909,7 +926,7 @@ def _build_subcommand_help(command: str) -> str:
                 "Build a compact JSON context pack from workflow docs.",
                 "",
                 "Usage:",
-                "  logics-manager sync context-pack <ref> [args...]",
+                "  logics-manager sync context-pack <refs...> [args...]",
                 "",
                 "Flags:",
                 "  --mode {summary-only,diff-first,full}",
@@ -919,7 +936,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  --dry-run",
                 "",
                 "Example:",
-                "  logics-manager sync context-pack req_001_my_request --out logics/context-pack.json",
+                "  logics-manager sync context-pack req_001_my_request task_002_fix_bug --out logics/context-pack.json",
             ]
         )
     if command == "read-doc":
@@ -1053,17 +1070,26 @@ def cmd_close_eligible_requests(args: argparse.Namespace) -> dict[str, object]:
 def cmd_refresh_mermaid_signatures(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     modified: list[str] = []
-    for kind in ("request", "backlog", "task"):
-        directory = repo_root / DOC_KINDS[kind]["directory"]
-        for path in sorted(directory.glob("*.md")):
-            if refresh_workflow_mermaid_signature_file(path, kind, args.dry_run, repo_root=repo_root):
-                modified.append(path.relative_to(repo_root).as_posix())
+    if args.changed_only:
+        changed_sources = [
+            path
+            for path in _git_changed_paths(repo_root)
+            if path.startswith(("logics/request/", "logics/backlog/", "logics/tasks/")) and path.endswith(".md")
+        ]
+        targets = _resolve_target_docs(repo_root, changed_sources)
+    else:
+        targets = _resolve_target_docs(repo_root, args.sources)
+    for kind, path in targets:
+        if refresh_workflow_mermaid_signature_file(path, kind, args.dry_run, repo_root=repo_root):
+            modified.append(path.relative_to(repo_root).as_posix())
 
     payload = {
         "command": "sync",
         "kind": "refresh-mermaid-signatures",
         "repo_root": repo_root.as_posix(),
         "modified_files": modified,
+        "scanned_files": [path.relative_to(repo_root).as_posix() for _kind, path in targets],
+        "changed_only": args.changed_only,
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -1106,6 +1132,8 @@ def cmd_read_doc(args: argparse.Namespace) -> dict[str, object]:
         print(f"- path: {payload['path']}")
         print(f"- status: {payload['status']}")
         print(f"- truncated: {payload['truncated']}")
+        print("")
+        print(str(payload["content"]).rstrip())
     return {"command": "sync", "kind": "read-doc", "repo_root": repo_root.as_posix(), **payload}
 
 
@@ -1172,7 +1200,7 @@ def cmd_append_note(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    payload = _build_context_pack(repo_root, args.ref, mode=args.mode, profile=args.profile, config=None)
+    payload = _build_context_pack(repo_root, ",".join(args.refs), mode=args.mode, profile=args.profile, config=None)
     if args.out:
         out_path, output_path = resolve_repo_output_path(repo_root, args.out)
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
@@ -1188,7 +1216,7 @@ def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
         if args.format == "json":
             print(json.dumps(payload, indent=2, sort_keys=True))
         else:
-            print(f"Context pack: {payload['ref']} ({payload['mode']}, {payload['profile']})")
+            print(f"Context pack: {', '.join(args.refs)} ({payload['mode']}, {payload['profile']})")
             print(f"- docs: {payload['estimates']['doc_count']}")
     return {"command": "sync", "kind": "context-pack", "repo_root": repo_root.as_posix(), **payload}
 

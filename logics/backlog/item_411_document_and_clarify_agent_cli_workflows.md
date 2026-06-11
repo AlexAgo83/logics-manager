@@ -1,10 +1,10 @@
 ## item_411_document_and_clarify_agent_cli_workflows - Document and clarify agent CLI workflows
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 87%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,6 +43,7 @@ flowchart TD
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC5 covers help/docs consistency for command guidance.
 - request-AC6 -> This backlog slice. Proof: AC1 through AC4 cover the required cookbook workflows.
+- request-AC7 -> This backlog slice. Evidence needed: Tests cover the new aliases/options, scoped behavior, closeout/repair behavior, and error-message guidance without requiring external services.
 
 # Decision framing
 - Product framing: Not needed
@@ -55,7 +56,7 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md`
+- Request: `req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout`
 - Primary task(s): `task_214_implement_agent_friendly_logics_cli_workflow_improvements`
 
 # AI Context
@@ -72,3 +73,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md`.
 - Generated locally by logics-manager.
+- Task `task_214_implement_agent_friendly_logics_cli_workflow_improvements` was finished via `logics-manager flow finish task` on 2026-06-12.
+
+# Tasks
+- `task_214_implement_agent_friendly_logics_cli_workflow_improvements`

@@ -1,10 +1,10 @@
 ## item_409_make_bounded_document_context_commands_agent_friendly - Make bounded document context commands agent-friendly
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 87%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -42,6 +42,8 @@ flowchart TD
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1 and AC2 cover read-doc and context-pack agent-friendly behavior.
 - request-AC7 -> This backlog slice. Proof: AC4 requires tests for the bounded context commands.
+- request-AC5 -> This backlog slice. Evidence needed: Error messages for unsupported commands and invalid arity are actionable, naming the nearest valid command or syntax.
+- request-AC6 -> This backlog slice. Evidence needed: Agent-facing documentation or cookbook examples cover common workflows: inspect one doc, inspect linked docs, gather a multi-doc context pack, close out a task/request chain, and repair scoped Mermaid/signature issues.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,7 +56,7 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md`
+- Request: `req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout`
 - Primary task(s): `task_214_implement_agent_friendly_logics_cli_workflow_improvements`
 
 # AI Context
@@ -71,3 +73,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md`.
 - Generated locally by logics-manager.
+- Task `task_214_implement_agent_friendly_logics_cli_workflow_improvements` was finished via `logics-manager flow finish task` on 2026-06-12.
+
+# Tasks
+- `task_214_implement_agent_friendly_logics_cli_workflow_improvements`

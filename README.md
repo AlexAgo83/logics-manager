@@ -111,13 +111,35 @@ Useful commands:
 
 ```bash
 logics-manager flow list
+logics-manager flow show req_001_example
 logics-manager flow promote request-to-backlog req_001_example
 logics-manager flow promote backlog-to-task item_001_example
 logics-manager flow finish task task_001_example
-logics-manager sync context-pack req_001_example --format json
+logics-manager sync read-doc req_001_example --max-chars 6000
+logics-manager sync context-pack req_001_example task_001_example --format json
+logics-manager sync refresh-mermaid-signatures task_001_example
+logics-manager flow closeout task_001_example --validation-command "pytest tests" --validation-result passed --lint --audit
 logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
+
+### Agent workflow cookbook
+
+For bounded workflow inspection, prefer `logics-manager flow show <ref>` or
+`logics-manager sync read-doc <ref>` before reading Markdown directly. Both
+commands include useful body content in text mode and keep JSON output available
+with `--format json`.
+
+For linked context, use `logics-manager sync context-pack <refs...>` with a
+small set of request, backlog, or task refs. The command deduplicates each
+ref's direct neighborhood and supports `--mode diff-first` when recent changes
+matter.
+
+For targeted hygiene repair, use
+`logics-manager sync refresh-mermaid-signatures <refs-or-paths...>` or
+`--changed-only` to avoid unrelated workflow diffs. For end-of-delivery cleanup,
+use `logics-manager flow closeout <task>` with validation evidence plus
+`--lint --audit` when you want the command to run the gates before reporting.
 
 ### Local Browser Viewer
 

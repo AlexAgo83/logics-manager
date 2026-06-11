@@ -77,12 +77,14 @@ def _build_root_help() -> str:
         '  logics-manager flow new request --title "My request"',
         "  logics-manager audit --group-by-doc",
         "  logics-manager status",
-        "  logics-manager sync refresh-mermaid-signatures",
+        "  logics-manager flow show req_001_example",
+        "  logics-manager sync context-pack req_001_example task_001_example --format json",
+        "  logics-manager sync refresh-mermaid-signatures task_001_example",
         "  logics-manager mcp tunnel --repo-root . --port 8765",
         "",
         "Workflow authoring:",
         "  flow       Create, promote, split, close, and finish workflow docs.",
-        "             Subcommands: new, list, companion, deliver, validate-closeout, repair, closeout, promote, split, close, finish",
+        "             Subcommands: new, list, show, companion, deliver, validate-closeout, repair, closeout, promote, split, close, finish",
         "  sync       Maintain generated workflow state and doc metadata.",
         "             Subcommands: close-eligible-requests, refresh-mermaid-signatures,",
         "                          schema-status, read-doc, list-docs, search-docs,",
@@ -366,7 +368,7 @@ def main(argv: list[str] | None = None) -> int:
             if manager == "npm":
                 _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
         return result.returncode
-    if command == "flow" and (rest[:1] in (["new"], ["list"], ["companion"], ["deliver"], ["validate-closeout"], ["repair"], ["closeout"], ["promote"], ["split"], ["close"], ["finish"]) or rest[:1] in HELP_ARGV):
+    if command == "flow":
         from .flow import main as flow_main
 
         return flow_main(rest)

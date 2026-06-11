@@ -29,6 +29,16 @@ python3 -m logics_manager flow new task     --title "..."
 python3 -m logics_manager flow promote request-to-backlog logics/request/req_NNN_*.md
 python3 -m logics_manager flow promote backlog-to-task    logics/backlog/item_NNN_*.md
 
+# Inspect bounded workflow context before reading files directly
+python3 -m logics_manager flow show req_NNN_example
+python3 -m logics_manager sync read-doc task_NNN_example --max-chars 6000
+python3 -m logics_manager sync context-pack req_NNN_example task_NNN_example --format json
+
+# Repair scoped workflow hygiene without touching unrelated docs
+python3 -m logics_manager sync refresh-mermaid-signatures task_NNN_example
+python3 -m logics_manager sync refresh-mermaid-signatures --changed-only
+python3 -m logics_manager flow closeout task_NNN_example --validation-command "pytest tests" --validation-result passed --lint --audit
+
 # Finish a task (propagates closure up the chain)
 python3 -m logics_manager flow finish task logics/tasks/task_NNN_*.md
 

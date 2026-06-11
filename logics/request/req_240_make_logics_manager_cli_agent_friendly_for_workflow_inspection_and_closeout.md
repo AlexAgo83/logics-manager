@@ -1,7 +1,7 @@
 ## req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout - Make logics-manager CLI agent-friendly for workflow inspection and closeout
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 93%
 > Confidence: 88%
 > Complexity: Medium

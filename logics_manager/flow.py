@@ -15,6 +15,7 @@ from .flow_evidence import structured_validation_line as _structured_validation_
 from .index import index_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
 from .path_utils import ensure_relative_to
+from .sync import read_logics_doc_payload
 from .termstyle import colorize_help
 
 
@@ -206,6 +207,10 @@ def _build_help() -> str:
             "    List workflow docs that are still active.",
             "    Flags: --kind {all,request,backlog,task}, --format {text,json}",
             "",
+            "  show <ref>",
+            "    Show a bounded workflow document view.",
+            "    Flags: --max-chars, --section, --format {text,json}",
+            "",
             "  companion <product|architecture>",
             "    Create a companion doc from the integrated runtime.",
             "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
@@ -251,6 +256,7 @@ def _build_help() -> str:
             "Examples:",
             '  logics-manager flow new request --title "My request"',
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
+            "  logics-manager flow show req_001_my_request",
             "  logics-manager flow validate-closeout task_003_fix_docs",
             "  logics-manager flow repair gates task_003_fix_docs",
             "  logics-manager flow closeout task_003_fix_docs --validation \"pytest passed\" --index --lint --audit",
@@ -334,6 +340,27 @@ def _build_list_help() -> str:
             "Examples:",
             "  logics-manager flow list",
             "  logics-manager flow list --kind backlog",
+        ]
+    )
+
+
+def _build_show_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Show",
+            "Show a bounded workflow document view.",
+            "",
+            "Usage:",
+            "  logics-manager flow show <ref-or-path> [args...]",
+            "",
+            "Flags:",
+            "  --max-chars",
+            "  --section",
+            "  --format {text,json}",
+            "",
+            "Examples:",
+            "  logics-manager flow show req_001_my_request",
+            "  logics-manager flow show task_003_fix_docs --section Validation",
         ]
     )
 
@@ -2214,6 +2241,13 @@ def build_parser() -> argparse.ArgumentParser:
     list_parser.add_argument("--format", choices=("text", "json"), default="text")
     list_parser.set_defaults(func=cmd_list)
 
+    show_parser = sub.add_parser("show", help="Show a bounded workflow document view.")
+    show_parser.add_argument("source")
+    show_parser.add_argument("--max-chars", type=int, default=4000)
+    show_parser.add_argument("--section", action="append", default=[])
+    show_parser.add_argument("--format", choices=("text", "json"), default="text")
+    show_parser.set_defaults(func=cmd_show)
+
     companion_parser = sub.add_parser("companion", help="Create a companion doc from the integrated runtime.")
     companion_sub = companion_parser.add_subparsers(dest="kind", required=True)
     for kind in ("product", "architecture"):
@@ -2426,6 +2460,22 @@ def cmd_list(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     payload = flow_list_payload(repo_root, kind=args.kind)
     print(render_flow_list(repo_root, kind=args.kind, output_format=args.format))
+    return payload
+
+
+def cmd_show(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    max_chars = args.max_chars if args.max_chars > 0 else 4000
+    payload = read_logics_doc_payload(repo_root, args.source, max_chars=min(max_chars, 12000), sections=args.section or None)
+    if args.format == "json":
+        print_payload({"command": "show", **payload}, args.format)
+    else:
+        print(f"{payload['ref']} ({payload['kind']}): {payload['title']}")
+        print(f"- path: {payload['path']}")
+        print(f"- status: {payload['status']}")
+        print(f"- truncated: {payload['truncated']}")
+        print("")
+        print(str(payload["content"]).rstrip())
     return payload
 
 
@@ -2793,6 +2843,9 @@ def closeout_payload(
     finish_payload: dict[str, object] | None = None
     if not dry_run:
         _close_chain_for_kind(repo_root, task_path, DOC_KINDS["task"], dry_run=False, quiet=True)
+        for ref in mermaid_refs:
+            if ref.startswith(f"{DOC_KINDS['request'].prefix}_"):
+                _maybe_close_request_chain(repo_root, ref, dry_run=False, quiet=True)
         finish_issues = _verify_finished_task_chain(repo_root, task_path)
         if finish_issues:
             raise SystemExit("Finish verification failed:\n" + "\n".join(f"- {issue}" for issue in finish_issues))
@@ -3244,6 +3297,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "list" and _help_requested(argv, 1):
         _print_help(_build_list_help())
         return 0
+    if argv[0] == "show" and _help_requested(argv, 1):
+        _print_help(_build_show_help())
+        return 0
     if argv[0] == "companion" and _help_requested(argv, 1):
         _print_help(_build_companion_help())
         return 0
@@ -3289,9 +3345,13 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
+    valid_commands = {"new", "list", "show", "companion", "deliver", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
+    if argv[0] not in valid_commands:
+        hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
+        raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command not in {"new", "list", "companion", "deliver", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}:
+    if args.command not in valid_commands:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
     if args.command == "validate-closeout" and isinstance(payload, dict) and not payload.get("ok", False):

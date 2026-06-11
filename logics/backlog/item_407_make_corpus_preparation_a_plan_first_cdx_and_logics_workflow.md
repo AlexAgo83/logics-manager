@@ -1,10 +1,10 @@
 ## item_407_make_corpus_preparation_a_plan_first_cdx_and_logics_workflow - Make corpus preparation a plan-first CDX and Logics workflow
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -82,3 +82,9 @@ flowchart TD
 
 # Tasks
 - `task_213_orchestrate_guided_cdx_mission_launch_delivery`
+
+# Report
+- Implemented the corpus mission as a `--plan-only` CDX mission template.
+- The viewer renders returned corpus actions before apply and disables apply until actions exist.
+- Applying the plan calls only allowlisted deterministic `logics-manager flow` operations.
+- Covered by Python allowlist tests and browser-host preview/run/apply coverage.

@@ -1,9 +1,9 @@
 ## req_239_launch_guided_cdx_missions_from_the_logics_viewer - Launch guided CDX missions from the Logics viewer
-> From version: 2.7.0
+> From version: 2.7.0 (refreshed)
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 100% (refreshed)
+> Confidence: 95%
 > Complexity: Medium
 > Theme: CDX run orchestration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -43,10 +43,10 @@ flowchart TD
 - AC10: Tests cover mission command generation, session/strength selection, launch guardrails, run status rendering, usage metadata rendering, and plan-first corpus preparation behavior.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)
@@ -68,7 +68,13 @@ flowchart TD
 - Skip when: Work only displays passive CDX status or modifies unrelated Git/CI/Health panels.
 
 # Backlog
-- none
 - `item_405_define_guided_cdx_mission_catalog_and_setup_ui`
 - `item_406_add_constrained_cdx_mission_execution_and_run_usage_reporting`
 - `item_407_make_corpus_preparation_a_plan_first_cdx_and_logics_workflow`
+
+# Report
+- Delivered in task `task_213_orchestrate_guided_cdx_mission_launch_delivery`.
+- The CDX screen now exposes a `Missions` tab for `Audit complet`, `Review depuis derniere release`, and `Preparer le corpus pret a dev`.
+- Mission execution is constrained by backend templates and validates mission id, session id, strength, and release tag requirements.
+- Run output is bounded and token usage is rendered when CDX exposes it.
+- Corpus preparation is plan-first and only applies allowlisted `logics-manager flow` operations after explicit confirmation.

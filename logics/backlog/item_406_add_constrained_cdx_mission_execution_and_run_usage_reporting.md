@@ -1,10 +1,10 @@
 ## item_406_add_constrained_cdx_mission_execution_and_run_usage_reporting - Add constrained CDX mission execution and run usage reporting
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -80,3 +80,9 @@ flowchart TD
 
 # Tasks
 - `task_213_orchestrate_guided_cdx_mission_launch_delivery`
+
+# Report
+- Added backend CDX mission plan/run endpoints using known mission templates only.
+- Added validation for mission identifiers, strength values, session identifiers, CDX availability, and latest release tag discovery.
+- Added bounded stdout/stderr rendering and token usage extraction when CDX returns structured usage.
+- Covered by `tests/python/test_logics_manager_cli.py -k cdx` and `tests/viewer.browser-host.test.ts`.

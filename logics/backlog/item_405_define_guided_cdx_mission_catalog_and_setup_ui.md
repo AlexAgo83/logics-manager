@@ -1,10 +1,10 @@
 ## item_405_define_guided_cdx_mission_catalog_and_setup_ui - Define guided CDX mission catalog and setup UI
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -84,3 +84,9 @@ flowchart TD
 
 # Tasks
 - `task_213_orchestrate_guided_cdx_mission_launch_delivery`
+
+# Report
+- Added the CDX `Missions` tab as the guided launch entry point.
+- Added the initial catalog: `Audit complet`, `Review depuis derniere release`, and `Preparer le corpus pret a dev`.
+- Added session and strength controls, command preview, scope/tag display, and non-launchable warning states.
+- Covered by `tests/viewer.browser-host.test.ts`.

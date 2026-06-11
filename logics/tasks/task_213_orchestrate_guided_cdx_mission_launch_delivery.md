@@ -1,13 +1,26 @@
 ## task_213_orchestrate_guided_cdx_mission_launch_delivery - Orchestrate guided CDX mission launch delivery
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: CDX run orchestration
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|orchestrate-guided-cdx-mission-launch-de|item-405-define-guided-cdx-mission-catal|1-confirm-existing-cdx-status-runs|run-python3-m-logics-manager-lint-requi
+flowchart LR
+    Request[req_239] --> MissionCatalog[item_405]
+    Request --> Execution[item_406]
+    Request --> Corpus[item_407]
+    MissionCatalog --> Validation[tests and lint]
+    Execution --> Validation
+    Corpus --> Validation
+    Validation --> Done[Done]
+```
 
 # Context
 - Deliver the guided CDX mission launch experience from the Logics viewer.
@@ -15,14 +28,14 @@
 - Keep CDX execution constrained to known templates and keep deterministic Logics workflow mutations behind explicit operator confirmation.
 
 # Plan
-- [ ] 1. Confirm existing CDX status/runs endpoints, viewer rendering patterns, and available CDX command surfaces.
-- [ ] 2. Add the guided mission catalog and setup UI in the CDX screen, including session, strength, scope, and preview states.
-- [ ] 3. Add constrained backend mission templates and execution endpoints with validation against arbitrary browser command input.
-- [ ] 4. Render run lifecycle, bounded output, failure states, and usage metadata including token counts when available.
-- [ ] 5. Implement `Prepare corpus ready for dev` as plan-first, then apply deterministic `logics-manager flow` commands only after confirmation.
-- [ ] 6. Add focused Python and browser-host tests for mission setup, command generation, guardrails, usage rendering, and corpus plan confirmation.
-- [ ] 7. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.
-- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
+- [x] 1. Confirm existing CDX status/runs endpoints, viewer rendering patterns, and available CDX command surfaces.
+- [x] 2. Add the guided mission catalog and setup UI in the CDX screen, including session, strength, scope, and preview states.
+- [x] 3. Add constrained backend mission templates and execution endpoints with validation against arbitrary browser command input.
+- [x] 4. Render run lifecycle, bounded output, failure states, and usage metadata including token counts when available.
+- [x] 5. Implement `Prepare corpus ready for dev` as plan-first, then apply deterministic `logics-manager flow` commands only after confirmation.
+- [x] 6. Add focused Python and browser-host tests for mission setup, command generation, guardrails, usage rendering, and corpus plan confirmation.
+- [x] 7. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.
+- [x] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.
 
 # Backlog
 - `item_405_define_guided_cdx_mission_catalog_and_setup_ui`
@@ -30,9 +43,9 @@
 - `item_407_make_corpus_preparation_a_plan_first_cdx_and_logics_workflow`
 
 # Definition of Done (DoD)
-- [ ] Code is implemented and reviewed.
-- [ ] Validation passes.
-- [ ] Linked docs are synchronized.
+- [x] Code is implemented and reviewed.
+- [x] Validation passes.
+- [x] Linked docs are synchronized.
 
 # AC Traceability
 - request-AC1 -> This task. Proof: planned task step 2 adds the CDX screen launch entry point.
@@ -56,7 +69,13 @@
 - Run the task-specific automated tests added for the backend mission planner/executor.
 
 # Report
-- Implementation complete.
+- Implemented constrained backend endpoints for CDX mission preview, execution, and plan application.
+- Added the CDX `Missions` viewer tab with mission selection, session selection, strength controls, command preview, run output, token usage rendering, and corpus plan apply.
+- Added Python coverage for mission command generation, guardrails, usage extraction, and allowlisted Logics flow application.
+- Added browser-host coverage for the guided mission setup, preview, launch, usage display, and corpus apply path.
+- Validation:
+  - `python -m pytest tests/python/test_logics_manager_cli.py -q -k cdx`
+  - `npx vitest run tests/viewer.browser-host.test.ts`
 
 # AI Context
 - Summary: Implement guided CDX mission launch from the Logics viewer, including setup UI, constrained execution, run usage reporting, and plan-first corpus preparation.

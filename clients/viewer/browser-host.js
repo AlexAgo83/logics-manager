@@ -18,6 +18,7 @@
   const refreshMenuPanel = () => document.getElementById("viewer-refresh-menu");
   const activityClearControl = () => document.getElementById("activity-clear");
   const activityStorageLimit = 80;
+  const gitHistoryPageSize = 10;
   const minAutoRefreshIntervalSeconds = 5;
   const maxAutoRefreshIntervalSeconds = 60;
   const defaultAutoRefreshIntervalMs = 15 * 1000;
@@ -1827,9 +1828,16 @@
     const untrackedSections = renderFileSections(["untracked"]);
     const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
     const recentCommits = Array.isArray(payload.recentCommits) ? payload.recentCommits : [];
+    const renderGitHistoryReveal = (hiddenCount) => {
+      if (hiddenCount <= 0) {
+        return "";
+      }
+      const nextCount = Math.min(gitHistoryPageSize, hiddenCount);
+      return `<li class="viewer-git__commit-row viewer-git__commit-row--reveal"><button class="viewer-git__reveal" type="button" data-viewer-git-history-reveal>Show ${escapeHtml(nextCount)} more</button></li>`;
+    };
     const historyRows = recentCommits.length
-      ? recentCommits.map((commit) => `
-        <li class="viewer-git__commit-row">
+      ? recentCommits.map((commit, index) => `
+        <li class="viewer-git__commit-row" ${index >= gitHistoryPageSize ? "hidden data-viewer-git-history-hidden" : ""}>
           <div class="viewer-git__commit-main">
             <code>${escapeHtml(commit.hash || "")}</code>
             <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
@@ -1839,7 +1847,7 @@
             ${commit.refs ? `<span class="viewer-git__commit-refs">${escapeHtml(commit.refs)}</span>` : ""}
           </div>
         </li>
-      `).join("")
+      `).join("") + renderGitHistoryReveal(Math.max(0, recentCommits.length - gitHistoryPageSize))
       : `<li class="viewer-git__commit-row">${escapeHtml(payload.latestCommit || "No commit history available.")}</li>`;
     const history = `
       <section class="viewer-git__section">
@@ -2155,8 +2163,34 @@
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
       const filterTarget = event.target instanceof Element ? event.target.closest("[data-viewer-filter-group][data-viewer-filter-value]") : null;
       const revealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-reveal]") : null;
+      const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
       const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
+      if (gitHistoryRevealTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (gitHistoryRevealTarget.dataset.viewerGitHistoryBusy === "true") {
+          return;
+        }
+        gitHistoryRevealTarget.dataset.viewerGitHistoryBusy = "true";
+        const list = gitHistoryRevealTarget.closest("ul");
+        const hiddenRows = Array.from(list?.querySelectorAll("[data-viewer-git-history-hidden]") || [])
+          .filter((row) => row instanceof HTMLElement);
+        hiddenRows.slice(0, gitHistoryPageSize).forEach((row) => {
+          if (row instanceof HTMLElement) {
+            row.hidden = false;
+            row.removeAttribute("data-viewer-git-history-hidden");
+          }
+        });
+        const remaining = Array.from(list?.querySelectorAll("[data-viewer-git-history-hidden]") || []).length;
+        if (remaining > 0) {
+          gitHistoryRevealTarget.textContent = `Show ${Math.min(gitHistoryPageSize, remaining)} more`;
+          gitHistoryRevealTarget.dataset.viewerGitHistoryBusy = "false";
+        } else {
+          gitHistoryRevealTarget.closest("li")?.remove();
+        }
+        return;
+      }
       if (revealTarget instanceof HTMLElement) {
         const list = revealTarget.closest("ul");
         list?.querySelectorAll("[data-viewer-hidden-row]").forEach((row) => {

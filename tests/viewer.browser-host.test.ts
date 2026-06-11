@@ -785,6 +785,58 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("HEAD -> main");
   });
 
+  it("reveals Git history commits ten rows at a time", async () => {
+    const commits = Array.from({ length: 23 }, (_, index) => ({
+      hash: `c${String(index + 1).padStart(2, "0")}`,
+      subject: `Commit ${index + 1}`,
+      author: "Alex",
+      date: "2026-06-09",
+      refs: index === 0 ? "HEAD -> main" : ""
+    }));
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 0,
+            behind: 0,
+            clean: true,
+            dirty: false,
+            latestCommit: "c01 Commit 1",
+            recentCommits: commits,
+            counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+            groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const visibleCommitRows = () => Array.from(dom.window.document.querySelectorAll(".viewer-git__commit-row"))
+      .filter((row) => row instanceof dom.window.HTMLElement && !row.hidden && !row.classList.contains("viewer-git__commit-row--reveal"));
+    const revealButton = () => dom.window.document.querySelector("[data-viewer-git-history-reveal]") as HTMLButtonElement | null;
+
+    expect(visibleCommitRows()).toHaveLength(10);
+    expect(revealButton()?.textContent).toBe("Show 10 more");
+
+    revealButton()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(visibleCommitRows()).toHaveLength(20);
+    expect(revealButton()?.textContent).toBe("Show 3 more");
+
+    revealButton()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(visibleCommitRows()).toHaveLength(23);
+    expect(revealButton()).toBeNull();
+  });
+
   it("renders the local CDX status screen from the read-only endpoint", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

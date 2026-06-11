@@ -821,6 +821,33 @@
   background: var(--vscode-editorWidget-background, #202020);
 }
 
+.viewer-git__commit-row[hidden] {
+  display: none !important;
+}
+
+.viewer-git__commit-row--reveal {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.viewer-git__reveal {
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.viewer-git__reveal:hover {
+  border-color: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 45%, var(--vscode-panel-border, #333333));
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
 .viewer-git__commit-main,
 .viewer-git__commit-meta {
   display: flex;

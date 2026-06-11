@@ -108,8 +108,10 @@
 
 .layout--stacked .details {
   width: 100%;
+  max-width: none;
   min-height: 220px;
   border-top: none;
+  border-left: none;
   position: absolute;
   left: 0;
   right: 0;

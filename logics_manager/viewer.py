@@ -711,7 +711,11 @@ def _parse_git_branch_line(line: str) -> dict[str, Any]:
     }
 
 
-def _parse_recent_git_commits(output: str) -> list[dict[str, str]]:
+GIT_HISTORY_DISPLAY_LIMIT = 50
+GIT_HISTORY_FETCH_LIMIT = GIT_HISTORY_DISPLAY_LIMIT + 1
+
+
+def _parse_recent_git_commits(output: str, *, limit: int | None = None) -> list[dict[str, str]]:
     commits: list[dict[str, str]] = []
     for line in output.splitlines():
         parts = line.split("\x1f")
@@ -727,6 +731,8 @@ def _parse_recent_git_commits(output: str) -> list[dict[str, str]]:
                 "refs": _sanitize_git_ref(refs),
             }
         )
+        if limit is not None and len(commits) >= limit:
+            break
     return commits
 
 
@@ -813,7 +819,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         commit = _run_read_only_git(repo_root, ["log", "-1", "--pretty=format:%h %s"], runner=runner)
         recent_commits = _run_read_only_git(
             repo_root,
-            ["log", "-50", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
+            ["log", f"-{GIT_HISTORY_FETCH_LIMIT}", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
             runner=runner,
         )
         unpushed = _git_unpushed_commit_count(repo_root, runner=runner)
@@ -840,6 +846,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     counts = {key: len(value) for key, value in groups.items()}
     uncommitted_files = _count_unique_git_status_paths(groups)
     dirty = any(counts.values())
+    parsed_recent_commits = _parse_recent_git_commits(recent_commits.stdout, limit=GIT_HISTORY_FETCH_LIMIT) if recent_commits.returncode == 0 else []
     return {
         "state": "ok",
         **branch_info,
@@ -860,7 +867,8 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         },
         "groups": groups,
         "latestCommit": (commit.stdout.strip() if commit.returncode == 0 else "")[:300],
-        "recentCommits": _parse_recent_git_commits(recent_commits.stdout) if recent_commits.returncode == 0 else [],
+        "recentCommits": parsed_recent_commits[:GIT_HISTORY_DISPLAY_LIMIT],
+        "recentCommitsHasMore": len(parsed_recent_commits) > GIT_HISTORY_DISPLAY_LIMIT,
     }
 
 

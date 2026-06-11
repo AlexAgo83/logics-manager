@@ -1050,6 +1050,49 @@ describe("local viewer browser host", () => {
     expect(revealButton()).toBeNull();
   });
 
+  it("marks Git history count as open-ended when more commits are available", async () => {
+    const commits = Array.from({ length: 50 }, (_, index) => ({
+      hash: `c${String(index + 1).padStart(2, "0")}`,
+      subject: `Commit ${index + 1}`,
+      author: "Alex",
+      date: "2026-06-09",
+      refs: index === 0 ? "HEAD -> main" : ""
+    }));
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 0,
+            behind: 0,
+            clean: true,
+            dirty: false,
+            latestCommit: "c01 Commit 1",
+            recentCommits: commits,
+            recentCommitsHasMore: true,
+            counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+            groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const historyDomain = dom.window.document.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
+    expect(historyDomain?.textContent).toContain("50+");
+    historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(dom.window.document.querySelector('[data-viewer-git-panel="history"] .viewer-git__panel-header')?.textContent).toContain("50+ commits");
+  });
+
   it("renders the local CDX status screen from the read-only endpoint", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

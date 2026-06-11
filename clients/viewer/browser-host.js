@@ -2486,7 +2486,7 @@
       ["staged", "Staged", stagedCount],
       ["worktree", "Worktree", modifiedCount + deletedCount + renamedCount],
       ["untracked", "Untracked", untrackedCount],
-      ["history", "History", Array.isArray(payload.recentCommits) ? payload.recentCommits.length : (payload.latestCommit ? 1 : 0)],
+      ["history", "History", formatGitHistoryCount(payload)],
       ["remote", "Remote", payload.tracking ? 1 : 0]
     ];
     const domains = domainDefs.map(([key, label, count], index) => `
@@ -2528,6 +2528,7 @@
     const untrackedSections = renderFileSections(["untracked"]);
     const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
     const recentCommits = Array.isArray(payload.recentCommits) ? payload.recentCommits : [];
+    const historyCount = formatGitHistoryCount(payload);
     const renderGitHistoryReveal = (hiddenCount) => {
       if (hiddenCount <= 0) {
         return "";
@@ -2586,7 +2587,7 @@
               ${untrackedSections || '<p class="viewer-git__state">No untracked files.</p>'}
             </section>
             <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
-              <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(recentCommits.length || (payload.latestCommit ? 1 : 0))} commits</strong></header>
+              <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(historyCount)} commits</strong></header>
               ${history}
             </section>
             <section class="viewer-git__panel" data-viewer-git-panel="remote" hidden>
@@ -2601,6 +2602,11 @@
         </div>
       </div>
     `;
+  }
+
+  function formatGitHistoryCount(payload) {
+    const count = Array.isArray(payload?.recentCommits) ? payload.recentCommits.length : (payload?.latestCommit ? 1 : 0);
+    return `${count}${payload?.recentCommitsHasMore ? "+" : ""}`;
   }
 
   function setActiveGitFile(button) {

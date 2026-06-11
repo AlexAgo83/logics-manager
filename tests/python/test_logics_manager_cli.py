@@ -455,7 +455,7 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
             return subprocess.CompletedProcess(args, 0, "5\t0\tmodified.md\n0\t4\tdeleted.md\n", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "abc1234 latest commit", "")
-        if args[1:] == ["log", "-50", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(
                 args,
                 0,
@@ -492,9 +492,10 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
         {"hash": "abc1234", "subject": "latest commit", "author": "Alex", "date": "2026-06-09", "refs": "HEAD -> main, tag: v2.4.0"},
         {"hash": "def5678", "subject": "previous commit", "author": "Sam", "date": "2026-06-08", "refs": "origin/main"},
     ]
+    assert payload["recentCommitsHasMore"] is False
     assert ["git", "status", "--porcelain=v1", "-b"] in calls
     assert ["git", "rev-list", "--count", "@{u}..HEAD"] in calls
-    assert ["git", "log", "-50", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
+    assert ["git", "log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
 
@@ -522,7 +523,7 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "", "")
-        if args[1:] == ["log", "-50", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")
@@ -537,6 +538,36 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
     assert payload["badgeCounts"]["uncommittedFiles"] == 3
     assert payload["badgeAvailability"]["unpushedCommits"] is False
     assert payload["badgeMessages"]["unpushedCommits"] == "No upstream branch detected."
+
+
+def test_viewer_git_status_payload_marks_history_as_open_ended_after_display_limit(tmp_path: Path) -> None:
+    commit_lines = "\n".join(
+        f"c{index:02d}\x1fCommit {index}\x1fAlex\x1f2026-06-09\x1f"
+        for index in range(1, 52)
+    )
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(args, 0, "## main", "")
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat", "--cached"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["diff", "--no-ext-diff", "--numstat"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "c01 Commit 1", "")
+        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+            return subprocess.CompletedProcess(args, 0, commit_lines, "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")
+        raise AssertionError(args)
+
+    payload = git_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert len(payload["recentCommits"]) == 50
+    assert payload["recentCommits"][-1]["hash"] == "c50"
+    assert payload["recentCommitsHasMore"] is True
 
 
 def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:

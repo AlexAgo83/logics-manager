@@ -1,9 +1,9 @@
 ## req_224_add_progressive_reveal_to_git_history_commits - Add progressive reveal to Git history commits
-> From version: 2.5.2
+> From version: 2.5.2 (linked)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 85%
+> Understanding: 96%
+> Confidence: 86%
 > Complexity: Low
 > Theme: Viewer Git
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -98,4 +98,14 @@ flowchart TD
 - Skip when: Working on Git badge counts, commit diff drill-down, or board/list corpus group pagination.
 
 # Backlog
-- none
+- `item_390_add_progressive_reveal_to_git_history_commits`
+
+# AC Traceability
+- AC1 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC1 covers rendering 10 Git History commit rows by default.
+- AC2 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC2 covers showing an in-flow Show 10 more control when additional commits are available.
+- AC3 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC3 covers revealing the next 10 commits per activation without reordering or duplication.
+- AC4 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC4 covers hiding the reveal control once all available commits are visible.
+- AC5 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC5 covers keeping the History domain count tied to available commits rather than the visible subset.
+- AC6 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC6 covers predictable visible-limit reconciliation after refresh or payload changes.
+- AC7 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC7 covers preserving empty-history and single-commit fallback states.
+- AC8 -> `task_198_add_progressive_reveal_to_git_history_commits`. Proof: Task AC8 covers tests for initial rendering, reveal clicks, and no hidden-commit state.

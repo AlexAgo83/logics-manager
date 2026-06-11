@@ -1,9 +1,9 @@
 ## req_221_redesign_local_viewer_insights_screen - Redesign local viewer Insights screen
-> From version: 2.5.2
+> From version: 2.5.2 (linked)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 85%
+> Understanding: 96%
+> Confidence: 86%
 > Complexity: Medium
 > Theme: Viewer insights
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -109,4 +109,16 @@ flowchart TD
 - Skip when: Working only on CLI health output, persistent analytics history, or the separate full corpus explorer.
 
 # Backlog
-- none
+- `item_387_redesign_local_viewer_insights_screen`
+
+# AC Traceability
+- AC1 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC1 covers the compact Now summary for primary corpus signals.
+- AC2 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC2 covers top-positioned operator actions with filters, Health navigation, or document preview links.
+- AC3 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC3 covers reducing overview metrics to a small meaningful tile set.
+- AC4 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC4 covers the theme-native corpus shape visualization.
+- AC5 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC5 covers structured Flow health rows with document, status, reason, and next action.
+- AC6 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC6 covers Activity rows or timeline groups for recent, stale, and quiet docs.
+- AC7 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC7 covers prioritizing broken references and unlinked documents in Traceability.
+- AC8 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC8 covers summarizing Quality signals and routing detailed findings to Health.
+- AC9 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC9 covers preserving viewer theme variables and avoiding decorative dashboard filler.
+- AC10 -> `task_195_redesign_local_viewer_insights_screen`. Proof: Task AC10 covers focused tests for layout structure, action wiring, and dense-data readability.

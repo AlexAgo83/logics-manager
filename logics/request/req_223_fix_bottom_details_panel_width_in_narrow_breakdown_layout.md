@@ -1,9 +1,9 @@
 ## req_223_fix_bottom_details_panel_width_in_narrow_breakdown_layout - Fix bottom details panel width in narrow breakdown layout
-> From version: 2.5.2
+> From version: 2.5.2 (linked)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 85%
+> Understanding: 96%
+> Confidence: 86%
 > Complexity: Low
 > Theme: Viewer layout
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -90,4 +90,13 @@ flowchart TD
 - Skip when: Working on details content hierarchy, initial collapsed defaults, or unrelated board/list rendering.
 
 # Backlog
-- none
+- `item_389_fix_bottom_details_panel_width_in_narrow_breakdown_layout`
+
+# AC Traceability
+- AC1 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC1 covers full-width bottom details when Details is below board/list.
+- AC2 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC2 covers preventing bottom details from inheriting side-panel width, max-width, flex-basis, or persisted resize values.
+- AC3 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC3 covers preserving right-side resizable details in wide layouts.
+- AC4 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC4 covers keeping collapsed bottom details compact without splitter resizing.
+- AC5 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC5 covers correct width contracts when switching between wide and narrow layouts.
+- AC6 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC6 covers keeping board/list content visible and aligned after Details moves to the bottom.
+- AC7 -> `task_197_fix_bottom_details_panel_width_in_narrow_breakdown_layout`. Proof: Task AC7 covers regression or visual smoke coverage for the bottom-details full-width state.

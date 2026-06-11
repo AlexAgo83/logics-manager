@@ -1,9 +1,9 @@
 ## req_222_add_github_and_folder_shortcuts_to_viewer_topbar - Add GitHub and folder shortcuts to viewer topbar
-> From version: 2.5.2
+> From version: 2.5.2 (linked)
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 85%
+> Understanding: 96%
+> Confidence: 86%
 > Complexity: Low
 > Theme: Viewer navigation
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -107,4 +107,15 @@ flowchart TD
 - Skip when: Working on Git status details, CDX status, Insights, Health, or repository management workflows.
 
 # Backlog
-- none
+- `item_388_add_github_and_folder_shortcuts_to_viewer_topbar`
+
+# AC Traceability
+- AC1 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC1 covers compact repository shortcut buttons beside the workspace pill.
+- AC2 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC2 covers showing the GitHub shortcut only for a valid GitHub remote.
+- AC3 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC3 covers normalizing GitHub SSH and HTTPS remotes to a web URL.
+- AC4 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC4 covers opening the GitHub repository externally without changing viewer state.
+- AC5 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC5 covers opening the resolved local repository root in the OS file browser.
+- AC6 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC6 covers discreet failure reporting through the viewer status/meta surface.
+- AC7 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC7 covers icon-first accessible controls and no disabled empty states.
+- AC8 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC8 covers alignment with the workspace pill on narrow viewports.
+- AC9 -> `task_196_add_github_and_folder_shortcuts_to_viewer_topbar`. Proof: Task AC9 covers tests for GitHub detection, hidden non-GitHub state, and folder-open action paths.

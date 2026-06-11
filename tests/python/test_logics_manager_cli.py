@@ -729,6 +729,14 @@ def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: 
     assert registry[0]["id"] != registry[1]["id"]
 
 
+def test_viewer_payload_exposes_bootstrap_state_for_new_projects(tmp_path: Path) -> None:
+    payload = viewer_module.viewer_data_payload(tmp_path)
+
+    assert payload["capabilities"]["logics"]["state"] == "missing"
+    assert payload["canBootstrapLogics"] is True
+    assert "Bootstrap Logics" in payload["bootstrapLogicsTitle"]
+
+
 def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     sibling = tmp_path / "cdx-manager"
@@ -763,6 +771,27 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
         forbidden_payload = json.loads(forbidden_response.read().decode("utf-8"))
         assert forbidden_response.status == 403
         assert forbidden_payload["ok"] is False
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_bootstrap_logics_endpoint_creates_workflow_skeleton(tmp_path: Path) -> None:
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/bootstrap-logics", body="{}", headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert (tmp_path / "logics" / "instructions.md").is_file()
+        assert payload["payload"]["canBootstrapLogics"] is False
+        assert payload["payload"]["capabilities"]["logics"]["state"] == "ready"
+        assert "logics/" in payload["bootstrap"]["created_paths"]
     finally:
         server.shutdown()
         server.server_close()

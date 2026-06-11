@@ -21,6 +21,7 @@ from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 
 from .audit import audit_payload
+from .bootstrap import bootstrap_payload
 from .config import find_repo_root
 from .lint import lint_payload
 from .update_check import get_update_info
@@ -347,6 +348,7 @@ def viewer_data_payload(
 ) -> dict[str, Any]:
     capabilities = viewer_project_capabilities(repo_root)
     active_root = repo_root.resolve()
+    has_logics = capabilities["logics"]["available"] is True
     return {
         "root": str(active_root),
         "repoName": active_root.name,
@@ -362,8 +364,8 @@ def viewer_data_payload(
         "selectedId": selected_id,
         "changedPaths": [],
         "canResetProjectRoot": False,
-        "canBootstrapLogics": False,
-        "bootstrapLogicsTitle": "Local viewer is read-only. Use the CLI to bootstrap Logics.",
+        "canBootstrapLogics": not has_logics,
+        "bootstrapLogicsTitle": "Bootstrap Logics in this project." if not has_logics else "Logics is already bootstrapped.",
         "canLaunchCodex": False,
         "canLaunchClaude": False,
         "canRepairLogicsKit": False,
@@ -1261,6 +1263,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if parsed.path == "/api/bootstrap-logics":
+            try:
+                bootstrap = bootstrap_payload(self.server.repo_root, check=False)
+                self._send_json({"ok": True, "payload": self.server.viewer_payload(), "bootstrap": bootstrap})
+            except SystemExit as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

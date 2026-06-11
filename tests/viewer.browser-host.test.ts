@@ -201,6 +201,38 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/bootstrap-logics") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            bootstrap: { created_paths: ["logics/", "logics/instructions.md"] },
+            payload: {
+              root: "/workspace/new-project",
+              repoName: "new-project",
+              repository: {
+                root: "/workspace/new-project",
+                githubUrl: ""
+              },
+              capabilities: {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                git: { state: "missing", available: false, message: "Project is not a Git repository." },
+                ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
+                cdx: { state: "missing", available: false, message: "CDX executable is not available." },
+                cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
+              },
+              projects: [
+                { id: "project-new", name: "new-project", root: "/workspace/new-project", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
+              ],
+              canBootstrapLogics: false,
+              bootstrapLogicsTitle: "Logics is already bootstrapped.",
+              autoRefreshIntervalSeconds: 15,
+              items: [],
+              updateInfo: {}
+            }
+          })
+        };
+      }
       if (String(url).startsWith("/api/doc")) {
         return {
           ok: true,
@@ -588,6 +620,18 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-git")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
+  it("bootstraps Logics through the local viewer host action", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "bootstrap-logics" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/bootstrap-logics");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("new-project");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Logics bootstrapped");
   });
 
   it("opens refresh options and configures the interval from the payload", async () => {

@@ -375,6 +375,18 @@
     postToApp(data.payload);
   }
 
+  async function bootstrapLogicsProject() {
+    setMeta("Bootstrapping Logics...");
+    const response = await fetch("/api/bootstrap-logics", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to bootstrap Logics.");
+    }
+    postToApp(data.payload);
+    const created = Array.isArray(data.bootstrap?.created_paths) ? data.bootstrap.created_paths.length : 0;
+    setMeta(created > 0 ? `Logics bootstrapped · ${created} paths created.` : "Logics bootstrap checked.");
+  }
+
   function normalizeCapabilities(payload) {
     const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
     return {
@@ -2581,6 +2593,10 @@
         }
         if (message.type === "refresh") {
           refreshViewer("POST").catch((error) => setMeta(error.message));
+          return;
+        }
+        if (message.type === "bootstrap-logics") {
+          bootstrapLogicsProject().catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "open" || message.type === "read") {

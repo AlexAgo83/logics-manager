@@ -54,6 +54,15 @@
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
   let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+  let latestCdxMissionState = {
+    missionId: "full-audit",
+    sessionId: "",
+    strengthId: "standard",
+    statusPayload: null,
+    planPayload: null,
+    runPayload: null,
+    applyPayload: null
+  };
   let connectionState = "connected";
   let lastSuccessfulSyncAt = 0;
 
@@ -2131,10 +2140,158 @@
     return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
   }
 
+  function cdxMissionCatalog(payload = {}) {
+    return payload.catalog || {
+      missions: [
+        { id: "full-audit", title: "Audit complet", description: "Inspecte le repository complet avec un rapport CDX exploitable.", scope: "repository", requiresPlanConfirmation: false },
+        { id: "release-review", title: "Review depuis derniere release", description: "Compare l'etat courant avec le dernier tag de version disponible.", scope: "latest-release", requiresPlanConfirmation: false },
+        { id: "corpus-ready", title: "Preparer le corpus pret a dev", description: "Produit un plan corpus avant toute application Logics deterministe.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+      ],
+      strengths: [
+        { id: "standard", label: "Standard" },
+        { id: "deep", label: "Deep" },
+        { id: "max", label: "Max" }
+      ],
+      defaultMissionId: "full-audit",
+      defaultStrengthId: "standard"
+    };
+  }
+
+  function selectedCdxMissionRequest() {
+    return {
+      missionId: latestCdxMissionState.missionId || "full-audit",
+      sessionId: latestCdxMissionState.sessionId || "",
+      strengthId: latestCdxMissionState.strengthId || "standard"
+    };
+  }
+
+  function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
+    const catalog = cdxMissionCatalog(planPayload || {});
+    const missions = Array.isArray(catalog.missions) ? catalog.missions : [];
+    const strengths = Array.isArray(catalog.strengths) ? catalog.strengths : [];
+    const status = statusPayload?.status || {};
+    const sessions = cdxSessions(status);
+    const selectedSession = latestCdxMissionState.sessionId || cdxField(sessions[0] || {}, ["id", "name", "session_name", "value"], "");
+    const missionId = latestCdxMissionState.missionId || catalog.defaultMissionId || "full-audit";
+    const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
+    latestCdxMissionState.sessionId = selectedSession;
+    const missionCards = missions.map((mission) => `
+      <button class="viewer-cdx__mission${mission.id === missionId ? " is-active" : ""}" type="button" data-viewer-cdx-mission="${escapeHtml(mission.id)}" aria-pressed="${mission.id === missionId ? "true" : "false"}">
+        <strong>${escapeHtml(mission.title || mission.id)}</strong>
+        <span>${escapeHtml(mission.description || "")}</span>
+        <em>${escapeHtml(cdxLabel(mission.scope || ""))}</em>
+      </button>
+    `).join("");
+    const sessionOptions = sessions.map((session) => {
+      const item = session && typeof session === "object" ? session : { value: session };
+      const id = cdxField(item, ["id", "name", "session_name", "value"], "");
+      const label = [id, cdxField(item, ["provider"], ""), renderTextRemaining(item)].filter(Boolean).join(" · ");
+      return `<option value="${escapeHtml(id)}"${id === selectedSession ? " selected" : ""}>${escapeHtml(label || id)}</option>`;
+    }).join("");
+    const strengthButtons = strengths.map((strength) => `
+      <button class="viewer-cdx__mode${strength.id === strengthId ? " is-active" : ""}" type="button" data-viewer-cdx-strength="${escapeHtml(strength.id)}" aria-pressed="${strength.id === strengthId ? "true" : "false"}">${escapeHtml(strength.label || cdxLabel(strength.id))}</button>
+    `).join("");
+    const plan = planPayload?.plan;
+    const warnings = Array.isArray(plan?.warnings) ? plan.warnings : [];
+    const command = Array.isArray(plan?.command) ? plan.command.join(" ") : "";
+    const warningRows = warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
+    const canRun = planPayload?.state === "ok" && plan?.canRun;
+    const usage = runPayload?.run?.usage || {};
+    const run = runPayload?.run;
+    const usageText = usage.available
+      ? `${usage.totalTokens ?? "-"} total · ${usage.inputTokens ?? "-"} in · ${usage.outputTokens ?? "-"} out`
+      : (usage.message || "Token usage not reported yet.");
+    const parsedActions = Array.isArray(run?.parsed?.actions) ? run.parsed.actions : [];
+    const applyResults = Array.isArray(applyPayload?.results) ? applyPayload.results : [];
+    const actionRows = parsedActions.map((action) => `
+      <li class="viewer-cdx__row"><span>${escapeHtml(cdxLabel(action.type || "action"))}</span><strong>${escapeHtml(action.target || "-")}</strong></li>
+    `).join("");
+    const applyRows = applyResults.map((result) => `
+      <li class="viewer-cdx__row"><span>${escapeHtml(cdxLabel(result.type || "action"))}</span><strong>${escapeHtml(result.returnCode === 0 ? "applied" : "failed")}</strong></li>
+    `).join("");
+    return `
+      <div class="viewer-cdx__workspace viewer-cdx__workspace--missions">
+        <div class="viewer-cdx__stack">
+          <section class="viewer-cdx__section">
+            <h2 class="viewer-cdx__heading">Mission</h2>
+            <div class="viewer-cdx__missions">${missionCards}</div>
+          </section>
+          <section class="viewer-cdx__section">
+            <h2 class="viewer-cdx__heading">Execution</h2>
+            <label class="viewer-cdx__field">
+              <span>Session</span>
+              <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
+            </label>
+            <div class="viewer-cdx__strengths">${strengthButtons}</div>
+            <div class="viewer-cdx__actions">
+              <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
+              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>Launch run</button>
+            </div>
+          </section>
+        </div>
+        <div class="viewer-cdx__stack">
+          <section class="viewer-cdx__section">
+            <h2 class="viewer-cdx__heading">Plan preview</h2>
+            ${planPayload && planPayload.state !== "ok" ? `<div class="viewer-cdx__state">${escapeHtml(planPayload.message || "Unable to build mission plan.")}</div>` : ""}
+            ${command ? `<pre class="viewer-cdx__code">${escapeHtml(command)}</pre>` : '<div class="viewer-cdx__empty">Preview a mission to inspect the exact command before launch.</div>'}
+            ${plan?.releaseTag ? `<div class="viewer-cdx__meta">Base tag: ${escapeHtml(plan.releaseTag)}</div>` : ""}
+            ${plan?.requiresConfirmation ? '<div class="viewer-cdx__meta">Plan-first mission: Logics changes need explicit apply after CDX returns allowed actions.</div>' : ""}
+            ${warningRows ? `<ul class="viewer-cdx__warnings">${warningRows}</ul>` : ""}
+          </section>
+          <section class="viewer-cdx__section">
+            <h2 class="viewer-cdx__heading">Run output</h2>
+            ${runPayload ? `<div class="viewer-cdx__state viewer-cdx__state--${escapeHtml(cdxStateClass(runPayload.state))}">${escapeHtml(runPayload.message || cdxLabel(runPayload.state))}</div>` : '<div class="viewer-cdx__empty">No mission run launched yet.</div>'}
+            ${run ? `<ul class="viewer-cdx__list">
+              <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.runId || "-")}</strong></li>
+              <li class="viewer-cdx__row"><span>Usage</span><strong>${escapeHtml(usageText)}</strong></li>
+              <li class="viewer-cdx__row"><span>Return code</span><strong>${escapeHtml(run.returnCode ?? "-")}</strong></li>
+            </ul>` : ""}
+            ${run?.stdout ? `<pre class="viewer-cdx__code">${escapeHtml(run.stdout)}</pre>` : ""}
+            ${run?.stderr ? `<pre class="viewer-cdx__code viewer-cdx__code--error">${escapeHtml(run.stderr)}</pre>` : ""}
+          </section>
+          ${plan?.missionId === "corpus-ready" || latestCdxMissionState.missionId === "corpus-ready" ? `
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Corpus apply</h2>
+              <ul class="viewer-cdx__list">${actionRows || '<li class="viewer-cdx__empty">CDX has not returned allowed corpus actions yet.</li>'}</ul>
+              <div class="viewer-cdx__actions">
+                <button class="btn" type="button" data-viewer-cdx-apply-plan${parsedActions.length ? "" : " disabled"}>Apply allowed actions</button>
+              </div>
+              ${applyPayload ? `<div class="viewer-cdx__state viewer-cdx__state--${escapeHtml(cdxStateClass(applyPayload.state))}">${escapeHtml(applyPayload.message || cdxLabel(applyPayload.state))}</div>` : ""}
+              ${applyRows ? `<ul class="viewer-cdx__list">${applyRows}</ul>` : ""}
+            </section>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTextRemaining(item) {
+    const percent = cdxRemainingPct(item);
+    return percent === null ? "" : `${percent}% remaining`;
+  }
+
+  function renderCdxMissions(statusPayload, planPayload = null, runPayload = null, applyPayload = null) {
+    if (!statusPayload || statusPayload.state !== "ok") {
+      return `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("missions")}
+          <div class="viewer-cdx__state">${escapeHtml(statusPayload?.message || "CDX missions are unavailable.")}</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("missions")}
+        ${renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload)}
+      </div>
+    `;
+  }
+
   function renderCdxModeSwitcher(active) {
     return `
       <div class="viewer-cdx__modes" role="tablist" aria-label="CDX views">
         <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Status</button>
+        <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
         <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Runs</button>
       </div>
     `;
@@ -2313,6 +2470,96 @@
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
+  }
+
+  async function showCdxMissions(options = {}) {
+    if (!isCapabilityAvailable("cdx")) {
+      const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      setDocument("CDX missions", renderCdxMissions({ state: capability("cdx").state, message }));
+      setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      setMeta("Loading CDX missions...");
+    }
+    const response = await fetch("/api/cdx-status");
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX mission status.");
+    }
+    latestCdxMissionState.statusPayload = data.payload;
+    const sessions = cdxSessions(data.payload?.status || {});
+    if (!latestCdxMissionState.sessionId && sessions.length) {
+      latestCdxMissionState.sessionId = cdxField(sessions[0], ["id", "name", "session_name", "value"], "");
+    }
+    updateMainCdxBadge(data.payload);
+    setDocument("CDX missions", renderCdxMissions(data.payload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, latestCdxMissionState.applyPayload));
+    setMeta(options.silent ? "CDX missions refreshed." : "CDX missions loaded.");
+  }
+
+  async function previewCdxMission() {
+    setMeta("Preparing CDX mission preview...");
+    const response = await fetch("/api/cdx-mission-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedCdxMissionRequest())
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to preview CDX mission.");
+    }
+    latestCdxMissionState.planPayload = data.payload;
+    latestCdxMissionState.runPayload = null;
+    latestCdxMissionState.applyPayload = null;
+    if (data.payload?.plan?.sessionId) {
+      latestCdxMissionState.sessionId = data.payload.plan.sessionId;
+    }
+    setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload || data.payload?.status, data.payload, null, null));
+    setMeta(data.payload?.state === "ok" ? "CDX mission preview ready." : (data.payload?.message || "CDX mission preview failed."));
+  }
+
+  async function launchCdxMission() {
+    setMeta("Launching CDX mission...");
+    const response = await fetch("/api/cdx-mission-run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedCdxMissionRequest())
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to launch CDX mission.");
+    }
+    latestCdxMissionState.planPayload = { state: data.payload?.state === "ok" ? "ok" : data.payload?.state, message: data.payload?.message || "", plan: data.payload?.plan };
+    latestCdxMissionState.runPayload = data.payload;
+    latestCdxMissionState.applyPayload = null;
+    setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, data.payload, null));
+    setMeta(data.payload?.state === "ok" ? "CDX mission launched." : (data.payload?.message || "CDX mission failed."));
+  }
+
+  async function applyCdxMissionPlan() {
+    const actions = latestCdxMissionState.runPayload?.run?.parsed?.actions;
+    if (!Array.isArray(actions) || !actions.length) {
+      setMeta("No corpus actions to apply.");
+      return;
+    }
+    setMeta("Applying allowed corpus actions...");
+    const response = await fetch("/api/cdx-mission-apply-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actions })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to apply corpus plan.");
+    }
+    latestCdxMissionState.applyPayload = data.payload;
+    setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, data.payload));
+    setMeta(data.payload?.state === "ok" ? "Corpus actions applied." : (data.payload?.message || "Corpus apply failed."));
   }
 
   async function showCdxRuns(options = {}) {
@@ -2922,6 +3169,16 @@
         editDocument(selectedItem()).catch((error) => setMeta(error.message));
       });
     }
+    document.addEventListener("change", (event) => {
+      const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
+      if (sessionTarget instanceof HTMLSelectElement) {
+        latestCdxMissionState.sessionId = sessionTarget.value || "";
+        latestCdxMissionState.planPayload = null;
+        latestCdxMissionState.runPayload = null;
+        latestCdxMissionState.applyPayload = null;
+        setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+      }
+    });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
@@ -2936,6 +3193,39 @@
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
       const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
+      const cdxMissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission]") : null;
+      const cdxStrengthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-strength]") : null;
+      const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
+      const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
+      const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
+      if (cdxMissionTarget instanceof HTMLElement) {
+        latestCdxMissionState.missionId = cdxMissionTarget.getAttribute("data-viewer-cdx-mission") || "full-audit";
+        latestCdxMissionState.planPayload = null;
+        latestCdxMissionState.runPayload = null;
+        latestCdxMissionState.applyPayload = null;
+        setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+        return;
+      }
+      if (cdxStrengthTarget instanceof HTMLElement) {
+        latestCdxMissionState.strengthId = cdxStrengthTarget.getAttribute("data-viewer-cdx-strength") || "standard";
+        latestCdxMissionState.planPayload = null;
+        latestCdxMissionState.runPayload = null;
+        latestCdxMissionState.applyPayload = null;
+        setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+        return;
+      }
+      if (cdxPlanTarget instanceof HTMLElement) {
+        previewCdxMission().catch((error) => setMeta(error.message));
+        return;
+      }
+      if (cdxRunTarget instanceof HTMLElement) {
+        launchCdxMission().catch((error) => setMeta(error.message));
+        return;
+      }
+      if (cdxApplyPlanTarget instanceof HTMLElement) {
+        applyCdxMissionPlan().catch((error) => setMeta(error.message));
+        return;
+      }
       if (cdxReportTarget instanceof HTMLElement) {
         showCdxReport(cdxReportTarget.getAttribute("data-viewer-cdx-report") || "").catch((error) => setMeta(error.message));
         return;
@@ -2948,6 +3238,8 @@
         const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
         if (mode === "runs") {
           showCdxRuns().catch((error) => setMeta(error.message));
+        } else if (mode === "missions") {
+          showCdxMissions().catch((error) => setMeta(error.message));
         } else {
           showCdxStatus().catch((error) => setMeta(error.message));
         }

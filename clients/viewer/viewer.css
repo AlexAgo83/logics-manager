@@ -1050,11 +1050,110 @@
   overflow-wrap: anywhere;
 }
 
+.viewer-cdx__missions {
+  display: grid;
+  gap: 8px;
+}
+
+.viewer-cdx__mission {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-input-background, #1f1f1f);
+  color: var(--vscode-foreground, #d4d4d4);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.viewer-cdx__mission.is-active {
+  border-color: var(--vscode-focusBorder, #4ea1ff);
+  background: color-mix(in srgb, var(--vscode-input-background, #1f1f1f) 72%, var(--vscode-textLink-foreground, #4ea1ff));
+}
+
+.viewer-cdx__mission span,
+.viewer-cdx__mission em {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.viewer-cdx__field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
+.viewer-cdx__field select {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--vscode-input-border, var(--vscode-panel-border, #333333));
+  border-radius: 4px;
+  padding: 7px 8px;
+  background: var(--vscode-dropdown-background, var(--vscode-input-background, #1f1f1f));
+  color: var(--vscode-dropdown-foreground, var(--vscode-foreground, #d4d4d4));
+}
+
+.viewer-cdx__strengths,
+.viewer-cdx__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.viewer-cdx__actions {
+  margin-top: 12px;
+}
+
+.viewer-cdx__code {
+  max-height: 260px;
+  overflow: auto;
+  margin: 0 0 10px;
+  padding: 9px;
+  border-radius: 6px;
+  background: var(--vscode-textCodeBlock-background, #111111);
+  color: var(--vscode-textPreformat-foreground, #d7ba7d);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__code--error {
+  color: #ef4444;
+}
+
+.viewer-cdx__warnings {
+  display: grid;
+  gap: 5px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: #f59e0b;
+  font-size: 12px;
+}
+
 .viewer-cdx__state,
 .viewer-cdx__empty {
   margin: 0;
   color: var(--vscode-descriptionForeground, #aaaaaa);
   overflow-wrap: anywhere;
+}
+
+.viewer-cdx__state--ok {
+  color: #22c55e;
+}
+
+.viewer-cdx__state--warn {
+  color: #f59e0b;
+}
+
+.viewer-cdx__state--bad {
+  color: #ef4444;
 }
 
 @media (max-width: 860px) {

@@ -430,6 +430,90 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/cdx-mission-plan") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              catalog: {
+                missions: [
+                  { id: "full-audit", title: "Audit complet", description: "Inspecte le repository.", scope: "repository", requiresPlanConfirmation: false },
+                  { id: "release-review", title: "Review depuis derniere release", description: "Compare avec le dernier tag.", scope: "latest-release", requiresPlanConfirmation: false },
+                  { id: "corpus-ready", title: "Preparer le corpus pret a dev", description: "Produit un plan corpus.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+                ],
+                strengths: [
+                  { id: "standard", label: "Standard" },
+                  { id: "deep", label: "Deep" },
+                  { id: "max", label: "Max" }
+                ],
+                defaultMissionId: "full-audit",
+                defaultStrengthId: "standard"
+              },
+              status: {
+                state: "ok",
+                status: {
+                  sessions: [{ id: "session-1", status: "active" }]
+                }
+              },
+              plan: {
+                missionId: "corpus-ready",
+                mission: { id: "corpus-ready", title: "Preparer le corpus pret a dev" },
+                sessionId: "session-1",
+                strengthId: "deep",
+                strength: { id: "deep", label: "Deep" },
+                scope: "open-logics-workflow",
+                command: ["cdx", "run", "--json", "--session", "session-1", "--strength", "deep", "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"],
+                warnings: [],
+                requiresConfirmation: true,
+                canRun: true
+              }
+            }
+          })
+        };
+      }
+      if (url === "/api/cdx-mission-run") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              plan: {
+                missionId: "corpus-ready",
+                sessionId: "session-1",
+                strength: { id: "deep", label: "Deep" },
+                command: ["cdx", "run", "--json", "--session", "session-1", "--strength", "deep", "--mission", "corpus-ready-plan", "--scope", "open-logics-workflow", "--plan-only"],
+                canRun: true
+              },
+              run: {
+                returnCode: 0,
+                runId: "run-42",
+                stdout: "{\"ok\":true}",
+                stderr: "",
+                usage: { available: true, inputTokens: 100, outputTokens: 40, totalTokens: 140 },
+                parsed: { actions: [{ type: "refresh-corpus-context", target: "task_213" }] }
+              }
+            }
+          })
+        };
+      }
+      if (url === "/api/cdx-mission-apply-plan") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              results: [{ type: "refresh-corpus-context", target: "task_213", returnCode: 0 }]
+            }
+          })
+        };
+      }
       if (url === "/api/lint") {
         return {
           ok: true,
@@ -1168,6 +1252,49 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/cdx-report-request");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
+  it("previews launches and applies guided CDX missions", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX missions");
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Audit complet");
+    expect(text).toContain("Preparer le corpus pret a dev");
+
+    dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-mission-plan");
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("cdx run --json --session session-1 --strength deep");
+    expect(text).toContain("Plan-first mission");
+
+    dom.window.document.querySelector('[data-viewer-cdx-run]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-mission-run");
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("run-42");
+    expect(text).toContain("140 total");
+    expect(text).toContain("Refresh Corpus Context");
+
+    dom.window.document.querySelector('[data-viewer-cdx-apply-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-mission-apply-plan");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Corpus actions applied.");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("applied");
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

@@ -876,7 +876,20 @@ def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_pa
 
 def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:
     output_path = tmp_path / "cdx-stdout.json"
-    output_path.write_text(json.dumps({"summary": "Ready", "actions": [{"type": "refresh-corpus-context", "target": ""}]}), encoding="utf-8")
+    output_path.write_text(
+        "\n".join([
+            json.dumps({"type": "item.completed", "item": {"type": "command_execution", "aggregated_output": "x" * 20000}}),
+            json.dumps({"type": "thread.started", "thread_id": "thread-1"}),
+            json.dumps({
+                "type": "item.completed",
+                "item": {
+                    "type": "agent_message",
+                    "text": json.dumps({"summary": "Ready", "actions": [{"type": "refresh-corpus-context", "target": ""}]}),
+                },
+            }),
+        ]),
+        encoding="utf-8",
+    )
 
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args == ["cdx", "status", "--json"]:
@@ -911,7 +924,18 @@ def test_viewer_cdx_mission_apply_plan_runs_only_allowlisted_logics_actions(tmp_
     )
 
     assert payload["state"] == "ok"
-    assert calls == [["logics-manager", "flow", "request", "backlog", "req_239"]]
+    assert calls == [["logics-manager", "flow", "promote", "request-to-backlog", "req_239"]]
+
+    calls.clear()
+    refresh = cdx_mission_apply_plan_payload(
+        tmp_path,
+        {"actions": [{"type": "refresh-corpus-context", "target": "task_213"}]},
+        runner=runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert refresh["state"] == "ok"
+    assert calls == [["logics-manager", "sync", "refresh-mermaid-signatures"]]
 
     rejected = cdx_mission_apply_plan_payload(
         tmp_path,

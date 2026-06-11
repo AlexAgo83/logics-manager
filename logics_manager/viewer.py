@@ -630,6 +630,12 @@ def _run_logics_flow(repo_root: Path, args: list[str], *, runner: Any | None = N
     return flow_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=30)
 
 
+def _run_logics_command(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["logics-manager", *args]
+    logics_runner = runner or subprocess.run
+    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=30)
+
+
 def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["gh", *args]
     gh_runner = runner or subprocess.run
@@ -1391,15 +1397,35 @@ def _parse_json_from_text(text: str) -> dict[str, Any] | None:
     raw = text.strip()
     if not raw:
         return None
+    jsonl_candidates: list[str] = []
+    for line in reversed(raw.splitlines()):
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        item = event.get("item") if isinstance(event.get("item"), dict) else {}
+        text_value = item.get("text") if item.get("type") == "agent_message" else event.get("text")
+        if isinstance(text_value, str) and text_value.strip():
+            jsonl_candidates.append(text_value.strip())
     candidates = [raw]
+    candidates.extend(jsonl_candidates)
     fence_match = re.search(r"```(?:json)?\s*(.*?)```", raw, re.IGNORECASE | re.DOTALL)
     if fence_match:
         candidates.insert(0, fence_match.group(1).strip())
     decoder = json.JSONDecoder()
+    fallback: dict[str, Any] | None = None
     for candidate in candidates:
         try:
             parsed = json.loads(candidate)
-            return parsed if isinstance(parsed, dict) else None
+            if isinstance(parsed, dict):
+                if any(key in parsed for key in ("actions", "summary", "findings", "recommendations")):
+                    return parsed
+                fallback = fallback or parsed
         except json.JSONDecodeError:
             pass
         for index, char in enumerate(candidate):
@@ -1410,8 +1436,10 @@ def _parse_json_from_text(text: str) -> dict[str, Any] | None:
             except json.JSONDecodeError:
                 continue
             if isinstance(parsed, dict):
-                return parsed
-    return None
+                if any(key in parsed for key in ("actions", "summary", "findings", "recommendations")):
+                    return parsed
+                fallback = fallback or parsed
+    return fallback
 
 
 def _read_cdx_output_path(parsed: dict[str, Any]) -> str:
@@ -1436,8 +1464,11 @@ def _read_cdx_output_path(parsed: dict[str, Any]) -> str:
         if not path.is_file():
             continue
         try:
-            with path.open("r", encoding="utf-8", errors="replace") as handle:
-                return handle.read(12000)
+            with path.open("rb") as handle:
+                size = path.stat().st_size
+                if size > 60000:
+                    handle.seek(size - 60000)
+                return handle.read(60000).decode("utf-8", errors="replace")
         except OSError:
             continue
     return ""
@@ -1607,9 +1638,9 @@ def cdx_mission_apply_plan_payload(repo_root: Path, body: dict[str, Any], *, run
         return {"state": "error", "message": "No corpus plan actions were provided.", "results": []}
 
     allowed: dict[str, list[str]] = {
-        "promote-request-to-backlog": ["request", "backlog"],
-        "promote-backlog-to-task": ["backlog", "task"],
-        "refresh-corpus-context": ["corpus", "prepare"],
+        "promote-request-to-backlog": ["flow", "promote", "request-to-backlog"],
+        "promote-backlog-to-task": ["flow", "promote", "backlog-to-task"],
+        "refresh-corpus-context": ["sync", "refresh-mermaid-signatures"],
     }
     results: list[dict[str, Any]] = []
     for action in actions:
@@ -1621,12 +1652,12 @@ def cdx_mission_apply_plan_payload(repo_root: Path, body: dict[str, Any], *, run
             return {"state": "error", "message": f"Unsupported corpus plan action: {action_type}", "results": results}
         target = str(action.get("target") or "").strip()
         args = [*command]
-        if target:
+        if target and action_type != "refresh-corpus-context":
             if not re.match(r"^[A-Za-z0-9_.:/-]{1,160}$", target):
                 return {"state": "error", "message": "Invalid corpus plan action target.", "results": results}
             args.append(target)
         try:
-            result = _run_logics_flow(repo_root, args, runner=runner)
+            result = _run_logics_command(repo_root, args, runner=runner)
         except subprocess.TimeoutExpired:
             return {"state": "timeout", "message": "Logics corpus plan application timed out.", "results": results}
         except (OSError, subprocess.SubprocessError) as exc:
@@ -1634,7 +1665,7 @@ def cdx_mission_apply_plan_payload(repo_root: Path, body: dict[str, Any], *, run
         item = {
             "type": action_type,
             "target": target,
-            "command": ["logics-manager", "flow", *args],
+            "command": ["logics-manager", *args],
             "returnCode": result.returncode,
             "stdout": _bounded_process_text(result.stdout or "", 4000),
             "stderr": _bounded_process_text(result.stderr or "", 4000),

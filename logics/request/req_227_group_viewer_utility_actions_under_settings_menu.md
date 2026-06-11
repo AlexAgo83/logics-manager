@@ -1,7 +1,7 @@
 ## req_227_group_viewer_utility_actions_under_settings_menu - Group viewer utility actions under settings menu
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

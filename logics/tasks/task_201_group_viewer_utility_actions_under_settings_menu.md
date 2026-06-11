@@ -1,18 +1,18 @@
 ## task_201_group_viewer_utility_actions_under_settings_menu - Group viewer utility actions under settings menu
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_393_group_viewer_utility_actions_under_settings_menu`
@@ -58,9 +58,14 @@ flowchart TD
 - Run relevant viewer syntax/tests once implemented.
 - Manually verify settings menu access to refresh, insights, and health actions.
 - Run `logics-manager flow finish task logics/tasks/task_201_group_viewer_utility_actions_under_settings_menu.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Pending implementation.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_393_group_viewer_utility_actions_under_settings_menu`
+- Related request(s): `req_227_group_viewer_utility_actions_under_settings_menu`
 
 # AI Context
 - Summary: Implement group viewer utility actions under settings menu.

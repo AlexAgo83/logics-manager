@@ -2360,6 +2360,7 @@
     applyLocalViewerChrome();
     [document.getElementById("viewer-insights")].forEach((button) => {
       button?.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
         showCorpusInsights().catch((error) => setMeta(error.message));
       });
     });
@@ -2409,6 +2410,7 @@
       });
     });
     document.getElementById("viewer-health")?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
       showHealth().catch((error) => setMeta(error.message));
     });
     document.getElementById("viewer-git")?.addEventListener("click", () => {

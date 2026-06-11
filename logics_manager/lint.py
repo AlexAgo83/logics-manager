@@ -15,18 +15,19 @@ from .config import find_repo_root
 @dataclass(frozen=True)
 class Kind:
     directory: str
-    prefix: str
+    prefixes: tuple[str, ...]
     requires_progress: bool
     required_indicators: tuple[str, ...]
     allowed_statuses: tuple[str, ...]
 
 
 KINDS = {
-    "request": Kind("logics/request", "req", False, ("From version", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "backlog": Kind("logics/backlog", "item", True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "task": Kind("logics/tasks", "task", True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "product": Kind("logics/product", "prod", False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
-    "architecture": Kind("logics/architecture", "adr", False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
+    "request": Kind("logics/request", ("req",), False, ("From version", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
+    "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
+    "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
+    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
+    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
+    "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived")),
 }
 
 WORKFLOW_KINDS = {"request", "backlog", "task"}
@@ -503,7 +504,8 @@ def _lint_file(path: Path, kind_name: str, kind: Kind, require_status: bool, che
     issues: list[str] = []
     warnings: list[str] = []
     name = path.name
-    if not re.match(rf"^{re.escape(kind.prefix)}_\d{{3}}_[a-z0-9_]+\.md$", name):
+    allowed_prefixes = "|".join(re.escape(prefix) for prefix in kind.prefixes)
+    if not re.match(rf"^({allowed_prefixes})_\d{{3}}_[a-z0-9_]+\.md$", name):
         issues.append(f"bad filename: {name}")
 
     lines = _read_lines(path)
@@ -557,6 +559,8 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
         if not directory.is_dir():
             continue
         for path in sorted(directory.glob("*.md")):
+            if path.name == "README.md":
+                continue
             rel_path = path.relative_to(repo_root)
             issues, warnings = _lint_file(
                 path,

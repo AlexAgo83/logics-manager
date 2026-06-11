@@ -336,6 +336,7 @@ def _build_spec_first_pass(repo_root: Path, backlog_ref: str) -> dict[str, objec
         [
             f"## {ref} - {spec_title}",
             f"> From version: {_parse_package_version(repo_root)}",
+            "> Status: Draft",
             "> Understanding: 90%",
             "> Confidence: 85%",
             "",

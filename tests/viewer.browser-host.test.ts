@@ -1503,6 +1503,7 @@ describe("local viewer browser host", () => {
 
     expect(matches({ stage: "product", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
     expect(matches({ stage: "architecture", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
+    expect(matches({ stage: "spec", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
     expect(matches({ stage: "architecture", indicators: { Status: "Superseded" }, references: [], usedBy: [] })).toBe(false);
     expect(matches({ stage: "product", indicators: { Status: "Accepted" }, references: [], usedBy: [] })).toBe(true);
   });

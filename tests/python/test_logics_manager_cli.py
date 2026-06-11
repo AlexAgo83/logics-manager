@@ -1991,6 +1991,25 @@ def _write_minimal_architecture_doc(path: Path, *, title: str, status: str, body
     )
 
 
+def _write_minimal_spec_doc(path: Path, *, title: str, status: str) -> None:
+    path.write_text(
+        "\n".join(
+            [
+                f"## {path.stem} - {title}",
+                "> From version: 1.0.0",
+                f"> Status: {status}",
+                "> Understanding: 100%",
+                "> Confidence: 100%",
+                "",
+                "# Overview",
+                "Spec context.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def _write_subprocess_json_repo(repo_root: Path) -> None:
     (repo_root / "logics" / "request").mkdir(parents=True)
     (repo_root / "logics" / "backlog").mkdir(parents=True)
@@ -2217,6 +2236,7 @@ def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, m
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "product").mkdir(parents=True)
     (repo_root / "logics" / "architecture").mkdir(parents=True)
+    (repo_root / "logics" / "specs").mkdir(parents=True)
 
     _write_minimal_product_doc(
         repo_root / "logics" / "product" / "prod_001_demo.md",
@@ -2237,6 +2257,16 @@ def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, m
         repo_root / "logics" / "architecture" / "adr_002_closed.md",
         title="Closed ADR",
         status="Settled",
+    )
+    _write_minimal_spec_doc(
+        repo_root / "logics" / "specs" / "spec_001_demo.md",
+        title="Demo spec",
+        status="Settled",
+    )
+    _write_minimal_spec_doc(
+        repo_root / "logics" / "specs" / "req_002_legacy_spec.md",
+        title="Legacy prefixed spec",
+        status="Validated",
     )
 
     monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: set())
@@ -3863,6 +3893,7 @@ def test_main_runs_native_assist_spec_first_pass_execute(
     created = next((repo_root / "logics" / "specs").glob("spec_*.md"))
     assert created.is_file()
     text = created.read_text(encoding="utf-8")
+    assert "> Status: Draft" in text
     assert "# Overview" in text
     assert "Deliver a bounded spec generation slice." in text
 

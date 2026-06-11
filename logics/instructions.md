@@ -26,6 +26,8 @@ Use the following indicators in request/backlog/task items:
 * `Confidence: ??%` : Your confidence in solving the need.
 * `Progress: ??%` : Your progress toward completing the backlog item or task.
 
+Specs in `logics/specs` must also carry `Status`. Supported spec statuses are `Draft`, `Ready`, `In progress`, `Done`, `Validated`, `Settled`, and `Archived`; use `Settled` for retained specs that are no longer active.
+
 ## Automation
 
 This repository uses the canonical `logics-manager` CLI for workflow operations.

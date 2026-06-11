@@ -366,13 +366,13 @@ describe("local viewer browser host", () => {
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
   });
 
-  it("orders local viewer topbar actions as Settings Git CI CDX", () => {
+  it("orders local viewer topbar actions with Settings on the right", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Settings", "Git", "CI", "CDX"]);
+    expect(labels).toEqual(["Git", "CI", "CDX", "Settings"]);
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {

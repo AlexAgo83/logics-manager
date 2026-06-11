@@ -31,6 +31,9 @@
       <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
     </div>
     <div class="viewer-topbar__actions">
+      <button class="btn" id="viewer-git" type="button" title="Show Git status">Git</button>
+      <button class="btn" id="viewer-ci" type="button" title="Show GitHub Actions CI status" hidden>CI</button>
+      <button class="btn" id="viewer-cdx" type="button" title="Show CDX status">CDX</button>
       <div class="viewer-refresh-menu">
         <button class="btn" id="viewer-refresh-menu-button" type="button" title="Viewer settings" aria-haspopup="menu" aria-expanded="false" aria-controls="viewer-refresh-menu">Settings</button>
         <div class="viewer-refresh-menu__panel" id="viewer-refresh-menu" role="menu" aria-label="Viewer settings" hidden>
@@ -59,9 +62,6 @@
           </section>
         </div>
       </div>
-      <button class="btn" id="viewer-git" type="button" title="Show Git status">Git</button>
-      <button class="btn" id="viewer-ci" type="button" title="Show GitHub Actions CI status" hidden>CI</button>
-      <button class="btn" id="viewer-cdx" type="button" title="Show CDX status">CDX</button>
     </div>
   </header>
 

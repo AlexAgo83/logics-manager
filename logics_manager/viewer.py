@@ -343,6 +343,7 @@ def viewer_data_payload(
     *,
     auto_refresh_interval_seconds: int = 15,
 ) -> dict[str, Any]:
+    capabilities = viewer_project_capabilities(repo_root)
     return {
         "root": str(repo_root.resolve()),
         "repoName": repo_root.resolve().name,
@@ -350,6 +351,7 @@ def viewer_data_payload(
             "root": str(repo_root.resolve()),
             "githubUrl": github_repo_url(repo_root),
         },
+        "capabilities": capabilities,
         "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
@@ -363,6 +365,97 @@ def viewer_data_payload(
         "canRepairLogicsKit": False,
         "canPublishRelease": False,
         "shouldRecommendCheckEnvironment": False,
+    }
+
+
+def _viewer_capability(state: str, *, available: bool, message: str, detail: dict[str, Any] | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "state": state,
+        "available": available,
+        "message": message,
+    }
+    if detail:
+        payload["detail"] = detail
+    return payload
+
+
+def _git_is_repository(repo_root: Path, *, runner: Any | None = None) -> bool | None:
+    try:
+        result = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return False
+    return result.stdout.strip().lower() == "true"
+
+
+def viewer_project_capabilities(
+    repo_root: Path,
+    *,
+    git_runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    which_command = which or shutil.which
+    logics_dir = repo_root / "logics"
+    has_logics = logics_dir.is_dir()
+    git_path = which_command("git")
+    cdx_path = which_command("cdx")
+
+    if has_logics:
+        logics = _viewer_capability("ready", available=True, message="Logics corpus found.")
+    else:
+        logics = _viewer_capability("missing", available=False, message="No Logics corpus found.")
+
+    if not git_path:
+        git = _viewer_capability("unavailable", available=False, message="Git executable is not available.")
+        github_url = ""
+        has_workflows = False
+    else:
+        is_repo = _git_is_repository(repo_root, runner=git_runner)
+        if is_repo is True:
+            git = _viewer_capability("ready", available=True, message="Git repository detected.")
+            github_url = github_repo_url(repo_root, runner=git_runner, which=which_command)
+            has_workflows = _has_github_actions_workflows(repo_root)
+        elif is_repo is False:
+            git = _viewer_capability("missing", available=False, message="Project is not a Git repository.")
+            github_url = ""
+            has_workflows = False
+        else:
+            git = _viewer_capability("error", available=False, message="Unable to inspect Git repository state.")
+            github_url = ""
+            has_workflows = False
+
+    if not github_url:
+        ci = _viewer_capability("hidden", available=False, message="No GitHub remote detected for this project.")
+    elif not has_workflows:
+        ci = _viewer_capability("hidden", available=False, message="No GitHub Actions workflows detected for this project.")
+    elif not which_command("gh"):
+        ci = _viewer_capability("unavailable", available=False, message="GitHub CLI is not available.")
+    else:
+        ci = _viewer_capability(
+            "ready",
+            available=True,
+            message="GitHub Actions can be inspected.",
+            detail={"githubUrl": github_url},
+        )
+
+    if cdx_path:
+        cdx = _viewer_capability("ready", available=True, message="CDX executable detected.")
+        cdx_runs = _viewer_capability(
+            "unsupported",
+            available=False,
+            message="CDX assistant run registry is not available yet.",
+        )
+    else:
+        cdx = _viewer_capability("missing", available=False, message="CDX executable is not available.")
+        cdx_runs = _viewer_capability("missing", available=False, message="CDX is required before assistant runs can be tracked.")
+
+    return {
+        "logics": logics,
+        "git": git,
+        "ci": ci,
+        "cdx": cdx,
+        "cdxRuns": cdx_runs,
     }
 
 
@@ -1037,6 +1130,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/audit":
             self._send_json({"ok": True, "payload": audit_payload(self.server.repo_root)})
+            return
+        if route == "/api/capabilities":
+            self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
             return
         if route == "/api/git-status":
             self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})

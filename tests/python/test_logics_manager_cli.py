@@ -36,6 +36,7 @@ from logics_manager.viewer import (
     open_repo_folder_payload,
     read_doc_payload,
     render_start_status,
+    viewer_project_capabilities,
 )
 from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
@@ -639,6 +640,75 @@ def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invali
         return subprocess.CompletedProcess(args, 0, "[]", "")
 
     assert cdx_status_payload(tmp_path, runner=array_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Path) -> None:
+    capabilities = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+
+    assert capabilities["logics"]["state"] == "missing"
+    assert capabilities["git"]["state"] == "unavailable"
+    assert capabilities["ci"]["state"] == "hidden"
+    assert capabilities["cdx"]["state"] == "missing"
+    assert capabilities["cdxRuns"]["state"] == "missing"
+
+
+def test_viewer_project_capabilities_detect_ready_git_ci_and_cdx(tmp_path: Path) -> None:
+    (tmp_path / "logics").mkdir()
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[-2:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[-2:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "origin\thttps://github.com/example/project.git (fetch)\norigin\thttps://github.com/example/project.git (push)\n",
+                "",
+            )
+        return subprocess.CompletedProcess(args, 1, "", "unexpected")
+
+    capabilities = viewer_project_capabilities(
+        tmp_path,
+        git_runner=runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh", "cdx"} else None,
+    )
+
+    assert capabilities["logics"]["state"] == "ready"
+    assert capabilities["git"]["state"] == "ready"
+    assert capabilities["ci"]["state"] == "ready"
+    assert capabilities["ci"]["detail"]["githubUrl"] == "https://github.com/example/project"
+    assert capabilities["cdx"]["state"] == "ready"
+    assert capabilities["cdxRuns"]["state"] == "unsupported"
+
+
+def test_viewer_capabilities_endpoint_returns_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        viewer_module,
+        "viewer_project_capabilities",
+        lambda repo_root: {
+            "logics": {"state": "ready", "available": True, "message": str(repo_root)},
+            "git": {"state": "missing", "available": False, "message": "No git"},
+        },
+    )
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/capabilities")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["logics"]["state"] == "ready"
+        assert payload["payload"]["git"]["state"] == "missing"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_viewer_cdx_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

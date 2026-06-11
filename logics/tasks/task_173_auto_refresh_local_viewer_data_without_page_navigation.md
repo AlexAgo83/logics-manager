@@ -2,8 +2,8 @@
 > From version: 2.2.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 94
-> Confidence: 86
+> Understanding: 95
+> Confidence: 87
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI
@@ -58,12 +58,14 @@ flowchart TD
 - Run `python3 -m logics_manager flow finish task task_173_auto_refresh_local_viewer_data_without_page_navigation.md` after implementation.
 - Finish workflow executed on 2026-06-07.
 - Linked backlog/request close verification passed.
+- Regression added: tests/viewer.browser-host.test.ts verifies that a viewer opened with ?focus=req_001_demo keeps selectedId=req_001_demo after the refresh action. Validation run: npm exec -- vitest run tests/viewer.browser-host.test.ts passed with 47 tests.
 
 # Report
 - Planned. No implementation has been applied yet.
 - Finished on 2026-06-07.
 - Linked backlog item(s): `item_372_auto_refresh_local_viewer_data_without_page_navigation`
 - Related request(s): `req_208_auto_refresh_local_viewer_data_without_page_navigation`
+- Post-delivery refresh-selection fix: local viewer focus URLs now keep injecting the focused item as selectedId on subsequent manual and automatic refresh payloads, so a focused request remains visually selected after refresh. Implemented in clients/viewer/browser-host.js and logics_manager/viewer_assets/viewer/browser-host.js. Commit: 033d8c3.
 
 # AI Context
 - Summary: Implement silent in-place auto-refresh for local viewer data without page navigation.

@@ -2,8 +2,8 @@
 > From version: 2.2.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 94
-> Confidence: 86
+> Understanding: 95
+> Confidence: 87
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI
@@ -60,6 +60,7 @@ flowchart TD
 - Architecture framing: Lightweight client-side polling is preferred for the first slice.
 - Architecture signals: Reuse `/api/refresh`; avoid new backend streaming mechanisms.
 - Architecture follow-up: Revisit only if polling becomes too noisy for large corpora.
+- Post-delivery decision: selected-item preservation covers URL-focused items across refresh cycles. The local viewer host reapplies the focus-derived selectedId on refresh without repeating first-load side effects such as read preview opening.
 
 # Links
 - Product brief(s): (none yet)

@@ -2,8 +2,8 @@
 > From version: 2.2.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 95
-> Confidence: 87
+> Understanding: 96
+> Confidence: 88
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -78,3 +78,6 @@ flowchart TD
 # Backlog
 - none
 - `item_372_auto_refresh_local_viewer_data_without_page_navigation`
+
+# Notes
+- Post-delivery clarification: AC3 includes focus-link selections. A viewer opened with ?focus=<item> must keep that item selected after manual or automatic refresh while preserving page location and avoiding repeated first-load side effects.

@@ -718,13 +718,20 @@ describe("local viewer browser host", () => {
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Overview");
+    expect(content?.textContent).toContain("Needs attention");
+    expect(content?.textContent).toContain("Operator actions");
+    expect(content?.textContent).toContain("Corpus shape");
     expect(content?.textContent).toContain("Flow health");
     expect(content?.textContent).toContain("Activity");
     expect(content?.textContent).toContain("Traceability");
     expect(content?.textContent).toContain("Quality signals");
-    expect(content?.textContent).toContain("Operator actions");
     expect(content?.textContent).toContain("Blocked");
     expect(content?.textContent).toContain("Incomplete workflow chains");
+    expect(content?.querySelector(".viewer-insights__hero")).not.toBeNull();
+    expect(content?.querySelector(".viewer-insights__workspace")).not.toBeNull();
+    expect(content?.querySelector(".viewer-insights__bar-track")).not.toBeNull();
+    expect(content?.querySelector("[data-viewer-open-health]")).not.toBeNull();
+    expect((content?.textContent || "").indexOf("Operator actions")).toBeLessThan((content?.textContent || "").indexOf("Corpus shape"));
     expect(content?.querySelector("[data-viewer-filter-group]")).not.toBeNull();
     expect(content?.querySelector("[data-viewer-doc-path]")).not.toBeNull();
   });

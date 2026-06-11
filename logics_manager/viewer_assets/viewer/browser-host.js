@@ -936,11 +936,40 @@
   }
 
   function renderMetricCards(entries) {
-    return entries.map(([label, value]) => `
-      <div class="viewer-insights__card">
+    return entries.map(([label, value, tone]) => `
+      <div class="viewer-insights__card${tone ? ` viewer-insights__card--${escapeHtml(tone)}` : ""}">
         <div class="viewer-insights__label">${escapeHtml(label)}</div>
         <div class="viewer-insights__value">${escapeHtml(value)}</div>
       </div>
+    `).join("");
+  }
+
+  function renderInsightBars(entries, total) {
+    const denominator = Math.max(1, Number(total) || 0);
+    if (!entries.length) {
+      return '<li class="viewer-insights__bar-row">No corpus shape available</li>';
+    }
+    return entries.map(([label, value]) => {
+      const count = Number(value) || 0;
+      const width = Math.max(count > 0 ? 4 : 0, Math.min(100, Math.round((count / denominator) * 100)));
+      return `
+        <li class="viewer-insights__bar-row">
+          <div class="viewer-insights__bar-meta"><span>${escapeHtml(label)}</span><strong>${escapeHtml(count)}</strong></div>
+          <div class="viewer-insights__bar-track" aria-hidden="true"><span style="width: ${width}%"></span></div>
+        </li>
+      `;
+    }).join("");
+  }
+
+  function renderSignalRows(items, emptyText = "No signals") {
+    if (!items.length) {
+      return `<li class="viewer-insights__signal viewer-insights__signal--empty">${escapeHtml(emptyText)}</li>`;
+    }
+    return items.map(([label, value, tone]) => `
+      <li class="viewer-insights__signal${tone ? ` viewer-insights__signal--${escapeHtml(tone)}` : ""}">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+      </li>
     `).join("");
   }
 
@@ -1089,63 +1118,80 @@
     const stageRows = Object.entries(countsByStage)
       .sort((left, right) => String(left[0]).localeCompare(String(right[0])))
       .map(([stage, count]) => [stage, count]);
+    const qualityTotal = qualityFindings.length;
+    const needsAttention = blocked.length + incompleteChains.length + brokenRefs.length + missingStatus.length + qualityTotal;
+    const activeQuiet = Math.max(0, open.length - recentlyModified.length - staleActive.length);
+    const primaryState = needsAttention > 0
+      ? `${needsAttention} signals need attention`
+      : "No immediate workflow risk detected";
     return `
       <div class="viewer-insights">
-        <div class="viewer-insights__summary">${renderMetricCards([
-          ["Docs", docs.length],
-          ["Open", open.length],
-          ["Closed", closed.length],
-          ["Blocked", blocked.length],
-          ["Missing status", missingStatus.length],
-          ["Modified 7d", recentlyModified.length]
-        ])}</div>
-        <section class="viewer-insights__section">
-          <h2>Overview</h2>
-          <ul class="viewer-insights__list">${renderInsightRows(stageRows, "No docs loaded")}</ul>
-        </section>
-        <section class="viewer-insights__section">
-          <h2>Flow health</h2>
-          <ul class="viewer-insights__list">${renderInsightRows([
-            ["Incomplete workflow chains", incompleteChains.length],
-            ["Promotion gaps", incompleteChains.filter((item) => item.stage === "request" || item.stage === "backlog").length],
-            ["Orphan or unlinked docs", unlinked.length],
-            ["Broken reference risks", brokenRefs.length]
-          ])}</ul>
-          <ul class="viewer-insights__rows">${renderDocRows(incompleteChains, "No incomplete chains")}</ul>
-        </section>
-        <section class="viewer-insights__section">
-          <h2>Activity</h2>
-          <ul class="viewer-insights__list">${renderInsightRows([
-            ["Latest changes", recentRows.map(itemLabel).join(", ") || "None"],
-            ["Stale active docs", staleActive.map(itemLabel).join(", ") || "None"],
-            ["Recently active docs", recentlyModified.slice(0, 8).map(itemLabel).join(", ") || "None"],
-            ["Activity classification", `recent ${recentlyModified.length}, stale ${open.filter(isStale).length}, quiet ${Math.max(0, open.length - recentlyModified.length)}`]
-          ])}</ul>
-          <ul class="viewer-insights__rows">${renderDocRows(recentRows, "No recent documents")}</ul>
-        </section>
-        <section class="viewer-insights__section">
-          <h2>Traceability</h2>
-          <ul class="viewer-insights__list">${renderInsightRows([
-            ["Most referenced docs", mostReferenced.map((item) => `${item.id} (${(item.usedBy || []).length})`).join(", ") || "None"],
-            ["Unlinked docs", unlinked.slice(0, 8).map((item) => item.id).join(", ") || "None"],
-            ["Broken references", brokenRefs.slice(0, 8).join(", ") || "None"],
-            ["Relationships by type", Object.entries(relationshipCounts).map(([stage, count]) => `${stage} ${count}`).join(", ") || "None"]
-          ])}</ul>
-          <ul class="viewer-insights__rows">${renderDocRows(unlinked, "No unlinked documents")}${renderPathRows(brokenRefs, "No broken references")}</ul>
-        </section>
-        <section class="viewer-insights__section">
-          <h2>Quality signals</h2>
-          <ul class="viewer-insights__list">${renderInsightRows([
-            ["Lint/audit categories", Object.entries(qualityBySource).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
-            ["Findings by document type", Object.entries(qualityByDocType).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
-            ["Concentrated issues", concentratedIssues.map(([key, count]) => `${key} ${count}`).join(", ") || "None"]
-          ])}</ul>
-          <ul class="viewer-insights__rows">${renderPathRows(concentratedIssues.map(([key, count]) => `${key} (${count})`), "No concentrated issues")}</ul>
+        <section class="viewer-insights__hero">
+          <div>
+            <h2>Overview</h2>
+            <p>${escapeHtml(primaryState)} across ${escapeHtml(docs.length)} workflow docs.</p>
+          </div>
+          <div class="viewer-insights__summary">${renderMetricCards([
+            ["Docs", docs.length],
+            ["Needs attention", needsAttention, needsAttention ? "warning" : "ok"],
+            ["Recent 7d", recentlyModified.length],
+            ["Quality findings", qualityTotal, qualityTotal ? "warning" : "ok"]
+          ])}</div>
         </section>
         <section class="viewer-insights__section">
           <h2>Operator actions</h2>
-          <ul class="viewer-insights__rows">${renderActionRows(actions)}</ul>
+          <ul class="viewer-insights__rows viewer-insights__rows--actions">${renderActionRows(actions)}</ul>
         </section>
+        <div class="viewer-insights__workspace">
+          <section class="viewer-insights__section">
+            <h2>Corpus shape</h2>
+            <ul class="viewer-insights__bars">${renderInsightBars(stageRows, docs.length)}</ul>
+            <ul class="viewer-insights__list">${renderInsightRows([
+              ["Open", open.length],
+              ["Closed", closed.length],
+              ["Blocked", blocked.length],
+              ["Missing status", missingStatus.length]
+            ])}</ul>
+          </section>
+          <section class="viewer-insights__section">
+            <h2>Flow health</h2>
+            <ul class="viewer-insights__signals">${renderSignalRows([
+              ["Incomplete workflow chains", incompleteChains.length, incompleteChains.length ? "warning" : "ok"],
+              ["Promotion gaps", incompleteChains.filter((item) => item.stage === "request" || item.stage === "backlog").length, incompleteChains.length ? "warning" : "ok"],
+              ["Orphan or unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
+              ["Broken reference risks", brokenRefs.length, brokenRefs.length ? "warning" : "ok"]
+            ])}</ul>
+            <ul class="viewer-insights__rows">${renderDocRows(incompleteChains, "No incomplete chains")}</ul>
+          </section>
+          <section class="viewer-insights__section">
+            <h2>Activity</h2>
+            <ul class="viewer-insights__signals">${renderSignalRows([
+              ["Recently active docs", recentlyModified.length],
+              ["Stale active docs", staleActive.length, staleActive.length ? "warning" : "ok"],
+              ["Quiet active docs", activeQuiet]
+            ])}</ul>
+            <ul class="viewer-insights__rows">${renderDocRows(recentRows, "No recent documents")}</ul>
+          </section>
+          <section class="viewer-insights__section">
+            <h2>Traceability</h2>
+            <ul class="viewer-insights__signals">${renderSignalRows([
+              ["Broken references", brokenRefs.length, brokenRefs.length ? "warning" : "ok"],
+              ["Unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
+              ["Most referenced docs", mostReferenced.map((item) => `${item.id} (${(item.usedBy || []).length})`).join(", ") || "None"],
+              ["Relationships by type", Object.entries(relationshipCounts).map(([stage, count]) => `${stage} ${count}`).join(", ") || "None"]
+            ])}</ul>
+            <ul class="viewer-insights__rows">${renderPathRows(brokenRefs, "No broken references")}${renderDocRows(unlinked, "No unlinked documents")}</ul>
+          </section>
+          <section class="viewer-insights__section viewer-insights__section--wide">
+            <h2>Quality signals</h2>
+            <ul class="viewer-insights__signals">${renderSignalRows([
+              ["Lint/audit categories", Object.entries(qualityBySource).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded", qualityTotal ? "warning" : "ok"],
+              ["Findings by document type", Object.entries(qualityByDocType).map(([key, count]) => `${key} ${count}`).join(", ") || "No findings loaded"],
+              ["Concentrated issues", concentratedIssues.map(([key, count]) => `${key} ${count}`).join(", ") || "None"]
+            ])}</ul>
+            <ul class="viewer-insights__rows">${renderPathRows(concentratedIssues.map(([key, count]) => `${key} (${count})`), "No concentrated issues")}</ul>
+          </section>
+        </div>
       </div>
     `;
   }

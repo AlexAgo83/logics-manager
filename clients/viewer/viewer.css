@@ -1064,11 +1064,34 @@
   gap: 16px;
 }
 
+.viewer-insights__hero {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 12px;
+  align-items: stretch;
+  padding: 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 86%, var(--vscode-textLink-foreground, #4ea1ff) 14%);
+}
+
+.viewer-insights__hero h2,
+.viewer-insights__section h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.viewer-insights__hero p {
+  margin: 6px 0 0;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  line-height: 1.45;
+}
+
 .viewer-insights__summary,
 .viewer-insights__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
 }
 
 .viewer-insights__card {
@@ -1076,6 +1099,14 @@
   border-radius: 6px;
   padding: 10px;
   background: var(--vscode-sideBar-background, #252526);
+}
+
+.viewer-insights__card--warning {
+  border-color: color-mix(in srgb, var(--vscode-notificationsWarningIcon-foreground, #d7ba7d) 48%, var(--vscode-panel-border, #333333));
+}
+
+.viewer-insights__card--ok {
+  border-color: color-mix(in srgb, var(--vscode-testing-iconPassed, #73c991) 44%, var(--vscode-panel-border, #333333));
 }
 
 .viewer-insights__label {
@@ -1096,6 +1127,25 @@
   gap: 8px;
 }
 
+.viewer-insights__workspace {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.viewer-insights__section {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 88%, transparent);
+}
+
+.viewer-insights__section--wide {
+  grid-column: 1 / -1;
+}
+
 .viewer-insights__list {
   display: grid;
   gap: 6px;
@@ -1112,6 +1162,72 @@
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-insights__bars,
+.viewer-insights__signals {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer-insights__bar-row {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.viewer-insights__bar-meta,
+.viewer-insights__signal {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.viewer-insights__bar-meta span,
+.viewer-insights__signal span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-insights__bar-track {
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+  background: var(--vscode-sideBar-background, #252526);
+}
+
+.viewer-insights__bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
+.viewer-insights__signal {
+  padding: 7px 9px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  font-size: 12px;
+}
+
+.viewer-insights__signal--warning {
+  border-color: color-mix(in srgb, var(--vscode-notificationsWarningIcon-foreground, #d7ba7d) 44%, var(--vscode-panel-border, #333333));
+}
+
+.viewer-insights__signal--ok strong {
+  color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.viewer-insights__signal--muted strong,
+.viewer-insights__signal--empty {
+  color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
 .viewer-health__summary {
@@ -1217,6 +1333,8 @@
     inset: 10px;
   }
 
+  .viewer-insights__hero,
+  .viewer-insights__workspace,
   .viewer-insights__summary,
   .viewer-insights__grid {
     grid-template-columns: 1fr;

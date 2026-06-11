@@ -2287,9 +2287,9 @@
   function cdxMissionCatalog(payload = {}) {
     return payload.catalog || {
       missions: [
-        { id: "full-audit", title: "Audit complet", description: "Inspecte le repository complet avec un rapport CDX exploitable.", scope: "repository", requiresPlanConfirmation: false },
-        { id: "release-review", title: "Review depuis derniere release", description: "Compare l'etat courant avec le dernier tag de version disponible.", scope: "latest-release", requiresPlanConfirmation: false },
-        { id: "corpus-ready", title: "Preparer le corpus pret a dev", description: "Produit un plan corpus avant toute application Logics deterministe.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+        { id: "full-audit", title: "Full audit", description: "Inspect the full repository and produce an actionable CDX report.", scope: "repository", requiresPlanConfirmation: false },
+        { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
+        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
       ],
       strengths: [
         { id: "standard", label: "Standard" },

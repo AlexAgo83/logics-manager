@@ -490,9 +490,9 @@ function createViewerDom(options: {
               message: "",
               catalog: {
                 missions: [
-                  { id: "full-audit", title: "Audit complet", description: "Inspecte le repository.", scope: "repository", requiresPlanConfirmation: false },
-                  { id: "release-review", title: "Review depuis derniere release", description: "Compare avec le dernier tag.", scope: "latest-release", requiresPlanConfirmation: false },
-                  { id: "corpus-ready", title: "Preparer le corpus pret a dev", description: "Produit un plan corpus.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+                  { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false },
+                  { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false },
+                  { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
                 ],
                 strengths: [
                   { id: "standard", label: "Standard" },
@@ -510,7 +510,7 @@ function createViewerDom(options: {
               },
               plan: {
                 missionId: "corpus-ready",
-                mission: { id: "corpus-ready", title: "Preparer le corpus pret a dev" },
+                mission: { id: "corpus-ready", title: "Prepare dev-ready corpus" },
                 sessionId: "session-1",
                 strengthId: "deep",
                 strength: { id: "deep", label: "Deep" },
@@ -1543,8 +1543,8 @@ describe("local viewer browser host", () => {
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX missions");
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("Audit complet");
-    expect(text).toContain("Preparer le corpus pret a dev");
+    expect(text).toContain("Full audit");
+    expect(text).toContain("Prepare dev-ready corpus");
 
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

@@ -1,7 +1,7 @@
 ## req_228_show_active_assistant_indicator_on_cdx_button - Show active assistant indicator on CDX button
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

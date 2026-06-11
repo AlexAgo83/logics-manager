@@ -445,6 +445,62 @@
     }
   }
 
+  function activeCdxAssistantCountFromPayload(payload) {
+    if (!payload || payload.state !== "ok") {
+      return 0;
+    }
+    const status = payload.status || {};
+    const sessions = cdxSessions(status);
+    const sessionActive = sessions.filter((session) => {
+      const state = String(session.state || session.status || session.availability || "").toLowerCase();
+      return session.active === true ||
+        state.includes("active") ||
+        state.includes("running") ||
+        state.includes("busy");
+    }).length;
+    if (sessionActive > 0) {
+      return sessionActive;
+    }
+    const rowsActive = cdxRows(status).filter((row) => row.active === true).length;
+    if (rowsActive > 0) {
+      return rowsActive;
+    }
+    return cdxProviders(status).reduce((total, provider) => total + Math.max(0, Number(provider.active || 0)), 0);
+  }
+
+  function updateMainCdxBadge(payload) {
+    const button = document.getElementById("viewer-cdx");
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    button.querySelector("[data-viewer-cdx-badge]")?.remove();
+    const activeCount = activeCdxAssistantCountFromPayload(payload);
+    if (activeCount <= 0) {
+      button.title = "Show CDX status";
+      return;
+    }
+    const label = activeCount > 9 ? "9+" : String(activeCount);
+    const title = activeCount === 1 ? "1 active assistant/session" : `${activeCount} active assistants/sessions`;
+    button.title = `Show CDX status · ${title}`;
+    button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
+  }
+
+  async function refreshCdxBadgeCounters() {
+    try {
+      const response = await fetch("/api/cdx-status");
+      if (response.status === 404) {
+        updateMainCdxBadge(null);
+        return;
+      }
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        updateMainCdxBadge(data.payload);
+      }
+    } catch {
+      updateMainCdxBadge(null);
+    }
+  }
+
   function setGitBadgeCountsFromPayload(payload, options = {}) {
     latestGitBadgeCounts = normalizeGitBadgeCounts(payload);
     if (options.updateMain !== false) {
@@ -719,6 +775,7 @@
     scheduleNextAutoRefresh();
     renderUpdateNotice(payload.updateInfo);
     refreshCiBadgeCounters();
+    refreshCdxBadgeCounters();
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
@@ -1937,6 +1994,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX status.");
     }
+    updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
   }

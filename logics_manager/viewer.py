@@ -93,8 +93,8 @@ CDX_MISSION_CATALOG = {
     },
     "pre-release": {
         "id": "pre-release",
-        "title": "Guarded pre-release",
-        "description": "Prepare a pre-release plan and validation report for a semantic version.",
+        "title": "Read-only pre-release review",
+        "description": "Produce a pre-release validation plan and report without mutating release state.",
         "scope": "pre-release-report",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
@@ -109,7 +109,7 @@ CDX_MISSION_CATALOG = {
             },
             {
                 "id": "runFullValidation",
-                "label": "Run full validation and fix before pre-release",
+                "label": "Run full validation and report fixes before pre-release",
                 "type": "checkbox",
                 "required": False,
             },
@@ -1432,7 +1432,7 @@ def _cdx_mission_prompt(
     if mission_id == "pre-release":
         validation_mode = "Run the project-defined full validation path before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the validation commands that should be run before release."
         return "\n".join([
-            f"Prepare a guarded pre-release plan for version {release_version}.",
+            f"Produce a read-only pre-release review for version {release_version}.",
             validation_mode,
             "Do not modify package versions, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases.",
             "Do not modify files. If fixes or workflow docs are needed, report them as actionable recommendations or generated-file proposals only.",

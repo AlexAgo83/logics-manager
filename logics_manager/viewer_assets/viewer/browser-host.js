@@ -2081,7 +2081,7 @@
     if (["ready", "ok", "active", "enabled", "authenticated"].some((entry) => state.includes(entry))) {
       return "ok";
     }
-    if (["starting", "pending", "warning", "low", "limited"].some((entry) => state.includes(entry))) {
+    if (["starting", "pending", "warning", "low", "limited", "stale"].some((entry) => state.includes(entry))) {
       return "warn";
     }
     if (["error", "failed", "disabled", "unavailable", "unauthenticated"].some((entry) => state.includes(entry))) {
@@ -2212,6 +2212,17 @@
   function renderCdxBadge(value, fallback = "reported") {
     const label = String(value || fallback || "reported");
     return `<span class="viewer-cdx__badge viewer-cdx__badge--${cdxStateClass(label)}">${escapeHtml(cdxLabel(label))}</span>`;
+  }
+
+  function cdxRunStatusDetail(run) {
+    const status = String(cdxField(run, ["status", "state"], "unknown")).toLowerCase();
+    if (status === "stale") {
+      return "No live updates are attached to this run anymore. Open the report for the last captured output and evidence.";
+    }
+    if (["running", "starting", "pending"].includes(status)) {
+      return "Run is still tracked by CDX. Refresh runs to update the row.";
+    }
+    return "";
   }
 
   function cdxDetailEntries(item, excludedKeys) {
@@ -2346,7 +2357,7 @@
         { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
         { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
         { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-        { id: "pre-release", title: "Guarded pre-release", description: "Prepare a pre-release plan and validation report for a semantic version.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and fix before pre-release", type: "checkbox" }] }
+        { id: "pre-release", title: "Read-only pre-release review", description: "Produce a pre-release validation plan and report without mutating release state.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },
@@ -2613,21 +2624,28 @@
       `;
     }
     const runs = Array.isArray(payload.runs) ? payload.runs : [];
-    const rows = runs.map((run) => `
-      <tr>
-        <td><code>${escapeHtml(run.run_id || "-")}</code></td>
-        <td>${renderCdxBadge(run.status || "unknown")}</td>
-        <td>${escapeHtml(run.kind || "assistant")}</td>
-        <td>${escapeHtml(run.session || "-")}</td>
-        <td>${escapeHtml(run.cwd || "-")}</td>
-        <td><button class="viewer-cdx__mode" type="button" data-viewer-cdx-report="${escapeHtml(run.run_id || "")}">Report</button></td>
-      </tr>
-    `).join("");
+    const staleCount = runs.filter((run) => String(cdxField(run, ["status", "state"], "")).toLowerCase() === "stale").length;
+    const rows = runs.map((run) => {
+      const runId = cdxField(run, ["run_id", "runId", "id"], "");
+      const status = cdxField(run, ["status", "state"], "unknown");
+      const detail = cdxRunStatusDetail(run);
+      return `
+        <tr>
+          <td><code>${escapeHtml(runId || "-")}</code>${detail ? `<div class="viewer-cdx__meta">${escapeHtml(detail)}</div>` : ""}</td>
+          <td>${renderCdxBadge(status)}</td>
+          <td>${escapeHtml(cdxField(run, ["kind"], "assistant"))}</td>
+          <td>${escapeHtml(cdxField(run, ["session", "session_id", "sessionId"], "-"))}</td>
+          <td>${escapeHtml(cdxField(run, ["cwd", "workspace", "repo"], "-"))}</td>
+          <td>${runId ? `<button class="viewer-cdx__mode" type="button" data-viewer-cdx-report="${escapeHtml(runId)}">Report</button>` : ""}</td>
+        </tr>
+      `;
+    }).join("");
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runs.length)} reported</span></div>
+          ${staleCount ? `<div class="viewer-cdx__state viewer-cdx__state--warn">${escapeHtml(staleCount)} stale run${staleCount === 1 ? "" : "s"}: CDX no longer reports live progress for ${staleCount === 1 ? "this run" : "these runs"}. Use Report to inspect the captured output.</div>` : ""}
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
               <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th><th>REPORT</th></tr></thead>

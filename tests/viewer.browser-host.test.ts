@@ -11,6 +11,7 @@ function loadScript(dom: JSDOM, relPath: string) {
 
 function createViewerDom(options: {
   capabilities?: Record<string, { state: string; available: boolean; message: string; detail?: Record<string, unknown> }>;
+  cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
@@ -365,7 +366,7 @@ function createViewerDom(options: {
           ok: true,
           json: async () => ({
             ok: true,
-            payload: {
+            payload: options.cdxRunsResponse ?? {
               state: "ok",
               message: "",
               runs: [
@@ -497,7 +498,7 @@ function createViewerDom(options: {
                   { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false },
                   { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
                   { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-                  { id: "pre-release", title: "Guarded pre-release", description: "Prepare a release report.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and fix before pre-release", type: "checkbox" }] }
+                  { id: "pre-release", title: "Read-only pre-release review", description: "Produce a release report.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
                 ],
                 strengths: [
                   { id: "standard", label: "Standard" },
@@ -1513,6 +1514,34 @@ describe("local viewer browser host", () => {
     expect(text).toContain("code-review");
   });
 
+  it("explains stale CDX runs without blocking report access", async () => {
+    const { dom } = createViewerDom({
+      cdxRunsResponse: {
+        state: "ok",
+        message: "",
+        runs: [
+          { run_id: "d6f7f11bb7cd4739abc713b80fbea07b", kind: "assistant", status: "stale", session: "work3", cwd: "/Users/alexandreagostini/Documents/logics-manager" }
+        ]
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    const text = content?.textContent || "";
+    expect(text).toContain("d6f7f11bb7cd4739abc713b80fbea07b");
+    expect(text).toContain("Stale");
+    expect(text).toContain("CDX no longer reports live progress");
+    expect(text).toContain("Open the report for the last captured output");
+    expect(content?.querySelector('[data-viewer-cdx-report="d6f7f11bb7cd4739abc713b80fbea07b"]')).toBeTruthy();
+  });
+
   it("opens a CDX run report and creates a Logics request from findings", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
@@ -1554,7 +1583,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Full audit");
     expect(text).toContain("Prepare dev-ready corpus");
     expect(text).toContain("Wish to request");
-    expect(text).toContain("Guarded pre-release");
+    expect(text).toContain("Read-only pre-release review");
 
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

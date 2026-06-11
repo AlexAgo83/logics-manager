@@ -69,6 +69,7 @@
   let latestGitStatusSignature = "";
   let latestCdxStatusSignature = "";
   let latestCiStatusSignature = "";
+  let primaryActionBusyKey = "";
 
   function readStoredState() {
     try {
@@ -142,6 +143,74 @@
 
   function runtimeStatusSignature(payload) {
     return stableStringify(payload || {});
+  }
+
+  function primaryActionControls() {
+    return Array.from(document.querySelectorAll([
+      "#viewer-insights",
+      "#viewer-health",
+      "#viewer-git",
+      "#viewer-ci",
+      "#viewer-cdx",
+      "#viewer-repo-folder",
+      '[data-action="refresh"]',
+      '[data-viewer-action="edit-document"]',
+      "[data-viewer-project-id]",
+      "[data-viewer-cdx-mode]",
+      "[data-viewer-cdx-report]",
+      "[data-viewer-cdx-create-request]",
+      "[data-viewer-cdx-plan]",
+      "[data-viewer-cdx-run]",
+      "[data-viewer-cdx-apply-plan]"
+    ].join(","))).filter((node) => node instanceof HTMLElement);
+  }
+
+  function setPrimaryActionBusy(actionKey, label = "") {
+    primaryActionBusyKey = actionKey || "";
+    document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
+    document.body?.toggleAttribute("data-viewer-busy", Boolean(primaryActionBusyKey));
+    if (primaryActionBusyKey) {
+      document.body?.setAttribute("data-viewer-busy-action", primaryActionBusyKey);
+    } else {
+      document.body?.removeAttribute("data-viewer-busy-action");
+    }
+    primaryActionControls().forEach((control) => {
+      if (!("disabled" in control)) {
+        return;
+      }
+      control.disabled = Boolean(primaryActionBusyKey);
+      control.setAttribute("aria-busy", primaryActionBusyKey ? "true" : "false");
+      if (primaryActionBusyKey) {
+        control.setAttribute("data-viewer-action-busy", control.getAttribute("data-viewer-action-key") === actionKey ? "active" : "blocked");
+      } else {
+        control.removeAttribute("data-viewer-action-busy");
+      }
+    });
+    if (!primaryActionBusyKey) {
+      updateCapabilityControls();
+      applyLocalViewerChrome();
+    }
+    if (primaryActionBusyKey && label) {
+      setMeta(`${label}...`);
+    }
+  }
+
+  function withPrimaryAction(actionKey, label, action) {
+    if (primaryActionBusyKey) {
+      setMeta("Another viewer action is still running.");
+      return Promise.resolve(false);
+    }
+    setPrimaryActionBusy(actionKey, label);
+    return Promise.resolve()
+      .then(action)
+      .then(() => true)
+      .catch((error) => {
+        setMeta(error.message || "Viewer action failed.");
+        return false;
+      })
+      .finally(() => {
+        setPrimaryActionBusy("", "");
+      });
   }
 
   function hydrateViewerFilterState() {
@@ -3206,7 +3275,7 @@
     [document.getElementById("viewer-insights")].forEach((button) => {
       button?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
-        showCorpusInsights().catch((error) => setMeta(error.message));
+        withPrimaryAction("insights", "Loading insights", showCorpusInsights);
       });
     });
     const autoControl = autoRefreshControl();
@@ -3251,28 +3320,28 @@
       }
       element.addEventListener("click", (event) => {
         setRefreshMenuOpen(false);
-        refreshViewer("POST", { force: Boolean(event.shiftKey) }).catch((error) => setMeta(error.message));
+        withPrimaryAction("refresh", "Refreshing", () => refreshViewer("POST", { force: Boolean(event.shiftKey) }));
       });
     });
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
-      showHealth().catch((error) => setMeta(error.message));
+      withPrimaryAction("health", "Checking health", showHealth);
     });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
-      showGitStatus().catch((error) => setMeta(error.message));
+      withPrimaryAction("git", "Checking Git status", showGitStatus);
     });
     ciButton()?.addEventListener("click", () => {
-      showCiStatus().catch((error) => setMeta(error.message));
+      withPrimaryAction("ci", "Checking CI status", showCiStatus);
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
-      showCdxStatus().catch((error) => setMeta(error.message));
+      withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
     });
     repoPill()?.addEventListener("click", () => {
       const menu = projectMenu();
       setProjectMenuOpen(Boolean(menu?.hidden));
     });
     repoFolderButton()?.addEventListener("click", () => {
-      openRepositoryFolder().catch((error) => setMeta(error.message));
+      withPrimaryAction("open-repo-folder", "Opening repository folder", openRepositoryFolder);
     });
     activityClearControl()?.addEventListener("click", () => {
       clearActivityHistory();
@@ -3297,7 +3366,7 @@
     const editButton = editDocumentButton();
     if (editButton instanceof HTMLElement) {
       editButton.addEventListener("click", () => {
-        editDocument(selectedItem()).catch((error) => setMeta(error.message));
+        withPrimaryAction("edit-document", "Opening document", () => editDocument(selectedItem()));
       });
     }
     document.addEventListener("change", (event) => {
@@ -3346,33 +3415,33 @@
         return;
       }
       if (cdxPlanTarget instanceof HTMLElement) {
-        previewCdxMission().catch((error) => setMeta(error.message));
+        withPrimaryAction("cdx-plan", "Building CDX mission plan", previewCdxMission);
         return;
       }
       if (cdxRunTarget instanceof HTMLElement) {
-        launchCdxMission().catch((error) => setMeta(error.message));
+        withPrimaryAction("cdx-run", "Launching CDX mission", launchCdxMission);
         return;
       }
       if (cdxApplyPlanTarget instanceof HTMLElement) {
-        applyCdxMissionPlan().catch((error) => setMeta(error.message));
+        withPrimaryAction("cdx-apply-plan", "Applying CDX mission plan", applyCdxMissionPlan);
         return;
       }
       if (cdxReportTarget instanceof HTMLElement) {
-        showCdxReport(cdxReportTarget.getAttribute("data-viewer-cdx-report") || "").catch((error) => setMeta(error.message));
+        withPrimaryAction("cdx-report", "Loading CDX report", () => showCdxReport(cdxReportTarget.getAttribute("data-viewer-cdx-report") || ""));
         return;
       }
       if (cdxCreateRequestTarget instanceof HTMLElement) {
-        createRequestFromCdxReport(cdxCreateRequestTarget.getAttribute("data-viewer-cdx-create-request") || "").catch((error) => setMeta(error.message));
+        withPrimaryAction("cdx-create-request", "Creating Logics request", () => createRequestFromCdxReport(cdxCreateRequestTarget.getAttribute("data-viewer-cdx-create-request") || ""));
         return;
       }
       if (cdxModeTarget instanceof HTMLElement) {
         const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
         if (mode === "runs") {
-          showCdxRuns().catch((error) => setMeta(error.message));
+          withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
         } else if (mode === "missions") {
-          showCdxMissions().catch((error) => setMeta(error.message));
+          withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
         } else {
-          showCdxStatus().catch((error) => setMeta(error.message));
+          withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
         }
         return;
       }
@@ -3383,7 +3452,7 @@
       }
       if (projectTarget instanceof HTMLElement) {
         event.preventDefault();
-        switchViewerProject(projectTarget.getAttribute("data-viewer-project-id") || "").catch((error) => setMeta(error.message));
+        withPrimaryAction("switch-project", "Switching project", () => switchViewerProject(projectTarget.getAttribute("data-viewer-project-id") || ""));
         return;
       }
       if (gitHistoryRevealTarget instanceof HTMLElement) {
@@ -3435,7 +3504,7 @@
         return;
       }
       if (healthTarget instanceof HTMLElement) {
-        showHealth().catch((error) => setMeta(error.message));
+        withPrimaryAction("health", "Checking health", showHealth);
         return;
       }
       if (filterTarget instanceof HTMLElement) {
@@ -3445,7 +3514,7 @@
       }
       const path = target instanceof HTMLElement ? target.getAttribute("data-viewer-doc-path") : "";
       if (path) {
-        showDocumentByPath(path).catch((error) => setMeta(error.message));
+        withPrimaryAction("read-document", "Loading document", () => showDocumentByPath(path));
       }
     });
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {

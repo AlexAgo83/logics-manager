@@ -1,18 +1,18 @@
 ## task_212_block_concurrent_viewer_actions_and_show_loading_state - Block concurrent viewer actions and show loading state
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_404_block_concurrent_viewer_actions_and_show_loading_state`
@@ -43,6 +43,9 @@
 
 # Report
 - Implementation complete.
+- Added a primary async action busy wrapper that disables competing network-backed viewer actions, exposes body busy attributes, and shows immediate meta feedback.
+- Kept local-only interactions such as panel toggles, Git history reveal, and local filters outside the primary action lock.
+- Validation: `npx vitest run tests/viewer.browser-host.test.ts` and `python3 -m logics_manager lint --require-status`.
 
 # AI Context
 - Summary: Add visible loading state and concurrency guards for primary async local viewer actions.

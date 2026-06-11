@@ -24,6 +24,7 @@ function createViewerDom(options: {
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
+  refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
   url?: string;
 } = {}) {
@@ -134,6 +135,13 @@ function createViewerDom(options: {
       if (url === "/api/items" || url === "/api/refresh") {
         if (url === "/api/refresh" && options.refreshGate) {
           await options.refreshGate;
+        }
+        if (url === "/api/refresh" && options.refreshResponse) {
+          return {
+            ok: options.refreshResponse.ok,
+            status: options.refreshResponse.status ?? (options.refreshResponse.ok ? 200 : 500),
+            json: async () => options.refreshResponse?.body || {}
+          };
         }
         return {
           ok: true,
@@ -1037,6 +1045,76 @@ describe("local viewer browser host", () => {
 
     releaseRefresh();
     await vi.advanceTimersByTimeAsync(0);
+  });
+
+  it("blocks duplicate primary refresh clicks and shows busy feedback", async () => {
+    let resolveRefresh: () => void = () => {};
+    const refreshGate = new Promise<void>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const { dom, calls } = createViewerDom({ refreshGate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
+    refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
+    expect(refresh?.disabled).toBe(true);
+    expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(true);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Refreshing");
+
+    resolveRefresh();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(refresh?.disabled).toBe(false);
+    expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(false);
+  });
+
+  it("blocks competing primary actions while one action is loading", async () => {
+    let resolveRefresh: () => void = () => {};
+    const refreshGate = new Promise<void>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const { dom, calls } = createViewerDom({ refreshGate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
+    expect(calls.filter((call) => call === "/api/git-status")).toHaveLength(gitCallsBefore);
+    expect((dom.window.document.getElementById("viewer-git") as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect(dom.window.document.body.getAttribute("data-viewer-busy-action")).toBe("refresh");
+
+    resolveRefresh();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  it("clears busy state after a failed primary action", async () => {
+    const { dom } = createViewerDom({
+      refreshResponse: { ok: false, status: 500, body: { ok: false, error: "Refresh failed" } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
+    refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Refresh failed");
+    expect(refresh?.disabled).toBe(false);
+    expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(false);
   });
 
   it("defers automatic refresh while hidden and refreshes when visible again", async () => {

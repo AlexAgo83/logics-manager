@@ -1,10 +1,10 @@
 ## item_404_block_concurrent_viewer_actions_and_show_loading_state - Block concurrent viewer actions and show loading state
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -83,6 +83,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_238_block_concurrent_viewer_actions_and_show_loading_state` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_238_block_concurrent_viewer_actions_and_show_loading_state.md`.
 - Generated locally by logics-manager.
+- Delivered with a primary action busy wrapper, visible loading/busy state, duplicate/competing action prevention, and error cleanup tests.
 
 # Tasks
 - `task_212_block_concurrent_viewer_actions_and_show_loading_state`

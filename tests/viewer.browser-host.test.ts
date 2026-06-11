@@ -11,6 +11,7 @@ function loadScript(dom: JSDOM, relPath: string) {
 
 function createViewerDom(options: {
   capabilities?: Record<string, { state: string; available: boolean; message: string; detail?: Record<string, unknown> }>;
+  cdxReportResponse?: { state: string; message: string; report: Record<string, unknown> };
   cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -382,7 +383,7 @@ function createViewerDom(options: {
           ok: true,
           json: async () => ({
             ok: true,
-            payload: {
+            payload: options.cdxReportResponse ?? {
               state: "ok",
               message: "",
               report: {
@@ -1565,6 +1566,49 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/cdx-report-request");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
+  it("renders stale CDX report signals and artifact paths", async () => {
+    const { dom } = createViewerDom({
+      cdxRunsResponse: {
+        state: "ok",
+        message: "",
+        runs: [
+          { run_id: "d6f7f11bb7cd4739abc713b80fbea07b", kind: "assistant", status: "stale", session: "work3", cwd: "/Users/alexandreagostini/Documents/logics-manager" }
+        ]
+      },
+      cdxReportResponse: {
+        state: "ok",
+        message: "",
+        report: {
+          run: { run_id: "d6f7f11bb7cd4739abc713b80fbea07b", status: "succeeded", kind: "assistant" },
+          error: { code: "stale_process", message: "Run was marked running but no live provider process was found." },
+          artifacts: {
+            stdout_path: "/Users/alexandreagostini/.cdx/profiles/work3/log/cdx-run.stdout.log",
+            transcript_path: "/Users/alexandreagostini/.cdx/profiles/work3/log/cdx-run.log"
+          },
+          task_report: null
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="d6f7f11bb7cd4739abc713b80fbea07b"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Run signal");
+    expect(text).toContain("stale_process");
+    expect(text).toContain("Run was marked running but no live provider process was found.");
+    expect(text).toContain("Artifacts");
+    expect(text).toContain("Stdout Path");
+    expect(text).toContain("cdx-run.log");
   });
 
   it("previews launches and applies guided CDX missions", async () => {

@@ -2669,6 +2669,8 @@
     const report = payload.report || {};
     const run = report.run || {};
     const taskReport = report.task_report || {};
+    const runError = report.error || run.error || {};
+    const artifacts = report.artifacts || run.artifacts || {};
     const findings = Array.isArray(taskReport.findings) ? taskReport.findings : [];
     const findingRows = findings.map((finding, index) => {
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
@@ -2687,6 +2689,18 @@
           </ul>
           ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>
+        ${objectEntries(runError).length ? `
+          <section class="viewer-cdx__section">
+            <div class="viewer-ci__heading"><h2>Run signal</h2><span>${escapeHtml(runError.code || "reported")}</span></div>
+            <ul class="viewer-cdx__list">${renderCdxObjectRows(runError, "No run signal reported.")}</ul>
+          </section>
+        ` : ""}
+        ${objectEntries(artifacts).length ? `
+          <section class="viewer-cdx__section">
+            <div class="viewer-ci__heading"><h2>Artifacts</h2><span>${escapeHtml(objectEntries(artifacts).length)} paths</span></div>
+            <ul class="viewer-cdx__list">${renderCdxObjectRows(artifacts, "No artifact paths reported.")}</ul>
+          </section>
+        ` : ""}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Findings</h2><span>${escapeHtml(findings.length)} reported</span></div>
           <ul class="viewer-cdx__list">${findingRows || '<li class="viewer-cdx__empty">No structured findings reported.</li>'}</ul>

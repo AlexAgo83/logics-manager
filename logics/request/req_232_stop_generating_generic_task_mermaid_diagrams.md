@@ -1,9 +1,9 @@
 ## req_232_stop_generating_generic_task_mermaid_diagrams - Stop generating generic task Mermaid diagrams
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Ready
+> Understanding: 96%
+> Confidence: 91%
 > Complexity: Medium
 > Theme: Logics document quality
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.

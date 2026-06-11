@@ -1,9 +1,9 @@
 ## req_234_add_new_project_onboarding_and_bootstrap_states_to_the_viewer - Add new project onboarding and bootstrap states to the viewer
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Ready
+> Understanding: 97%
+> Confidence: 92%
 > Complexity: High
 > Theme: Viewer onboarding
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.

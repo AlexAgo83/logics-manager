@@ -2,8 +2,8 @@
 > From version: 2.6.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -53,3 +53,12 @@ flowchart TD
 - Request: `req_234_add_new_project_onboarding_and_bootstrap_states_to_the_viewer`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: planned task acceptance criterion covers: The viewer shows clear onboarding states when the selected project has no Logics corpus or incomplete Logics setup.
+- request-AC2 -> This task. Proof: planned task acceptance criterion covers: The viewer can show missing Git as a normal project state and does not render Git-specific controls as if they work.
+- request-AC3 -> This task. Proof: planned task acceptance criterion covers: Bootstrap/init actions are only shown when supported by capability state and require explicit user action.
+- request-AC4 -> This task. Proof: planned task acceptance criterion covers: Mutating onboarding actions explain what will be created or changed before execution.
+- request-AC5 -> This task. Proof: planned task acceptance criterion covers: Onboarding actions apply only to the active selected project.
+- request-AC6 -> This task. Proof: planned task acceptance criterion covers: Progress, success, and failure states are visible after bootstrap/environment actions.
+- request-AC7 -> This task. Proof: planned task acceptance criterion covers: Tests cover no-Logics, no-Git, missing runtime, failed bootstrap, successful bootstrap, and project-switch safety.

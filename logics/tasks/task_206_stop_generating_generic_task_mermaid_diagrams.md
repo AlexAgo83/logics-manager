@@ -2,8 +2,8 @@
 > From version: 2.6.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 95%
-> Confidence: 90%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -16,6 +16,16 @@
 
 # Backlog
 - `item_398_stop_generating_generic_task_mermaid_diagrams`
+
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|stop-generating-generic-task-mermaid-dia|item-398-stop-generating-generic-task-me|1-confirm-scope|run-python3-m-logics-manager-lint-requi
+flowchart TD
+    Backlog[Backlog item] --> Build[Implementation]
+    Build --> Validate[Validation]
+    Validate --> Close[Finish workflow]
+```
 
 # Diagram
 - None. This task intentionally omits the generic Logics lifecycle Mermaid diagram because the requested change is to stop generating that default block.
@@ -45,3 +55,11 @@
 - Request: `req_232_stop_generating_generic_task_mermaid_diagrams`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: planned task acceptance criterion covers: Newly generated task documents do not include the generic Logics lifecycle Mermaid diagram by default.
+- request-AC2 -> This task. Proof: planned task acceptance criterion covers: Task documents without Mermaid still pass Logics lint and closeout validation.
+- request-AC3 -> This task. Proof: planned task acceptance criterion covers: The generator still permits task-specific Mermaid when a caller/template explicitly provides meaningful task behavior or architecture.
+- request-AC4 -> This task. Proof: planned task acceptance criterion covers: Request and backlog Mermaid behavior is unchanged.
+- request-AC5 -> This task. Proof: planned task acceptance criterion covers: Tests cover task generation without Mermaid and protect against the old generic `Backlog -> Build -> Validate -> Close` diagram returning by default.
+- request-AC6 -> This task. Proof: planned task acceptance criterion covers: Documentation or examples that describe generated task structure are updated to match the new default.

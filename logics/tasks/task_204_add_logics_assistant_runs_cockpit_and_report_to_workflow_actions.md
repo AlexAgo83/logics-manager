@@ -2,8 +2,8 @@
 > From version: 2.6.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 97%
-> Confidence: 92%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -57,3 +57,16 @@ flowchart TD
 - Request: `req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: planned task acceptance criterion covers: The CDX screen provides a `Status/Runs` switch in its header area, near the close control, without adding a separate top-level Runs action.
+- request-AC2 -> This task. Proof: planned task acceptance criterion covers: The existing CDX status content remains available as the `Status` view.
+- request-AC3 -> This task. Proof: planned task acceptance criterion covers: The `Runs` view lists recent and active CDX runs from a stable JSON source.
+- request-AC4 -> This task. Proof: planned task acceptance criterion covers: Active and terminal run states are visually distinct and include enough metadata to understand what is running, where, and through which provider/session.
+- request-AC5 -> This task. Proof: planned task acceptance criterion covers: The `Runs` view can refresh or poll run state so a run visibly moves from running to a terminal state without restarting the viewer.
+- request-AC6 -> This task. Proof: planned task acceptance criterion covers: A completed run can be opened as a report with summary, structured output, artifact paths, and errors when present.
+- request-AC7 -> This task. Proof: planned task acceptance criterion covers: Code-review reports render normalized findings with severity, title, file/line references when available, and recommendation text.
+- request-AC8 -> This task. Proof: planned task acceptance criterion covers: Operators can draft a Logics request from code-review findings with traceability back to the CDX `run_id` and report artifact.
+- request-AC9 -> This task. Proof: planned task acceptance criterion covers: Report-to-workflow actions keep an operator review boundary before writing docs by default.
+- request-AC10 -> This task. Proof: planned task acceptance criterion covers: The implementation degrades clearly when CDX does not yet expose run status/report commands or when a run has only raw artifacts.
+- request-AC11 -> This task. Proof: planned task acceptance criterion covers: Tests cover CDX payload mapping, Status/Runs switching, active/terminal rendering, refresh behavior, report rendering, and request draft/create behavior.

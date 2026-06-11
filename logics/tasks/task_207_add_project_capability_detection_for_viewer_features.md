@@ -2,8 +2,8 @@
 > From version: 2.6.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -52,3 +52,11 @@ flowchart TD
 - Request: `req_233_add_project_capability_detection_for_viewer_features`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: planned task acceptance criterion covers: The backend exposes a project capability snapshot for the active viewer project.
+- request-AC2 -> This task. Proof: planned task acceptance criterion covers: The snapshot includes Logics, Git, CI, CDX, and CDX runs capabilities with state and human-readable reason fields.
+- request-AC3 -> This task. Proof: planned task acceptance criterion covers: Capability states distinguish absent/unconfigured/unauthorized/unsupported cases from unexpected errors where possible.
+- request-AC4 -> This task. Proof: planned task acceptance criterion covers: Capability detection runs when the viewer loads and when a project switch occurs.
+- request-AC5 -> This task. Proof: planned task acceptance criterion covers: The browser host can consume the snapshot without calling every feature endpoint first.
+- request-AC6 -> This task. Proof: planned task acceptance criterion covers: Tests cover representative project states: full project, no Git, no Logics corpus, no CDX, CI unavailable/private, and CDX runs unsupported.

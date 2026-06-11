@@ -600,6 +600,26 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Focused logics/tasks/task_001_blocked.md");
   });
 
+  it("keeps the focused item selected when viewer data refreshes", async () => {
+    const { dom, calls } = createViewerDom({ url: "http://127.0.0.1:8765/?focus=req_001_demo" });
+    const api = dom.window.acquireVsCodeApi();
+    const payloads: Array<{ selectedId?: string }> = [];
+    dom.window.addEventListener("message", (event) => {
+      if (event.data?.type === "data") {
+        payloads.push(event.data.payload);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/refresh");
+    expect(payloads.map((payload) => payload.selectedId)).toEqual(["req_001_demo", "req_001_demo"]);
+  });
+
   it("opens read preview when a focused URL requests read mode", async () => {
     const { dom, calls } = createViewerDom({
       url: "http://127.0.0.1:8765/?focus=logics%2Frequest%2Freq_001_demo.md&read=1"

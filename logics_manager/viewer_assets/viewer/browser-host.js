@@ -773,13 +773,10 @@
     }, 0);
   }
 
-  function applyFocusRequest(payload) {
-    if (focusApplied) {
-      return payload;
-    }
+  function applyFocusRequest(payload, options = {}) {
     const request = focusRequest();
     if (!request.focus) {
-      if (window.location.search.includes("focus=")) {
+      if (!focusApplied && !options.silent && window.location.search.includes("focus=")) {
         window.setTimeout(() => setMeta("Invalid focus target. Loaded corpus without changing selection."), 0);
       }
       focusApplied = true;
@@ -787,14 +784,20 @@
     }
     const item = findFocusItem(request.focus);
     if (!item) {
-      window.setTimeout(() => setMeta(`Focus target not found: ${request.focus}`), 0);
+      if (!focusApplied && !options.silent) {
+        window.setTimeout(() => setMeta(`Focus target not found: ${request.focus}`), 0);
+      }
       focusApplied = true;
       return payload;
+    }
+    const nextPayload = { ...payload, selectedId: item.id };
+    if (focusApplied) {
+      persistSelectedItem(item.id);
+      return nextPayload;
     }
     viewerFilterState = { ...viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
     persistSelectedItem(item.id);
     focusApplied = true;
-    const nextPayload = { ...payload, selectedId: item.id };
     window.setTimeout(() => {
       revealFocusedCard(item);
       if (request.read) {
@@ -955,7 +958,7 @@
     latestCapabilities = normalizeCapabilities(payload);
     updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems };
-    const nextPayload = options.silent ? payloadWithActivity : applyFocusRequest(payloadWithActivity);
+    const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
     if (!options.silent) {

@@ -17,6 +17,7 @@ function createViewerDom(options: {
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
+  githubUrl?: string;
   hidden?: boolean;
   initialState?: unknown;
   refreshGate?: Promise<void>;
@@ -25,6 +26,8 @@ function createViewerDom(options: {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <span id="viewer-repo-pill"></span>
+    <a id="viewer-repo-github" href="#" hidden>GitHub</a>
+    <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-git" type="button">Git</button>
     <button id="viewer-cdx" type="button">CDX</button>
@@ -133,6 +136,10 @@ function createViewerDom(options: {
             payload: {
               root: "/workspace/logics-manager",
               repoName: "logics-manager",
+              repository: {
+                root: "/workspace/logics-manager",
+                githubUrl: options.githubUrl ?? "https://github.com/AlexAgo83/logics-manager"
+              },
               autoRefreshIntervalSeconds: 15,
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
@@ -171,6 +178,16 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             document: { path: "logics/request/req_001_demo.md", command: "open" }
+          })
+        };
+      }
+      if (url === "/api/open-repo-folder") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { path: "/workspace/logics-manager", command: "open" }
           })
         };
       }
@@ -652,6 +669,42 @@ describe("local viewer browser host", () => {
     expect(banner?.hidden).toBe(false);
     expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("2.3.0");
     expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update");
+  });
+
+  it("renders repository shortcuts and opens the local folder action", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const github = dom.window.document.getElementById("viewer-repo-github") as HTMLAnchorElement | null;
+    const folder = dom.window.document.getElementById("viewer-repo-folder") as HTMLButtonElement | null;
+
+    expect(github?.hidden).toBe(false);
+    expect(github?.href).toBe("https://github.com/AlexAgo83/logics-manager");
+    expect(folder?.hidden).toBe(false);
+
+    folder?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/open-repo-folder");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Repository folder opened.");
+  });
+
+  it("hides the GitHub shortcut when the repository has no GitHub remote", async () => {
+    const { dom } = createViewerDom({ githubUrl: "" });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const github = dom.window.document.getElementById("viewer-repo-github") as HTMLAnchorElement | null;
+    const folder = dom.window.document.getElementById("viewer-repo-folder") as HTMLButtonElement | null;
+
+    expect(github?.hidden).toBe(true);
+    expect(github?.hasAttribute("href")).toBe(false);
+    expect(folder?.hidden).toBe(false);
   });
 
   it("renders local corpus insights from loaded items", async () => {

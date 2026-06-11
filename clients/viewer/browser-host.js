@@ -10,6 +10,8 @@
   const updateCommand = () => document.getElementById("viewer-update-command");
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
+  const repoGithubLink = () => document.getElementById("viewer-repo-github");
+  const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
@@ -29,6 +31,7 @@
   let viewerFilterState = { ...defaultFilterState };
   let latestItems = [];
   let latestRepoRoot = "";
+  let latestRepository = { root: "", githubUrl: "" };
   let latestMetaText = "Read-only local viewer";
   let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
   let nextAutoRefreshAt = 0;
@@ -215,13 +218,52 @@
 
   function updateRepositoryIdentity(payload) {
     latestRepoRoot = String(payload.root || latestRepoRoot || "");
+    const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
+    latestRepository = {
+      root: String(repository.root || latestRepoRoot || ""),
+      githubUrl: String(repository.githubUrl || "")
+    };
     const pill = repoPill();
-    if (!pill) {
+    if (pill) {
+      const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+      pill.textContent = repoName;
+      pill.title = latestRepoRoot || repoName;
+    }
+    updateRepositoryShortcuts();
+  }
+
+  function updateRepositoryShortcuts() {
+    const github = repoGithubLink();
+    const folder = repoFolderButton();
+    if (github instanceof HTMLAnchorElement) {
+      if (latestRepository.githubUrl) {
+        github.hidden = false;
+        github.href = latestRepository.githubUrl;
+      } else {
+        github.hidden = true;
+        github.removeAttribute("href");
+      }
+    }
+    if (folder instanceof HTMLButtonElement) {
+      folder.hidden = !latestRepository.root;
+    }
+  }
+
+  async function openRepositoryFolder() {
+    if (!latestRepository.root) {
+      setMeta("Repository folder is unavailable.");
       return;
     }
-    const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
-    pill.textContent = repoName;
-    pill.title = latestRepoRoot || repoName;
+    try {
+      const response = await fetch("/api/open-repo-folder", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to open repository folder.");
+      }
+      setMeta("Repository folder opened.");
+    } catch (error) {
+      setMeta(error instanceof Error ? error.message : "Unable to open repository folder.");
+    }
   }
 
   function normalizeGitBadgeCounts(payload) {
@@ -2077,6 +2119,9 @@
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       showCdxStatus().catch((error) => setMeta(error.message));
+    });
+    repoFolderButton()?.addEventListener("click", () => {
+      openRepositoryFolder().catch((error) => setMeta(error.message));
     });
     activityClearControl()?.addEventListener("click", () => {
       clearActivityHistory();

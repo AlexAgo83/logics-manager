@@ -346,6 +346,10 @@ def viewer_data_payload(
     return {
         "root": str(repo_root.resolve()),
         "repoName": repo_root.resolve().name,
+        "repository": {
+            "root": str(repo_root.resolve()),
+            "githubUrl": github_repo_url(repo_root),
+        },
         "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
@@ -392,6 +396,17 @@ def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = N
     }
 
 
+def open_repo_folder_payload(repo_root: Path, *, launcher: Any | None = None) -> dict[str, str]:
+    root = repo_root.resolve()
+    command = _system_editor_command(root)
+    runner = launcher or subprocess.Popen
+    runner(command)
+    return {
+        "path": str(root),
+        "command": command[0],
+    }
+
+
 def _system_editor_command(path: Path) -> list[str]:
     if sys.platform == "darwin":
         return ["open", str(path)]
@@ -425,6 +440,47 @@ def _sanitize_git_ref(value: str) -> str:
     ref = re.sub(r"://[^/@\s]+@", "://", ref)
     ref = re.sub(r"^[^/@\s]+@", "", ref)
     return ref[:200]
+
+
+def _github_web_url_from_remote(value: str) -> str:
+    remote = value.strip()
+    if not remote:
+        return ""
+    remote = re.sub(r"^git\+", "", remote)
+    match = re.match(r"^(?:https://|http://)(?:[^/@\s]+@)?github\.com[:/]+([^/\s]+)/([^/\s]+?)(?:\.git)?/?$", remote)
+    if not match:
+        match = re.match(r"^(?:ssh://)?git@github\.com[:/]+([^/\s]+)/([^/\s]+?)(?:\.git)?/?$", remote)
+    if not match:
+        return ""
+    owner, repo = match.groups()
+    if not owner or not repo:
+        return ""
+    return f"https://github.com/{owner}/{repo}"
+
+
+def github_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return ""
+    try:
+        remotes = _run_read_only_git(repo_root, ["remote", "-v"], runner=runner)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    if remotes.returncode != 0:
+        return ""
+
+    candidates: list[tuple[int, str]] = []
+    for line in remotes.stdout.splitlines():
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        name, url = parts[0], parts[1]
+        web_url = _github_web_url_from_remote(url)
+        if web_url:
+            candidates.append((0 if name == "origin" else 1, web_url))
+    if not candidates:
+        return ""
+    return sorted(candidates, key=lambda entry: entry[0])[0][1]
 
 
 def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
@@ -836,6 +892,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "document": edit_doc_payload(self.server.repo_root, rel_path)})
             except (FileNotFoundError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/open-repo-folder":
+            try:
+                self._send_json({"ok": True, "payload": open_repo_folder_payload(self.server.repo_root)})
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return

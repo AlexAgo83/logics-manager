@@ -28,9 +28,11 @@ from logics_manager.viewer import (
     collect_viewer_items,
     create_viewer_server,
     edit_doc_payload,
+    github_repo_url,
     git_diff_payload,
     git_status_payload,
     normalize_viewer_focus_target,
+    open_repo_folder_payload,
     read_doc_payload,
     render_start_status,
 )
@@ -273,6 +275,44 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
     assert launched[0][-1] == str(doc_path)
     with pytest.raises(ValueError):
         edit_doc_payload(repo_root, "../outside.md", launcher=launched.append)
+
+
+def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:
+    launched: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "\n".join(
+                    [
+                        "backup\tgit@gitlab.com:example/ignored.git (fetch)",
+                        "origin\tgit@github.com:AlexAgo83/logics-manager.git (fetch)",
+                        "origin\tgit@github.com:AlexAgo83/logics-manager.git (push)",
+                    ]
+                ),
+                "",
+            )
+        raise AssertionError(args)
+
+    assert github_repo_url(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git") == "https://github.com/AlexAgo83/logics-manager"
+
+    payload = open_repo_folder_payload(tmp_path, launcher=launched.append)
+
+    assert payload["path"] == str(tmp_path.resolve())
+    assert launched
+    assert launched[0][-1] == str(tmp_path.resolve())
+
+
+def test_viewer_repository_shortcuts_hide_non_github_remotes(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@gitlab.com:example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    assert github_repo_url(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git") == ""
+    assert github_repo_url(tmp_path, which=lambda _name: None) == ""
 
 
 def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path) -> None:

@@ -1,9 +1,9 @@
 ## req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions - Add Logics assistant runs cockpit and report-to-workflow actions
-> From version: 2.6.0
+> From version: 2.6.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Understanding: 96%
+> Confidence: 91%
 > Complexity: High
 > Theme: Assistant orchestration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -89,3 +89,4 @@ flowchart TD
 
 # Backlog
 - none
+- `item_396_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`

@@ -1,9 +1,9 @@
 ## task_212_block_concurrent_viewer_actions_and_show_loading_state - Block concurrent viewer actions and show loading state
-> From version: 2.7.0
+> From version: 2.7.1
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 91%
+> Confidence: 86%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -16,6 +16,15 @@
 
 # Backlog
 - `item_404_block_concurrent_viewer_actions_and_show_loading_state`
+
+```mermaid
+%% logics-kind: task
+%% logics-signature: task|block-concurrent-viewer-actions-and-show|item-404-block-concurrent-viewer-actions|1-confirm-scope|run-npx-vitest-run-tests-viewer-browser-
+flowchart TD
+    Backlog[Backlog item 404] --> Busy[Primary action busy wrapper]
+    Busy --> Tests[Duplicate, competing, and failure cleanup tests]
+    Tests --> Done[Delivered viewer loading state]
+```
 
 # Acceptance criteria
 - AC1: Starting a primary async viewer action marks that action as loading and shows visible feedback before the awaited work completes.

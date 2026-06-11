@@ -1,9 +1,9 @@
 ## req_236_preview_files_without_git_diffs_in_the_git_screen - Preview files without Git diffs in the Git screen
-> From version: 2.7.1
+> From version: 2.7.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 87%
+> Status: Done
+> Understanding: 93%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -39,10 +39,10 @@ flowchart TD
 - AC7: Tests cover at least one no-diff readable-file fallback, one unsupported/missing fallback, and the existing diff-first behavior.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -1,9 +1,9 @@
 ## req_238_block_concurrent_viewer_actions_and_show_loading_state - Block concurrent viewer actions and show loading state
-> From version: 2.7.1
+> From version: 2.7.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 87%
+> Status: Done
+> Understanding: 93%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Viewer interaction feedback
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -40,10 +40,10 @@ flowchart TD
 - AC8: Existing action-specific guards such as Git history reveal busy handling continue to work and are not replaced by a less precise global lock.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -1,9 +1,9 @@
 ## req_237_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged - Avoid unnecessary viewer refresh work when state is unchanged
-> From version: 2.7.1
+> From version: 2.7.2
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 87%
+> Status: Done
+> Understanding: 93%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -40,10 +40,10 @@ flowchart TD
 - AC8: The implementation does not introduce persistent cache complexity or stale-state risk beyond the current in-memory viewer session.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -1191,6 +1191,17 @@
 .viewer-insights__bar-meta span,
 .viewer-insights__signal span {
   min-width: 0;
+}
+
+.viewer-insights__signal span {
+  flex: 0 0 min(42%, 160px);
+  overflow-wrap: normal;
+}
+
+.viewer-insights__signal strong {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
   overflow-wrap: anywhere;
 }
 
@@ -1338,6 +1349,18 @@
   .viewer-insights__summary,
   .viewer-insights__grid {
     grid-template-columns: 1fr;
+  }
+
+  .viewer-insights__signal {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .viewer-insights__signal span,
+  .viewer-insights__signal strong {
+    flex: none;
+    width: 100%;
+    text-align: left;
   }
 
   .viewer-health__summary {

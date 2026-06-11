@@ -1,18 +1,18 @@
 ## task_199_show_local_viewer_server_connection_status - Show local viewer server connection status
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_391_show_local_viewer_server_connection_status`
@@ -61,9 +61,14 @@ flowchart TD
 - Run the relevant viewer test/build command if one exists.
 - Manually verify that stopping the local viewer server shows the disconnected banner and restarting it clears the banner after refresh.
 - Run `logics-manager flow finish task logics/tasks/task_199_show_local_viewer_server_connection_status.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Pending implementation.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_391_show_local_viewer_server_connection_status`
+- Related request(s): `req_225_show_local_viewer_server_connection_status`
 
 # AI Context
 - Summary: Implement show local viewer server connection status.

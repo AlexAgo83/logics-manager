@@ -8,6 +8,9 @@
   const updateBanner = () => document.getElementById("viewer-update");
   const updateCopy = () => document.getElementById("viewer-update-copy");
   const updateCommand = () => document.getElementById("viewer-update-command");
+  const connectionBanner = () => document.getElementById("viewer-connection");
+  const connectionCopy = () => document.getElementById("viewer-connection-copy");
+  const connectionDetail = () => document.getElementById("viewer-connection-detail");
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
@@ -46,6 +49,8 @@
   let mermaidInitialized = false;
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+  let connectionState = "connected";
+  let lastSuccessfulSyncAt = 0;
 
   function readStoredState() {
     try {
@@ -159,6 +164,53 @@
   function setMeta(text) {
     latestMetaText = text;
     renderMeta();
+  }
+
+  function formatConnectionTime(timestamp) {
+    if (!timestamp) {
+      return "No successful sync yet";
+    }
+    return `Last successful sync ${new Date(timestamp).toLocaleTimeString()}`;
+  }
+
+  function renderConnectionNotice() {
+    const banner = connectionBanner();
+    if (!(banner instanceof HTMLElement)) {
+      return;
+    }
+    if (connectionState !== "disconnected") {
+      banner.hidden = true;
+      return;
+    }
+    const copy = connectionCopy();
+    const detail = connectionDetail();
+    if (copy) {
+      copy.textContent = "Local viewer server disconnected. Displayed data may be stale; waiting for reconnection.";
+    }
+    if (detail) {
+      detail.textContent = formatConnectionTime(lastSuccessfulSyncAt);
+    }
+    banner.hidden = false;
+  }
+
+  function markConnectionHealthy(options = {}) {
+    const wasDisconnected = connectionState === "disconnected";
+    connectionState = "connected";
+    lastSuccessfulSyncAt = Date.now();
+    renderConnectionNotice();
+    if (wasDisconnected && !options.silent) {
+      setMeta(`Reconnected · refreshed ${new Date(lastSuccessfulSyncAt).toLocaleTimeString()}`);
+    }
+  }
+
+  function markConnectionDisconnected(error) {
+    connectionState = "disconnected";
+    renderConnectionNotice();
+    scheduleNextAutoRefresh();
+    const message = error instanceof Error && error.message
+      ? error.message
+      : "Unable to reach local viewer server.";
+    setMeta(`Disconnected · ${message}`);
   }
 
   function renderMeta() {
@@ -569,6 +621,7 @@
   }
 
   function postToApp(payload, options = {}) {
+    markConnectionHealthy({ silent: Boolean(options.silent) });
     latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
     if (!autoRefreshIntervalTouched) {
       autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(payload.autoRefreshIntervalSeconds) * 1000;
@@ -628,6 +681,9 @@
         await refreshGitBadgeCounters();
       }
       return true;
+    } catch (error) {
+      markConnectionDisconnected(error);
+      throw error;
     } finally {
       itemsLoadInFlight = false;
     }

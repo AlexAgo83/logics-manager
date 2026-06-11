@@ -1,10 +1,10 @@
 ## item_391_show_local_viewer_server_connection_status - Show local viewer server connection status
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -84,6 +84,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_225_show_local_viewer_server_connection_status` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_225_show_local_viewer_server_connection_status.md`.
 - Generated locally by logics-manager.
+- Task `task_199_show_local_viewer_server_connection_status` was finished via `logics-manager flow finish task` on 2026-06-11.
 
 # Tasks
 - `task_199_show_local_viewer_server_connection_status`

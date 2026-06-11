@@ -1,7 +1,7 @@
 ## req_225_show_local_viewer_server_connection_status - Show local viewer server connection status
 > From version: 2.5.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

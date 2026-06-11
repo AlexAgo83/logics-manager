@@ -847,6 +847,28 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
     assert calls[0] == ["cdx", "status", "--json"]
 
 
+def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "strengthId": "standard", "allowFileWrites": True},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["allowFileWrites"] is True
+    assert payload["plan"]["permission"] == "workspace-write"
+    args = payload["plan"]["arguments"]
+    assert args[args.index("--permission") + 1] == "workspace-write"
+    prompt = args[args.index("--prompt") + 1]
+    assert "File edits are allowed" in prompt
+
+
 def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args == ["cdx", "status", "--json"]:

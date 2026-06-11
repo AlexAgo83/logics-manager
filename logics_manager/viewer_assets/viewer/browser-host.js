@@ -2357,7 +2357,7 @@
         { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
         { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
         { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-        { id: "pre-release", title: "Read-only pre-release review", description: "Produce a pre-release validation plan and report without mutating release state.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+        { id: "pre-release", title: "Guarded pre-release review", description: "Validate and fix release readiness without tagging, publishing, or mutating release state.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },
@@ -2374,6 +2374,7 @@
       missionId: latestCdxMissionState.missionId || "full-audit",
       sessionId: latestCdxMissionState.sessionId || "",
       strengthId: latestCdxMissionState.strengthId || "standard",
+      allowFileWrites: latestCdxMissionState.missionInputs.allowFileWrites === "false" ? "false" : "true",
       ...latestCdxMissionState.missionInputs
     };
   }
@@ -2422,6 +2423,7 @@
     const missionId = latestCdxMissionState.missionId || catalog.defaultMissionId || "full-audit";
     const selectedMission = missions.find((mission) => mission.id === missionId) || {};
     const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
+    const allowFileWrites = latestCdxMissionState.missionInputs.allowFileWrites !== "false";
     latestCdxMissionState.sessionId = selectedSession;
     const missionCards = missions.map((mission) => `
       <button class="viewer-cdx__mission${mission.id === missionId ? " is-active" : ""}" type="button" data-viewer-cdx-mission="${escapeHtml(mission.id)}" aria-pressed="${mission.id === missionId ? "true" : "false"}">
@@ -2471,6 +2473,10 @@
               <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
             </label>
             <div class="viewer-cdx__strengths">${strengthButtons}</div>
+            <label class="viewer-cdx__field viewer-cdx__field--check">
+              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
+              <span>Allow CDX to modify files</span>
+            </label>
             ${renderCdxMissionInputs(selectedMission)}
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>

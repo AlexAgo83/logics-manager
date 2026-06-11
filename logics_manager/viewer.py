@@ -93,8 +93,8 @@ CDX_MISSION_CATALOG = {
     },
     "pre-release": {
         "id": "pre-release",
-        "title": "Read-only pre-release review",
-        "description": "Produce a pre-release validation plan and report without mutating release state.",
+        "title": "Guarded pre-release review",
+        "description": "Validate and fix release readiness without tagging, publishing, or mutating release state.",
         "scope": "pre-release-report",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
@@ -1394,26 +1394,33 @@ def _cdx_mission_prompt(
     wish_text: str = "",
     release_version: str = "",
     run_full_validation: bool = False,
+    allow_file_writes: bool = False,
 ) -> str:
+    write_guidance = (
+        "File edits are allowed when they directly complete the mission. Keep changes scoped, run relevant validation, and report changed files."
+        if allow_file_writes
+        else "Do not modify files."
+    )
     if mission_id == "full-audit":
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
             "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
-            "Do not modify files.",
+            write_guidance,
             "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
         ])
     if mission_id == "release-review":
         return "\n".join([
             f"Review repository changes since the latest release tag {release_tag}.",
             "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
-            "Do not modify files.",
+            write_guidance,
             "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
         ])
     if mission_id == "corpus-ready":
         return "\n".join([
             "Prepare the open Logics workflow corpus for development.",
             "Analyze requests, backlog items, tasks, docs, lint/audit state, and workflow consistency.",
-            "Do not modify files and do not run destructive commands.",
+            write_guidance,
+            "Do not run destructive commands.",
             "Return JSON only with this schema:",
             '{"summary":"...","actions":[{"type":"promote-request-to-backlog","target":"req_..."},{"type":"promote-backlog-to-task","target":"item_..."},{"type":"refresh-corpus-context","target":""}],"notes":["..."]}',
             "Allowed action types are exactly: promote-request-to-backlog, promote-backlog-to-task, refresh-corpus-context.",
@@ -1422,7 +1429,8 @@ def _cdx_mission_prompt(
     if mission_id == "wish-to-request":
         return "\n".join([
             "Turn the following user wish into a structured Logics request draft.",
-            "Do not modify files, do not promote backlog items, and do not create tasks.",
+            write_guidance,
+            "Do not promote backlog items and do not create tasks.",
             "Return JSON only with this schema:",
             '{"summary":"...","requestDraft":{"title":"...","needs":["..."],"context":["..."],"acceptanceCriteria":["AC1: ..."],"definitionOfReady":{"problemExplicit":true,"scopeBounded":true,"criteriaTestable":true,"risksListed":true},"references":["..."],"questions":["..."],"openAssumptions":["..."]},"generatedFiles":[]}',
             "If the wish is underspecified, include concrete questions and open assumptions instead of inventing details.",
@@ -1432,10 +1440,10 @@ def _cdx_mission_prompt(
     if mission_id == "pre-release":
         validation_mode = "Run the project-defined full validation path before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the validation commands that should be run before release."
         return "\n".join([
-            f"Produce a read-only pre-release review for version {release_version}.",
+            f"Produce a pre-release review for version {release_version}.",
             validation_mode,
             "Do not modify package versions, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases.",
-            "Do not modify files. If fixes or workflow docs are needed, report them as actionable recommendations or generated-file proposals only.",
+            write_guidance,
             "Return JSON only with this schema:",
             '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',
         ])
@@ -1450,6 +1458,7 @@ def _cdx_mission_command(
     strength: dict[str, Any],
     release_tag: str = "",
     mission_inputs: dict[str, str] | None = None,
+    allow_file_writes: bool = False,
 ) -> list[str]:
     mission_inputs = mission_inputs or {}
     prompt = _cdx_mission_prompt(
@@ -1458,11 +1467,12 @@ def _cdx_mission_command(
         wish_text=mission_inputs.get("wishText", ""),
         release_version=mission_inputs.get("releaseVersion", ""),
         run_full_validation=mission_inputs.get("runFullValidation") == "true",
+        allow_file_writes=allow_file_writes,
     )
     timeout = int(strength.get("timeout") or 180)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
     power = str(strength.get("power") or "medium")
-    permission = "read-only"
+    permission = "workspace-write" if allow_file_writes else "read-only"
     return [
         "run",
         session,
@@ -1662,7 +1672,17 @@ def cdx_mission_plan_payload(
     if status_payload.get("state") != "ok":
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
-    command = _cdx_mission_command(repo_root, mission_id, session=session, strength=strength_def, release_tag=release_tag, mission_inputs=mission_inputs)
+    allow_file_writes = _mission_bool_input(body, "allowFileWrites")
+    permission = "workspace-write" if allow_file_writes else "read-only"
+    command = _cdx_mission_command(
+        repo_root,
+        mission_id,
+        session=session,
+        strength=strength_def,
+        release_tag=release_tag,
+        mission_inputs=mission_inputs,
+        allow_file_writes=allow_file_writes,
+    )
     plan = {
         "mission": mission,
         "missionId": mission_id,
@@ -1672,6 +1692,8 @@ def cdx_mission_plan_payload(
         "missionInputs": mission_inputs,
         "scope": mission["scope"],
         "releaseTag": release_tag,
+        "allowFileWrites": allow_file_writes,
+        "permission": permission,
         "command": ["cdx", *command],
         "arguments": command,
         "warnings": warnings,

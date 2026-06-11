@@ -71,6 +71,7 @@
   let latestCdxStatusSignature = "";
   let latestCiStatusSignature = "";
   let primaryActionBusyKey = "";
+  let cdxMissionBusyKey = "";
 
   function readStoredState() {
     try {
@@ -159,10 +160,7 @@
       "[data-viewer-project-id]",
       "[data-viewer-cdx-mode]",
       "[data-viewer-cdx-report]",
-      "[data-viewer-cdx-create-request]",
-      "[data-viewer-cdx-plan]",
-      "[data-viewer-cdx-run]",
-      "[data-viewer-cdx-apply-plan]"
+      "[data-viewer-cdx-create-request]"
     ].join(","))).filter((node) => node instanceof HTMLElement);
   }
 
@@ -211,6 +209,62 @@
       })
       .finally(() => {
         setPrimaryActionBusy("", "");
+      });
+  }
+
+  function cdxMissionActionControls() {
+    return Array.from(document.querySelectorAll([
+      "[data-viewer-cdx-plan]",
+      "[data-viewer-cdx-run]",
+      "[data-viewer-cdx-apply-plan]",
+      "[data-viewer-cdx-mission]"
+    ].join(","))).filter((node) => node instanceof HTMLElement);
+  }
+
+  function setCdxMissionBusy(actionKey, label = "") {
+    cdxMissionBusyKey = actionKey || "";
+    document.body?.toggleAttribute("data-viewer-cdx-mission-busy", Boolean(cdxMissionBusyKey));
+    if (cdxMissionBusyKey) {
+      document.body?.setAttribute("data-viewer-cdx-mission-busy-action", cdxMissionBusyKey);
+    } else {
+      document.body?.removeAttribute("data-viewer-cdx-mission-busy-action");
+    }
+    cdxMissionActionControls().forEach((control) => {
+      if (!("disabled" in control)) {
+        return;
+      }
+      control.disabled = Boolean(cdxMissionBusyKey);
+      control.setAttribute("aria-busy", cdxMissionBusyKey ? "true" : "false");
+      if (cdxMissionBusyKey) {
+        control.setAttribute("data-viewer-action-busy", control.getAttribute("data-viewer-action-key") === actionKey ? "active" : "blocked");
+      } else {
+        control.removeAttribute("data-viewer-action-busy");
+      }
+    });
+    if (!cdxMissionBusyKey) {
+      updateCapabilityControls();
+      applyLocalViewerChrome();
+    }
+    if (cdxMissionBusyKey && label) {
+      setMeta(`${label}...`);
+    }
+  }
+
+  function withCdxMissionAction(actionKey, label, action) {
+    if (cdxMissionBusyKey) {
+      setMeta("Another CDX mission action is still running.");
+      return Promise.resolve(false);
+    }
+    setCdxMissionBusy(actionKey, label);
+    return Promise.resolve()
+      .then(action)
+      .then(() => true)
+      .catch((error) => {
+        setMeta(error.message || "CDX mission action failed.");
+        return false;
+      })
+      .finally(() => {
+        setCdxMissionBusy("", "");
       });
   }
 
@@ -3466,15 +3520,15 @@
         return;
       }
       if (cdxPlanTarget instanceof HTMLElement) {
-        withPrimaryAction("cdx-plan", "Building CDX mission plan", previewCdxMission);
+        withCdxMissionAction("cdx-plan", "Building CDX mission plan", previewCdxMission);
         return;
       }
       if (cdxRunTarget instanceof HTMLElement) {
-        withPrimaryAction("cdx-run", "Launching CDX mission", launchCdxMission);
+        withCdxMissionAction("cdx-run", "Launching CDX mission", launchCdxMission);
         return;
       }
       if (cdxApplyPlanTarget instanceof HTMLElement) {
-        withPrimaryAction("cdx-apply-plan", "Applying CDX mission plan", applyCdxMissionPlan);
+        withCdxMissionAction("cdx-apply-plan", "Applying CDX mission plan", applyCdxMissionPlan);
         return;
       }
       if (cdxReportTarget instanceof HTMLElement) {

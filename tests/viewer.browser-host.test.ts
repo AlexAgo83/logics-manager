@@ -14,6 +14,7 @@ function createViewerDom(options: {
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
+  cdxMissionRunGate?: Promise<void>;
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -529,6 +530,9 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/cdx-mission-run") {
+        if (options.cdxMissionRunGate) {
+          await options.cdxMissionRunGate;
+        }
         return {
           ok: true,
           json: async () => ({
@@ -1635,6 +1639,41 @@ describe("local viewer browser host", () => {
       releaseVersion: "v2.8.0",
       runFullValidation: "true"
     });
+  });
+
+  it("keeps navigation available while a CDX mission run is pending", async () => {
+    let releaseRun: () => void = () => {};
+    const cdxMissionRunGate = new Promise<void>((resolve) => {
+      releaseRun = resolve;
+    });
+    const { dom, calls } = createViewerDom({ cdxMissionRunGate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const missionRun = dom.window.document.querySelector('[data-viewer-cdx-run]') as HTMLButtonElement | null;
+    missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.filter((call) => call === "/api/cdx-mission-run")).toHaveLength(1);
+    expect(missionRun?.disabled).toBe(true);
+    expect((dom.window.document.getElementById("viewer-git") as HTMLButtonElement | null)?.disabled).toBe(false);
+    expect(calls).toContain("/api/git-status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+
+    releaseRun();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

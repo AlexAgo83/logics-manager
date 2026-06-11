@@ -15,6 +15,8 @@ function createViewerDom(options: {
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   editResponse?: { ok: boolean; status?: number; body: unknown };
+  gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
@@ -415,6 +417,18 @@ function createViewerDom(options: {
         };
       }
       if (String(url).startsWith("/api/git-diff")) {
+        if (options.gitDiffResponse) {
+          return {
+            ok: options.gitDiffResponse.ok,
+            status: options.gitDiffResponse.status ?? (options.gitDiffResponse.ok ? 200 : 500),
+            json: async () => {
+              if (options.gitDiffResponse?.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return options.gitDiffResponse?.body || {};
+            }
+          };
+        }
         return {
           ok: true,
           json: async () => ({
@@ -426,6 +440,33 @@ function createViewerDom(options: {
               diff: "diff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+Demo",
               truncated: false,
               logicsType: "request"
+            }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/git-file-preview")) {
+        if (options.gitPreviewResponse) {
+          return {
+            ok: options.gitPreviewResponse.ok,
+            status: options.gitPreviewResponse.status ?? (options.gitPreviewResponse.ok ? 200 : 500),
+            json: async () => {
+              if (options.gitPreviewResponse?.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return options.gitPreviewResponse?.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              path: "new-file.md",
+              mode: "file-preview",
+              content: "# New file\nPreview body",
+              truncated: false
             }
           })
         };
@@ -1090,6 +1131,94 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector(".viewer-git__workspace")?.classList.contains("has-diff-detail")).toBe(false);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
+  });
+
+  it("falls back to a file preview when a selected Git file has no useful diff", async () => {
+    const { dom, calls } = createViewerDom({
+      gitDiffResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            path: "new-file.md",
+            mode: "worktree",
+            diff: "",
+            truncated: false,
+            message: "No diff is available for this file in the selected mode."
+          }
+        }
+      },
+      gitPreviewResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            path: "new-file.md",
+            mode: "file-preview",
+            content: "# New file\nPreview body",
+            truncated: false
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
+    expect(calls.some((call) => call.startsWith("/api/git-file-preview?"))).toBe(true);
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("File preview");
+    expect(content?.textContent).toContain("# New file");
+    expect(content?.textContent).toContain("Preview body");
+    expect(content?.textContent).toContain("file preview");
+  });
+
+  it("shows a bounded file-preview fallback message for unsupported Git files", async () => {
+    const { dom } = createViewerDom({
+      gitDiffResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            path: "binary.dat",
+            mode: "worktree",
+            diff: "",
+            truncated: false
+          }
+        }
+      },
+      gitPreviewResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "unsupported",
+            path: "binary.dat",
+            message: "Binary or unsupported file content cannot be previewed."
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("File preview");
+    expect(content?.textContent).toContain("file preview unavailable");
+    expect(content?.textContent).toContain("Binary or unsupported file content cannot be previewed.");
   });
 
   it("reveals Git history commits ten rows at a time", async () => {

@@ -37,6 +37,7 @@ from logics_manager.viewer import (
     edit_doc_payload,
     github_repo_url,
     git_diff_payload,
+    git_file_preview_payload,
     git_status_payload,
     normalize_viewer_focus_target,
     open_repo_folder_payload,
@@ -602,6 +603,40 @@ def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Pa
     assert ["git", "diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
     assert git_diff_payload(tmp_path, "../outside.md", which=lambda _name: "/usr/bin/git")["state"] == "error"
+
+
+def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:
+    target = tmp_path / "logics" / "request" / "req_001_demo.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("## req_001_demo - Demo\nPreview body\n", encoding="utf-8")
+
+    payload = git_file_preview_payload(tmp_path, "logics/request/req_001_demo.md", max_chars=24)
+
+    assert payload["state"] == "ok"
+    assert payload["path"] == "logics/request/req_001_demo.md"
+    assert payload["mode"] == "file-preview"
+    assert payload["logicsType"] == "request"
+    assert payload["truncated"] is True
+    assert payload["content"] == "## req_001_demo - Demo\nP"
+    assert git_file_preview_payload(tmp_path, "../outside.md")["state"] == "error"
+
+
+def test_viewer_git_file_preview_payload_reports_missing_binary_and_oversized(tmp_path: Path) -> None:
+    binary = tmp_path / "binary.dat"
+    binary.write_bytes(b"abc\x00def")
+    oversized = tmp_path / "large.txt"
+    oversized.write_text("x" * 20, encoding="utf-8")
+
+    missing = git_file_preview_payload(tmp_path, "missing.md")
+    unsupported = git_file_preview_payload(tmp_path, "binary.dat")
+    too_large = git_file_preview_payload(tmp_path, "large.txt", max_bytes=10)
+
+    assert missing["state"] == "missing"
+    assert "missing or deleted" in missing["message"]
+    assert unsupported["state"] == "unsupported"
+    assert "Binary" in unsupported["message"]
+    assert too_large["state"] == "oversized"
+    assert "limited to 10 bytes" in too_large["message"]
 
 
 def test_viewer_git_status_payload_handles_unavailable_non_repo_and_errors(tmp_path: Path) -> None:

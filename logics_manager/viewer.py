@@ -76,6 +76,8 @@ CDX_MISSION_CATALOG = {
     },
 }
 CDX_DEFAULT_MISSION_ID = "full-audit"
+GIT_FILE_PREVIEW_MAX_BYTES = 30000
+GIT_FILE_PREVIEW_MAX_CHARS = 20000
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
 VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
@@ -916,6 +918,13 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     }
 
 
+def _normalize_git_file_path(rel_path: str) -> str | None:
+    normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
+    if not normalized or normalized.startswith("~") or normalized.startswith("/") or ".." in normalized.split("/"):
+        return None
+    return normalized
+
+
 def git_diff_payload(
     repo_root: Path,
     rel_path: str,
@@ -928,8 +937,8 @@ def git_diff_payload(
     git_which = which or shutil.which
     if not git_which("git"):
         return {"state": "unavailable", "message": "Git is not available on PATH."}
-    normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
-    if not normalized or normalized.startswith("~") or normalized.startswith("/") or ".." in normalized.split("/"):
+    normalized = _normalize_git_file_path(rel_path)
+    if not normalized:
         return {"state": "error", "message": "Unsafe Git path."}
     try:
         inside = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
@@ -961,6 +970,70 @@ def git_diff_payload(
         "truncated": truncated,
         "logicsType": _logics_doc_type(normalized),
         "message": "" if content else "No diff is available for this file in the selected mode.",
+    }
+
+
+def git_file_preview_payload(
+    repo_root: Path,
+    rel_path: str,
+    *,
+    max_bytes: int = GIT_FILE_PREVIEW_MAX_BYTES,
+    max_chars: int = GIT_FILE_PREVIEW_MAX_CHARS,
+) -> dict[str, Any]:
+    normalized = _normalize_git_file_path(rel_path)
+    if not normalized:
+        return {"state": "error", "message": "Unsafe Git path."}
+    target = (repo_root / normalized).resolve()
+    try:
+        target.relative_to(repo_root.resolve())
+    except ValueError:
+        return {"state": "error", "message": "Unsafe Git path."}
+    if not target.exists() or not target.is_file():
+        return {
+            "state": "missing",
+            "path": normalized,
+            "message": "The current file is missing or deleted, so no file preview is available.",
+        }
+    try:
+        size = target.stat().st_size
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "message": f"Unable to inspect file: {exc}"}
+    if size > max_bytes:
+        return {
+            "state": "oversized",
+            "path": normalized,
+            "size": size,
+            "message": f"File preview is limited to {max_bytes} bytes; this file is {size} bytes.",
+        }
+    try:
+        data = target.read_bytes()
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "message": f"Unable to read file preview: {exc}"}
+    if b"\x00" in data:
+        return {
+            "state": "unsupported",
+            "path": normalized,
+            "message": "Binary or unsupported file content cannot be previewed.",
+        }
+    try:
+        content = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return {
+            "state": "unsupported",
+            "path": normalized,
+            "message": "Binary or unsupported file encoding cannot be previewed.",
+        }
+    truncated = len(content) > max_chars
+    if truncated:
+        content = content[:max_chars]
+    return {
+        "state": "ok",
+        "path": normalized,
+        "mode": "file-preview",
+        "content": content,
+        "truncated": truncated,
+        "logicsType": _logics_doc_type(normalized),
+        "message": "",
     }
 
 
@@ -1668,6 +1741,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = params.get("path", [""])[0]
             cached = params.get("cached", [""])[0].lower() in {"1", "true", "yes"}
             self._send_json({"ok": True, "payload": git_diff_payload(self.server.repo_root, rel_path, cached=cached)})
+            return
+        if route == "/api/git-file-preview":
+            params = parse_qs(parsed.query)
+            rel_path = params.get("path", [""])[0]
+            self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path)})
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 

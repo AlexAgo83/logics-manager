@@ -2917,11 +2917,15 @@
 
   async function loadGitDiff(path, cached, button = null) {
     const diffPanel = document.querySelector("[data-viewer-git-diff]");
+    const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
     if (!(diffPanel instanceof HTMLElement) || !path) {
       return;
     }
     if (button instanceof HTMLElement) {
       setActiveGitFile(button);
+    }
+    if (detailTitle instanceof HTMLElement) {
+      detailTitle.textContent = "Diff preview";
     }
     diffPanel.textContent = "Loading diff...";
     const params = new URLSearchParams({ path });
@@ -2935,8 +2939,32 @@
       diffPanel.textContent = payload.message || data.error || "Unable to load diff.";
       return;
     }
-    const content = payload.diff || payload.message || "No diff is available for this file.";
+    const content = payload.diff || "";
+    if (!content.trim()) {
+      await loadGitFilePreview(path, diffPanel, detailTitle);
+      return;
+    }
     diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
+  }
+
+  async function loadGitFilePreview(path, diffPanel, detailTitle = null) {
+    if (detailTitle instanceof HTMLElement) {
+      detailTitle.textContent = "File preview";
+    }
+    diffPanel.textContent = "Loading file preview...";
+    const response = await fetch(`/api/git-file-preview?${new URLSearchParams({ path }).toString()}`);
+    const data = await response.json();
+    const payload = data.payload || {};
+    if (!response.ok || !data.ok) {
+      diffPanel.textContent = data.error || "Unable to load file preview.";
+      return;
+    }
+    if (payload.state !== "ok") {
+      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · file preview unavailable</div><p class="viewer-git__state">${escapeHtml(payload.message || "File preview is unavailable.")}</p>`;
+      return;
+    }
+    const content = payload.content || "";
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · file preview${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
   }
 
   function applyGitDomain(domain) {

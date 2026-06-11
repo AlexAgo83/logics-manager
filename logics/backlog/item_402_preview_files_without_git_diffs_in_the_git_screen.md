@@ -1,10 +1,10 @@
 ## item_402_preview_files_without_git_diffs_in_the_git_screen - Preview files without Git diffs in the Git screen
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -80,6 +80,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_236_preview_files_without_git_diffs_in_the_git_screen` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_236_preview_files_without_git_diffs_in_the_git_screen.md`.
 - Generated locally by logics-manager.
+- Delivered with read-only Git file preview fallback, explicit `File preview` labeling, and focused backend/browser tests.
 
 # Tasks
 - `task_210_preview_files_without_git_diffs_in_the_git_screen`

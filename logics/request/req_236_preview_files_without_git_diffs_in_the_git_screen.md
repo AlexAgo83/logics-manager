@@ -1,9 +1,9 @@
 ## req_236_preview_files_without_git_diffs_in_the_git_screen - Preview files without Git diffs in the Git screen
-> From version: 2.7.0
+> From version: 2.7.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 87%
 > Complexity: Medium
 > Theme: Git workflow visibility
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -62,4 +62,4 @@ flowchart TD
 - Skip when: Work targets Git history, commit badges, staging actions, or write-capable Git operations.
 
 # Backlog
-- none
+- `item_402_preview_files_without_git_diffs_in_the_git_screen`

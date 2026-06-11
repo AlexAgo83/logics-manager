@@ -1,9 +1,9 @@
 ## req_238_block_concurrent_viewer_actions_and_show_loading_state - Block concurrent viewer actions and show loading state
-> From version: 2.7.0
+> From version: 2.7.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 87%
 > Complexity: Medium
 > Theme: Viewer interaction feedback
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -63,4 +63,4 @@ flowchart TD
 - Skip when: Work targets backend command performance only, purely local filter interactions, or unrelated panel layout changes.
 
 # Backlog
-- none
+- `item_404_block_concurrent_viewer_actions_and_show_loading_state`

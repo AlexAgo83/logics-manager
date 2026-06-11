@@ -1,9 +1,9 @@
 ## req_237_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged - Avoid unnecessary viewer refresh work when state is unchanged
-> From version: 2.7.0
+> From version: 2.7.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 87%
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -63,4 +63,4 @@ flowchart TD
 - Skip when: Work targets server-side indexing performance only, unrelated panel layout changes, or persistent cross-session caching.
 
 # Backlog
-- none
+- `item_403_avoid_unnecessary_viewer_refresh_work_when_state_is_unchanged`

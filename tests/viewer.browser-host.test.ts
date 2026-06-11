@@ -992,6 +992,8 @@ describe("local viewer browser host", () => {
     expect(historyDomain?.textContent).toContain("2");
     expect((content?.querySelector('[data-viewer-git-panel="history"]') as HTMLElement | null)?.hidden).toBe(false);
     expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(true);
+    expect((content?.querySelector("[data-viewer-git-detail]") as HTMLElement | null)?.hidden).toBe(true);
+    expect(content?.querySelector(".viewer-git__workspace")?.classList.contains("has-diff-detail")).toBe(false);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
   });

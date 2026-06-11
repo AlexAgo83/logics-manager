@@ -1035,9 +1035,13 @@
 
 .viewer-git__workspace {
   display: grid;
-  grid-template-columns: minmax(120px, 0.45fr) minmax(220px, 0.9fr) minmax(280px, 1.3fr);
+  grid-template-columns: minmax(120px, 0.45fr) minmax(0, 2.2fr);
   gap: 12px;
   align-items: start;
+}
+
+.viewer-git__workspace.has-diff-detail {
+  grid-template-columns: minmax(120px, 0.45fr) minmax(220px, 0.9fr) minmax(280px, 1.3fr);
 }
 
 .viewer-git__domains {
@@ -1093,6 +1097,10 @@
 }
 
 .viewer-git__panel[hidden] {
+  display: none !important;
+}
+
+.viewer-git__detail[hidden] {
   display: none !important;
 }
 

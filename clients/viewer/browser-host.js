@@ -2565,7 +2565,7 @@
     return `
       <div class="viewer-git">
         <div class="viewer-git__summary">${cards}</div>
-        <div class="viewer-git__workspace">
+        <div class="viewer-git__workspace has-diff-detail">
           <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
           <div class="viewer-git__content" aria-label="Git domain content">
             <section class="viewer-git__panel" data-viewer-git-panel="changes">
@@ -2594,7 +2594,7 @@
               ${remote}
             </section>
           </div>
-          <section class="viewer-git__detail" aria-label="Git diff">
+          <section class="viewer-git__detail" aria-label="Git diff" data-viewer-git-detail>
             <div class="viewer-git__detail-title">Diff preview</div>
             <div class="viewer-git__diff" data-viewer-git-diff>Select a changed file to preview its diff.</div>
           </section>
@@ -2660,6 +2660,8 @@
 
   function applyGitDomain(domain) {
     const selected = domain || "changes";
+    const diffDomains = new Set(["changes", "staged", "worktree", "untracked"]);
+    const showDiffDetail = diffDomains.has(selected);
     document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
       if (node instanceof HTMLElement) {
         const active = node.getAttribute("data-viewer-git-domain") === selected;
@@ -2670,6 +2672,16 @@
     document.querySelectorAll("[data-viewer-git-panel]").forEach((node) => {
       if (node instanceof HTMLElement) {
         node.hidden = node.getAttribute("data-viewer-git-panel") !== selected;
+      }
+    });
+    document.querySelectorAll(".viewer-git__workspace").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle("has-diff-detail", showDiffDetail);
+      }
+    });
+    document.querySelectorAll("[data-viewer-git-detail]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.hidden = !showDiffDetail;
       }
     });
   }

@@ -615,6 +615,31 @@
   gap: 14px;
 }
 
+.viewer-cdx__modes {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: fit-content;
+  padding: 2px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-cdx__mode {
+  border: 0;
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  cursor: pointer;
+}
+
+.viewer-cdx__mode.is-active {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+}
+
 .viewer-git__summary,
 .viewer-cdx__summary,
 .viewer-ci__summary,

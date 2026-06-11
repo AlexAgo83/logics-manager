@@ -24,6 +24,7 @@ from logics_manager.insights import followups_payload, health_payload, product_c
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
+    cdx_runs_payload,
     cdx_status_payload,
     ci_status_payload,
     collect_viewer_items,
@@ -641,6 +642,32 @@ def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invali
         return subprocess.CompletedProcess(args, 0, "[]", "")
 
     assert cdx_status_payload(tmp_path, runner=array_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_cdx_runs_payload_reads_observable_runs(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args[-2:] == ["runs", "--json"]
+        return subprocess.CompletedProcess(args, 0, json.dumps({
+            "ok": True,
+            "runs": [
+                {"run_id": "run-1", "kind": "code-review", "status": "running", "session": "work"},
+                {"run_id": "run-2", "kind": "assistant", "status": "succeeded", "session": "auto"},
+            ],
+        }), "")
+
+    payload = cdx_runs_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload["state"] == "ok"
+    assert [run["run_id"] for run in payload["runs"]] == ["run-1", "run-2"]
+
+
+def test_viewer_cdx_runs_payload_handles_unavailable_and_invalid_json(tmp_path: Path) -> None:
+    assert cdx_runs_payload(tmp_path, which=lambda _name: None)["state"] == "unavailable"
+
+    def invalid_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "{}", "")
+
+    assert cdx_runs_payload(tmp_path, runner=invalid_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
 
 
 def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Path) -> None:

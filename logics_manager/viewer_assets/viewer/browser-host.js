@@ -1029,6 +1029,12 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "CDX status");
   }
 
+  function isCdxRunsOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX runs");
+  }
+
   function isCiStatusOpen() {
     const panel = documentPanel();
     const title = documentTitle();
@@ -1043,6 +1049,8 @@
       await showCiStatus({ silent: Boolean(options.silent) });
     } else if (isCdxStatusOpen()) {
       await showCdxStatus({ silent: Boolean(options.silent) });
+    } else if (isCdxRunsOpen()) {
+      await showCdxRuns({ silent: Boolean(options.silent) });
     } else if (method === "POST") {
       await refreshGitBadgeCounters();
     }
@@ -2095,10 +2103,20 @@
     return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
   }
 
+  function renderCdxModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes" role="tablist" aria-label="CDX views">
+        <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Status</button>
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Runs</button>
+      </div>
+    `;
+  }
+
   function renderCdxStatus(payload) {
     if (!payload || payload.state !== "ok") {
       return `
         <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("status")}
           <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX status is unavailable.")}</div>
         </div>
       `;
@@ -2134,6 +2152,7 @@
     `).join("");
     return `
       <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("status")}
         <div class="viewer-cdx__summary">${cards}</div>
         <div class="viewer-cdx__workspace">
           <div class="viewer-cdx__stack">
@@ -2157,6 +2176,41 @@
             </section>
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  function renderCdxRuns(payload) {
+    if (!payload || payload.state !== "ok") {
+      return `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("runs")}
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX runs are unavailable.")}</div>
+        </div>
+      `;
+    }
+    const runs = Array.isArray(payload.runs) ? payload.runs : [];
+    const rows = runs.map((run) => `
+      <tr>
+        <td><code>${escapeHtml(run.run_id || "-")}</code></td>
+        <td>${renderCdxBadge(run.status || "unknown")}</td>
+        <td>${escapeHtml(run.kind || "assistant")}</td>
+        <td>${escapeHtml(run.session || "-")}</td>
+        <td>${escapeHtml(run.cwd || "-")}</td>
+      </tr>
+    `).join("");
+    return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("runs")}
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runs.length)} reported</span></div>
+          <div class="viewer-cdx__table-wrap">
+            <table class="viewer-cdx__table">
+              <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th></tr></thead>
+              <tbody>${rows || '<tr><td colspan="5" class="viewer-cdx__empty">No assistant runs reported.</td></tr>'}</tbody>
+            </table>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -2192,6 +2246,30 @@
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
+  }
+
+  async function showCdxRuns(options = {}) {
+    if (!isCapabilityAvailable("cdx")) {
+      const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      setDocument("CDX runs", renderCdxRuns({ state: capability("cdx").state, message }));
+      setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      setMeta("Checking CDX runs...");
+    }
+    const response = await fetch("/api/cdx-runs");
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX runs.");
+    }
+    setDocument("CDX runs", renderCdxRuns(data.payload));
+    setMeta(options.silent ? "CDX runs refreshed." : "CDX runs loaded.");
   }
 
   function renderCiBadge(value) {
@@ -2735,6 +2813,16 @@
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
+      const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+      if (cdxModeTarget instanceof HTMLElement) {
+        const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
+        if (mode === "runs") {
+          showCdxRuns().catch((error) => setMeta(error.message));
+        } else {
+          showCdxStatus().catch((error) => setMeta(error.message));
+        }
+        return;
+      }
       if (projectSwitcherTarget instanceof HTMLElement) {
         const menu = projectMenu();
         setProjectMenuOpen(Boolean(menu?.hidden));

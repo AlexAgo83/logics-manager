@@ -346,6 +346,22 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/cdx-runs") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              runs: [
+                { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager" },
+                { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
+              ]
+            }
+          })
+        };
+      }
       if (String(url).startsWith("/api/git-diff")) {
         return {
           ok: true,
@@ -979,6 +995,27 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Readiness and quota");
     expect(content?.textContent).toContain("cdx status");
     expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
+  });
+
+  it("switches the CDX document between status and runs", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const runsButton = dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]') as HTMLButtonElement | null;
+    runsButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-runs");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Assistant runs");
+    expect(text).toContain("run-1");
+    expect(text).toContain("code-review");
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

@@ -1096,6 +1096,29 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     return {"state": "ok", "message": "", "status": parsed}
 
 
+def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"state": "unavailable", "message": "CDX executable is not available on PATH.", "runs": []}
+    try:
+        result = _run_read_only_cdx(repo_root, ["runs", "--json"], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX runs timed out.", "runs": []}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX runs: {exc}", "runs": []}
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "CDX runs failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "runs": []}
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "message": "CDX runs returned invalid JSON.", "runs": []}
+    runs = parsed.get("runs") if isinstance(parsed, dict) else None
+    if not isinstance(runs, list):
+        return {"state": "invalid-json", "message": "CDX runs JSON must include a runs array.", "runs": []}
+    return {"state": "ok", "message": "", "runs": [run for run in runs if isinstance(run, dict)]}
+
+
 def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
@@ -1231,6 +1254,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/cdx-status":
             self._send_json({"ok": True, "payload": cdx_status_payload(self.server.repo_root)})
+            return
+        if route == "/api/cdx-runs":
+            self._send_json({"ok": True, "payload": cdx_runs_payload(self.server.repo_root)})
             return
         if route == "/api/git-diff":
             params = parse_qs(parsed.query)

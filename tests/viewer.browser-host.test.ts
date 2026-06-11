@@ -1264,6 +1264,12 @@ describe("local viewer browser host", () => {
     expect(text).not.toContain("No provider status reported.");
     expect(text).not.toContain("No sessions reported.");
     expect(text.indexOf("corvus")).toBeLessThan(text.indexOf("work2"));
+    const stacks = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__stack"));
+    const leftStackText = stacks[0]?.textContent || "";
+    const rightStackText = stacks[1]?.textContent || "";
+    expect(leftStackText).toContain("Sessions");
+    expect(leftStackText).not.toContain("Providers");
+    expect(rightStackText.indexOf("Safe next commands")).toBeLessThan(rightStackText.indexOf("Providers"));
   });
 
   it("renders unavailable CDX states without breaking the viewer", async () => {

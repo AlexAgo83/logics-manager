@@ -2163,10 +2163,6 @@
               <h2 class="viewer-cdx__heading">Sessions</h2>
               ${renderCdxSessionTable(sessions, "No sessions reported.")}
             </section>
-            <section class="viewer-cdx__section">
-              <h2 class="viewer-cdx__heading">Providers</h2>
-              <ul class="viewer-cdx__list">${renderCdxEntityRows(providers, "No provider status reported.", { subtitleKeys: ["model"] })}</ul>
-            </section>
           </div>
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">
@@ -2176,6 +2172,10 @@
             <section class="viewer-cdx__section">
               <h2 class="viewer-cdx__heading">Safe next commands</h2>
               <ul class="viewer-cdx__commands">${commandRows || '<li class="viewer-cdx__empty">No suggested commands reported.</li>'}</ul>
+            </section>
+            <section class="viewer-cdx__section">
+              <h2 class="viewer-cdx__heading">Providers</h2>
+              <ul class="viewer-cdx__list">${renderCdxEntityRows(providers, "No provider status reported.", { subtitleKeys: ["model"] })}</ul>
             </section>
           </div>
         </div>

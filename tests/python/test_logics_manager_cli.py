@@ -874,6 +874,36 @@ def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_pa
     assert "refresh-corpus-context" in prompt
 
 
+def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    missing = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "wish-to-request", "sessionId": "work", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+    assert missing["state"] == "error"
+    assert "wish or intent" in missing["message"]
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "wish-to-request", "sessionId": "work", "strengthId": "standard", "wishText": "Add a safer release checklist"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"wishText": "Add a safer release checklist"}
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "structured Logics request draft" in prompt
+    assert "Add a safer release checklist" in prompt
+    assert "do not create tasks" in prompt
+
+
 def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:
     output_path = tmp_path / "cdx-stdout.json"
     output_path.write_text(

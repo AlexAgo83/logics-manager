@@ -716,7 +716,7 @@
 | [item_409_make_bounded_document_context_commands_agent_friendly](backlog/item_409_make_bounded_document_context_commands_agent_friendly.md) | Make bounded document context commands agent-friendly | Done | 100% | backlog/item_409_make_bounded_document_context_commands_agent_friendly.md |
 | [item_410_scope_mermaid_signature_refresh_and_deterministic_closeout_repairs](backlog/item_410_scope_mermaid_signature_refresh_and_deterministic_closeout_repairs.md) | Scope Mermaid signature refresh and deterministic closeout repairs | Done | 100% | backlog/item_410_scope_mermaid_signature_refresh_and_deterministic_closeout_repairs.md |
 | [item_411_document_and_clarify_agent_cli_workflows](backlog/item_411_document_and_clarify_agent_cli_workflows.md) | Document and clarify agent CLI workflows | Done | 100% | backlog/item_411_document_and_clarify_agent_cli_workflows.md |
-| [item_412_add_wish_to_request_guided_cdx_mission](backlog/item_412_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Ready | 0% | backlog/item_412_add_wish_to_request_guided_cdx_mission.md |
+| [item_412_add_wish_to_request_guided_cdx_mission](backlog/item_412_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Done | 100% | backlog/item_412_add_wish_to_request_guided_cdx_mission.md |
 | [item_413_add_guarded_pre_release_guided_cdx_mission](backlog/item_413_add_guarded_pre_release_guided_cdx_mission.md) | Add guarded pre-release guided CDX mission | Ready | 0% | backlog/item_413_add_guarded_pre_release_guided_cdx_mission.md |
 
 ## Tasks
@@ -931,5 +931,5 @@
 | [task_212_block_concurrent_viewer_actions_and_show_loading_state](tasks/task_212_block_concurrent_viewer_actions_and_show_loading_state.md) | Block concurrent viewer actions and show loading state | Done | 100% | tasks/task_212_block_concurrent_viewer_actions_and_show_loading_state.md |
 | [task_213_orchestrate_guided_cdx_mission_launch_delivery](tasks/task_213_orchestrate_guided_cdx_mission_launch_delivery.md) | Orchestrate guided CDX mission launch delivery | Done | 100% | tasks/task_213_orchestrate_guided_cdx_mission_launch_delivery.md |
 | [task_214_implement_agent_friendly_logics_cli_workflow_improvements](tasks/task_214_implement_agent_friendly_logics_cli_workflow_improvements.md) | Implement agent-friendly Logics CLI workflow improvements | Done | 100% | tasks/task_214_implement_agent_friendly_logics_cli_workflow_improvements.md |
-| [task_215_add_wish_to_request_guided_cdx_mission](tasks/task_215_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Ready | 0% | tasks/task_215_add_wish_to_request_guided_cdx_mission.md |
+| [task_215_add_wish_to_request_guided_cdx_mission](tasks/task_215_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Done | 100% | tasks/task_215_add_wish_to_request_guided_cdx_mission.md |
 | [task_216_add_guarded_pre_release_guided_cdx_mission](tasks/task_216_add_guarded_pre_release_guided_cdx_mission.md) | Add guarded pre-release guided CDX mission | Ready | 0% | tasks/task_216_add_guarded_pre_release_guided_cdx_mission.md |

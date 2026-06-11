@@ -111,6 +111,7 @@ function createViewerDom(options: {
     dom.window.localStorage.setItem("logics.localViewer.state", JSON.stringify(options.initialState));
   }
   const calls: string[] = [];
+  const fetchCalls: Array<{ url: string; options?: RequestInit }> = [];
   const markdown = [
     "## req_001_demo - Demo",
     "> Status: Draft",
@@ -130,8 +131,9 @@ function createViewerDom(options: {
 
   Object.defineProperty(dom.window, "fetch", {
     configurable: true,
-    value: async (url: string) => {
+    value: async (url: string, fetchOptions?: RequestInit) => {
       calls.push(String(url));
+      fetchCalls.push({ url: String(url), options: fetchOptions });
       if (url === "/api/items" || url === "/api/refresh") {
         if (url === "/api/refresh" && options.refreshGate) {
           await options.refreshGate;
@@ -492,7 +494,8 @@ function createViewerDom(options: {
                 missions: [
                   { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false },
                   { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false },
-                  { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+                  { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
+                  { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] }
                 ],
                 strengths: [
                   { id: "standard", label: "Standard" },
@@ -599,7 +602,7 @@ function createViewerDom(options: {
   `).runInContext(dom.getInternalVMContext());
   loadScript(dom, "clients/viewer/browser-host.js");
   dom.window.dispatchEvent(new dom.window.Event("load"));
-  return { dom, calls };
+  return { dom, calls, fetchCalls };
 }
 
 describe("local viewer browser host", () => {
@@ -1545,6 +1548,7 @@ describe("local viewer browser host", () => {
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("Full audit");
     expect(text).toContain("Prepare dev-ready corpus");
+    expect(text).toContain("Wish to request");
 
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -1572,6 +1576,32 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/cdx-mission-apply-plan");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Corpus actions applied.");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("applied");
+  });
+
+  it("passes wish-to-request mission input into the plan payload", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.querySelector('[data-viewer-cdx-mission="wish-to-request"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const input = dom.window.document.querySelector('[data-viewer-cdx-input="wishText"]') as HTMLTextAreaElement | null;
+    expect(input).toBeTruthy();
+    input!.value = "Capture a safer release checklist";
+    input!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const planCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
+    expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
+      missionId: "wish-to-request",
+      wishText: "Capture a safer release checklist"
+    });
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

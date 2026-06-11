@@ -58,6 +58,7 @@
     missionId: "full-audit",
     sessionId: "",
     strengthId: "standard",
+    missionInputs: {},
     statusPayload: null,
     planPayload: null,
     runPayload: null,
@@ -2289,7 +2290,8 @@
       missions: [
         { id: "full-audit", title: "Full audit", description: "Inspect the full repository and produce an actionable CDX report.", scope: "repository", requiresPlanConfirmation: false },
         { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
-        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true }
+        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
+        { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },
@@ -2305,8 +2307,35 @@
     return {
       missionId: latestCdxMissionState.missionId || "full-audit",
       sessionId: latestCdxMissionState.sessionId || "",
-      strengthId: latestCdxMissionState.strengthId || "standard"
+      strengthId: latestCdxMissionState.strengthId || "standard",
+      ...latestCdxMissionState.missionInputs
     };
+  }
+
+  function renderCdxMissionInputs(mission) {
+    const fields = Array.isArray(mission?.inputFields) ? mission.inputFields : [];
+    if (!fields.length) {
+      return "";
+    }
+    const rows = fields.map((field) => {
+      const id = field.id || "";
+      const value = latestCdxMissionState.missionInputs[id] || "";
+      if (field.type === "textarea") {
+        return `
+          <label class="viewer-cdx__field">
+            <span>${escapeHtml(field.label || cdxLabel(id))}</span>
+            <textarea data-viewer-cdx-input="${escapeHtml(id)}" placeholder="${escapeHtml(field.placeholder || "")}" rows="5">${escapeHtml(value)}</textarea>
+          </label>
+        `;
+      }
+      return `
+        <label class="viewer-cdx__field">
+          <span>${escapeHtml(field.label || cdxLabel(id))}</span>
+          <input data-viewer-cdx-input="${escapeHtml(id)}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}">
+        </label>
+      `;
+    }).join("");
+    return `<div class="viewer-cdx__inputs">${rows}</div>`;
   }
 
   function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
@@ -2317,6 +2346,7 @@
     const sessions = cdxSessions(status);
     const selectedSession = latestCdxMissionState.sessionId || cdxField(sessions[0] || {}, ["id", "name", "session_name", "value"], "");
     const missionId = latestCdxMissionState.missionId || catalog.defaultMissionId || "full-audit";
+    const selectedMission = missions.find((mission) => mission.id === missionId) || {};
     const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
     latestCdxMissionState.sessionId = selectedSession;
     const missionCards = missions.map((mission) => `
@@ -2367,6 +2397,7 @@
               <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
             </label>
             <div class="viewer-cdx__strengths">${strengthButtons}</div>
+            ${renderCdxMissionInputs(selectedMission)}
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
               <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>Launch run</button>
@@ -3371,12 +3402,22 @@
     }
     document.addEventListener("change", (event) => {
       const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
+      const cdxInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-input]") : null;
       if (sessionTarget instanceof HTMLSelectElement) {
         latestCdxMissionState.sessionId = sessionTarget.value || "";
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+      }
+      if (cdxInputTarget instanceof HTMLInputElement || cdxInputTarget instanceof HTMLTextAreaElement) {
+        const key = cdxInputTarget.getAttribute("data-viewer-cdx-input") || "";
+        if (key) {
+          latestCdxMissionState.missionInputs[key] = cdxInputTarget.value || "";
+          latestCdxMissionState.planPayload = null;
+          latestCdxMissionState.runPayload = null;
+          latestCdxMissionState.applyPayload = null;
+        }
       }
     });
     document.addEventListener("click", (event) => {
@@ -3403,6 +3444,7 @@
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
+        latestCdxMissionState.missionInputs = {};
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
         return;
       }

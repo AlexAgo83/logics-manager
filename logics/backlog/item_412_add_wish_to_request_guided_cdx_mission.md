@@ -1,10 +1,10 @@
 ## item_412_add_wish_to_request_guided_cdx_mission - Add wish-to-request guided CDX mission
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 87%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -48,6 +48,7 @@ flowchart TD
 - request-AC7 -> This backlog slice. Proof: AC4 covers bounded backend payloads and reporting.
 - request-AC8 -> This backlog slice. Proof: AC4 and scope require tests for rendering, payload handling, and request generation.
 - request-AC9 -> This backlog slice. Proof: AC5 protects existing missions.
+- request-AC6 -> This backlog slice. Evidence needed: The initial `pre-release` scope generates a pre-release plan/report, validation evidence, and actionable fixes or generated workflow docs when problems are found, without creating tags, publishing releases, pushing branches, or changing package versions.
 
 # Decision framing
 - Product framing: Not needed
@@ -60,7 +61,7 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md`
+- Request: `req_241_add_wish_to_request_and_guided_pre_release_cdx_missions`
 - Primary task(s): `task_215_add_wish_to_request_guided_cdx_mission`
 
 # AI Context
@@ -77,6 +78,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_241_add_wish_to_request_and_guided_pre_release_cdx_missions` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md`.
 - Generated locally by logics-manager.
+- Task `task_215_add_wish_to_request_guided_cdx_mission` was finished via `logics-manager flow finish task` on 2026-06-12.
 
 # Tasks
 - `task_215_add_wish_to_request_guided_cdx_mission`

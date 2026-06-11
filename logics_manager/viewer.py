@@ -74,6 +74,23 @@ CDX_MISSION_CATALOG = {
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": True,
     },
+    "wish-to-request": {
+        "id": "wish-to-request",
+        "title": "Wish to request",
+        "description": "Turn a free-form wish into a structured Logics request draft.",
+        "scope": "request-draft",
+        "requiresReleaseTag": False,
+        "requiresPlanConfirmation": False,
+        "inputFields": [
+            {
+                "id": "wishText",
+                "label": "Wish or intent",
+                "type": "textarea",
+                "placeholder": "Describe the workflow, feature, bug, or product intent to capture.",
+                "required": True,
+            }
+        ],
+    },
 }
 CDX_DEFAULT_MISSION_ID = "full-audit"
 GIT_FILE_PREVIEW_MAX_BYTES = 30000
@@ -1331,7 +1348,13 @@ def _latest_release_tag(repo_root: Path, *, runner: Any | None = None, which: An
     return ""
 
 
-def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "") -> str:
+def _mission_text_input(body: dict[str, Any], key: str, *, max_chars: int = 4000) -> str:
+    raw = str(body.get(key) or "").strip()
+    normalized = re.sub(r"\s+", " ", raw)
+    return normalized[:max_chars]
+
+
+def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "", wish_text: str = "") -> str:
     if mission_id == "full-audit":
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
@@ -1356,6 +1379,16 @@ def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "") -> str:
             "Allowed action types are exactly: promote-request-to-backlog, promote-backlog-to-task, refresh-corpus-context.",
             "Use only targets that exist in the repository. Omit actions that are not clearly justified.",
         ])
+    if mission_id == "wish-to-request":
+        return "\n".join([
+            "Turn the following user wish into a structured Logics request draft.",
+            "Do not modify files, do not promote backlog items, and do not create tasks.",
+            "Return JSON only with this schema:",
+            '{"summary":"...","requestDraft":{"title":"...","needs":["..."],"context":["..."],"acceptanceCriteria":["AC1: ..."],"definitionOfReady":{"problemExplicit":true,"scopeBounded":true,"criteriaTestable":true,"risksListed":true},"references":["..."],"questions":["..."],"openAssumptions":["..."]},"generatedFiles":[]}',
+            "If the wish is underspecified, include concrete questions and open assumptions instead of inventing details.",
+            "User wish:",
+            wish_text,
+        ])
     raise ValueError("Unknown CDX mission.")
 
 
@@ -1366,8 +1399,10 @@ def _cdx_mission_command(
     session: str,
     strength: dict[str, Any],
     release_tag: str = "",
+    mission_inputs: dict[str, str] | None = None,
 ) -> list[str]:
-    prompt = _cdx_mission_prompt(mission_id, release_tag=release_tag)
+    mission_inputs = mission_inputs or {}
+    prompt = _cdx_mission_prompt(mission_id, release_tag=release_tag, wish_text=mission_inputs.get("wishText", ""))
     timeout = int(strength.get("timeout") or 180)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
     power = str(strength.get("power") or "medium")
@@ -1552,6 +1587,12 @@ def cdx_mission_plan_payload(
 
     release_tag = ""
     warnings: list[str] = []
+    mission_inputs: dict[str, str] = {}
+    if mission_id == "wish-to-request":
+        wish_text = _mission_text_input(body, "wishText")
+        if not wish_text:
+            return {"state": "error", "message": "Enter a wish or intent before previewing this mission.", "plan": None, "catalog": cdx_mission_catalog_payload(), "status": status_payload}
+        mission_inputs["wishText"] = wish_text
     if mission.get("requiresReleaseTag"):
         release_tag = _latest_release_tag(repo_root, runner=git_runner, which=which)
         if not release_tag:
@@ -1559,13 +1600,14 @@ def cdx_mission_plan_payload(
     if status_payload.get("state") != "ok":
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
-    command = _cdx_mission_command(repo_root, mission_id, session=session, strength=strength_def, release_tag=release_tag)
+    command = _cdx_mission_command(repo_root, mission_id, session=session, strength=strength_def, release_tag=release_tag, mission_inputs=mission_inputs)
     plan = {
         "mission": mission,
         "missionId": mission_id,
         "sessionId": session,
         "strength": strength_def,
         "strengthId": strength,
+        "missionInputs": mission_inputs,
         "scope": mission["scope"],
         "releaseTag": release_tag,
         "command": ["cdx", *command],

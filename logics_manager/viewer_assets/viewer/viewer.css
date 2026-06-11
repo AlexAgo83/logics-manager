@@ -1090,7 +1090,9 @@
   font-size: 12px;
 }
 
-.viewer-cdx__field select {
+.viewer-cdx__field select,
+.viewer-cdx__field input,
+.viewer-cdx__field textarea {
   min-width: 0;
   width: 100%;
   border: 1px solid var(--vscode-input-border, var(--vscode-panel-border, #333333));
@@ -1098,6 +1100,10 @@
   padding: 7px 8px;
   background: var(--vscode-dropdown-background, var(--vscode-input-background, #1f1f1f));
   color: var(--vscode-dropdown-foreground, var(--vscode-foreground, #d4d4d4));
+}
+
+.viewer-cdx__field textarea {
+  resize: vertical;
 }
 
 .viewer-cdx__strengths,

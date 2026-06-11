@@ -1,18 +1,18 @@
 ## task_215_add_wish_to_request_guided_cdx_mission - Add wish-to-request guided CDX mission
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_412_add_wish_to_request_guided_cdx_mission`
@@ -39,13 +39,21 @@ flowchart TD
 - request-AC7 -> This task. Proof: AC4 covers path-safe, command-bounded backend payloads and generated request reporting.
 - request-AC8 -> This task. Proof: validation will cover catalog rendering, wish input payload handling, and request draft generation path.
 - request-AC9 -> This task. Proof: AC5 covers preserving existing guided missions.
+- request-AC6 -> This task. Evidence needed: The initial `pre-release` scope generates a pre-release plan/report, validation evidence, and actionable fixes or generated workflow docs when problems are found, without creating tags, publishing releases, pushing branches, or changing package versions.
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_215_add_wish_to_request_guided_cdx_mission.md` after implementation.
+- command: `npm test -- tests/viewer.browser-host.test.ts` | result: passed | date: 2026-06-12 | note: 58 passed in 1.39s
+- Finish workflow executed on 2026-06-12.
+- Linked backlog/request close verification passed.
+- command: `python3 -m pytest tests/python/test_logics_manager_cli.py -q` | result: passed | date: 2026-06-12 | note: 222 passed in 7.83s
 
 # Report
-- Not started; task is ready for implementation.
+- Implemented the `wish-to-request` guided CDX mission with viewer input capture, backend prompt construction, bounded read-only execution, and regression coverage.
+- Finished on 2026-06-12.
+- Linked backlog item(s): `item_412_add_wish_to_request_guided_cdx_mission`
+- Related request(s): `req_241_add_wish_to_request_and_guided_pre_release_cdx_missions`
 
 # AI Context
 - Summary: Implement add wish-to-request guided cdx mission.

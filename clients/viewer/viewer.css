@@ -657,6 +657,40 @@
   align-items: start;
 }
 
+.viewer-git__summary-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.viewer-git__summary-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.viewer-git__summary-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #333333) 72%, transparent);
+  border-radius: 6px;
+  padding: 2px 7px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 76%, var(--vscode-textLink-foreground, #4ea1ff));
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.viewer-git__summary-segment span {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-git__summary-segment strong {
+  color: var(--vscode-foreground, #dddddd);
+  font-size: 13px;
+}
+
 .viewer-ci {
   display: grid;
   gap: 12px;

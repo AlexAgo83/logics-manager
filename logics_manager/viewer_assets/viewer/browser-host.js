@@ -1347,6 +1347,31 @@
     `).join("");
   }
 
+  function renderGitSummaryCard(label, value) {
+    return `
+      <div class="viewer-insights__card">
+        <div class="viewer-insights__label">${escapeHtml(label)}</div>
+        <div class="viewer-insights__value">${escapeHtml(value)}</div>
+      </div>
+    `;
+  }
+
+  function renderGitSummarySegments(label, segments) {
+    return `
+      <div class="viewer-insights__card viewer-git__summary-card">
+        <div class="viewer-insights__label">${escapeHtml(label)}</div>
+        <div class="viewer-git__summary-segments">
+          ${segments.map(([segmentLabel, value]) => `
+            <span class="viewer-git__summary-segment">
+              <span>${escapeHtml(segmentLabel)}</span>
+              <strong>${escapeHtml(value)}</strong>
+            </span>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
   function renderInsightBars(entries, total) {
     const denominator = Math.max(1, Number(total) || 0);
     if (!entries.length) {
@@ -2463,17 +2488,20 @@
     const deletedCount = Number(counts.deleted || 0);
     const renamedCount = Number(counts.renamed || 0);
     const untrackedCount = Number(counts.untracked || 0);
-    const summary = [
-      ["Branch", payload.branch || "HEAD"],
-      ["Tracking", payload.tracking || "None"],
-      ["Ahead", payload.ahead || 0],
-      ["Behind", payload.behind || 0],
-      ["State", payload.clean ? "Clean" : "Dirty"],
-      ["Staged", stagedCount],
-      ["Worktree", modifiedCount + deletedCount + renamedCount],
-      ["Untracked", untrackedCount]
-    ];
-    const cards = renderMetricCards(summary);
+    const cards = [
+      renderGitSummaryCard("Branch", payload.branch || "HEAD"),
+      renderGitSummaryCard("Tracking", payload.tracking || "None"),
+      renderGitSummarySegments("Ahead / Behind", [
+        ["Ahead", payload.ahead || 0],
+        ["Behind", payload.behind || 0]
+      ]),
+      renderGitSummaryCard("State", payload.clean ? "Clean" : "Dirty"),
+      renderGitSummarySegments("Files", [
+        ["Staged", stagedCount],
+        ["Worktree", modifiedCount + deletedCount + renamedCount],
+        ["Untracked", untrackedCount]
+      ])
+    ].join("");
     const groupDefs = [
       ["staged", "Staged", "staged"],
       ["modified", "Modified", "worktree"],

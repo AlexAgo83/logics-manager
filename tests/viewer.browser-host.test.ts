@@ -975,6 +975,16 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
     expect(content?.textContent).toContain("Branch");
     expect(content?.textContent).toContain("main");
+    expect(content?.textContent).toContain("Ahead / Behind");
+    expect(content?.textContent).toContain("Files");
+    const summarySegments = Array.from(content?.querySelectorAll(".viewer-git__summary-segment") || []).map((node) => node.textContent || "");
+    expect(summarySegments).toEqual(expect.arrayContaining([
+      expect.stringContaining("Ahead"),
+      expect.stringContaining("Behind"),
+      expect.stringContaining("Staged"),
+      expect.stringContaining("Worktree"),
+      expect.stringContaining("Untracked")
+    ]));
     expect(content?.textContent).toContain("Staged");
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
     expect(content?.textContent).toContain("+3-1");

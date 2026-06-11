@@ -1106,6 +1106,17 @@
   resize: vertical;
 }
 
+.viewer-cdx__field--check {
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: center;
+}
+
+.viewer-cdx__field--check input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+}
+
 .viewer-cdx__strengths,
 .viewer-cdx__actions {
   display: flex;

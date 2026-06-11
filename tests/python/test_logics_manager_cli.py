@@ -904,6 +904,38 @@ def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -
     assert "do not create tasks" in prompt
 
 
+def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    invalid = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "pre-release", "sessionId": "work", "strengthId": "standard", "releaseVersion": "2.8"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+    assert invalid["state"] == "error"
+    assert "vX.X.X" in invalid["message"]
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "pre-release", "sessionId": "work", "strengthId": "standard", "releaseVersion": "v2.8.0", "runFullValidation": True},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"releaseVersion": "v2.8.0", "runFullValidation": "true"}
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "version v2.8.0" in prompt
+    assert "Run the project-defined full validation path" in prompt
+    assert "Do not modify package versions" in prompt
+    assert "create Git tags" in prompt
+    assert "publish packages" in prompt
+
+
 def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:
     output_path = tmp_path / "cdx-stdout.json"
     output_path.write_text(

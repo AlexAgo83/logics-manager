@@ -151,6 +151,11 @@ logics-manager view --open
 
 The viewer starts a localhost-only, read-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
 
+The CDX missions panel includes guarded workflows for turning a free-form wish
+into a structured Logics request draft and for preparing a pre-release report
+from an editable `vX.X.X` version. The pre-release mission is report-only in
+this slice: it does not tag, publish, push, or mutate package versions.
+
 Useful options:
 
 ```bash

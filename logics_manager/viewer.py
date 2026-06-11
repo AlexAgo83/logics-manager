@@ -91,6 +91,30 @@ CDX_MISSION_CATALOG = {
             }
         ],
     },
+    "pre-release": {
+        "id": "pre-release",
+        "title": "Guarded pre-release",
+        "description": "Prepare a pre-release plan and validation report for a semantic version.",
+        "scope": "pre-release-report",
+        "requiresReleaseTag": False,
+        "requiresPlanConfirmation": False,
+        "inputFields": [
+            {
+                "id": "releaseVersion",
+                "label": "Version",
+                "type": "text",
+                "placeholder": "vX.X.X",
+                "required": True,
+                "pattern": "^v\\d+\\.\\d+\\.\\d+$",
+            },
+            {
+                "id": "runFullValidation",
+                "label": "Run full validation and fix before pre-release",
+                "type": "checkbox",
+                "required": False,
+            },
+        ],
+    },
 }
 CDX_DEFAULT_MISSION_ID = "full-audit"
 GIT_FILE_PREVIEW_MAX_BYTES = 30000
@@ -1354,7 +1378,23 @@ def _mission_text_input(body: dict[str, Any], key: str, *, max_chars: int = 4000
     return normalized[:max_chars]
 
 
-def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "", wish_text: str = "") -> str:
+def _mission_bool_input(body: dict[str, Any], key: str) -> bool:
+    value = body.get(key)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return False
+
+
+def _cdx_mission_prompt(
+    mission_id: str,
+    *,
+    release_tag: str = "",
+    wish_text: str = "",
+    release_version: str = "",
+    run_full_validation: bool = False,
+) -> str:
     if mission_id == "full-audit":
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
@@ -1389,6 +1429,16 @@ def _cdx_mission_prompt(mission_id: str, *, release_tag: str = "", wish_text: st
             "User wish:",
             wish_text,
         ])
+    if mission_id == "pre-release":
+        validation_mode = "Run the project-defined full validation path before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the validation commands that should be run before release."
+        return "\n".join([
+            f"Prepare a guarded pre-release plan for version {release_version}.",
+            validation_mode,
+            "Do not modify package versions, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases.",
+            "Do not modify files. If fixes or workflow docs are needed, report them as actionable recommendations or generated-file proposals only.",
+            "Return JSON only with this schema:",
+            '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',
+        ])
     raise ValueError("Unknown CDX mission.")
 
 
@@ -1402,7 +1452,13 @@ def _cdx_mission_command(
     mission_inputs: dict[str, str] | None = None,
 ) -> list[str]:
     mission_inputs = mission_inputs or {}
-    prompt = _cdx_mission_prompt(mission_id, release_tag=release_tag, wish_text=mission_inputs.get("wishText", ""))
+    prompt = _cdx_mission_prompt(
+        mission_id,
+        release_tag=release_tag,
+        wish_text=mission_inputs.get("wishText", ""),
+        release_version=mission_inputs.get("releaseVersion", ""),
+        run_full_validation=mission_inputs.get("runFullValidation") == "true",
+    )
     timeout = int(strength.get("timeout") or 180)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
     power = str(strength.get("power") or "medium")
@@ -1593,6 +1649,12 @@ def cdx_mission_plan_payload(
         if not wish_text:
             return {"state": "error", "message": "Enter a wish or intent before previewing this mission.", "plan": None, "catalog": cdx_mission_catalog_payload(), "status": status_payload}
         mission_inputs["wishText"] = wish_text
+    if mission_id == "pre-release":
+        release_version = _mission_text_input(body, "releaseVersion", max_chars=40)
+        if not re.fullmatch(r"v\d+\.\d+\.\d+", release_version):
+            return {"state": "error", "message": "Enter a semantic version in vX.X.X format before previewing this mission.", "plan": None, "catalog": cdx_mission_catalog_payload(), "status": status_payload}
+        mission_inputs["releaseVersion"] = release_version
+        mission_inputs["runFullValidation"] = "true" if _mission_bool_input(body, "runFullValidation") else "false"
     if mission.get("requiresReleaseTag"):
         release_tag = _latest_release_tag(repo_root, runner=git_runner, which=which)
         if not release_tag:

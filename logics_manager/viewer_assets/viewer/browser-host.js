@@ -2291,7 +2291,8 @@
         { id: "full-audit", title: "Full audit", description: "Inspect the full repository and produce an actionable CDX report.", scope: "repository", requiresPlanConfirmation: false },
         { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
         { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
-        { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] }
+        { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
+        { id: "pre-release", title: "Guarded pre-release", description: "Prepare a pre-release plan and validation report for a semantic version.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and fix before pre-release", type: "checkbox" }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },
@@ -2320,6 +2321,14 @@
     const rows = fields.map((field) => {
       const id = field.id || "";
       const value = latestCdxMissionState.missionInputs[id] || "";
+      if (field.type === "checkbox") {
+        return `
+          <label class="viewer-cdx__field viewer-cdx__field--check">
+            <input data-viewer-cdx-input="${escapeHtml(id)}" type="checkbox"${value === "true" ? " checked" : ""}>
+            <span>${escapeHtml(field.label || cdxLabel(id))}</span>
+          </label>
+        `;
+      }
       if (field.type === "textarea") {
         return `
           <label class="viewer-cdx__field">
@@ -2331,7 +2340,7 @@
       return `
         <label class="viewer-cdx__field">
           <span>${escapeHtml(field.label || cdxLabel(id))}</span>
-          <input data-viewer-cdx-input="${escapeHtml(id)}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}">
+          <input data-viewer-cdx-input="${escapeHtml(id)}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}"${field.pattern ? ` pattern="${escapeHtml(field.pattern)}"` : ""}>
         </label>
       `;
     }).join("");
@@ -3413,7 +3422,7 @@
       if (cdxInputTarget instanceof HTMLInputElement || cdxInputTarget instanceof HTMLTextAreaElement) {
         const key = cdxInputTarget.getAttribute("data-viewer-cdx-input") || "";
         if (key) {
-          latestCdxMissionState.missionInputs[key] = cdxInputTarget.value || "";
+          latestCdxMissionState.missionInputs[key] = cdxInputTarget instanceof HTMLInputElement && cdxInputTarget.type === "checkbox" ? (cdxInputTarget.checked ? "true" : "false") : (cdxInputTarget.value || "");
           latestCdxMissionState.planPayload = null;
           latestCdxMissionState.runPayload = null;
           latestCdxMissionState.applyPayload = null;

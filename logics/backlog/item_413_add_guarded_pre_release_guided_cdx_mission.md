@@ -1,10 +1,10 @@
 ## item_413_add_guarded_pre_release_guided_cdx_mission - Add guarded pre-release guided CDX mission
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 87%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -63,7 +63,7 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md`
+- Request: `req_241_add_wish_to_request_and_guided_pre_release_cdx_missions`
 - Primary task(s): `task_216_add_guarded_pre_release_guided_cdx_mission`
 
 # AI Context
@@ -80,6 +80,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_241_add_wish_to_request_and_guided_pre_release_cdx_missions` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md`.
 - Generated locally by logics-manager.
+- Task `task_216_add_guarded_pre_release_guided_cdx_mission` was finished via `logics-manager flow finish task` on 2026-06-12.
 
 # Tasks
 - `task_216_add_guarded_pre_release_guided_cdx_mission`

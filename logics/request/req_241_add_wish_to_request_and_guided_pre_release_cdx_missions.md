@@ -1,7 +1,7 @@
 ## req_241_add_wish_to_request_and_guided_pre_release_cdx_missions - Add wish-to-request and guided pre-release CDX missions
 > From version: 2.7.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 87%
 > Complexity: Medium

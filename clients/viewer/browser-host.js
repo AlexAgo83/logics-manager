@@ -37,6 +37,7 @@
   let latestItems = [];
   let latestRepoRoot = "";
   let latestRepository = { root: "", githubUrl: "" };
+  let latestCapabilities = {};
   let latestMetaText = "Read-only local viewer";
   let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
   let nextAutoRefreshAt = 0;
@@ -287,6 +288,78 @@
     updateRepositoryShortcuts();
   }
 
+  function normalizeCapabilities(payload) {
+    const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
+    return {
+      logics: capabilities.logics || { state: "ready", available: true, message: "" },
+      git: capabilities.git || { state: "ready", available: true, message: "" },
+      ci: capabilities.ci || { state: "ready", available: true, message: "" },
+      cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
+      cdxRuns: capabilities.cdxRuns || { state: "unsupported", available: false, message: "" }
+    };
+  }
+
+  function capability(name) {
+    return latestCapabilities?.[name] || { state: "unknown", available: false, message: "" };
+  }
+
+  function isCapabilityAvailable(name) {
+    return capability(name).available === true;
+  }
+
+  function capabilityMessage(name, fallback) {
+    return String(capability(name).message || fallback || "");
+  }
+
+  function setButtonUnavailable(button, message) {
+    if (!(button instanceof HTMLElement) || !("disabled" in button)) {
+      return;
+    }
+    button.disabled = true;
+    button.setAttribute("aria-disabled", "true");
+    button.title = message;
+  }
+
+  function setButtonAvailable(button, title) {
+    if (!(button instanceof HTMLElement) || !("disabled" in button)) {
+      return;
+    }
+    button.disabled = false;
+    button.removeAttribute("aria-disabled");
+    button.title = title;
+  }
+
+  function updateCapabilityControls() {
+    const gitButton = document.getElementById("viewer-git");
+    if (gitButton instanceof HTMLElement) {
+      gitButton.hidden = !isCapabilityAvailable("git");
+      if (isCapabilityAvailable("git")) {
+        setButtonAvailable(gitButton, "Show Git status");
+      } else {
+        setButtonUnavailable(gitButton, capabilityMessage("git", "Git is not available for this project."));
+      }
+    }
+
+    const ci = ciButton();
+    if (ci instanceof HTMLElement) {
+      ci.hidden = !isCapabilityAvailable("ci");
+      if (isCapabilityAvailable("ci")) {
+        setButtonAvailable(ci, "Show GitHub Actions CI status");
+      } else {
+        setButtonUnavailable(ci, capabilityMessage("ci", "CI is not available for this project."));
+      }
+    }
+
+    const cdx = document.getElementById("viewer-cdx");
+    if (cdx instanceof HTMLElement) {
+      if (isCapabilityAvailable("cdx")) {
+        setButtonAvailable(cdx, "Show CDX status");
+      } else {
+        setButtonUnavailable(cdx, capabilityMessage("cdx", "CDX is not available for this project."));
+      }
+    }
+  }
+
   function updateRepositoryShortcuts() {
     const github = repoGithubLink();
     const folder = repoFolderButton();
@@ -430,6 +503,10 @@
   }
 
   async function refreshCiBadgeCounters() {
+    if (!isCapabilityAvailable("ci")) {
+      updateMainCiBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "CI is not available for this project.") });
+      return;
+    }
     try {
       const response = await fetch("/api/ci-status");
       if (response.status === 404) {
@@ -476,7 +553,9 @@
     button.querySelector("[data-viewer-cdx-badge]")?.remove();
     const activeCount = activeCdxAssistantCountFromPayload(payload);
     if (activeCount <= 0) {
-      button.title = "Show CDX status";
+      button.title = isCapabilityAvailable("cdx")
+        ? "Show CDX status"
+        : capabilityMessage("cdx", "CDX is not available for this project.");
       return;
     }
     const label = activeCount > 9 ? "9+" : String(activeCount);
@@ -486,6 +565,10 @@
   }
 
   async function refreshCdxBadgeCounters() {
+    if (!isCapabilityAvailable("cdx")) {
+      updateMainCdxBadge(null);
+      return;
+    }
     try {
       const response = await fetch("/api/cdx-status");
       if (response.status === 404) {
@@ -509,6 +592,11 @@
   }
 
   async function refreshGitBadgeCounters() {
+    if (!isCapabilityAvailable("git")) {
+      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      updateMainGitBadges();
+      return;
+    }
     try {
       const response = await fetch("/api/git-status");
       const data = await response.json();
@@ -765,6 +853,8 @@
       updateRefreshIntervalControl();
     }
     updateRepositoryIdentity(payload);
+    latestCapabilities = normalizeCapabilities(payload);
+    updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems };
     const nextPayload = options.silent ? payloadWithActivity : applyFocusRequest(payloadWithActivity);
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
@@ -1973,6 +2063,12 @@
   }
 
   async function showCdxStatus(options = {}) {
+    if (!isCapabilityAvailable("cdx")) {
+      const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      setDocument("CDX status", renderCdxStatus({ state: capability("cdx").state, message }));
+      setMeta(message);
+      return;
+    }
     if (!options.silent) {
       setMeta("Checking CDX status...");
     }
@@ -2068,6 +2164,12 @@
   }
 
   async function showCiStatus(options = {}) {
+    if (!isCapabilityAvailable("ci")) {
+      const message = capabilityMessage("ci", "CI is not available for this project.");
+      setDocument("CI status", renderCiStatus({ visible: false, state: capability("ci").state, message }));
+      setMeta(message);
+      return;
+    }
     if (!options.silent) {
       setMeta("Checking CI status...");
     }
@@ -2341,6 +2443,12 @@
 
   async function showGitStatus(options = {}) {
     const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
+    if (!isCapabilityAvailable("git")) {
+      const message = capabilityMessage("git", "Git is not available for this project.");
+      setDocument("Git status", renderGitStatus({ state: capability("git").state, message }));
+      setMeta(message);
+      return;
+    }
     if (!options.silent) {
       setMeta("Checking Git status...");
     }

@@ -10,6 +10,7 @@ function loadScript(dom: JSDOM, relPath: string) {
 }
 
 function createViewerDom(options: {
+  capabilities?: Record<string, { state: string; available: boolean; message: string; detail?: Record<string, unknown> }>;
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
@@ -30,6 +31,7 @@ function createViewerDom(options: {
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-git" type="button">Git</button>
+    <button id="viewer-ci" type="button" hidden>CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
@@ -139,6 +141,13 @@ function createViewerDom(options: {
               repository: {
                 root: "/workspace/logics-manager",
                 githubUrl: options.githubUrl ?? "https://github.com/AlexAgo83/logics-manager"
+              },
+              capabilities: options.capabilities ?? {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                git: { state: "ready", available: true, message: "Git repository detected." },
+                ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+                cdx: { state: "ready", available: true, message: "CDX executable detected." },
+                cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
               },
               autoRefreshIntervalSeconds: 15,
               items: [
@@ -863,6 +872,33 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Readiness and quota");
     expect(content?.textContent).toContain("cdx status");
     expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
+  });
+
+  it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {
+    const { dom, calls } = createViewerDom({
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "hidden", available: false, message: "No GitHub Actions workflows detected for this project." },
+        cdx: { state: "missing", available: false, message: "CDX executable is not available." },
+        cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    const button = dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null;
+    for (let attempt = 0; attempt < 10 && !button?.disabled; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    expect(calls).toContain("/api/items");
+    expect(button?.disabled).toBe(true);
+    button?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls.filter((call) => call === "/api/cdx-status")).toHaveLength(0);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("CDX executable is not available.");
   });
 
   it("maps CDX status rows into providers sessions and readiness", async () => {

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import mimetypes
 import os
@@ -342,16 +343,19 @@ def viewer_data_payload(
     selected_id: str | None = None,
     *,
     auto_refresh_interval_seconds: int = 15,
+    projects: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     capabilities = viewer_project_capabilities(repo_root)
+    active_root = repo_root.resolve()
     return {
-        "root": str(repo_root.resolve()),
-        "repoName": repo_root.resolve().name,
+        "root": str(active_root),
+        "repoName": active_root.name,
         "repository": {
-            "root": str(repo_root.resolve()),
+            "root": str(active_root),
             "githubUrl": github_repo_url(repo_root),
         },
         "capabilities": capabilities,
+        "projects": projects if projects is not None else viewer_project_registry(repo_root),
         "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
@@ -366,6 +370,64 @@ def viewer_data_payload(
         "canPublishRelease": False,
         "shouldRecommendCheckEnvironment": False,
     }
+
+
+def _viewer_project_id(repo_root: Path) -> str:
+    normalized = str(repo_root.resolve())
+    return hashlib.sha1(normalized.encode("utf-8")).hexdigest()[:12]
+
+
+def _looks_like_viewer_project(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    return any((path / marker).exists() for marker in ("logics", ".git", "package.json", "pyproject.toml", "logics.yaml"))
+
+
+def discover_viewer_project_roots(repo_root: Path, *, max_projects: int = 40) -> list[Path]:
+    active = repo_root.resolve()
+    candidates: list[Path] = [active]
+    parent = active.parent
+    try:
+        siblings = sorted(parent.iterdir(), key=lambda path: path.name.lower())
+    except OSError:
+        siblings = []
+    for sibling in siblings:
+        try:
+            resolved = sibling.resolve()
+        except OSError:
+            continue
+        if resolved == active or not _looks_like_viewer_project(resolved):
+            continue
+        candidates.append(resolved)
+        if len(candidates) >= max_projects:
+            break
+
+    unique: dict[str, Path] = {}
+    for candidate in candidates:
+        unique[str(candidate)] = candidate
+    return list(unique.values())
+
+
+def viewer_project_entry(repo_root: Path, *, active_root: Path | None = None) -> dict[str, Any]:
+    root = repo_root.resolve()
+    active = active_root.resolve() if active_root else root
+    has_logics = (root / "logics").is_dir()
+    available = root.is_dir()
+    return {
+        "id": _viewer_project_id(root),
+        "name": root.name,
+        "root": str(root),
+        "active": root == active,
+        "available": available,
+        "hasLogics": has_logics,
+        "message": "Logics corpus found." if has_logics else "No Logics corpus found.",
+    }
+
+
+def viewer_project_registry(repo_root: Path, *, project_roots: list[Path] | None = None) -> list[dict[str, Any]]:
+    active = repo_root.resolve()
+    roots = project_roots if project_roots is not None else discover_viewer_project_roots(active)
+    return [viewer_project_entry(root, active_root=active) for root in roots]
 
 
 def _viewer_capability(state: str, *, available: bool, message: str, detail: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -1044,9 +1106,34 @@ class LogicsViewerServer(ThreadingHTTPServer):
         *,
         auto_refresh_interval_seconds: int = 15,
     ):
-        self.repo_root = repo_root.resolve()
+        self.launch_repo_root = repo_root.resolve()
+        self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
+        self.project_root_by_id = {_viewer_project_id(root): root.resolve() for root in self.project_roots}
+        self.active_project_id = _viewer_project_id(self.launch_repo_root)
+        self.repo_root = self.launch_repo_root
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         super().__init__(server_address, LogicsViewerRequestHandler)
+
+    def project_registry_payload(self) -> list[dict[str, Any]]:
+        return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
+
+    def viewer_payload(self, *, selected_id: str | None = None) -> dict[str, Any]:
+        return viewer_data_payload(
+            self.repo_root,
+            selected_id=selected_id,
+            auto_refresh_interval_seconds=self.auto_refresh_interval_seconds,
+            projects=self.project_registry_payload(),
+        )
+
+    def switch_project(self, project_id: str) -> dict[str, Any]:
+        target = self.project_root_by_id.get(project_id)
+        if target is None:
+            raise ValueError("Unknown project id.")
+        if not target.is_dir():
+            raise FileNotFoundError(str(target))
+        self.active_project_id = project_id
+        self.repo_root = target
+        return self.viewer_payload()
 
 
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
@@ -1111,12 +1198,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {
                     "ok": True,
-                    "payload": viewer_data_payload(
-                        self.server.repo_root,
-                        auto_refresh_interval_seconds=self.server.auto_refresh_interval_seconds,
-                    ),
+                    "payload": self.server.viewer_payload(),
                 }
             )
+            return
+        if route == "/api/projects":
+            self._send_json({"ok": True, "payload": {"projects": self.server.project_registry_payload()}})
             return
         if route == "/api/doc":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -1157,12 +1244,23 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {
                     "ok": True,
-                    "payload": viewer_data_payload(
-                        self.server.repo_root,
-                        auto_refresh_interval_seconds=self.server.auto_refresh_interval_seconds,
-                    ),
+                    "payload": self.server.viewer_payload(),
                 }
             )
+            return
+        if parsed.path == "/api/switch-project":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                project_id = str(body.get("projectId") or "")
+                self._send_json({"ok": True, "payload": self.server.switch_project(project_id)})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            except FileNotFoundError as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

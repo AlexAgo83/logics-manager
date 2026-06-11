@@ -37,6 +37,92 @@
   line-height: 1.3;
 }
 
+.viewer-project-switcher {
+  position: relative;
+  min-width: 0;
+}
+
+.viewer-project-switcher__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.viewer-project-switcher__button[disabled] {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.viewer-project-switcher__chevron {
+  font-size: 9px;
+  opacity: 0.75;
+}
+
+.viewer-project-switcher__menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 260px;
+  max-width: min(420px, calc(100vw - 24px));
+  max-height: min(360px, calc(100vh - 96px));
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-dropdown-background, var(--vscode-editorWidget-background, #202020));
+  box-shadow: 0 12px 28px rgb(0 0 0 / 28%);
+}
+
+.viewer-project-switcher__menu[hidden] {
+  display: none !important;
+}
+
+.viewer-project-switcher__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  text-align: left;
+  cursor: pointer;
+}
+
+.viewer-project-switcher__item:hover,
+.viewer-project-switcher__item.is-active {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+}
+
+.viewer-project-switcher__item-name,
+.viewer-project-switcher__item-state {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-project-switcher__item-name {
+  font-weight: 650;
+}
+
+.viewer-project-switcher__item-path {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+}
+
+.viewer-project-switcher__item-state {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+}
+
 .viewer-topbar__repo-actions {
   display: inline-flex;
   align-items: center;

@@ -26,7 +26,8 @@ function createViewerDom(options: {
 } = {}) {
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
-    <span id="viewer-repo-pill"></span>
+    <button id="viewer-repo-pill" type="button" aria-expanded="false" aria-controls="viewer-project-menu"><span data-viewer-project-label>repository</span><span>v</span></button>
+    <div id="viewer-project-menu" hidden></div>
     <a id="viewer-repo-github" href="#" hidden>GitHub</a>
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
@@ -149,6 +150,10 @@ function createViewerDom(options: {
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
                 cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
               },
+              projects: [
+                { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." },
+                { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." }
+              ],
               autoRefreshIntervalSeconds: 15,
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-01T10:00:00" },
@@ -160,6 +165,38 @@ function createViewerDom(options: {
                 updateAvailable: true,
                 updateCommand: "logics-manager self-update"
               }
+            }
+          })
+        };
+      }
+      if (url === "/api/switch-project") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              root: "/workspace/cdx-manager",
+              repoName: "cdx-manager",
+              repository: {
+                root: "/workspace/cdx-manager",
+                githubUrl: ""
+              },
+              capabilities: {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                git: { state: "missing", available: false, message: "Project is not a Git repository." },
+                ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
+                cdx: { state: "missing", available: false, message: "CDX executable is not available." },
+                cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
+              },
+              projects: [
+                { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." },
+                { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
+              ],
+              autoRefreshIntervalSeconds: 15,
+              items: [
+                { id: "req_002_cdx", title: "CDX", stage: "request", relPath: "logics/request/req_002_cdx.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
+              ],
+              updateInfo: {}
             }
           })
         };
@@ -525,6 +562,32 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/refresh");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("refreshed");
+  });
+
+  it("switches the active project from the topbar project menu", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("cdx-manager"); attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    switcher?.click();
+    expect(menu?.hidden).toBe(false);
+    expect(menu?.textContent).toContain("cdx-manager");
+
+    const cdxProject = menu?.querySelector('[data-viewer-project-id="project-cdx"]') as HTMLButtonElement | null;
+    cdxProject?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/switch-project");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("cdx-manager");
+    expect(dom.window.document.getElementById("viewer-git")?.hidden).toBe(true);
+    expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
   it("opens refresh options and configures the interval from the payload", async () => {

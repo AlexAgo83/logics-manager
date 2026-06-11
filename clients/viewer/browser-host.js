@@ -13,6 +13,7 @@
   const connectionDetail = () => document.getElementById("viewer-connection-detail");
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
+  const projectMenu = () => document.getElementById("viewer-project-menu");
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const ciButton = () => document.getElementById("viewer-ci");
@@ -38,6 +39,7 @@
   let latestRepoRoot = "";
   let latestRepository = { root: "", githubUrl: "" };
   let latestCapabilities = {};
+  let latestProjects = [];
   let latestMetaText = "Read-only local viewer";
   let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
   let nextAutoRefreshAt = 0;
@@ -274,6 +276,7 @@
 
   function updateRepositoryIdentity(payload) {
     latestRepoRoot = String(payload.root || latestRepoRoot || "");
+    latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
     const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
     latestRepository = {
       root: String(repository.root || latestRepoRoot || ""),
@@ -282,10 +285,94 @@
     const pill = repoPill();
     if (pill) {
       const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
-      pill.textContent = repoName;
+      const label = pill.querySelector("[data-viewer-project-label]");
+      if (label) {
+        label.textContent = repoName;
+      } else {
+        pill.textContent = repoName;
+      }
       pill.title = latestRepoRoot || repoName;
+      if ("disabled" in pill) {
+        pill.disabled = latestProjects.length <= 1;
+      }
+      pill.onclick = () => {
+        const menu = projectMenu();
+        setProjectMenuOpen(Boolean(menu?.hidden));
+      };
     }
     updateRepositoryShortcuts();
+    renderProjectMenu();
+  }
+
+  function projectStateLabel(project) {
+    if (project?.active) {
+      return "current";
+    }
+    if (project?.available === false) {
+      return "missing";
+    }
+    if (project?.hasLogics === false) {
+      return "no Logics";
+    }
+    return "available";
+  }
+
+  function renderProjectMenu() {
+    const menu = projectMenu();
+    if (!(menu instanceof HTMLElement)) {
+      return;
+    }
+    const projects = latestProjects.filter((project) => project && typeof project === "object");
+    menu.innerHTML = projects.map((project) => `
+      <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
+        <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
+        <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
+        <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
+      </button>
+    `).join("");
+  }
+
+  function setProjectMenuOpen(open) {
+    const button = repoPill();
+    const menu = projectMenu();
+    if (!(button instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
+      return;
+    }
+    const nextOpen = Boolean(open) && latestProjects.length > 1;
+    menu.hidden = !nextOpen;
+    button.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+  }
+
+  async function switchViewerProject(projectId) {
+    if (!projectId) {
+      return;
+    }
+    const target = latestProjects.find((project) => project.id === projectId);
+    if (!target || target.active) {
+      setProjectMenuOpen(false);
+      return;
+    }
+    setProjectMenuOpen(false);
+    setMeta(`Switching to ${target.name || "project"}...`);
+    const response = await fetch("/api/switch-project", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to switch project.");
+    }
+    latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+    latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    updateMainGitBadges();
+    updateMainCiBadge(latestCiStatus);
+    updateMainCdxBadge(null);
+    const panel = documentPanel();
+    if (panel) {
+      panel.hidden = true;
+    }
+    postToApp(data.payload);
   }
 
   function normalizeCapabilities(payload) {
@@ -2588,6 +2675,10 @@
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       showCdxStatus().catch((error) => setMeta(error.message));
     });
+    repoPill()?.addEventListener("click", () => {
+      const menu = projectMenu();
+      setProjectMenuOpen(Boolean(menu?.hidden));
+    });
     repoFolderButton()?.addEventListener("click", () => {
       openRepositoryFolder().catch((error) => setMeta(error.message));
     });
@@ -2626,6 +2717,18 @@
       const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
       const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
+      const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
+      const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
+      if (projectSwitcherTarget instanceof HTMLElement) {
+        const menu = projectMenu();
+        setProjectMenuOpen(Boolean(menu?.hidden));
+        return;
+      }
+      if (projectTarget instanceof HTMLElement) {
+        event.preventDefault();
+        switchViewerProject(projectTarget.getAttribute("data-viewer-project-id") || "").catch((error) => setMeta(error.message));
+        return;
+      }
       if (gitHistoryRevealTarget instanceof HTMLElement) {
         event.preventDefault();
         event.stopImmediatePropagation();

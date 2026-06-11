@@ -36,6 +36,7 @@ from logics_manager.viewer import (
     open_repo_folder_payload,
     read_doc_payload,
     render_start_status,
+    viewer_project_registry,
     viewer_project_capabilities,
 )
 from logics_manager.update_check import get_update_info, is_newer_version
@@ -705,6 +706,63 @@ def test_viewer_capabilities_endpoint_returns_payload(monkeypatch: pytest.Monkey
         assert payload["ok"] is True
         assert payload["payload"]["logics"]["state"] == "ready"
         assert payload["payload"]["git"]["state"] == "missing"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: Path) -> None:
+    active = tmp_path / "logics-manager"
+    sibling = tmp_path / "cdx-manager"
+    active.mkdir()
+    sibling.mkdir()
+    (active / "logics").mkdir()
+
+    registry = viewer_project_registry(active, project_roots=[active, sibling])
+
+    assert [entry["name"] for entry in registry] == ["logics-manager", "cdx-manager"]
+    assert registry[0]["active"] is True
+    assert registry[0]["hasLogics"] is True
+    assert registry[1]["active"] is False
+    assert registry[1]["hasLogics"] is False
+    assert registry[0]["id"] != registry[1]["id"]
+
+
+def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: Path) -> None:
+    active = tmp_path / "logics-manager"
+    sibling = tmp_path / "cdx-manager"
+    active_request = active / "logics" / "request"
+    sibling_request = sibling / "logics" / "request"
+    active_request.mkdir(parents=True)
+    sibling_request.mkdir(parents=True)
+    (active_request / "req_001_active.md").write_text("## req_001_active - Active\n> Status: Ready\n", encoding="utf-8")
+    (sibling_request / "req_001_sibling.md").write_text("## req_001_sibling - Sibling\n> Status: Ready\n", encoding="utf-8")
+
+    server = create_viewer_server(active, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/projects")
+        projects_response = conn.getresponse()
+        projects_payload = json.loads(projects_response.read().decode("utf-8"))
+        sibling_entry = next(entry for entry in projects_payload["payload"]["projects"] if entry["name"] == "cdx-manager")
+
+        body = json.dumps({"projectId": sibling_entry["id"]})
+        conn.request("POST", "/api/switch-project", body=body, headers={"Content-Type": "application/json"})
+        switch_response = conn.getresponse()
+        switch_payload = json.loads(switch_response.read().decode("utf-8"))
+        assert switch_response.status == 200
+        assert switch_payload["payload"]["repoName"] == "cdx-manager"
+        assert [item["id"] for item in switch_payload["payload"]["items"]] == ["req_001_sibling"]
+        assert next(entry for entry in switch_payload["payload"]["projects"] if entry["name"] == "cdx-manager")["active"] is True
+
+        conn.request("POST", "/api/switch-project", body=json.dumps({"projectId": "unknown"}), headers={"Content-Type": "application/json"})
+        forbidden_response = conn.getresponse()
+        forbidden_payload = json.loads(forbidden_response.read().decode("utf-8"))
+        assert forbidden_response.status == 403
+        assert forbidden_payload["ok"] is False
     finally:
         server.shutdown()
         server.server_close()

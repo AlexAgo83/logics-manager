@@ -1,18 +1,18 @@
 ## task_204_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions - Add Logics assistant runs cockpit and report-to-workflow actions
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 91%
 > Confidence: 86%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_396_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`
@@ -43,9 +43,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_204_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_396_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`
+- Related request(s): `req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`
 
 # AI Context
 - Summary: Implement the CDX screen Runs sub-view, Status/Runs switching, and report-to-workflow actions.

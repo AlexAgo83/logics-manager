@@ -1,7 +1,7 @@
 ## req_233_add_project_capability_detection_for_viewer_features - Add project capability detection for viewer features
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 92%
 > Complexity: High

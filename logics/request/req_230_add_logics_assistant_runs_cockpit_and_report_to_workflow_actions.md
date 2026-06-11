@@ -1,7 +1,7 @@
 ## req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions - Add Logics assistant runs cockpit and report-to-workflow actions
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 92%
 > Complexity: High

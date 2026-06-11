@@ -1,18 +1,18 @@
 ## task_209_gate_viewer_git_ci_cdx_and_runs_actions_by_project_availability - Gate viewer Git CI CDX and Runs actions by project availability
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 91%
 > Confidence: 86%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_401_gate_viewer_git_ci_cdx_and_runs_actions_by_project_availability`
@@ -40,9 +40,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_209_gate_viewer_git_ci_cdx_and_runs_actions_by_project_availability.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_401_gate_viewer_git_ci_cdx_and_runs_actions_by_project_availability`
+- Related request(s): `req_235_gate_viewer_git_ci_cdx_and_runs_actions_by_project_availability`
 
 # AI Context
 - Summary: Implement gate viewer git ci cdx and runs actions by project availability.

@@ -1,18 +1,18 @@
 ## task_208_add_new_project_onboarding_and_bootstrap_states_to_the_viewer - Add new project onboarding and bootstrap states to the viewer
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 91%
 > Confidence: 86%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_400_add_new_project_onboarding_and_bootstrap_states_to_the_viewer`
@@ -39,9 +39,14 @@ flowchart TD
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_208_add_new_project_onboarding_and_bootstrap_states_to_the_viewer.md` after implementation.
+- Finish workflow executed on 2026-06-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-11.
+- Linked backlog item(s): `item_400_add_new_project_onboarding_and_bootstrap_states_to_the_viewer`
+- Related request(s): `req_234_add_new_project_onboarding_and_bootstrap_states_to_the_viewer`
 
 # AI Context
 - Summary: Implement add new project onboarding and bootstrap states to the viewer.

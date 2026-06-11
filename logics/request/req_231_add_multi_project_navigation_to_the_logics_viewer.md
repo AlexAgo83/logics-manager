@@ -1,7 +1,7 @@
 ## req_231_add_multi_project_navigation_to_the_logics_viewer - Add multi-project navigation to the Logics viewer
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 92%
 > Complexity: High

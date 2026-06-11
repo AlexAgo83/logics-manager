@@ -1,10 +1,10 @@
 ## item_396_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions - Add Logics assistant runs cockpit and report-to-workflow actions
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -83,6 +83,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions.md`.
 - Generated locally by logics-manager.
+- Task `task_204_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions` was finished via `logics-manager flow finish task` on 2026-06-11.
 
 # Tasks
 - `task_204_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions`

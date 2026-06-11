@@ -1,10 +1,10 @@
 ## item_400_add_new_project_onboarding_and_bootstrap_states_to_the_viewer - Add new project onboarding and bootstrap states to the viewer
 > From version: 2.6.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -75,6 +75,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_234_add_new_project_onboarding_and_bootstrap_states_to_the_viewer` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_234_add_new_project_onboarding_and_bootstrap_states_to_the_viewer.md`.
 - Generated locally by logics-manager.
+- Task `task_208_add_new_project_onboarding_and_bootstrap_states_to_the_viewer` was finished via `logics-manager flow finish task` on 2026-06-11.
 
 # Tasks
 - `task_208_add_new_project_onboarding_and_bootstrap_states_to_the_viewer`

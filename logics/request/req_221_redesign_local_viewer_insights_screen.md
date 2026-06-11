@@ -1,4 +1,4 @@
-## req_221_refondre_l_ecran_insights_du_viewer_local - Refondre l'ecran Insights du viewer local
+## req_221_redesign_local_viewer_insights_screen - Redesign local viewer Insights screen
 > From version: 2.5.2
 > Schema version: 1.0
 > Status: Draft
@@ -44,7 +44,7 @@
 
 ```mermaid
 %% logics-kind: request
-%% logics-signature: request|refondre-l-ecran-insights-du-viewer-loca|redesign-the-local-viewer-insights-scree|ac1-insights-opens-with-a-compact
+%% logics-signature: request|redesign-local-viewer-insights-screen|redesign-the-local-viewer-insights-scree|ac1-insights-opens-with-a-compact
 flowchart TD
     Need[Clear Insights cockpit] --> Now[Now summary]
     Now --> Actions[Operator actions]

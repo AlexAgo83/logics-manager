@@ -1546,8 +1546,10 @@ describe("local viewer browser host", () => {
     const text = content?.textContent || "";
     expect(text).toContain("d6f7f11bb7cd4739abc713b80fbea07b");
     expect(text).toContain("Stale");
-    expect(text).toContain("CDX no longer reports live progress");
+    expect(text).toContain("1 reported · 1 stale");
+    expect(text).toContain("No live updates are attached to this run anymore.");
     expect(text).toContain("Open the report for the last captured output");
+    expect(content?.querySelector(".viewer-cdx__state--warn")).toBeNull();
     expect(content?.querySelector('[data-viewer-cdx-report="d6f7f11bb7cd4739abc713b80fbea07b"]')).toBeTruthy();
   });
 

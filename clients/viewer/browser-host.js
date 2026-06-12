@@ -2651,6 +2651,9 @@
     }
     const runs = Array.isArray(payload.runs) ? payload.runs : [];
     const staleCount = runs.filter((run) => String(cdxField(run, ["status", "state"], "")).toLowerCase() === "stale").length;
+    const runsSummary = staleCount
+      ? `${runs.length} reported · ${staleCount} stale`
+      : `${runs.length} reported`;
     const rows = runs.map((run) => {
       const runId = cdxField(run, ["run_id", "runId", "id"], "");
       const status = cdxField(run, ["status", "state"], "unknown");
@@ -2670,8 +2673,7 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
-          <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runs.length)} reported</span></div>
-          ${staleCount ? `<div class="viewer-cdx__state viewer-cdx__state--warn">${escapeHtml(staleCount)} stale run${staleCount === 1 ? "" : "s"}: CDX no longer reports live progress for ${staleCount === 1 ? "this run" : "these runs"}. Use Report to inspect the captured output.</div>` : ""}
+          <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runsSummary)}</span></div>
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
               <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th><th>REPORT</th></tr></thead>

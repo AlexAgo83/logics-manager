@@ -17,6 +17,7 @@ function createViewerDom(options: {
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   cdxMissionRunGate?: Promise<void>;
+  filePreviewResponse?: { path: string; name: string; content: string; truncated?: boolean };
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -286,12 +287,13 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/file-preview") {
+        const payload = options.filePreviewResponse ?? { path: "/tmp/run.log", name: "run.log", content: '{"level":"info","message":"first log line","nested":{"count":2}}', truncated: false };
         return {
           ok: true,
           status: 200,
           json: async () => ({
             ok: true,
-            payload: { path: "/tmp/run.log", name: "run.log", content: "first log line\nsecond log line", truncated: false }
+            payload
           })
         };
       }
@@ -1740,6 +1742,9 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/file-preview");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("run.log");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("first log line");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Structured preview");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("JSON document");
+    expect(dom.window.document.querySelector(".viewer-cdx__log-structured")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__log-content")).toBeTruthy();
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Loaded /tmp/run.log");
 
@@ -1748,6 +1753,35 @@ describe("local viewer browser host", () => {
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("One issue found.");
+  });
+
+  it("renders JSONL CDX log previews as structured events", async () => {
+    const { dom } = createViewerDom({
+      filePreviewResponse: {
+        path: "/tmp/run.jsonl",
+        name: "run.jsonl",
+        content: '{"event":"started","index":1}\n{"event":"finished","index":2}',
+        truncated: false
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/run.log"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Structured preview");
+    expect(text).toContain("2 JSONL event(s)");
+    expect(text).toContain("started");
+    expect(text).toContain("finished");
   });
 
   it("previews launches and applies guided CDX missions", async () => {

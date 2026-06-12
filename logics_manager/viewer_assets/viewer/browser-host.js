@@ -2806,15 +2806,58 @@
     `;
   }
 
+  function parseCdxLogJson(content) {
+    const raw = String(content || "").trim();
+    if (!raw) {
+      return null;
+    }
+    try {
+      return { kind: "json", value: JSON.parse(raw) };
+    } catch {
+      // Fall through to JSONL detection.
+    }
+    const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length < 2) {
+      return null;
+    }
+    const values = [];
+    for (const line of lines) {
+      try {
+        values.push(JSON.parse(line));
+      } catch {
+        return null;
+      }
+    }
+    return { kind: "jsonl", value: values };
+  }
+
+  function renderCdxStructuredLog(parsed) {
+    if (!parsed) {
+      return "";
+    }
+    const label = parsed.kind === "jsonl" ? `${parsed.value.length} JSONL event(s)` : "JSON document";
+    return `
+      <details class="viewer-cdx__log-structured" open>
+        <summary>Structured preview · ${escapeHtml(label)}</summary>
+        <div class="viewer-cdx__detail-value">${renderCdxDetailValue(parsed.value)}</div>
+      </details>
+    `;
+  }
+
   function renderCdxLogPreview(payload) {
     const path = payload?.path || "";
     const content = payload?.content || "";
     const truncated = Boolean(payload?.truncated);
+    const parsed = parseCdxLogJson(content);
     return `
       <div class="viewer-cdx__log-preview">
         <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
         ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated. Open the file externally for the full log.</div>' : ""}
+        ${renderCdxStructuredLog(parsed)}
+        <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
+          <summary>Raw log</summary>
         <pre class="viewer-cdx__log-content">${escapeHtml(content || "Log is empty.")}</pre>
+        </details>
       </div>
     `;
   }

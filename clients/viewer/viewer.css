@@ -931,6 +931,27 @@
   min-width: 0;
 }
 
+.viewer-cdx__log-structured,
+.viewer-cdx__log-raw {
+  min-width: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 76%, transparent);
+}
+
+.viewer-cdx__log-structured > summary,
+.viewer-cdx__log-raw > summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.viewer-cdx__log-structured > .viewer-cdx__detail-value {
+  padding: 0 10px 10px;
+}
+
 .viewer-cdx__log-content {
   max-height: min(70vh, 760px);
   overflow: auto;

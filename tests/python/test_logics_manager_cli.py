@@ -47,6 +47,8 @@ from logics_manager.viewer import (
     render_start_status,
     viewer_project_registry,
     viewer_project_capabilities,
+    workspace_preview_payload,
+    workspace_tree_payload,
 )
 from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
@@ -347,6 +349,47 @@ def test_viewer_file_preview_truncates_to_latest_characters(tmp_path: Path) -> N
 
     assert payload["content"].replace("\r\n", "\n").endswith("atest line\n")
     assert payload["truncated"] is True
+
+
+def test_viewer_workspace_tree_is_root_bounded_and_ignores_heavy_dirs(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (tmp_path / "node_modules").mkdir()
+    (tmp_path / "node_modules" / "pkg.js").write_text("ignored\n", encoding="utf-8")
+
+    root_payload = workspace_tree_payload(tmp_path)
+    src_payload = workspace_tree_payload(tmp_path, "src")
+
+    assert root_payload["state"] == "ok"
+    names = {entry["name"]: entry for entry in root_payload["entries"]}
+    assert names["src"]["kind"] == "directory"
+    assert names["node_modules"]["ignored"] is True
+    assert names["node_modules"]["childrenAvailable"] is False
+    assert src_payload["entries"][0]["path"] == "src/app.py"
+    with pytest.raises(ValueError):
+        workspace_tree_payload(tmp_path, "../outside")
+
+
+def test_viewer_workspace_preview_reports_text_directory_binary_and_large_files(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (tmp_path / "binary.dat").write_bytes(b"abc\x00def")
+    (tmp_path / "large.txt").write_text("x" * 20, encoding="utf-8")
+
+    directory = workspace_preview_payload(tmp_path, "src")
+    text = workspace_preview_payload(tmp_path, "src/app.py")
+    binary = workspace_preview_payload(tmp_path, "binary.dat")
+    large = workspace_preview_payload(tmp_path, "large.txt", max_bytes=10)
+
+    assert directory["state"] == "directory"
+    assert directory["childrenAvailable"] is True
+    assert text["state"] == "ok"
+    assert text["path"] == "src/app.py"
+    assert "print" in text["content"]
+    assert binary["state"] == "unsupported"
+    assert large["state"] == "oversized"
+    with pytest.raises(ValueError):
+        workspace_preview_payload(tmp_path, "../outside.md")
 
 
 def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:

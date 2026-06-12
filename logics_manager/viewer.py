@@ -144,6 +144,26 @@ GIT_FILE_PREVIEW_MAX_BYTES = 30000
 GIT_FILE_PREVIEW_MAX_CHARS = 20000
 FILE_PREVIEW_MAX_BYTES = 300000
 FILE_PREVIEW_MAX_CHARS = 200000
+WORKSPACE_TREE_MAX_ENTRIES = 250
+WORKSPACE_PREVIEW_MAX_BYTES = 30000
+WORKSPACE_PREVIEW_MAX_CHARS = 20000
+WORKSPACE_IGNORED_DIRS = {
+    ".git",
+    ".hg",
+    ".svn",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".next",
+    ".turbo",
+    ".venv",
+    "venv",
+}
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
 VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
@@ -615,9 +635,16 @@ def viewer_project_capabilities(
     else:
         cdx = _viewer_capability("missing", available=False, message="CDX executable is not available.")
         cdx_runs = _viewer_capability("missing", available=False, message="CDX is required before assistant runs can be tracked.")
+    workspace = _viewer_capability(
+        "ready" if repo_root.is_dir() else "missing",
+        available=repo_root.is_dir(),
+        message="Workspace root can be inspected." if repo_root.is_dir() else "Workspace root is unavailable.",
+        detail={"root": str(repo_root.resolve())} if repo_root.is_dir() else {},
+    )
 
     return {
         "logics": logics,
+        "workspace": workspace,
         "git": git,
         "ci": ci,
         "cdx": cdx,
@@ -1153,6 +1180,168 @@ def git_file_preview_payload(
         "state": "ok",
         "path": normalized,
         "mode": "file-preview",
+        "content": content,
+        "truncated": truncated,
+        "logicsType": _logics_doc_type(normalized),
+        "message": "",
+    }
+
+
+def _normalize_workspace_path(rel_path: str) -> str:
+    normalized = unquote(rel_path or "").replace("\\", "/").strip()
+    normalized = normalized.lstrip("/")
+    if normalized in {"", "."}:
+        return ""
+    if normalized.startswith("~") or re.match(r"^[A-Za-z]:", normalized):
+        raise ValueError("Unsafe workspace path.")
+    parts = [part for part in normalized.split("/") if part not in {"", "."}]
+    if any(part == ".." for part in parts):
+        raise ValueError("Workspace path escapes root.")
+    return "/".join(parts)
+
+
+def _resolve_workspace_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
+    normalized = _normalize_workspace_path(rel_path)
+    root = repo_root.resolve()
+    target = (root / normalized).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("Workspace path escapes root.") from exc
+    return normalized, target
+
+
+def _workspace_entry_payload(root: Path, path: Path) -> dict[str, Any]:
+    try:
+        stat = path.stat()
+    except OSError:
+        stat = None
+    rel_path = path.relative_to(root).as_posix()
+    is_dir = path.is_dir()
+    ignored = is_dir and path.name in WORKSPACE_IGNORED_DIRS
+    return {
+        "name": path.name or root.name,
+        "path": rel_path,
+        "kind": "directory" if is_dir else "file",
+        "size": stat.st_size if stat else 0,
+        "ignored": ignored,
+        "childrenAvailable": is_dir and not ignored,
+    }
+
+
+def workspace_tree_payload(
+    repo_root: Path,
+    rel_path: str = "",
+    *,
+    max_entries: int = WORKSPACE_TREE_MAX_ENTRIES,
+) -> dict[str, Any]:
+    normalized, target = _resolve_workspace_path(repo_root, rel_path)
+    root = repo_root.resolve()
+    if not target.exists():
+        return {"state": "missing", "path": normalized, "message": "Workspace path does not exist."}
+    if not target.is_dir():
+        return {"state": "not-directory", "path": normalized, "message": "Workspace path is not a directory."}
+    entries = []
+    truncated = False
+    try:
+        children = sorted(target.iterdir(), key=lambda path: (not path.is_dir(), path.name.lower()))
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "message": f"Unable to list workspace path: {exc}"}
+    for child in children:
+        if len(entries) >= max_entries:
+            truncated = True
+            break
+        entries.append(_workspace_entry_payload(root, child))
+    return {
+        "state": "ok",
+        "root": str(root),
+        "path": normalized,
+        "entries": entries,
+        "truncated": truncated,
+        "ignoredDirectories": sorted(WORKSPACE_IGNORED_DIRS),
+    }
+
+
+def workspace_preview_payload(
+    repo_root: Path,
+    rel_path: str,
+    *,
+    max_bytes: int = WORKSPACE_PREVIEW_MAX_BYTES,
+    max_chars: int = WORKSPACE_PREVIEW_MAX_CHARS,
+) -> dict[str, Any]:
+    normalized, target = _resolve_workspace_path(repo_root, rel_path)
+    if not target.exists():
+        return {"state": "missing", "path": normalized, "message": "Workspace path does not exist."}
+    if target.is_dir():
+        try:
+            count = sum(1 for _ in target.iterdir())
+        except OSError:
+            count = 0
+        return {
+            "state": "directory",
+            "path": normalized,
+            "name": target.name or repo_root.resolve().name,
+            "kind": "directory",
+            "message": f"{count} item(s)",
+            "childrenAvailable": target.name not in WORKSPACE_IGNORED_DIRS,
+        }
+    if not target.is_file():
+        return {"state": "unsupported", "path": normalized, "message": "Workspace object cannot be previewed."}
+    try:
+        size = target.stat().st_size
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "message": f"Unable to inspect file: {exc}"}
+    if size > max_bytes:
+        return {
+            "state": "oversized",
+            "path": normalized,
+            "name": target.name,
+            "size": size,
+            "message": f"File preview is limited to {max_bytes} bytes; this file is {size} bytes.",
+        }
+    try:
+        data = target.read_bytes()
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "message": f"Unable to read file preview: {exc}"}
+    content_type = mimetypes.guess_type(target.name)[0] or ""
+    if content_type.startswith("image/"):
+        return {
+            "state": "image",
+            "path": normalized,
+            "name": target.name,
+            "size": size,
+            "contentType": content_type,
+            "message": "Image preview is available from the workspace file endpoint.",
+        }
+    if b"\x00" in data:
+        return {
+            "state": "unsupported",
+            "path": normalized,
+            "name": target.name,
+            "size": size,
+            "message": "Binary or unsupported file content cannot be previewed.",
+        }
+    try:
+        content = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return {
+            "state": "unsupported",
+            "path": normalized,
+            "name": target.name,
+            "size": size,
+            "message": "Binary or unsupported file encoding cannot be previewed.",
+        }
+    content = content.replace("\r\n", "\n").replace("\r", "\n")
+    truncated = len(content) > max_chars
+    if truncated:
+        content = content[:max_chars]
+    return {
+        "state": "ok",
+        "path": normalized,
+        "name": target.name,
+        "kind": "file",
+        "size": size,
+        "contentType": content_type or "text/plain",
         "content": content,
         "truncated": truncated,
         "logicsType": _logics_doc_type(normalized),
@@ -2274,6 +2463,32 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             params = parse_qs(parsed.query)
             rel_path = params.get("path", [""])[0]
             self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path)})
+            return
+        if route == "/api/workspace-tree":
+            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            try:
+                self._send_json({"ok": True, "payload": workspace_tree_payload(self.server.repo_root, rel_path)})
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if route == "/api/workspace-preview":
+            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            try:
+                self._send_json({"ok": True, "payload": workspace_preview_payload(self.server.repo_root, rel_path)})
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if route == "/api/workspace-file":
+            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            try:
+                payload = workspace_preview_payload(self.server.repo_root, rel_path)
+                if payload.get("state") != "image":
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Workspace file is not an image preview.")
+                    return
+                _normalized, absolute = _resolve_workspace_path(self.server.repo_root, rel_path)
+                self._serve_file(absolute)
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 

@@ -18,6 +18,7 @@
   const projectMenu = () => document.getElementById("viewer-project-menu");
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
+  const workspaceButton = () => document.getElementById("viewer-workspace");
   const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
@@ -251,6 +252,7 @@
     return Array.from(document.querySelectorAll([
       "#viewer-insights",
       "#viewer-health",
+      "#viewer-workspace",
       "#viewer-git",
       "#viewer-ci",
       "#viewer-cdx",
@@ -683,6 +685,7 @@
     const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
     return {
       logics: capabilities.logics || { state: "ready", available: true, message: "" },
+      workspace: capabilities.workspace || { state: "ready", available: true, message: "" },
       git: capabilities.git || { state: "ready", available: true, message: "" },
       ci: capabilities.ci || { state: "ready", available: true, message: "" },
       cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
@@ -721,6 +724,16 @@
   }
 
   function updateCapabilityControls() {
+    const workspace = workspaceButton();
+    if (workspace instanceof HTMLElement) {
+      workspace.hidden = !isCapabilityAvailable("workspace");
+      if (isCapabilityAvailable("workspace")) {
+        setButtonAvailable(workspace, "Show workspace files");
+      } else {
+        setButtonUnavailable(workspace, capabilityMessage("workspace", "Workspace files are not available for this project."));
+      }
+    }
+
     const gitButton = document.getElementById("viewer-git");
     if (gitButton instanceof HTMLElement) {
       gitButton.hidden = !isCapabilityAvailable("git");
@@ -1405,6 +1418,12 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "Git status");
   }
 
+  function isWorkspaceOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "Workspace");
+  }
+
   function isCdxStatusOpen() {
     const panel = documentPanel();
     const title = documentTitle();
@@ -1431,7 +1450,11 @@
 
   async function refreshViewer(method = "POST", options = {}) {
     const changed = await loadItems(method, options);
-    if (isGitStatusOpen()) {
+    if (isWorkspaceOpen()) {
+      if (changed || options.force) {
+        await showWorkspace({ silent: Boolean(options.silent) });
+      }
+    } else if (isGitStatusOpen()) {
       await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCiStatusOpen()) {
       await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
@@ -2146,6 +2169,145 @@
     const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
     setDocument("Validation health", renderHealthSummary(lintData, auditData));
     setMeta("Health loaded.");
+  }
+
+  function workspaceParentPath(path) {
+    const parts = String(path || "").split("/").filter(Boolean);
+    parts.pop();
+    return parts.join("/");
+  }
+
+  function renderWorkspaceTree(treePayload, selectedPath = "") {
+    if (!treePayload || treePayload.state !== "ok") {
+      return `<div class="viewer-workspace__empty">${escapeHtml(treePayload?.message || "Workspace tree is unavailable.")}</div>`;
+    }
+    const currentPath = String(treePayload.path || "");
+    const parentPath = workspaceParentPath(currentPath);
+    const upButton = currentPath
+      ? `<button class="viewer-workspace__item viewer-workspace__item--up" type="button" data-viewer-workspace-tree="${escapeHtml(parentPath)}">..</button>`
+      : "";
+    const rows = (Array.isArray(treePayload.entries) ? treePayload.entries : []).map((entry) => {
+      const path = String(entry.path || "");
+      const kind = String(entry.kind || "file");
+      const ignored = Boolean(entry.ignored);
+      const selected = path === selectedPath;
+      const actionAttr = kind === "directory" && !ignored
+        ? `data-viewer-workspace-tree="${escapeHtml(path)}"`
+        : `data-viewer-workspace-preview="${escapeHtml(path)}"`;
+      const icon = kind === "directory" ? (ignored ? "x" : ">") : "-";
+      return `
+        <button class="viewer-workspace__item${selected ? " is-selected" : ""}${ignored ? " is-muted" : ""}" type="button" ${actionAttr} title="${escapeHtml(path)}">
+          <span class="viewer-workspace__item-icon" aria-hidden="true">${escapeHtml(icon)}</span>
+          <span class="viewer-workspace__item-name">${escapeHtml(entry.name || path || "/")}</span>
+        </button>
+      `;
+    }).join("");
+    return `
+      <div class="viewer-workspace__tree-header">
+        <span>${escapeHtml(currentPath || "/")}</span>
+      </div>
+      <div class="viewer-workspace__tree-list">
+        ${upButton}
+        ${rows || '<div class="viewer-workspace__empty">Directory is empty.</div>'}
+      </div>
+      ${treePayload.truncated ? '<div class="viewer-workspace__empty">Directory listing truncated.</div>' : ""}
+    `;
+  }
+
+  function renderWorkspacePreview(previewPayload) {
+    if (!previewPayload) {
+      return '<div class="viewer-workspace__empty">Select a file or directory.</div>';
+    }
+    const path = previewPayload.path || "/";
+    const name = previewPayload.name || path || "/";
+    const state = previewPayload.state || "unknown";
+    if (state === "ok") {
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
+        </div>
+        ${previewPayload.truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated.</div>' : ""}
+        <pre class="viewer-workspace__code">${escapeHtml(previewPayload.content || "")}</pre>
+      `;
+    }
+    if (state === "image") {
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(previewPayload.contentType || "image")}</em>
+        </div>
+        <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
+      `;
+    }
+    return `
+      <div class="viewer-workspace__preview-header">
+        <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+        <em>${escapeHtml(state)}</em>
+      </div>
+      <div class="viewer-workspace__empty">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
+    `;
+  }
+
+  function renderWorkspace(treePayload, previewPayload) {
+    const selectedPath = previewPayload?.path || "";
+    return `
+      <div class="viewer-workspace">
+        <aside class="viewer-workspace__tree" aria-label="Workspace files">
+          ${renderWorkspaceTree(treePayload, selectedPath)}
+        </aside>
+        <section class="viewer-workspace__preview" aria-label="Workspace preview">
+          ${renderWorkspacePreview(previewPayload)}
+        </section>
+      </div>
+    `;
+  }
+
+  async function fetchWorkspaceTree(path = "") {
+    const response = await fetch(`/api/workspace-tree?path=${encodeURIComponent(path)}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load workspace tree.");
+    }
+    return data.payload;
+  }
+
+  async function fetchWorkspacePreview(path = "") {
+    const response = await fetch(`/api/workspace-preview?path=${encodeURIComponent(path)}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load workspace preview.");
+    }
+    return data.payload;
+  }
+
+  async function showWorkspace(options = {}) {
+    if (!isCapabilityAvailable("workspace")) {
+      const message = capabilityMessage("workspace", "Workspace files are not available for this project.");
+      setDocument("Workspace", renderWorkspace({ state: "unavailable", message }, { state: "unavailable", message }));
+      setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      setMeta("Loading workspace...");
+    }
+    const tree = await fetchWorkspaceTree("");
+    const preview = await fetchWorkspacePreview("");
+    setDocument("Workspace", renderWorkspace(tree, preview));
+    setMeta(options.silent ? "Workspace refreshed." : "Workspace loaded.");
+  }
+
+  async function openWorkspaceTree(path) {
+    const [tree, preview] = await Promise.all([fetchWorkspaceTree(path), fetchWorkspacePreview(path)]);
+    setDocument("Workspace", renderWorkspace(tree, preview));
+    setMeta(path ? `Workspace folder ${path}` : "Workspace root.");
+  }
+
+  async function openWorkspacePreview(path) {
+    const treePath = workspaceParentPath(path);
+    const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path)]);
+    setDocument("Workspace", renderWorkspace(tree, preview));
+    setMeta(`Previewing ${path || "workspace root"}.`);
   }
 
   function objectEntries(value) {
@@ -4001,6 +4163,12 @@
         withPrimaryAction("insights", "Loading insights", showCorpusInsights);
       });
     });
+    [workspaceButton()].forEach((button) => {
+      button?.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
+        withPrimaryAction("workspace", "Loading workspace", showWorkspace);
+      });
+    });
     const autoControl = autoRefreshControl();
     if (autoControl instanceof HTMLInputElement) {
       autoControl.addEventListener("change", () => {
@@ -4142,6 +4310,8 @@
       const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
       const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
+      const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
+      const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
@@ -4214,6 +4384,16 @@
         } else {
           withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
         }
+        return;
+      }
+      if (workspaceTreeTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("workspace-tree", "Loading workspace folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+        return;
+      }
+      if (workspacePreviewTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("workspace-preview", "Loading workspace preview", () => openWorkspacePreview(workspacePreviewTarget.getAttribute("data-viewer-workspace-preview") || ""));
         return;
       }
       if (projectSwitcherTarget instanceof HTMLElement) {

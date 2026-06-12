@@ -44,6 +44,7 @@ function createViewerDom(options: {
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-git" type="button">Git</button>
+    <button id="viewer-workspace" type="button" hidden>Workspace</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
@@ -170,6 +171,7 @@ function createViewerDom(options: {
               },
               capabilities: options.capabilities ?? {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
                 git: { state: "ready", available: true, message: "Git repository detected." },
                 ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
@@ -209,6 +211,7 @@ function createViewerDom(options: {
               },
               capabilities: {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
                 git: { state: "missing", available: false, message: "Project is not a Git repository." },
                 ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
                 cdx: { state: "missing", available: false, message: "CDX executable is not available." },
@@ -243,6 +246,7 @@ function createViewerDom(options: {
               },
               capabilities: {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
                 git: { state: "missing", available: false, message: "Project is not a Git repository." },
                 ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
                 cdx: { state: "missing", available: false, message: "CDX executable is not available." },
@@ -466,6 +470,7 @@ function createViewerDom(options: {
               repository: { root: "/workspace/logics-manager", githubUrl: "https://github.com/AlexAgo83/logics-manager" },
               capabilities: options.capabilities ?? {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
                 git: { state: "ready", available: true, message: "Git repository detected." },
                 ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
@@ -538,6 +543,42 @@ function createViewerDom(options: {
               truncated: false
             }
           })
+        };
+      }
+      if (String(url).startsWith("/api/workspace-tree")) {
+        const requestUrl = new URL(String(url), "http://127.0.0.1:8765");
+        const treePath = requestUrl.searchParams.get("path") || "";
+        const entries = treePath === "src"
+          ? [
+              { name: "app.py", path: "src/app.py", kind: "file", size: 12, ignored: false, childrenAvailable: false },
+              { name: "binary.dat", path: "src/binary.dat", kind: "file", size: 7, ignored: false, childrenAvailable: false }
+            ]
+          : [
+              { name: "src", path: "src", kind: "directory", size: 0, ignored: false, childrenAvailable: true },
+              { name: "README.md", path: "README.md", kind: "file", size: 18, ignored: false, childrenAvailable: false },
+              { name: "node_modules", path: "node_modules", kind: "directory", size: 0, ignored: true, childrenAvailable: false }
+            ];
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: { state: "ok", root: "/workspace/logics-manager", path: treePath, entries, truncated: false }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/workspace-preview")) {
+        const requestUrl = new URL(String(url), "http://127.0.0.1:8765");
+        const previewPath = requestUrl.searchParams.get("path") || "";
+        const payload = previewPath === "src/app.py"
+          ? { state: "ok", path: "src/app.py", name: "app.py", kind: "file", size: 12, contentType: "text/x-python", content: "print('ok')\n", truncated: false }
+          : previewPath === "src/binary.dat"
+          ? { state: "unsupported", path: "src/binary.dat", name: "binary.dat", size: 7, message: "Binary or unsupported file content cannot be previewed." }
+          : previewPath === "README.md"
+          ? { state: "ok", path: "README.md", name: "README.md", kind: "file", size: 18, contentType: "text/markdown", content: "# Demo\nRead me\n", truncated: false }
+          : { state: "directory", path: previewPath, name: previewPath || "logics-manager", kind: "directory", message: "3 item(s)", childrenAvailable: true };
+        return {
+          ok: true,
+          json: async () => ({ ok: true, payload })
         };
       }
       if (url === "/api/cdx-mission-plan") {
@@ -773,7 +814,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Workspace", "Git", "CI", "CDX", "Settings"]);
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
@@ -1043,6 +1084,66 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-git")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
+  it("opens the workspace tree before Git and previews selected files", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const workspace = dom.window.document.getElementById("viewer-workspace") as HTMLButtonElement | null;
+    expect(workspace?.hidden).toBe(false);
+    workspace?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/workspace-tree?path=");
+    expect(calls).toContain("/api/workspace-preview?path=");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workspace");
+    let content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.textContent).toContain("src");
+    expect(content?.textContent).toContain("README.md");
+    expect(content?.textContent).toContain("node_modules");
+    expect(content?.textContent).toContain("3 item(s)");
+
+    content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/workspace-tree?path=src");
+    expect(content?.textContent).toContain("app.py");
+
+    content?.querySelector('[data-viewer-workspace-preview="src/app.py"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/workspace-preview?path=src%2Fapp.py");
+    expect(content?.textContent).toContain("print('ok')");
+  });
+
+  it("renders workspace preview fallbacks for unsupported files", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-workspace")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let content = dom.window.document.getElementById("viewer-document-content");
+    content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    content = dom.window.document.getElementById("viewer-document-content");
+    content?.querySelector('[data-viewer-workspace-preview="src/binary.dat"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Binary or unsupported file content cannot be previewed.");
   });
 
   it("bootstraps Logics through the local viewer host action", async () => {

@@ -1641,8 +1641,9 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;
-    expect(allowWrites?.checked).toBe(false);
-    expect(allowWrites?.disabled).toBe(true);
+    expect(allowWrites).toBeNull();
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Corpus updates are applied after CDX returns allowed actions.");
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));

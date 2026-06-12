@@ -2437,6 +2437,16 @@
     const fileWriteLabel = ["full-audit", "release-review"].includes(selectedMission.id)
       ? "Write mission corpus/report"
       : "Allow CDX to modify files";
+    const fileWriteControl = supportsFileWrites
+      ? `
+            <label class="viewer-cdx__field viewer-cdx__field--check">
+              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
+              <span>${escapeHtml(fileWriteLabel)}</span>
+            </label>
+        `
+      : `
+            <div class="viewer-cdx__meta">Corpus updates are applied after CDX returns allowed actions.</div>
+        `;
     latestCdxMissionState.sessionId = selectedSession;
     const missionCards = missions.map((mission) => `
       <button class="viewer-cdx__mission${mission.id === missionId ? " is-active" : ""}" type="button" data-viewer-cdx-mission="${escapeHtml(mission.id)}" aria-pressed="${mission.id === missionId ? "true" : "false"}">
@@ -2486,11 +2496,7 @@
               <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
             </label>
             <div class="viewer-cdx__strengths">${strengthButtons}</div>
-            <label class="viewer-cdx__field viewer-cdx__field--check">
-              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}${supportsFileWrites ? "" : " disabled"}>
-              <span>${escapeHtml(fileWriteLabel)}</span>
-            </label>
-            ${supportsFileWrites ? "" : '<div class="viewer-cdx__meta">Plan-first mission: direct CDX file writes are disabled; apply returned actions explicitly.</div>'}
+            ${fileWriteControl}
             ${renderCdxMissionInputs(selectedMission)}
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>

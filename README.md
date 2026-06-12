@@ -157,11 +157,11 @@ plan, and preparing a guarded pre-release from an editable `vX.X.X` version.
 For full-audit and release-review, the main write checkbox allows CDX to write
 the mission corpus/report; direct repository fixes require the separate `Fix
 directly` checkbox and skip the corpus/report artifact. Write-capable missions
-must report changed files and validation evidence. The corpus-ready mission is
-plan-first: direct CDX writes stay disabled and returned actions need explicit
-apply. The pre-release mission may update release metadata and create the
-matching changelog, but must not tag, push, publish, upload assets, or create a
-GitHub release.
+must report changed files and validation evidence. The corpus-ready mission asks
+CDX for allowed corpus actions first; the corpus is updated when those returned
+actions are applied explicitly. The pre-release mission may update release
+metadata and create the matching changelog, but must not tag, push, publish,
+upload assets, or create a GitHub release.
 
 Useful options:
 

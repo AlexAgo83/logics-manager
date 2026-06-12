@@ -154,12 +154,14 @@ The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It
 The CDX missions panel includes guarded workflows for audits, release reviews,
 turning a free-form wish into a structured Logics request, preparing a corpus
 plan, and preparing a guarded pre-release from an editable `vX.X.X` version.
-When file writes are allowed, write-capable missions may apply scoped validated
-fixes and must report changed files and validation evidence. The corpus-ready
-mission is plan-first: direct CDX writes stay disabled and returned actions need
-explicit apply. The pre-release mission may update release metadata and create
-the matching changelog, but must not tag, push, publish, upload assets, or
-create a GitHub release.
+For full-audit and release-review, the main write checkbox allows CDX to write
+the mission corpus/report; direct repository fixes require the separate `Fix
+directly` checkbox and skip the corpus/report artifact. Write-capable missions
+must report changed files and validation evidence. The corpus-ready mission is
+plan-first: direct CDX writes stay disabled and returned actions need explicit
+apply. The pre-release mission may update release metadata and create the
+matching changelog, but must not tag, push, publish, upload assets, or create a
+GitHub release.
 
 Useful options:
 

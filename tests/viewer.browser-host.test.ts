@@ -495,8 +495,8 @@ function createViewerDom(options: {
               message: "",
               catalog: {
                 missions: [
-                  { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true },
-                  { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true },
+                  { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
+                  { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
                   { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
                   { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
                   { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata and changelog.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
@@ -1723,6 +1723,32 @@ describe("local viewer browser host", () => {
     const planCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
     expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
       allowFileWrites: "false"
+    });
+  });
+
+  it("passes direct-fix mode separately from corpus writes", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const directFixes = dom.window.document.querySelector('[data-viewer-cdx-input="directFixes"]') as HTMLInputElement | null;
+    expect(directFixes).toBeTruthy();
+    directFixes!.checked = true;
+    directFixes!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const planCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
+    expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
+      missionId: "full-audit",
+      allowFileWrites: "true",
+      directFixes: "true"
     });
   });
 

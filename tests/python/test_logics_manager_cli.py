@@ -868,6 +868,7 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     )
 
     assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"directFixes": "false"}
     assert payload["plan"]["allowFileWrites"] is True
     assert payload["plan"]["permission"] == "workspace-write"
     assert payload["plan"]["requestedFileWrites"] is True
@@ -876,9 +877,40 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert args[args.index("--permission") + 1] == "workspace-write"
     prompt = args[args.index("--prompt") + 1]
     assert "File edits are allowed" in prompt
-    assert "Fix safe, scoped issues" in prompt
-    assert "changedFiles" in prompt
+    assert "Write or update a bounded audit corpus/report artifact" in prompt
+    assert "Do not directly modify product/source files" in prompt
+    assert "corpusFiles" in prompt
     assert "validationEvidence" in prompt
+
+
+def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {
+            "missionId": "full-audit",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "allowFileWrites": False,
+            "directFixes": True,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"directFixes": "true"}
+    assert payload["plan"]["allowFileWrites"] is True
+    assert payload["plan"]["permission"] == "workspace-write"
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "Fix safe, scoped issues directly" in prompt
+    assert "Do not write a separate audit corpus/report artifact" in prompt
+    assert "directFixes" in prompt
+    assert "changedFiles" in prompt
 
 
 def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: Path) -> None:
@@ -901,14 +933,46 @@ def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: 
     )
 
     assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"directFixes": "false"}
     assert payload["plan"]["releaseTag"] == "v2.7.0"
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
-    assert "Fix safe, scoped release-readiness issues" in prompt
+    assert "Write or update a bounded release-review corpus/report artifact" in prompt
+    assert "Do not directly modify product/source files" in prompt
+    assert "Do not bump versions, tag, push, publish" in prompt
+    assert "corpusFiles" in prompt
+    assert "validationEvidence" in prompt
+
+
+def test_viewer_cdx_mission_release_review_direct_fix_prompt_stays_guarded(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:4] == ["tag", "--sort=-version:refname", "--list"]:
+            return subprocess.CompletedProcess(args, 0, "v2.7.0\n", "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "release-review", "sessionId": "work", "strengthId": "standard", "directFixes": True},
+        cdx_runner=cdx_runner,
+        git_runner=git_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["missionInputs"] == {"directFixes": "true"}
+    assert payload["plan"]["permission"] == "workspace-write"
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "Fix safe, scoped release-readiness issues directly" in prompt
+    assert "Do not write a separate release-review corpus/report artifact" in prompt
     assert "Do not bump versions unless explicitly requested" in prompt
     assert "do not tag, push, publish" in prompt
+    assert "directFixes" in prompt
     assert "changedFiles" in prompt
-    assert "validationEvidence" in prompt
 
 
 def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:

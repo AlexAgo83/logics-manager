@@ -58,6 +58,14 @@ CDX_MISSION_CATALOG = {
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
         "supportsFileWrites": True,
+        "inputFields": [
+            {
+                "id": "directFixes",
+                "label": "Fix directly",
+                "type": "checkbox",
+                "required": False,
+            }
+        ],
     },
     "release-review": {
         "id": "release-review",
@@ -67,6 +75,14 @@ CDX_MISSION_CATALOG = {
         "requiresReleaseTag": True,
         "requiresPlanConfirmation": False,
         "supportsFileWrites": True,
+        "inputFields": [
+            {
+                "id": "directFixes",
+                "label": "Fix directly",
+                "type": "checkbox",
+                "required": False,
+            }
+        ],
     },
     "corpus-ready": {
         "id": "corpus-ready",
@@ -1400,37 +1416,46 @@ def _cdx_mission_prompt(
     release_version: str = "",
     run_full_validation: bool = False,
     allow_file_writes: bool = False,
+    direct_fixes: bool = False,
 ) -> str:
     write_guidance = (
-        "File edits are allowed when they directly complete the mission. Keep changes scoped, run relevant validation, and report changed files."
+        "File edits are allowed when they directly complete the selected mission mode. Keep changes scoped, run relevant validation, and report changed files."
         if allow_file_writes
         else "Do not modify files."
     )
     if mission_id == "full-audit":
-        action_guidance = (
-            "Fix safe, scoped issues you can validate directly. Do not make broad refactors, release, tag, push, or publish. Include every changed file and validation command in the JSON."
-            if allow_file_writes
-            else "Report only; do not fix issues or modify files."
-        )
+        if direct_fixes:
+            action_guidance = "Fix safe, scoped issues directly in repository files when you can validate them. Do not write a separate audit corpus/report artifact. Do not make broad refactors, release, tag, push, or publish."
+            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
+        elif allow_file_writes:
+            action_guidance = "Write or update a bounded audit corpus/report artifact for this mission. Do not directly modify product/source files to fix issues. The corpus must capture findings, recommendations, changedFiles as report artifacts, and validation evidence."
+            schema = "Return concise JSON with keys: summary, findings, recommendations, corpusFiles, validationEvidence."
+        else:
+            action_guidance = "Report only; do not write corpus files, fix issues, or modify files."
+            schema = "Return concise JSON with keys: summary, findings, recommendations."
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
             "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
             write_guidance,
             action_guidance,
-            "Return a concise actionable report in JSON with keys: summary, findings, recommendations, changedFiles, validationEvidence.",
+            schema,
         ])
     if mission_id == "release-review":
-        action_guidance = (
-            "Fix safe, scoped release-readiness issues you can validate directly, such as stale documentation, missing release notes, or narrow test failures. Do not bump versions unless explicitly requested, and do not tag, push, publish, upload assets, or create GitHub releases. Include every changed file and validation command in the JSON."
-            if allow_file_writes
-            else "Report only; do not update release files, fix issues, tag, push, publish, upload assets, or create GitHub releases."
-        )
+        if direct_fixes:
+            action_guidance = "Fix safe, scoped release-readiness issues directly in repository files when you can validate them, such as stale documentation, missing release notes, or narrow test failures. Do not write a separate release-review corpus/report artifact. Do not bump versions unless explicitly requested, and do not tag, push, publish, upload assets, or create GitHub releases."
+            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
+        elif allow_file_writes:
+            action_guidance = "Write or update a bounded release-review corpus/report artifact for this mission. Do not directly modify product/source files to fix issues. Do not bump versions, tag, push, publish, upload assets, or create GitHub releases."
+            schema = "Return concise JSON with keys: summary, findings, recommendations, corpusFiles, validationEvidence."
+        else:
+            action_guidance = "Report only; do not update release files, write corpus files, fix issues, tag, push, publish, upload assets, or create GitHub releases."
+            schema = "Return concise JSON with keys: summary, findings, recommendations."
         return "\n".join([
             f"Review repository changes since the latest release tag {release_tag}.",
             "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
             write_guidance,
             action_guidance,
-            "Return a concise actionable report in JSON with keys: summary, findings, recommendations, changedFiles, validationEvidence.",
+            schema,
         ])
     if mission_id == "corpus-ready":
         return "\n".join([
@@ -1496,6 +1521,7 @@ def _cdx_mission_command(
         release_version=mission_inputs.get("releaseVersion", ""),
         run_full_validation=mission_inputs.get("runFullValidation") == "true",
         allow_file_writes=allow_file_writes,
+        direct_fixes=mission_inputs.get("directFixes") == "true",
     )
     timeout = int(strength.get("timeout") or 180)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
@@ -1687,6 +1713,8 @@ def cdx_mission_plan_payload(
         if not wish_text:
             return {"state": "error", "message": "Enter a wish or intent before previewing this mission.", "plan": None, "catalog": cdx_mission_catalog_payload(), "status": status_payload}
         mission_inputs["wishText"] = wish_text
+    if mission_id in {"full-audit", "release-review"}:
+        mission_inputs["directFixes"] = "true" if _mission_bool_input(body, "directFixes") else "false"
     if mission_id == "pre-release":
         release_version = _mission_text_input(body, "releaseVersion", max_chars=40)
         if not re.fullmatch(r"v\d+\.\d+\.\d+", release_version):
@@ -1701,8 +1729,9 @@ def cdx_mission_plan_payload(
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
     requested_file_writes = _mission_bool_input(body, "allowFileWrites")
+    direct_fixes = mission_inputs.get("directFixes") == "true"
     supports_file_writes = bool(mission.get("supportsFileWrites", True))
-    allow_file_writes = requested_file_writes and supports_file_writes
+    allow_file_writes = (requested_file_writes or direct_fixes) and supports_file_writes
     if requested_file_writes and not supports_file_writes:
         warnings.append("This mission is plan-first; direct CDX file writes are disabled. Use Apply allowed actions after CDX returns actions.")
     permission = "workspace-write" if allow_file_writes else "read-only"

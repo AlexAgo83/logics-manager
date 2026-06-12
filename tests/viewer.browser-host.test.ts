@@ -1569,7 +1569,16 @@ describe("local viewer browser host", () => {
     expect(calls.some((call) => call.startsWith("/api/cdx-run-report"))).toBe(true);
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Missing validation.");
+    expect(dom.window.document.querySelector("[data-viewer-cdx-back-runs]")).toBeTruthy();
 
+    dom.window.document.querySelector("[data-viewer-cdx-back-runs]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Assistant runs");
+
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-create-request="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 

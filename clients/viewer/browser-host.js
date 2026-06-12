@@ -2710,6 +2710,9 @@
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+          <div class="viewer-cdx__actions">
+            <button class="btn" type="button" data-viewer-cdx-back-runs>Back to runs</button>
+          </div>
           <ul class="viewer-cdx__list">
             <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.run_id || taskReport.run_id || "-")}</strong></li>
             <li class="viewer-cdx__row"><span>Kind</span><strong>${escapeHtml(taskReport.kind || run.kind || "assistant")}</strong></li>
@@ -3555,6 +3558,7 @@
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+      const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
       const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
       const cdxMissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission]") : null;
@@ -3589,6 +3593,10 @@
       }
       if (cdxApplyPlanTarget instanceof HTMLElement) {
         withCdxMissionAction("cdx-apply-plan", "Applying CDX mission plan", applyCdxMissionPlan);
+        return;
+      }
+      if (cdxBackRunsTarget instanceof HTMLElement) {
+        withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
         return;
       }
       if (cdxReportTarget instanceof HTMLElement) {

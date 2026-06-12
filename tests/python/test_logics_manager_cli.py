@@ -1014,7 +1014,7 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         calls.append(args)
         if args == ["cdx", "status", "--json"]:
             return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
-        assert kwargs["timeout"] == 180
+        assert kwargs["timeout"] == 270
         assert args[:4] == ["cdx", "run", "work", "--cwd"]
         assert args[4] == str(tmp_path)
         assert "--session" not in args
@@ -1036,6 +1036,32 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
     assert payload["run"]["runId"] == "run-42"
     assert payload["run"]["usage"]["totalTokens"] == 15
     assert calls[0] == ["cdx", "status", "--json"]
+
+
+def test_viewer_cdx_mission_run_extends_timeout_for_writable_closeout(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        assert args[args.index("--timeout-seconds") + 1] == "600"
+        assert kwargs["timeout"] == 690
+        return subprocess.CompletedProcess(args, 0, json.dumps({"run_id": "run-42"}), "")
+
+    payload = cdx_mission_run_payload(
+        tmp_path,
+        {
+            "missionId": "full-audit",
+            "sessionId": "work",
+            "strengthId": "deep",
+            "allowFileWrites": True,
+            "commitAtEnd": True,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["timeoutSeconds"] == 600
+    assert payload["run"]["runId"] == "run-42"
 
 
 def test_viewer_cdx_runs_normalizes_unended_stale_runs_as_running(tmp_path: Path) -> None:

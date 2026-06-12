@@ -49,6 +49,8 @@ CDX_MISSION_STRENGTHS = {
     "deep": {"id": "deep", "label": "Deep", "timeout": 300, "reasoningEffort": "high", "power": "high"},
     "max": {"id": "max", "label": "Max", "timeout": 600, "reasoningEffort": "high", "power": "high"},
 }
+CDX_MISSION_PARENT_TIMEOUT_GRACE_SECONDS = 90
+CDX_WRITABLE_MISSION_MIN_TIMEOUT_SECONDS = 600
 CDX_MISSION_CATALOG = {
     "full-audit": {
         "id": "full-audit",
@@ -1605,6 +1607,13 @@ def _cdx_mission_prompt(
     raise ValueError("Unknown CDX mission.")
 
 
+def _cdx_mission_timeout(strength: dict[str, Any], *, allow_file_writes: bool = False, commit_at_end: bool = False) -> int:
+    timeout = int(strength.get("timeout") or 180)
+    if allow_file_writes or commit_at_end:
+        return max(timeout, CDX_WRITABLE_MISSION_MIN_TIMEOUT_SECONDS)
+    return timeout
+
+
 def _cdx_mission_command(
     repo_root: Path,
     mission_id: str,
@@ -1627,7 +1636,7 @@ def _cdx_mission_command(
         direct_fixes=mission_inputs.get("directFixes") == "true",
         commit_at_end=commit_at_end,
     )
-    timeout = int(strength.get("timeout") or 180)
+    timeout = _cdx_mission_timeout(strength, allow_file_writes=allow_file_writes, commit_at_end=commit_at_end)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
     power = str(strength.get("power") or "medium")
     permission = "workspace-write" if allow_file_writes else "read-only"
@@ -1868,6 +1877,7 @@ def cdx_mission_plan_payload(
         "requestedCommitAtEnd": requested_commit_at_end,
         "supportsFileWrites": supports_file_writes,
         "permission": permission,
+        "timeoutSeconds": _cdx_mission_timeout(strength_def, allow_file_writes=allow_file_writes, commit_at_end=commit_at_end),
         "command": ["cdx", *command],
         "arguments": command,
         "warnings": warnings,
@@ -1895,9 +1905,10 @@ def cdx_mission_run_payload(
     if plan_payload.get("state") != "ok":
         return {"state": plan_payload.get("state") or "error", "message": plan_payload.get("message") or "Unable to plan CDX mission.", "plan": plan_payload.get("plan"), "run": None}
     plan = plan_payload["plan"]
-    timeout = int(plan["strength"].get("timeout") or 180)
+    timeout = int(plan.get("timeoutSeconds") or plan["strength"].get("timeout") or 180)
+    process_timeout = timeout + CDX_MISSION_PARENT_TIMEOUT_GRACE_SECONDS
     try:
-        result = _run_cdx_mission(repo_root, list(plan["arguments"]), timeout=timeout, runner=cdx_runner)
+        result = _run_cdx_mission(repo_root, list(plan["arguments"]), timeout=process_timeout, runner=cdx_runner)
     except subprocess.TimeoutExpired:
         return {"state": "timeout", "message": "CDX mission timed out.", "plan": plan, "run": None}
     except (OSError, subprocess.SubprocessError) as exc:

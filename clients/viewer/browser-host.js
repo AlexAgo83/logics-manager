@@ -73,6 +73,7 @@
   let latestCiStatusSignature = "";
   let primaryActionBusyKey = "";
   let cdxMissionBusyKey = "";
+  let cdxCloseTarget = null;
 
   function readStoredState() {
     try {
@@ -1020,6 +1021,7 @@
   }
 
   function setDocument(titleText, html) {
+    cdxCloseTarget = null;
     const panel = documentPanel();
     const title = documentTitle();
     const content = documentContent();
@@ -1036,6 +1038,35 @@
       }
     }
     renderMermaidDiagrams();
+  }
+
+  function currentDocumentSnapshot(fallbackTitle = "Document") {
+    const title = documentTitle();
+    const content = documentContent();
+    return {
+      title: title?.textContent || fallbackTitle,
+      html: content?.innerHTML || ""
+    };
+  }
+
+  async function closeDocumentPanel() {
+    const target = cdxCloseTarget;
+    cdxCloseTarget = null;
+    if (target?.type === "cdx-report") {
+      setDocument(target.title || "CDX run report", target.html || "");
+      cdxCloseTarget = { type: "cdx-runs" };
+      setMeta("Returned to CDX run report.");
+      return;
+    }
+    if (target?.type === "cdx-runs") {
+      await showCdxRuns({ silent: true });
+      setMeta("Returned to CDX runs.");
+      return;
+    }
+    const panel = documentPanel();
+    if (panel) {
+      panel.hidden = true;
+    }
   }
 
   function showMermaidFallback(message) {
@@ -3056,6 +3087,7 @@
       throw new Error(data.error || "Unable to load CDX report.");
     }
     setDocument("CDX run report", renderCdxReport(data.payload));
+    cdxCloseTarget = { type: "cdx-runs" };
     setMeta("CDX report loaded.");
   }
 
@@ -3073,7 +3105,9 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX artifact.");
     }
+    const reportSnapshot = currentDocumentSnapshot("CDX run report");
     setDocument(data.payload?.name || "CDX log", renderCdxLogPreview(data.payload));
+    cdxCloseTarget = { type: "cdx-report", title: reportSnapshot.title, html: reportSnapshot.html };
     setMeta(`Loaded ${data.payload?.path || path}.`);
   }
 
@@ -3863,10 +3897,7 @@
       }
     });
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {
-      const panel = documentPanel();
-      if (panel) {
-        panel.hidden = true;
-      }
+      withPrimaryAction("close-document", "Closing preview", closeDocumentPanel);
     });
     startAutoRefresh();
   });

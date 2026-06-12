@@ -1598,6 +1598,28 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
+  it("returns from a closed CDX run report to runs", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
+
+    dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Assistant runs");
+  });
+
   it("renders structured mission output in CDX run reports", async () => {
     const { dom } = createViewerDom({
       cdxReportResponse: {
@@ -1720,6 +1742,12 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("first log line");
     expect(dom.window.document.querySelector(".viewer-cdx__log-content")).toBeTruthy();
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Loaded /tmp/run.log");
+
+    dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("One issue found.");
   });
 
   it("previews launches and applies guided CDX missions", async () => {

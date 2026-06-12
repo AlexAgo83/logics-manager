@@ -1997,6 +1997,11 @@ describe("local viewer browser host", () => {
     const missionRun = dom.window.document.querySelector('[data-viewer-cdx-run]') as HTMLButtonElement | null;
     missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("CDX mission is running");
+    expect(text).toContain("Still running");
+    expect(text).toContain("pending");
     dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2009,6 +2014,7 @@ describe("local viewer browser host", () => {
     releaseRun();
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {

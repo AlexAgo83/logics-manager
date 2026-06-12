@@ -1274,6 +1274,12 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "CDX runs");
   }
 
+  function isCdxMissionsOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX missions");
+  }
+
   function isCiStatusOpen() {
     const panel = documentPanel();
     const title = documentTitle();
@@ -2131,7 +2137,7 @@
     if (["ready", "ok", "active", "enabled", "authenticated"].some((entry) => state.includes(entry))) {
       return "ok";
     }
-    if (["starting", "pending", "warning", "low", "limited", "stale"].some((entry) => state.includes(entry))) {
+    if (["starting", "pending", "running", "warning", "low", "limited", "stale"].some((entry) => state.includes(entry))) {
       return "warn";
     }
     if (["error", "failed", "disabled", "unavailable", "unauthenticated"].some((entry) => state.includes(entry))) {
@@ -3064,10 +3070,28 @@
 
   async function launchCdxMission() {
     setMeta("Launching CDX mission...");
+    const request = selectedCdxMissionRequest();
+    const plan = latestCdxMissionState.planPayload?.plan || null;
+    const pendingPayload = {
+      state: "running",
+      message: "CDX mission is running. You can keep using the viewer; this panel will update when it completes.",
+      plan,
+      run: {
+        runId: "pending",
+        returnCode: "pending",
+        pending: true,
+        usage: { available: false, message: "Still running." },
+        stdout: "",
+        stderr: ""
+      }
+    };
+    latestCdxMissionState.runPayload = pendingPayload;
+    latestCdxMissionState.applyPayload = null;
+    setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, pendingPayload, null));
     const response = await fetch("/api/cdx-mission-run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(selectedCdxMissionRequest())
+      body: JSON.stringify(request)
     });
     const data = await response.json();
     if (!response.ok || !data.ok) {
@@ -3076,7 +3100,9 @@
     latestCdxMissionState.planPayload = { state: data.payload?.state === "ok" ? "ok" : data.payload?.state, message: data.payload?.message || "", plan: data.payload?.plan };
     latestCdxMissionState.runPayload = data.payload;
     latestCdxMissionState.applyPayload = null;
-    setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, data.payload, null));
+    if (isCdxMissionsOpen()) {
+      setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, data.payload, null));
+    }
     setMeta(data.payload?.state === "ok" ? "CDX mission launched." : (data.payload?.message || "CDX mission failed."));
   }
 

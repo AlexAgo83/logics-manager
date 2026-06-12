@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
-![Version](https://img.shields.io/badge/version-v2.5.2-4C8BF5)
+![Version](https://img.shields.io/badge/version-v2.8.0-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
-![Vitest](https://img.shields.io/badge/Vitest-2.1.8-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-4.1.2-6E9F18?logo=vitest&logoColor=white)
 
 `logics-manager` is a local workflow runtime for projects that keep their delivery memory in Markdown.
 
@@ -598,20 +598,25 @@ If the current plugin version is already published, `logics-manager assist next-
 - Logics docs lint: `npm run lint:logics`
 - Logics workflow audit + docs lint: `npm run audit:logics`
 - Strict Logics governance audit: `npm run audit:logics:strict`
+- README metadata drift check: `npm run docs:check`
 - Local browser viewer smoke: `logics-manager view --port 0 --open`
 - Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
 - Security audit policy gate: `npm run audit:ci`
 
-`npm run audit:logics` uses the default active-work profile. It blocks correctness and traceability failures, but reports early companion-doc polish such as missing overview Mermaid diagrams as warnings so drafting and agent handoffs can continue.
+`npm run audit:logics` uses the default active-work profile. It blocks correctness and traceability failures with a nonzero process exit, but reports early companion-doc polish such as missing overview Mermaid diagrams as warnings so drafting and agent handoffs can continue.
 
-`npm run audit:logics:strict` uses the strict governance profile. Use it before release or governance review when companion docs must be complete and warning-class findings should be resolved.
+`npm run audit:logics:strict` uses the strict governance profile. Use it before release or governance review when companion docs must be complete and warning-class findings should be resolved. Strict governance findings are advisory to active implementation until you choose the strict command; the standard audit remains the mandatory day-to-day gate.
 
-`logics-manager audit --format json` and `logics-manager lint --format json` expose `issue_count`, `warning_count`, `strict_count`, `finding_count`, `can_continue`, and `release_ready`. Agents should treat `issue_count > 0` as blocking active work, and `release_ready: false` as a signal that cleanup remains before release-grade validation.
+`logics-manager audit --format json` and `logics-manager lint --format json` expose `issue_count`, `warning_count`, `strict_count`, `finding_count`, `can_continue`, and `release_ready`. Agents should treat `issue_count > 0` or `can_continue: false` as blocking active work. Treat `release_ready: false` as a signal that cleanup remains before release-grade validation, not as a standard-audit process failure when there are warnings only.
 
-`npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, Python tests, CLI smoke checks, TypeScript validation, extension tests, and VSIX packaging.
+`npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, README badge drift detection, Python tests, CLI smoke checks, TypeScript validation, extension tests, local viewer smoke, and VSIX packaging.
 
-`npm run audit:ci` enforces the repository audit policy locally. It blocks new actionable vulnerabilities and only allows the explicitly documented temporary exceptions tracked in the backlog.
+`npm run audit:ci` enforces the repository audit policy locally. It runs `npm audit --json` against the configured npm registry, blocks new actionable vulnerabilities, and only allows the explicitly documented temporary exceptions tracked in the backlog. If the registry is unreachable, the command fails as `registry unavailable` rather than reporting a clean advisory state. `npm run package:ci` is local-only package validation and does not require registry access after dependencies are installed.
+
+`npm run test:viewer-smoke` writes `artifacts/local-viewer-smoke/summary.json`. A localhost socket bind denial is recorded as an explicit skipped result. CI still has non-skipped coverage for the viewer path: Linux/macOS-capable environments exercise Chrome or the JSDOM fallback, while Windows CI runs a server/API smoke that proves the shell and `/api/items` path without launching a browser.
+
+Oversized runtime, viewer, and test files are tracked through `logics/architecture/adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules.md`. The decomposition rule is correctness-first: extract pure helpers and API contracts before cosmetic file-size work, keep entrypoints thin, and cover each seam with targeted Python, Vitest, or smoke tests before moving on.
 
 CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
 

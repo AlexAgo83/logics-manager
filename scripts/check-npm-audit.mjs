@@ -76,6 +76,13 @@ let parsed;
 try {
   parsed = JSON.parse(rawOutput);
 } catch (error) {
+  if (isRegistryUnavailable(rawOutput, rawError)) {
+    console.error("Audit policy: registry unavailable. `npm audit --json` could not reach the configured registry, so this is not a clean advisory result.");
+    if (rawError.trim()) {
+      console.error(rawError.trim());
+    }
+    process.exit(1);
+  }
   console.error("Failed to parse `npm audit --json` output.");
   if (rawOutput.trim()) {
     console.error(rawOutput.trim());
@@ -84,6 +91,13 @@ try {
 }
 
 if (!parsed || typeof parsed !== "object" || !("auditReportVersion" in parsed) || !("vulnerabilities" in parsed)) {
+  if (isRegistryUnavailable(rawOutput, rawError, parsed)) {
+    console.error("Audit policy: registry unavailable. `npm audit --json` could not reach the configured registry, so this is not a clean advisory result.");
+    if (rawError.trim()) {
+      console.error(rawError.trim());
+    }
+    process.exit(1);
+  }
   console.error("`npm audit --json` did not return an audit report.");
   if (rawError.trim()) {
     console.error(rawError.trim());
@@ -145,4 +159,20 @@ console.log("Audit policy: OK");
 
 function npmCommand() {
   return process.platform === "win32" ? "npm.cmd" : "npm";
+}
+
+function isRegistryUnavailable(stdout, stderr, parsedPayload = null) {
+  const code = typeof parsedPayload?.error?.code === "string" ? parsedPayload.error.code.toLowerCase() : "";
+  const summary = `${stdout || ""}\n${stderr || ""}`.toLowerCase();
+  return (
+    ["enotfound", "eai_again", "econnreset", "econnrefused", "etimedout", "enetunreach"].includes(code) ||
+    summary.includes("registry.npmjs.org") && (
+      summary.includes("enotfound") ||
+      summary.includes("eai_again") ||
+      summary.includes("econnreset") ||
+      summary.includes("econnrefused") ||
+      summary.includes("etimedout") ||
+      summary.includes("network")
+    )
+  );
 }

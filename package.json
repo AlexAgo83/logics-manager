@@ -138,6 +138,7 @@
     "audit:logics": "node scripts/run-python.mjs -m logics_manager audit && node scripts/run-python.mjs -m logics_manager lint",
     "audit:logics:strict": "node scripts/run-python.mjs -m logics_manager audit --governance-profile strict && node scripts/run-python.mjs -m logics_manager lint --require-status",
     "audit:ci": "node scripts/check-npm-audit.mjs",
+    "docs:check": "node scripts/check-readme-badges.mjs",
     "logics:finish:task": "node scripts/run-python.mjs -m logics_manager flow finish task",
     "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run package:ci",
     "ci:check": "node scripts/ci-check.mjs",

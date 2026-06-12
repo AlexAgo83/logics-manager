@@ -592,6 +592,56 @@ def test_viewer_ci_status_payload_prioritizes_failed_head_runs_over_successful_d
     assert payload["run"]["workflowName"] == "CI"
 
 
+def test_viewer_ci_status_payload_uses_latest_branch_ci_when_head_is_unpushed(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "main\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "localhead\n", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%s"]:
+            return subprocess.CompletedProcess(args, 0, "Local unpushed work", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%an"]:
+            return subprocess.CompletedProcess(args, 0, "Alex", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[:2] == ["gh", "api"] and args[2].startswith("repos/Example/repo/actions/runs?"):
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {"id": 45, "name": "CI", "status": "completed", "conclusion": "success", "event": "push", "head_branch": "main", "head_sha": "remotehead"},
+                            {"id": 44, "name": "Push on main", "status": "completed", "conclusion": "success", "event": "dynamic", "head_branch": "main", "head_sha": "remotehead"},
+                            {"id": 42, "name": "CI", "status": "completed", "conclusion": "failure", "event": "push", "head_branch": "main", "head_sha": "olderhead"},
+                        ]
+                    }
+                ),
+                "",
+            )
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/runs/45/jobs?per_page=100":
+            return subprocess.CompletedProcess(args, 0, json.dumps({"jobs": [{"name": "validate", "status": "completed", "conclusion": "success"}]}), "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["badgeState"] == "passing"
+    assert payload["run"]["id"] == 45
+    assert payload["run"]["matchSource"] == "branch-latest"
+
+
 def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 

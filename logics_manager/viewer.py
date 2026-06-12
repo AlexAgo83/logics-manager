@@ -1197,28 +1197,21 @@ def _is_active_ci_status(run: dict[str, Any]) -> bool:
 
 
 def _select_github_actions_run(runs: list[dict[str, Any]], head_sha: str) -> tuple[dict[str, Any], str]:
-    head_runs = [run for run in runs if head_sha and str(run.get("head_sha") or "") == head_sha]
+    ci_runs = [run for run in runs if str(run.get("name") or "").strip().lower() == "ci"]
+    candidate_runs = ci_runs or runs
+    head_runs = [run for run in candidate_runs if head_sha and str(run.get("head_sha") or "") == head_sha]
     active_head_run = next((run for run in head_runs if _is_active_ci_status(run)), None)
     if active_head_run is not None:
         return active_head_run, "head-active"
-    failing_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "failing"), None)
-    if failing_head_run is not None:
-        return failing_head_run, "head-failing"
-    cancelled_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "cancelled"), None)
-    if cancelled_head_run is not None:
-        return cancelled_head_run, "head-cancelled"
-    unknown_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "unknown"), None)
-    if unknown_head_run is not None:
-        return unknown_head_run, "head-unknown"
     if head_runs:
+        head_state = _ci_badge_state(str(head_runs[0].get("status") or ""), str(head_runs[0].get("conclusion") or ""))
+        if head_state in {"failing", "cancelled", "unknown"}:
+            return head_runs[0], f"head-{head_state}"
         return head_runs[0], "head"
-    active_branch_run = next((run for run in runs if _is_active_ci_status(run)), None)
+    active_branch_run = next((run for run in candidate_runs if _is_active_ci_status(run)), None)
     if active_branch_run is not None:
         return active_branch_run, "branch-active"
-    failing_branch_run = next((run for run in runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "failing"), None)
-    if failing_branch_run is not None:
-        return failing_branch_run, "branch-failing"
-    return runs[0], "branch-latest"
+    return candidate_runs[0], "branch-latest"
 
 
 def _parse_github_actions_run(run: dict[str, Any], *, match_source: str) -> dict[str, Any]:

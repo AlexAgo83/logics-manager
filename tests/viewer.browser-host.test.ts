@@ -28,9 +28,12 @@ function createViewerDom(options: {
   githubUrl?: string;
   hidden?: boolean;
   initialState?: unknown;
+  initialPreferences?: unknown;
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
+  autoRefreshIntervalSeconds?: number;
+  autoRefreshIntervalForced?: boolean;
   url?: string;
 } = {}) {
   const html = `<!doctype html><html><body>
@@ -116,6 +119,9 @@ function createViewerDom(options: {
   if (options.initialState) {
     dom.window.localStorage.setItem("logics.localViewer.state", JSON.stringify(options.initialState));
   }
+  if (options.initialPreferences) {
+    dom.window.localStorage.setItem("logics.localViewer.preferences.v1", JSON.stringify(options.initialPreferences));
+  }
   const calls: string[] = [];
   const fetchCalls: Array<{ url: string; options?: RequestInit }> = [];
   const markdown = [
@@ -173,7 +179,8 @@ function createViewerDom(options: {
                 { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." },
                 { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." }
               ],
-              autoRefreshIntervalSeconds: 15,
+              autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
+              autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -211,7 +218,8 @@ function createViewerDom(options: {
                 { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." },
                 { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
               ],
-              autoRefreshIntervalSeconds: 15,
+              autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
+              autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               items: [
                 { id: "req_002_cdx", title: "CDX", stage: "request", relPath: "logics/request/req_002_cdx.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
               ],
@@ -245,7 +253,8 @@ function createViewerDom(options: {
               ],
               canBootstrapLogics: false,
               bootstrapLogicsTitle: "Logics is already bootstrapped.",
-              autoRefreshIntervalSeconds: 15,
+              autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
+              autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               items: [],
               updateInfo: {}
             }
@@ -465,7 +474,8 @@ function createViewerDom(options: {
               projects: [
                 { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
               ],
-              autoRefreshIntervalSeconds: 15,
+              autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
+              autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               selectedId: "req_999_address_cdx_code_review_findings",
               items: [
                 { id: "req_999_address_cdx_code_review_findings", title: "Address CDX code review findings", stage: "request", relPath: "logics/request/req_999_address_cdx_code_review_findings.md", references: [], usedBy: [], indicators: { Status: "Draft" }, isPromoted: false, updatedAt: "2026-06-04T10:00:00" }
@@ -1012,6 +1022,7 @@ describe("local viewer browser host", () => {
             root: "/workspace/logics-manager",
             repoName: "logics-manager",
             autoRefreshIntervalSeconds: 15,
+            autoRefreshIntervalForced: false,
             items: [],
             updateInfo: {}
           }
@@ -1053,6 +1064,69 @@ describe("local viewer browser host", () => {
 
     await vi.advanceTimersByTimeAsync(1);
     expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
+  });
+
+  it("restores the persisted automatic refresh interval when launch does not force one", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom({
+      autoRefreshIntervalSeconds: 15,
+      autoRefreshIntervalForced: false,
+      initialPreferences: { version: 1, autoRefreshIntervalSeconds: 30 }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
+    expect(interval?.value).toBe("30");
+
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(0);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
+  });
+
+  it("uses a forced launch refresh interval without overwriting stored preferences", async () => {
+    vi.useFakeTimers();
+    const { dom, calls } = createViewerDom({
+      autoRefreshIntervalSeconds: 10,
+      autoRefreshIntervalForced: true,
+      initialPreferences: { version: 1, autoRefreshIntervalSeconds: 30 }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
+    expect(interval?.value).toBe("10");
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.autoRefreshIntervalSeconds).toBe(30);
+
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(calls.filter((call) => call === "/api/refresh").length).toBe(1);
+  });
+
+  it("persists user changes to the automatic refresh interval", async () => {
+    vi.useFakeTimers();
+    const { dom } = createViewerDom({
+      autoRefreshIntervalSeconds: 10,
+      autoRefreshIntervalForced: true,
+      initialPreferences: { version: 1, autoRefreshIntervalSeconds: 30 }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
+    interval!.value = "5";
+    interval?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")).toMatchObject({
+      version: 1,
+      autoRefreshIntervalSeconds: 5
+    });
   });
 
   it("auto-refreshes visible viewer data without page navigation or closing the document preview", async () => {
@@ -2773,6 +2847,7 @@ describe("local viewer browser host", () => {
                 root: "/workspace/logics-manager",
                 repoName: "logics-manager",
                 autoRefreshIntervalSeconds: 15,
+                autoRefreshIntervalForced: false,
                 items: [
                   { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
                 ],

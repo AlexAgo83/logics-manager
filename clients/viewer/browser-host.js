@@ -1,5 +1,7 @@
 (() => {
   const stateKey = "logics.localViewer.state";
+  const preferenceKey = "logics.localViewer.preferences.v1";
+  const preferenceVersion = 1;
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
@@ -76,6 +78,8 @@
   let primaryActionBusyKey = "";
   let cdxMissionBusyKey = "";
   let cdxCloseTarget = null;
+  let viewerPreferences = readViewerPreferences();
+  let autoRefreshIntervalForcedByLaunch = false;
 
   function readStoredState() {
     try {
@@ -83,6 +87,36 @@
     } catch {
       return null;
     }
+  }
+
+  function readViewerPreferences() {
+    try {
+      const value = JSON.parse(window.localStorage.getItem(preferenceKey) || "null");
+      if (!value || typeof value !== "object" || value.version !== preferenceVersion) {
+        return { version: preferenceVersion };
+      }
+      return { ...value, version: preferenceVersion };
+    } catch {
+      return { version: preferenceVersion };
+    }
+  }
+
+  function writeViewerPreferences(nextPreferences) {
+    viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+    try {
+      window.localStorage.setItem(preferenceKey, JSON.stringify(viewerPreferences));
+    } catch {
+      // Keep the in-memory preference for this session when browser storage is unavailable.
+    }
+  }
+
+  function updateViewerPreferences(patch) {
+    writeViewerPreferences({ ...viewerPreferences, ...patch });
+  }
+
+  function preferredAutoRefreshIntervalSeconds() {
+    const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
+    return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
   }
 
   function sanitizeViewerFilterState(value) {
@@ -452,6 +486,7 @@
     autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(value) * 1000;
     if (options.user) {
       autoRefreshIntervalTouched = true;
+      updateViewerPreferences({ autoRefreshIntervalSeconds: Math.round(autoRefreshIntervalMs / 1000) });
     }
     updateRefreshIntervalControl();
     scheduleNextAutoRefresh();
@@ -1225,7 +1260,13 @@
     latestViewerStateSignature = nextSignature;
     latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
     if (!autoRefreshIntervalTouched) {
-      autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(payload.autoRefreshIntervalSeconds) * 1000;
+      const launchSeconds = Number(payload.autoRefreshIntervalSeconds);
+      const preferredSeconds = preferredAutoRefreshIntervalSeconds();
+      autoRefreshIntervalForcedByLaunch = Boolean(payload.autoRefreshIntervalForced);
+      const nextSeconds = autoRefreshIntervalForcedByLaunch || preferredSeconds === null
+        ? launchSeconds
+        : preferredSeconds;
+      autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(nextSeconds) * 1000;
       updateRefreshIntervalControl();
     }
     updateRepositoryIdentity(payload);

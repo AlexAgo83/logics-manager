@@ -444,6 +444,7 @@ def viewer_data_payload(
     selected_id: str | None = None,
     *,
     auto_refresh_interval_seconds: int = 15,
+    auto_refresh_interval_forced: bool = False,
     projects: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     capabilities = viewer_project_capabilities(repo_root)
@@ -459,6 +460,7 @@ def viewer_data_payload(
         "capabilities": capabilities,
         "projects": projects if projects is not None else viewer_project_registry(repo_root),
         "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
+        "autoRefreshIntervalForced": auto_refresh_interval_forced,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
         "selectedId": selected_id,
@@ -2127,6 +2129,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         repo_root: Path,
         *,
         auto_refresh_interval_seconds: int = 15,
+        auto_refresh_interval_forced: bool = False,
     ):
         self.launch_repo_root = repo_root.resolve()
         self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
@@ -2134,6 +2137,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.active_project_id = _viewer_project_id(self.launch_repo_root)
         self.repo_root = self.launch_repo_root
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
+        self.auto_refresh_interval_forced = auto_refresh_interval_forced
         super().__init__(server_address, LogicsViewerRequestHandler)
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
@@ -2144,6 +2148,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.repo_root,
             selected_id=selected_id,
             auto_refresh_interval_seconds=self.auto_refresh_interval_seconds,
+            auto_refresh_interval_forced=self.auto_refresh_interval_forced,
             projects=self.project_registry_payload(),
         )
 
@@ -2398,11 +2403,13 @@ def create_viewer_server(
     port: int = 8765,
     *,
     auto_refresh_interval_seconds: int = 15,
+    auto_refresh_interval_forced: bool = False,
 ) -> LogicsViewerServer:
     return LogicsViewerServer(
         (host, port),
         repo_root,
         auto_refresh_interval_seconds=auto_refresh_interval_seconds,
+        auto_refresh_interval_forced=auto_refresh_interval_forced,
     )
 
 
@@ -2450,7 +2457,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--refresh-interval",
         type=int,
-        default=15,
+        default=None,
         help="Automatic refresh interval in seconds. Defaults to 15; positive intervals are allowed.",
     )
     parser.add_argument("--focus", help="Open the viewer focused on a workflow ref or repo-relative Logics Markdown path.")
@@ -2463,7 +2470,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = find_repo_root(Path.cwd())
-    if args.refresh_interval <= 0:
+    refresh_interval_forced = args.refresh_interval is not None
+    refresh_interval = args.refresh_interval if args.refresh_interval is not None else 15
+    if refresh_interval <= 0:
         raise SystemExit("--refresh-interval must be a positive number of seconds.")
     if args.read and not args.focus:
         raise SystemExit("--read requires --focus.")
@@ -2475,7 +2484,8 @@ def main(argv: list[str]) -> int:
         repo_root,
         host=args.host,
         port=args.port,
-        auto_refresh_interval_seconds=args.refresh_interval,
+        auto_refresh_interval_seconds=refresh_interval,
+        auto_refresh_interval_forced=refresh_interval_forced,
     )
     host, port = server.server_address[:2]
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
@@ -2487,7 +2497,7 @@ def main(argv: list[str]) -> int:
             focus=focus,
             network_url=network_url,
             bind_host=str(host),
-            auto_refresh_interval_seconds=args.refresh_interval,
+            auto_refresh_interval_seconds=refresh_interval,
         ),
         flush=True,
     )

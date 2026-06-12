@@ -1803,7 +1803,13 @@ def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
 def test_viewer_refresh_interval_defaults_to_15_seconds() -> None:
     args = viewer_module.build_parser().parse_args([])
 
-    assert args.refresh_interval == 15
+    assert args.refresh_interval is None
+
+
+def test_viewer_refresh_interval_tracks_explicit_cli_override() -> None:
+    args = viewer_module.build_parser().parse_args(["--refresh-interval", "30"])
+
+    assert args.refresh_interval == 30
 
 
 def test_viewer_focus_targets_are_normalized_and_safe(tmp_path: Path) -> None:

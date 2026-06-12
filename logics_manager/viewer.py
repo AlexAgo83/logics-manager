@@ -53,34 +53,38 @@ CDX_MISSION_CATALOG = {
     "full-audit": {
         "id": "full-audit",
         "title": "Full audit",
-        "description": "Inspect the full repository and produce an actionable CDX report.",
+        "description": "Audit the repository and optionally apply safe, validated fixes.",
         "scope": "repository",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
+        "supportsFileWrites": True,
     },
     "release-review": {
         "id": "release-review",
         "title": "Review since latest release",
-        "description": "Compare the current state with the latest available version tag.",
+        "description": "Review changes since the latest release and optionally apply safe fixes.",
         "scope": "latest-release",
         "requiresReleaseTag": True,
         "requiresPlanConfirmation": False,
+        "supportsFileWrites": True,
     },
     "corpus-ready": {
         "id": "corpus-ready",
         "title": "Prepare dev-ready corpus",
-        "description": "Produce a corpus plan before any deterministic Logics application.",
+        "description": "Produce a corpus plan for explicit deterministic application.",
         "scope": "open-logics-workflow",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": True,
+        "supportsFileWrites": False,
     },
     "wish-to-request": {
         "id": "wish-to-request",
         "title": "Wish to request",
-        "description": "Turn a free-form wish into a structured Logics request draft.",
+        "description": "Create or draft a structured Logics request from a free-form wish.",
         "scope": "request-draft",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
+        "supportsFileWrites": True,
         "inputFields": [
             {
                 "id": "wishText",
@@ -98,6 +102,7 @@ CDX_MISSION_CATALOG = {
         "scope": "pre-release-report",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
+        "supportsFileWrites": True,
         "inputFields": [
             {
                 "id": "releaseVersion",
@@ -1402,24 +1407,36 @@ def _cdx_mission_prompt(
         else "Do not modify files."
     )
     if mission_id == "full-audit":
+        action_guidance = (
+            "Fix safe, scoped issues you can validate directly. Do not make broad refactors, release, tag, push, or publish. Include every changed file and validation command in the JSON."
+            if allow_file_writes
+            else "Report only; do not fix issues or modify files."
+        )
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
             "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
             write_guidance,
-            "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
+            action_guidance,
+            "Return a concise actionable report in JSON with keys: summary, findings, recommendations, changedFiles, validationEvidence.",
         ])
     if mission_id == "release-review":
+        action_guidance = (
+            "Fix safe, scoped release-readiness issues you can validate directly, such as stale documentation, missing release notes, or narrow test failures. Do not bump versions unless explicitly requested, and do not tag, push, publish, upload assets, or create GitHub releases. Include every changed file and validation command in the JSON."
+            if allow_file_writes
+            else "Report only; do not update release files, fix issues, tag, push, publish, upload assets, or create GitHub releases."
+        )
         return "\n".join([
             f"Review repository changes since the latest release tag {release_tag}.",
             "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
             write_guidance,
-            "Return a concise actionable report in JSON with keys: summary, findings, recommendations.",
+            action_guidance,
+            "Return a concise actionable report in JSON with keys: summary, findings, recommendations, changedFiles, validationEvidence.",
         ])
     if mission_id == "corpus-ready":
         return "\n".join([
             "Prepare the open Logics workflow corpus for development.",
             "Analyze requests, backlog items, tasks, docs, lint/audit state, and workflow consistency.",
-            write_guidance,
+            "Do not modify files directly. This mission is plan-first: return allowed actions for the viewer to apply explicitly.",
             "Do not run destructive commands.",
             "Return JSON only with this schema:",
             '{"summary":"...","actions":[{"type":"promote-request-to-backlog","target":"req_..."},{"type":"promote-backlog-to-task","target":"item_..."},{"type":"refresh-corpus-context","target":""}],"notes":["..."]}',
@@ -1427,9 +1444,15 @@ def _cdx_mission_prompt(
             "Use only targets that exist in the repository. Omit actions that are not clearly justified.",
         ])
     if mission_id == "wish-to-request":
+        request_guidance = (
+            "Create the request draft file under logics/request/ using the next available req_ slug. Keep the file as a request draft only; do not promote backlog items and do not create tasks. Include the created path in generatedFiles."
+            if allow_file_writes
+            else "Do not create the request file; return the request draft and generatedFiles preview only."
+        )
         return "\n".join([
             "Turn the following user wish into a structured Logics request draft.",
             write_guidance,
+            request_guidance,
             "Do not promote backlog items and do not create tasks.",
             "Return JSON only with this schema:",
             '{"summary":"...","requestDraft":{"title":"...","needs":["..."],"context":["..."],"acceptanceCriteria":["AC1: ..."],"definitionOfReady":{"problemExplicit":true,"scopeBounded":true,"criteriaTestable":true,"risksListed":true},"references":["..."],"questions":["..."],"openAssumptions":["..."]},"generatedFiles":[]}',
@@ -1677,7 +1700,11 @@ def cdx_mission_plan_payload(
     if status_payload.get("state") != "ok":
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
-    allow_file_writes = _mission_bool_input(body, "allowFileWrites")
+    requested_file_writes = _mission_bool_input(body, "allowFileWrites")
+    supports_file_writes = bool(mission.get("supportsFileWrites", True))
+    allow_file_writes = requested_file_writes and supports_file_writes
+    if requested_file_writes and not supports_file_writes:
+        warnings.append("This mission is plan-first; direct CDX file writes are disabled. Use Apply allowed actions after CDX returns actions.")
     permission = "workspace-write" if allow_file_writes else "read-only"
     command = _cdx_mission_command(
         repo_root,
@@ -1698,6 +1725,8 @@ def cdx_mission_plan_payload(
         "scope": mission["scope"],
         "releaseTag": release_tag,
         "allowFileWrites": allow_file_writes,
+        "requestedFileWrites": requested_file_writes,
+        "supportsFileWrites": supports_file_writes,
         "permission": permission,
         "command": ["cdx", *command],
         "arguments": command,

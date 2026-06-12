@@ -495,11 +495,11 @@ function createViewerDom(options: {
               message: "",
               catalog: {
                 missions: [
-                  { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false },
-                  { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false },
-                  { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
-                  { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-                  { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata and changelog.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+                  { id: "full-audit", title: "Full audit", description: "Inspect the repository.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true },
+                  { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true },
+                  { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
+                  { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
+                  { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata and changelog.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
                 ],
                 strengths: [
                   { id: "standard", label: "Standard" },
@@ -522,9 +522,11 @@ function createViewerDom(options: {
                 strengthId: "deep",
                 strength: { id: "deep", label: "Deep" },
                 scope: "open-logics-workflow",
-                allowFileWrites: true,
-                permission: "workspace-write",
-                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "workspace-write", "--timeout-seconds", "300", "--json"],
+                allowFileWrites: false,
+                requestedFileWrites: true,
+                supportsFileWrites: false,
+                permission: "read-only",
+                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "read-only", "--timeout-seconds", "300", "--json"],
                 warnings: [],
                 requiresConfirmation: true,
                 canRun: true
@@ -548,9 +550,11 @@ function createViewerDom(options: {
                 missionId: "corpus-ready",
                 sessionId: "session-1",
                 strength: { id: "deep", label: "Deep" },
-                allowFileWrites: true,
-                permission: "workspace-write",
-                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "workspace-write", "--timeout-seconds", "300", "--json"],
+                allowFileWrites: false,
+                requestedFileWrites: true,
+                supportsFileWrites: false,
+                permission: "read-only",
+                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "read-only", "--timeout-seconds", "300", "--json"],
                 canRun: true
               },
               run: {
@@ -1616,7 +1620,7 @@ describe("local viewer browser host", () => {
   });
 
   it("previews launches and applies guided CDX missions", async () => {
-    const { dom, calls } = createViewerDom();
+    const { dom, calls, fetchCalls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
@@ -1624,6 +1628,7 @@ describe("local viewer browser host", () => {
     dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX missions");
@@ -1634,14 +1639,23 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Guarded pre-release");
 
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;
+    expect(allowWrites?.checked).toBe(false);
+    expect(allowWrites?.disabled).toBe(true);
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/cdx-mission-plan");
+    const corpusPlanCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
+    expect(JSON.parse(String(corpusPlanCall?.options?.body))).toMatchObject({
+      missionId: "corpus-ready",
+      allowFileWrites: "false"
+    });
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("cdx run session-1 --cwd /workspace/logics-manager");
-    expect(text).toContain("--permission workspace-write");
+    expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
 
     dom.window.document.querySelector('[data-viewer-cdx-run]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

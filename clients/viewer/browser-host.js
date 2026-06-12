@@ -59,6 +59,7 @@
     sessionId: "",
     strengthId: "standard",
     missionInputs: {},
+    catalog: null,
     statusPayload: null,
     planPayload: null,
     runPayload: null,
@@ -2353,11 +2354,11 @@
   function cdxMissionCatalog(payload = {}) {
     return payload.catalog || {
       missions: [
-        { id: "full-audit", title: "Full audit", description: "Inspect the full repository and produce an actionable CDX report.", scope: "repository", requiresPlanConfirmation: false },
-        { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
-        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
-        { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-        { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+        { id: "full-audit", title: "Full audit", description: "Audit the repository and optionally apply safe, validated fixes.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true },
+        { id: "release-review", title: "Review since latest release", description: "Review changes since the latest release and optionally apply safe fixes.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true },
+        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan for explicit deterministic application.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
+        { id: "wish-to-request", title: "Wish to request", description: "Create or draft a structured Logics request from a free-form wish.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
+        { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },
@@ -2370,12 +2371,19 @@
   }
 
   function selectedCdxMissionRequest() {
+    const catalog = latestCdxMissionState.catalog || cdxMissionCatalog();
+    const missions = Array.isArray(catalog.missions) ? catalog.missions : [];
+    const missionId = latestCdxMissionState.missionId || "full-audit";
+    const mission = missions.find((entry) => entry.id === missionId) || {};
+    const allowFileWrites = mission.supportsFileWrites === false
+      ? "false"
+      : (latestCdxMissionState.missionInputs.allowFileWrites === "false" ? "false" : "true");
     return {
-      missionId: latestCdxMissionState.missionId || "full-audit",
+      missionId,
       sessionId: latestCdxMissionState.sessionId || "",
       strengthId: latestCdxMissionState.strengthId || "standard",
-      allowFileWrites: latestCdxMissionState.missionInputs.allowFileWrites === "false" ? "false" : "true",
-      ...latestCdxMissionState.missionInputs
+      ...latestCdxMissionState.missionInputs,
+      allowFileWrites
     };
   }
 
@@ -2415,6 +2423,7 @@
 
   function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
     const catalog = cdxMissionCatalog(planPayload || {});
+    latestCdxMissionState.catalog = catalog;
     const missions = Array.isArray(catalog.missions) ? catalog.missions : [];
     const strengths = Array.isArray(catalog.strengths) ? catalog.strengths : [];
     const status = statusPayload?.status || {};
@@ -2423,7 +2432,8 @@
     const missionId = latestCdxMissionState.missionId || catalog.defaultMissionId || "full-audit";
     const selectedMission = missions.find((mission) => mission.id === missionId) || {};
     const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
-    const allowFileWrites = latestCdxMissionState.missionInputs.allowFileWrites !== "false";
+    const supportsFileWrites = selectedMission.supportsFileWrites !== false;
+    const allowFileWrites = supportsFileWrites && latestCdxMissionState.missionInputs.allowFileWrites !== "false";
     latestCdxMissionState.sessionId = selectedSession;
     const missionCards = missions.map((mission) => `
       <button class="viewer-cdx__mission${mission.id === missionId ? " is-active" : ""}" type="button" data-viewer-cdx-mission="${escapeHtml(mission.id)}" aria-pressed="${mission.id === missionId ? "true" : "false"}">
@@ -2474,9 +2484,10 @@
             </label>
             <div class="viewer-cdx__strengths">${strengthButtons}</div>
             <label class="viewer-cdx__field viewer-cdx__field--check">
-              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
+              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}${supportsFileWrites ? "" : " disabled"}>
               <span>Allow CDX to modify files</span>
             </label>
+            ${supportsFileWrites ? "" : '<div class="viewer-cdx__meta">Plan-first mission: direct CDX file writes are disabled; apply returned actions explicitly.</div>'}
             ${renderCdxMissionInputs(selectedMission)}
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>

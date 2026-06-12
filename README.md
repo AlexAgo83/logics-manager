@@ -151,11 +151,15 @@ logics-manager view --open
 
 The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
 
-The CDX missions panel includes guarded workflows for turning a free-form wish
-into a structured Logics request draft and for preparing a guarded pre-release
-from an editable `vX.X.X` version. When file writes are allowed, the pre-release
-mission may update release metadata and create the matching changelog; it still
-must not tag, push, publish, upload assets, or create a GitHub release.
+The CDX missions panel includes guarded workflows for audits, release reviews,
+turning a free-form wish into a structured Logics request, preparing a corpus
+plan, and preparing a guarded pre-release from an editable `vX.X.X` version.
+When file writes are allowed, write-capable missions may apply scoped validated
+fixes and must report changed files and validation evidence. The corpus-ready
+mission is plan-first: direct CDX writes stay disabled and returned actions need
+explicit apply. The pre-release mission may update release metadata and create
+the matching changelog, but must not tag, push, publish, upload assets, or
+create a GitHub release.
 
 Useful options:
 

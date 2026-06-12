@@ -870,10 +870,45 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert payload["state"] == "ok"
     assert payload["plan"]["allowFileWrites"] is True
     assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["requestedFileWrites"] is True
+    assert payload["plan"]["supportsFileWrites"] is True
     args = payload["plan"]["arguments"]
     assert args[args.index("--permission") + 1] == "workspace-write"
     prompt = args[args.index("--prompt") + 1]
     assert "File edits are allowed" in prompt
+    assert "Fix safe, scoped issues" in prompt
+    assert "changedFiles" in prompt
+    assert "validationEvidence" in prompt
+
+
+def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:4] == ["tag", "--sort=-version:refname", "--list"]:
+            return subprocess.CompletedProcess(args, 0, "v2.7.0\n", "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "release-review", "sessionId": "work", "strengthId": "standard", "allowFileWrites": True},
+        cdx_runner=cdx_runner,
+        git_runner=git_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["releaseTag"] == "v2.7.0"
+    assert payload["plan"]["permission"] == "workspace-write"
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "Fix safe, scoped release-readiness issues" in prompt
+    assert "Do not bump versions unless explicitly requested" in prompt
+    assert "do not tag, push, publish" in prompt
+    assert "changedFiles" in prompt
+    assert "validationEvidence" in prompt
 
 
 def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:
@@ -884,19 +919,26 @@ def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_pa
 
     payload = cdx_mission_plan_payload(
         tmp_path,
-        {"missionId": "corpus-ready", "sessionId": "work", "strengthId": "standard"},
+        {"missionId": "corpus-ready", "sessionId": "work", "strengthId": "standard", "allowFileWrites": True},
         cdx_runner=cdx_runner,
         which=lambda name: f"/usr/bin/{name}",
     )
 
     assert payload["state"] == "ok"
+    assert payload["plan"]["allowFileWrites"] is False
+    assert payload["plan"]["requestedFileWrites"] is True
+    assert payload["plan"]["supportsFileWrites"] is False
+    assert payload["plan"]["permission"] == "read-only"
+    assert any("plan-first" in warning for warning in payload["plan"]["warnings"])
     args = payload["plan"]["arguments"]
     assert args[:4] == ["run", "work", "--cwd", str(tmp_path)]
+    assert args[args.index("--permission") + 1] == "read-only"
     assert "--session" not in args
     assert "--mission" not in args
     assert "--scope" not in args
     assert "--plan-only" not in args
     prompt = args[args.index("--prompt") + 1]
+    assert "Do not modify files directly" in prompt
     assert "Return JSON only" in prompt
     assert "promote-request-to-backlog" in prompt
     assert "promote-backlog-to-task" in prompt
@@ -931,6 +973,25 @@ def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -
     assert "structured Logics request draft" in prompt
     assert "Add a safer release checklist" in prompt
     assert "do not create tasks" in prompt
+
+    write_payload = cdx_mission_plan_payload(
+        tmp_path,
+        {
+            "missionId": "wish-to-request",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "wishText": "Add a safer release checklist",
+            "allowFileWrites": True,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+    assert write_payload["state"] == "ok"
+    assert write_payload["plan"]["permission"] == "workspace-write"
+    write_prompt = write_payload["plan"]["arguments"][write_payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "Create the request draft file under logics/request/" in write_prompt
+    assert "next available req_ slug" in write_prompt
+    assert "Include the created path in generatedFiles" in write_prompt
 
 
 def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Path) -> None:

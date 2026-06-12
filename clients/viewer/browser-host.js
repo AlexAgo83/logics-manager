@@ -2778,7 +2778,7 @@
     if (cdxCount(taskReport?.findings)) {
       return true;
     }
-    return ["findings", "recommendations", "actionableFixes", "releasePlan"].some((key) => cdxCount(missionOutput?.[key]));
+    return ["findings", "recommendations", "requestFiles", "actionableFixes", "releasePlan"].some((key) => cdxCount(missionOutput?.[key]));
   }
 
   function renderCdxReportCards(cards) {
@@ -2900,6 +2900,7 @@
       "findings",
       "recommendations",
       "directFixes",
+      "requestFiles",
       "actionableFixes",
       "changedFiles",
       "corpusFiles",

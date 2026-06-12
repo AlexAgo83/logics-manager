@@ -1487,8 +1487,8 @@ def _cdx_mission_prompt(
             action_guidance = "Fix safe, scoped issues directly in repository files when you can validate them. Do not write a separate audit corpus/report artifact. Do not make broad refactors, release, tag, push, or publish."
             schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
         elif allow_file_writes:
-            action_guidance = "Write or update a bounded audit corpus/report artifact for this mission. Do not directly modify product/source files to fix issues. The corpus must capture findings, recommendations, changedFiles as report artifacts, and validation evidence."
-            schema = "Return concise JSON with keys: summary, findings, recommendations, corpusFiles, validationEvidence."
+            action_guidance = "Create or update a bounded Logics request under logics/request/ for actionable full-audit follow-up. Do not write a separate audit corpus/report artifact. Do not directly modify product/source files to fix issues."
+            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
         else:
             action_guidance = "Report only; do not write corpus files, fix issues, or modify files."
             schema = "Return concise JSON with keys: summary, findings, recommendations."
@@ -1982,12 +1982,17 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
     if not findings and isinstance(mission_output.get("findings"), list):
         findings = mission_output["findings"]
     recommendations = mission_output.get("recommendations") if isinstance(mission_output.get("recommendations"), list) else []
+    request_files = mission_output.get("requestFiles") if isinstance(mission_output.get("requestFiles"), list) else []
     actionable_fixes = mission_output.get("actionableFixes") if isinstance(mission_output.get("actionableFixes"), list) else []
     release_plan = mission_output.get("releasePlan") if isinstance(mission_output.get("releasePlan"), list) else []
     if task_kind == "code-review":
         title = f"Address CDX code review findings for {run_id}"
         theme = "Code review follow-up"
         need = f"Follow up on CDX code-review run `{run_id}`."
+    elif task_kind == "full-audit":
+        title = f"Address CDX audit findings for {run_id}"
+        theme = "Audit follow-up"
+        need = f"Follow up on CDX full-audit run `{run_id}`."
     else:
         title = f"Address CDX {task_kind} follow-up for {run_id}"
         theme = "CDX mission follow-up"
@@ -2000,8 +2005,10 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
 
     def _item_message(item: Any, fallback: str) -> str:
         if isinstance(item, dict):
-            title_value = item.get("title") or item.get("message") or item.get("summary") or fallback
+            title_value = item.get("title") or item.get("message") or item.get("summary") or item.get("path") or fallback
             details = []
+            if item.get("purpose"):
+                details.append(f"purpose: {item['purpose']}")
             if item.get("command"):
                 details.append(f"command: `{item['command']}`")
             if item.get("risk"):
@@ -2025,6 +2032,7 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
     follow_up_lines = []
     for label, values in (
         ("Recommendation", recommendations),
+        ("Request file", request_files),
         ("Actionable fix", actionable_fixes),
         ("Release plan", release_plan),
     ):

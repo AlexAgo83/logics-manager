@@ -950,9 +950,10 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert args[args.index("--permission") + 1] == "workspace-write"
     prompt = args[args.index("--prompt") + 1]
     assert "File edits are allowed" in prompt
-    assert "Write or update a bounded audit corpus/report artifact" in prompt
+    assert "Create or update a bounded Logics request under logics/request/" in prompt
     assert "Do not directly modify product/source files" in prompt
-    assert "corpusFiles" in prompt
+    assert "Do not write a separate audit corpus/report artifact" in prompt
+    assert "requestFiles" in prompt
     assert "validationEvidence" in prompt
 
 
@@ -1363,6 +1364,29 @@ def test_create_request_from_cdx_report_handles_mission_output(tmp_path: Path) -
     assert "Missing v2.8.0 changelog." in text
     assert "Create release metadata" in text
     assert "npm run release:changelog:validate" in text
+
+
+def test_create_request_from_cdx_report_handles_full_audit_request_files(tmp_path: Path) -> None:
+    report = {
+        "report": {
+            "run": {"run_id": "run-audit", "status": "succeeded", "kind": "full-audit"},
+            "artifacts": {"transcript_path": "/tmp/run.log", "stdout_path": "/tmp/run.out"},
+            "task_report": {"kind": "full-audit", "run_id": "run-audit", "summary": "Audit completed."},
+            "missionOutput": {
+                "summary": "Audit follow-up request created.",
+                "findings": [{"severity": "medium", "path": "logics/request/req_240.md", "message": "Missing validation trace."}],
+                "requestFiles": [{"path": "logics/request/req_999_audit_follow_up.md", "purpose": "Audit follow-up"}],
+            },
+        }
+    }
+
+    created = create_request_from_cdx_report(tmp_path, report)
+
+    assert created["id"].startswith("req_000_address_cdx_audit_findings")
+    text = (tmp_path / created["path"]).read_text(encoding="utf-8")
+    assert "Follow up on CDX full-audit run `run-audit`." in text
+    assert "Audit follow-up" in text
+    assert "logics/request/req_999_audit_follow_up.md" in text
 
 
 def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Path) -> None:

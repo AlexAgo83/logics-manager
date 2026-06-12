@@ -2357,7 +2357,7 @@
         { id: "release-review", title: "Review since latest release", description: "Compare the current state with the latest available version tag.", scope: "latest-release", requiresPlanConfirmation: false },
         { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan before any deterministic Logics application.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
         { id: "wish-to-request", title: "Wish to request", description: "Turn a free-form wish into a structured Logics request draft.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-        { id: "pre-release", title: "Guarded pre-release review", description: "Validate and fix release readiness without tagging, publishing, or mutating release state.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+        { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
       ],
       strengths: [
         { id: "standard", label: "Standard" },

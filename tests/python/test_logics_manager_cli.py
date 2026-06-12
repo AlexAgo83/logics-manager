@@ -50,6 +50,13 @@ from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
 
 
+def create_viewer_server_or_skip(repo_root: Path):
+    try:
+        return create_viewer_server(repo_root, host="127.0.0.1", port=0)
+    except PermissionError as exc:
+        pytest.skip(f"local socket bind unavailable in this environment: {exc}")
+
+
 def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = main([])
 
@@ -943,19 +950,51 @@ def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Pat
 
     payload = cdx_mission_plan_payload(
         tmp_path,
-        {"missionId": "pre-release", "sessionId": "work", "strengthId": "standard", "releaseVersion": "v2.8.0", "runFullValidation": True},
+        {
+            "missionId": "pre-release",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "releaseVersion": "v2.8.0",
+            "runFullValidation": True,
+            "allowFileWrites": True,
+        },
         cdx_runner=cdx_runner,
         which=lambda name: f"/usr/bin/{name}",
     )
 
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"releaseVersion": "v2.8.0", "runFullValidation": "true"}
+    assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "version v2.8.0" in prompt
     assert "Run the project-defined full validation path" in prompt
-    assert "Do not modify package versions" in prompt
+    assert "Prepare release metadata files" in prompt
+    assert "package.json" in prompt
+    assert "pyproject.toml" in prompt
+    assert "VERSION" in prompt
+    assert "changelogs/CHANGELOGS_X_Y_Z.md" in prompt
     assert "create Git tags" in prompt
     assert "publish packages" in prompt
+
+
+def test_viewer_cdx_mission_plan_keeps_pre_release_read_only_when_writes_disabled(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "pre-release", "sessionId": "work", "strengthId": "standard", "releaseVersion": "v2.8.0"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["permission"] == "read-only"
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "Do not modify package versions" in prompt
+    assert "Do not modify files." in prompt
 
 
 def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:
@@ -1105,7 +1144,7 @@ def test_viewer_capabilities_endpoint_returns_payload(monkeypatch: pytest.Monkey
             "git": {"state": "missing", "available": False, "message": "No git"},
         },
     )
-    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -1158,7 +1197,7 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
     (active_request / "req_001_active.md").write_text("## req_001_active - Active\n> Status: Ready\n", encoding="utf-8")
     (sibling_request / "req_001_sibling.md").write_text("## req_001_sibling - Sibling\n> Status: Ready\n", encoding="utf-8")
 
-    server = create_viewer_server(active, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(active)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -1189,7 +1228,7 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
 
 
 def test_viewer_bootstrap_logics_endpoint_creates_workflow_skeleton(tmp_path: Path) -> None:
-    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -1216,7 +1255,7 @@ def test_viewer_cdx_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPa
         "cdx_status_payload",
         lambda repo_root: {"state": "ok", "message": "", "status": {"availability": "ready", "root": str(repo_root)}},
     )
-    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -1315,7 +1354,7 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
 
 def test_viewer_serves_mermaid_vendor_asset(tmp_path: Path) -> None:
     (tmp_path / "logics").mkdir()
-    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -1341,7 +1380,7 @@ def test_viewer_serves_packaged_static_assets_when_source_clients_are_absent(
     monkeypatch.setattr(viewer_module, "DIST_VENDOR_ROOT", tmp_path / "missing-vendor")
     monkeypatch.setattr(viewer_module, "NODE_MERMAID_ROOT", tmp_path / "missing-node-mermaid")
 
-    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:

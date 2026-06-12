@@ -149,12 +149,13 @@ Use the CLI viewer when you want to inspect the Logics corpus outside VS Code:
 logics-manager view --open
 ```
 
-The viewer starts a localhost-only, read-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
+The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
 
 The CDX missions panel includes guarded workflows for turning a free-form wish
-into a structured Logics request draft and for preparing a pre-release report
-from an editable `vX.X.X` version. The pre-release mission is report-only in
-this slice: it does not tag, publish, push, or mutate package versions.
+into a structured Logics request draft and for preparing a guarded pre-release
+from an editable `vX.X.X` version. When file writes are allowed, the pre-release
+mission may update release metadata and create the matching changelog; it still
+must not tag, push, publish, upload assets, or create a GitHub release.
 
 Useful options:
 
@@ -166,7 +167,7 @@ logics-manager view --focus logics/tasks/task_001_example.md --read --open
 logics-manager view --no-open
 ```
 
-Use `--port 0` when the default port is already taken. The viewer is intentionally read-only; use the canonical CLI commands such as `flow promote`, `flow finish`, `lint`, and `audit` for workflow mutations.
+Use `--port 0` when the default port is already taken. Direct Logics workflow mutations still route through canonical CLI commands such as `flow promote`, `flow finish`, `lint`, and `audit`; guided CDX missions may edit repository files only when the mission's file-write checkbox is enabled.
 
 Focused viewer links can point directly at a corpus item:
 

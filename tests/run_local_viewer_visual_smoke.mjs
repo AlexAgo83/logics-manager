@@ -15,15 +15,20 @@ const viewports = [
 ];
 
 const viewer = await startViewer();
-try {
-  const chrome = findChrome();
-  const windowsCiServerOnly = process.platform === "win32" && process.env.CI === "true";
-  const results = windowsCiServerOnly
-    ? await runServerSmoke(viewer.url)
-    : chrome ? await runChromeSmoke(chrome, viewer.url) : await runJsdomFallback(viewer.url);
-  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url: viewer.url, mode: windowsCiServerOnly ? "server" : chrome ? "chrome" : "jsdom", results }, null, 2));
-} finally {
-  viewer.process.kill();
+if (viewer.skipped) {
+  console.warn(viewer.reason);
+  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ skipped: true, reason: viewer.reason }, null, 2));
+} else {
+  try {
+    const chrome = findChrome();
+    const windowsCiServerOnly = process.platform === "win32" && process.env.CI === "true";
+    const results = windowsCiServerOnly
+      ? await runServerSmoke(viewer.url)
+      : chrome ? await runChromeSmoke(chrome, viewer.url) : await runJsdomFallback(viewer.url);
+    writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url: viewer.url, mode: windowsCiServerOnly ? "server" : chrome ? "chrome" : "jsdom", results }, null, 2));
+  } finally {
+    viewer.process.kill();
+  }
 }
 
 async function startViewer() {
@@ -43,8 +48,23 @@ async function startViewer() {
     }
   });
   child.stderr.on("data", (chunk) => output.push(chunk.toString()));
-  await waitFor(() => Boolean(url), "viewer URL", () => output.join(""));
+  try {
+    await waitFor(() => Boolean(url), "viewer URL", () => output.join(""));
+  } catch (error) {
+    const debugOutput = output.join("");
+    child.kill();
+    if (isSocketBindUnavailable(debugOutput)) {
+      return { skipped: true, reason: "Skipping local viewer visual smoke because this environment cannot bind a localhost socket." };
+    }
+    throw error;
+  }
   return { process: child, url };
+}
+
+function isSocketBindUnavailable(output) {
+  return output.includes("PermissionError")
+    && output.includes("Operation not permitted")
+    && output.includes("socket.bind");
 }
 
 function findChrome() {

@@ -93,8 +93,8 @@ CDX_MISSION_CATALOG = {
     },
     "pre-release": {
         "id": "pre-release",
-        "title": "Guarded pre-release review",
-        "description": "Validate and fix release readiness without tagging, publishing, or mutating release state.",
+        "title": "Guarded pre-release",
+        "description": "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.",
         "scope": "pre-release-report",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
@@ -1439,10 +1439,15 @@ def _cdx_mission_prompt(
         ])
     if mission_id == "pre-release":
         validation_mode = "Run the project-defined full validation path before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the validation commands that should be run before release."
+        release_prep_guidance = (
+            "Prepare release metadata files for the requested version when needed: update package.json, pyproject.toml, VERSION, and create or update the matching changelogs/CHANGELOGS_X_Y_Z.md. Do not create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
+            if allow_file_writes
+            else "Do not modify package versions, changelog files, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
+        )
         return "\n".join([
-            f"Produce a pre-release review for version {release_version}.",
+            f"Prepare a guarded pre-release for version {release_version}.",
             validation_mode,
-            "Do not modify package versions, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases.",
+            release_prep_guidance,
             write_guidance,
             "Return JSON only with this schema:",
             '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',

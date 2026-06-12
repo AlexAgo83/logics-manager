@@ -499,7 +499,7 @@ function createViewerDom(options: {
                   { id: "release-review", title: "Review since latest release", description: "Compare with the latest tag.", scope: "latest-release", requiresPlanConfirmation: false },
                   { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan.", scope: "open-logics-workflow", requiresPlanConfirmation: true },
                   { id: "wish-to-request", title: "Wish to request", description: "Draft a request.", scope: "request-draft", requiresPlanConfirmation: false, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-                  { id: "pre-release", title: "Guarded pre-release review", description: "Validate and fix release readiness.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+                  { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata and changelog.", scope: "pre-release-report", requiresPlanConfirmation: false, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
                 ],
                 strengths: [
                   { id: "standard", label: "Standard" },
@@ -1631,7 +1631,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Full audit");
     expect(text).toContain("Prepare dev-ready corpus");
     expect(text).toContain("Wish to request");
-    expect(text).toContain("Guarded pre-release review");
+    expect(text).toContain("Guarded pre-release");
 
     dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

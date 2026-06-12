@@ -59,7 +59,7 @@ describe("logics-manager CLI help", () => {
     expect(output).toContain("Workflow authoring:");
     expect(output).toContain("Validation:");
     expect(output).toContain("flow");
-    expect(output).toContain("Subcommands: new, list, companion, deliver, validate-closeout, repair, closeout, promote, split, close, finish");
+    expect(output).toContain("Subcommands: new, list, show, companion, deliver, validate-closeout, repair, closeout, promote, split, close, finish");
     expect(output).toContain("audit");
     expect(output).toContain("self-update");
   });
@@ -164,7 +164,7 @@ describe("logics-manager CLI help", () => {
     expect(output).toContain("Logics Sync CLI");
     expect(output).toContain("close-eligible-requests");
     expect(output).toContain("schema-status [sources...]");
-    expect(output).toContain("context-pack <ref>");
+    expect(output).toContain("context-pack <refs...>");
     expect(output).toContain("export-graph");
   });
 

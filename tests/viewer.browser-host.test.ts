@@ -1806,7 +1806,8 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/file-preview");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("run.log");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX log · run.log");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Log preview");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("first log line");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Structured preview");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("JSON document");
@@ -1819,6 +1820,34 @@ describe("local viewer browser host", () => {
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("One issue found.");
+  });
+
+  it("labels truncated CDX log previews as latest output", async () => {
+    const { dom } = createViewerDom({
+      filePreviewResponse: {
+        path: "/tmp/run.log",
+        name: "run.log",
+        content: "recent progress\nlatest line",
+        truncated: true
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/run.log"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("latest output");
+    expect(text).toContain("Preview truncated to the end of the file.");
+    expect(text).toContain("latest line");
   });
 
   it("renders JSONL CDX log previews as structured events", async () => {

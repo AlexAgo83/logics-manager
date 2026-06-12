@@ -2944,14 +2944,19 @@
     const truncated = Boolean(payload?.truncated);
     const parsed = parseCdxLogJson(content);
     return `
-      <div class="viewer-cdx__log-preview">
-        <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
-        ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated. Open the file externally for the full log.</div>' : ""}
-        ${renderCdxStructuredLog(parsed)}
-        <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
-          <summary>Raw log</summary>
-        <pre class="viewer-cdx__log-content">${escapeHtml(content || "Log is empty.")}</pre>
-        </details>
+      <div class="viewer-cdx">
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Log preview</h2><span>${truncated ? "latest output" : "complete file"}</span></div>
+          <div class="viewer-cdx__log-preview">
+            <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
+            ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated to the end of the file. Open the file externally for the full log.</div>' : ""}
+            ${renderCdxStructuredLog(parsed)}
+            <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
+              <summary>Raw log</summary>
+              <pre class="viewer-cdx__log-content">${escapeHtml(content || "Log is empty.")}</pre>
+            </details>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -3270,7 +3275,7 @@
       throw new Error(data.error || "Unable to load CDX artifact.");
     }
     const reportSnapshot = currentDocumentSnapshot("CDX run report");
-    setDocument(data.payload?.name || "CDX log", renderCdxLogPreview(data.payload));
+    setDocument(data.payload?.name ? `CDX log · ${data.payload.name}` : "CDX log", renderCdxLogPreview(data.payload));
     cdxCloseTarget = { type: "cdx-report", title: reportSnapshot.title, html: reportSnapshot.html };
     setMeta(`Loaded ${data.payload?.path || path}.`);
   }

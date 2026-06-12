@@ -329,12 +329,24 @@ def test_viewer_file_preview_reads_repo_and_absolute_files_with_truncation(tmp_p
 
     assert relative_payload["path"] == str(repo_file)
     assert relative_payload["name"] == "logics.log"
-    assert relative_payload["content"] == "abc"
+    assert relative_payload["content"] == "def"
     assert relative_payload["truncated"] is True
     assert absolute_payload["path"] == str(external_file)
     assert "external log" in absolute_payload["content"]
     with pytest.raises(FileNotFoundError):
         file_preview_payload(repo_root, str(tmp_path / "missing.log"))
+
+
+def test_viewer_file_preview_truncates_to_latest_characters(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    repo_file = repo_root / "logics.log"
+    repo_file.write_text("first line\nmiddle line\nlatest line\n", encoding="utf-8")
+
+    payload = file_preview_payload(repo_root, "logics.log", max_bytes=100, max_chars=12)
+
+    assert payload["content"] == "latest line\n"
+    assert payload["truncated"] is True
 
 
 def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:

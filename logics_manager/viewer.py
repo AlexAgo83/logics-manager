@@ -686,10 +686,10 @@ def file_preview_payload(
     raw = absolute.read_bytes()
     truncated = len(raw) > max_bytes
     if truncated:
-        raw = raw[:max_bytes]
+        raw = raw[-max_bytes:]
     content = raw.decode("utf-8", errors="replace")
     if len(content) > max_chars:
-        content = content[:max_chars]
+        content = content[-max_chars:]
         truncated = True
     return {
         "path": str(absolute),

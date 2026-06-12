@@ -1623,7 +1623,7 @@ describe("local viewer browser host", () => {
   });
 
   it("renders structured mission output in CDX run reports", async () => {
-    const { dom } = createViewerDom({
+    const { dom, calls } = createViewerDom({
       cdxReportResponse: {
         state: "ok",
         message: "",
@@ -1634,6 +1634,7 @@ describe("local viewer browser host", () => {
           missionOutput: {
             summary: "Prepared release metadata.",
             version: "v2.8.0",
+            recommendations: ["Create a Logics request for release follow-up."],
             validationEvidence: ["npm test"],
             generatedFiles: [{ path: "changelogs/CHANGELOGS_2_8_0.md" }]
           }
@@ -1655,11 +1656,20 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Mission output");
     expect(text).toContain("Prepared release metadata.");
     expect(text).toContain("v2.8.0");
+    expect(text).toContain("Recommendations");
+    expect(text).toContain("Create a Logics request for release follow-up.");
     expect(text).toContain("Generated Files");
     expect(text).toContain("changelogs/CHANGELOGS_2_8_0.md");
     expect(dom.window.document.querySelector(".viewer-cdx__row--block .viewer-cdx__detail-value")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-list")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-code")).toBeTruthy();
+    expect(dom.window.document.querySelector('[data-viewer-cdx-create-request="run-42"]')).toBeTruthy();
+
+    dom.window.document.querySelector('[data-viewer-cdx-create-request="run-42"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/cdx-report-request");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
   });
 
   it("renders stale CDX report signals and artifact paths", async () => {

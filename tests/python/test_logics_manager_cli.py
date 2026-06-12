@@ -1059,10 +1059,11 @@ def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: 
     assert payload["plan"]["releaseTag"] == "v2.7.0"
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
-    assert "Write or update a bounded release-review corpus/report artifact" in prompt
+    assert "Create or update a bounded Logics request under logics/request/" in prompt
+    assert "Do not write a separate release-review corpus/report artifact under logics/external" in prompt
     assert "Do not directly modify product/source files" in prompt
     assert "Do not bump versions, tag, push, publish" in prompt
-    assert "corpusFiles" in prompt
+    assert "requestFiles" in prompt
     assert "validationEvidence" in prompt
 
 
@@ -1338,6 +1339,30 @@ def test_create_request_from_cdx_report_writes_traceable_request(tmp_path: Path)
     text = (tmp_path / created["path"]).read_text(encoding="utf-8")
     assert "CDX run id: `run-1`" in text
     assert "`src/app.py:12`: Missing validation." in text
+
+
+def test_create_request_from_cdx_report_handles_mission_output(tmp_path: Path) -> None:
+    report = {
+        "report": {
+            "run": {"run_id": "run-2", "status": "succeeded", "kind": "assistant"},
+            "artifacts": {"transcript_path": "/tmp/run.log", "stdout_path": "/tmp/run.out"},
+            "task_report": {"kind": "assistant", "run_id": "run-2", "summary": "Release review completed."},
+            "missionOutput": {
+                "summary": "Release is not ready.",
+                "findings": ["Missing v2.8.0 changelog."],
+                "recommendations": [{"title": "Create release metadata", "command": "npm run release:changelog:validate"}],
+            },
+        }
+    }
+
+    created = create_request_from_cdx_report(tmp_path, report)
+
+    assert created["id"].startswith("req_000_address_cdx_assistant_follow_up")
+    text = (tmp_path / created["path"]).read_text(encoding="utf-8")
+    assert "Follow up on CDX `assistant` run `run-2`." in text
+    assert "Missing v2.8.0 changelog." in text
+    assert "Create release metadata" in text
+    assert "npm run release:changelog:validate" in text
 
 
 def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Path) -> None:

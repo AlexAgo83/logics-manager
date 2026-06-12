@@ -2771,6 +2771,16 @@
     return value ? 1 : 0;
   }
 
+  function cdxReportCanCreateRequest(taskReport, missionOutput) {
+    if (taskReport?.kind === "code-review") {
+      return true;
+    }
+    if (cdxCount(taskReport?.findings)) {
+      return true;
+    }
+    return ["findings", "recommendations", "actionableFixes", "releasePlan"].some((key) => cdxCount(missionOutput?.[key]));
+  }
+
   function renderCdxReportCards(cards) {
     return `
       <div class="viewer-cdx__summary">
@@ -2932,7 +2942,7 @@
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
       return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
     }).join("");
-    const canCreate = taskReport.kind === "code-review";
+    const canCreate = cdxReportCanCreateRequest(taskReport, missionOutput);
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}

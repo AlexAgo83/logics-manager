@@ -1505,8 +1505,8 @@ def _cdx_mission_prompt(
             action_guidance = "Fix safe, scoped release-readiness issues directly in repository files when you can validate them, such as stale documentation, missing release notes, or narrow test failures. Do not write a separate release-review corpus/report artifact. Do not bump versions unless explicitly requested, and do not tag, push, publish, upload assets, or create GitHub releases."
             schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
         elif allow_file_writes:
-            action_guidance = "Write or update a bounded release-review corpus/report artifact for this mission. Do not directly modify product/source files to fix issues. Do not bump versions, tag, push, publish, upload assets, or create GitHub releases."
-            schema = "Return concise JSON with keys: summary, findings, recommendations, corpusFiles, validationEvidence."
+            action_guidance = "Create or update a bounded Logics request under logics/request/ for actionable release-review follow-up. Do not write a separate release-review corpus/report artifact under logics/external. Do not directly modify product/source files to fix issues. Do not bump versions, tag, push, publish, upload assets, or create GitHub releases."
+            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
         else:
             action_guidance = "Report only; do not update release files, write corpus files, fix issues, tag, push, publish, upload assets, or create GitHub releases."
             schema = "Return concise JSON with keys: summary, findings, recommendations."
@@ -1958,17 +1958,61 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
     report = report_payload.get("report") if isinstance(report_payload.get("report"), dict) else report_payload
     run = report.get("run") if isinstance(report.get("run"), dict) else {}
     task_report = report.get("task_report") if isinstance(report.get("task_report"), dict) else {}
+    parsed = report.get("parsed") if isinstance(report.get("parsed"), dict) else {}
+    mission_output = next(
+        (
+            candidate
+            for candidate in (
+                report.get("missionOutput"),
+                report.get("mission_output"),
+                parsed.get("missionOutput"),
+                parsed.get("mission_output"),
+                run.get("missionOutput"),
+                run.get("mission_output"),
+                task_report.get("missionOutput"),
+                task_report.get("mission_output"),
+            )
+            if isinstance(candidate, dict)
+        ),
+        {},
+    )
     run_id = str(run.get("run_id") or task_report.get("run_id") or "unknown")
+    task_kind = str(task_report.get("kind") or run.get("kind") or "assistant")
     findings = task_report.get("findings") if isinstance(task_report.get("findings"), list) else []
-    title = f"Address CDX code review findings for {run_id}"
+    if not findings and isinstance(mission_output.get("findings"), list):
+        findings = mission_output["findings"]
+    recommendations = mission_output.get("recommendations") if isinstance(mission_output.get("recommendations"), list) else []
+    actionable_fixes = mission_output.get("actionableFixes") if isinstance(mission_output.get("actionableFixes"), list) else []
+    release_plan = mission_output.get("releasePlan") if isinstance(mission_output.get("releasePlan"), list) else []
+    if task_kind == "code-review":
+        title = f"Address CDX code review findings for {run_id}"
+        theme = "Code review follow-up"
+        need = f"Follow up on CDX code-review run `{run_id}`."
+    else:
+        title = f"Address CDX {task_kind} follow-up for {run_id}"
+        theme = "CDX mission follow-up"
+        need = f"Follow up on CDX `{task_kind}` run `{run_id}`."
     ref = _next_viewer_request_ref(repo_root, title)
     request_dir = repo_root / "logics" / "request"
     request_dir.mkdir(parents=True, exist_ok=True)
     rel_path = f"logics/request/{ref}.md"
     path = repo_root / rel_path
+
+    def _item_message(item: Any, fallback: str) -> str:
+        if isinstance(item, dict):
+            title_value = item.get("title") or item.get("message") or item.get("summary") or fallback
+            details = []
+            if item.get("command"):
+                details.append(f"command: `{item['command']}`")
+            if item.get("risk"):
+                details.append(f"risk: {item['risk']}")
+            return f"{title_value}" + (f" ({'; '.join(details)})" if details else "")
+        return str(item or fallback)
+
     finding_lines = []
     for index, finding in enumerate(findings, start=1):
         if not isinstance(finding, dict):
+            finding_lines.append(f"- F{index}: {finding}")
             continue
         location = finding.get("path") or finding.get("file") or "unknown path"
         if finding.get("line"):
@@ -1978,20 +2022,34 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
         finding_lines.append(f"- F{index} [{severity}] `{location}`: {message}")
     if not finding_lines:
         finding_lines.append("- No structured findings were reported. Review the CDX artifacts linked below.")
+    follow_up_lines = []
+    for label, values in (
+        ("Recommendation", recommendations),
+        ("Actionable fix", actionable_fixes),
+        ("Release plan", release_plan),
+    ):
+        for index, value in enumerate(values, start=1):
+            follow_up_lines.append(f"- {label} {index}: {_item_message(value, label)}")
+    if not follow_up_lines:
+        follow_up_lines.append("- Review CDX output and split any actionable follow-up into tasks before implementation.")
+    summary = task_report.get("summary") or mission_output.get("summary") or "No structured summary provided."
     text = "\n".join([
         f"## {ref} - {title}",
         "> Status: Draft",
         "> Understanding: 70%",
         "> Confidence: 70%",
         "> Complexity: Medium",
-        "> Theme: Code review follow-up",
+        f"> Theme: {theme}",
         "",
         "# Needs",
-        f"- Follow up on CDX code-review run `{run_id}`.",
-        f"- Summary: {task_report.get('summary') or 'No structured summary provided.'}",
+        f"- {need}",
+        f"- Summary: {summary}",
         "",
         "# Findings",
         *finding_lines,
+        "",
+        "# Follow-up",
+        *follow_up_lines,
         "",
         "# Traceability",
         f"- CDX run id: `{run_id}`",

@@ -300,6 +300,7 @@
 | [req_239_launch_guided_cdx_missions_from_the_logics_viewer](request/req_239_launch_guided_cdx_missions_from_the_logics_viewer.md) | Launch guided CDX missions from the Logics viewer | Done |  | request/req_239_launch_guided_cdx_missions_from_the_logics_viewer.md |
 | [req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout](request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md) | Make logics-manager CLI agent-friendly for workflow inspection and closeout | Done |  | request/req_240_make_logics_manager_cli_agent_friendly_for_workflow_inspection_and_closeout.md |
 | [req_241_add_wish_to_request_and_guided_pre_release_cdx_missions](request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md) | Add wish-to-request and guided pre-release CDX missions | Done |  | request/req_241_add_wish_to_request_and_guided_pre_release_cdx_missions.md |
+| [req_242_address_full_audit_validation_and_documentation_drift](request/req_242_address_full_audit_validation_and_documentation_drift.md) | Address full audit validation and documentation drift | Draft |  | request/req_242_address_full_audit_validation_and_documentation_drift.md |
 
 ## Backlog
 
@@ -718,6 +719,7 @@
 | [item_411_document_and_clarify_agent_cli_workflows](backlog/item_411_document_and_clarify_agent_cli_workflows.md) | Document and clarify agent CLI workflows | Done | 100% | backlog/item_411_document_and_clarify_agent_cli_workflows.md |
 | [item_412_add_wish_to_request_guided_cdx_mission](backlog/item_412_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Done | 100% | backlog/item_412_add_wish_to_request_guided_cdx_mission.md |
 | [item_413_add_guarded_pre_release_guided_cdx_mission](backlog/item_413_add_guarded_pre_release_guided_cdx_mission.md) | Add guarded pre-release guided CDX mission | Done | 100% | backlog/item_413_add_guarded_pre_release_guided_cdx_mission.md |
+| [item_414_address_full_audit_validation_and_documentation_drift](backlog/item_414_address_full_audit_validation_and_documentation_drift.md) | Address full audit validation and documentation drift | Ready | 0% | backlog/item_414_address_full_audit_validation_and_documentation_drift.md |
 
 ## Tasks
 
@@ -933,3 +935,4 @@
 | [task_214_implement_agent_friendly_logics_cli_workflow_improvements](tasks/task_214_implement_agent_friendly_logics_cli_workflow_improvements.md) | Implement agent-friendly Logics CLI workflow improvements | Done | 100% | tasks/task_214_implement_agent_friendly_logics_cli_workflow_improvements.md |
 | [task_215_add_wish_to_request_guided_cdx_mission](tasks/task_215_add_wish_to_request_guided_cdx_mission.md) | Add wish-to-request guided CDX mission | Done | 100% | tasks/task_215_add_wish_to_request_guided_cdx_mission.md |
 | [task_216_add_guarded_pre_release_guided_cdx_mission](tasks/task_216_add_guarded_pre_release_guided_cdx_mission.md) | Add guarded pre-release guided CDX mission | Done | 100% | tasks/task_216_add_guarded_pre_release_guided_cdx_mission.md |
+| [task_217_address_full_audit_validation_and_documentation_drift](tasks/task_217_address_full_audit_validation_and_documentation_drift.md) | Address full audit validation and documentation drift | Ready | 0% | tasks/task_217_address_full_audit_validation_and_documentation_drift.md |

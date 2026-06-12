@@ -1,9 +1,9 @@
 ## req_242_address_full_audit_validation_and_documentation_drift - Address full audit validation and documentation drift
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 86%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Repository quality
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -81,3 +81,9 @@ flowchart TD
 
 # Backlog
 - `item_414_address_full_audit_validation_and_documentation_drift`
+
+# Closeout
+- Delivered through `item_414_address_full_audit_validation_and_documentation_drift` and `task_217_address_full_audit_validation_and_documentation_drift`.
+- Audit exit propagation is fixed in the source CLI and covered by targeted Python/Vitest tests plus `npm run audit:logics:strict`.
+- README validation guidance, badge drift checks, npm audit registry behavior, viewer smoke evidence, and oversized-file decomposition guidance are updated.
+- Validation evidence is recorded in `task_217`.

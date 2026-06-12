@@ -1,10 +1,10 @@
 ## item_414_address_full_audit_validation_and_documentation_drift - Address full audit validation and documentation drift
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -39,13 +39,13 @@ flowchart TD
 - AC7: Follow-up validation evidence includes standard audit/lint, strict audit exit behavior, npm package dry run, dependency audit outcome, and targeted tests for the changed validation contracts.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: Failed audit payloads produce nonzero process exits across `logics-manager audit`, `python -m logics_manager audit`, npm wrapper invocation, and relevant npm scripts, with tests covering JSON and text modes.
-- request-AC2 -> This backlog slice. Proof: AC2: Strict governance/token-hygiene debt is either reduced or explicitly separated from release-blocking standard audit gates so operators can see when strict mode is advisory versus mandatory.
-- request-AC3 -> This backlog slice. Proof: AC3: README and release-facing badges/docs are refreshed from current repository metadata or validated by a drift check so version/test-tooling badges do not lag releases.
-- request-AC4 -> This backlog slice. Proof: AC4: Dependency audit and package validation scripts document or implement local-cache and offline behavior clearly, distinguishing unreachable registry results from clean advisory status.
-- request-AC5 -> This backlog slice. Proof: AC5: Viewer smoke skips are visible in validation summaries and CI expectations, with at least one non-skipped CI lane or documented fallback proving the local viewer shell/API path.
-- request-AC6 -> This backlog slice. Proof: AC6: High-risk oversized runtime/viewer/test files have an actionable decomposition and coverage plan focused on correctness-critical surfaces rather than cosmetic refactors.
-- request-AC7 -> This backlog slice. Proof: AC7: Follow-up validation evidence includes standard audit/lint, strict audit exit behavior, npm package dry run, dependency audit outcome, and targeted tests for the changed validation contracts.
+- request-AC1 -> This backlog slice. Proof: `task_217` shipped audit exit propagation and regression tests for CLI, module, npm wrapper, and strict npm-script behavior.
+- request-AC2 -> This backlog slice. Proof: README now separates standard active-work audit failures from strict release/governance cleanup and the strict npm script exits nonzero on existing token-hygiene debt.
+- request-AC3 -> This backlog slice. Proof: README badges are refreshed and `npm run docs:check` is wired into `ci:check`.
+- request-AC4 -> This backlog slice. Proof: `scripts/check-npm-audit.mjs` distinguishes registry unavailability from a clean audit state, and README documents registry versus local-only validation behavior.
+- request-AC5 -> This backlog slice. Proof: README documents viewer-smoke summaries and fallbacks; current `npm run test:viewer-smoke` passed in Chrome mode for desktop, tablet, and mobile.
+- request-AC6 -> This backlog slice. Proof: README links oversized-file decomposition to `adr_020` and defines correctness-first coverage expectations.
+- request-AC7 -> This backlog slice. Proof: `task_217` records standard audit/lint, strict audit exit behavior, npm pack dry run, dependency audit, viewer smoke, and targeted tests.
 
 # Decision framing
 - Product framing: Not needed

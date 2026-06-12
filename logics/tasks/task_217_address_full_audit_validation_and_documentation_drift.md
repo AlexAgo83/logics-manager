@@ -1,18 +1,18 @@
 ## task_217_address_full_audit_validation_and_documentation_drift - Address full audit validation and documentation drift
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_414_address_full_audit_validation_and_documentation_drift`
@@ -20,7 +20,7 @@
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|address-full-audit-validation-and-docume|item-414-address-full-audit-validation-a|1-confirm-scope|run-python3-m-logics-manager-lint-requi
+%% logics-signature: task|address-full-audit-validation-and-docume|item-414-address-full-audit-validation-a|1-confirm-scope|npm-run-audit-logics-passed-standard
 flowchart TD
     Backlog[Backlog scope] --> Work[Implementation task]
     Work --> Validation[Validation evidence]
@@ -36,20 +36,32 @@ flowchart TD
 - AC7: Follow-up validation evidence includes standard audit/lint, strict audit exit behavior, npm package dry run, dependency audit outcome, and targeted tests for the changed validation contracts.
 
 # AC Traceability
-- request-AC1 -> This task. Proof: Planned validation hardening covers failed audit process exits for CLI, module, npm wrapper, and npm scripts in text and JSON modes.
-- request-AC2 -> This task. Proof: Planned governance work separates strict token-hygiene debt from release-blocking standard audit behavior.
-- request-AC3 -> This task. Proof: Planned documentation drift work refreshes or validates release-facing README metadata.
-- request-AC4 -> This task. Proof: Planned dependency/package validation work covers local cache and offline registry behavior.
-- request-AC5 -> This task. Proof: Planned viewer smoke work makes skipped local socket runs visible and preserves a non-skipped CI or fallback proof path.
-- request-AC6 -> This task. Proof: Planned maintenance work targets decomposition and coverage for oversized correctness-critical files.
-- request-AC7 -> This task. Proof: Planned closeout evidence includes audit/lint, strict audit exit behavior, npm package dry run, dependency audit outcome, and targeted validation tests.
+- request-AC1 -> This task. Proof: Commit `43a1a40` makes the native audit command return nonzero when `payload.ok` is false and adds text/JSON regression coverage for `main()`, `python -m logics_manager`, the npm wrapper, and `npm run audit:logics:strict`.
+- request-AC2 -> This task. Proof: README validation guidance now distinguishes standard active-work audit failures from strict governance release cleanup, and `npm run audit:logics:strict` exits 1 on the current token-hygiene debt while `npm run audit:logics` stays green.
+- request-AC3 -> This task. Proof: Commit `6d809ff` refreshes README version/test badges and adds `npm run docs:check` plus the `ci:check` step that validates badge metadata against `VERSION` and `package.json`.
+- request-AC4 -> This task. Proof: `scripts/check-npm-audit.mjs` now reports registry unavailability as an explicit failed audit state, and README documents npm registry dependency versus local-only package validation.
+- request-AC5 -> This task. Proof: README documents `artifacts/local-viewer-smoke/summary.json`, skip semantics, CI fallback coverage, and the current `npm run test:viewer-smoke` run exercised Chrome on desktop, tablet, and mobile.
+- request-AC6 -> This task. Proof: README points oversized runtime/viewer/test decomposition work at `adr_020` and states the correctness-first coverage rule for future extractions.
+- request-AC7 -> This task. Proof: Validation evidence below covers standard lint/audit, strict audit exit behavior, npm package dry run, dependency audit, viewer smoke, and targeted Python/Vitest tests.
 
 # Validation
-- Run `python3 -m logics_manager lint --require-status`.
-- Run `python3 -m logics_manager flow finish task task_217_address_full_audit_validation_and_documentation_drift.md` after implementation.
+- `npm run audit:logics` -> passed; standard workflow audit inspected 872 docs with 0 blocking issues, 0 warnings, and lint passed.
+- `python3 -m logics_manager audit --governance-profile strict --format json` -> exited 1 as expected with `ok: false`, `can_continue: false`, and 493 token-hygiene blocking findings.
+- `npm run audit:logics:strict` -> exited 1 as expected; strict audit failed before lint because the current corpus still has 493 token-hygiene findings.
+- `npm run docs:check` -> passed; README badge metadata matches `VERSION` and `package.json`.
+- `npm run audit:ci` -> passed; npm advisory policy returned `Audit policy: OK`.
+- `npm pack --dry-run --json` -> passed for `@grifhinz/logics-manager@2.8.0`.
+- `npm run package:ci` -> passed; VSIX dry-run package produced 87 files, 2.9 MB.
+- `npm run test:viewer-smoke` -> passed; `artifacts/local-viewer-smoke/summary.json` reports Chrome mode across desktop, tablet, and mobile.
+- `python3 -m pytest tests/python/test_logics_manager_cli.py -q -k 'audit_returns_nonzero or module_audit_subprocess_returns_nonzero or strict_audit_blocks_companion'` -> passed, 5 tests.
+- `npm test -- tests/logicsManagerNpmWrapper.test.ts` -> passed, 8 tests.
+- `python3 -m pytest tests/python/test_logics_manager_cli.py -q` -> one unrelated local viewer socket/bootstrap read failed with `ConnectionResetError`; targeted audit tests passed and the dedicated viewer smoke passed afterward.
 
 # Report
-- Implementation complete.
+- Implemented audit exit propagation for the top-level CLI, removing the unconditional successful return for failed audit payloads.
+- Added regression coverage for native CLI, module invocation, npm wrapper invocation, and strict npm script behavior across text and JSON modes.
+- Refreshed release-facing README badges and added an automated metadata drift check to the CI-equivalent validation path.
+- Clarified standard versus strict governance expectations, npm audit registry/offline behavior, viewer smoke skip/fallback evidence, and oversized module decomposition guidance.
 
 # AI Context
 - Summary: Implement address full audit validation and documentation drift.

@@ -3322,11 +3322,26 @@
     const run = payload.run && typeof payload.run === "object" ? payload.run : null;
     const jobs = Array.isArray(payload.jobs) ? payload.jobs : [];
     const state = payload.badgeState || run?.badgeState || payload.state || "unknown";
+    const matchLabel = run?.matchSource === "head-active"
+      ? "Current HEAD running"
+      : run?.matchSource === "head-failing"
+      ? "Current HEAD failing"
+      : run?.matchSource === "head-cancelled"
+      ? "Current HEAD cancelled"
+      : run?.matchSource === "head-unknown"
+      ? "Current HEAD unknown"
+      : run?.matchSource === "head"
+      ? "Current HEAD"
+      : run?.matchSource === "branch-active"
+      ? "Branch running"
+      : run?.matchSource === "branch-failing"
+      ? "Branch failing"
+      : "Latest branch run";
     const cards = renderMetricCards([
       ["State", ciBadgeLabel(state)],
       ["Branch", run?.branch || payload.branch || "Unknown"],
       ["Commit", (run?.headSha || payload.headSha || "").slice(0, 7) || "Unknown"],
-      ["Match", run?.matchSource === "head" ? "Current HEAD" : "Latest branch run"]
+      ["Match", matchLabel]
     ]);
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in GitHub</a>` : "";
     const runRows = run ? [

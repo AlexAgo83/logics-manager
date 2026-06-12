@@ -1189,11 +1189,41 @@ def _ci_badge_state(status: str, conclusion: str) -> str:
     return "unknown"
 
 
+def _is_active_ci_status(run: dict[str, Any]) -> bool:
+    return str(run.get("status") or "").strip().lower() in {"queued", "in_progress", "waiting", "requested", "pending"}
+
+
+def _select_github_actions_run(runs: list[dict[str, Any]], head_sha: str) -> tuple[dict[str, Any], str]:
+    head_runs = [run for run in runs if head_sha and str(run.get("head_sha") or "") == head_sha]
+    active_head_run = next((run for run in head_runs if _is_active_ci_status(run)), None)
+    if active_head_run is not None:
+        return active_head_run, "head-active"
+    failing_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "failing"), None)
+    if failing_head_run is not None:
+        return failing_head_run, "head-failing"
+    cancelled_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "cancelled"), None)
+    if cancelled_head_run is not None:
+        return cancelled_head_run, "head-cancelled"
+    unknown_head_run = next((run for run in head_runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "unknown"), None)
+    if unknown_head_run is not None:
+        return unknown_head_run, "head-unknown"
+    if head_runs:
+        return head_runs[0], "head"
+    active_branch_run = next((run for run in runs if _is_active_ci_status(run)), None)
+    if active_branch_run is not None:
+        return active_branch_run, "branch-active"
+    failing_branch_run = next((run for run in runs if _ci_badge_state(str(run.get("status") or ""), str(run.get("conclusion") or "")) == "failing"), None)
+    if failing_branch_run is not None:
+        return failing_branch_run, "branch-failing"
+    return runs[0], "branch-latest"
+
+
 def _parse_github_actions_run(run: dict[str, Any], *, match_source: str) -> dict[str, Any]:
     status = str(run.get("status") or "")
     conclusion = str(run.get("conclusion") or "")
     commit = run.get("head_commit") if isinstance(run.get("head_commit"), dict) else {}
     author = commit.get("author") if isinstance(commit.get("author"), dict) else {}
+    commit_lines = str(commit.get("message") or run.get("display_title") or "").splitlines()
     return {
         "id": run.get("id"),
         "name": str(run.get("name") or run.get("display_title") or "GitHub Actions"),
@@ -1208,7 +1238,7 @@ def _parse_github_actions_run(run: dict[str, Any], *, match_source: str) -> dict
         "createdAt": str(run.get("created_at") or ""),
         "updatedAt": str(run.get("updated_at") or ""),
         "runStartedAt": str(run.get("run_started_at") or ""),
-        "commitMessage": str(commit.get("message") or run.get("display_title") or "").splitlines()[0][:240],
+        "commitMessage": commit_lines[0][:240] if commit_lines else "",
         "author": str(author.get("name") or ""),
         "matchSource": match_source,
     }
@@ -1264,7 +1294,7 @@ def ci_status_payload(repo_root: Path, *, git_runner: Any | None = None, gh_runn
     context = _current_git_ci_context(repo_root, runner=git_runner)
     branch = context.get("branch", "")
     head_sha = context.get("headSha", "")
-    endpoint = f"repos/{owner}/{repo}/actions/runs?per_page=10"
+    endpoint = f"repos/{owner}/{repo}/actions/runs?per_page=30"
     if branch:
         endpoint = f"{endpoint}&branch={quote(branch, safe='')}"
     try:
@@ -1286,10 +1316,7 @@ def ci_status_payload(repo_root: Path, *, git_runner: Any | None = None, gh_runn
     if not runs:
         return {"state": "ok", "visible": True, "message": "No GitHub Actions runs found for the current branch.", "repositoryUrl": github_url, **context, "badgeState": "unknown", "run": None, "jobs": []}
 
-    selected = next((run for run in runs if head_sha and str(run.get("head_sha") or "") == head_sha), None)
-    match_source = "head" if selected else "branch-latest"
-    if selected is None:
-        selected = runs[0]
+    selected, match_source = _select_github_actions_run(runs, head_sha)
     run_payload = _parse_github_actions_run(selected, match_source=match_source)
     jobs: list[dict[str, str]] = []
     run_id = run_payload.get("id")

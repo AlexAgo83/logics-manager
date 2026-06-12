@@ -16,6 +16,7 @@ function createViewerDom(options: {
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
+  ciResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxMissionRunGate?: Promise<void>;
   filePreviewResponse?: { path: string; name: string; content: string; truncated?: boolean };
   editResponse?: { ok: boolean; status?: number; body: unknown };
@@ -387,6 +388,37 @@ function createViewerDom(options: {
                 { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager" },
                 { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
               ]
+            }
+          })
+        };
+      }
+      if (url === "/api/ci-status") {
+        const ciResponse = options.ciResponse;
+        if (ciResponse) {
+          return {
+            ok: ciResponse.ok,
+            status: ciResponse.status ?? (ciResponse.ok ? 200 : 500),
+            json: async () => {
+              if (ciResponse.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return ciResponse.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              visible: true,
+              message: "",
+              badgeState: "passing",
+              branch: "main",
+              headSha: "abc123",
+              run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
+              jobs: []
             }
           })
         };
@@ -1525,6 +1557,100 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Readiness and quota");
     expect(content?.textContent).toContain("cdx status");
     expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
+  });
+
+  it("shows running CI badge and active HEAD match details", async () => {
+    const { dom, calls } = createViewerDom({
+      ciResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            visible: true,
+            message: "GitHub Actions run is in progress.",
+            badgeState: "running",
+            branch: "main",
+            headSha: "abc123",
+            run: {
+              id: 42,
+              workflowName: "CI",
+              status: "in_progress",
+              conclusion: "",
+              badgeState: "running",
+              branch: "main",
+              headSha: "abc123",
+              matchSource: "head-active",
+              commitMessage: "Update release notes"
+            },
+            jobs: [{ name: "test", status: "in_progress", conclusion: "", htmlUrl: "" }]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ciButton = dom.window.document.getElementById("viewer-ci");
+    expect(ciButton?.querySelector("[data-viewer-ci-badge]")?.textContent).toBe("run");
+    expect(ciButton?.title).toContain("GitHub Actions run is in progress.");
+
+    ciButton?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(calls).toContain("/api/ci-status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CI status");
+    expect(content).toContain("Current HEAD running");
+    expect(content).toContain("in_progress");
+    expect(content).toContain("Update release notes");
+  });
+
+  it("shows failing CI badge when the current HEAD has a failed workflow", async () => {
+    const { dom } = createViewerDom({
+      ciResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            visible: true,
+            message: "Current HEAD CI failed.",
+            badgeState: "failing",
+            branch: "main",
+            headSha: "abc123",
+            run: {
+              id: 42,
+              workflowName: "CI",
+              status: "completed",
+              conclusion: "failure",
+              badgeState: "failing",
+              branch: "main",
+              headSha: "abc123",
+              matchSource: "head-failing",
+              commitMessage: "Update release notes"
+            },
+            jobs: [{ name: "validate", status: "completed", conclusion: "failure", htmlUrl: "" }]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ciButton = dom.window.document.getElementById("viewer-ci");
+    expect(ciButton?.querySelector("[data-viewer-ci-badge]")?.textContent).toBe("fail");
+
+    ciButton?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(content).toContain("Current HEAD failing");
+    expect(content).toContain("completed / failure");
   });
 
   it("switches the CDX document between status and runs", async () => {

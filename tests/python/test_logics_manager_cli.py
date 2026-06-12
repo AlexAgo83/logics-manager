@@ -486,10 +486,110 @@ def test_viewer_ci_status_payload_reads_github_actions_runs(tmp_path: Path) -> N
     assert payload["branch"] == "feature/demo"
     assert payload["headSha"] == "abc123"
     assert payload["badgeState"] == "failing"
-    assert payload["run"]["matchSource"] == "head"
+    assert payload["run"]["matchSource"] == "head-failing"
     assert payload["run"]["commitMessage"] == "Implement CI view"
     assert payload["jobs"] == [{"name": "test", "status": "completed", "conclusion": "failure", "htmlUrl": "https://github.com/Example/repo/actions/runs/42/job/1", "startedAt": "", "completedAt": ""}]
-    assert ["gh", "api", "repos/Example/repo/actions/runs?per_page=10&branch=feature%2Fdemo"] in gh_calls
+    assert ["gh", "api", "repos/Example/repo/actions/runs?per_page=30&branch=feature%2Fdemo"] in gh_calls
+
+
+def test_viewer_ci_status_payload_prioritizes_active_head_runs(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "main\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "abc123\n", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%s"]:
+            return subprocess.CompletedProcess(args, 0, "Update release notes", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%an"]:
+            return subprocess.CompletedProcess(args, 0, "Alex", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[:2] == ["gh", "api"] and args[2].startswith("repos/Example/repo/actions/runs?"):
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {"id": 41, "name": "lint", "status": "completed", "conclusion": "success", "head_branch": "main", "head_sha": "abc123"},
+                            {"id": 42, "name": "test", "status": "in_progress", "conclusion": None, "head_branch": "main", "head_sha": "abc123"},
+                        ]
+                    }
+                ),
+                "",
+            )
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/runs/42/jobs?per_page=100":
+            return subprocess.CompletedProcess(args, 0, json.dumps({"jobs": [{"name": "test", "status": "in_progress"}]}), "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["badgeState"] == "running"
+    assert payload["run"]["id"] == 42
+    assert payload["run"]["matchSource"] == "head-active"
+    assert payload["jobs"] == [{"name": "test", "status": "in_progress", "conclusion": "", "htmlUrl": "", "startedAt": "", "completedAt": ""}]
+
+
+def test_viewer_ci_status_payload_prioritizes_failed_head_runs_over_successful_dynamic_runs(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "main\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "abc123\n", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%s"]:
+            return subprocess.CompletedProcess(args, 0, "Update release notes", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%an"]:
+            return subprocess.CompletedProcess(args, 0, "Alex", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[:2] == ["gh", "api"] and args[2].startswith("repos/Example/repo/actions/runs?"):
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {"id": 41, "name": "Dependency Graph", "status": "completed", "conclusion": "success", "event": "dynamic", "head_branch": "main", "head_sha": "abc123"},
+                            {"id": 42, "name": "CI", "status": "completed", "conclusion": "failure", "event": "push", "head_branch": "main", "head_sha": "abc123"},
+                        ]
+                    }
+                ),
+                "",
+            )
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/runs/42/jobs?per_page=100":
+            return subprocess.CompletedProcess(args, 0, json.dumps({"jobs": [{"name": "validate", "status": "completed", "conclusion": "failure"}]}), "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["badgeState"] == "failing"
+    assert payload["run"]["id"] == 42
+    assert payload["run"]["matchSource"] == "head-failing"
+    assert payload["run"]["workflowName"] == "CI"
 
 
 def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path) -> None:

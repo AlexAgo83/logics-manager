@@ -44,7 +44,7 @@ function createViewerDom(options: {
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-git" type="button">Git</button>
-    <button id="viewer-workspace" type="button" hidden>Workspace</button>
+    <button id="viewer-workspace" type="button" hidden>Explorer</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
@@ -814,7 +814,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Workspace", "Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Explorer", "Git", "CI", "CDX", "Settings"]);
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
@@ -1101,7 +1101,7 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/workspace-tree?path=");
     expect(calls).toContain("/api/workspace-preview?path=");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workspace");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Explorer");
     let content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("src");
     expect(content?.textContent).toContain("README.md");

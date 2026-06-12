@@ -157,7 +157,7 @@ sets `--refresh-interval`, in which case that launch value controls only the
 current session. The CDX status table has compact controls for column visibility
 and provider filtering; `BLOCK` and `CR` are hidden by default, and provider
 filtering defaults to all providers so newly discovered providers remain visible.
-When workspace inspection is available, the topbar shows a `Workspace` view
+When workspace inspection is available, the topbar shows an `Explorer` view
 before `Git`; it provides a read-only file tree and bounded previews for text,
 directories, images, oversized files, and unsupported binary files.
 

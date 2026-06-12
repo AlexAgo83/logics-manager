@@ -1233,7 +1233,7 @@
 
 .viewer-cdx__controls {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 6px;
   margin: 8px 0 12px;
 }
@@ -1259,9 +1259,12 @@
   gap: 4px;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
+  box-sizing: border-box;
   background: var(--vscode-button-secondaryBackground, transparent);
   color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
   cursor: pointer;
+  padding: 0 8px;
+  white-space: nowrap;
 }
 
 .viewer-cdx__icon-button:hover {
@@ -1276,15 +1279,18 @@
 }
 
 .viewer-cdx__icon-count {
+  display: inline-block;
+  min-width: 18px;
   font-size: 10px;
   font-weight: 700;
+  text-align: center;
 }
 
 .viewer-cdx__menu-panel {
   position: absolute;
   z-index: 25;
   top: calc(100% + 6px);
-  right: 0;
+  left: 0;
   min-width: 170px;
   max-height: min(340px, calc(100vh - 150px));
   overflow: auto;

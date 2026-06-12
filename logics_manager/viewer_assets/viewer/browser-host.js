@@ -728,9 +728,9 @@
     if (workspace instanceof HTMLElement) {
       workspace.hidden = !isCapabilityAvailable("workspace");
       if (isCapabilityAvailable("workspace")) {
-        setButtonAvailable(workspace, "Show workspace files");
+        setButtonAvailable(workspace, "Show file explorer");
       } else {
-        setButtonUnavailable(workspace, capabilityMessage("workspace", "Workspace files are not available for this project."));
+        setButtonUnavailable(workspace, capabilityMessage("workspace", "Explorer is not available for this project."));
       }
     }
 
@@ -1421,7 +1421,7 @@
   function isWorkspaceOpen() {
     const panel = documentPanel();
     const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "Workspace");
+    return Boolean(panel && !panel.hidden && title && title.textContent === "Explorer");
   }
 
   function isCdxStatusOpen() {
@@ -2283,8 +2283,8 @@
 
   async function showWorkspace(options = {}) {
     if (!isCapabilityAvailable("workspace")) {
-      const message = capabilityMessage("workspace", "Workspace files are not available for this project.");
-      setDocument("Workspace", renderWorkspace({ state: "unavailable", message }, { state: "unavailable", message }));
+      const message = capabilityMessage("workspace", "Explorer is not available for this project.");
+      setDocument("Explorer", renderWorkspace({ state: "unavailable", message }, { state: "unavailable", message }));
       setMeta(message);
       return;
     }
@@ -2293,20 +2293,20 @@
     }
     const tree = await fetchWorkspaceTree("");
     const preview = await fetchWorkspacePreview("");
-    setDocument("Workspace", renderWorkspace(tree, preview));
-    setMeta(options.silent ? "Workspace refreshed." : "Workspace loaded.");
+    setDocument("Explorer", renderWorkspace(tree, preview));
+    setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
   }
 
   async function openWorkspaceTree(path) {
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(path), fetchWorkspacePreview(path)]);
-    setDocument("Workspace", renderWorkspace(tree, preview));
-    setMeta(path ? `Workspace folder ${path}` : "Workspace root.");
+    setDocument("Explorer", renderWorkspace(tree, preview));
+    setMeta(path ? `Explorer folder ${path}` : "Explorer root.");
   }
 
   async function openWorkspacePreview(path) {
     const treePath = workspaceParentPath(path);
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path)]);
-    setDocument("Workspace", renderWorkspace(tree, preview));
+    setDocument("Explorer", renderWorkspace(tree, preview));
     setMeta(`Previewing ${path || "workspace root"}.`);
   }
 
@@ -4166,7 +4166,7 @@
     [workspaceButton()].forEach((button) => {
       button?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
-        withPrimaryAction("workspace", "Loading workspace", showWorkspace);
+        withPrimaryAction("workspace", "Loading Explorer", showWorkspace);
       });
     });
     const autoControl = autoRefreshControl();
@@ -4388,12 +4388,12 @@
       }
       if (workspaceTreeTarget instanceof HTMLElement) {
         event.preventDefault();
-        withPrimaryAction("workspace-tree", "Loading workspace folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+        withPrimaryAction("workspace-tree", "Loading Explorer folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
         return;
       }
       if (workspacePreviewTarget instanceof HTMLElement) {
         event.preventDefault();
-        withPrimaryAction("workspace-preview", "Loading workspace preview", () => openWorkspacePreview(workspacePreviewTarget.getAttribute("data-viewer-workspace-preview") || ""));
+        withPrimaryAction("workspace-preview", "Loading Explorer preview", () => openWorkspacePreview(workspacePreviewTarget.getAttribute("data-viewer-workspace-preview") || ""));
         return;
       }
       if (projectSwitcherTarget instanceof HTMLElement) {

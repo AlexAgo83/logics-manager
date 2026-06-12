@@ -770,7 +770,7 @@ def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Pa
 def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:
     target = tmp_path / "logics" / "request" / "req_001_demo.md"
     target.parent.mkdir(parents=True)
-    target.write_text("## req_001_demo - Demo\nPreview body\n", encoding="utf-8")
+    target.write_bytes(b"## req_001_demo - Demo\r\nPreview body\r\n")
 
     payload = git_file_preview_payload(tmp_path, "logics/request/req_001_demo.md", max_chars=24)
 
@@ -779,7 +779,7 @@ def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_
     assert payload["mode"] == "file-preview"
     assert payload["logicsType"] == "request"
     assert payload["truncated"] is True
-    assert payload["content"].replace("\r\n", "\n") == "## req_001_demo - Demo\nP"
+    assert payload["content"] == "## req_001_demo - Demo\nP"
     assert git_file_preview_payload(tmp_path, "../outside.md")["state"] == "error"
 
 

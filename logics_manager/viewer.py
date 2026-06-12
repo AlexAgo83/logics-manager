@@ -1141,6 +1141,7 @@ def git_file_preview_payload(
             "path": normalized,
             "message": "Binary or unsupported file encoding cannot be previewed.",
         }
+    content = content.replace("\r\n", "\n").replace("\r", "\n")
     truncated = len(content) > max_chars
     if truncated:
         content = content[:max_chars]

@@ -2741,6 +2741,34 @@
     `;
   }
 
+  function renderCdxDetailValue(value) {
+    if (Array.isArray(value)) {
+      return `
+        <ol class="viewer-cdx__detail-list">
+          ${value.map((item) => `
+            <li>${typeof item === "object" && item !== null
+              ? `<pre class="viewer-cdx__detail-code">${escapeHtml(JSON.stringify(item, null, 2))}</pre>`
+              : escapeHtml(String(item))}
+            </li>
+          `).join("")}
+        </ol>
+      `;
+    }
+    if (value && typeof value === "object") {
+      return `<pre class="viewer-cdx__detail-code">${escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+    }
+    return `<strong>${escapeHtml(String(value))}</strong>`;
+  }
+
+  function renderCdxDetailRow(label, value) {
+    return `
+      <li class="viewer-cdx__row viewer-cdx__row--block">
+        <span>${escapeHtml(label)}</span>
+        <div class="viewer-cdx__detail-value">${renderCdxDetailValue(value)}</div>
+      </li>
+    `;
+  }
+
   function renderCdxMissionOutput(output) {
     if (!output) {
       return "";
@@ -2772,13 +2800,13 @@
     ];
     const details = detailKeys
       .filter((key) => cdxCount(output[key]))
-      .map((key) => `<li class="viewer-cdx__row"><span>${escapeHtml(cdxLabel(key))}</span><strong>${escapeHtml(JSON.stringify(output[key]))}</strong></li>`)
+      .map((key) => renderCdxDetailRow(cdxLabel(key), output[key]))
       .join("");
     return `
       <section class="viewer-cdx__section">
         <div class="viewer-ci__heading"><h2>Mission output</h2><span>${escapeHtml(rows.length)} signals</span></div>
         <ul class="viewer-cdx__list">
-          ${rows.map(([label, value]) => `<li class="viewer-cdx__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join("") || '<li class="viewer-cdx__empty">No structured mission output was reported.</li>'}
+          ${rows.map(([label, value]) => renderCdxDetailRow(label, value)).join("") || '<li class="viewer-cdx__empty">No structured mission output was reported.</li>'}
         </ul>
         ${details ? `<ul class="viewer-cdx__list">${details}</ul>` : ""}
       </section>
@@ -2823,7 +2851,7 @@
           <ul class="viewer-cdx__list">
             <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.run_id || taskReport.run_id || "-")}</strong></li>
             <li class="viewer-cdx__row"><span>Kind</span><strong>${escapeHtml(taskReport.kind || run.kind || "assistant")}</strong></li>
-            <li class="viewer-cdx__row"><span>Summary</span><strong>${escapeHtml(taskReport.summary || "No summary reported.")}</strong></li>
+            ${renderCdxDetailRow("Summary", taskReport.summary || "No summary reported.")}
           </ul>
           ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>

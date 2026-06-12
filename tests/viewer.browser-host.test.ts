@@ -1633,6 +1633,9 @@ describe("local viewer browser host", () => {
     expect(text).toContain("v2.8.0");
     expect(text).toContain("Generated Files");
     expect(text).toContain("changelogs/CHANGELOGS_2_8_0.md");
+    expect(dom.window.document.querySelector(".viewer-cdx__row--block .viewer-cdx__detail-value")).toBeTruthy();
+    expect(dom.window.document.querySelector(".viewer-cdx__detail-list")).toBeTruthy();
+    expect(dom.window.document.querySelector(".viewer-cdx__detail-code")).toBeTruthy();
   });
 
   it("renders stale CDX report signals and artifact paths", async () => {

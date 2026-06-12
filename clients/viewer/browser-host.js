@@ -2769,6 +2769,19 @@
     `;
   }
 
+  function renderCdxLogPreview(payload) {
+    const path = payload?.path || "";
+    const content = payload?.content || "";
+    const truncated = Boolean(payload?.truncated);
+    return `
+      <div class="viewer-cdx__log-preview">
+        <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
+        ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated. Open the file externally for the full log.</div>' : ""}
+        <pre class="viewer-cdx__log-content">${escapeHtml(content || "Log is empty.")}</pre>
+      </div>
+    `;
+  }
+
   function renderCdxMissionOutput(output) {
     if (!output) {
       return "";
@@ -3050,17 +3063,18 @@
     if (!path) {
       return;
     }
-    setMeta("Opening CDX artifact...");
-    const response = await fetch("/api/open-file", {
+    setMeta("Loading CDX log...");
+    const response = await fetch("/api/file-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path })
     });
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to open CDX artifact.");
+      throw new Error(data.error || "Unable to load CDX artifact.");
     }
-    setMeta(`Opened ${data.payload?.path || path}.`);
+    setDocument(data.payload?.name || "CDX log", renderCdxLogPreview(data.payload));
+    setMeta(`Loaded ${data.payload?.path || path}.`);
   }
 
   async function createRequestFromCdxReport(runId) {

@@ -140,6 +140,8 @@ CDX_MISSION_CATALOG = {
 CDX_DEFAULT_MISSION_ID = "full-audit"
 GIT_FILE_PREVIEW_MAX_BYTES = 30000
 GIT_FILE_PREVIEW_MAX_CHARS = 20000
+FILE_PREVIEW_MAX_BYTES = 300000
+FILE_PREVIEW_MAX_CHARS = 200000
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
 VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
@@ -670,6 +672,30 @@ def open_file_payload(repo_root: Path, file_path: str, *, launcher: Any | None =
     return {
         "path": str(absolute),
         "command": command[0],
+    }
+
+
+def file_preview_payload(
+    repo_root: Path,
+    file_path: str,
+    *,
+    max_bytes: int = FILE_PREVIEW_MAX_BYTES,
+    max_chars: int = FILE_PREVIEW_MAX_CHARS,
+) -> dict[str, Any]:
+    absolute = _resolve_openable_file_path(repo_root, file_path)
+    raw = absolute.read_bytes()
+    truncated = len(raw) > max_bytes
+    if truncated:
+        raw = raw[:max_bytes]
+    content = raw.decode("utf-8", errors="replace")
+    if len(content) > max_chars:
+        content = content[:max_chars]
+        truncated = True
+    return {
+        "path": str(absolute),
+        "name": absolute.name,
+        "content": content,
+        "truncated": truncated,
     }
 
 
@@ -2209,6 +2235,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
                 body = json.loads(raw_body or "{}")
                 self._send_json({"ok": True, "payload": open_file_payload(self.server.repo_root, str(body.get("path", "")))})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/file-preview":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": file_preview_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (FileNotFoundError, ValueError) as exc:

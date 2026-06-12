@@ -35,6 +35,7 @@ from logics_manager.viewer import (
     create_request_from_cdx_report,
     create_viewer_server,
     edit_doc_payload,
+    file_preview_payload,
     github_repo_url,
     git_diff_payload,
     git_file_preview_payload,
@@ -313,6 +314,27 @@ def test_viewer_open_file_launches_system_editor_for_repo_and_absolute_files(tmp
     assert launched[1][-1] == str(external_file)
     with pytest.raises(FileNotFoundError):
         open_file_payload(repo_root, str(tmp_path / "missing.log"), launcher=launched.append)
+
+
+def test_viewer_file_preview_reads_repo_and_absolute_files_with_truncation(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    repo_file = repo_root / "logics.log"
+    repo_file.write_text("abcdef", encoding="utf-8")
+    external_file = tmp_path / "cdx-run.log"
+    external_file.write_text("external log\n", encoding="utf-8")
+
+    relative_payload = file_preview_payload(repo_root, "logics.log", max_bytes=3, max_chars=10)
+    absolute_payload = file_preview_payload(repo_root, str(external_file))
+
+    assert relative_payload["path"] == str(repo_file)
+    assert relative_payload["name"] == "logics.log"
+    assert relative_payload["content"] == "abc"
+    assert relative_payload["truncated"] is True
+    assert absolute_payload["path"] == str(external_file)
+    assert "external log" in absolute_payload["content"]
+    with pytest.raises(FileNotFoundError):
+        file_preview_payload(repo_root, str(tmp_path / "missing.log"))
 
 
 def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:

@@ -285,13 +285,13 @@ function createViewerDom(options: {
           })
         };
       }
-      if (url === "/api/open-file") {
+      if (url === "/api/file-preview") {
         return {
           ok: true,
           status: 200,
           json: async () => ({
             ok: true,
-            payload: { path: "/tmp/run.log", command: "open" }
+            payload: { path: "/tmp/run.log", name: "run.log", content: "first log line\nsecond log line", truncated: false }
           })
         };
       }
@@ -1715,8 +1715,11 @@ describe("local viewer browser host", () => {
     transcript?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/open-file");
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened /tmp/run.log");
+    expect(calls).toContain("/api/file-preview");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("run.log");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("first log line");
+    expect(dom.window.document.querySelector(".viewer-cdx__log-content")).toBeTruthy();
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Loaded /tmp/run.log");
   });
 
   it("previews launches and applies guided CDX missions", async () => {

@@ -925,6 +925,27 @@
   overflow-wrap: anywhere;
 }
 
+.viewer-cdx__log-preview {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.viewer-cdx__log-content {
+  max-height: min(70vh, 760px);
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-textCodeBlock-background, #111111);
+  color: var(--vscode-textPreformat-foreground, #d7ba7d);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .viewer-cdx__path-link {
   border: 0;
   padding: 0;

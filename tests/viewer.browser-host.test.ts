@@ -285,6 +285,16 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/open-file") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { path: "/tmp/run.log", command: "open" }
+          })
+        };
+      }
       if (url === "/api/git-status") {
         const queuedGitResponse = options.gitResponses?.shift();
         const gitResponse = queuedGitResponse || options.gitResponseFactory?.() || options.gitResponse;
@@ -1570,6 +1580,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX run report");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Missing validation.");
     expect(dom.window.document.querySelector("[data-viewer-cdx-back-runs]")).toBeTruthy();
+    expect(dom.window.document.querySelector(".viewer-ci__heading [data-viewer-cdx-back-runs]")).toBeTruthy();
 
     dom.window.document.querySelector("[data-viewer-cdx-back-runs]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1665,6 +1676,44 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Artifacts");
     expect(text).toContain("Stdout Path");
     expect(text).toContain("cdx-run.log");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/Users/alexandreagostini/.cdx/profiles/work3/log/cdx-run.log"]')).toBeTruthy();
+  });
+
+  it("opens CDX run report artifact paths from clickable log rows", async () => {
+    const { dom, calls } = createViewerDom({
+      cdxReportResponse: {
+        state: "ok",
+        message: "",
+        report: {
+          run: { run_id: "run-1", status: "succeeded", kind: "code-review" },
+          artifacts: { transcript_path: "/tmp/run.log", stdout_path: "/tmp/run.out" },
+          task_report: {
+            kind: "code-review",
+            run_id: "run-1",
+            summary: "One issue found.",
+            findings: []
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const transcript = dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/run.log"]') as HTMLButtonElement | null;
+    expect(transcript).toBeTruthy();
+    transcript?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/open-file");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened /tmp/run.log");
   });
 
   it("previews launches and applies guided CDX missions", async () => {

@@ -161,6 +161,7 @@
       "[data-viewer-project-id]",
       "[data-viewer-cdx-mode]",
       "[data-viewer-cdx-report]",
+      "[data-viewer-cdx-artifact-path]",
       "[data-viewer-cdx-create-request]"
     ].join(","))).filter((node) => node instanceof HTMLElement);
   }
@@ -2071,6 +2072,22 @@
     return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
   }
 
+  function renderCdxArtifactRows(value, emptyText) {
+    const rows = objectEntries(value).slice(0, 12).map(([key, entry]) => {
+      const path = typeof entry === "string" ? entry : "";
+      return `
+        <li class="viewer-cdx__row">
+          <span>${escapeHtml(cdxLabel(key))}</span>
+          <strong>${path
+            ? `<button class="viewer-cdx__path-link" type="button" data-viewer-cdx-artifact-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
+            : escapeHtml(typeof entry === "object" ? JSON.stringify(entry) : entry)}
+          </strong>
+        </li>
+      `;
+    }).join("");
+    return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
+  }
+
   function cdxLabel(value) {
     return String(value || "")
       .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -2793,16 +2810,16 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
-          <div class="viewer-ci__heading"><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+          <div class="viewer-ci__heading viewer-ci__heading--actions">
+            <div><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+            <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to runs</button>
+          </div>
           ${renderCdxReportCards([
             ["Status", run.status || "unknown"],
             ["Kind", taskReport.kind || run.kind || "assistant"],
             ["Findings", String(findings.length)],
             ["Artifacts", String(objectEntries(artifacts).length)]
           ])}
-          <div class="viewer-cdx__actions">
-            <button class="btn" type="button" data-viewer-cdx-back-runs>Back to runs</button>
-          </div>
           <ul class="viewer-cdx__list">
             <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.run_id || taskReport.run_id || "-")}</strong></li>
             <li class="viewer-cdx__row"><span>Kind</span><strong>${escapeHtml(taskReport.kind || run.kind || "assistant")}</strong></li>
@@ -2820,7 +2837,7 @@
         ${objectEntries(artifacts).length ? `
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading"><h2>Artifacts</h2><span>${escapeHtml(objectEntries(artifacts).length)} paths</span></div>
-            <ul class="viewer-cdx__list">${renderCdxObjectRows(artifacts, "No artifact paths reported.")}</ul>
+            <ul class="viewer-cdx__list">${renderCdxArtifactRows(artifacts, "No artifact paths reported.")}</ul>
           </section>
         ` : ""}
         <section class="viewer-cdx__section">
@@ -2999,6 +3016,23 @@
     }
     setDocument("CDX run report", renderCdxReport(data.payload));
     setMeta("CDX report loaded.");
+  }
+
+  async function openCdxArtifact(path) {
+    if (!path) {
+      return;
+    }
+    setMeta("Opening CDX artifact...");
+    const response = await fetch("/api/open-file", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to open CDX artifact.");
+    }
+    setMeta(`Opened ${data.payload?.path || path}.`);
   }
 
   async function createRequestFromCdxReport(runId) {
@@ -3651,6 +3685,7 @@
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
       const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
+      const cdxArtifactTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-artifact-path]") : null;
       const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
       const cdxMissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission]") : null;
       const cdxStrengthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-strength]") : null;
@@ -3692,6 +3727,10 @@
       }
       if (cdxReportTarget instanceof HTMLElement) {
         withPrimaryAction("cdx-report", "Loading CDX report", () => showCdxReport(cdxReportTarget.getAttribute("data-viewer-cdx-report") || ""));
+        return;
+      }
+      if (cdxArtifactTarget instanceof HTMLElement) {
+        withPrimaryAction("cdx-artifact", "Opening CDX artifact", () => openCdxArtifact(cdxArtifactTarget.getAttribute("data-viewer-cdx-artifact-path") || ""));
         return;
       }
       if (cdxCreateRequestTarget instanceof HTMLElement) {

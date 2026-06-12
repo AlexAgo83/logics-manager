@@ -719,6 +719,15 @@
   margin-bottom: 10px;
 }
 
+.viewer-ci__heading--actions {
+  align-items: flex-start;
+}
+
+.viewer-ci__heading--actions > div {
+  display: grid;
+  gap: 4px;
+}
+
 .viewer-ci__heading h2 {
   margin: 0;
   font-size: 13px;
@@ -870,6 +879,21 @@
 .viewer-cdx__entity-main > span {
   min-width: 0;
   text-align: right;
+}
+
+.viewer-cdx__path-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  cursor: pointer;
+  font: inherit;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__path-link:hover {
+  text-decoration: underline;
 }
 
 .viewer-cdx__entity-status {

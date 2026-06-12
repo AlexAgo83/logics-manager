@@ -40,6 +40,7 @@ from logics_manager.viewer import (
     git_file_preview_payload,
     git_status_payload,
     normalize_viewer_focus_target,
+    open_file_payload,
     open_repo_folder_payload,
     read_doc_payload,
     render_start_status,
@@ -292,6 +293,26 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
     assert launched[0][-1] == str(doc_path)
     with pytest.raises(ValueError):
         edit_doc_payload(repo_root, "../outside.md", launcher=launched.append)
+
+
+def test_viewer_open_file_launches_system_editor_for_repo_and_absolute_files(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    repo_file = repo_root / "logics.log"
+    repo_file.write_text("repo log\n", encoding="utf-8")
+    external_file = tmp_path / "cdx-run.log"
+    external_file.write_text("external log\n", encoding="utf-8")
+    launched: list[list[str]] = []
+
+    relative_payload = open_file_payload(repo_root, "logics.log", launcher=launched.append)
+    absolute_payload = open_file_payload(repo_root, str(external_file), launcher=launched.append)
+
+    assert relative_payload["path"] == str(repo_file)
+    assert absolute_payload["path"] == str(external_file)
+    assert launched[0][-1] == str(repo_file)
+    assert launched[1][-1] == str(external_file)
+    with pytest.raises(FileNotFoundError):
+        open_file_payload(repo_root, str(tmp_path / "missing.log"), launcher=launched.append)
 
 
 def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:

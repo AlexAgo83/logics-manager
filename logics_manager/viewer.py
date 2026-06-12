@@ -649,6 +649,30 @@ def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = N
     }
 
 
+def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
+    raw_path = unquote(file_path).strip()
+    if not raw_path:
+        raise ValueError("Missing file path.")
+    candidate = Path(raw_path).expanduser()
+    if not candidate.is_absolute():
+        candidate = repo_root / raw_path.lstrip("/\\")
+    absolute = candidate.resolve()
+    if not absolute.is_file():
+        raise FileNotFoundError(str(candidate))
+    return absolute
+
+
+def open_file_payload(repo_root: Path, file_path: str, *, launcher: Any | None = None) -> dict[str, str]:
+    absolute = _resolve_openable_file_path(repo_root, file_path)
+    command = _system_editor_command(absolute)
+    runner = launcher or subprocess.Popen
+    runner(command)
+    return {
+        "path": str(absolute),
+        "command": command[0],
+    }
+
+
 def open_repo_folder_payload(repo_root: Path, *, launcher: Any | None = None) -> dict[str, str]:
     root = repo_root.resolve()
     command = _system_editor_command(root)
@@ -2174,6 +2198,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
                 self._send_json({"ok": True, "document": edit_doc_payload(self.server.repo_root, rel_path)})
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/open-file":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": open_file_payload(self.server.repo_root, str(body.get("path", "")))})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (FileNotFoundError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             except OSError as exc:

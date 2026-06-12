@@ -1,10 +1,10 @@
 ## task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view - Implement persisted viewer preferences CDX status controls and workspace file view
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,13 +15,13 @@
 - Keep the Workspace screen read-only and capability-gated.
 
 # Plan
-- [ ] 1. Add a versioned viewer preference module and wire auto-refresh initialization/writeback.
-- [ ] 2. Add CDX status column settings with persisted visibility defaults.
-- [ ] 3. Add CDX status provider filtering with persisted all-provider semantics.
-- [ ] 4. Add Workspace navigation, bounded workspace tree/read endpoints, and the tree plus preview UI.
-- [ ] 5. Add focused tests for preference precedence, status configuration, provider filtering, workspace gating, and safe file preview behavior.
-- [ ] 6. Run targeted viewer tests and Logics validation before closeout.
-- [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated.
+- [x] 1. Add a versioned viewer preference module and wire auto-refresh initialization/writeback.
+- [x] 2. Add CDX status column settings with persisted visibility defaults.
+- [x] 3. Add CDX status provider filtering with persisted all-provider semantics.
+- [x] 4. Add Workspace navigation, bounded workspace tree/read endpoints, and the tree plus preview UI.
+- [x] 5. Add focused tests for preference precedence, status configuration, provider filtering, workspace gating, and safe file preview behavior.
+- [x] 6. Run targeted viewer tests and Logics validation before closeout.
+- [x] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated.
 
 # Backlog
 - `item_415_persist_viewer_preferences_and_refresh_settings`
@@ -30,16 +30,16 @@
 - `item_418_add_workspace_file_explorer_view_to_the_viewer`
 
 # Definition of Done (DoD)
-- [ ] Versioned viewer preferences persist supported user choices and handle malformed stored data safely.
-- [ ] Auto-refresh respects CLI override, stored preference, and default precedence.
-- [ ] CDX status column visibility and provider filters are configurable from icon menus and persisted.
-- [ ] Workspace file view is available only when capability is present and remains root-bounded/read-only.
-- [ ] Automated tests cover the linked backlog acceptance criteria.
-- [ ] Logics lint/audit pass after implementation docs are updated.
+- [x] Versioned viewer preferences persist supported user choices and handle malformed stored data safely.
+- [x] Auto-refresh respects CLI override, stored preference, and default precedence.
+- [x] CDX status column visibility and provider filters are configurable from icon menus and persisted.
+- [x] Workspace file view is available only when capability is present and remains root-bounded/read-only.
+- [x] Automated tests cover the linked backlog acceptance criteria.
+- [x] Logics lint/audit pass after implementation docs are updated.
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|implement-persisted-viewer-preferences-c|item-415-persist-viewer-preferences-and-|1-add-a-versioned-viewer-preference|run-targeted-viewer-unit-tests-for
+%% logics-signature: task|implement-persisted-viewer-preferences-c|item-415-persist-viewer-preferences-and-|1-add-a-versioned-viewer-preference|rtk-npm-test-tests-viewer-browser-host
 flowchart TD
     Backlog[Backlog items 415-418] --> Preferences[Preference store]
     Preferences --> Status[CDX status controls]
@@ -59,15 +59,25 @@ flowchart TD
 - AC7: Validation evidence lists the targeted tests run and the Logics lint/audit status.
 
 # Validation
-- Run targeted viewer/unit tests for changed files, expected candidates:
-  - `rtk npm test -- tests/viewer.browser-host.test.ts`
-  - `rtk npm test -- tests/webview.harness-details-and-filters.test.ts`
-  - additional focused tests added for workspace tree/preview behavior
-- Run `rtk logics-manager lint --require-status`.
-- Run `rtk logics-manager audit --group-by-doc`.
+- `rtk npm test -- tests/viewer.browser-host.test.ts` passed with 78 tests after the auto-refresh preference slice.
+- `rtk python3 -m pytest tests/python/test_logics_manager_cli.py -k 'viewer_refresh_interval or viewer_start_status'` passed with 3 selected tests after the CLI override slice.
+- `rtk npm test -- tests/viewer.browser-host.test.ts` passed with 81 tests after the CDX status column/provider controls slice.
+- `rtk npm test -- tests/viewer.browser-host.test.ts` passed with 83 tests after the Workspace view slice.
+- `rtk python3 -m pytest tests/python/test_logics_manager_cli.py -k 'workspace or capabilities_endpoint or project_capabilities'` passed with 6 selected tests after the Workspace backend slice.
+- `rtk logics-manager lint --require-status` passed.
+- `rtk logics-manager audit --group-by-doc` passed with 872 workflow docs inspected, 0 blocking issues, 0 warnings, and 0 strict-only findings.
+- Finish workflow executed on 2026-06-12.
+- Linked backlog/request close verification passed.
 
 # Report
-- Implementation pending.
+- Implementation complete.
+- Added versioned local viewer preferences for auto-refresh, with CLI launch override precedence and no implicit override persistence.
+- Added CDX status table column settings and provider filters, persisted locally; `BLOCK` and `CR` are hidden by default.
+- Added a capability-gated read-only Workspace screen before Git, with root-bounded tree listing and safe text/image/directory/unsupported preview states.
+- Updated local viewer documentation in `README.md`.
+- Finished on 2026-06-12.
+- Linked backlog item(s): `item_415_persist_viewer_preferences_and_refresh_settings`, `item_416_add_configurable_cdx_status_columns`, `item_417_add_persisted_provider_filters_to_cdx_status`, `item_418_add_workspace_file_explorer_view_to_the_viewer`
+- Related request(s): `req_243_persist_viewer_preferences_and_add_configurable_cdx_status_and_workspace_views`
 
 # AI Context
 - Summary: Implement persisted local viewer preferences, CDX status column/provider controls, and a read-only Workspace file view.

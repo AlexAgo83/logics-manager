@@ -1,10 +1,10 @@
 ## item_415_persist_viewer_preferences_and_refresh_settings - Persist viewer preferences and refresh settings
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -72,6 +72,7 @@ flowchart TD
 # Notes
 - Source request: `req_243_persist_viewer_preferences_and_add_configurable_cdx_status_and_workspace_views`.
 - This slice should establish the shared preference API used by sibling CDX status slices.
+- Task `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view` was finished via `logics-manager flow finish task` on 2026-06-12.
 
 # Tasks
 - `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view`

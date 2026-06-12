@@ -1,10 +1,10 @@
 ## item_418_add_workspace_file_explorer_view_to_the_viewer - Add workspace file explorer view to the viewer
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -80,6 +80,7 @@ flowchart TD
 
 # Notes
 - The first implementation should be read-only and conservative about file sizes and ignored folders.
+- Task `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view` was finished via `logics-manager flow finish task` on 2026-06-12.
 
 # Tasks
 - `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view`

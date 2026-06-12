@@ -151,6 +151,16 @@ logics-manager view --open
 
 The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
 
+Viewer preferences are stored locally in the browser profile. Auto-refresh
+restores the interval chosen in the viewer unless the launch command explicitly
+sets `--refresh-interval`, in which case that launch value controls only the
+current session. The CDX status table has compact controls for column visibility
+and provider filtering; `BLOCK` and `CR` are hidden by default, and provider
+filtering defaults to all providers so newly discovered providers remain visible.
+When workspace inspection is available, the topbar shows a `Workspace` view
+before `Git`; it provides a read-only file tree and bounded previews for text,
+directories, images, oversized files, and unsupported binary files.
+
 The CDX missions panel includes guarded workflows for audits, release reviews,
 turning a free-form wish into a structured Logics request, preparing a corpus
 plan, and preparing a guarded pre-release from an editable `vX.X.X` version.

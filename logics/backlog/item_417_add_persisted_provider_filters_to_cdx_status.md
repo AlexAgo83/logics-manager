@@ -1,10 +1,10 @@
 ## item_417_add_persisted_provider_filters_to_cdx_status - Add persisted provider filters to CDX status
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,6 +74,7 @@ flowchart TD
 
 # Notes
 - Store the default state as an explicit all-provider mode or equivalent null selection, not as a stale list of currently known providers.
+- Task `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view` was finished via `logics-manager flow finish task` on 2026-06-12.
 
 # Tasks
 - `task_218_implement_persisted_viewer_preferences_cdx_status_controls_and_workspace_file_view`

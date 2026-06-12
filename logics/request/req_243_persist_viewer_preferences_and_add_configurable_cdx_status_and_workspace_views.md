@@ -1,7 +1,7 @@
 ## req_243_persist_viewer_preferences_and_add_configurable_cdx_status_and_workspace_views - Persist viewer preferences and add configurable CDX status and workspace views
 > From version: 2.8.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
 > Complexity: High

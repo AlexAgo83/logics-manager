@@ -926,6 +926,31 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
     assert calls[0] == ["cdx", "status", "--json"]
 
 
+def test_viewer_cdx_runs_normalizes_unended_stale_runs_as_running(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args == ["cdx", "runs", "--json"]
+        return subprocess.CompletedProcess(
+            args,
+            0,
+            json.dumps(
+                {
+                    "runs": [
+                        {"run_id": "active", "status": "stale", "started_at": "2026-06-12T07:20:08Z"},
+                        {"run_id": "ended", "status": "stale", "ended_at": "2026-06-12T07:20:28Z"},
+                    ]
+                }
+            ),
+            "",
+        )
+
+    payload = cdx_runs_payload(tmp_path, runner=cdx_runner, which=lambda name: f"/usr/bin/{name}")
+
+    assert payload["state"] == "ok"
+    assert payload["runs"][0]["status"] == "running"
+    assert payload["runs"][0]["raw_status"] == "stale"
+    assert payload["runs"][1]["status"] == "stale"
+
+
 def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args == ["cdx", "status", "--json"]:

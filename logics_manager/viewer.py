@@ -1359,7 +1359,18 @@ def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
     runs = parsed.get("runs") if isinstance(parsed, dict) else None
     if not isinstance(runs, list):
         return {"state": "invalid-json", "message": "CDX runs JSON must include a runs array.", "runs": []}
-    return {"state": "ok", "message": "", "runs": [run for run in runs if isinstance(run, dict)]}
+    normalized_runs: list[dict[str, Any]] = []
+    for run in runs:
+        if not isinstance(run, dict):
+            continue
+        item = dict(run)
+        status = str(item.get("status") or item.get("state") or "").strip().lower()
+        if status == "stale" and not item.get("ended_at") and not item.get("endedAt"):
+            item["status"] = "running"
+            item["status_detail"] = "CDX still marks this run active; no end timestamp has been reported yet."
+            item["raw_status"] = "stale"
+        normalized_runs.append(item)
+    return {"state": "ok", "message": "", "runs": normalized_runs}
 
 
 def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:

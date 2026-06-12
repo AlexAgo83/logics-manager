@@ -1558,11 +1558,39 @@ describe("local viewer browser host", () => {
     const text = content?.textContent || "";
     expect(text).toContain("d6f7f11bb7cd4739abc713b80fbea07b");
     expect(text).toContain("Stale");
-    expect(text).toContain("1 reported · 1 stale");
-    expect(text).toContain("No live updates are attached to this run anymore.");
+    expect(text).toContain("1 reported · 1 incomplete");
+    expect(text).toContain("Run ended without a final live update.");
     expect(text).toContain("Open the report for the last captured output");
     expect(content?.querySelector(".viewer-cdx__state--warn")).toBeNull();
     expect(content?.querySelector('[data-viewer-cdx-report="d6f7f11bb7cd4739abc713b80fbea07b"]')).toBeTruthy();
+  });
+
+  it("shows running CDX runs separately from incomplete stale runs", async () => {
+    const { dom } = createViewerDom({
+      cdxRunsResponse: {
+        state: "ok",
+        message: "",
+        runs: [
+          { run_id: "run-active", kind: "assistant", status: "running", status_detail: "CDX still marks this run active; no end timestamp has been reported yet.", session: "work", cwd: "/workspace/logics-manager" },
+          { run_id: "run-ended", kind: "assistant", status: "stale", ended_at: "2026-06-12T07:20:28Z", session: "work", cwd: "/workspace/logics-manager" }
+        ]
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("2 reported · 1 incomplete · 1 running");
+    expect(text).toContain("run-active");
+    expect(text).toContain("CDX still marks this run active");
+    expect(text).toContain("run-ended");
+    expect(text).toContain("Run ended without a final live update.");
   });
 
   it("opens a CDX run report and creates a Logics request from findings", async () => {

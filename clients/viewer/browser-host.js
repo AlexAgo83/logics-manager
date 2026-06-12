@@ -2273,10 +2273,10 @@
   function cdxRunStatusDetail(run) {
     const status = String(cdxField(run, ["status", "state"], "unknown")).toLowerCase();
     if (status === "stale") {
-      return "No live updates are attached to this run anymore. Open the report for the last captured output and evidence.";
+      return "Run ended without a final live update. Open the report for the last captured output and evidence.";
     }
     if (["running", "starting", "pending"].includes(status)) {
-      return "Run is still tracked by CDX. Refresh runs to update the row.";
+      return cdxField(run, ["status_detail", "statusDetail"], "Run is still tracked by CDX. Refresh runs to update the row.");
     }
     return "";
   }
@@ -2712,8 +2712,11 @@
     }
     const runs = Array.isArray(payload.runs) ? payload.runs : [];
     const staleCount = runs.filter((run) => String(cdxField(run, ["status", "state"], "")).toLowerCase() === "stale").length;
+    const runningCount = runs.filter((run) => ["running", "starting", "pending"].includes(String(cdxField(run, ["status", "state"], "")).toLowerCase())).length;
     const runsSummary = staleCount
-      ? `${runs.length} reported · ${staleCount} stale`
+      ? `${runs.length} reported · ${staleCount} incomplete${runningCount ? ` · ${runningCount} running` : ""}`
+      : runningCount
+      ? `${runs.length} reported · ${runningCount} running`
       : `${runs.length} reported`;
     const rows = runs.map((run) => {
       const runId = cdxField(run, ["run_id", "runId", "id"], "");

@@ -1470,11 +1470,17 @@ def _cdx_mission_prompt(
     run_full_validation: bool = False,
     allow_file_writes: bool = False,
     direct_fixes: bool = False,
+    commit_at_end: bool = False,
 ) -> str:
     write_guidance = (
         "File edits are allowed when they directly complete the selected mission mode. Keep changes scoped, run relevant validation, and report changed files."
         if allow_file_writes
         else "Do not modify files."
+    )
+    commit_guidance = (
+        "At the end, if and only if files were added, deleted, or modified, create one scoped git commit that includes all mission changes. Do not push, tag, publish, upload assets, or create a GitHub release. Include the commit hash and message in the returned JSON when a commit is created."
+        if commit_at_end
+        else "Do not create git commits."
     )
     if mission_id == "full-audit":
         if direct_fixes:
@@ -1491,6 +1497,7 @@ def _cdx_mission_prompt(
             "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
             write_guidance,
             action_guidance,
+            commit_guidance,
             schema,
         ])
     if mission_id == "release-review":
@@ -1508,6 +1515,7 @@ def _cdx_mission_prompt(
             "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
             write_guidance,
             action_guidance,
+            commit_guidance,
             schema,
         ])
     if mission_id == "corpus-ready":
@@ -1531,6 +1539,7 @@ def _cdx_mission_prompt(
             "Turn the following user wish into a structured Logics request draft.",
             write_guidance,
             request_guidance,
+            commit_guidance,
             "Do not promote backlog items and do not create tasks.",
             "Return JSON only with this schema:",
             '{"summary":"...","requestDraft":{"title":"...","needs":["..."],"context":["..."],"acceptanceCriteria":["AC1: ..."],"definitionOfReady":{"problemExplicit":true,"scopeBounded":true,"criteriaTestable":true,"risksListed":true},"references":["..."],"questions":["..."],"openAssumptions":["..."]},"generatedFiles":[]}',
@@ -1550,6 +1559,7 @@ def _cdx_mission_prompt(
             validation_mode,
             release_prep_guidance,
             write_guidance,
+            commit_guidance,
             "Return JSON only with this schema:",
             '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',
         ])
@@ -1565,6 +1575,7 @@ def _cdx_mission_command(
     release_tag: str = "",
     mission_inputs: dict[str, str] | None = None,
     allow_file_writes: bool = False,
+    commit_at_end: bool = False,
 ) -> list[str]:
     mission_inputs = mission_inputs or {}
     prompt = _cdx_mission_prompt(
@@ -1575,6 +1586,7 @@ def _cdx_mission_command(
         run_full_validation=mission_inputs.get("runFullValidation") == "true",
         allow_file_writes=allow_file_writes,
         direct_fixes=mission_inputs.get("directFixes") == "true",
+        commit_at_end=commit_at_end,
     )
     timeout = int(strength.get("timeout") or 180)
     reasoning_effort = str(strength.get("reasoningEffort") or "medium")
@@ -1782,11 +1794,15 @@ def cdx_mission_plan_payload(
         warnings.append(str(status_payload.get("message") or "CDX status could not be confirmed."))
 
     requested_file_writes = _mission_bool_input(body, "allowFileWrites")
+    requested_commit_at_end = _mission_bool_input(body, "commitAtEnd")
     direct_fixes = mission_inputs.get("directFixes") == "true"
     supports_file_writes = bool(mission.get("supportsFileWrites", True))
     allow_file_writes = (requested_file_writes or direct_fixes) and supports_file_writes
+    commit_at_end = requested_commit_at_end and allow_file_writes
     if requested_file_writes and not supports_file_writes:
         warnings.append("This mission is plan-first; direct CDX file writes are disabled. Use Apply allowed actions after CDX returns actions.")
+    if requested_commit_at_end and not allow_file_writes:
+        warnings.append("Commit-at-end was requested but direct file writes are disabled for this mission.")
     permission = "workspace-write" if allow_file_writes else "read-only"
     command = _cdx_mission_command(
         repo_root,
@@ -1796,6 +1812,7 @@ def cdx_mission_plan_payload(
         release_tag=release_tag,
         mission_inputs=mission_inputs,
         allow_file_writes=allow_file_writes,
+        commit_at_end=commit_at_end,
     )
     plan = {
         "mission": mission,
@@ -1808,6 +1825,8 @@ def cdx_mission_plan_payload(
         "releaseTag": release_tag,
         "allowFileWrites": allow_file_writes,
         "requestedFileWrites": requested_file_writes,
+        "commitAtEnd": commit_at_end,
+        "requestedCommitAtEnd": requested_commit_at_end,
         "supportsFileWrites": supports_file_writes,
         "permission": permission,
         "command": ["cdx", *command],

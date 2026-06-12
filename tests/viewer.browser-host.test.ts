@@ -1858,6 +1858,32 @@ describe("local viewer browser host", () => {
     });
   });
 
+  it("passes commit-at-end preference for writable CDX missions", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const commitAtEnd = dom.window.document.querySelector('[data-viewer-cdx-input="commitAtEnd"]') as HTMLInputElement | null;
+    expect(commitAtEnd).toBeTruthy();
+    expect(commitAtEnd?.checked).toBe(false);
+    commitAtEnd!.checked = true;
+    commitAtEnd!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const planCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
+    expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
+      allowFileWrites: "true",
+      commitAtEnd: "true"
+    });
+  });
+
   it("passes direct-fix mode separately from corpus writes", async () => {
     const { dom, fetchCalls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

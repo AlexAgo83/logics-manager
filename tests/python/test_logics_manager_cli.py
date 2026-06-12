@@ -944,6 +944,7 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert payload["plan"]["allowFileWrites"] is True
     assert payload["plan"]["permission"] == "workspace-write"
     assert payload["plan"]["requestedFileWrites"] is True
+    assert payload["plan"]["commitAtEnd"] is False
     assert payload["plan"]["supportsFileWrites"] is True
     args = payload["plan"]["arguments"]
     assert args[args.index("--permission") + 1] == "workspace-write"
@@ -953,6 +954,55 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert "Do not directly modify product/source files" in prompt
     assert "corpusFiles" in prompt
     assert "validationEvidence" in prompt
+
+
+def test_viewer_cdx_mission_plan_passes_commit_at_end_instruction(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {
+            "missionId": "full-audit",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "allowFileWrites": True,
+            "commitAtEnd": True,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["allowFileWrites"] is True
+    assert payload["plan"]["commitAtEnd"] is True
+    assert payload["plan"]["requestedCommitAtEnd"] is True
+    prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert "if and only if files were added, deleted, or modified" in prompt
+    assert "create one scoped git commit" in prompt
+    assert "Do not push, tag, publish" in prompt
+
+
+def test_viewer_cdx_mission_plan_ignores_commit_at_end_when_writes_disabled(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        raise AssertionError(args)
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "corpus-ready", "sessionId": "work", "strengthId": "standard", "commitAtEnd": True},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["plan"]["allowFileWrites"] is False
+    assert payload["plan"]["commitAtEnd"] is False
+    assert payload["plan"]["requestedCommitAtEnd"] is True
+    assert any("Commit-at-end was requested" in warning for warning in payload["plan"]["warnings"])
 
 
 def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: Path) -> None:

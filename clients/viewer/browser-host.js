@@ -2432,7 +2432,8 @@
       sessionId: latestCdxMissionState.sessionId || "",
       strengthId: latestCdxMissionState.strengthId || "standard",
       ...latestCdxMissionState.missionInputs,
-      allowFileWrites
+      allowFileWrites,
+      commitAtEnd: latestCdxMissionState.missionInputs.commitAtEnd === "true" ? "true" : "false"
     };
   }
 
@@ -2491,6 +2492,10 @@
             <label class="viewer-cdx__field viewer-cdx__field--check">
               <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
               <span>${escapeHtml(fileWriteLabel)}</span>
+            </label>
+            <label class="viewer-cdx__field viewer-cdx__field--check">
+              <input data-viewer-cdx-input="commitAtEnd" type="checkbox"${latestCdxMissionState.missionInputs.commitAtEnd === "true" ? " checked" : ""}>
+              <span>Commit changes at end</span>
             </label>
         `
       : `
@@ -2559,6 +2564,7 @@
             ${planPayload && planPayload.state !== "ok" ? `<div class="viewer-cdx__state">${escapeHtml(planPayload.message || "Unable to build mission plan.")}</div>` : ""}
             ${command ? `<pre class="viewer-cdx__code">${escapeHtml(command)}</pre>` : '<div class="viewer-cdx__empty">Preview a mission to inspect the exact command before launch.</div>'}
             ${plan?.releaseTag ? `<div class="viewer-cdx__meta">Base tag: ${escapeHtml(plan.releaseTag)}</div>` : ""}
+            ${plan?.commitAtEnd ? '<div class="viewer-cdx__meta">Commit at end: enabled when mission changes files.</div>' : ""}
             ${plan?.requiresConfirmation ? '<div class="viewer-cdx__meta">Plan-first mission: Logics changes need explicit apply after CDX returns allowed actions.</div>' : ""}
             ${warningRows ? `<ul class="viewer-cdx__warnings">${warningRows}</ul>` : ""}
           </section>

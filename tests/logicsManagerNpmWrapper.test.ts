@@ -129,4 +129,47 @@ describe("logics-manager npm wrapper", () => {
     });
     expect(fs.existsSync(path.join(repoRoot, payload.path))).toBe(true);
   });
+
+  it("propagates failing audit exit codes from the real npm wrapper", () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-manager-wrapper-audit-"));
+    const repoRoot = path.join(tempRoot, "repo");
+    const productRoot = path.join(repoRoot, "logics", "product");
+    fs.mkdirSync(productRoot, { recursive: true });
+    fs.writeFileSync(
+      path.join(productRoot, "prod_001_demo.md"),
+      [
+        "## prod_001_demo - Demo product brief",
+        "> Date: 2026-06-12",
+        "> Status: Proposed",
+        "",
+        "# Overview",
+        "Early product framing without complete lineage yet.",
+        ""
+      ].join("\n")
+    );
+
+    const result = spawnSync(
+      process.execPath,
+      [
+        path.join(root, "scripts", "npm", "logics-manager.mjs"),
+        "audit",
+        "--governance-profile",
+        "strict",
+        "--format",
+        "json"
+      ],
+      {
+        cwd: repoRoot,
+        encoding: "utf8"
+      }
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toBe("");
+    const payload = JSON.parse(result.stdout);
+    expect(payload).toMatchObject({
+      ok: false,
+      issue_count: 2
+    });
+  });
 });

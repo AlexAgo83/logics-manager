@@ -410,26 +410,26 @@ def main(argv: list[str] | None = None) -> int:
                 autofix_structure=parsed.autofix_structure,
                 governance_profile=parsed.governance_profile,
             )
-            output = render_audit(
-                repo_root,
-                stale_days=parsed.stale_days,
-                skip_ac_traceability=parsed.skip_ac_traceability,
-                skip_gates=parsed.skip_gates,
-                legacy_cutoff_version=parsed.legacy_cutoff_version,
-                output_format=parsed.format,
-                group_by_doc=parsed.group_by_doc,
-                autofix_ac_traceability=parsed.autofix_ac_traceability,
-                paths=parsed.paths,
-                refs=parsed.refs,
-                since_version=parsed.since_version,
-                token_hygiene=parsed.token_hygiene,
-                autofix_structure=parsed.autofix_structure,
-                governance_profile=parsed.governance_profile,
-            )
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
+        output = json.dumps(payload, indent=2, sort_keys=True) if parsed.format == "json" else render_audit(
+            repo_root,
+            stale_days=parsed.stale_days,
+            skip_ac_traceability=parsed.skip_ac_traceability,
+            skip_gates=parsed.skip_gates,
+            legacy_cutoff_version=parsed.legacy_cutoff_version,
+            output_format=parsed.format,
+            group_by_doc=parsed.group_by_doc,
+            autofix_ac_traceability=parsed.autofix_ac_traceability,
+            paths=parsed.paths,
+            refs=parsed.refs,
+            since_version=parsed.since_version,
+            token_hygiene=parsed.token_hygiene,
+            autofix_structure=parsed.autofix_structure,
+            governance_profile=parsed.governance_profile,
+        )
         print(output)
-        return 0
+        return 0 if payload["ok"] else 1
     if command == "index":
         parser = argparse.ArgumentParser(prog="logics-manager index", add_help=False)
         parser.add_argument("--out", default="logics/INDEX.md")

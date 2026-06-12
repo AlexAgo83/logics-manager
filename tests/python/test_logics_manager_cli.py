@@ -3120,6 +3120,56 @@ def test_strict_audit_blocks_companion_mermaid_and_link_gaps(tmp_path: Path) -> 
     assert {issue["code"] for issue in payload["issues"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
 
 
+@pytest.mark.parametrize("output_args", [[], ["--format", "json"]])
+def test_main_audit_returns_nonzero_for_failed_payload(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    output_args: list[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["audit", "--governance-profile", "strict", *output_args])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    if output_args:
+        payload = json.loads(captured.out)
+        assert payload["ok"] is False
+        assert payload["issue_count"] == 2
+    else:
+        assert "Workflow audit: FAILED" in captured.out
+
+
+@pytest.mark.parametrize("output_args", [[], ["--format", "json"]])
+def test_module_audit_subprocess_returns_nonzero_for_failed_payload(tmp_path: Path, output_args: list[str]) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    result = _run_logics_manager_subprocess(repo_root, ["audit", "--governance-profile", "strict", *output_args])
+
+    assert result.returncode == 1
+    assert result.stderr == ""
+    if output_args:
+        payload = json.loads(result.stdout)
+        assert payload["ok"] is False
+        assert payload["issue_count"] == 2
+    else:
+        assert "Workflow audit: FAILED" in result.stdout
+
+
 def test_render_index_builds_markdown_and_json(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

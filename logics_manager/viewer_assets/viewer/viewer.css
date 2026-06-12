@@ -265,6 +265,11 @@
   line-height: 1;
 }
 
+.viewer-cdx-button-badge--runs {
+  background: rgba(245, 158, 11, 0.16);
+  color: #f59e0b;
+}
+
 .viewer-refresh-menu {
   position: relative;
   display: inline-flex;
@@ -312,6 +317,19 @@
 .viewer-settings-menu__section > .btn {
   justify-content: center;
   width: 100%;
+}
+
+.viewer-settings-menu__version {
+  justify-self: center;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.viewer-settings-menu__version:hover,
+.viewer-settings-menu__version:focus-visible {
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  text-decoration: underline;
 }
 
 .viewer-auto-refresh {
@@ -655,6 +673,10 @@
   grid-template-columns: minmax(280px, 1.35fr) minmax(240px, 0.85fr);
   gap: 12px;
   align-items: start;
+}
+
+.viewer-cdx__workspace--missions {
+  grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.1fr);
 }
 
 .viewer-git__summary-card {

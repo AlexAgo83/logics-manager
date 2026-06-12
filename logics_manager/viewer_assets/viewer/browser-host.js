@@ -21,6 +21,7 @@
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
   const refreshMenuPanel = () => document.getElementById("viewer-refresh-menu");
+  const versionLink = () => document.getElementById("viewer-version-link");
   const activityClearControl = () => document.getElementById("activity-clear");
   const activityStorageLimit = 80;
   const gitHistoryPageSize = 10;
@@ -54,6 +55,7 @@
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
   let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+  let latestUpdateInfo = {};
   let latestCdxMissionState = {
     missionId: "full-audit",
     sessionId: "",
@@ -669,6 +671,18 @@
     }
   }
 
+  function updateVersionLink(updateInfo = latestUpdateInfo) {
+    latestUpdateInfo = updateInfo && typeof updateInfo === "object" ? updateInfo : {};
+    const link = versionLink();
+    if (!(link instanceof HTMLAnchorElement)) {
+      return;
+    }
+    const currentVersion = String(latestUpdateInfo.currentVersion || "").trim();
+    link.textContent = currentVersion ? `v${currentVersion.replace(/^v/i, "")}` : "v0.0.0";
+    link.href = latestRepository.githubUrl || "https://github.com/AlexAgo83/logics-manager";
+    link.title = "Open Logics Manager on GitHub";
+  }
+
   async function openRepositoryFolder() {
     if (!latestRepository.root) {
       setMeta("Repository folder is unavailable.");
@@ -838,13 +852,22 @@
     return cdxProviders(status).reduce((total, provider) => total + Math.max(0, Number(provider.active || 0)), 0);
   }
 
-  function updateMainCdxBadge(payload) {
+  function activeCdxRunCountFromPayload(payload) {
+    if (!payload || payload.state !== "ok" || !Array.isArray(payload.runs)) {
+      return 0;
+    }
+    return payload.runs.filter((run) => ["running", "starting", "pending"].includes(String(cdxField(run, ["status", "state"], "")).toLowerCase())).length;
+  }
+
+  function updateMainCdxBadge(payload, runsPayload = null) {
     const button = document.getElementById("viewer-cdx");
     if (!(button instanceof HTMLElement)) {
       return;
     }
     button.querySelector("[data-viewer-cdx-badge]")?.remove();
-    const activeCount = activeCdxAssistantCountFromPayload(payload);
+    const activeSessions = activeCdxAssistantCountFromPayload(payload);
+    const activeRuns = activeCdxRunCountFromPayload(runsPayload);
+    const activeCount = activeSessions + activeRuns;
     if (activeCount <= 0) {
       button.title = isCapabilityAvailable("cdx")
         ? "Show CDX status"
@@ -852,9 +875,17 @@
       return;
     }
     const label = activeCount > 9 ? "9+" : String(activeCount);
-    const title = activeCount === 1 ? "1 active assistant/session" : `${activeCount} active assistants/sessions`;
+    const titleParts = [];
+    if (activeSessions > 0) {
+      titleParts.push(activeSessions === 1 ? "1 active session" : `${activeSessions} active sessions`);
+    }
+    if (activeRuns > 0) {
+      titleParts.push(activeRuns === 1 ? "1 running run" : `${activeRuns} running runs`);
+    }
+    const title = titleParts.join(" · ");
     button.title = `Show CDX status · ${title}`;
-    button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
+    const tone = activeRuns > 0 ? " viewer-cdx-button-badge--runs" : "";
+    button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge${tone}" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
   }
 
   async function refreshCdxBadgeCounters() {
@@ -863,15 +894,23 @@
       return;
     }
     try {
-      const response = await fetch("/api/cdx-status");
-      if (response.status === 404) {
+      const [statusResponse, runsResponse] = await Promise.all([
+        fetch("/api/cdx-status"),
+        fetch("/api/cdx-runs").catch(() => null)
+      ]);
+      if (statusResponse.status === 404) {
         updateMainCdxBadge(null);
         return;
       }
-      const data = await response.json();
-      if (response.ok && data.ok) {
-        latestCdxStatusSignature = runtimeStatusSignature(data.payload);
-        updateMainCdxBadge(data.payload);
+      const data = await statusResponse.json();
+      let runsPayload = null;
+      if (runsResponse && runsResponse.ok) {
+        const runsData = await runsResponse.json();
+        runsPayload = runsData?.ok ? runsData.payload : null;
+      }
+      if (statusResponse.ok && data.ok) {
+        latestCdxStatusSignature = runtimeStatusSignature({ status: data.payload, runs: runsPayload });
+        updateMainCdxBadge(data.payload, runsPayload);
       }
     } catch {
       updateMainCdxBadge(null);
@@ -1200,6 +1239,7 @@
       setMeta(`${rootName} · ${payload.items.length} docs · refreshed ${new Date().toLocaleTimeString()}`);
     }
     scheduleNextAutoRefresh();
+    updateVersionLink(payload.updateInfo);
     renderUpdateNotice(payload.updateInfo);
     refreshCiBadgeCounters();
     refreshCdxBadgeCounters();
@@ -2042,15 +2082,41 @@
     return asArray(status?.rows);
   }
 
+  function numericValues(values) {
+    return values.map((value) => Number(value)).filter((value) => Number.isFinite(value));
+  }
+
+  function formatPercentRange(values) {
+    const numbers = numericValues(values).map((value) => Math.max(0, Math.min(100, Math.round(value))));
+    if (!numbers.length) {
+      return "not reported";
+    }
+    const min = Math.min(...numbers);
+    const max = Math.max(...numbers);
+    return min === max ? `${min}%` : `${min}-${max}%`;
+  }
+
   function cdxProviders(status) {
-    const explicitProviders = pickFirstArray(status, ["providers", "providerStatus", "provider_status"]);
-    if (explicitProviders.length) {
-      return explicitProviders;
+    const rows = cdxRows(status);
+    if (!rows.length) {
+      return pickFirstArray(status, ["providers", "providerStatus", "provider_status"]);
     }
     const grouped = new Map();
-    cdxRows(status).forEach((row) => {
+    rows.forEach((row) => {
       const provider = String(row.provider || "unknown");
-      const current = grouped.get(provider) || { name: provider, enabled: 0, active: 0, authenticated: 0, sessions: 0, lowest_available_pct: null };
+      const current = grouped.get(provider) || {
+        name: provider,
+        enabled: 0,
+        active: 0,
+        authenticated: 0,
+        sessions: 0,
+        remaining_5h: "not reported",
+        remaining_week: "not reported",
+        credits: "",
+        _remaining5hValues: [],
+        _remainingWeekValues: [],
+        _creditsValues: []
+      };
       current.sessions += 1;
       if (row.enabled) {
         current.enabled += 1;
@@ -2061,15 +2127,31 @@
       if (String(row.auth_status || "").toLowerCase() === "authenticated") {
         current.authenticated += 1;
       }
-      if (typeof row.available_pct === "number") {
-        current.lowest_available_pct = current.lowest_available_pct === null
-          ? row.available_pct
-          : Math.min(current.lowest_available_pct, row.available_pct);
+      const fiveHour = Number(row.remaining_5h_pct ?? row.remaining5hPct);
+      if (Number.isFinite(fiveHour)) {
+        current._remaining5hValues.push(fiveHour);
+      }
+      const week = Number(row.remaining_week_pct ?? row.remainingWeekPct);
+      if (Number.isFinite(week)) {
+        current._remainingWeekValues.push(week);
+      }
+      if (row.credits !== undefined && row.credits !== null && row.credits !== "") {
+        current._creditsValues.push(row.credits);
       }
       current.state = current.active > 0 ? "active" : current.enabled > 0 ? "enabled" : "disabled";
       grouped.set(provider, current);
     });
-    return Array.from(grouped.values());
+    return Array.from(grouped.values()).map((provider) => {
+      const creditsNumbers = numericValues(provider._creditsValues);
+      const creditsTotal = creditsNumbers.length ? creditsNumbers.reduce((total, value) => total + value, 0) : null;
+      const { _remaining5hValues, _remainingWeekValues, _creditsValues, ...publicProvider } = provider;
+      return {
+        ...publicProvider,
+        remaining_5h: formatPercentRange(_remaining5hValues),
+        remaining_week: formatPercentRange(_remainingWeekValues),
+        credits: creditsTotal === null ? "" : creditsTotal.toFixed(2)
+      };
+    });
   }
 
   function cdxSessions(status) {
@@ -2271,13 +2353,6 @@
   }
 
   function cdxRunStatusDetail(run) {
-    const status = String(cdxField(run, ["status", "state"], "unknown")).toLowerCase();
-    if (status === "stale") {
-      return "Run ended without a final live update. Open the report for the last captured output and evidence.";
-    }
-    if (["running", "starting", "pending"].includes(status)) {
-      return cdxField(run, ["status_detail", "statusDetail"], "Run is still tracked by CDX. Refresh runs to update the row.");
-    }
     return "";
   }
 

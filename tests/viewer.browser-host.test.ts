@@ -44,6 +44,7 @@ function createViewerDom(options: {
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
+    <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <div class="viewer-refresh-menu">
       <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
@@ -683,6 +684,18 @@ describe("local viewer browser host", () => {
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
     expect(labels).toEqual(["Git", "CI", "CDX", "Settings"]);
+  });
+
+  it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const version = dom.window.document.getElementById("viewer-version-link") as HTMLAnchorElement | null;
+    expect(version?.textContent).toBe("v2.2.0");
+    expect(version?.getAttribute("href")).toBe("https://github.com/AlexAgo83/logics-manager");
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {
@@ -1535,6 +1548,21 @@ describe("local viewer browser host", () => {
     expect(text).toContain("code-review");
   });
 
+  it("adds active runs to the CDX topbar badge", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    const badge = dom.window.document.querySelector("[data-viewer-cdx-badge]");
+    expect(badge?.textContent).toBe("2");
+    expect(badge?.className).toContain("viewer-cdx-button-badge--runs");
+    expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.title).toContain("1 running run");
+  });
+
   it("explains stale CDX runs without blocking report access", async () => {
     const { dom } = createViewerDom({
       cdxRunsResponse: {
@@ -1559,8 +1587,8 @@ describe("local viewer browser host", () => {
     expect(text).toContain("d6f7f11bb7cd4739abc713b80fbea07b");
     expect(text).toContain("Stale");
     expect(text).toContain("1 reported · 1 incomplete");
-    expect(text).toContain("Run ended without a final live update.");
-    expect(text).toContain("Open the report for the last captured output");
+    expect(text).not.toContain("Run ended without a final live update.");
+    expect(text).not.toContain("Open the report for the last captured output");
     expect(content?.querySelector(".viewer-cdx__state--warn")).toBeNull();
     expect(content?.querySelector('[data-viewer-cdx-report="d6f7f11bb7cd4739abc713b80fbea07b"]')).toBeTruthy();
   });
@@ -1588,9 +1616,9 @@ describe("local viewer browser host", () => {
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("2 reported · 1 incomplete · 1 running");
     expect(text).toContain("run-active");
-    expect(text).toContain("CDX still marks this run active");
+    expect(text).not.toContain("CDX still marks this run active");
     expect(text).toContain("run-ended");
-    expect(text).toContain("Run ended without a final live update.");
+    expect(text).not.toContain("Run ended without a final live update.");
   });
 
   it("opens a CDX run report and creates a Logics request from findings", async () => {
@@ -2149,6 +2177,8 @@ describe("local viewer browser host", () => {
     expect(text).toContain("corvus");
     expect(text).toContain("Lowest Remaining");
     expect(text).toContain("Remaining");
+    expect(text).toContain("Remaining 5h");
+    expect(text).toContain("Remaining Week");
     expect(text).toContain("7%");
     expect(text).toContain("100%");
     expect(text).toContain("5H");

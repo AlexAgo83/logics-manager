@@ -74,12 +74,27 @@
   let latestViewerStateSignature = "";
   let latestGitStatusSignature = "";
   let latestCdxStatusSignature = "";
+  let latestCdxStatusPayload = null;
   let latestCiStatusSignature = "";
   let primaryActionBusyKey = "";
   let cdxMissionBusyKey = "";
   let cdxCloseTarget = null;
   let viewerPreferences = readViewerPreferences();
   let autoRefreshIntervalForcedByLaunch = false;
+  const cdxStatusColumns = [
+    { id: "session", label: "SESSION" },
+    { id: "provider", label: "PROV." },
+    { id: "status", label: "STATUS" },
+    { id: "auth", label: "AUTH" },
+    { id: "ok", label: "OK" },
+    { id: "remaining5h", label: "5H" },
+    { id: "remainingWeek", label: "WEEK" },
+    { id: "block", label: "BLOCK", defaultVisible: false },
+    { id: "credits", label: "CR", defaultVisible: false },
+    { id: "reset5h", label: "RESET 5H" },
+    { id: "resetWeek", label: "RESET WEEK" },
+    { id: "updated", label: "UPDATED" }
+  ];
 
   function readStoredState() {
     try {
@@ -117,6 +132,53 @@
   function preferredAutoRefreshIntervalSeconds() {
     const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
     return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
+  }
+
+  function cdxColumnVisibilityPreference() {
+    const stored = viewerPreferences.cdxStatusColumns;
+    const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
+    const visibility = {};
+    cdxStatusColumns.forEach((column) => {
+      visibility[column.id] = column.defaultVisible !== false;
+      if (storedVisibility && typeof storedVisibility[column.id] === "boolean") {
+        visibility[column.id] = storedVisibility[column.id];
+      }
+    });
+    return visibility;
+  }
+
+  function persistCdxColumnVisibility(columnId, visible) {
+    const current = cdxColumnVisibilityPreference();
+    if (!cdxStatusColumns.some((column) => column.id === columnId)) {
+      return;
+    }
+    updateViewerPreferences({
+      cdxStatusColumns: {
+        visibility: { ...current, [columnId]: Boolean(visible) }
+      }
+    });
+  }
+
+  function cdxProviderFilterPreference() {
+    const stored = viewerPreferences.cdxStatusProviders;
+    if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
+      return { mode: "all", selected: [] };
+    }
+    const selected = Array.isArray(stored.selected)
+      ? stored.selected.map((entry) => String(entry || "").trim()).filter(Boolean)
+      : [];
+    return selected.length ? { mode: "subset", selected: Array.from(new Set(selected)) } : { mode: "all", selected: [] };
+  }
+
+  function persistCdxProviderFilter(nextFilter) {
+    const selected = Array.isArray(nextFilter?.selected)
+      ? nextFilter.selected.map((entry) => String(entry || "").trim()).filter(Boolean)
+      : [];
+    updateViewerPreferences({
+      cdxStatusProviders: selected.length
+        ? { mode: "subset", selected: Array.from(new Set(selected)).sort() }
+        : { mode: "all", selected: [] }
+    });
   }
 
   function sanitizeViewerFilterState(value) {
@@ -2439,31 +2501,108 @@
     return explicit === true ? "YES" : "-";
   }
 
+  function cdxProviderName(item) {
+    return String(cdxField(item, ["provider", "name"], "unknown") || "unknown");
+  }
+
+  function cdxKnownProviders(status, providers, sessions) {
+    const names = new Set();
+    providers.forEach((provider) => {
+      const name = cdxProviderName(provider);
+      if (name) {
+        names.add(name);
+      }
+    });
+    sessions.forEach((session) => {
+      const name = cdxProviderName(session);
+      if (name) {
+        names.add(name);
+      }
+    });
+    pickFirstArray(status, ["providers", "providerStatus", "provider_status"]).forEach((provider) => {
+      const name = cdxProviderName(provider);
+      if (name) {
+        names.add(name);
+      }
+    });
+    return Array.from(names).sort((left, right) => left.localeCompare(right));
+  }
+
+  function filterCdxEntriesByProvider(entries, providerFilter) {
+    if (providerFilter.mode !== "subset" || !providerFilter.selected.length) {
+      return entries;
+    }
+    const selected = new Set(providerFilter.selected);
+    return entries.filter((entry) => selected.has(cdxProviderName(entry)));
+  }
+
+  function renderCdxStatusControls(knownProviders, visibleColumns, providerFilter) {
+    const columnRows = cdxStatusColumns.map((column) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
+        <span>${escapeHtml(column.label)}</span>
+      </label>
+    `).join("");
+    const selected = new Set(providerFilter.mode === "subset" ? providerFilter.selected : knownProviders);
+    const providerRows = knownProviders.map((provider) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-provider="${escapeHtml(provider)}"${selected.has(provider) ? " checked" : ""}>
+        <span>${escapeHtml(provider)}</span>
+      </label>
+    `).join("");
+    const providerSummary = providerFilter.mode === "subset" && providerFilter.selected.length
+      ? `${providerFilter.selected.length}/${knownProviders.length || providerFilter.selected.length}`
+      : "All";
+    return `
+      <div class="viewer-cdx__controls" aria-label="CDX status table controls">
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Configure status columns" aria-label="Configure status columns">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX status columns">${columnRows}</div>
+        </details>
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Filter status providers" aria-label="Filter status providers">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="viewer-cdx__icon-count">${escapeHtml(providerSummary)}</span>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX provider filter">
+            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-provider-all>All providers</button>
+            ${providerRows || '<div class="viewer-cdx__empty">No providers reported.</div>'}
+          </div>
+        </details>
+      </div>
+    `;
+  }
+
   function renderCdxSessionTable(sessions, emptyText) {
     if (!sessions.length) {
       return `<div class="viewer-cdx__empty">${escapeHtml(emptyText)}</div>`;
     }
+    const visibleColumns = cdxColumnVisibilityPreference();
+    const cellRenderers = {
+      session: (item) => {
+        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        return `<td class="viewer-cdx__session-name">${escapeHtml(`${name}${item.active ? "*" : ""}`)}</td>`;
+      },
+      provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
+      status: (item) => `<td>${renderCdxBadge(cdxField(item, ["status", "state"]))}</td>`,
+      auth: (item) => `<td>${escapeHtml(String(cdxField(item, ["auth_status", "authStatus"], "-")).replace("authenticated", "logged"))}</td>`,
+      ok: (item) => `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`,
+      remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
+      remainingWeek: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>`,
+      block: (item) => `<td>${escapeHtml(cdxSessionBlock(item))}</td>`,
+      credits: (item) => `<td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>`,
+      reset5h: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>`,
+      resetWeek: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>`,
+      updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`
+    };
+    const activeColumns = cdxStatusColumns.filter((column) => visibleColumns[column.id]);
     const rows = sessions.slice(0, 24).map((entry) => {
       const item = entry && typeof entry === "object" ? entry : { value: entry };
-      const name = cdxField(item, ["session_name", "name", "id", "value"]);
-      const sessionName = `${name}${item.active ? "*" : ""}`;
-      const status = cdxField(item, ["status", "state"]);
-      const auth = String(cdxField(item, ["auth_status", "authStatus"], "-")).replace("authenticated", "logged");
-      const block = cdxSessionBlock(item);
       return `
         <tr>
-          <td class="viewer-cdx__session-name">${escapeHtml(sessionName)}</td>
-          <td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>
-          <td>${renderCdxBadge(status)}</td>
-          <td>${escapeHtml(auth)}</td>
-          <td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>
-          <td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>
-          <td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>
-          <td>${escapeHtml(block)}</td>
-          <td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>
-          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>
-          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>
-          <td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>
+          ${activeColumns.map((column) => cellRenderers[column.id](item)).join("")}
         </tr>
       `;
     }).join("");
@@ -2472,18 +2611,7 @@
         <table class="viewer-cdx__table">
           <thead>
             <tr>
-              <th>SESSION</th>
-              <th>PROV.</th>
-              <th>STATUS</th>
-              <th>AUTH</th>
-              <th>OK</th>
-              <th>5H</th>
-              <th>WEEK</th>
-              <th>BLOCK</th>
-              <th>CR</th>
-              <th>RESET 5H</th>
-              <th>RESET WEEK</th>
-              <th>UPDATED</th>
+              ${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -2759,8 +2887,12 @@
       `;
     }
     const status = payload.status || {};
-    const providers = cdxProviders(status);
-    const sessions = cdxSessions(status);
+    const allProviders = cdxProviders(status);
+    const allSessions = cdxSessions(status);
+    const providerFilter = cdxProviderFilterPreference();
+    const knownProviders = cdxKnownProviders(status, allProviders, allSessions);
+    const providers = filterCdxEntriesByProvider(allProviders, providerFilter);
+    const sessions = filterCdxEntriesByProvider(allSessions, providerFilter);
     const readiness = cdxReadiness(status);
     const commands = pickFirstArray(status, ["nextCommands", "next_commands", "safeCommands", "safe_commands", "commands"])
       .map((entry) => typeof entry === "string" ? entry : (entry.command || entry.value || entry.name || ""))
@@ -2791,6 +2923,7 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("status")}
         <div class="viewer-cdx__summary">${cards}</div>
+        ${renderCdxStatusControls(knownProviders, cdxColumnVisibilityPreference(), providerFilter)}
         <div class="viewer-cdx__workspace">
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">
@@ -2815,6 +2948,12 @@
         </div>
       </div>
     `;
+  }
+
+  function rerenderCdxStatusFromPreferences() {
+    if (isCdxStatusOpen() && latestCdxStatusPayload) {
+      setDocument("CDX status", renderCdxStatus(latestCdxStatusPayload));
+    }
   }
 
   function renderCdxRuns(payload) {
@@ -3147,6 +3286,7 @@
       return;
     }
     latestCdxStatusSignature = nextCdxSignature;
+    latestCdxStatusPayload = data.payload;
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
@@ -3955,6 +4095,8 @@
     document.addEventListener("change", (event) => {
       const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
       const cdxInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-input]") : null;
+      const cdxColumnTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-column]") : null;
+      const cdxProviderTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider]") : null;
       if (sessionTarget instanceof HTMLSelectElement) {
         latestCdxMissionState.sessionId = sessionTarget.value || "";
         latestCdxMissionState.planPayload = null;
@@ -3970,6 +4112,25 @@
           latestCdxMissionState.runPayload = null;
           latestCdxMissionState.applyPayload = null;
         }
+      }
+      if (cdxColumnTarget instanceof HTMLInputElement) {
+        persistCdxColumnVisibility(cdxColumnTarget.getAttribute("data-viewer-cdx-column") || "", cdxColumnTarget.checked);
+        rerenderCdxStatusFromPreferences();
+      }
+      if (cdxProviderTarget instanceof HTMLInputElement) {
+        const provider = cdxProviderTarget.getAttribute("data-viewer-cdx-provider") || "";
+        const status = latestCdxStatusPayload?.status || {};
+        const allProviders = cdxKnownProviders(status, cdxProviders(status), cdxSessions(status));
+        const current = cdxProviderFilterPreference();
+        const selected = new Set(current.mode === "subset" ? current.selected : allProviders);
+        if (cdxProviderTarget.checked) {
+          selected.add(provider);
+        } else {
+          selected.delete(provider);
+        }
+        const nextSelected = Array.from(selected).filter((entry) => allProviders.includes(entry));
+        persistCdxProviderFilter(nextSelected.length === allProviders.length ? { mode: "all", selected: [] } : { mode: "subset", selected: nextSelected });
+        rerenderCdxStatusFromPreferences();
       }
     });
     document.addEventListener("click", (event) => {
@@ -3987,6 +4148,7 @@
       const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
       const cdxArtifactTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-artifact-path]") : null;
+      const cdxProviderAllTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider-all]") : null;
       const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
       const cdxMissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission]") : null;
       const cdxStrengthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-strength]") : null;
@@ -4020,6 +4182,11 @@
       }
       if (cdxApplyPlanTarget instanceof HTMLElement) {
         withCdxMissionAction("cdx-apply-plan", "Applying CDX mission plan", applyCdxMissionPlan);
+        return;
+      }
+      if (cdxProviderAllTarget instanceof HTMLElement) {
+        persistCdxProviderFilter({ mode: "all", selected: [] });
+        rerenderCdxStatusFromPreferences();
         return;
       }
       if (cdxBackRunsTarget instanceof HTMLElement) {

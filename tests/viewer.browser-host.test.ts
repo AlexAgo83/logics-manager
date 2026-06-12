@@ -698,6 +698,54 @@ describe("local viewer browser host", () => {
     control.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
   }
 
+  function cdxRowsStatusPayload() {
+    return {
+      ok: true,
+      body: {
+        ok: true,
+        payload: {
+          state: "ok",
+          message: "",
+          status: {
+            ok: true,
+            message: "Collected session status rows",
+            rows: [
+              {
+                session_name: "work2",
+                provider: "codex",
+                enabled: true,
+                active: true,
+                status: "enabled",
+                auth_status: "authenticated",
+                available_pct: 7,
+                remaining_5h_pct: 0,
+                remaining_week_pct: 3,
+                credits: "9.6752125000",
+                reset_5h_at: "Jun 10 03:03",
+                reset_week_at: "Jun 11 15:04",
+                updated_at: new Date(Date.now() - 90_000).toISOString()
+              },
+              {
+                session_name: "corvus",
+                provider: "claude",
+                enabled: true,
+                active: false,
+                status: "enabled",
+                auth_status: "authenticated",
+                available_pct: 100,
+                remaining_5h_pct: 100,
+                remaining_week_pct: 100,
+                reset_5h_at: "Jun 10 04:50",
+                reset_week_at: "Jun 15 18:00",
+                updated_at: new Date(Date.now() - 8 * 60_000).toISOString()
+              }
+            ]
+          }
+        }
+      }
+    };
+  }
+
   it("renders the local corpus filter panel closed by default", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
@@ -2341,51 +2389,7 @@ describe("local viewer browser host", () => {
 
   it("maps CDX status rows into providers sessions and readiness", async () => {
     const { dom } = createViewerDom({
-      cdxResponse: {
-        ok: true,
-        body: {
-          ok: true,
-          payload: {
-            state: "ok",
-            message: "",
-            status: {
-              ok: true,
-              message: "Collected session status rows",
-              rows: [
-                {
-                  session_name: "work2",
-                  provider: "codex",
-                  enabled: true,
-                  active: true,
-                  status: "enabled",
-                  auth_status: "authenticated",
-                  available_pct: 7,
-                  remaining_5h_pct: 0,
-                  remaining_week_pct: 3,
-                  credits: "9.6752125000",
-                  reset_5h_at: "Jun 10 03:03",
-                  reset_week_at: "Jun 11 15:04",
-                  updated_at: new Date(Date.now() - 90_000).toISOString()
-                },
-                {
-                  session_name: "corvus",
-                  provider: "claude",
-                  enabled: true,
-                  active: false,
-                  status: "enabled",
-                  auth_status: "authenticated",
-                  available_pct: 100,
-                  remaining_5h_pct: 100,
-                  remaining_week_pct: 100,
-                  reset_5h_at: "Jun 10 04:50",
-                  reset_week_at: "Jun 15 18:00",
-                  updated_at: new Date(Date.now() - 8 * 60_000).toISOString()
-                }
-              ]
-            }
-          }
-        }
-      }
+      cdxResponse: cdxRowsStatusPayload()
     });
     const api = dom.window.acquireVsCodeApi();
 
@@ -2411,7 +2415,10 @@ describe("local viewer browser host", () => {
     expect(text).toContain("7%");
     expect(text).toContain("100%");
     expect(text).toContain("5H");
-    expect(text).toContain("9.68");
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("BLOCK");
+    expect(headers).not.toContain("CR");
+    expect(text).not.toContain("9.68");
     expect(text).toMatch(/in \d+[dhm]/);
     expect(text).toMatch(/\d+m ago/);
     expect(text).toContain("cdx status --json");
@@ -2424,6 +2431,97 @@ describe("local viewer browser host", () => {
     expect(leftStackText).toContain("Sessions");
     expect(leftStackText).not.toContain("Providers");
     expect(rightStackText.indexOf("Safe next commands")).toBeLessThan(rightStackText.indexOf("Providers"));
+  });
+
+  it("persists CDX status column visibility with Block and CR hidden by default", async () => {
+    const { dom } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    let headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("BLOCK");
+    expect(headers).not.toContain("CR");
+    expect(text).not.toContain("9.68");
+
+    const block = dom.window.document.querySelector('[data-viewer-cdx-column="block"]') as HTMLInputElement | null;
+    expect(block?.checked).toBe(false);
+    block!.checked = true;
+    block?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    const credits = dom.window.document.querySelector('[data-viewer-cdx-column="credits"]') as HTMLInputElement | null;
+    expect(credits?.checked).toBe(false);
+    credits!.checked = true;
+    credits?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).toContain("BLOCK");
+    expect(headers).toContain("CR");
+    expect(text).toContain("9.68");
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusColumns?.visibility).toMatchObject({
+      block: true,
+      credits: true
+    });
+  });
+
+  it("restores persisted CDX status column visibility", async () => {
+    const { dom } = createViewerDom({
+      cdxResponse: cdxRowsStatusPayload(),
+      initialPreferences: {
+        version: 1,
+        cdxStatusColumns: { visibility: { block: true, credits: true } }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("BLOCK");
+    expect(text).toContain("CR");
+    expect(text).toContain("9.68");
+  });
+
+  it("persists CDX provider filters while defaulting to all providers", async () => {
+    const { dom } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("codex");
+    expect(text).toContain("claude");
+
+    const claude = dom.window.document.querySelector('[data-viewer-cdx-provider="claude"]') as HTMLInputElement | null;
+    expect(claude?.checked).toBe(true);
+    claude!.checked = false;
+    claude?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("codex");
+    expect(text).not.toContain("corvus");
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusProviders).toMatchObject({
+      mode: "subset",
+      selected: ["codex"]
+    });
+
+    dom.window.document.querySelector("[data-viewer-cdx-provider-all]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("corvus");
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusProviders).toMatchObject({
+      mode: "all",
+      selected: []
+    });
   });
 
   it("renders unavailable CDX states without breaking the viewer", async () => {

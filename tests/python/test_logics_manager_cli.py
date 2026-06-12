@@ -766,6 +766,35 @@ def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:
     assert payload["report"]["task_report"]["kind"] == "code-review"
 
 
+def test_viewer_cdx_run_report_payload_extracts_mission_output(tmp_path: Path) -> None:
+    output_path = tmp_path / "cdx-run.out"
+    output_path.write_text(
+        json.dumps({
+            "summary": "Prepared release metadata.",
+            "validationEvidence": ["npm test"],
+            "generatedFiles": [{"path": "changelogs/CHANGELOGS_2_8_0.md"}],
+        }),
+        encoding="utf-8",
+    )
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args[-3:] == ["run-report", "run-1", "--json"]
+        return subprocess.CompletedProcess(args, 0, json.dumps({
+            "ok": True,
+            "report": {
+                "run": {"run_id": "run-1", "status": "succeeded", "kind": "assistant"},
+                "artifacts": {"stdout_path": str(output_path)},
+                "task_report": {"kind": "assistant", "summary": "Pre-release done.", "findings": []},
+            },
+        }), "")
+
+    payload = cdx_run_report_payload(tmp_path, "run-1", runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload["state"] == "ok"
+    assert payload["report"]["missionOutput"]["summary"] == "Prepared release metadata."
+    assert payload["report"]["missionOutput"]["generatedFiles"] == [{"path": "changelogs/CHANGELOGS_2_8_0.md"}]
+
+
 def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args == ["cdx", "status", "--json"]:

@@ -2073,6 +2073,7 @@
 
   function cdxLabel(value) {
     return String(value || "")
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
       .replace(/[_-]+/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
@@ -2685,6 +2686,88 @@
     `;
   }
 
+  function cdxReportMissionOutput(report, run, taskReport) {
+    const parsed = report?.parsed && typeof report.parsed === "object" ? report.parsed : {};
+    const candidates = [
+      report?.missionOutput,
+      report?.mission_output,
+      parsed.missionOutput,
+      parsed.mission_output,
+      run?.missionOutput,
+      run?.mission_output,
+      taskReport?.missionOutput,
+      taskReport?.mission_output
+    ];
+    return candidates.find((candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate)) || null;
+  }
+
+  function cdxCount(value) {
+    if (Array.isArray(value)) {
+      return value.length;
+    }
+    if (value && typeof value === "object") {
+      return objectEntries(value).length;
+    }
+    return value ? 1 : 0;
+  }
+
+  function renderCdxReportCards(cards) {
+    return `
+      <div class="viewer-cdx__summary">
+        ${cards.map(([label, value]) => `
+          <div class="viewer-cdx__card">
+            <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+            <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderCdxMissionOutput(output) {
+    if (!output) {
+      return "";
+    }
+    const rows = [
+      ["Summary", output.summary],
+      ["Version", output.version],
+      ["Validation", output.validationMode],
+      ["Blocked", typeof output.blocked === "boolean" ? (output.blocked ? "Yes" : "No") : ""],
+      ["Actions", cdxCount(output.actions)],
+      ["Findings", cdxCount(output.findings)],
+      ["Recommendations", cdxCount(output.recommendations)],
+      ["Changed files", cdxCount(output.changedFiles)],
+      ["Corpus files", cdxCount(output.corpusFiles)],
+      ["Generated files", cdxCount(output.generatedFiles)],
+      ["Validation evidence", cdxCount(output.validationEvidence)]
+    ].filter(([_label, value]) => value !== undefined && value !== null && value !== "" && value !== 0);
+    const detailKeys = [
+      "actions",
+      "findings",
+      "recommendations",
+      "directFixes",
+      "actionableFixes",
+      "changedFiles",
+      "corpusFiles",
+      "generatedFiles",
+      "validationEvidence",
+      "releasePlan"
+    ];
+    const details = detailKeys
+      .filter((key) => cdxCount(output[key]))
+      .map((key) => `<li class="viewer-cdx__row"><span>${escapeHtml(cdxLabel(key))}</span><strong>${escapeHtml(JSON.stringify(output[key]))}</strong></li>`)
+      .join("");
+    return `
+      <section class="viewer-cdx__section">
+        <div class="viewer-ci__heading"><h2>Mission output</h2><span>${escapeHtml(rows.length)} signals</span></div>
+        <ul class="viewer-cdx__list">
+          ${rows.map(([label, value]) => `<li class="viewer-cdx__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join("") || '<li class="viewer-cdx__empty">No structured mission output was reported.</li>'}
+        </ul>
+        ${details ? `<ul class="viewer-cdx__list">${details}</ul>` : ""}
+      </section>
+    `;
+  }
+
   function renderCdxReport(payload) {
     if (!payload || payload.state !== "ok" || !payload.report) {
       return `
@@ -2700,6 +2783,7 @@
     const runError = report.error || run.error || {};
     const artifacts = report.artifacts || run.artifacts || {};
     const findings = Array.isArray(taskReport.findings) ? taskReport.findings : [];
+    const missionOutput = cdxReportMissionOutput(report, run, taskReport);
     const findingRows = findings.map((finding, index) => {
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
       return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
@@ -2710,6 +2794,12 @@
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+          ${renderCdxReportCards([
+            ["Status", run.status || "unknown"],
+            ["Kind", taskReport.kind || run.kind || "assistant"],
+            ["Findings", String(findings.length)],
+            ["Artifacts", String(objectEntries(artifacts).length)]
+          ])}
           <div class="viewer-cdx__actions">
             <button class="btn" type="button" data-viewer-cdx-back-runs>Back to runs</button>
           </div>
@@ -2720,6 +2810,7 @@
           </ul>
           ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>
+        ${renderCdxMissionOutput(missionOutput)}
         ${objectEntries(runError).length ? `
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading"><h2>Run signal</h2><span>${escapeHtml(runError.code || "reported")}</span></div>

@@ -1334,6 +1334,9 @@ def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None =
     report = parsed.get("report") if isinstance(parsed, dict) else None
     if not isinstance(report, dict):
         return {"state": "invalid-json", "message": "CDX run-report JSON must include a report object.", "report": None}
+    merged_report = _merge_cdx_mission_output(report)
+    if merged_report:
+        report = merged_report
     return {"state": "ok", "message": "", "report": report}
 
 

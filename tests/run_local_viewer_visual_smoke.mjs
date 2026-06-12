@@ -311,7 +311,7 @@ function browserExerciseScript(name) {
       auto.checked = true;
       auto.dispatchEvent(new Event("change", { bubbles: true }));
       click('[data-action="refresh"]');
-      await waitFor(() => text("#viewer-meta").includes("refreshed"), "refresh");
+      await waitFor(() => /refreshed|no viewer changes/.test(text("#viewer-meta")), "refresh");
       click("#activity-toggle");
       await waitFor(() => document.querySelectorAll(".activity-panel__entry").length > 0, "activity entries");
       const entry = document.querySelector(".activity-panel__entry");

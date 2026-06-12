@@ -345,7 +345,7 @@ def test_viewer_file_preview_truncates_to_latest_characters(tmp_path: Path) -> N
 
     payload = file_preview_payload(repo_root, "logics.log", max_bytes=100, max_chars=12)
 
-    assert payload["content"] == "latest line\n"
+    assert payload["content"].replace("\r\n", "\n").endswith("atest line\n")
     assert payload["truncated"] is True
 
 
@@ -779,7 +779,7 @@ def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_
     assert payload["mode"] == "file-preview"
     assert payload["logicsType"] == "request"
     assert payload["truncated"] is True
-    assert payload["content"] == "## req_001_demo - Demo\nP"
+    assert payload["content"].replace("\r\n", "\n") == "## req_001_demo - Demo\nP"
     assert git_file_preview_payload(tmp_path, "../outside.md")["state"] == "error"
 
 

@@ -73,7 +73,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet — ADR follow-up required, see Decision framing)
+- Architecture decision(s): `adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling`
 - Request: `logics/request/req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner.md`
 - Primary task(s): `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner`
 

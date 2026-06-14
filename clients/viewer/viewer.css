@@ -861,52 +861,167 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-editorWidget-background, #202020);
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 11px;
-  font-weight: 700;
   overflow-wrap: anywhere;
+}
+
+.viewer-workspace__breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.viewer-workspace__crumb {
+  border: 0;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-workspace__crumb:hover {
+  color: var(--vscode-foreground, #d4d4d4);
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workspace__crumb:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 0;
+}
+
+.viewer-workspace__crumb.is-current {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+  cursor: default;
+}
+
+.viewer-workspace__crumb-sep {
+  color: var(--vscode-descriptionForeground, #888888);
+  font-size: 11px;
+  user-select: none;
 }
 
 .viewer-workspace__tree-list {
   display: grid;
   gap: 1px;
-  padding: 6px;
+  padding: 4px;
 }
 
 .viewer-workspace__item {
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 5px;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 6px;
   align-items: center;
   border: 0;
   border-radius: 4px;
-  padding: 5px 6px;
+  padding: 4px 6px;
   background: transparent;
   color: var(--vscode-foreground, #d4d4d4);
   font: inherit;
   font-size: 12px;
+  line-height: 1.4;
   text-align: left;
   cursor: pointer;
 }
 
-.viewer-workspace__item:hover,
+.viewer-workspace__item:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workspace__item:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: -1px;
+  background: var(--vscode-list-focusBackground, rgb(255 255 255 / 4%));
+}
+
 .viewer-workspace__item.is-selected {
-  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+  background: var(--vscode-list-activeSelectionBackground, #094771);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+.viewer-workspace__item.is-selected .viewer-workspace__item-icon {
+  color: inherit;
 }
 
 .viewer-workspace__item.is-muted {
-  color: var(--vscode-descriptionForeground, #aaaaaa);
+  color: var(--vscode-descriptionForeground, #888888);
   cursor: default;
 }
 
-.viewer-workspace__item-icon {
+.viewer-workspace__item--up {
   color: var(--vscode-descriptionForeground, #aaaaaa);
-  text-align: center;
+  font-style: italic;
+}
+
+.viewer-workspace__item-icon {
+  color: var(--vscode-symbolIcon-folderForeground, #c5c5c5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.viewer-workspace__item--file .viewer-workspace__item-icon {
+  color: var(--vscode-symbolIcon-fileForeground, #9cdcfe);
+}
+
+.viewer-workspace__item.is-muted .viewer-workspace__item-icon {
+  color: var(--vscode-descriptionForeground, #666666);
+}
+
+.viewer-workspace__item-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.viewer-workspace__placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  margin: 6px;
+}
+
+.viewer-workspace__placeholder--warn {
+  border-color: var(--vscode-editorWarning-foreground, #cca700);
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.viewer-workspace__placeholder--unavailable {
+  border-color: var(--vscode-editorError-foreground, #f48771);
+  color: var(--vscode-editorError-foreground, #f48771);
+}
+
+.viewer-workspace__placeholder-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
+  font-size: 11px;
 }
 
 .viewer-workspace__item-name {

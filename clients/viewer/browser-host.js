@@ -2177,14 +2177,42 @@
     return parts.join("/");
   }
 
+  function renderWorkspaceBreadcrumb(currentPath) {
+    const segments = String(currentPath || "").split("/").filter(Boolean);
+    const crumbs = [
+      `<button class="viewer-workspace__crumb" type="button" data-viewer-workspace-tree="" title="Workspace root">/</button>`,
+    ];
+    let accum = "";
+    segments.forEach((segment, idx) => {
+      accum = accum ? `${accum}/${segment}` : segment;
+      const isLast = idx === segments.length - 1;
+      crumbs.push(`<span class="viewer-workspace__crumb-sep" aria-hidden="true">/</span>`);
+      crumbs.push(
+        `<button class="viewer-workspace__crumb${isLast ? " is-current" : ""}" type="button" data-viewer-workspace-tree="${escapeHtml(accum)}" title="${escapeHtml(accum)}"${isLast ? ' aria-current="location"' : ""}>${escapeHtml(segment)}</button>`,
+      );
+    });
+    return `<nav class="viewer-workspace__breadcrumb" aria-label="Workspace breadcrumb">${crumbs.join("")}</nav>`;
+  }
+
+  function workspaceEntryIcon(kind, ignored) {
+    if (kind === "directory") {
+      return ignored
+        ? '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Zm9.5 3.2L9.7 9l1.8 1.8-.7.7L9 9.7l-1.8 1.8-.7-.7L8.3 9 6.5 7.2l.7-.7L9 8.3l1.8-1.8.7.7Z"/></svg>'
+        : '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Z"/></svg>';
+    }
+    return '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 2h6l3 3v9H4V2Zm6 0v3h3"/></svg>';
+  }
+
   function renderWorkspaceTree(treePayload, selectedPath = "") {
     if (!treePayload || treePayload.state !== "ok") {
-      return `<div class="viewer-workspace__empty">${escapeHtml(treePayload?.message || "Workspace tree is unavailable.")}</div>`;
+      const message = treePayload?.message || "Workspace tree is unavailable.";
+      const state = treePayload?.state === "unavailable" ? "unavailable" : "empty";
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--${state}"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">${state === "unavailable" ? "!" : "·"}</span><span>${escapeHtml(message)}</span></div>`;
     }
     const currentPath = String(treePayload.path || "");
     const parentPath = workspaceParentPath(currentPath);
     const upButton = currentPath
-      ? `<button class="viewer-workspace__item viewer-workspace__item--up" type="button" data-viewer-workspace-tree="${escapeHtml(parentPath)}">..</button>`
+      ? `<button class="viewer-workspace__item viewer-workspace__item--up" type="button" data-viewer-workspace-tree="${escapeHtml(parentPath)}" title="Parent directory"><span class="viewer-workspace__item-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path fill="currentColor" d="M8 3 3 8h3v5h4V8h3L8 3Z"/></svg></span><span class="viewer-workspace__item-name">..</span></button>`
       : "";
     const rows = (Array.isArray(treePayload.entries) ? treePayload.entries : []).map((entry) => {
       const path = String(entry.path || "");
@@ -2194,29 +2222,34 @@
       const actionAttr = kind === "directory" && !ignored
         ? `data-viewer-workspace-tree="${escapeHtml(path)}"`
         : `data-viewer-workspace-preview="${escapeHtml(path)}"`;
-      const icon = kind === "directory" ? (ignored ? "x" : ">") : "-";
+      const classes = [
+        "viewer-workspace__item",
+        `viewer-workspace__item--${kind === "directory" ? "directory" : "file"}`,
+      ];
+      if (selected) classes.push("is-selected");
+      if (ignored) classes.push("is-muted");
       return `
-        <button class="viewer-workspace__item${selected ? " is-selected" : ""}${ignored ? " is-muted" : ""}" type="button" ${actionAttr} title="${escapeHtml(path)}">
-          <span class="viewer-workspace__item-icon" aria-hidden="true">${escapeHtml(icon)}</span>
+        <button class="${classes.join(" ")}" type="button" ${actionAttr} title="${escapeHtml(path)}"${selected ? ' aria-current="true"' : ""}>
+          <span class="viewer-workspace__item-icon" aria-hidden="true">${workspaceEntryIcon(kind, ignored)}</span>
           <span class="viewer-workspace__item-name">${escapeHtml(entry.name || path || "/")}</span>
         </button>
       `;
     }).join("");
     return `
       <div class="viewer-workspace__tree-header">
-        <span>${escapeHtml(currentPath || "/")}</span>
+        ${renderWorkspaceBreadcrumb(currentPath)}
       </div>
-      <div class="viewer-workspace__tree-list">
+      <div class="viewer-workspace__tree-list" role="list">
         ${upButton}
-        ${rows || '<div class="viewer-workspace__empty">Directory is empty.</div>'}
+        ${rows || '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Directory is empty.</span></div>'}
       </div>
-      ${treePayload.truncated ? '<div class="viewer-workspace__empty">Directory listing truncated.</div>' : ""}
+      ${treePayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Directory listing truncated.</span></div>' : ""}
     `;
   }
 
   function renderWorkspacePreview(previewPayload) {
     if (!previewPayload) {
-      return '<div class="viewer-workspace__empty">Select a file or directory.</div>';
+      return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select a file or directory.</span></div>';
     }
     const path = previewPayload.path || "/";
     const name = previewPayload.name || path || "/";
@@ -2227,7 +2260,7 @@
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
           <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
         </div>
-        ${previewPayload.truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated.</div>' : ""}
+        ${previewPayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Preview truncated.</span></div>' : ""}
         <pre class="viewer-workspace__code">${escapeHtml(previewPayload.content || "")}</pre>
       `;
     }
@@ -2240,12 +2273,14 @@
         <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
       `;
     }
+    const placeholderState = state === "unavailable" ? "unavailable" : "empty";
+    const placeholderIcon = placeholderState === "unavailable" ? "!" : "·";
     return `
       <div class="viewer-workspace__preview-header">
         <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
         <em>${escapeHtml(state)}</em>
       </div>
-      <div class="viewer-workspace__empty">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
+      <div class="viewer-workspace__placeholder viewer-workspace__placeholder--${placeholderState}"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">${placeholderIcon}</span><span>${escapeHtml(previewPayload.message || "No preview is available.")}</span></div>
     `;
   }
 

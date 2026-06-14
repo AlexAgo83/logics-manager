@@ -283,7 +283,9 @@
   z-index: 60;
   display: grid;
   gap: 12px;
-  min-width: 220px;
+  width: max-content;
+  min-width: 260px;
+  max-width: min(360px, calc(100vw - 24px));
   padding: 10px;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
@@ -2527,9 +2529,10 @@
   }
 
   .viewer-refresh-menu__panel {
-    left: 0;
-    right: auto;
-    min-width: min(260px, 100%);
+    right: 0;
+    left: auto;
+    min-width: 260px;
+    max-width: calc(100vw - 16px);
   }
 
   .viewer-document {

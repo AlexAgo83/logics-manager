@@ -2798,8 +2798,54 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
+    def _client_is_loopback(self) -> bool:
+        try:
+            host = self.client_address[0]
+        except (IndexError, AttributeError):
+            return False
+        if not host:
+            return False
+        if host in {"127.0.0.1", "::1"}:
+            return True
+        if host.startswith("127."):
+            return True
+        if host.startswith("::ffff:127."):
+            return True
+        return False
+
+    def _lan_auth_passes(self, parsed: Any) -> bool:
+        token = self.server.lan_token
+        if not token:
+            return True
+        if self._client_is_loopback():
+            return True
+        header = self.headers.get("Authorization", "")
+        if header.lower().startswith("bearer "):
+            candidate = header.split(" ", 1)[1].strip()
+            if candidate and hmac.compare_digest(candidate, token):
+                return True
+        query_token = (parse_qs(parsed.query).get("t") or [""])[0]
+        if query_token and hmac.compare_digest(query_token, token):
+            return True
+        return False
+
+    def _send_lan_unauthorized(self) -> None:
+        body = _json_bytes({"ok": False, "error": "LAN viewer requires a bearer token. Open the share URL from the launch banner."})
+        try:
+            self.send_response(HTTPStatus.UNAUTHORIZED)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("WWW-Authenticate", 'Bearer realm="logics-viewer"')
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            return
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if not self._lan_auth_passes(parsed):
+            self._send_lan_unauthorized()
+            return
         route = parsed.path
         if route == "/":
             self._serve_file(VIEWER_ROOT / "index.html")
@@ -2935,6 +2981,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if not self._lan_auth_passes(parsed):
+            self._send_lan_unauthorized()
+            return
         if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:
             self._send_error_json(
                 HTTPStatus.FORBIDDEN,

@@ -2594,6 +2594,33 @@
   }
 }
 
+/* req_246 item_427 — Tablet (=600px) grid collapses for board, CDX, CI,
+ * Workspace, and insights screens. Also soften the hard min-width floors so
+ * an iPad-portrait or split-screen layout no longer triggers a horizontal
+ * scroll on the body.
+ */
+@media (max-width: 600px) {
+  .viewer-filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-cdx__workspace,
+  .viewer-cdx__workspace--missions,
+  .viewer-ci__workspace,
+  .viewer-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-git__summary,
+  .viewer-cdx__summary,
+  .viewer-ci__summary,
+  .viewer-insights__summary,
+  .viewer-health__summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 @media (max-width: 420px) {
   .viewer-git__files li {
     flex-wrap: wrap;

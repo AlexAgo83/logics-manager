@@ -2594,6 +2594,61 @@
   }
 }
 
+/* req_246 item_428 — Phone (=420px) chrome adjustments. Compress the
+ * topbar (wrap actions to a second row, shrink padding), let the filter
+ * panel stack, give the floating document inset more screen, tighten the
+ * update + LAN banners, and shrink the buttons enough to fit a 360px
+ * viewport without breaking primary affordances.
+ */
+@media (max-width: 420px) {
+  .viewer-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .viewer-topbar__actions {
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .viewer-topbar__actions button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .viewer-topbar__identity {
+    flex-wrap: wrap;
+  }
+
+  .viewer-topbar__meta {
+    width: 100%;
+    font-size: 11px;
+  }
+
+  .viewer-filter-panel {
+    gap: 8px;
+  }
+
+  .viewer-document {
+    inset: 56px 6px 6px;
+    border-radius: 6px;
+  }
+
+  .viewer-update,
+  .viewer-lan-banner {
+    flex-wrap: wrap;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .viewer-lan-banner__url {
+    max-width: 100%;
+  }
+}
+
 /* req_246 item_427 — Tablet (=600px) grid collapses for board, CDX, CI,
  * Workspace, and insights screens. Also soften the hard min-width floors so
  * an iPad-portrait or split-screen layout no longer triggers a horizontal

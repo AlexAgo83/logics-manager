@@ -2370,10 +2370,10 @@
   function renderWorkshopPanel(tabId) {
     if (tabId === "commands") {
       return `
-        <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="commands">
+        <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="commands" data-viewer-workshop-commands>
           <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
             <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
-            <span>Discovering commands... (package.json and pyproject.toml entry points will appear here.)</span>
+            <span>Discovering commands...</span>
           </div>
         </div>
       `;
@@ -2382,10 +2382,172 @@
       <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="terminals">
         <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
           <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
-          <span>No active terminal session. Spawn one to start working.</span>
+          <span>Terminals will land with the PTY backend (see adr_023, items 4-5). Use Commands to run discovered scripts in the meantime.</span>
         </div>
       </div>
     `;
+  }
+
+  const workshopCommandState = {
+    catalog: null,
+    sessions: new Map(),
+    streams: new Map(),
+  };
+
+  function renderWorkshopCommandRow(entry) {
+    const session = workshopCommandState.sessions.get(entry.id) || null;
+    const state = session?.state || "idle";
+    const running = state === "running" || state === "starting";
+    const exitBadge = session && session.exitCode !== null && session.exitCode !== undefined
+      ? `<span class="viewer-workshop__exit viewer-workshop__exit--${session.exitCode === 0 ? "ok" : "fail"}">exit ${escapeHtml(String(session.exitCode))}</span>`
+      : "";
+    return `
+      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
+        <div class="viewer-workshop__command-header">
+          <div class="viewer-workshop__command-name">
+            <strong>${escapeHtml(entry.name)}</strong>
+            <span class="viewer-workshop__command-source">${escapeHtml(entry.source)}</span>
+          </div>
+          <div class="viewer-workshop__command-actions">
+            <span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}</span>
+            ${exitBadge}
+            ${running
+              ? `<button class="btn" type="button" data-viewer-workshop-command-stop="${escapeHtml(entry.id)}">Stop</button>`
+              : `<button class="btn" type="button" data-viewer-workshop-command-run="${escapeHtml(entry.id)}">Run</button>`}
+          </div>
+        </div>
+        <div class="viewer-workshop__command-meta"><code>${escapeHtml(entry.command)}</code></div>
+        <pre class="viewer-workshop__log" data-viewer-workshop-command-log="${escapeHtml(entry.id)}" aria-live="polite">${escapeHtml(session?.logText || "")}</pre>
+      </li>
+    `;
+  }
+
+  function renderWorkshopCommandList(catalog) {
+    if (!catalog || catalog.state === "unavailable") {
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>${escapeHtml(catalog?.message || "Commands are unavailable.")}</span></div>`;
+    }
+    const commands = Array.isArray(catalog.commands) ? catalog.commands : [];
+    if (commands.length === 0) {
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
+    }
+    const groups = new Map();
+    commands.forEach((entry) => {
+      const group = entry.group || "Commands";
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group).push(entry);
+    });
+    const sections = [...groups.entries()].map(([group, entries]) => `
+      <section class="viewer-workshop__group">
+        <h3 class="viewer-workshop__group-title">${escapeHtml(group)}</h3>
+        <ul class="viewer-workshop__commands">
+          ${entries.map(renderWorkshopCommandRow).join("")}
+        </ul>
+      </section>
+    `).join("");
+    return sections;
+  }
+
+  function renderWorkshopCommands() {
+    const container = document.querySelector("[data-viewer-workshop-commands]");
+    if (!(container instanceof HTMLElement)) return;
+    container.innerHTML = renderWorkshopCommandList(workshopCommandState.catalog);
+  }
+
+  async function loadWorkshopCommands() {
+    try {
+      const response = await fetch("/api/workshop-commands");
+      const data = await response.json();
+      workshopCommandState.catalog = data?.payload || null;
+    } catch (error) {
+      workshopCommandState.catalog = { state: "unavailable", commands: [], message: String(error?.message || error) };
+    }
+    renderWorkshopCommands();
+  }
+
+  function updateWorkshopCommandSession(commandId, patch) {
+    const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
+    workshopCommandState.sessions.set(commandId, { ...previous, ...patch });
+    renderWorkshopCommands();
+  }
+
+  function appendWorkshopCommandLog(commandId, line) {
+    const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
+    const next = previous.logText ? `${previous.logText}\n${line}` : line;
+    workshopCommandState.sessions.set(commandId, { ...previous, logText: next });
+    const node = document.querySelector(`[data-viewer-workshop-command-log="${commandId}"]`);
+    if (node instanceof HTMLElement) {
+      node.textContent = next;
+      node.scrollTop = node.scrollHeight;
+    }
+  }
+
+  function closeWorkshopCommandStream(commandId) {
+    const stream = workshopCommandState.streams.get(commandId);
+    if (stream) {
+      try { stream.close(); } catch { /* noop */ }
+      workshopCommandState.streams.delete(commandId);
+    }
+  }
+
+  async function startWorkshopCommand(commandId) {
+    try {
+      const response = await fetch("/api/workshop-command-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commandId }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to start command.");
+      }
+      const session = data.payload;
+      updateWorkshopCommandSession(commandId, {
+        sessionId: session.id,
+        state: session.state,
+        exitCode: session.exitCode,
+        logText: "",
+      });
+      openWorkshopCommandStream(commandId, session.id);
+    } catch (error) {
+      updateWorkshopCommandSession(commandId, { state: "error", logText: `! ${error?.message || error}` });
+    }
+  }
+
+  function openWorkshopCommandStream(commandId, sessionId) {
+    closeWorkshopCommandStream(commandId);
+    const source = new EventSource(`/api/workshop-session/${encodeURIComponent(sessionId)}/stream`);
+    workshopCommandState.streams.set(commandId, source);
+    source.addEventListener("line", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        appendWorkshopCommandLog(commandId, String(payload.line || ""));
+      } catch { /* noop */ }
+    });
+    source.addEventListener("end", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        updateWorkshopCommandSession(commandId, {
+          state: payload.state,
+          exitCode: payload.exitCode,
+        });
+      } catch { /* noop */ }
+      closeWorkshopCommandStream(commandId);
+    });
+    source.addEventListener("error", () => {
+      closeWorkshopCommandStream(commandId);
+    });
+  }
+
+  async function stopWorkshopCommand(commandId) {
+    const session = workshopCommandState.sessions.get(commandId);
+    if (!session?.sessionId) return;
+    try {
+      await fetch("/api/workshop-command-stop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: session.sessionId }),
+      });
+    } catch { /* noop */ }
   }
 
   function renderWorkshop(activeTab, options = {}) {
@@ -2422,6 +2584,9 @@
     setWorkshopActiveTab(activeTab);
     setDocument("Workshop", renderWorkshop(activeTab));
     setMeta(`Workshop / ${activeTab}`);
+    if (activeTab === "commands") {
+      await loadWorkshopCommands();
+    }
   }
 
   async function openWorkspaceTree(path) {
@@ -4443,6 +4608,8 @@
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
+      const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
+      const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
@@ -4521,6 +4688,23 @@
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+        return;
+      }
+      if (workshopRunTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const commandId = workshopRunTarget.getAttribute("data-viewer-workshop-command-run") || "";
+        if (commandId) {
+          updateWorkshopCommandSession(commandId, { state: "starting", logText: "" });
+          startWorkshopCommand(commandId);
+        }
+        return;
+      }
+      if (workshopStopTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const commandId = workshopStopTarget.getAttribute("data-viewer-workshop-command-stop") || "";
+        if (commandId) {
+          stopWorkshopCommand(commandId);
+        }
         return;
       }
       if (workspaceTreeTarget instanceof HTMLElement) {

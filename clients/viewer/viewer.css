@@ -1121,6 +1121,132 @@
   overflow: auto;
 }
 
+.viewer-workshop__group {
+  margin-bottom: 12px;
+}
+
+.viewer-workshop__group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  margin: 0 0 4px;
+}
+
+.viewer-workshop__commands {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-workshop__command {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-textCodeBlock-background, #161616);
+  padding: 6px 8px;
+}
+
+.viewer-workshop__command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.viewer-workshop__command-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.viewer-workshop__command-name strong {
+  font-size: 12px;
+}
+
+.viewer-workshop__command-source {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground, #888888);
+}
+
+.viewer-workshop__command-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewer-workshop__command-meta {
+  margin: 4px 0;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  overflow-wrap: anywhere;
+}
+
+.viewer-workshop__command-meta code {
+  font-family: var(--vscode-editor-font-family, monospace);
+}
+
+.viewer-workshop__state {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-workshop__state--running,
+.viewer-workshop__state--starting {
+  background: var(--vscode-debugIcon-startForeground, #387a14);
+  color: #ffffff;
+}
+
+.viewer-workshop__state--failed,
+.viewer-workshop__state--error {
+  background: var(--vscode-editorError-foreground, #f48771);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__state--finished {
+  background: var(--vscode-charts-green, #4caf50);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__state--stopped {
+  background: var(--vscode-charts-orange, #cca700);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__exit {
+  font-size: 10px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-workshop__exit--fail {
+  color: var(--vscode-editorError-foreground, #f48771);
+}
+
+.viewer-workshop__log {
+  margin: 6px 0 0;
+  padding: 6px 8px;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 1.4;
+  background: var(--vscode-terminal-background, #0a0a0a);
+  color: var(--vscode-terminal-foreground, #d4d4d4);
+  border-radius: 3px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.viewer-workshop__log:empty {
+  display: none;
+}
+
 .viewer-workspace__image {
   max-width: 100%;
   max-height: min(70vh, 760px);

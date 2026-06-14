@@ -2485,12 +2485,26 @@
         </div>
       `;
     }
-    return `
-      <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
-        <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
-          <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
-          <span>In-app terminals are not available yet. Use the Commands tab to run discovered scripts in the meantime.</span>
+    const terminalsAvailable = Boolean(capability("workshop").detail?.terminalsAvailable);
+    if (!terminalsAvailable) {
+      return `
+        <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
+            <span>In-app terminals require a Unix host with stdlib pty support (macOS or Linux). Use the Commands tab to run discovered scripts in the meantime.</span>
+          </div>
         </div>
+      `;
+    }
+    return `
+      <div class="viewer-workshop__panel viewer-workshop__panel--terminals-active" role="tabpanel" data-viewer-workshop-panel="terminals">
+        <aside class="viewer-workshop__terminal-list" data-viewer-workshop-terminal-list aria-label="Terminal sessions"></aside>
+        <section class="viewer-workshop__terminal-stage" data-viewer-workshop-terminal-stage>
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty" data-viewer-workshop-terminal-empty>
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+            <span>No terminal session yet. Click "New terminal" to spawn one.</span>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -2657,6 +2671,221 @@
     } catch { /* noop */ }
   }
 
+  const workshopTerminalState = {
+    sessions: new Map(),
+    activeId: "",
+    streams: new Map(),
+  };
+
+  function workshopTerminalListNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-list]");
+  }
+
+  function workshopTerminalStageNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-stage]");
+  }
+
+  function renderWorkshopTerminalList() {
+    const node = workshopTerminalListNode();
+    if (!(node instanceof HTMLElement)) return;
+    const entries = [...workshopTerminalState.sessions.values()];
+    const header = `<div class="viewer-workshop__terminal-list-header">
+      <span>Terminals</span>
+      <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new>+ New</button>
+    </div>`;
+    if (entries.length === 0) {
+      node.innerHTML = `${header}<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>No sessions yet.</span></div>`;
+      return;
+    }
+    const rows = entries.map((entry) => {
+      const isActive = entry.id === workshopTerminalState.activeId;
+      const stateBadge = entry.state ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(entry.state)}">${escapeHtml(entry.state)}</span>` : "";
+      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
+        <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.id)}</span>
+        ${stateBadge}
+        <span class="viewer-workshop__terminal-row-close" data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" title="Close session" role="button" tabindex="0">×</span>
+      </button>`;
+    }).join("");
+    node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}</div>`;
+  }
+
+  function ensureWorkshopTerminalStage() {
+    const stage = workshopTerminalStageNode();
+    if (!(stage instanceof HTMLElement)) return null;
+    const active = workshopTerminalState.activeId
+      ? workshopTerminalState.sessions.get(workshopTerminalState.activeId)
+      : null;
+    if (!active) {
+      stage.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select or create a terminal session to start.</span></div>`;
+      return null;
+    }
+    let host = stage.querySelector(`[data-viewer-workshop-terminal-host="${active.id}"]`);
+    if (!(host instanceof HTMLElement)) {
+      stage.innerHTML = `<div class="viewer-workshop__terminal-host" data-viewer-workshop-terminal-host="${escapeHtml(active.id)}"></div>`;
+      host = stage.querySelector(`[data-viewer-workshop-terminal-host="${active.id}"]`);
+    }
+    return host instanceof HTMLElement ? host : null;
+  }
+
+  function mountWorkshopTerminalEmulator(entry) {
+    if (typeof window.Terminal !== "function") return;
+    if (entry.terminal) return;
+    const host = ensureWorkshopTerminalStage();
+    if (!host) return;
+    const term = new window.Terminal({
+      fontSize: 12,
+      fontFamily: 'var(--vscode-editor-font-family, "Menlo", "Consolas", monospace)',
+      theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
+      cursorBlink: true,
+      scrollback: 5000,
+      convertEol: true,
+    });
+    const fitAddon = typeof window.FitAddon === "function"
+      ? new window.FitAddon()
+      : (window.FitAddon && typeof window.FitAddon.FitAddon === "function" ? new window.FitAddon.FitAddon() : null);
+    const linksAddon = window.WebLinksAddon && typeof window.WebLinksAddon.WebLinksAddon === "function"
+      ? new window.WebLinksAddon.WebLinksAddon()
+      : null;
+    if (fitAddon) term.loadAddon(fitAddon);
+    if (linksAddon) term.loadAddon(linksAddon);
+    term.open(host);
+    if (fitAddon) {
+      try { fitAddon.fit(); } catch { /* noop */ }
+    }
+    term.onData((data) => {
+      writeWorkshopTerminalInput(entry.id, data);
+    });
+    term.onResize((size) => {
+      resizeWorkshopTerminal(entry.id, size.rows, size.cols);
+    });
+    entry.terminal = term;
+    entry.fitAddon = fitAddon;
+    if (fitAddon) {
+      try {
+        const dim = fitAddon.proposeDimensions();
+        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      } catch { /* noop */ }
+    }
+    openWorkshopTerminalStream(entry.id);
+    if (entry.bufferedOutput) {
+      term.write(entry.bufferedOutput);
+    }
+  }
+
+  function setActiveWorkshopTerminal(sessionId) {
+    workshopTerminalState.activeId = sessionId || "";
+    renderWorkshopTerminalList();
+    const entry = sessionId ? workshopTerminalState.sessions.get(sessionId) : null;
+    ensureWorkshopTerminalStage();
+    if (entry) {
+      mountWorkshopTerminalEmulator(entry);
+      try { entry.terminal?.focus(); } catch { /* noop */ }
+      try { entry.fitAddon?.fit(); } catch { /* noop */ }
+    }
+  }
+
+  async function spawnWorkshopTerminal() {
+    try {
+      const response = await fetch("/api/workshop-terminal-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to start terminal.");
+      const session = data.payload;
+      workshopTerminalState.sessions.set(session.id, {
+        id: session.id,
+        label: session.label || "shell",
+        state: session.state,
+        bufferedOutput: "",
+      });
+      setActiveWorkshopTerminal(session.id);
+    } catch (error) {
+      setMeta(`Terminal: ${error?.message || error}`);
+    }
+  }
+
+  function writeWorkshopTerminalInput(sessionId, data) {
+    if (!sessionId || !data) return;
+    fetch("/api/workshop-terminal-input", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, data }),
+    }).catch(() => { /* noop */ });
+  }
+
+  function resizeWorkshopTerminal(sessionId, rows, cols) {
+    if (!sessionId || rows <= 0 || cols <= 0) return;
+    fetch("/api/workshop-terminal-resize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, rows, cols }),
+    }).catch(() => { /* noop */ });
+  }
+
+  async function stopWorkshopTerminal(sessionId) {
+    if (!sessionId) return;
+    try {
+      await fetch("/api/workshop-terminal-stop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+    } catch { /* noop */ }
+    closeWorkshopTerminalStream(sessionId);
+    const entry = workshopTerminalState.sessions.get(sessionId);
+    if (entry?.terminal) {
+      try { entry.terminal.dispose(); } catch { /* noop */ }
+    }
+    workshopTerminalState.sessions.delete(sessionId);
+    if (workshopTerminalState.activeId === sessionId) {
+      const next = workshopTerminalState.sessions.keys().next();
+      setActiveWorkshopTerminal(next.done ? "" : next.value);
+    } else {
+      renderWorkshopTerminalList();
+    }
+  }
+
+  function closeWorkshopTerminalStream(sessionId) {
+    const stream = workshopTerminalState.streams.get(sessionId);
+    if (stream) {
+      try { stream.close(); } catch { /* noop */ }
+      workshopTerminalState.streams.delete(sessionId);
+    }
+  }
+
+  function openWorkshopTerminalStream(sessionId) {
+    closeWorkshopTerminalStream(sessionId);
+    const source = new EventSource(`/api/workshop-terminal/${encodeURIComponent(sessionId)}/stream`);
+    workshopTerminalState.streams.set(sessionId, source);
+    source.addEventListener("data", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        const chunk = String(payload.data || "");
+        const entry = workshopTerminalState.sessions.get(sessionId);
+        if (!entry) return;
+        if (entry.terminal) {
+          entry.terminal.write(chunk);
+        } else {
+          entry.bufferedOutput = (entry.bufferedOutput || "") + chunk;
+        }
+      } catch { /* noop */ }
+    });
+    source.addEventListener("end", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        const entry = workshopTerminalState.sessions.get(sessionId);
+        if (entry) entry.state = payload.state;
+        renderWorkshopTerminalList();
+      } catch { /* noop */ }
+      closeWorkshopTerminalStream(sessionId);
+    });
+    source.addEventListener("error", () => {
+      closeWorkshopTerminalStream(sessionId);
+    });
+  }
+
   function renderWorkshop(activeTab, options = {}) {
     if (options.unavailable) {
       return `
@@ -2693,6 +2922,16 @@
     setMeta(`Workshop / ${activeTab}`);
     if (activeTab === "commands") {
       await loadWorkshopCommands();
+    } else if (activeTab === "terminals") {
+      renderWorkshopTerminalList();
+      if (workshopTerminalState.activeId) {
+        const entry = workshopTerminalState.sessions.get(workshopTerminalState.activeId);
+        if (entry) {
+          entry.terminal = null;
+          entry.fitAddon = null;
+        }
+        setActiveWorkshopTerminal(workshopTerminalState.activeId);
+      }
     }
   }
 
@@ -4727,6 +4966,9 @@
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
+      const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
+      const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
+      const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
@@ -4805,6 +5047,24 @@
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+        return;
+      }
+      if (workshopTerminalCloseTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = workshopTerminalCloseTarget.getAttribute("data-viewer-workshop-terminal-close") || "";
+        if (id) stopWorkshopTerminal(id);
+        return;
+      }
+      if (workshopTerminalNewTarget instanceof HTMLElement) {
+        event.preventDefault();
+        spawnWorkshopTerminal();
+        return;
+      }
+      if (workshopTerminalSelectTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const id = workshopTerminalSelectTarget.getAttribute("data-viewer-workshop-terminal-select") || "";
+        if (id) setActiveWorkshopTerminal(id);
         return;
       }
       if (workshopRunTarget instanceof HTMLElement) {

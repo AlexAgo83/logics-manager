@@ -1096,6 +1096,111 @@
   max-width: 480px;
 }
 
+.viewer-workshop__panel--terminals-active {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 8px;
+  padding: 0;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-workshop__terminal-list {
+  border-right: 1px solid var(--vscode-panel-border, #333333);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 360px;
+}
+
+.viewer-workshop__terminal-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  text-transform: uppercase;
+}
+
+.viewer-workshop__terminal-new {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.viewer-workshop__terminal-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viewer-workshop__terminal-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.viewer-workshop__terminal-row:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workshop__terminal-row.is-active {
+  background: var(--vscode-list-activeSelectionBackground, #094771);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+.viewer-workshop__terminal-row-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-workshop__terminal-row-close {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.viewer-workshop__terminal-row-close:hover {
+  background: var(--vscode-list-errorBackground, rgb(244 135 113 / 25%));
+}
+
+.viewer-workshop__terminal-stage {
+  padding: 6px;
+  min-height: 360px;
+  min-width: 0;
+}
+
+.viewer-workshop__terminal-host {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.viewer-workshop__terminal-host .xterm {
+  height: 100%;
+}
+
 .viewer-workshop__group {
   margin-bottom: 12px;
 }

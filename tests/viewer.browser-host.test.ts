@@ -814,7 +814,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Explorer", "Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "CDX", "Settings"]);
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {

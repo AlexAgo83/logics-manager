@@ -1072,6 +1072,55 @@
   overflow-wrap: anywhere;
 }
 
+.viewer-workshop {
+  display: grid;
+  gap: 10px;
+  min-height: min(62vh, 760px);
+}
+
+.viewer-workshop__tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+}
+
+.viewer-workshop__tab {
+  border: 0;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.viewer-workshop__tab:hover {
+  color: var(--vscode-foreground, #d4d4d4);
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workshop__tab:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: -1px;
+}
+
+.viewer-workshop__tab.is-active {
+  color: var(--vscode-foreground, #d4d4d4);
+  border-bottom-color: var(--vscode-focusBorder, #007fd4);
+  font-weight: 600;
+}
+
+.viewer-workshop__panel {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  padding: 8px;
+  min-height: 240px;
+  overflow: auto;
+}
+
 .viewer-workspace__image {
   max-width: 100%;
   max-height: min(70vh, 760px);

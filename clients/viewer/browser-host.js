@@ -19,6 +19,7 @@
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const workspaceButton = () => document.getElementById("viewer-workspace");
+  const workshopButton = () => document.getElementById("viewer-workshop");
   const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
@@ -731,6 +732,17 @@
         setButtonAvailable(workspace, "Show file explorer");
       } else {
         setButtonUnavailable(workspace, capabilityMessage("workspace", "Explorer is not available for this project."));
+      }
+    }
+
+    const workshop = workshopButton();
+    if (workshop instanceof HTMLElement) {
+      const workshopAvailable = isCapabilityAvailable("workshop");
+      workshop.hidden = !workshopAvailable;
+      if (workshopAvailable) {
+        setButtonAvailable(workshop, "Show Workshop (terminals and commands)");
+      } else {
+        setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
       }
     }
 
@@ -2330,6 +2342,86 @@
     const preview = await fetchWorkspacePreview("");
     setDocument("Explorer", renderWorkspace(tree, preview));
     setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
+  }
+
+  const workshopTabs = [
+    { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
+    { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+  ];
+
+  function preferredWorkshopTab() {
+    const stored = String(viewerPreferences.workshopActiveTab || "");
+    return workshopTabs.some((tab) => tab.id === stored) ? stored : "terminals";
+  }
+
+  function setWorkshopActiveTab(tabId) {
+    const next = workshopTabs.some((tab) => tab.id === tabId) ? tabId : "terminals";
+    if (next === viewerPreferences.workshopActiveTab) return;
+    updateViewerPreferences({ workshopActiveTab: next });
+  }
+
+  function renderWorkshopTabs(activeTab) {
+    return workshopTabs.map((tab) => {
+      const isActive = tab.id === activeTab;
+      return `<button class="viewer-workshop__tab${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
+    }).join("");
+  }
+
+  function renderWorkshopPanel(tabId) {
+    if (tabId === "commands") {
+      return `
+        <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="commands">
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+            <span>Discovering commands... (package.json and pyproject.toml entry points will appear here.)</span>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="terminals">
+        <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+          <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+          <span>No active terminal session. Spawn one to start working.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderWorkshop(activeTab, options = {}) {
+    if (options.unavailable) {
+      return `
+        <div class="viewer-workshop">
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
+            <span>${escapeHtml(options.message || "Workshop is not available for this project.")}</span>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="viewer-workshop">
+        <div class="viewer-workshop__tabs" role="tablist" aria-label="Workshop sub-screens">
+          ${renderWorkshopTabs(activeTab)}
+        </div>
+        ${renderWorkshopPanel(activeTab)}
+      </div>
+    `;
+  }
+
+  async function showWorkshop(options = {}) {
+    if (!isCapabilityAvailable("workshop")) {
+      const message = capabilityMessage("workshop", "Workshop is not available for this project.");
+      setDocument("Workshop", renderWorkshop("terminals", { unavailable: true, message }));
+      setMeta(message);
+      return;
+    }
+    const activeTab = options.tab && workshopTabs.some((tab) => tab.id === options.tab)
+      ? options.tab
+      : preferredWorkshopTab();
+    setWorkshopActiveTab(activeTab);
+    setDocument("Workshop", renderWorkshop(activeTab));
+    setMeta(`Workshop / ${activeTab}`);
   }
 
   async function openWorkspaceTree(path) {
@@ -4253,6 +4345,9 @@
       setRefreshMenuOpen(false);
       withPrimaryAction("health", "Checking health", showHealth);
     });
+    document.getElementById("viewer-workshop")?.addEventListener("click", () => {
+      withPrimaryAction("workshop", "Opening Workshop", () => showWorkshop());
+    });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
       withPrimaryAction("git", "Checking Git status", showGitStatus);
     });
@@ -4347,6 +4442,7 @@
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
+      const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
@@ -4419,6 +4515,12 @@
         } else {
           withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
         }
+        return;
+      }
+      if (workshopTabTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
+        withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
         return;
       }
       if (workspaceTreeTarget instanceof HTMLElement) {

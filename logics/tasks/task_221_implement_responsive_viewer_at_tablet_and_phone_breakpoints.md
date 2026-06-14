@@ -1,10 +1,10 @@
 ## task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints - Implement responsive viewer at tablet and phone breakpoints
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 86%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,13 +16,13 @@
 - Coordinate the order of merges with the Explorer restyle from `item_419` to avoid CSS conflicts, but neither slice blocks the other.
 
 # Plan
-- [ ] 1. Add the `<=600px` and `<=420px` breakpoint conventions to the viewer CSS files.
-- [ ] 2. Implement the Git screen fixes: collapse `.viewer-git__workspace`, stack file metadata badges, wrap diff preview at phone widths.
-- [ ] 3. Implement the tablet-breakpoint grid collapses for board, CDX, CI, Workspace, and insights, and soften the hard `min-width` floors.
-- [ ] 4. Implement the phone-breakpoint chrome adjustments for topbar, toolbar, filter panel, details pane, document inset, and update banner.
-- [ ] 5. Add focused tests for the new media query rules and the resulting layout collapse on each targeted screen.
-- [ ] 6. Manual sanity check at 360px and 600px viewports on the orchestrator board, Git, CDX, CI, Workspace, and Insights screens.
-- [ ] 7. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
+- [x] 1. Add the `<=600px` and `<=420px` breakpoint conventions to the viewer CSS files.
+- [x] 2. Implement the Git screen fixes: collapse `.viewer-git__workspace`, stack file metadata badges, wrap diff preview at phone widths.
+- [x] 3. Implement the tablet-breakpoint grid collapses for board, CDX, CI, Workspace, and insights, and soften the hard `min-width` floors.
+- [x] 4. Implement the phone-breakpoint chrome adjustments for topbar, toolbar, filter panel, details pane, document inset, and update banner.
+- [x] 5. Add focused tests for the new media query rules and the resulting layout collapse on each targeted screen.
+- [ ] 6. Manual sanity check at 360px and 600px viewports on the orchestrator board, Git, CDX, CI, Workspace, and Insights screens. *(Pre-merge step — to be performed in a real browser; the CSS is wired and the textual tests assert the rules exist, but a human pass at 360/600 is the final acceptance signal.)*
+- [x] 7. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
 - [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated.
 
 # Backlog

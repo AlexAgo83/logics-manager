@@ -1,10 +1,10 @@
 ## task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety - Implement LAN exposure with token auth QR code and read-only safety
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 88%
-> Confidence: 82%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 92%
+> Confidence: 88%
+> Progress: 90%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -17,16 +17,16 @@
 - Researched defaults that the ADR is expected to ratify (cited in the linked backlog items): `secrets.token_urlsafe(32)` for token generation; `hmac.compare_digest` for constant-time comparison; first-load query-to-`sessionStorage` handoff with `history.replaceState` to scrub the token from the URL bar; `Authorization: Bearer` header on subsequent requests; `segno` (pure-Python MIT) for the launch-time ASCII QR code; a maintained `MUTATING_ROUTES` registry checked in the stdlib request handler before dispatch, so any future write endpoint must opt into the LAN gate by extending the registry.
 
 # Plan
-- [ ] 1. Add the opt-in LAN CLI flag, switch the bind to all interfaces only when set, and carry a single runtime LAN-mode indicator through the viewer process.
-- [ ] 2. Add the HTTP-layer read-only enforcement for current and future mutating endpoints when LAN mode is active.
-- [ ] 3. Author the architecture decision for the LAN auth model, the read-only contract, and the QR library choice.
-- [ ] 4. Generate a per-session token at launch using a cryptographically secure source, kept in memory only.
-- [ ] 5. Accept the token via a one-time query string on first load and via an HTTP header on subsequent requests, with `sessionStorage`-only client storage.
-- [ ] 6. Enforce token presence at the HTTP-handler level for non-loopback requests; preserve the loopback bypass.
-- [ ] 7. Print a scannable QR code (with plain-text URL+token fallback) in the LAN-mode launch output, using a pure-Python QR library.
-- [ ] 8. Render a permanent in-app banner in LAN mode with a copy-URL affordance and plain-language security posture; ensure the banner is absent in default mode.
-- [ ] 9. Add focused tests for the LAN flag, the HTTP-layer read-only enforcement, the token generation and handoff, the loopback bypass, the QR launch output, and the banner rendering.
-- [ ] 10. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
+- [x] 1. Add the opt-in LAN CLI flag, switch the bind to all interfaces only when set, and carry a single runtime LAN-mode indicator through the viewer process.
+- [x] 2. Add the HTTP-layer read-only enforcement for current and future mutating endpoints when LAN mode is active.
+- [x] 3. Author the architecture decision for the LAN auth model, the read-only contract, and the QR library choice. (See `adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice`.)
+- [x] 4. Generate a per-session token at launch using a cryptographically secure source, kept in memory only.
+- [x] 5. Accept the token via a one-time query string on first load and via an HTTP header on subsequent requests, with `sessionStorage`-only client storage.
+- [x] 6. Enforce token presence at the HTTP-handler level for non-loopback requests; preserve the loopback bypass.
+- [x] 7. Print a scannable QR code (with plain-text URL+token fallback) in the LAN-mode launch output, using a pure-Python QR library. *(QR matrix lights up via the optional `segno` package; without it the launch banner prints a clearly-boxed plain-text URL+token fallback — this is a phase-1 deviation from `adr_024`, which proposed a vendored encoder.)*
+- [x] 8. Render a permanent in-app banner in LAN mode with a copy-URL affordance and plain-language security posture; ensure the banner is absent in default mode.
+- [x] 9. Add focused tests for the LAN flag, the HTTP-layer read-only enforcement, the token generation and handoff, the loopback bypass, the QR launch output, and the banner rendering.
+- [x] 10. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
 - [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the LAN auth model is linked.
 
 # Backlog

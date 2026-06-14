@@ -855,9 +855,6 @@
 }
 
 .viewer-workspace__tree-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   padding: 6px 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-editorWidget-background, #202020);
@@ -1069,10 +1066,7 @@
 
 .viewer-workshop {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
   gap: 10px;
-  min-height: min(62vh, 760px);
-  max-height: min(72vh, 820px);
 }
 
 .viewer-workshop__panel {
@@ -1080,8 +1074,6 @@
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
   padding: 8px;
-  min-height: 0;
-  overflow: auto;
 }
 
 .viewer-workshop__panel--terminals {
@@ -1189,14 +1181,12 @@
 
 .viewer-workshop__terminal-stage {
   padding: 6px;
-  min-height: 360px;
   min-width: 0;
 }
 
 .viewer-workshop__terminal-host {
   width: 100%;
-  height: 100%;
-  min-height: 360px;
+  height: 480px;
   background: #0a0a0a;
   border-radius: 4px;
   padding: 6px;

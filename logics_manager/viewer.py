@@ -2434,6 +2434,219 @@ def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
 
+_WORKSHOP_SESSION_BUFFER_MAX = 4000
+_WORKSHOP_SESSION_TTL_SECONDS = 600
+
+
+class WorkshopCommandSession:
+    """Sandboxed subprocess for a Workshop command run.
+
+    Captures merged stdout+stderr into a ring buffer that SSE consumers can
+    tail incrementally via a monotonically increasing sequence number. Stop
+    delivers SIGTERM (Unix) or CTRL_BREAK_EVENT (Windows) to the process
+    group and falls back to SIGKILL if the process refuses to exit.
+    """
+
+    def __init__(self, session_id: str, command_id: str, runner: list[str], cwd: Path):
+        import collections
+        import threading
+        self.session_id = session_id
+        self.command_id = command_id
+        self.runner = list(runner)
+        self.cwd = cwd
+        self.started_at = ""
+        self.finished_at = ""
+        self.exit_code: int | None = None
+        self.state = "starting"
+        self.error: str = ""
+        self._buffer: collections.deque[tuple[int, str]] = collections.deque(maxlen=_WORKSHOP_SESSION_BUFFER_MAX)
+        self._seq = 0
+        self._lock = threading.Lock()
+        self._proc: subprocess.Popen[bytes] | None = None
+        self._reader: threading.Thread | None = None
+        self._waiter: threading.Thread | None = None
+        self._created_at = self._now()
+        self._last_activity = self._created_at
+
+    @staticmethod
+    def _now() -> float:
+        import time
+        return time.monotonic()
+
+    @staticmethod
+    def _iso_now() -> str:
+        return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    def append_line(self, channel: str, text: str) -> None:
+        with self._lock:
+            self._seq += 1
+            self._buffer.append((self._seq, f"{channel}\t{text}"))
+            self._last_activity = self._now()
+
+    def tail(self, since_seq: int) -> tuple[int, list[tuple[int, str]]]:
+        with self._lock:
+            snapshot = [(seq, line) for (seq, line) in self._buffer if seq > since_seq]
+            return self._seq, snapshot
+
+    def status_payload(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "id": self.session_id,
+                "commandId": self.command_id,
+                "runner": list(self.runner),
+                "state": self.state,
+                "exitCode": self.exit_code,
+                "startedAt": self.started_at,
+                "finishedAt": self.finished_at,
+                "lastSeq": self._seq,
+                "error": self.error,
+            }
+
+    def is_expired(self, ttl_seconds: float = _WORKSHOP_SESSION_TTL_SECONDS) -> bool:
+        if self.state in {"running", "starting"}:
+            return False
+        return (self._now() - self._last_activity) > ttl_seconds
+
+    def start(self) -> None:
+        import threading
+        creation_flags = 0
+        popen_kwargs: dict[str, Any] = {
+            "cwd": str(self.cwd),
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.STDOUT,
+            "stdin": subprocess.DEVNULL,
+        }
+        if sys.platform == "win32":
+            creation_flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            popen_kwargs["creationflags"] = creation_flags
+        else:
+            popen_kwargs["start_new_session"] = True
+        try:
+            self._proc = subprocess.Popen(self.runner, **popen_kwargs)
+        except (OSError, ValueError) as exc:
+            self.state = "error"
+            self.error = f"Unable to start command: {exc}"
+            self.finished_at = self._iso_now()
+            return
+        self.started_at = self._iso_now()
+        self.state = "running"
+        self._reader = threading.Thread(target=self._read_loop, name=f"workshop-reader-{self.session_id}", daemon=True)
+        self._reader.start()
+        self._waiter = threading.Thread(target=self._wait_loop, name=f"workshop-waiter-{self.session_id}", daemon=True)
+        self._waiter.start()
+
+    def _read_loop(self) -> None:
+        proc = self._proc
+        if proc is None or proc.stdout is None:
+            return
+        try:
+            for raw in iter(proc.stdout.readline, b""):
+                try:
+                    text = raw.decode("utf-8", errors="replace").rstrip("\r\n")
+                except Exception:
+                    continue
+                self.append_line("stdout", text)
+        except (OSError, ValueError):
+            pass
+
+    def _wait_loop(self) -> None:
+        proc = self._proc
+        if proc is None:
+            return
+        try:
+            code = proc.wait()
+        except Exception as exc:
+            self.error = f"Wait failed: {exc}"
+            code = -1
+        with self._lock:
+            self.exit_code = code
+            self.finished_at = self._iso_now()
+            self.state = "finished" if code == 0 else ("stopped" if code in (-15, 143, -9, 137) else "failed")
+            self._last_activity = self._now()
+
+    def stop(self, *, timeout: float = 5.0) -> None:
+        proc = self._proc
+        if proc is None or proc.poll() is not None:
+            return
+        try:
+            if sys.platform == "win32":
+                sig = getattr(__import__("signal"), "CTRL_BREAK_EVENT", None)
+                if sig is not None:
+                    proc.send_signal(sig)
+                else:
+                    proc.terminate()
+            else:
+                import os as _os
+                import signal as _signal
+                try:
+                    _os.killpg(proc.pid, _signal.SIGTERM)
+                except (OSError, ProcessLookupError):
+                    proc.terminate()
+        except Exception:
+            proc.terminate()
+        try:
+            proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            try:
+                if sys.platform == "win32":
+                    proc.kill()
+                else:
+                    import os as _os
+                    import signal as _signal
+                    _os.killpg(proc.pid, _signal.SIGKILL)
+            except Exception:
+                proc.kill()
+
+
+class WorkshopSessionRegistry:
+    def __init__(self) -> None:
+        import threading
+        self._sessions: dict[str, WorkshopCommandSession] = {}
+        self._lock = threading.Lock()
+        self._counter = 0
+
+    def create(self, command_entry: dict[str, Any], repo_root: Path) -> WorkshopCommandSession:
+        runner = command_entry.get("runner")
+        if not isinstance(runner, list) or not runner or not all(isinstance(part, str) and part for part in runner):
+            raise ValueError("Command entry is missing a valid runner.")
+        if not repo_root.is_dir():
+            raise ValueError("Workspace root is unavailable.")
+        with self._lock:
+            self._counter += 1
+            session_id = f"ws-{self._counter:06d}"
+        session = WorkshopCommandSession(
+            session_id=session_id,
+            command_id=str(command_entry.get("id") or ""),
+            runner=runner,
+            cwd=repo_root,
+        )
+        with self._lock:
+            self._prune_locked()
+            self._sessions[session_id] = session
+        session.start()
+        return session
+
+    def get(self, session_id: str) -> WorkshopCommandSession | None:
+        with self._lock:
+            return self._sessions.get(session_id)
+
+    def list(self) -> list[dict[str, Any]]:
+        with self._lock:
+            self._prune_locked()
+            return [session.status_payload() for session in self._sessions.values()]
+
+    def _prune_locked(self) -> None:
+        for sid in list(self._sessions.keys()):
+            if self._sessions[sid].is_expired():
+                del self._sessions[sid]
+
+    def shutdown(self) -> None:
+        with self._lock:
+            sessions = list(self._sessions.values())
+        for session in sessions:
+            session.stop(timeout=1.0)
+
+
 class LogicsViewerServer(ThreadingHTTPServer):
     def __init__(
         self,
@@ -2450,7 +2663,14 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.repo_root = self.launch_repo_root
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
+        self.workshop_sessions = WorkshopSessionRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
+
+    def server_close(self) -> None:
+        try:
+            self.workshop_sessions.shutdown()
+        finally:
+            super().server_close()
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
         return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
@@ -2505,6 +2725,57 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if content_type.startswith("text/") or path.suffix in {".js", ".css", ".html"}:
             content_type = f"{content_type}; charset=utf-8"
         self._send_bytes(path.read_bytes(), content_type=content_type)
+
+    def _stream_workshop_session(self, session: "WorkshopCommandSession", parsed: Any) -> None:
+        import time as _time
+        try:
+            since = int(parse_qs(parsed.query).get("since", ["0"])[0])
+        except (TypeError, ValueError):
+            since = 0
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        last_seq = since
+        idle_ticks = 0
+        try:
+            while True:
+                latest_seq, snapshot = session.tail(last_seq)
+                if snapshot:
+                    idle_ticks = 0
+                    for seq, line in snapshot:
+                        last_seq = seq
+                        try:
+                            channel, _, text = line.partition("\t")
+                            payload = json.dumps({"seq": seq, "channel": channel, "line": text})
+                            self.wfile.write(f"event: line\ndata: {payload}\n\n".encode("utf-8"))
+                            self.wfile.flush()
+                        except (BrokenPipeError, ConnectionResetError):
+                            return
+                state = session.state
+                if state in {"finished", "failed", "stopped", "error"} and last_seq >= latest_seq:
+                    try:
+                        payload = json.dumps(session.status_payload())
+                        self.wfile.write(f"event: end\ndata: {payload}\n\n".encode("utf-8"))
+                        self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError):
+                        return
+                    return
+                idle_ticks += 1
+                if idle_ticks >= 30:
+                    try:
+                        self.wfile.write(b": keep-alive\n\n")
+                        self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError):
+                        return
+                    idle_ticks = 0
+                _time.sleep(0.2)
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -2607,6 +2878,26 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
+        if route == "/api/workshop-sessions":
+            self._send_json({"ok": True, "payload": {"sessions": self.server.workshop_sessions.list()}})
+            return
+        if route.startswith("/api/workshop-session/"):
+            tail = route[len("/api/workshop-session/"):]
+            parts = tail.split("/", 1)
+            session_id = parts[0]
+            kind = parts[1] if len(parts) > 1 else "status"
+            session = self.server.workshop_sessions.get(session_id)
+            if session is None:
+                self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop session not found.")
+                return
+            if kind == "status":
+                self._send_json({"ok": True, "payload": session.status_payload()})
+                return
+            if kind == "stream":
+                self._stream_workshop_session(session, parsed)
+                return
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown session sub-resource.")
+            return
         if route == "/api/workspace-file":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
@@ -2644,6 +2935,42 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if parsed.path == "/api/workshop-command-start":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                command_id = str(body.get("commandId") or "")
+                if not command_id:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing commandId.")
+                    return
+                catalog = workshop_commands_payload(self.server.repo_root)
+                entry = next((c for c in catalog.get("commands", []) if c.get("id") == command_id), None)
+                if entry is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown command id.")
+                    return
+                session = self.server.workshop_sessions.create(entry, self.server.repo_root)
+                self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if parsed.path == "/api/workshop-command-stop":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                session_id = str(body.get("sessionId") or "")
+                session = self.server.workshop_sessions.get(session_id)
+                if session is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop session not found.")
+                    return
+                session.stop()
+                self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/bootstrap-logics":
             try:

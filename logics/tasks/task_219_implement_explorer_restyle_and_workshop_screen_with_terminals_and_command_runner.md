@@ -1,10 +1,10 @@
 ## task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner - Implement Explorer restyle and Workshop screen with terminals and command runner
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 36%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -17,13 +17,13 @@
 - Researched defaults that the ADR is expected to ratify (cited in the linked backlog items): `ptyprocess` (Unix) + `pywinpty` (Windows, ConPTY) for PTY; xterm.js 5.x with `@xterm/addon-fit`/`@xterm/addon-web-links` vendored under `clients/shared-web/media/vendor/xterm/`; `websockets` (asyncio) on a companion listener thread for terminal I/O; SSE on the existing stdlib `http.server` for the command runner stream; `subprocess.Popen` with `start_new_session=True` (Unix) / `CREATE_NEW_PROCESS_GROUP` (Windows) for stoppable command processes; `tomllib` (stdlib) for `pyproject.toml` parsing. None of these add a native build step on operator machines.
 
 # Plan
-- [ ] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.
-- [ ] 2. Add the Workshop topbar entry between Explorer and Git, the two-tab Terminals/Commands layout, capability gating, and persistent active-tab preference.
-- [ ] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling.
+- [x] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.
+- [x] 2. Add the Workshop topbar entry between Explorer and Git, the two-tab Terminals/Commands layout, capability gating, and persistent active-tab preference.
+- [x] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling. (See `adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling`.)
 - [ ] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state.
 - [ ] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches.
 - [ ] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata.
-- [ ] 7. Add backend entry-point discovery for `package.json` `scripts` and `pyproject.toml` project/poetry scripts.
+- [x] 7. Add backend entry-point discovery for `package.json` `scripts` and `pyproject.toml` project/poetry scripts.
 - [ ] 8. Add backend execution with stdout/stderr streaming, stop support, and exit-code reporting, sandboxed to the workspace root.
 - [ ] 9. Wire the Commands sub-screen to the discovery and execution endpoints with grouped lists, run/stop buttons, and per-entry log panels.
 - [ ] 10. Add focused tests for the Explorer restyle hooks, the Workshop navigation/persistence, the terminal session lifecycle and sandbox, the command discovery, and the command run/stop lifecycle.

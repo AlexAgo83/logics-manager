@@ -2569,3 +2569,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Responsive viewer conventions (req_246 / task_221).
+ *
+ *   Desktop:       default rules above.
+ *   Tablet (=600): collapse multi-column grids and soften min-width floors so
+ *                  any iPad-portrait or split-screen layout still works.
+ *   Phone  (=420): shrink chrome (topbar, toolbar, banner, filter panel) and
+ *                  let monospace blocks (diffs, code preview) wrap without
+ *                  triggering a viewport-level horizontal scroll.
+ *
+ * Items 2-4 add their rules in clearly-labelled @media blocks below; new
+ * responsive tweaks should land in the matching block instead of creating
+ * one-off breakpoints (the historical 560/700/860/980 queries above stay so
+ * existing layouts do not regress).
+ * --------------------------------------------------------------------------- */

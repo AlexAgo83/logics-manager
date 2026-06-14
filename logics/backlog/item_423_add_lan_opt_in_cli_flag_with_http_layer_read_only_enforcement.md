@@ -1,10 +1,10 @@
 ## item_423_add_lan_opt_in_cli_flag_with_http_layer_read_only_enforcement - Add LAN opt-in CLI flag with HTTP-layer read-only enforcement
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 88%
-> Confidence: 82%
-> Progress: 0%
+> Status: In Progress
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 40%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -60,7 +60,7 @@ flowchart TD
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet — ADR follow-up required, see Decision framing)
+- Architecture decision(s): `adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice`
 - Request: `logics/request/req_245_expose_the_viewer_on_the_local_network_with_token_authentication_and_read_only_safety.md`
 - Primary task(s): `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety`
 

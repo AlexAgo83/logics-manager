@@ -836,23 +836,15 @@
   display: grid;
   grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
   gap: 12px;
-  min-height: min(62vh, 760px);
-  max-height: min(72vh, 820px);
+  align-items: start;
 }
 
 .viewer-workspace__tree,
 .viewer-workspace__preview {
   min-width: 0;
-  min-height: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
-}
-
-.viewer-workspace__tree {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .viewer-workspace__preview {
@@ -860,7 +852,6 @@
   align-content: start;
   gap: 10px;
   padding: 12px;
-  overflow: auto;
 }
 
 .viewer-workspace__tree-header {
@@ -924,8 +915,6 @@
   display: grid;
   gap: 1px;
   padding: 4px;
-  flex: 1 1 auto;
-  overflow-y: auto;
 }
 
 .viewer-workspace__item {
@@ -1066,8 +1055,6 @@
 }
 
 .viewer-workspace__code {
-  max-height: min(70vh, 760px);
-  overflow: auto;
   margin: 0;
   padding: 12px;
   border: 1px solid var(--vscode-panel-border, #333333);

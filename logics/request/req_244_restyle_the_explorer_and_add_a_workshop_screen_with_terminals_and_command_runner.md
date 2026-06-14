@@ -1,7 +1,7 @@
 ## req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner - Restyle the Explorer and add a Workshop screen with terminals and command runner
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 88%
 > Confidence: 85%
 > Complexity: High

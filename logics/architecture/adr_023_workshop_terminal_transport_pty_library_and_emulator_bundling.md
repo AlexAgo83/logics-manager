@@ -1,5 +1,5 @@
 ## adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling - Workshop terminal transport, PTY library, and emulator bundling
-> Date: 2026-06-15
+> Date: 2026-06-15 (phase log updated 2026-06-15)
 > Status: Accepted
 > Drivers: No native build step on operator machines, stdlib-first dependencies, clean unavailable state when backends fail to import, low-latency bidirectional terminal I/O, and a vendored emulator that loads without a bundler.
 > Related request: `req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner`
@@ -52,9 +52,21 @@ flowchart LR
 - Vendor xterm.js in a single commit with provenance (`vendor/xterm/PROVENANCE.md`) and pin a version.
 - Smoke-test on macOS, Linux, and Windows before flipping the capability default to available.
 
+# Phase log
+
+## Phase 2.1 (shipped under `task_222`, 2026-06-15) — stdlib-only PTY + SSE
+The first delivery of the terminal slice ships without the new runtime dependencies that this ADR proposed. The goal was to keep the installer footprint at zero new wheels for the phase-2.1 audience (macOS / Linux operators using `pipx`-installed `logics-manager`) and to land something the team can use immediately.
+
+- **PTY**: `pty.fork()` from the Python stdlib (Unix only). Windows hosts advertise `workshop.detail.terminalsAvailable=false` until phase 2.2 wires `pywinpty`.
+- **Transport**: SSE+POST on the existing `http.server`. `GET /api/workshop-terminal/<id>/stream` carries the output (`data` events + a final `end` frame); `POST /api/workshop-terminal-input` / `-resize` / `-stop` mutate the session. The `websockets` listener thread is deferred.
+- **Emulator**: xterm.js 5.3.0 + `xterm-addon-fit` 0.8.0 + `xterm-addon-web-links` 0.9.0 vendored under `clients/shared-web/media/vendor/xterm/` (matching the original plan). Loaded with plain `<script>`/`<link>` tags, no bundler.
+- **Auth**: the SSE + POST routes go through the same `do_GET`/`do_POST` gate as everything else, so the bearer-token contract from `req_245` covers them. The terminal POST routes are in `VIEWER_MUTATING_ROUTES` so LAN clients see 403 even with the right token.
+
+Phase 2.2 (planned): add `ptyprocess`/`pywinpty` for Windows + WSL, promote the transport to WebSockets only if SSE+POST shows latency or input-rate problems in real use. The frontend abstraction over the transport stays the same.
+
 # Follow-up work
 - Track an upstream issue: if `websockets` adds first-class support for adopting an existing `socket`, simplify the listener bootstrap.
-- Revisit SSE for the command runner once it has been live for a release; if operators ask for interactive prompts we will promote it to WebSockets.
+- Revisit SSE for the command runner and the terminal once they have been live for a release; if operators ask for interactive prompts or high-throughput I/O we will promote them to WebSockets.
 
 # References
 - Related request: `req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner`

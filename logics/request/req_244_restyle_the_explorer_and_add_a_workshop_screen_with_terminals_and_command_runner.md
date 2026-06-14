@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 85%
+> Confidence: 75%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -40,12 +40,13 @@ flowchart TD
 - AC3: The Workshop screen renders a two-tab layout with `Terminals` and `Commands` sub-screens, and the active sub-screen is remembered through the viewer preferences payload across restarts.
 - AC4: The Terminals sub-screen supports creating, renaming, switching between, and closing multiple terminal sessions, with the session list persistent within a viewer session and surviving sub-screen switches.
 - AC5: Each terminal session is backed by a real PTY on the backend and rendered with a maintained terminal emulator on the frontend (xterm.js or equivalent), supports interactive input, ANSI colors, terminal resize on container resize, and copy/paste.
-- AC6: A first-class affordance launches a CDX session or a handoff command directly inside a new Workshop terminal, reusing the existing CDX mission and handoff metadata instead of duplicating it.
-- AC7: The Commands sub-screen discovers and lists executable entry points from at least `package.json` `scripts` and `pyproject.toml` (project/poetry scripts), grouped by source, with a clear label, the underlying command line, and a run/stop button per entry.
-- AC8: Running a command from the Commands sub-screen streams stdout and stderr in real time into a log panel, exposes the exit code on completion, and allows stopping a running command without killing the viewer process.
-- AC9: All Workshop subprocess execution is bounded to the selected workspace root, refuses to spawn outside it, and gracefully degrades (with a clear empty state) when the project exposes no workspace, no scripts, or no terminal capability.
-- AC10: The new backend transport (WebSocket or equivalent) is feature-gated, documented in the viewer architecture notes, and falls back cleanly when the transport is unavailable so existing viewer features keep working.
-- AC11: Tests cover the Explorer restyle markup and accessibility hooks, Workshop tab persistence, command discovery from `package.json` and `pyproject.toml`, command run/stop and exit-code reporting, terminal session lifecycle, and workspace-root sandboxing of spawned processes.
+- AC6: The PTY backend works on Linux, macOS, WSL (via the Linux path), and native Windows (via ConPTY through `pywinpty` or equivalent), with a default shell auto-detected per platform and a shell selector that lets the operator pick another installed shell (including `wsl.exe` from native Windows) when creating a session.
+- AC7: A first-class affordance launches a CDX session or a handoff command directly inside a new Workshop terminal, reusing the existing CDX mission and handoff metadata instead of duplicating it.
+- AC8: The Commands sub-screen discovers and lists executable entry points from at least `package.json` `scripts` and `pyproject.toml` (project/poetry scripts), grouped by source, with a clear label, the underlying command line, and a run/stop button per entry.
+- AC9: Running a command from the Commands sub-screen streams stdout and stderr in real time into a log panel, exposes the exit code on completion, and allows stopping a running command without killing the viewer process.
+- AC10: All Workshop subprocess execution is bounded to the selected workspace root, refuses to spawn outside it, and gracefully degrades (with a clear empty state) when the project exposes no workspace, no scripts, or no terminal capability.
+- AC11: The new backend transport (WebSocket or equivalent) is feature-gated, documented in the viewer architecture notes, and falls back cleanly when the transport is unavailable so existing viewer features keep working.
+- AC12: Tests cover the Explorer restyle markup and accessibility hooks, Workshop tab persistence, command discovery from `package.json` and `pyproject.toml`, command run/stop and exit-code reporting, terminal session lifecycle, cross-platform PTY behavior on Linux/macOS/Windows, and workspace-root sandboxing of spawned processes.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -73,6 +74,7 @@ flowchart TD
 
 # Dependencies and risks
 - Adding WebSocket (and/or PTY) support introduces a new Python dependency (e.g. `websockets`, `ptyprocess`) that must be evaluated against the bundled CLI distribution constraints and Windows support expectations.
+- PTY support is platform-split: Unix targets (Linux, macOS, WSL) can rely on stdlib `pty` plus `ptyprocess`, while native Windows requires ConPTY through a maintained wrapper such as `pywinpty`. The backend must encapsulate this split behind a single abstraction, auto-detect a sane default shell per platform, and let the operator pick another installed shell (including `wsl.exe` from native Windows) per session.
 - xterm.js (or any equivalent) must be vendored or fetched in a way that respects the existing offline-friendly asset bundling used by the viewer.
 - Spawning real subprocesses from the viewer increases the security surface; spawn paths must be normalized, restricted to the selected workspace root, and refuse traversal or absolute paths outside that root.
 - Terminal sessions and long-running commands must be cleaned up when the viewer shuts down or when the underlying client disconnects, to avoid orphaned processes.

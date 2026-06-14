@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 75%
-> Confidence: 65%
+> Understanding: 80%
+> Confidence: 70%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -15,6 +15,8 @@ Operators leave the Logics viewer whenever they need an interactive shell, a CDX
 # Scope
 - In:
   - Backend PTY management with create/resize/write/read/close operations, multiplexed by session id.
+  - Cross-platform PTY abstraction with two backends behind a single interface: stdlib `pty` plus `ptyprocess` on Linux, macOS, and WSL; ConPTY through `pywinpty` (or equivalent maintained wrapper) on native Windows.
+  - Default shell auto-detected per platform (e.g. `$SHELL` or `bash` on Unix, `%COMSPEC%` or PowerShell on Windows) and a per-session shell selector that lets the operator pick another installed shell, including `wsl.exe` from native Windows.
   - New backend transport for PTY I/O (WebSocket preferred, SSE+POST acceptable fallback) bolted onto the existing viewer HTTP server.
   - Frontend terminal rendering via a maintained emulator (xterm.js or equivalent), vendored or fetched in line with existing offline-friendly asset bundling.
   - Multi-session UI: list of sessions, create/rename/switch/close, in-session buffer kept while switching sub-tabs.
@@ -43,29 +45,31 @@ flowchart TD
 - AC1: The Terminals sub-screen supports creating, renaming, switching between, and closing multiple terminal sessions, with the session list persistent within a viewer session.
 - AC2: Each terminal session is backed by a real PTY on the backend and rendered with a maintained terminal emulator on the frontend.
 - AC3: Sessions support interactive input, ANSI color, copy/paste, and resize when the container resizes.
-- AC4: Switching to another Workshop sub-tab or another viewer screen and back preserves the session buffer for the lifetime of the viewer process.
-- AC5: A first-class affordance launches a CDX session inside a new Workshop terminal, reusing the canonical CDX mission metadata.
-- AC6: A first-class affordance launches a handoff command inside a new Workshop terminal, reusing the canonical handoff metadata.
-- AC7: All PTY processes are spawned with the selected workspace root as their working directory and refuse to spawn when no workspace root is available.
-- AC8: PTY processes are terminated when the viewer shuts down or when the underlying client connection is closed for longer than a bounded grace window.
-- AC9: The new backend transport is feature-gated and falls back to a clear unavailable state when the host or platform cannot support it, without breaking existing viewer features.
-- AC10: Tests cover the session lifecycle (create/rename/switch/close), the workspace-root sandbox, the CDX and handoff launchers, and the transport unavailable fallback.
+- AC4: The PTY abstraction supports Linux, macOS, WSL (via the Unix backend), and native Windows (via ConPTY through `pywinpty` or equivalent), with a default shell auto-detected per platform and a per-session shell selector that includes `wsl.exe` when launching from native Windows.
+- AC5: Switching to another Workshop sub-tab or another viewer screen and back preserves the session buffer for the lifetime of the viewer process.
+- AC6: A first-class affordance launches a CDX session inside a new Workshop terminal, reusing the canonical CDX mission metadata.
+- AC7: A first-class affordance launches a handoff command inside a new Workshop terminal, reusing the canonical handoff metadata.
+- AC8: All PTY processes are spawned with the selected workspace root as their working directory and refuse to spawn when no workspace root is available.
+- AC9: PTY processes are terminated when the viewer shuts down or when the underlying client connection is closed for longer than a bounded grace window.
+- AC10: The new backend transport is feature-gated and falls back to a clear unavailable state when the host or platform cannot support it, without breaking existing viewer features.
+- AC11: Tests cover the session lifecycle (create/rename/switch/close), the cross-platform PTY abstraction on Linux/macOS/Windows, the workspace-root sandbox, the CDX and handoff launchers, and the transport unavailable fallback.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC1 and AC4 define multi-session lifecycle and buffer persistence within a viewer session.
+- request-AC4 -> This backlog slice. Proof: AC1 and AC5 define multi-session lifecycle and buffer persistence within a viewer session.
 - request-AC5 -> This backlog slice. Proof: AC2 and AC3 define the PTY backing and the emulator features.
-- request-AC6 -> This backlog slice. Proof: AC5 and AC6 define the CDX and handoff launchers.
-- request-AC9 -> This backlog slice. Proof: AC7 and AC8 define workspace-root sandboxing and cleanup of subprocesses.
-- request-AC10 -> This backlog slice. Proof: AC9 requires the transport to be feature-gated with a clean fallback.
-- request-AC11 -> This backlog slice. Proof: AC10 requires automated tests for the terminal session lifecycle.
+- request-AC6 -> This backlog slice. Proof: AC4 defines the cross-platform PTY abstraction and the per-session shell selector.
+- request-AC7 -> This backlog slice. Proof: AC6 and AC7 define the CDX and handoff launchers.
+- request-AC10 -> This backlog slice. Proof: AC8 and AC9 define workspace-root sandboxing and cleanup of subprocesses.
+- request-AC11 -> This backlog slice. Proof: AC10 requires the transport to be feature-gated with a clean fallback.
+- request-AC12 -> This backlog slice. Proof: AC11 requires automated tests for the terminal session lifecycle and the cross-platform PTY abstraction.
 
 # Decision framing
 - Product framing: Not needed
 - Product signals: (none detected)
 - Product follow-up: No product brief follow-up is expected based on current signals.
 - Architecture framing: Needed
-- Architecture signals: New backend transport (WebSocket or equivalent); new third-party runtime dependency (PTY library and terminal emulator); cross-platform support implications.
-- Architecture follow-up: An ADR should be authored to record the transport choice (WebSocket vs SSE+POST), the PTY library, the terminal emulator, and the bundling/vendoring approach.
+- Architecture signals: New backend transport (WebSocket or equivalent); new third-party runtime dependencies (Unix PTY library, Windows ConPTY wrapper, terminal emulator); cross-platform PTY abstraction with platform-split backends.
+- Architecture follow-up: An ADR should be authored to record the transport choice (WebSocket vs SSE+POST), the Unix PTY library (`ptyprocess` or stdlib `pty` only), the Windows PTY library (`pywinpty` preferred over legacy `winpty`), the terminal emulator, the bundling/vendoring approach, and the supported platform matrix (Linux, macOS, WSL via the Unix backend, native Windows via the ConPTY backend).
 
 # Links
 - Product brief(s): (none yet)

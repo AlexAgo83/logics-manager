@@ -2434,6 +2434,22 @@ def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
 
+VIEWER_MUTATING_ROUTES = frozenset(
+    {
+        "/api/edit",
+        "/api/open-file",
+        "/api/open-repo-folder",
+        "/api/bootstrap-logics",
+        "/api/switch-project",
+        "/api/cdx-report-request",
+        "/api/cdx-mission-run",
+        "/api/cdx-mission-apply-plan",
+        "/api/workshop-command-start",
+        "/api/workshop-command-stop",
+    }
+)
+
+
 _WORKSHOP_SESSION_BUFFER_MAX = 4000
 _WORKSHOP_SESSION_TTL_SECONDS = 600
 
@@ -2916,6 +2932,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:
+            self._send_error_json(
+                HTTPStatus.FORBIDDEN,
+                "Mutating endpoint refused: the viewer is exposed on the LAN in read-only mode.",
+            )
+            return
         if parsed.path == "/api/refresh":
             self._send_json(
                 {

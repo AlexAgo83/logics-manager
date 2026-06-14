@@ -3162,6 +3162,28 @@ def create_viewer_server(
     )
 
 
+def _render_qr_lines(url: str) -> list[str]:
+    if not url:
+        return []
+    try:
+        import segno  # type: ignore
+    except ImportError:
+        return [
+            "+" + "-" * (len(url) + 2) + "+",
+            "| " + url + " |",
+            "+" + "-" * (len(url) + 2) + "+",
+            "(Install the optional `segno` package to render a scannable QR matrix.)",
+        ]
+    try:
+        qr = segno.make(url, error="m")
+        buffer: list[str] = []
+        qr.terminal(out=type("Buf", (), {"write": lambda self, value: buffer.append(value)})(), border=1)
+        # segno's terminal output ends each line with newline; flatten back into lines.
+        return ("".join(buffer)).splitlines() or [url]
+    except Exception:
+        return [url]
+
+
 def _append_lan_token(url: str, token: str) -> str:
     if not url or not token:
         return url
@@ -3269,9 +3291,11 @@ def main(argv: list[str]) -> int:
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
     network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
     lan_share_url = ""
+    qr_lines: list[str] = []
     if args.lan and server.lan_token:
         base_for_lan = network_url or url
         lan_share_url = _append_lan_token(base_for_lan, server.lan_token)
+        qr_lines = _render_qr_lines(lan_share_url)
     print(
         render_start_status(
             url,
@@ -3283,6 +3307,7 @@ def main(argv: list[str]) -> int:
             lan_mode=bool(args.lan),
             lan_token=server.lan_token if args.lan else None,
             lan_url=lan_share_url or None,
+            qr_lines=qr_lines or None,
         ),
         flush=True,
     )

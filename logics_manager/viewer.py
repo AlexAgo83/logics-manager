@@ -2655,6 +2655,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         *,
         auto_refresh_interval_seconds: int = 15,
         auto_refresh_interval_forced: bool = False,
+        lan_mode: bool = False,
     ):
         self.launch_repo_root = repo_root.resolve()
         self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
@@ -2663,6 +2664,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.repo_root = self.launch_repo_root
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
+        self.lan_mode = bool(lan_mode)
         self.workshop_sessions = WorkshopSessionRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
 
@@ -3075,12 +3077,14 @@ def create_viewer_server(
     *,
     auto_refresh_interval_seconds: int = 15,
     auto_refresh_interval_forced: bool = False,
+    lan_mode: bool = False,
 ) -> LogicsViewerServer:
     return LogicsViewerServer(
         (host, port),
         repo_root,
         auto_refresh_interval_seconds=auto_refresh_interval_seconds,
         auto_refresh_interval_forced=auto_refresh_interval_forced,
+        lan_mode=lan_mode,
     )
 
 
@@ -3104,13 +3108,18 @@ def render_start_status(
     network_url: str | None = None,
     bind_host: str = "localhost",
     auto_refresh_interval_seconds: int = 15,
+    lan_mode: bool = False,
+    lan_token: str | None = None,
+    lan_url: str | None = None,
+    qr_lines: list[str] | None = None,
 ) -> str:
+    mode_label = "LAN read-only (token required)" if lan_mode else "read-only"
     lines = [
         "Logics viewer running:",
         f"Local: {url}",
         "",
         f"Repo: {repo_root.name}",
-        "Mode: read-only",
+        f"Mode: {mode_label}",
         f"Bind: {bind_host}",
         f"Auto refresh: {auto_refresh_interval_seconds}s",
     ]
@@ -3118,6 +3127,16 @@ def render_start_status(
         lines.insert(2, f"Network: {network_url}")
     if focus:
         lines.append(f"Focus: {focus}")
+    if lan_mode:
+        lines.append("")
+        lines.append("LAN exposure is active. Mutating endpoints are refused; non-loopback clients must present the session token below.")
+        if lan_url:
+            lines.append(f"Share URL: {lan_url}")
+        if lan_token:
+            lines.append(f"Token: {lan_token}")
+        if qr_lines:
+            lines.append("")
+            lines.extend(qr_lines)
     return "\n".join(lines)
 
 
@@ -3125,6 +3144,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="logics-manager view", description="Start the local read-only Logics browser viewer.")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host. Defaults to 127.0.0.1.")
     parser.add_argument("--port", type=int, default=8765, help="Bind port. Use 0 to select an available port.")
+    parser.add_argument(
+        "--lan",
+        action="store_true",
+        help="Expose the viewer on the local network (0.0.0.0). Enforces read-only access and requires a per-session bearer token for non-loopback requests.",
+    )
     parser.add_argument(
         "--refresh-interval",
         type=int,
@@ -3151,12 +3175,14 @@ def main(argv: list[str]) -> int:
         focus = normalize_viewer_focus_target(repo_root, args.focus) if args.focus else None
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
+    bind_host = "0.0.0.0" if args.lan and args.host == "127.0.0.1" else args.host
     server = create_viewer_server(
         repo_root,
-        host=args.host,
+        host=bind_host,
         port=args.port,
         auto_refresh_interval_seconds=refresh_interval,
         auto_refresh_interval_forced=refresh_interval_forced,
+        lan_mode=bool(args.lan),
     )
     host, port = server.server_address[:2]
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
@@ -3169,6 +3195,7 @@ def main(argv: list[str]) -> int:
             network_url=network_url,
             bind_host=str(host),
             auto_refresh_interval_seconds=refresh_interval,
+            lan_mode=bool(args.lan),
         ),
         flush=True,
     )

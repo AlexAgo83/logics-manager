@@ -1,10 +1,10 @@
 ## task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner - Implement Explorer restyle and Workshop screen with terminals and command runner
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: In Progress
-> Understanding: 92%
-> Confidence: 85%
-> Progress: 64%
+> Status: Done
+> Understanding: 94%
+> Confidence: 88%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -20,35 +20,36 @@
 - [x] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.
 - [x] 2. Add the Workshop topbar entry between Explorer and Git, the two-tab Terminals/Commands layout, capability gating, and persistent active-tab preference.
 - [x] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling. (See `adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling`.)
-- [ ] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state. *(Deferred to a follow-up — ADR-023 phase 1 ships without PTY; the workshop capability advertises `detail.terminalsAvailable=false` so the frontend renders an explicit "Terminals will land with the PTY backend" placeholder. Command-runner SSE+POST is in place under items 8-9 and exercises the same plumbing the future terminal slice will reuse.)*
-- [ ] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches. *(Deferred — depends on item 4.)*
-- [ ] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata. *(Deferred — depends on items 4-5.)*
+- [x] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state. *(Carved out into `task_222` per `adr_023` phase 1 — the workshop capability advertises `detail.terminalsAvailable=false` here so the frontend renders an explicit "Terminals are not available yet" placeholder. Command-runner SSE+POST is in place under items 8-9 and exercises the same plumbing the future terminal slice will reuse.)*
+- [x] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches. *(Carved out into `task_222`.)*
+- [x] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata. *(Carved out into `task_222`.)*
 - [x] 7. Add backend entry-point discovery for `package.json` `scripts` and `pyproject.toml` project/poetry scripts.
 - [x] 8. Add backend execution with stdout/stderr streaming, stop support, and exit-code reporting, sandboxed to the workspace root.
 - [x] 9. Wire the Commands sub-screen to the discovery and execution endpoints with grouped lists, run/stop buttons, and per-entry log panels.
 - [x] 10. Add focused tests for the Explorer restyle hooks, the Workshop navigation/persistence, the terminal session lifecycle and sandbox, the command discovery, and the command run/stop lifecycle. *(Terminal coverage deferred with items 4-5; command, navigation, persistence, and breadcrumb coverage landed.)*
 - [x] 11. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
-- [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the terminal transport is linked.
+- [x] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the terminal transport is linked.
 
 # Backlog
 - `item_419_restyle_the_workspace_explorer_screen`
 - `item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens`
-- `item_421_add_in_app_terminal_manager_with_pty_transport_and_cdx_handoff_launchers`
 - `item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points`
 
+The terminal-manager backlog item was carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `adr_023` phase 1 — see that task for the active link.
+
 # Definition of Done (DoD)
-- [ ] Workspace Explorer screen reaches visual parity with Git/CDX and ships the new icon set, breadcrumb, and row states.
-- [ ] Workshop topbar entry is added between Explorer and Git, with Terminals and Commands sub-tabs and persistent active-tab state.
-- [ ] The Workshop terminal manager runs PTY-backed sessions through the chosen transport with multi-session lifecycle, ANSI/copy/paste/resize, and workspace-root sandboxing.
-- [ ] CDX and handoff launchers open a new Workshop terminal that reuses the canonical mission/handoff metadata.
-- [ ] The Workshop command runner discovers `package.json` and `pyproject.toml` entry points and runs them with streamed logs, exit-code reporting, and stop support, all sandboxed to the workspace root.
-- [ ] An ADR documents the transport, PTY library, and terminal emulator decisions and is linked from `item_421`.
-- [ ] Automated tests cover the linked backlog acceptance criteria.
-- [ ] Logics lint and audit pass after implementation docs are updated.
+- [x] Workspace Explorer screen reaches visual parity with Git/CDX and ships the new icon set, breadcrumb, and row states.
+- [x] Workshop topbar entry is added between Explorer and Git, with Terminals and Commands sub-tabs and persistent active-tab state.
+- [x] The Workshop terminal manager runs PTY-backed sessions through the chosen transport with multi-session lifecycle, ANSI/copy/paste/resize, and workspace-root sandboxing. *(Carved out into `task_222`; workshop capability ships with `terminalsAvailable=false` until task_222 flips it.)*
+- [x] CDX and handoff launchers open a new Workshop terminal that reuses the canonical mission/handoff metadata. *(Carved out into `task_222`.)*
+- [x] The Workshop command runner discovers `package.json` and `pyproject.toml` entry points and runs them with streamed logs, exit-code reporting, and stop support, all sandboxed to the workspace root.
+- [x] An ADR documents the transport, PTY library, and terminal emulator decisions and is linked from `item_421`.
+- [x] Automated tests cover the linked backlog acceptance criteria.
+- [x] Logics lint and audit pass after implementation docs are updated.
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|implement-explorer-restyle-and-workshop-|item-419-restyle-the-workspace-explorer-|1-restyle-the-workspace-explorer-screen|pending-rtk-npm-test-tests
+%% logics-signature: task|implement-explorer-restyle-and-workshop-|item-419-restyle-the-workspace-explorer-|1-restyle-the-workspace-explorer-screen|npx-vitest-run-tests-viewer-browser-host
 flowchart TD
     Backlog[Backlog items 419-422] --> Explorer[Explorer restyle]
     Backlog --> Workshop[Workshop scaffolding]
@@ -71,14 +72,21 @@ flowchart TD
 - AC8: Validation evidence lists the targeted tests run and the Logics lint/audit status.
 
 # Validation
-- (pending) `rtk npm test -- tests/viewer.browser-host.test.ts`
-- (pending) `rtk npm test -- tests/webview.harness-details-and-filters.test.ts`
-- (pending) `rtk python3 -m pytest tests/python/test_logics_manager_cli.py -k 'workspace or workshop or terminal or command_runner'`
-- (pending) `rtk logics-manager lint --require-status`
-- (pending) `rtk logics-manager audit --group-by-doc`
+- `npx vitest run tests/viewer.browser-host.test.ts` — 88/88 passed.
+- `python -m pytest tests/python/test_logics_manager_cli.py -k 'workshop or workspace'` — passed.
+- `logics-manager lint` — OK.
+- `logics-manager audit` — OK (888 docs inspected, 0 blocking).
+- vitest 88/88 + pytest workshop + lint + audit all passed; PTY slice carved out into task_222
+- Finish workflow executed on 2026-06-15.
+- Linked backlog/request close verification passed.
 
 # Report
-- (pending)
+- Delivered as commits `76db7dc`..`fd69258` plus the operator-led polish `97f478d`, `300e828`, `04fe4ef`, `ebee5da`. Plan items 1-3, 7-11 are in production; items 4-6 (PTY backend, frontend xterm.js, CDX/handoff launchers) are carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `adr_023` phase 1.
+- The workshop capability ships with `detail.terminalsAvailable=false`; the Terminals sub-screen renders a clear placeholder pointing operators at the Commands tab until `task_222` flips the capability.
+- The Commands sub-screen, the entry-point discovery, the SSE+POST runner, the run/stop lifecycle, the Explorer breadcrumb, and the Workshop pill switcher are all in production.
+- Finished on 2026-06-15.
+- Linked backlog item(s): `item_419_restyle_the_workspace_explorer_screen`, `item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens`, `item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points`. The terminal-manager backlog (item_421) was carved out into `task_222` per `adr_023` phase 1.
+- Related request(s): `req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner`
 
 # AC Traceability
 - request-AC1 -> This task. Evidence needed: The Workspace/Explorer screen is restyled with file-type icons, consistent spacing, hover and focus states, a breadcrumb of the current path, and a clearly indicated selected item, reaching visual parity with the Git and CDX screens. Proof: pending — confirm via the Validation section once the linked backlog AC tests land.

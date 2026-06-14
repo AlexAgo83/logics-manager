@@ -1,10 +1,10 @@
 ## item_425_add_lan_qr_code_launch_output_and_in_app_banner - Add LAN QR code launch output and in-app banner
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -80,6 +80,7 @@ flowchart TD
 
 # Notes
 - Depends on `item_424` for the token value and on `item_423` for the LAN-mode runtime indicator.
+- Task `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety`

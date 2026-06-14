@@ -1,10 +1,10 @@
 ## item_426_fix_git_screen_layout_and_diff_preview_at_small_breakpoints - Fix Git screen layout and diff preview at small breakpoints
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,6 +49,10 @@ flowchart TD
 - request-AC2 -> This backlog slice. Proof: AC1, AC2, and AC4 deliver the Git workspace collapse, file metadata stacking, and diff wrapping called out in the request.
 - request-AC11 -> This backlog slice. Proof: AC4 eliminates viewport-level horizontal scroll on the Git diff preview at phone widths.
 - request-AC12 -> This backlog slice. Proof: AC6 requires automated tests for the new Git-specific media query rules.
+- request-AC7 -> This backlog slice. Evidence needed: The topbar adapts at <=420px: the repository pill `max-width` is reduced, the actions row wraps, and primary actions remain reachable without horizontal scroll.
+- request-AC8 -> This backlog slice. Evidence needed: The details pane at <=420px uses the full viewport width with reduced padding and font size for the header title, instead of the desktop 300px sidebar treatment.
+- request-AC9 -> This backlog slice. Evidence needed: The insights hero (`.viewer-insights__hero`) collapses to a single column at <=420px, instead of waiting for the existing 700px breakpoint.
+- request-AC10 -> This backlog slice. Evidence needed: The document inset (`inset: 64px 20px 20px`) is reduced at <=420px to keep usable reading width.
 
 # Decision framing
 - Product framing: Not needed
@@ -76,6 +80,7 @@ flowchart TD
 
 # Notes
 - This is the operator-flagged priority slice of `req_246`; ship it first so the rest of the responsive pass benefits from the same established breakpoints.
+- Task `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints`

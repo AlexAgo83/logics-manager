@@ -1,7 +1,7 @@
 ## req_245_expose_the_viewer_on_the_local_network_with_token_authentication_and_read_only_safety - Expose the viewer on the local network with token authentication and read-only safety
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 88%
 > Confidence: 85%
 > Complexity: High

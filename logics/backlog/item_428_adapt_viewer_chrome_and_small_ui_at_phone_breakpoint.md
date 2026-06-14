@@ -1,10 +1,10 @@
 ## item_428_adapt_viewer_chrome_and_small_ui_at_phone_breakpoint - Adapt viewer chrome and small UI at phone breakpoint
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,6 +57,7 @@ flowchart TD
 - request-AC10 -> This backlog slice. Proof: AC5 reduces the document inset to preserve reading width.
 - request-AC11 -> This backlog slice. Proof: AC1 through AC6 eliminate viewport-level horizontal scroll on the chrome at phone widths.
 - request-AC12 -> This backlog slice. Proof: AC8 requires automated tests for the new phone-breakpoint rules.
+- request-AC9 -> This backlog slice. Evidence needed: The insights hero (`.viewer-insights__hero`) collapses to a single column at <=420px, instead of waiting for the existing 700px breakpoint.
 
 # Decision framing
 - Product framing: Not needed
@@ -84,6 +85,7 @@ flowchart TD
 
 # Notes
 - Ship after `item_427` so the tablet-breakpoint convention is in place before the phone-breakpoint chrome is layered on top.
+- Task `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints`

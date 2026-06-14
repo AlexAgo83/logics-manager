@@ -1,10 +1,10 @@
 ## item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens - Add Workshop topbar entry with terminal and command sub-screens
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 82%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,6 +52,7 @@ flowchart TD
 - request-AC8 -> This backlog slice. Evidence needed: Running a command from the Commands sub-screen streams stdout and stderr in real time into a log panel, exposes the exit code on completion, and allows stopping a running command without killing the viewer process.
 - request-AC9 -> This backlog slice. Evidence needed: All Workshop subprocess execution is bounded to the selected workspace root, refuses to spawn outside it, and gracefully degrades (with a clear empty state) when the project exposes no workspace, no scripts, or no terminal capability.
 - request-AC10 -> This backlog slice. Evidence needed: The new backend transport (WebSocket or equivalent) is feature-gated, documented in the viewer architecture notes, and falls back cleanly when the transport is unavailable so existing viewer features keep working.
+- request-AC12 -> This backlog slice. Evidence needed: Tests cover the Explorer restyle markup and accessibility hooks, Workshop tab persistence, command discovery from `package.json` and `pyproject.toml`, command run/stop and exit-code reporting, terminal session lifecycle, cross-platform PTY behavior on Linux/macOS/Windows, and workspace-root sandboxing of spawned processes.
 
 # Decision framing
 - Product framing: Not needed
@@ -80,6 +81,7 @@ flowchart TD
 # Notes
 - Ship the navigation slice before the runtimes so `item_421` and `item_422` can mount inside a stable container.
 - Implementation reference: extend the existing versioned viewer preferences payload (`logics.localViewer.preferences.v1`) with a new `workshop.activeTab` key holding `terminals` or `commands`. No new backend endpoint, no new transport, no new dependency. CSS-only chrome change layered on top of the existing topbar pattern (`#viewer-workspace`/`#viewer-git` buttons). VS Code webview chrome reads the same markup via `clients/viewer/browser-host.js`.
+- Task `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner`

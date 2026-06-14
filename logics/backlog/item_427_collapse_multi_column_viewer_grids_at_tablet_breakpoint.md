@@ -1,10 +1,10 @@
 ## item_427_collapse_multi_column_viewer_grids_at_tablet_breakpoint - Collapse multi-column viewer grids at tablet breakpoint
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -54,6 +54,7 @@ flowchart TD
 - request-AC9 -> This backlog slice. Proof: AC5 collapses the insights hero at `<=600px`.
 - request-AC11 -> This backlog slice. Proof: AC6 softens the hard `min-width` floors that were causing viewport-level horizontal scroll.
 - request-AC12 -> This backlog slice. Proof: AC8 requires automated tests for the new tablet-breakpoint rules.
+- request-AC10 -> This backlog slice. Evidence needed: The document inset (`inset: 64px 20px 20px`) is reduced at <=420px to keep usable reading width.
 
 # Decision framing
 - Product framing: Not needed
@@ -81,6 +82,7 @@ flowchart TD
 
 # Notes
 - Ship after `item_426` so the Git fix establishes the `<=600px` breakpoint convention used by this slice.
+- Task `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_221_implement_responsive_viewer_at_tablet_and_phone_breakpoints`

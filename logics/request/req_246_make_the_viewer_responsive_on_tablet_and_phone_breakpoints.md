@@ -1,7 +1,7 @@
 ## req_246_make_the_viewer_responsive_on_tablet_and_phone_breakpoints - Make the viewer responsive on tablet and phone breakpoints
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 87%
 > Confidence: 82%
 > Complexity: Medium

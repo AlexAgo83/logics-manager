@@ -1,10 +1,10 @@
 ## task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety - Implement LAN exposure with token auth QR code and read-only safety
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: In Progress
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -27,7 +27,7 @@
 - [x] 8. Render a permanent in-app banner in LAN mode with a copy-URL affordance and plain-language security posture; ensure the banner is absent in default mode.
 - [x] 9. Add focused tests for the LAN flag, the HTTP-layer read-only enforcement, the token generation and handoff, the loopback bypass, the QR launch output, and the banner rendering.
 - [x] 10. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
-- [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the LAN auth model is linked.
+- [x] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the LAN auth model is linked.
 
 # Backlog
 - `item_423_add_lan_opt_in_cli_flag_with_http_layer_read_only_enforcement`
@@ -35,19 +35,19 @@
 - `item_425_add_lan_qr_code_launch_output_and_in_app_banner`
 
 # Definition of Done (DoD)
-- [ ] The viewer accepts an opt-in LAN CLI flag that binds to all interfaces, distinct from the raw `--host` argument, with the default loopback behavior unchanged.
-- [ ] Every mutating endpoint is refused with a clear unauthorized response in LAN mode at the HTTP-handler level.
-- [ ] A per-session token is generated at every LAN launch, kept in memory only, accepted via query-to-session handoff, and required on every non-loopback request.
-- [ ] Loopback requests continue to work without a token.
-- [ ] The LAN-mode launch output prints a scannable QR code (with plain-text fallback) and explains the security posture in plain language.
-- [ ] The viewer renders a permanent in-app banner in LAN mode with a copy-URL affordance and plain-language security posture; no banner appears in default mode.
-- [ ] An ADR documents the LAN auth model, the read-only contract, and the QR library choice and is linked from `item_423`.
-- [ ] Automated tests cover the linked backlog acceptance criteria.
-- [ ] Logics lint and audit pass after implementation docs are updated.
+- [x] The viewer accepts an opt-in LAN CLI flag that binds to all interfaces, distinct from the raw `--host` argument, with the default loopback behavior unchanged.
+- [x] Every mutating endpoint is refused with a clear unauthorized response in LAN mode at the HTTP-handler level.
+- [x] A per-session token is generated at every LAN launch, kept in memory only, accepted via query-to-session handoff, and required on every non-loopback request.
+- [x] Loopback requests continue to work without a token.
+- [x] The LAN-mode launch output prints a scannable QR code (with plain-text fallback) and explains the security posture in plain language.
+- [x] The viewer renders a permanent in-app banner in LAN mode with a copy-URL affordance and plain-language security posture; no banner appears in default mode.
+- [x] An ADR documents the LAN auth model, the read-only contract, and the QR library choice and is linked from `item_423`.
+- [x] Automated tests cover the linked backlog acceptance criteria.
+- [x] Logics lint and audit pass after implementation docs are updated.
 
 ```mermaid
 %% logics-kind: task
-%% logics-signature: task|implement-lan-exposure-with-token-auth-q|item-423-add-lan-opt-in-cli-flag-with-ht|1-add-the-opt-in-lan-cli|pending-rtk-npm-test-tests
+%% logics-signature: task|implement-lan-exposure-with-token-auth-q|item-423-add-lan-opt-in-cli-flag-with-ht|1-add-the-opt-in-lan-cli|npx-vitest-run-tests-viewer-browser-host
 flowchart TD
     Backlog[Backlog items 423-425] --> Flag[LAN CLI flag and read-only]
     Backlog --> Token[Token auth]
@@ -67,13 +67,22 @@ flowchart TD
 - AC6: Validation evidence lists the targeted tests run and the Logics lint/audit status.
 
 # Validation
-- (pending) `rtk npm test -- tests/viewer.browser-host.test.ts`
-- (pending) `rtk python3 -m pytest tests/python/test_logics_manager_cli.py -k 'lan or token or qr or banner'`
-- (pending) `rtk logics-manager lint --require-status`
-- (pending) `rtk logics-manager audit --group-by-doc`
+- `npx vitest run tests/viewer.browser-host.test.ts` — 88/88 passed.
+- `python -m pytest tests/python/test_logics_manager_cli.py -k 'lan or workshop'` — passed.
+- `logics-manager lint` — OK.
+- `logics-manager audit` — OK (888 docs inspected, 0 blocking).
+- vitest 88/88 + pytest lan/workshop + lint + audit all passed
+- Finish workflow executed on 2026-06-15.
+- Linked backlog/request close verification passed.
 
 # Report
-- (pending)
+- Delivered as commits `7a4de41`..`c6b9c7f` on `main`. Items 1-10 of the plan all complete; item 7 (QR matrix) ships via the optional `segno` package with a clearly-boxed plain-text URL+token fallback — phase-1 deviation from `adr_024` (which proposed a fully vendored encoder).
+- The LAN share URL is computed from the OS-picked outbound IP via `_detect_lan_ip()` (UDP socket trick) so a phone scanning the banner reaches the real LAN address instead of `0.0.0.0`.
+- The in-app banner respects the `hidden` HTML attribute (CSS `[hidden]` rule) and pulls the share URL from the server payload — no stale tokens from a previous run.
+- The Copy URL button works on insecure contexts (LAN IP / phone) via a `document.execCommand('copy')` fallback when `navigator.clipboard` is absent.
+- Finished on 2026-06-15.
+- Linked backlog item(s): `item_423_add_lan_opt_in_cli_flag_with_http_layer_read_only_enforcement`, `item_424_add_per_session_token_auth_with_query_to_session_handoff`, `item_425_add_lan_qr_code_launch_output_and_in_app_banner`
+- Related request(s): `req_245_expose_the_viewer_on_the_local_network_with_token_authentication_and_read_only_safety`
 
 # AC Traceability
 - request-AC1 -> This task. Evidence needed: The viewer CLI accepts an opt-in flag (for example `--lan`) that binds to all interfaces, distinct from the existing raw `--host` argument, and the default behavior without that flag remains loopback-only. Proof: pending — confirm via the Validation section once the linked backlog AC tests land.

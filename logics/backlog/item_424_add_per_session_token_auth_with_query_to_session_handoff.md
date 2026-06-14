@@ -1,10 +1,10 @@
 ## item_424_add_per_session_token_auth_with_query_to_session_handoff - Add per-session token auth with query-to-session handoff
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,6 +53,8 @@ flowchart TD
 - request-AC4 -> This backlog slice. Proof: AC3 and AC4 define the query-to-session handoff and the `sessionStorage`-only client storage.
 - request-AC5 -> This backlog slice. Proof: AC5 and AC6 define the non-loopback rejection and the loopback bypass at the HTTP layer.
 - request-AC10 -> This backlog slice. Proof: AC7 requires automated tests for the auth path.
+- request-AC8 -> This backlog slice. Evidence needed: When LAN mode is not used, no banner, no token check, and no QR code are produced, and existing loopback workflows behave exactly as before.
+- request-AC9 -> This backlog slice. Evidence needed: The launch output and the in-app banner clearly state the security model in plain language (anyone on the network with the token can read; write actions are disabled) so the operator can reason about the risk.
 
 # Decision framing
 - Product framing: Not needed
@@ -81,6 +83,7 @@ flowchart TD
 # Notes
 - Depends on `item_423` for the LAN-mode runtime indicator and the request-handler hook.
 - Researched implementation reference: generate the token at launch with `secrets.token_urlsafe(32)` (256 bits of entropy, URL-safe, ~43 chars — small enough to embed in a QR code without size pressure). Compare incoming tokens with `hmac.compare_digest` to avoid timing leaks. Handoff: the launch URL is `http://<lan-ip>:<port>/?t=<token>`; on first load the client-side bootstrap reads the query, stores the token in `sessionStorage` under key `logics.lanToken`, then calls `history.replaceState({}, "", location.pathname)` to scrub the token from the URL bar and the browser history. All subsequent fetches add an `Authorization: Bearer <token>` header. Loopback bypass: the handler checks `self.client_address[0]` against `{"127.0.0.1", "::1"}` and skips the token gate when the source is loopback. Refusal mode: any non-loopback request without a valid token returns `401 Unauthorized` with a generic body.
+- Task `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety`

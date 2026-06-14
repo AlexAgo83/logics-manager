@@ -1,10 +1,10 @@
 ## item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points - Add command runner driven by package.json and pyproject entry points
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 88%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,6 +55,7 @@ flowchart TD
 - request-AC9 -> This backlog slice. Proof: AC7 enforces the workspace-root sandbox.
 - request-AC11 -> This backlog slice. Proof: AC9 requires automated tests for discovery and lifecycle.
 - request-AC10 -> This backlog slice. Evidence needed: The new backend transport (WebSocket or equivalent) is feature-gated, documented in the viewer architecture notes, and falls back cleanly when the transport is unavailable so existing viewer features keep working.
+- request-AC12 -> This backlog slice. Evidence needed: Tests cover the Explorer restyle markup and accessibility hooks, Workshop tab persistence, command discovery from `package.json` and `pyproject.toml`, command run/stop and exit-code reporting, terminal session lifecycle, cross-platform PTY behavior on Linux/macOS/Windows, and workspace-root sandboxing of spawned processes.
 
 # Decision framing
 - Product framing: Not needed
@@ -83,6 +84,7 @@ flowchart TD
 # Notes
 - This slice can ship in parallel with `item_421` once the Workshop container from `item_420` is available; it does not require PTY.
 - Researched implementation reference: parse `package.json` `scripts` via stdlib `json` and `pyproject.toml` via stdlib `tomllib` (Python 3.11+, already required by the project) reading `[project.scripts]` and `[tool.poetry.scripts]`. Stream stdout/stderr via Server-Sent Events on the existing stdlib `http.server` (no new transport dependency for this slice): a long-lived `Content-Type: text/event-stream` response framed as `event: stdout|stderr|exit\ndata: <payload>\n\n`, flushed per chunk; `ThreadingHTTPServer` natively handles a per-connection thread so SSE works out of the box. Subprocess management: `subprocess.Popen` with `start_new_session=True` on Unix and `creationflags=subprocess.CREATE_NEW_PROCESS_GROUP` on Windows so stop can target the whole process tree via `os.killpg(pid, signal.SIGTERM)` then `SIGKILL` after a 5-second grace on Unix, or `Popen.send_signal(signal.CTRL_BREAK_EVENT)` then `Popen.kill()` on Windows. Exit code is read from `Popen.wait()` in the streaming thread and emitted as the final `event: exit` frame.
+- Task `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner` was finished via `logics-manager flow finish task` on 2026-06-15.
 
 # Tasks
 - `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner`

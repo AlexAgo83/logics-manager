@@ -2697,13 +2697,15 @@ class LogicsViewerServer(ThreadingHTTPServer):
         return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
 
     def viewer_payload(self, *, selected_id: str | None = None) -> dict[str, Any]:
-        return viewer_data_payload(
+        payload = viewer_data_payload(
             self.repo_root,
             selected_id=selected_id,
             auto_refresh_interval_seconds=self.auto_refresh_interval_seconds,
             auto_refresh_interval_forced=self.auto_refresh_interval_forced,
             projects=self.project_registry_payload(),
         )
+        payload["lanMode"] = bool(self.lan_mode)
+        return payload
 
     def switch_project(self, project_id: str) -> dict[str, Any]:
         target = self.project_root_by_id.get(project_id)

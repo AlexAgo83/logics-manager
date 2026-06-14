@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: In Progress
-> Understanding: 90%
+> Understanding: 92%
 > Confidence: 85%
-> Progress: 36%
+> Progress: 64%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -20,14 +20,14 @@
 - [x] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.
 - [x] 2. Add the Workshop topbar entry between Explorer and Git, the two-tab Terminals/Commands layout, capability gating, and persistent active-tab preference.
 - [x] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling. (See `adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling`.)
-- [ ] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state.
-- [ ] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches.
-- [ ] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata.
+- [ ] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state. *(Deferred to a follow-up — ADR-023 phase 1 ships without PTY; the workshop capability advertises `detail.terminalsAvailable=false` so the frontend renders an explicit "Terminals will land with the PTY backend" placeholder. Command-runner SSE+POST is in place under items 8-9 and exercises the same plumbing the future terminal slice will reuse.)*
+- [ ] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches. *(Deferred — depends on item 4.)*
+- [ ] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata. *(Deferred — depends on items 4-5.)*
 - [x] 7. Add backend entry-point discovery for `package.json` `scripts` and `pyproject.toml` project/poetry scripts.
-- [ ] 8. Add backend execution with stdout/stderr streaming, stop support, and exit-code reporting, sandboxed to the workspace root.
-- [ ] 9. Wire the Commands sub-screen to the discovery and execution endpoints with grouped lists, run/stop buttons, and per-entry log panels.
-- [ ] 10. Add focused tests for the Explorer restyle hooks, the Workshop navigation/persistence, the terminal session lifecycle and sandbox, the command discovery, and the command run/stop lifecycle.
-- [ ] 11. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
+- [x] 8. Add backend execution with stdout/stderr streaming, stop support, and exit-code reporting, sandboxed to the workspace root.
+- [x] 9. Wire the Commands sub-screen to the discovery and execution endpoints with grouped lists, run/stop buttons, and per-entry log panels.
+- [x] 10. Add focused tests for the Explorer restyle hooks, the Workshop navigation/persistence, the terminal session lifecycle and sandbox, the command discovery, and the command run/stop lifecycle. *(Terminal coverage deferred with items 4-5; command, navigation, persistence, and breadcrumb coverage landed.)*
+- [x] 11. Run targeted viewer tests, Logics lint, and Logics audit before closeout.
 - [ ] GATE: do not close this task until the linked backlog acceptance criteria and validation evidence are updated, and the ADR for the terminal transport is linked.
 
 # Backlog

@@ -862,6 +862,25 @@ describe("local viewer browser host", () => {
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
+  it("declares the responsive viewer breakpoints and their collapse rules", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toMatch(/req_246 item_426/);
+    expect(css).toMatch(/req_246 item_427/);
+    expect(css).toMatch(/req_246 item_428/);
+    // Phone breakpoint (=420px) carries the Git diff wrap and the topbar wrap.
+    expect(css).toMatch(/@media \(max-width: 420px\)/);
+    // Tablet breakpoint (=600px) collapses the Git workspace, the filter panel,
+    // the CDX/CI/Explorer grids, and the summary strips.
+    const tabletBlocks = css.match(/@media \(max-width: 600px\)\s*\{[\s\S]*?\n\}/g) || [];
+    const joined = tabletBlocks.join("\n");
+    expect(joined).toContain(".viewer-git__workspace");
+    expect(joined).toContain(".viewer-filter-panel");
+    expect(joined).toContain(".viewer-cdx__workspace");
+    expect(joined).toContain(".viewer-ci__workspace");
+    expect(joined).toContain(".viewer-workspace");
+    expect(joined).toContain(".viewer-insights__summary");
+  });
+
   it("declares the local viewer favicon from packaged app assets", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);

@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 82%
+> Confidence: 72%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -94,4 +94,6 @@ flowchart TD
 - Skip when: The work is about mobile responsive styling, public internet exposure, or persistent credentials.
 
 # Backlog
-- none
+- `item_423_add_lan_opt_in_cli_flag_with_http_layer_read_only_enforcement`
+- `item_424_add_per_session_token_auth_with_query_to_session_handoff`
+- `item_425_add_lan_qr_code_launch_output_and_in_app_banner`

@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 85%
-> Confidence: 80%
+> Understanding: 87%
+> Confidence: 82%
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -100,4 +100,6 @@ flowchart TD
 - Skip when: The work is about LAN exposure, backend endpoints, the Workshop screen runtimes, or the Explorer restyle.
 
 # Backlog
-- none
+- `item_426_fix_git_screen_layout_and_diff_preview_at_small_breakpoints`
+- `item_427_collapse_multi_column_viewer_grids_at_tablet_breakpoint`
+- `item_428_adapt_viewer_chrome_and_small_ui_at_phone_breakpoint`

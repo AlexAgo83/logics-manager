@@ -10,6 +10,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tomllib
 import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
@@ -641,10 +642,22 @@ def viewer_project_capabilities(
         message="Workspace root can be inspected." if repo_root.is_dir() else "Workspace root is unavailable.",
         detail={"root": str(repo_root.resolve())} if repo_root.is_dir() else {},
     )
+    workshop_available = repo_root.is_dir()
+    workshop = _viewer_capability(
+        "ready" if workshop_available else "missing",
+        available=workshop_available,
+        message=(
+            "Workshop command runner can discover entry points."
+            if workshop_available
+            else "Workshop is not available without a workspace root."
+        ),
+        detail={"terminalsAvailable": False, "commandsAvailable": workshop_available},
+    )
 
     return {
         "logics": logics,
         "workspace": workspace,
+        "workshop": workshop,
         "git": git,
         "ci": ci,
         "cdx": cdx,
@@ -1346,6 +1359,116 @@ def workspace_preview_payload(
         "truncated": truncated,
         "logicsType": _logics_doc_type(normalized),
         "message": "",
+    }
+
+
+WORKSHOP_COMMAND_MAX = 200
+
+
+def _workshop_command_id(group: str, name: str) -> str:
+    safe = re.sub(r"[^a-z0-9._-]+", "-", f"{group}:{name}".lower()).strip("-") or "command"
+    return safe[:80]
+
+
+def _discover_package_json_scripts(repo_root: Path) -> list[dict[str, Any]]:
+    target = repo_root / "package.json"
+    if not target.is_file():
+        return []
+    try:
+        with target.open("rb") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    scripts = payload.get("scripts") if isinstance(payload, dict) else None
+    if not isinstance(scripts, dict):
+        return []
+    entries: list[dict[str, Any]] = []
+    for name, command in scripts.items():
+        if not isinstance(name, str) or not isinstance(command, str):
+            continue
+        entries.append(
+            {
+                "id": _workshop_command_id("npm", name),
+                "source": "package.json",
+                "group": "npm scripts",
+                "name": name,
+                "command": command,
+                "runner": ["npm", "run", name],
+            }
+        )
+        if len(entries) >= WORKSHOP_COMMAND_MAX:
+            break
+    return entries
+
+
+def _discover_pyproject_scripts(repo_root: Path) -> list[dict[str, Any]]:
+    target = repo_root / "pyproject.toml"
+    if not target.is_file():
+        return []
+    try:
+        with target.open("rb") as handle:
+            payload = tomllib.load(handle)
+    except (OSError, tomllib.TOMLDecodeError):
+        return []
+    entries: list[dict[str, Any]] = []
+    project_scripts = (payload.get("project") or {}).get("scripts")
+    if isinstance(project_scripts, dict):
+        for name, target_ref in project_scripts.items():
+            if not isinstance(name, str) or not isinstance(target_ref, str):
+                continue
+            entries.append(
+                {
+                    "id": _workshop_command_id("pyproject", name),
+                    "source": "pyproject.toml [project.scripts]",
+                    "group": "Project scripts",
+                    "name": name,
+                    "command": target_ref,
+                    "runner": [name],
+                }
+            )
+            if len(entries) >= WORKSHOP_COMMAND_MAX:
+                return entries
+    poetry_scripts = (
+        ((payload.get("tool") or {}).get("poetry") or {}).get("scripts")
+        if isinstance(payload.get("tool"), dict)
+        else None
+    )
+    if isinstance(poetry_scripts, dict):
+        for name, target_ref in poetry_scripts.items():
+            if not isinstance(name, str) or not isinstance(target_ref, str):
+                continue
+            entries.append(
+                {
+                    "id": _workshop_command_id("poetry", name),
+                    "source": "pyproject.toml [tool.poetry.scripts]",
+                    "group": "Poetry scripts",
+                    "name": name,
+                    "command": target_ref,
+                    "runner": ["poetry", "run", name],
+                }
+            )
+            if len(entries) >= WORKSHOP_COMMAND_MAX:
+                break
+    return entries
+
+
+def workshop_commands_payload(repo_root: Path) -> dict[str, Any]:
+    if not repo_root.is_dir():
+        return {"state": "unavailable", "commands": [], "message": "Workspace root is unavailable."}
+    commands: list[dict[str, Any]] = []
+    commands.extend(_discover_package_json_scripts(repo_root))
+    commands.extend(_discover_pyproject_scripts(repo_root))
+    seen: set[str] = set()
+    deduped: list[dict[str, Any]] = []
+    for entry in commands:
+        if entry["id"] in seen:
+            continue
+        seen.add(entry["id"])
+        deduped.append(entry)
+    return {
+        "state": "ok" if deduped else "empty",
+        "commands": deduped,
+        "message": "" if deduped else "No package.json or pyproject.toml entry points were found in the workspace root.",
     }
 
 
@@ -2475,6 +2598,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
                 self._send_json({"ok": True, "payload": workspace_preview_payload(self.server.repo_root, rel_path)})
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if route == "/api/workshop-commands":
+            try:
+                self._send_json({"ok": True, "payload": workshop_commands_payload(self.server.repo_root)})
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return

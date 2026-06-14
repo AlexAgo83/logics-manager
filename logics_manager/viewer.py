@@ -645,15 +645,18 @@ def viewer_project_capabilities(
         detail={"root": str(repo_root.resolve())} if repo_root.is_dir() else {},
     )
     workshop_available = repo_root.is_dir()
+    terminals_available = workshop_available and workshop_terminals_available()
+    if terminals_available:
+        workshop_message = "Workshop command runner and PTY terminals are available."
+    elif workshop_available:
+        workshop_message = "Workshop command runner is available; PTY terminals require a Unix host with stdlib pty support."
+    else:
+        workshop_message = "Workshop is not available without a workspace root."
     workshop = _viewer_capability(
         "ready" if workshop_available else "missing",
         available=workshop_available,
-        message=(
-            "Workshop command runner can discover entry points."
-            if workshop_available
-            else "Workshop is not available without a workspace root."
-        ),
-        detail={"terminalsAvailable": False, "commandsAvailable": workshop_available},
+        message=workshop_message,
+        detail={"terminalsAvailable": terminals_available, "commandsAvailable": workshop_available},
     )
 
     return {
@@ -2448,6 +2451,10 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-mission-apply-plan",
         "/api/workshop-command-start",
         "/api/workshop-command-stop",
+        "/api/workshop-terminal-start",
+        "/api/workshop-terminal-stop",
+        "/api/workshop-terminal-input",
+        "/api/workshop-terminal-resize",
     }
 )
 
@@ -2665,6 +2672,284 @@ class WorkshopSessionRegistry:
             session.stop(timeout=1.0)
 
 
+_WORKSHOP_TERMINAL_BUFFER_MAX = 8000
+_WORKSHOP_TERMINAL_TTL_SECONDS = 1800
+
+
+def workshop_terminals_available() -> bool:
+    """True when the host can spawn PTY sessions through the stdlib backend."""
+    if sys.platform == "win32":
+        return False
+    try:
+        import pty  # noqa: F401
+        import termios  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
+def _default_workshop_shell() -> list[str]:
+    candidate = os.environ.get("SHELL") or ""
+    if candidate and os.access(candidate, os.X_OK):
+        return [candidate, "-i"]
+    for fallback in ("/bin/zsh", "/bin/bash", "/bin/sh"):
+        if os.access(fallback, os.X_OK):
+            return [fallback, "-i"]
+    return ["/bin/sh"]
+
+
+class WorkshopTerminalSession:
+    """Interactive PTY-backed terminal session using stdlib `pty`.
+
+    Reads from the master fd in a daemon thread, buffers output bytes
+    (decoded utf-8 with replace) into a ring; writes from the client land
+    on the master fd directly. Resize uses TIOCSWINSZ ioctl. Stop sends
+    SIGTERM to the session leader and falls back to SIGKILL after a grace
+    window. Unix-only: Windows callers must check
+    workshop_terminals_available() before instantiating.
+    """
+
+    def __init__(self, session_id: str, command: list[str], cwd: Path, *, label: str = ""):
+        import collections
+        import threading
+        self.session_id = session_id
+        self.command = list(command)
+        self.cwd = cwd
+        self.label = label or (command[0] if command else "shell")
+        self.started_at = ""
+        self.finished_at = ""
+        self.exit_code: int | None = None
+        self.state = "starting"
+        self.error: str = ""
+        self._buffer: collections.deque[tuple[int, str]] = collections.deque(maxlen=_WORKSHOP_TERMINAL_BUFFER_MAX)
+        self._seq = 0
+        self._lock = threading.Lock()
+        self._master_fd: int | None = None
+        self._pid: int | None = None
+        self._reader: threading.Thread | None = None
+        self._reaper: threading.Thread | None = None
+        self._created_at = self._now()
+        self._last_activity = self._created_at
+
+    @staticmethod
+    def _now() -> float:
+        import time
+        return time.monotonic()
+
+    @staticmethod
+    def _iso_now() -> str:
+        return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    def _append(self, text: str) -> None:
+        with self._lock:
+            self._seq += 1
+            self._buffer.append((self._seq, text))
+            self._last_activity = self._now()
+
+    def tail(self, since_seq: int) -> tuple[int, list[tuple[int, str]]]:
+        with self._lock:
+            snapshot = [(seq, chunk) for (seq, chunk) in self._buffer if seq > since_seq]
+            return self._seq, snapshot
+
+    def status_payload(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "id": self.session_id,
+                "label": self.label,
+                "command": list(self.command),
+                "state": self.state,
+                "exitCode": self.exit_code,
+                "startedAt": self.started_at,
+                "finishedAt": self.finished_at,
+                "lastSeq": self._seq,
+                "error": self.error,
+            }
+
+    def is_expired(self, ttl_seconds: float = _WORKSHOP_TERMINAL_TTL_SECONDS) -> bool:
+        if self.state in {"running", "starting"}:
+            return False
+        return (self._now() - self._last_activity) > ttl_seconds
+
+    def start(self) -> None:
+        import threading
+        if not workshop_terminals_available():
+            self.state = "error"
+            self.error = "PTY backend is not available on this host."
+            self.finished_at = self._iso_now()
+            return
+        import pty
+        try:
+            pid, master_fd = pty.fork()
+        except (OSError, RuntimeError) as exc:
+            self.state = "error"
+            self.error = f"Unable to fork PTY: {exc}"
+            self.finished_at = self._iso_now()
+            return
+        if pid == 0:
+            try:
+                os.chdir(str(self.cwd))
+            except OSError:
+                pass
+            env = os.environ.copy()
+            env.setdefault("TERM", "xterm-256color")
+            env.setdefault("COLORTERM", "truecolor")
+            try:
+                os.execvpe(self.command[0], self.command, env)
+            except Exception as exc:  # noqa: BLE001
+                sys.stderr.write(f"Unable to exec {self.command[0]}: {exc}\n")
+                os._exit(127)
+        self._pid = pid
+        self._master_fd = master_fd
+        self.started_at = self._iso_now()
+        self.state = "running"
+        self._reader = threading.Thread(target=self._read_loop, name=f"workshop-pty-reader-{self.session_id}", daemon=True)
+        self._reader.start()
+        self._reaper = threading.Thread(target=self._reap_loop, name=f"workshop-pty-reaper-{self.session_id}", daemon=True)
+        self._reaper.start()
+
+    def write(self, data: str) -> None:
+        if not data or self._master_fd is None:
+            return
+        try:
+            os.write(self._master_fd, data.encode("utf-8"))
+        except OSError as exc:
+            self.error = f"Write failed: {exc}"
+
+    def resize(self, rows: int, cols: int) -> None:
+        if self._master_fd is None or rows <= 0 or cols <= 0:
+            return
+        try:
+            import fcntl
+            import struct
+            import termios
+            fcntl.ioctl(self._master_fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
+        except (OSError, ImportError):
+            return
+
+    def _read_loop(self) -> None:
+        fd = self._master_fd
+        if fd is None:
+            return
+        try:
+            while True:
+                try:
+                    chunk = os.read(fd, 4096)
+                except OSError:
+                    break
+                if not chunk:
+                    break
+                try:
+                    text = chunk.decode("utf-8", errors="replace")
+                except Exception:  # noqa: BLE001
+                    continue
+                self._append(text)
+        finally:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+    def _reap_loop(self) -> None:
+        pid = self._pid
+        if pid is None:
+            return
+        try:
+            _, status = os.waitpid(pid, 0)
+        except OSError as exc:
+            self.error = f"waitpid failed: {exc}"
+            status = -1
+        if isinstance(status, int):
+            if os.WIFEXITED(status):
+                code = os.WEXITSTATUS(status)
+            elif os.WIFSIGNALED(status):
+                code = -os.WTERMSIG(status)
+            else:
+                code = -1
+        else:
+            code = -1
+        with self._lock:
+            self.exit_code = code
+            self.finished_at = self._iso_now()
+            self.state = "finished" if code == 0 else ("stopped" if code in (-15, -9) else "failed")
+            self._last_activity = self._now()
+
+    def stop(self, *, timeout: float = 3.0) -> None:
+        pid = self._pid
+        if pid is None:
+            return
+        import signal as _signal
+        import time as _time
+        try:
+            os.killpg(os.getpgid(pid), _signal.SIGTERM)
+        except (OSError, ProcessLookupError):
+            try:
+                os.kill(pid, _signal.SIGTERM)
+            except OSError:
+                return
+        deadline = _time.monotonic() + timeout
+        while _time.monotonic() < deadline:
+            with self._lock:
+                if self.state in {"finished", "failed", "stopped"}:
+                    return
+            _time.sleep(0.05)
+        try:
+            os.killpg(os.getpgid(pid), _signal.SIGKILL)
+        except (OSError, ProcessLookupError):
+            try:
+                os.kill(pid, _signal.SIGKILL)
+            except OSError:
+                return
+
+
+class WorkshopTerminalRegistry:
+    def __init__(self) -> None:
+        import threading
+        self._sessions: dict[str, WorkshopTerminalSession] = {}
+        self._lock = threading.Lock()
+        self._counter = 0
+
+    def create(self, command: list[str], cwd: Path, *, label: str = "") -> WorkshopTerminalSession:
+        if not workshop_terminals_available():
+            raise ValueError("PTY backend is not available on this host.")
+        if not command or not isinstance(command, list):
+            raise ValueError("Terminal command must be a non-empty list.")
+        if not cwd.is_dir():
+            raise ValueError("Workspace root is unavailable.")
+        with self._lock:
+            self._counter += 1
+            session_id = f"wt-{self._counter:06d}"
+        session = WorkshopTerminalSession(session_id=session_id, command=command, cwd=cwd, label=label)
+        with self._lock:
+            self._prune_locked()
+            self._sessions[session_id] = session
+        session.start()
+        return session
+
+    def get(self, session_id: str) -> WorkshopTerminalSession | None:
+        with self._lock:
+            return self._sessions.get(session_id)
+
+    def list(self) -> list[dict[str, Any]]:
+        with self._lock:
+            self._prune_locked()
+            return [session.status_payload() for session in self._sessions.values()]
+
+    def _prune_locked(self) -> None:
+        for sid in list(self._sessions.keys()):
+            if self._sessions[sid].is_expired():
+                del self._sessions[sid]
+
+    def shutdown(self) -> None:
+        with self._lock:
+            sessions = list(self._sessions.values())
+        for session in sessions:
+            session.stop(timeout=1.0)
+
+
+def workshop_terminal_default_command() -> list[str]:
+    return _default_workshop_shell()
+
+
 class LogicsViewerServer(ThreadingHTTPServer):
     def __init__(
         self,
@@ -2685,13 +2970,17 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.lan_mode = bool(lan_mode)
         self.lan_token = secrets.token_urlsafe(32) if self.lan_mode else ""
         self.workshop_sessions = WorkshopSessionRegistry()
+        self.workshop_terminals = WorkshopTerminalRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
 
     def server_close(self) -> None:
         try:
             self.workshop_sessions.shutdown()
         finally:
-            super().server_close()
+            try:
+                self.workshop_terminals.shutdown()
+            finally:
+                super().server_close()
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
         return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
@@ -2754,6 +3043,56 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if content_type.startswith("text/") or path.suffix in {".js", ".css", ".html"}:
             content_type = f"{content_type}; charset=utf-8"
         self._send_bytes(path.read_bytes(), content_type=content_type)
+
+    def _stream_workshop_terminal(self, session: "WorkshopTerminalSession", parsed: Any) -> None:
+        import time as _time
+        try:
+            since = int(parse_qs(parsed.query).get("since", ["0"])[0])
+        except (TypeError, ValueError):
+            since = 0
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        last_seq = since
+        idle_ticks = 0
+        try:
+            while True:
+                latest_seq, snapshot = session.tail(last_seq)
+                if snapshot:
+                    idle_ticks = 0
+                    for seq, chunk in snapshot:
+                        last_seq = seq
+                        try:
+                            payload = json.dumps({"seq": seq, "data": chunk})
+                            self.wfile.write(f"event: data\ndata: {payload}\n\n".encode("utf-8"))
+                            self.wfile.flush()
+                        except (BrokenPipeError, ConnectionResetError):
+                            return
+                state = session.state
+                if state in {"finished", "failed", "stopped", "error"} and last_seq >= latest_seq:
+                    try:
+                        payload = json.dumps(session.status_payload())
+                        self.wfile.write(f"event: end\ndata: {payload}\n\n".encode("utf-8"))
+                        self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError):
+                        return
+                    return
+                idle_ticks += 1
+                if idle_ticks >= 30:
+                    try:
+                        self.wfile.write(b": keep-alive\n\n")
+                        self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError):
+                        return
+                    idle_ticks = 0
+                _time.sleep(0.1)
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
     def _stream_workshop_session(self, session: "WorkshopCommandSession", parsed: Any) -> None:
         import time as _time
@@ -2956,6 +3295,26 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/workshop-sessions":
             self._send_json({"ok": True, "payload": {"sessions": self.server.workshop_sessions.list()}})
             return
+        if route == "/api/workshop-terminals":
+            self._send_json({"ok": True, "payload": {"sessions": self.server.workshop_terminals.list(), "available": workshop_terminals_available()}})
+            return
+        if route.startswith("/api/workshop-terminal/"):
+            tail = route[len("/api/workshop-terminal/"):]
+            parts = tail.split("/", 1)
+            session_id = parts[0]
+            kind = parts[1] if len(parts) > 1 else "status"
+            session = self.server.workshop_terminals.get(session_id)
+            if session is None:
+                self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
+                return
+            if kind == "status":
+                self._send_json({"ok": True, "payload": session.status_payload()})
+                return
+            if kind == "stream":
+                self._stream_workshop_terminal(session, parsed)
+                return
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown terminal sub-resource.")
+            return
         if route.startswith("/api/workshop-session/"):
             tail = route[len("/api/workshop-session/"):]
             parts = tail.split("/", 1)
@@ -3040,6 +3399,69 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if parsed.path == "/api/workshop-terminal-start":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                command_override = body.get("command")
+                label = str(body.get("label") or "")
+                command = command_override if isinstance(command_override, list) and all(isinstance(p, str) for p in command_override) and command_override else workshop_terminal_default_command()
+                session = self.server.workshop_terminals.create(command, self.server.repo_root, label=label)
+                self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if parsed.path == "/api/workshop-terminal-input":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                session_id = str(body.get("sessionId") or "")
+                data = str(body.get("data") or "")
+                session = self.server.workshop_terminals.get(session_id)
+                if session is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
+                    return
+                session.write(data)
+                self._send_json({"ok": True})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            return
+        if parsed.path == "/api/workshop-terminal-resize":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                session_id = str(body.get("sessionId") or "")
+                rows = int(body.get("rows") or 0)
+                cols = int(body.get("cols") or 0)
+                session = self.server.workshop_terminals.get(session_id)
+                if session is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
+                    return
+                session.resize(rows, cols)
+                self._send_json({"ok": True})
+            except (json.JSONDecodeError, ValueError):
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid resize body.")
+            return
+        if parsed.path == "/api/workshop-terminal-stop":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                session_id = str(body.get("sessionId") or "")
+                session = self.server.workshop_terminals.get(session_id)
+                if session is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
+                    return
+                session.stop()
+                self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/workshop-command-stop":
             try:

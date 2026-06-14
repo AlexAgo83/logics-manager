@@ -2585,3 +2585,34 @@
  * one-off breakpoints (the historical 560/700/860/980 queries above stay so
  * existing layouts do not regress).
  * --------------------------------------------------------------------------- */
+
+/* req_246 item_426 — Git screen fixes at small breakpoints. */
+@media (max-width: 600px) {
+  .viewer-git__workspace,
+  .viewer-git__workspace.has-diff-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .viewer-git__files li {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .viewer-git-badges,
+  .viewer-git-badge {
+    flex-wrap: wrap;
+  }
+
+  .viewer-git__diff pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+  }
+
+  .viewer-git__diff-meta {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}

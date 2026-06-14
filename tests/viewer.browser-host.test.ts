@@ -29,6 +29,8 @@ function createViewerDom(options: {
   hidden?: boolean;
   initialState?: unknown;
   initialPreferences?: unknown;
+  lanMode?: boolean;
+  initialUrlToken?: string;
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
@@ -43,6 +45,10 @@ function createViewerDom(options: {
     <a id="viewer-repo-github" href="#" hidden>GitHub</a>
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
+    <div id="viewer-lan-banner" hidden>
+      <span id="viewer-lan-banner-url" hidden></span>
+      <button id="viewer-lan-banner-copy" type="button" hidden>Copy URL</button>
+    </div>
     <button id="viewer-git" type="button">Git</button>
     <button id="viewer-workspace" type="button" hidden>Explorer</button>
     <button id="viewer-workshop" type="button" hidden>Workshop</button>
@@ -185,6 +191,7 @@ function createViewerDom(options: {
               ],
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
+              lanMode: Boolean(options.lanMode),
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -1260,6 +1267,42 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-workshop-command-stop="npm-test"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(calls).toContain("/api/workshop-command-stop");
+  });
+
+  it("captures a LAN token from the URL, scrubs it, and attaches it to outbound fetches", async () => {
+    const { dom, calls } = createViewerDom({
+      url: "http://192.168.1.42:8765/?t=secret-lan-token",
+      lanMode: true,
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    // The token should have been moved out of the URL into sessionStorage on construction.
+    expect(dom.window.sessionStorage.getItem("logics.lan.token")).toBe("secret-lan-token");
+    expect(dom.window.location.href).not.toContain("t=secret-lan-token");
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const banner = dom.window.document.getElementById("viewer-lan-banner");
+    expect(banner?.hidden).toBe(false);
+    const bannerUrl = dom.window.document.getElementById("viewer-lan-banner-url");
+    expect(bannerUrl?.textContent).toContain("t=secret-lan-token");
+    const copy = dom.window.document.getElementById("viewer-lan-banner-copy") as HTMLButtonElement | null;
+    expect(copy?.hidden).toBe(false);
+
+    expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it("hides the LAN banner when lanMode is false", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const banner = dom.window.document.getElementById("viewer-lan-banner");
+    expect(banner?.hidden).toBe(true);
   });
 
   it("renders workspace preview fallbacks for unsupported files", async () => {

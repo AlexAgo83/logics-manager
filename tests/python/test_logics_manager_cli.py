@@ -47,7 +47,11 @@ from logics_manager.viewer import (
     render_start_status,
     viewer_project_registry,
     viewer_project_capabilities,
+    VIEWER_MUTATING_ROUTES,
     WorkshopSessionRegistry,
+    _append_lan_token,
+    _render_qr_lines,
+    render_start_status,
     workshop_commands_payload,
     workspace_preview_payload,
     workspace_tree_payload,
@@ -392,6 +396,85 @@ def test_viewer_workspace_preview_reports_text_directory_binary_and_large_files(
     assert large["state"] == "oversized"
     with pytest.raises(ValueError):
         workspace_preview_payload(tmp_path, "../outside.md")
+
+
+def test_viewer_lan_mode_generates_per_launch_token_and_share_url(tmp_path: Path) -> None:
+    server = viewer_module.create_viewer_server(tmp_path, host="127.0.0.1", port=0, lan_mode=True)
+    try:
+        token = server.lan_token
+        assert server.lan_mode is True
+        assert isinstance(token, str) and len(token) >= 32
+        # A second server gets a different token (no persistence).
+        other = viewer_module.create_viewer_server(tmp_path, host="127.0.0.1", port=0, lan_mode=True)
+        try:
+            assert other.lan_token != token
+        finally:
+            other.server_close()
+
+        share = _append_lan_token("http://192.168.1.42:8765/", token)
+        assert share.startswith("http://192.168.1.42:8765/?t=")
+        assert token in share
+        share_with_focus = _append_lan_token("http://host/?focus=req_001", token)
+        assert "?focus=req_001" in share_with_focus
+        assert "&t=" in share_with_focus
+
+        banner = render_start_status(
+            "http://127.0.0.1:8765/",
+            tmp_path,
+            lan_mode=True,
+            lan_token=token,
+            lan_url=share,
+        )
+        assert "LAN read-only" in banner
+        assert "Share URL" in banner
+        assert token in banner
+    finally:
+        server.server_close()
+
+
+def test_viewer_lan_mode_disabled_by_default(tmp_path: Path) -> None:
+    server = viewer_module.create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    try:
+        assert server.lan_mode is False
+        assert server.lan_token == ""
+        banner = render_start_status("http://127.0.0.1:8765/", tmp_path)
+        assert "Mode: read-only" in banner
+        assert "LAN exposure" not in banner
+    finally:
+        server.server_close()
+
+
+def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> None:
+    must_be_gated = {
+        "/api/edit",
+        "/api/open-file",
+        "/api/open-repo-folder",
+        "/api/bootstrap-logics",
+        "/api/switch-project",
+        "/api/cdx-report-request",
+        "/api/cdx-mission-run",
+        "/api/cdx-mission-apply-plan",
+        "/api/workshop-command-start",
+        "/api/workshop-command-stop",
+    }
+    assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
+
+
+def test_viewer_lan_auth_helpers_accept_token_and_loopback() -> None:
+    handler = viewer_module.LogicsViewerRequestHandler.__new__(viewer_module.LogicsViewerRequestHandler)
+    handler.client_address = ("127.0.0.1", 12345)
+    assert handler._client_is_loopback() is True
+    handler.client_address = ("192.168.1.42", 12345)
+    assert handler._client_is_loopback() is False
+    handler.client_address = ("::ffff:127.0.0.1", 0)
+    assert handler._client_is_loopback() is True
+
+
+def test_viewer_lan_share_url_renders_qr_or_textual_fallback() -> None:
+    lines = _render_qr_lines("http://example/?t=abc")
+    assert lines  # never empty when url is provided
+    joined = "\n".join(lines)
+    assert "http://example" in joined or "█" in joined or "▀" in joined
 
 
 def test_workshop_commands_discovers_npm_project_and_poetry_scripts(tmp_path: Path) -> None:

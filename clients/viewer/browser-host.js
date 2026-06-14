@@ -687,6 +687,7 @@
     return {
       logics: capabilities.logics || { state: "ready", available: true, message: "" },
       workspace: capabilities.workspace || { state: "ready", available: true, message: "" },
+      workshop: capabilities.workshop || { state: "missing", available: false, message: "" },
       git: capabilities.git || { state: "ready", available: true, message: "" },
       ci: capabilities.ci || { state: "ready", available: true, message: "" },
       cdx: capabilities.cdx || { state: "ready", available: true, message: "" },

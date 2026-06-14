@@ -45,6 +45,7 @@ function createViewerDom(options: {
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
     <button id="viewer-git" type="button">Git</button>
     <button id="viewer-workspace" type="button" hidden>Explorer</button>
+    <button id="viewer-workshop" type="button" hidden>Workshop</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
@@ -172,6 +173,7 @@ function createViewerDom(options: {
               capabilities: options.capabilities ?? {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
                 workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+                workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: false } },
                 git: { state: "ready", available: true, message: "Git repository detected." },
                 ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
@@ -471,6 +473,7 @@ function createViewerDom(options: {
               capabilities: options.capabilities ?? {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
                 workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+                workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: false } },
                 git: { state: "ready", available: true, message: "Git repository detected." },
                 ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
@@ -541,6 +544,60 @@ function createViewerDom(options: {
               mode: "file-preview",
               content: "# New file\nPreview body",
               truncated: false
+            }
+          })
+        };
+      }
+      if (url === "/api/workshop-commands") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              commands: [
+                { id: "npm-test", source: "package.json", group: "npm scripts", name: "test", command: "vitest run", runner: ["npm", "run", "test"] },
+                { id: "poetry-bar", source: "pyproject.toml [tool.poetry.scripts]", group: "Poetry scripts", name: "bar", command: "demo:bar", runner: ["poetry", "run", "bar"] }
+              ]
+            }
+          })
+        };
+      }
+      if (url === "/api/workshop-command-start") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              id: "ws-000001",
+              commandId: "npm-test",
+              runner: ["npm", "run", "test"],
+              state: "running",
+              exitCode: null,
+              startedAt: "2026-06-15T00:00:00Z",
+              finishedAt: "",
+              lastSeq: 0,
+              error: ""
+            }
+          })
+        };
+      }
+      if (url === "/api/workshop-command-stop") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              id: "ws-000001",
+              commandId: "npm-test",
+              runner: ["npm", "run", "test"],
+              state: "stopped",
+              exitCode: -15,
+              startedAt: "2026-06-15T00:00:00Z",
+              finishedAt: "2026-06-15T00:00:05Z",
+              lastSeq: 1,
+              error: ""
             }
           })
         };
@@ -1121,6 +1178,88 @@ describe("local viewer browser host", () => {
     content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/workspace-preview?path=src%2Fapp.py");
     expect(content?.textContent).toContain("print('ok')");
+  });
+
+  it("renders an explorer breadcrumb that lets the operator jump to any ancestor", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-workspace")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let content = dom.window.document.getElementById("viewer-document-content");
+    content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    content = dom.window.document.getElementById("viewer-document-content");
+    const breadcrumb = content?.querySelector(".viewer-workspace__breadcrumb");
+    expect(breadcrumb).toBeTruthy();
+    const crumbs = Array.from(breadcrumb?.querySelectorAll(".viewer-workspace__crumb") || []) as HTMLElement[];
+    expect(crumbs.length).toBeGreaterThanOrEqual(2);
+    expect(crumbs[0].getAttribute("data-viewer-workspace-tree")).toBe("");
+    expect(crumbs[crumbs.length - 1].classList.contains("is-current")).toBe(true);
+    expect(crumbs[crumbs.length - 1].getAttribute("aria-current")).toBe("location");
+  });
+
+  it("shows the Workshop topbar entry, persists the active sub-tab, and runs commands", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const workshop = dom.window.document.getElementById("viewer-workshop") as HTMLButtonElement | null;
+    expect(workshop?.hidden).toBe(false);
+    workshop?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
+    const terminalsTab = dom.window.document.querySelector('[data-viewer-workshop-tab="terminals"]') as HTMLElement | null;
+    expect(terminalsTab?.classList.contains("is-active")).toBe(true);
+
+    dom.window.document.querySelector('[data-viewer-workshop-tab="commands"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/workshop-commands");
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(stored.workshopActiveTab).toBe("commands");
+
+    const commandsPanel = dom.window.document.querySelector("[data-viewer-workshop-commands]");
+    expect(commandsPanel?.textContent).toContain("test");
+    expect(commandsPanel?.textContent).toContain("bar");
+    expect(commandsPanel?.textContent).toContain("Poetry scripts");
+
+    (dom.window as unknown as { EventSource: typeof EventSource }).EventSource = class FakeEventSource {
+      url: string;
+      readyState = 0;
+      onerror: ((event: Event) => void) | null = null;
+      listeners = new Map<string, Array<(event: MessageEvent) => void>>();
+      constructor(url: string) { this.url = url; }
+      addEventListener(name: string, handler: (event: MessageEvent) => void) {
+        const list = this.listeners.get(name) || [];
+        list.push(handler);
+        this.listeners.set(name, list);
+      }
+      close() { this.readyState = 2; }
+    } as unknown as typeof EventSource;
+
+    const runButton = dom.window.document.querySelector('[data-viewer-workshop-command-run="npm-test"]') as HTMLElement | null;
+    runButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/workshop-command-start");
+    expect(dom.window.document.querySelector('[data-viewer-workshop-command="npm-test"] .viewer-workshop__state')?.textContent).toBe("running");
+
+    dom.window.document.querySelector('[data-viewer-workshop-command-stop="npm-test"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(calls).toContain("/api/workshop-command-stop");
   });
 
   it("renders workspace preview fallbacks for unsupported files", async () => {

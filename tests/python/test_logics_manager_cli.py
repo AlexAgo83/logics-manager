@@ -47,6 +47,8 @@ from logics_manager.viewer import (
     render_start_status,
     viewer_project_registry,
     viewer_project_capabilities,
+    WorkshopSessionRegistry,
+    workshop_commands_payload,
     workspace_preview_payload,
     workspace_tree_payload,
 )
@@ -390,6 +392,85 @@ def test_viewer_workspace_preview_reports_text_directory_binary_and_large_files(
     assert large["state"] == "oversized"
     with pytest.raises(ValueError):
         workspace_preview_payload(tmp_path, "../outside.md")
+
+
+def test_workshop_commands_discovers_npm_project_and_poetry_scripts(tmp_path: Path) -> None:
+    (tmp_path / "package.json").write_text(
+        json.dumps({"scripts": {"test": "vitest run", "build": "tsc"}}),
+        encoding="utf-8",
+    )
+    (tmp_path / "pyproject.toml").write_text(
+        "[project]\nname = \"demo\"\n[project.scripts]\nfoo = \"demo:main\"\n"
+        "[tool.poetry.scripts]\nbar = \"demo:bar\"\n",
+        encoding="utf-8",
+    )
+
+    payload = workshop_commands_payload(tmp_path)
+    by_id = {entry["id"]: entry for entry in payload["commands"]}
+
+    assert payload["state"] == "ok"
+    assert by_id["npm-test"]["runner"] == ["npm", "run", "test"]
+    assert by_id["npm-build"]["group"] == "npm scripts"
+    assert by_id["pyproject-foo"]["runner"] == ["foo"]
+    assert by_id["poetry-bar"]["runner"] == ["poetry", "run", "bar"]
+
+
+def test_workshop_commands_handles_missing_or_malformed_manifests(tmp_path: Path) -> None:
+    payload = workshop_commands_payload(tmp_path)
+    assert payload["state"] == "empty"
+    assert payload["commands"] == []
+
+    (tmp_path / "package.json").write_text("{not json", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text("[broken", encoding="utf-8")
+    payload = workshop_commands_payload(tmp_path)
+    assert payload["state"] == "empty"
+
+
+def test_workshop_session_runs_to_completion_and_streams_output(tmp_path: Path) -> None:
+    import sys as _sys
+    import time as _time
+
+    registry = WorkshopSessionRegistry()
+    entry = {
+        "id": "echo",
+        "runner": [_sys.executable, "-c", "print('alpha'); print('beta')"],
+    }
+    session = registry.create(entry, tmp_path)
+    for _ in range(50):
+        if session.state in {"finished", "failed", "stopped"}:
+            break
+        _time.sleep(0.05)
+    status = session.status_payload()
+    _, lines = session.tail(0)
+    text_lines = [line.partition("\t")[2] for _seq, line in lines]
+    registry.shutdown()
+
+    assert status["state"] == "finished"
+    assert status["exitCode"] == 0
+    assert text_lines == ["alpha", "beta"]
+
+
+def test_workshop_session_stop_terminates_long_running_process(tmp_path: Path) -> None:
+    import sys as _sys
+    import time as _time
+
+    registry = WorkshopSessionRegistry()
+    entry = {
+        "id": "sleep",
+        "runner": [_sys.executable, "-c", "import time; time.sleep(30)"],
+    }
+    session = registry.create(entry, tmp_path)
+    _time.sleep(0.2)
+    session.stop(timeout=3.0)
+    for _ in range(50):
+        if session.state in {"stopped", "failed", "finished"}:
+            break
+        _time.sleep(0.05)
+    status = session.status_payload()
+    registry.shutdown()
+
+    assert status["state"] in {"stopped", "failed"}
+    assert status["exitCode"] is not None
 
 
 def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Path) -> None:

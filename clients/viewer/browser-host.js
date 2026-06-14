@@ -734,36 +734,26 @@
     setMeta(created > 0 ? `Logics bootstrapped · ${created} paths created.` : "Logics bootstrap checked.");
   }
 
-  function lanShareUrl() {
-    const token = getLanToken();
-    if (!token) return "";
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("t", token);
-      return url.toString();
-    } catch {
-      return "";
-    }
-  }
+  let latestLanShareUrl = "";
 
-  function applyLanBanner(active) {
+  function applyLanBanner(active, shareUrl) {
     const banner = document.getElementById("viewer-lan-banner");
     if (!(banner instanceof HTMLElement)) return;
     banner.hidden = !active;
+    latestLanShareUrl = active ? String(shareUrl || "") : "";
     const urlNode = document.getElementById("viewer-lan-banner-url");
     const copyButton = document.getElementById("viewer-lan-banner-copy");
-    const share = active ? lanShareUrl() : "";
     if (urlNode instanceof HTMLElement) {
-      if (share) {
+      if (latestLanShareUrl) {
         urlNode.hidden = false;
-        urlNode.textContent = share;
+        urlNode.textContent = latestLanShareUrl;
       } else {
         urlNode.hidden = true;
         urlNode.textContent = "";
       }
     }
     if (copyButton instanceof HTMLButtonElement) {
-      copyButton.hidden = !share;
+      copyButton.hidden = !latestLanShareUrl;
     }
   }
 
@@ -1444,7 +1434,7 @@
     }
     updateRepositoryIdentity(payload);
     latestCapabilities = normalizeCapabilities(payload);
-    applyLanBanner(Boolean(payload?.lanMode));
+    applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""));
     updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems };
     const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
@@ -4598,7 +4588,7 @@
       withPrimaryAction("health", "Checking health", showHealth);
     });
     document.getElementById("viewer-lan-banner-copy")?.addEventListener("click", async () => {
-      const share = lanShareUrl();
+      const share = latestLanShareUrl;
       if (!share) return;
       try {
         await navigator.clipboard.writeText(share);

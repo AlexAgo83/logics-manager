@@ -192,6 +192,7 @@ function createViewerDom(options: {
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               lanMode: Boolean(options.lanMode),
+              lanShareUrl: options.lanMode ? "http://192.168.1.42:8765/?t=secret-lan-token" : "",
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }

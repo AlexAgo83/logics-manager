@@ -1259,6 +1259,10 @@
   border-bottom: 1px solid rgb(0 0 0 / 30%);
 }
 
+.viewer-lan-banner[hidden] {
+  display: none !important;
+}
+
 .viewer-lan-banner__icon {
   display: inline-flex;
   width: 18px;

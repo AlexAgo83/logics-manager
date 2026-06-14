@@ -2705,6 +2705,12 @@ class LogicsViewerServer(ThreadingHTTPServer):
             projects=self.project_registry_payload(),
         )
         payload["lanMode"] = bool(self.lan_mode)
+        if self.lan_mode and self.lan_token:
+            host, port = self.server_address[:2]
+            lan_url = _network_viewer_url(str(host), int(port)) or build_viewer_url(str(host), int(port))
+            payload["lanShareUrl"] = _append_lan_token(lan_url, self.lan_token)
+        else:
+            payload["lanShareUrl"] = ""
         return payload
 
     def switch_project(self, project_id: str) -> dict[str, Any]:
@@ -3193,14 +3199,41 @@ def _append_lan_token(url: str, token: str) -> str:
     return f"{url}{sep}t={quote(token, safe='')}"
 
 
+def _detect_lan_ip() -> str:
+    """Best-effort detection of the host's primary LAN IPv4 address.
+
+    Uses the standard UDP-socket trick: open a non-blocking connection to a
+    routable but unreachable target and read the local socket name. This
+    yields the address the OS would use for outbound traffic, which is the
+    one a phone on the same LAN should target.
+    """
+    candidate = ""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.setblocking(False)
+        try:
+            s.connect(("10.255.255.255", 1))
+            candidate = s.getsockname()[0]
+        except OSError:
+            candidate = ""
+    finally:
+        s.close()
+    if candidate and not candidate.startswith("127."):
+        return candidate
+    try:
+        fallback = socket.gethostbyname(socket.gethostname())
+    except OSError:
+        return ""
+    if fallback and not fallback.startswith("127."):
+        return fallback
+    return ""
+
+
 def _network_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str | None:
     if host not in {"0.0.0.0", "::", ""}:
         return None
-    try:
-        candidate = socket.gethostbyname(socket.gethostname())
-    except OSError:
-        return None
-    if not candidate or candidate.startswith("127."):
+    candidate = _detect_lan_ip()
+    if not candidate:
         return None
     return build_viewer_url(candidate, port, focus=focus, read=read)
 

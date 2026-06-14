@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 90%
+> Confidence: 85%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -80,6 +80,7 @@ flowchart TD
 
 # Notes
 - Depends on `item_423` for the LAN-mode runtime indicator and the request-handler hook.
+- Researched implementation reference: generate the token at launch with `secrets.token_urlsafe(32)` (256 bits of entropy, URL-safe, ~43 chars — small enough to embed in a QR code without size pressure). Compare incoming tokens with `hmac.compare_digest` to avoid timing leaks. Handoff: the launch URL is `http://<lan-ip>:<port>/?t=<token>`; on first load the client-side bootstrap reads the query, stores the token in `sessionStorage` under key `logics.lanToken`, then calls `history.replaceState({}, "", location.pathname)` to scrub the token from the URL bar and the browser history. All subsequent fetches add an `Authorization: Bearer <token>` header. Loopback bypass: the handler checks `self.client_address[0]` against `{"127.0.0.1", "::1"}` and skips the token gate when the source is loopback. Refusal mode: any non-loopback request without a valid token returns `401 Unauthorized` with a generic body.
 
 # Tasks
 - `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety`

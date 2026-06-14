@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 85%
-> Confidence: 75%
+> Understanding: 88%
+> Confidence: 85%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -75,6 +75,7 @@ flowchart TD
 # Dependencies and risks
 - Adding WebSocket (and/or PTY) support introduces a new Python dependency (e.g. `websockets`, `ptyprocess`) that must be evaluated against the bundled CLI distribution constraints and Windows support expectations.
 - PTY support is platform-split: Unix targets (Linux, macOS, WSL) can rely on stdlib `pty` plus `ptyprocess`, while native Windows requires ConPTY through a maintained wrapper such as `pywinpty`. The backend must encapsulate this split behind a single abstraction, auto-detect a sane default shell per platform, and let the operator pick another installed shell (including `wsl.exe` from native Windows) per session.
+- Researched runtime choices that the implementation should follow unless the ADR overrides them: `ptyprocess` (BSD) on Unix backends, `pywinpty` (MIT, ships pre-built wheels — no native build step required on operator machines) on Windows, xterm.js 5.x (MIT, ~280 KB ESM bundle) with `@xterm/addon-fit` and `@xterm/addon-web-links` for the frontend emulator, the `websockets` asyncio library running on a small companion listener thread for the PTY transport, SSE on the existing stdlib `http.server` for the command runner stream, and `segno` (MIT pure-Python) for any related ASCII QR output. None of these add a native build step on the operator machine and they all keep the bundled CLI distribution portable.
 - xterm.js (or any equivalent) must be vendored or fetched in a way that respects the existing offline-friendly asset bundling used by the viewer.
 - Spawning real subprocesses from the viewer increases the security surface; spawn paths must be normalized, restricted to the selected workspace root, and refuse traversal or absolute paths outside that root.
 - Terminal sessions and long-running commands must be cleaned up when the viewer shuts down or when the underlying client disconnects, to avoid orphaned processes.

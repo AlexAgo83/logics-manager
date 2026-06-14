@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 78%
-> Confidence: 68%
+> Understanding: 85%
+> Confidence: 80%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -14,6 +14,7 @@
 - Treat this as one delivery task with four coordinated backlog slices: the Explorer restyle, the Workshop navigation scaffolding, the terminal manager, and the command runner.
 - The slices share the viewer topbar, the versioned preferences payload, and (for terminals and commands) the spawn/transport plumbing.
 - An ADR must be authored before the terminal slice lands to record the transport choice (WebSocket vs SSE+POST), the PTY library, and the terminal emulator/bundling approach.
+- Researched defaults that the ADR is expected to ratify (cited in the linked backlog items): `ptyprocess` (Unix) + `pywinpty` (Windows, ConPTY) for PTY; xterm.js 5.x with `@xterm/addon-fit`/`@xterm/addon-web-links` vendored under `clients/shared-web/media/vendor/xterm/`; `websockets` (asyncio) on a companion listener thread for terminal I/O; SSE on the existing stdlib `http.server` for the command runner stream; `subprocess.Popen` with `start_new_session=True` (Unix) / `CREATE_NEW_PROCESS_GROUP` (Windows) for stoppable command processes; `tomllib` (stdlib) for `pyproject.toml` parsing. None of these add a native build step on operator machines.
 
 # Plan
 - [ ] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.

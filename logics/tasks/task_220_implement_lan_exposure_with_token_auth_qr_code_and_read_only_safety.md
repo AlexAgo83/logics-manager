@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 75%
-> Confidence: 65%
+> Understanding: 88%
+> Confidence: 82%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -14,6 +14,7 @@
 - Treat this as one delivery task with three coordinated backlog slices: the LAN CLI flag and HTTP-layer read-only enforcement, the per-session token auth, and the QR code launch output plus in-app banner.
 - The slices share the LAN-mode runtime indicator and the HTTP request-handler hook, so they must land in order to keep the security posture coherent.
 - An ADR must be authored before the auth slice lands to record the LAN auth model (per-session token, no persistence, HTTP-layer enforcement) and the contract that any future mutating endpoint must opt into the LAN gate.
+- Researched defaults that the ADR is expected to ratify (cited in the linked backlog items): `secrets.token_urlsafe(32)` for token generation; `hmac.compare_digest` for constant-time comparison; first-load query-to-`sessionStorage` handoff with `history.replaceState` to scrub the token from the URL bar; `Authorization: Bearer` header on subsequent requests; `segno` (pure-Python MIT) for the launch-time ASCII QR code; a maintained `MUTATING_ROUTES` registry checked in the stdlib request handler before dispatch, so any future write endpoint must opt into the LAN gate by extending the registry.
 
 # Plan
 - [ ] 1. Add the opt-in LAN CLI flag, switch the bind to all interfaces only when set, and carry a single runtime LAN-mode indicator through the viewer process.

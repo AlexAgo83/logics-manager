@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 88%
+> Confidence: 82%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -76,6 +76,7 @@ flowchart TD
 
 # Notes
 - This is the foundation slice of `req_245`; ship it first so the token slice and the UX slice can build on a working LAN-mode switch and read-only contract.
+- Researched implementation reference: add `--lan` to `logics_manager/viewer.py` argparse (default off). When set, override the bind host to `0.0.0.0` and stamp a process-wide `LAN_MODE = True` (the ADR may move this to a config object). Read-only enforcement: a maintained `MUTATING_ROUTES` registry (set of `(method, path_pattern)` tuples) is checked at the top of `LogicsViewerRequestHandler.do_GET`/`do_POST`/`do_DELETE` before any dispatch; in LAN mode, any match returns `403 Forbidden` with a generic body that does not leak repository state. The contract for adding any new write endpoint is to extend `MUTATING_ROUTES`, so the gate cannot be forgotten per-handler. The launch output uses `_network_viewer_url` (already in `logics_manager/viewer.py:2631`) to derive the LAN URL and prints a plain-language posture summary above the existing bind message.
 
 # Tasks
 - `task_220_implement_lan_exposure_with_token_auth_qr_code_and_read_only_safety`

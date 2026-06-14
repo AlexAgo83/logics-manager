@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 85%
+> Confidence: 82%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -79,6 +79,7 @@ flowchart TD
 
 # Notes
 - Ship the navigation slice before the runtimes so `item_421` and `item_422` can mount inside a stable container.
+- Implementation reference: extend the existing versioned viewer preferences payload (`logics.localViewer.preferences.v1`) with a new `workshop.activeTab` key holding `terminals` or `commands`. No new backend endpoint, no new transport, no new dependency. CSS-only chrome change layered on top of the existing topbar pattern (`#viewer-workspace`/`#viewer-git` buttons). VS Code webview chrome reads the same markup via `clients/viewer/browser-host.js`.
 
 # Tasks
 - `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner`

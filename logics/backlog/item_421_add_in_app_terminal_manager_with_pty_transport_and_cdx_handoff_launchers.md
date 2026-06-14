@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 80%
-> Confidence: 70%
+> Understanding: 85%
+> Confidence: 80%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer operator workflow
@@ -89,6 +89,7 @@ flowchart TD
 
 # Notes
 - This slice introduces the new runtime dependency and the new transport; ship it after `item_420` so it mounts into a stable container, and after the ADR is recorded.
+- Researched implementation reference (the ADR may override): pin `ptyprocess>=0.7` (BSD, pure-Python on top of stdlib `pty`) for the Unix backend and `pywinpty>=2.0` (MIT, pre-built wheels for Windows 10 1809+ ConPTY) for the Windows backend, behind a single `PtyBackend` interface with `create(cmd, cwd, env, size) / write / read / resize / close` methods. Default shell selection: `$SHELL` then `bash`/`zsh` on Unix; `%COMSPEC%` then `pwsh.exe`/`powershell.exe`/`cmd.exe` on Windows; expose `wsl.exe` (and `wsl.exe -d <distro>`) in the selector when running on native Windows and the WSL binary is on PATH. Frontend: vendor xterm.js 5.x (MIT, single ESM bundle ~280 KB) plus `@xterm/addon-fit` and `@xterm/addon-web-links` under `clients/shared-web/media/vendor/xterm/`, mirroring the existing mermaid vendoring pattern. Transport: a `websockets` (BSD-3) asyncio listener running on a small companion thread bound to the same host as the stdlib viewer server, sharing the LAN-mode + token check from `req_245` so the auth contract stays single-sourced. Cleanup: register an `atexit` hook that closes the PTY backend pool, plus a per-session disconnect timer (default 60 s) that terminates the PTY after a sustained client disconnect.
 
 # Tasks
 - `task_219_implement_explorer_restyle_and_workshop_screen_with_terminals_and_command_runner`

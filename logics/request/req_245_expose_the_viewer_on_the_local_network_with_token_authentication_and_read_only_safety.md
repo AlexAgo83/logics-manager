@@ -2,8 +2,8 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 82%
-> Confidence: 72%
+> Understanding: 88%
+> Confidence: 85%
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -73,6 +73,7 @@ flowchart TD
 - The QR code dependency (if any added Python package) must be evaluated against the bundled CLI distribution constraints; a pure-Python implementation is preferred.
 - The interaction with the future Workshop terminals and command runners from `req_244` must be defined: in LAN mode, those features must either be disabled outright or require a stronger auth path; this request only commits to disabling them under LAN.
 - The mobile UX is not usable until `req_246` lands. The LAN feature can be shipped before then, but the operator-facing documentation should explicitly call out the responsive prerequisite.
+- Researched runtime choices that the implementation should follow unless the ADR overrides them: `secrets.token_urlsafe(32)` for token generation (256-bit, URL-safe, fits in a QR code without size pressure), `hmac.compare_digest` for constant-time comparison in the request handler, `history.replaceState` on first load to strip the one-time `?t=…` query string from the browser URL bar and history after stashing the token in `sessionStorage`, then `Authorization: Bearer <token>` header on subsequent requests, and `segno` (MIT pure-Python, no native dep) for the ASCII QR rendering at launch with `segno.make(url).save(sys.stdout.buffer, kind="txt")`. LAN-mode read-only enforcement is implemented at the request handler level via a maintained registry of mutating routes (`MUTATING_ROUTES`) checked before dispatch, so any future write endpoint must opt into the gate by extending the registry rather than by remembering to guard each handler manually.
 
 # Companion docs
 - Product brief(s): (none yet)

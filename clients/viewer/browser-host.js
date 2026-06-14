@@ -2438,10 +2438,11 @@
   }
 
   function renderWorkshopTabs(activeTab) {
-    return workshopTabs.map((tab) => {
+    const buttons = workshopTabs.map((tab) => {
       const isActive = tab.id === activeTab;
-      return `<button class="viewer-workshop__tab${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
+      return `<button class="viewer-cdx__mode${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
     }).join("");
+    return `<div class="viewer-cdx__modes" role="tablist" aria-label="Workshop sub-screens">${buttons}</div>`;
   }
 
   function renderWorkshopPanel(tabId) {
@@ -2456,10 +2457,10 @@
       `;
     }
     return `
-      <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="terminals">
+      <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
         <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
           <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
-          <span>Terminals will land with the PTY backend (see adr_023, items 4-5). Use Commands to run discovered scripts in the meantime.</span>
+          <span>In-app terminals are not available yet. Use the Commands tab to run discovered scripts in the meantime.</span>
         </div>
       </div>
     `;

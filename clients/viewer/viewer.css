@@ -835,18 +835,22 @@
   grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
   gap: 12px;
   min-height: min(62vh, 760px);
+  max-height: min(72vh, 820px);
 }
 
 .viewer-workspace__tree,
 .viewer-workspace__preview {
   min-width: 0;
+  min-height: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
 }
 
 .viewer-workspace__tree {
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .viewer-workspace__preview {
@@ -918,6 +922,8 @@
   display: grid;
   gap: 1px;
   padding: 4px;
+  flex: 1 1 auto;
+  overflow-y: auto;
 }
 
 .viewer-workspace__item {
@@ -1074,42 +1080,10 @@
 
 .viewer-workshop {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 10px;
   min-height: min(62vh, 760px);
-}
-
-.viewer-workshop__tabs {
-  display: flex;
-  gap: 2px;
-  border-bottom: 1px solid var(--vscode-panel-border, #333333);
-}
-
-.viewer-workshop__tab {
-  border: 0;
-  background: transparent;
-  color: var(--vscode-descriptionForeground, #aaaaaa);
-  font: inherit;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 4px 4px 0 0;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-}
-
-.viewer-workshop__tab:hover {
-  color: var(--vscode-foreground, #d4d4d4);
-  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
-}
-
-.viewer-workshop__tab:focus-visible {
-  outline: 1px solid var(--vscode-focusBorder, #007fd4);
-  outline-offset: -1px;
-}
-
-.viewer-workshop__tab.is-active {
-  color: var(--vscode-foreground, #d4d4d4);
-  border-bottom-color: var(--vscode-focusBorder, #007fd4);
-  font-weight: 600;
+  max-height: min(72vh, 820px);
 }
 
 .viewer-workshop__panel {
@@ -1117,8 +1091,20 @@
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
   padding: 8px;
-  min-height: 240px;
+  min-height: 0;
   overflow: auto;
+}
+
+.viewer-workshop__panel--terminals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.viewer-workshop__panel--terminals .viewer-workspace__placeholder {
+  margin: 0;
+  max-width: 480px;
 }
 
 .viewer-workshop__group {

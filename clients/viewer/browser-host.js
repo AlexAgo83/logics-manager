@@ -1,6 +1,58 @@
 (() => {
   const stateKey = "logics.localViewer.state";
   const preferenceKey = "logics.localViewer.preferences.v1";
+  const lanTokenKey = "logics.lan.token";
+
+  function captureLanTokenFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const queryToken = url.searchParams.get("t");
+      if (queryToken) {
+        window.sessionStorage.setItem(lanTokenKey, queryToken);
+        url.searchParams.delete("t");
+        const cleaned = `${url.pathname}${url.search}${url.hash}`;
+        window.history.replaceState(null, "", cleaned || "/");
+      }
+    } catch {
+      // sessionStorage / history may be unavailable in some embed contexts.
+    }
+  }
+
+  function getLanToken() {
+    try {
+      return window.sessionStorage.getItem(lanTokenKey) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  captureLanTokenFromUrl();
+
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const token = getLanToken();
+    if (!token) return originalFetch(input, init);
+    const next = init ? { ...init } : {};
+    const headers = new Headers(next.headers || (input instanceof Request ? input.headers : undefined));
+    if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+    next.headers = headers;
+    return originalFetch(input, next);
+  };
+
+  if (typeof window.EventSource === "function") {
+    const NativeEventSource = window.EventSource;
+    window.EventSource = function PatchedEventSource(url, init) {
+      const token = getLanToken();
+      if (!token || typeof url !== "string") {
+        return new NativeEventSource(url, init);
+      }
+      const separator = url.includes("?") ? "&" : "?";
+      const tokenized = `${url}${separator}t=${encodeURIComponent(token)}`;
+      return new NativeEventSource(tokenized, init);
+    };
+    window.EventSource.prototype = NativeEventSource.prototype;
+  }
+
   const preferenceVersion = 1;
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");

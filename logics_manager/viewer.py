@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
+import secrets
 import mimetypes
 import os
 import re
@@ -2681,6 +2683,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
         self.lan_mode = bool(lan_mode)
+        self.lan_token = secrets.token_urlsafe(32) if self.lan_mode else ""
         self.workshop_sessions = WorkshopSessionRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
 
@@ -3110,6 +3113,13 @@ def create_viewer_server(
     )
 
 
+def _append_lan_token(url: str, token: str) -> str:
+    if not url or not token:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}t={quote(token, safe='')}"
+
+
 def _network_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str | None:
     if host not in {"0.0.0.0", "::", ""}:
         return None
@@ -3209,6 +3219,10 @@ def main(argv: list[str]) -> int:
     host, port = server.server_address[:2]
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
     network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
+    lan_share_url = ""
+    if args.lan and server.lan_token:
+        base_for_lan = network_url or url
+        lan_share_url = _append_lan_token(base_for_lan, server.lan_token)
     print(
         render_start_status(
             url,
@@ -3218,6 +3232,8 @@ def main(argv: list[str]) -> int:
             bind_host=str(host),
             auto_refresh_interval_seconds=refresh_interval,
             lan_mode=bool(args.lan),
+            lan_token=server.lan_token if args.lan else None,
+            lan_url=lan_share_url or None,
         ),
         flush=True,
     )

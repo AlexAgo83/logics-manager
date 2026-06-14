@@ -2691,7 +2691,10 @@
     const entries = [...workshopTerminalState.sessions.values()];
     const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
-      <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new>+ New</button>
+      <span class="viewer-workshop__terminal-actions">
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new title="Spawn a shell session">+ Shell</button>
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-custom title="Spawn a session with a custom command">+ Custom</button>
+      </span>
     </div>`;
     if (entries.length === 0) {
       node.innerHTML = `${header}<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>No sessions yet.</span></div>`;
@@ -2784,12 +2787,15 @@
     }
   }
 
-  async function spawnWorkshopTerminal() {
+  async function spawnWorkshopTerminal(options = {}) {
     try {
+      const body = {};
+      if (Array.isArray(options.command) && options.command.length) body.command = options.command;
+      if (options.label) body.label = String(options.label);
       const response = await fetch("/api/workshop-terminal-start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || "Unable to start terminal.");
@@ -2800,11 +2806,33 @@
         state: session.state,
         bufferedOutput: "",
       });
+      // Ensure the Workshop view is mounted before activating.
+      if (preferredWorkshopTab() !== "terminals") {
+        await showWorkshop({ tab: "terminals" });
+      } else {
+        await showWorkshop({ tab: "terminals" });
+      }
       setActiveWorkshopTerminal(session.id);
+      return session.id;
     } catch (error) {
       setMeta(`Terminal: ${error?.message || error}`);
+      return "";
     }
   }
+
+  function spawnCustomWorkshopTerminal() {
+    const raw = window.prompt("Command to run (space-separated, e.g. 'node --version'):", "");
+    if (!raw) return;
+    const command = raw.trim().split(/\s+/).filter(Boolean);
+    if (!command.length) return;
+    const label = command.slice(0, 2).join(" ").slice(0, 32) || "custom";
+    spawnWorkshopTerminal({ command, label });
+  }
+
+  // Public API for CDX / handoff launchers and other callers that want to
+  // open a Workshop terminal pre-running a canonical command.
+  window.logicsViewer = window.logicsViewer || {};
+  window.logicsViewer.launchTerminal = (command, label) => spawnWorkshopTerminal({ command, label });
 
   function writeWorkshopTerminalInput(sessionId, data) {
     if (!sessionId || !data) return;
@@ -4967,6 +4995,7 @@
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
+      const workshopTerminalCustomTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-custom]") : null;
       const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
@@ -5059,6 +5088,11 @@
       if (workshopTerminalNewTarget instanceof HTMLElement) {
         event.preventDefault();
         spawnWorkshopTerminal();
+        return;
+      }
+      if (workshopTerminalCustomTarget instanceof HTMLElement) {
+        event.preventDefault();
+        spawnCustomWorkshopTerminal();
         return;
       }
       if (workshopTerminalSelectTarget instanceof HTMLElement) {

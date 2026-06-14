@@ -1129,6 +1129,11 @@
   padding: 2px 8px;
 }
 
+.viewer-workshop__terminal-actions {
+  display: flex;
+  gap: 4px;
+}
+
 .viewer-workshop__terminal-rows {
   display: flex;
   flex-direction: column;

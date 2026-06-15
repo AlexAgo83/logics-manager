@@ -57,6 +57,7 @@
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
+  const documentDescription = () => document.getElementById("viewer-document-description");
   const documentContent = () => document.getElementById("viewer-document-content");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
   const updateBanner = () => document.getElementById("viewer-update");
@@ -1324,13 +1325,33 @@
     }
   }
 
-  function setDocument(titleText, html) {
+  function screenDescription(titleText) {
+    const title = String(titleText || "");
+    if (title === "Corpus insights") return "Corpus signals and follow-up hotspots.";
+    if (title === "Validation health") return "Lint, audit, and workflow validation status.";
+    if (title === "Explorer") return "Workspace files with bounded previews.";
+    if (title === "Workshop") return "Commands and terminals for local project work.";
+    if (title === "CDX status") return "Assistant runtime, sessions, and provider health.";
+    if (title === "CDX missions") return "Plan, launch, and apply assistant missions.";
+    if (title === "CDX runs") return "Recent assistant runs and report links.";
+    if (title === "CDX run report") return "Structured output from one assistant run.";
+    if (title.startsWith("CDX log")) return "Captured log output from an assistant artifact.";
+    if (title === "CI status") return "Latest GitHub Actions workflow state.";
+    if (title === "Git status") return "Branch, changes, history, and remote state.";
+    return "Rendered Logics document with linked context.";
+  }
+
+  function setDocument(titleText, html, descriptionText = "") {
     cdxCloseTarget = null;
     const panel = documentPanel();
     const title = documentTitle();
+    const description = documentDescription();
     const content = documentContent();
     if (title) {
       title.textContent = titleText || "Document";
+    }
+    if (description) {
+      description.textContent = descriptionText || screenDescription(titleText);
     }
     if (content) {
       content.innerHTML = html || "";
@@ -1346,9 +1367,11 @@
 
   function currentDocumentSnapshot(fallbackTitle = "Document") {
     const title = documentTitle();
+    const description = documentDescription();
     const content = documentContent();
     return {
       title: title?.textContent || fallbackTitle,
+      description: description?.textContent || screenDescription(fallbackTitle),
       html: content?.innerHTML || ""
     };
   }
@@ -1357,7 +1380,7 @@
     const target = cdxCloseTarget;
     cdxCloseTarget = null;
     if (target?.type === "cdx-report") {
-      setDocument(target.title || "CDX run report", target.html || "");
+      setDocument(target.title || "CDX run report", target.html || "", target.description || "");
       cdxCloseTarget = { type: "cdx-runs" };
       setMeta("Returned to CDX run report.");
       return;

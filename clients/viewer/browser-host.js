@@ -849,6 +849,7 @@
       } else {
         setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
       }
+      updateWorkshopBadges();
     }
 
     const gitButton = document.getElementById("viewer-git");
@@ -958,6 +959,42 @@
       filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
     ].filter(Boolean).join("");
     return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
+  }
+
+  let workshopBadgeCounts = { terminals: 0, commands: 0 };
+
+  function updateWorkshopBadges() {
+    const button = document.getElementById("viewer-workshop");
+    if (!(button instanceof HTMLElement)) return;
+    button.querySelector('[data-viewer-workshop-badges]')?.remove();
+    const { terminals, commands } = workshopBadgeCounts;
+    if (terminals <= 0 && commands <= 0) return;
+    const html = [
+      terminals > 0
+        ? `<span class="viewer-git-badge viewer-git-badge--commits" title="${escapeHtml(terminals + " terminal session(s) running")}" aria-label="${escapeHtml(terminals + " terminal session(s) running")}">${escapeHtml(String(terminals))}</span>`
+        : "",
+      commands > 0
+        ? `<span class="viewer-git-badge viewer-git-badge--files" title="${escapeHtml(commands + " command(s) running")}" aria-label="${escapeHtml(commands + " command(s) running")}">${escapeHtml(String(commands))}</span>`
+        : "",
+    ].filter(Boolean).join("");
+    if (html) {
+      button.insertAdjacentHTML("beforeend", `<span class="viewer-git-badges" data-viewer-workshop-badges>${html}</span>`);
+    }
+  }
+
+  function recomputeWorkshopBadges() {
+    const isRunning = (state) => state === "running" || state === "starting";
+    let terminals = 0;
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (isRunning(entry.state)) terminals += 1;
+    }
+    let commands = 0;
+    for (const entry of workshopCommandState.sessions.values()) {
+      if (isRunning(entry.state)) commands += 1;
+    }
+    if (workshopBadgeCounts.terminals === terminals && workshopBadgeCounts.commands === commands) return;
+    workshopBadgeCounts = { terminals, commands };
+    updateWorkshopBadges();
   }
 
   function updateMainGitBadges() {
@@ -2589,6 +2626,7 @@
     const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
     workshopCommandState.sessions.set(commandId, { ...previous, ...patch });
     renderWorkshopCommands();
+    recomputeWorkshopBadges();
   }
 
   function appendWorkshopCommandLog(commandId, line) {
@@ -2850,6 +2888,7 @@
         state: session.state,
         bufferedOutput: "",
       });
+      recomputeWorkshopBadges();
       // Ensure the Workshop view is mounted before activating.
       if (preferredWorkshopTab() !== "terminals") {
         await showWorkshop({ tab: "terminals" });
@@ -2917,6 +2956,7 @@
     } else {
       renderWorkshopTerminalList();
     }
+    recomputeWorkshopBadges();
   }
 
   function closeWorkshopTerminalStream(sessionId) {
@@ -2950,6 +2990,7 @@
         const entry = workshopTerminalState.sessions.get(sessionId);
         if (entry) entry.state = payload.state;
         renderWorkshopTerminalList();
+        recomputeWorkshopBadges();
       } catch { /* noop */ }
       closeWorkshopTerminalStream(sessionId);
     });

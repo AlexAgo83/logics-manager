@@ -1332,25 +1332,37 @@
   }
 
   .viewer-workshop__terminal-host .xterm {
+    min-width: 432px;
+  }
+}
+
+@media (max-width: 900px) {
+  .viewer-workshop__terminal-host .xterm {
     min-width: 480px;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 700px) {
   .viewer-workshop__terminal-host .xterm {
     min-width: 432px;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 560px) {
   .viewer-workshop__terminal-host .xterm {
     min-width: 384px;
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 420px) {
   .viewer-workshop__terminal-host .xterm {
     min-width: 336px;
+  }
+}
+
+@media (max-width: 360px) {
+  .viewer-workshop__terminal-host .xterm {
+    min-width: 288px;
   }
 }
 

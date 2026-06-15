@@ -3078,12 +3078,13 @@
   function workshopTerminalPreferredFontSize() {
     // Smaller cells on narrow viewports keep enough columns visible to make
     // TUIs (btop, lazygit, cdx) usable on a phone without horizontal scroll
-    // taking over. Phone portrait sits in the <=420 bucket.
+    // taking over. Phone portrait sits in <=420, landscape in <=900.
     const width = window.innerWidth || document.documentElement?.clientWidth || 0;
-    if (width <= 360) return 7;
-    if (width <= 420) return 8;
-    if (width <= 560) return 9;
-    if (width <= 700) return 10;
+    if (width <= 360) return 6;
+    if (width <= 420) return 7;
+    if (width <= 560) return 8;
+    if (width <= 700) return 9;
+    if (width <= 900) return 10;
     return 12;
   }
 

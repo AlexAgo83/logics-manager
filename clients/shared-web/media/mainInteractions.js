@@ -103,7 +103,7 @@
       searchInput,
       selectAgentButton,
       setControlDescription,
-      setToolsPanelOpen,
+      setToolsPanelOpen = () => undefined,
       showCompanionDocsToggle,
       sortBySelect,
       splitter,

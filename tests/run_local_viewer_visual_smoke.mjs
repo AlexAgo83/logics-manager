@@ -154,7 +154,7 @@ async function stopChrome(browser) {
       resolve();
     });
   });
-  rmSync(browser.userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  cleanupChromeProfile(browser.userDataDir);
 }
 
 async function runServerSmoke(url) {
@@ -210,8 +210,16 @@ async function startChrome(chrome, viewport) {
     return { process: child, pageWsUrl, userDataDir };
   } catch (error) {
     child.kill();
-    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    cleanupChromeProfile(userDataDir);
     throw error;
+  }
+}
+
+function cleanupChromeProfile(userDataDir) {
+  try {
+    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  } catch (error) {
+    console.warn(`Could not remove temporary Chrome profile ${userDataDir}: ${error.message}`);
   }
 }
 

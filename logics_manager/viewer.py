@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import socket
+import ssl
 import subprocess
 import sys
 import tomllib
@@ -307,8 +308,8 @@ def normalize_viewer_focus_target(repo_root: Path, value: str) -> str:
     return normalized
 
 
-def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str:
-    url = f"http://{host}:{port}"
+def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False, scheme: str = "http") -> str:
+    url = f"{scheme}://{host}:{port}"
     query: dict[str, str] = {}
     if focus:
         query["focus"] = focus
@@ -3120,6 +3121,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         auto_refresh_interval_seconds: int = 15,
         auto_refresh_interval_forced: bool = False,
         lan_mode: bool = False,
+        tls_context: ssl.SSLContext | None = None,
     ):
         self.launch_repo_root = repo_root.resolve()
         self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
@@ -3130,9 +3132,16 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
         self.lan_mode = bool(lan_mode)
         self.lan_token = secrets.token_urlsafe(32) if self.lan_mode else ""
+        self.tls_enabled = tls_context is not None
         self.workshop_sessions = WorkshopSessionRegistry()
         self.workshop_terminals = WorkshopTerminalRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
+        if tls_context is not None:
+            self.socket = tls_context.wrap_socket(self.socket, server_side=True)
+
+    @property
+    def url_scheme(self) -> str:
+        return "https" if self.tls_enabled else "http"
 
     def server_close(self) -> None:
         try:
@@ -3157,7 +3166,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
         payload["lanMode"] = bool(self.lan_mode)
         if self.lan_mode and self.lan_token:
             host, port = self.server_address[:2]
-            lan_url = _network_viewer_url(str(host), int(port)) or build_viewer_url(str(host), int(port))
+            lan_url = (
+                _network_viewer_url(str(host), int(port), scheme=self.url_scheme)
+                or build_viewer_url(str(host), int(port), scheme=self.url_scheme)
+            )
             payload["lanShareUrl"] = _append_lan_token(lan_url, self.lan_token)
         else:
             payload["lanShareUrl"] = ""
@@ -3775,6 +3787,7 @@ def create_viewer_server(
     auto_refresh_interval_seconds: int = 15,
     auto_refresh_interval_forced: bool = False,
     lan_mode: bool = False,
+    tls_context: ssl.SSLContext | None = None,
 ) -> LogicsViewerServer:
     return LogicsViewerServer(
         (host, port),
@@ -3782,6 +3795,7 @@ def create_viewer_server(
         auto_refresh_interval_seconds=auto_refresh_interval_seconds,
         auto_refresh_interval_forced=auto_refresh_interval_forced,
         lan_mode=lan_mode,
+        tls_context=tls_context,
     )
 
 
@@ -3844,13 +3858,70 @@ def _detect_lan_ip() -> str:
     return ""
 
 
-def _network_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False) -> str | None:
+def _network_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False, scheme: str = "http") -> str | None:
     if host not in {"0.0.0.0", "::", ""}:
         return None
     candidate = _detect_lan_ip()
     if not candidate:
         return None
-    return build_viewer_url(candidate, port, focus=focus, read=read)
+    return build_viewer_url(candidate, port, focus=focus, read=read, scheme=scheme)
+
+
+def _viewer_state_dir() -> Path:
+    """Persistent state directory for the viewer (TLS material, devices, ...)."""
+    return Path.home() / ".cache" / "logics-manager"
+
+
+def _ensure_tls_material(san_ips: list[str]) -> tuple[Path, Path]:
+    """Return (cert_path, key_path), generating a self-signed pair if missing.
+
+    The cert covers the loopback addresses plus any provided LAN IPs as
+    subjectAltNames so iOS/Android accept it after a one-time trust prompt.
+    Shells out to ``openssl`` because we deliberately do not add a heavy
+    native dependency just to mint a self-signed cert.
+    """
+    state_dir = _viewer_state_dir() / "tls"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    cert_path = state_dir / "viewer-cert.pem"
+    key_path = state_dir / "viewer-key.pem"
+    if cert_path.exists() and key_path.exists():
+        return cert_path, key_path
+    if shutil.which("openssl") is None:
+        raise SystemExit(
+            "--tls requires either an existing cert pair under "
+            f"{state_dir} or the 'openssl' binary to auto-generate one."
+        )
+    san_entries = ["DNS:localhost", "IP:127.0.0.1", "IP:::1"]
+    seen: set[str] = set()
+    for ip in san_ips:
+        if not ip or ip in seen or ip.startswith("127.") or ip in {"0.0.0.0", "::"}:
+            continue
+        seen.add(ip)
+        san_entries.append(f"IP:{ip}")
+    cmd = [
+        "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+        "-days", "365",
+        "-keyout", str(key_path),
+        "-out", str(cert_path),
+        "-subj", "/CN=logics-manager-viewer",
+        "-addext", f"subjectAltName={','.join(san_entries)}",
+    ]
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        raise SystemExit(f"Failed to generate TLS material via openssl: {exc}") from exc
+    try:
+        os.chmod(key_path, 0o600)
+    except OSError:
+        pass
+    return cert_path, key_path
+
+
+def _build_tls_context(cert_path: Path, key_path: Path) -> ssl.SSLContext:
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    context.load_cert_chain(certfile=str(cert_path), keyfile=str(key_path))
+    return context
 
 
 def render_start_status(
@@ -3865,14 +3936,17 @@ def render_start_status(
     lan_token: str | None = None,
     lan_url: str | None = None,
     qr_lines: list[str] | None = None,
+    tls_enabled: bool = False,
 ) -> str:
     mode_label = "LAN read-only (token required)" if lan_mode else "read-only"
+    transport_label = "HTTPS (self-signed)" if tls_enabled else "HTTP"
     lines = [
         "Logics viewer running:",
         f"Local: {url}",
         "",
         f"Repo: {repo_root.name}",
         f"Mode: {mode_label}",
+        f"Transport: {transport_label}",
         f"Bind: {bind_host}",
         f"Auto refresh: {auto_refresh_interval_seconds}s",
     ]
@@ -3903,6 +3977,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Expose the viewer on the local network (0.0.0.0). Enforces read-only access and requires a per-session bearer token for non-loopback requests.",
     )
     parser.add_argument(
+        "--tls",
+        action="store_true",
+        help="Serve over HTTPS using a self-signed cert. Auto-generated under ~/.cache/logics-manager/tls/ on first use; needs `openssl` in PATH unless a cert pair is provided via --tls-cert / --tls-key.",
+    )
+    parser.add_argument(
+        "--tls-cert",
+        default=None,
+        help="Path to a PEM-encoded TLS certificate. Implies --tls when set together with --tls-key.",
+    )
+    parser.add_argument(
+        "--tls-key",
+        default=None,
+        help="Path to a PEM-encoded TLS private key. Implies --tls when set together with --tls-cert.",
+    )
+    parser.add_argument(
         "--refresh-interval",
         type=int,
         default=None,
@@ -3929,6 +4018,23 @@ def main(argv: list[str]) -> int:
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     bind_host = "0.0.0.0" if args.lan and args.host == "127.0.0.1" else args.host
+    tls_requested = bool(args.tls) or bool(args.tls_cert) or bool(args.tls_key)
+    tls_context: ssl.SSLContext | None = None
+    if tls_requested:
+        if bool(args.tls_cert) ^ bool(args.tls_key):
+            raise SystemExit("--tls-cert and --tls-key must be provided together.")
+        if args.tls_cert and args.tls_key:
+            cert_path = Path(args.tls_cert).expanduser().resolve()
+            key_path = Path(args.tls_key).expanduser().resolve()
+            if not cert_path.is_file() or not key_path.is_file():
+                raise SystemExit("--tls-cert / --tls-key paths must point to existing files.")
+        else:
+            san_candidates: list[str] = []
+            lan_ip = _detect_lan_ip()
+            if lan_ip:
+                san_candidates.append(lan_ip)
+            cert_path, key_path = _ensure_tls_material(san_candidates)
+        tls_context = _build_tls_context(cert_path, key_path)
     server = create_viewer_server(
         repo_root,
         host=bind_host,
@@ -3936,10 +4042,12 @@ def main(argv: list[str]) -> int:
         auto_refresh_interval_seconds=refresh_interval,
         auto_refresh_interval_forced=refresh_interval_forced,
         lan_mode=bool(args.lan),
+        tls_context=tls_context,
     )
     host, port = server.server_address[:2]
-    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
-    network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read))
+    scheme = server.url_scheme
+    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
+    network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
     lan_share_url = ""
     qr_lines: list[str] = []
     if args.lan and server.lan_token:
@@ -3958,6 +4066,7 @@ def main(argv: list[str]) -> int:
             lan_token=server.lan_token if args.lan else None,
             lan_url=lan_share_url or None,
             qr_lines=qr_lines or None,
+            tls_enabled=server.tls_enabled,
         ),
         flush=True,
     )

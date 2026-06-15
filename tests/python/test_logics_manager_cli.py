@@ -2190,6 +2190,9 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
 ) -> None:
     class FakeViewerServer:
         server_address = ("127.0.0.1", 8765)
+        tls_enabled = False
+        url_scheme = "http"
+        lan_token = ""
 
         def __init__(self) -> None:
             self.closed = False

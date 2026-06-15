@@ -1513,12 +1513,27 @@
     scheduleNextAutoRefresh();
     updateVersionLink(payload.updateInfo);
     renderUpdateNotice(payload.updateInfo);
+    renderEnvironmentWarning(payload.environmentWarning);
     refreshCiBadgeCounters();
     refreshCdxBadgeCounters();
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
     return true;
+  }
+
+  function renderEnvironmentWarning(warning) {
+    const banner = document.getElementById("viewer-environment-warning");
+    if (!(banner instanceof HTMLElement)) return;
+    if (!warning || typeof warning !== "object" || !warning.message) {
+      banner.hidden = true;
+      return;
+    }
+    const titleEl = document.getElementById("viewer-environment-warning-title");
+    const copyEl = document.getElementById("viewer-environment-warning-copy");
+    if (titleEl) titleEl.textContent = warning.title || "Environment warning";
+    if (copyEl) copyEl.textContent = warning.message;
+    banner.hidden = false;
   }
 
   function renderUpdateNotice(updateInfo) {

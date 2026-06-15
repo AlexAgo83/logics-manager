@@ -2870,16 +2870,17 @@
   }
 
   .viewer-topbar__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
     width: 100%;
-    flex-wrap: wrap;
   }
 
-  .viewer-topbar__actions .btn {
-    flex: 1 1 0;
-  }
-
+  .viewer-topbar__actions .btn,
   .viewer-refresh-menu {
-    flex: 1 1 0;
+    flex: unset;
+    width: auto;
+    min-width: 0;
   }
 
   .viewer-refresh-menu > .btn {
@@ -2963,10 +2964,9 @@
   }
 
   .viewer-topbar__actions {
-    flex-wrap: wrap;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
     width: 100%;
-    justify-content: flex-start;
   }
 
   .viewer-topbar__actions button {

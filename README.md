@@ -51,17 +51,12 @@ The CLI owns the behavior. The extension and MCP server call into it instead of 
 
 ## Quick Start
 
-Install the CLI from PyPI:
+The recommended install path is the **npm package**. It bundles the CLI
+runtime in a self-contained launcher that works the same on macOS,
+Linux, and Windows / WSL:
 
 ```bash
-python3.11 -m pip install logics-manager
-logics-manager --help
-```
-
-For an isolated user-level install, use `pipx`:
-
-```bash
-pipx install logics-manager
+npm install -g @grifhinz/logics-manager
 logics-manager --help
 ```
 
@@ -72,20 +67,27 @@ python3.11 -m pip install .
 logics-manager --help
 ```
 
-On Debian, Ubuntu, or WSL environments where Python is externally managed, use `pipx` instead of installing into the system Python:
+### Python install paths (legacy, not recommended)
+
+> **Deprecated.** `pip` and `pipx` installs are still published for
+> backwards compatibility, but they are no longer the supported path:
+> they break on PEP 668 distros, on WSL (slow `/mnt/<drive>` IO and
+> `gio` opener failures), and on Python interpreters that diverge from
+> the build matrix. Prefer the npm install above. The PyPI release will
+> keep shipping — we only stop recommending it for end users.
+
+PyPI:
 
 ```bash
-sudo apt update
-sudo apt install pipx python3-venv
-pipx ensurepath
-pipx install logics-manager
+python3.11 -m pip install logics-manager
 ```
 
-Or install the npm package from npm:
+Isolated user-level install via `pipx` (still published, no longer
+recommended; reach for npm if you hit PEP 668 or externally-managed
+Python errors):
 
 ```bash
-npm install -g @grifhinz/logics-manager
-logics-manager --help
+pipx install logics-manager
 ```
 
 Initialize or check a repository:
@@ -294,25 +296,23 @@ To update the installed CLI later:
 logics-manager self-update
 ```
 
-If `self-update` reports an externally managed Python environment, migrate the Python install through `pipx`:
-
-```bash
-sudo apt update
-sudo apt install pipx python3-venv
-pipx ensurepath
-pipx install --force logics-manager
-```
-
-If `logics-manager` is already installed through `pipx`, update that managed environment directly:
-
-```bash
-pipx upgrade logics-manager
-```
-
-For npm installs, update with:
+For npm installs (recommended), update with:
 
 ```bash
 npm install -g @grifhinz/logics-manager@latest
+```
+
+If `self-update` reports an externally managed Python environment on a
+legacy `pip`/`pipx` install, the supported answer is to migrate to the
+npm package above rather than to repair the Python install. The PyPI
+artifact is still published, but `pipx` upgrades remain available only
+for users who have not migrated yet:
+
+```bash
+# Legacy path, kept for compatibility (npm install is preferred):
+pipx upgrade logics-manager
+# Or rebuild the venv if pip blocked the install:
+pipx install --force logics-manager
 ```
 
 If npm reports a successful update but `logics-manager --version` still shows an older version, another installation is earlier on `PATH`. Diagnose it with:

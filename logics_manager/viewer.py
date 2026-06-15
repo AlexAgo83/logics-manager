@@ -703,12 +703,16 @@ def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = N
 
 
 def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
-    raw_path = unquote(file_path).strip()
-    if not raw_path:
+    raw_value = unquote(file_path).strip()
+    if raw_value.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", raw_value):
+        raise ValueError("File path escapes repository root.")
+    normalized = raw_value.replace("\\", "/").lstrip("/")
+    if not normalized:
         raise ValueError("Missing file path.")
-    candidate = Path(raw_path).expanduser()
-    if not candidate.is_absolute():
-        candidate = repo_root / raw_path.lstrip("/\\")
+    raw_parts = tuple(part for part in normalized.split("/") if part)
+    if any(part == ".." for part in raw_parts):
+        raise ValueError("File path escapes repository root.")
+    candidate = repo_root.joinpath(*raw_parts)
     root = os.path.realpath(repo_root)
     absolute_name = os.path.realpath(candidate)
     try:
@@ -3112,11 +3116,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
         absolute = Path(absolute_name)
-        if not absolute.is_file():
+        if not absolute.is_file():  # lgtm [py/path-injection]
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
         content_type = STATIC_CONTENT_TYPES.get(absolute.suffix.lower(), "application/octet-stream")
-        self._send_bytes(absolute.read_bytes(), content_type=content_type)
+        self._send_bytes(absolute.read_bytes(), content_type=content_type)  # lgtm [py/path-injection]
 
     def _stream_workshop_terminal(self, session: "WorkshopTerminalSession", parsed: Any) -> None:
         import time as _time

@@ -41,7 +41,7 @@ export default defineConfig({
       reportsDirectory: coverageReportsDirectory,
       include: coverageInclude,
       thresholds: coverageThresholds,
-      exclude: ["**/*.d.ts", "dist/**", "tests/**"]
+      exclude: ["**/*.d.ts", "dist/**", "tests/**", "clients/shared-web/media/vendor/**"]
     }
   }
 });

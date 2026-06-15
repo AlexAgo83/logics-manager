@@ -1444,13 +1444,45 @@
     }
   }
 
+  // Map a setDocument title to the short subtitle shown in the document
+  // header. Replaces the old static "Read-only preview" label; the goal
+  // is one line describing what the user is currently looking at.
+  function describeDocumentScreen(titleText) {
+    const title = String(titleText || "").trim();
+    if (!title) return "";
+    const exact = {
+      "Explorer": "Browse repository files",
+      "Workshop": "Run commands and Workshop terminals",
+      "Validation health": "Lint and audit summary",
+      "Corpus insights": "Workflow corpus dashboard",
+      "CDX status": "Configured agents and runtime checks",
+      "CDX missions": "Guided missions and plans",
+      "CDX runs": "Recent CDX session runs",
+      "CDX run report": "Mission output and findings",
+      "CDX log": "Streaming log output",
+    };
+    if (exact[title]) return exact[title];
+    if (title.startsWith("CDX log")) return "Streaming log output";
+    if (title.startsWith("logics/request/")) return "Logics request";
+    if (title.startsWith("logics/task/")) return "Logics task";
+    if (title.startsWith("logics/backlog")) return "Logics backlog";
+    if (title.endsWith(".md")) return "Logics document";
+    return "";
+  }
+
   function setDocument(titleText, html) {
     cdxCloseTarget = null;
     const panel = documentPanel();
     const title = documentTitle();
     const content = documentContent();
+    const eyebrow = document.getElementById("viewer-document-eyebrow");
     if (title) {
       title.textContent = titleText || "Document";
+    }
+    if (eyebrow instanceof HTMLElement) {
+      const description = describeDocumentScreen(titleText);
+      eyebrow.textContent = description;
+      eyebrow.hidden = !description;
     }
     if (content) {
       content.innerHTML = html || "";

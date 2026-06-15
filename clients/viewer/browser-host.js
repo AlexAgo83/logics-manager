@@ -2911,6 +2911,26 @@
     }
   }
 
+  function refitAllWorkshopTerminals() {
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (!entry.fitAddon || !entry.terminal) continue;
+      try {
+        entry.fitAddon.fit();
+        const dim = entry.fitAddon.proposeDimensions();
+        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      } catch { /* noop */ }
+    }
+  }
+
+  let workshopTerminalResizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (workshopTerminalResizeTimer) clearTimeout(workshopTerminalResizeTimer);
+    workshopTerminalResizeTimer = setTimeout(() => {
+      workshopTerminalResizeTimer = null;
+      refitAllWorkshopTerminals();
+    }, 80);
+  });
+
   async function spawnWorkshopTerminal(options = {}) {
     try {
       const body = {};
@@ -2959,13 +2979,36 @@
   window.logicsViewer = window.logicsViewer || {};
   window.logicsViewer.launchTerminal = (command, label) => spawnWorkshopTerminal({ command, label });
 
+  const workshopTerminalInputBuffers = new Map();
+  const workshopTerminalInputInFlight = new Set();
+
   function writeWorkshopTerminalInput(sessionId, data) {
     if (!sessionId || !data) return;
+    workshopTerminalInputBuffers.set(
+      sessionId,
+      (workshopTerminalInputBuffers.get(sessionId) || "") + data,
+    );
+    flushWorkshopTerminalInput(sessionId);
+  }
+
+  function flushWorkshopTerminalInput(sessionId) {
+    if (workshopTerminalInputInFlight.has(sessionId)) return;
+    const buffered = workshopTerminalInputBuffers.get(sessionId);
+    if (!buffered) return;
+    workshopTerminalInputBuffers.set(sessionId, "");
+    workshopTerminalInputInFlight.add(sessionId);
     fetch("/api/workshop-terminal-input", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, data }),
-    }).catch(() => { /* noop */ });
+      body: JSON.stringify({ sessionId, data: buffered }),
+    })
+      .catch(() => { /* noop */ })
+      .finally(() => {
+        workshopTerminalInputInFlight.delete(sessionId);
+        if (workshopTerminalInputBuffers.get(sessionId)) {
+          flushWorkshopTerminalInput(sessionId);
+        }
+      });
   }
 
   function resizeWorkshopTerminal(sessionId, rows, cols) {
@@ -3557,10 +3600,16 @@
       return `<div class="viewer-cdx__empty">${escapeHtml(emptyText)}</div>`;
     }
     const visibleColumns = cdxColumnVisibilityPreference();
+    const workshopCap = capability("workshop");
+    const canLaunchTerminal = workshopCap.available === true && Boolean(workshopCap.detail?.terminalsAvailable);
     const cellRenderers = {
       session: (item) => {
         const name = cdxField(item, ["session_name", "name", "id", "value"]);
-        return `<td class="viewer-cdx__session-name">${escapeHtml(`${name}${item.active ? "*" : ""}`)}</td>`;
+        const label = `${name}${item.active ? "*" : ""}`;
+        if (canLaunchTerminal && name && name !== "-") {
+          return `<td class="viewer-cdx__session-name"><button class="viewer-cdx__path-link" type="button" data-viewer-cdx-session-launch="${escapeHtml(name)}" title="Open Workshop terminal: cdx ${escapeHtml(name)}">${escapeHtml(label)}</button></td>`;
+        }
+        return `<td class="viewer-cdx__session-name">${escapeHtml(label)}</td>`;
       },
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
       status: (item) => `<td>${renderCdxBadge(cdxField(item, ["status", "state"]))}</td>`,
@@ -5160,6 +5209,15 @@
       const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
       const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
+      const cdxSessionLaunchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-launch]") : null;
+      if (cdxSessionLaunchTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const sessionName = cdxSessionLaunchTarget.getAttribute("data-viewer-cdx-session-launch") || "";
+        if (sessionName) {
+          spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
+        }
+        return;
+      }
       if (cdxMissionTarget instanceof HTMLElement) {
         latestCdxMissionState.missionId = cdxMissionTarget.getAttribute("data-viewer-cdx-mission") || "full-audit";
         latestCdxMissionState.planPayload = null;

@@ -2938,6 +2938,15 @@
       }
       try { entry.terminal?.focus(); } catch { /* noop */ }
       try { entry.fitAddon?.fit(); } catch { /* noop */ }
+      // Force a full repaint from the cell buffer: while the host was
+      // display:none, xterm.js's renderer cannot measure the element and
+      // its DOM state can drift from the buffer — SGR backgrounds and
+      // box-drawing glyphs end up stale even though the text is intact.
+      requestAnimationFrame(() => {
+        const term = entry.terminal;
+        if (!term) return;
+        try { term.refresh(0, Math.max(0, term.rows - 1)); } catch { /* noop */ }
+      });
     }
   }
 

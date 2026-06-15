@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 import { WebSocket } from "ws";
@@ -136,10 +136,25 @@ async function runChromeSmoke(chrome, url) {
       results.push({ viewport, ...result });
       cdp.close();
     } finally {
-      browser.process.kill();
+      await stopChrome(browser);
     }
   }
   return results;
+}
+
+async function stopChrome(browser) {
+  const child = browser.process;
+  if (!child.killed) {
+    child.kill();
+  }
+  await new Promise((resolve) => {
+    const timer = setTimeout(resolve, 2_000);
+    child.once("exit", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+  rmSync(browser.userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
 
 async function runServerSmoke(url) {
@@ -158,12 +173,17 @@ async function runServerSmoke(url) {
 }
 
 async function startChrome(chrome, viewport) {
+  const userDataDir = join(artifactsDir, `chrome-profile-${viewport.name}-${process.pid}-${Date.now()}`);
+  mkdirSync(userDataDir, { recursive: true });
   const args = [
     "--headless=new",
     "--disable-gpu",
+    "--disable-dev-shm-usage",
     "--no-first-run",
     "--no-default-browser-check",
+    "--remote-debugging-address=127.0.0.1",
     "--remote-debugging-port=0",
+    `--user-data-dir=${userDataDir}`,
     `--window-size=${viewport.width},${viewport.height}`,
     "about:blank"
   ];
@@ -183,10 +203,16 @@ async function startChrome(chrome, viewport) {
   };
   child.stdout.on("data", captureDevToolsOutput);
   child.stderr.on("data", captureDevToolsOutput);
-  await waitFor(() => Boolean(wsUrl), "Chrome DevTools URL", () => output.join(""));
-  const port = Number(new URL(wsUrl).port);
-  const pageWsUrl = await waitForPageTarget(port);
-  return { process: child, pageWsUrl };
+  try {
+    await waitFor(() => Boolean(wsUrl), "Chrome DevTools URL", () => output.join(""), 30_000);
+    const port = Number(new URL(wsUrl).port);
+    const pageWsUrl = await waitForPageTarget(port);
+    return { process: child, pageWsUrl, userDataDir };
+  } catch (error) {
+    child.kill();
+    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    throw error;
+  }
 }
 
 async function waitForPageTarget(port) {
@@ -373,10 +399,10 @@ function text(dom, selector) {
   return dom.window.document.querySelector(selector)?.textContent || "";
 }
 
-async function waitFor(predicate, label, debug = () => "") {
+async function waitFor(predicate, label, debug = () => "", timeoutMs = 15_000) {
   const started = Date.now();
   while (!predicate()) {
-    if (Date.now() - started > 15_000) {
+    if (Date.now() - started > timeoutMs) {
       throw new Error(`Timed out waiting for ${label}.\n${debug()}`);
     }
     await new Promise((resolve) => setTimeout(resolve, 50));

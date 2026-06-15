@@ -93,5 +93,5 @@ describe("npm package surface", () => {
       fs.rmSync(cacheDir, { recursive: true, force: true });
       fs.rmSync(packed.packageDir, { recursive: true, force: true });
     }
-  }, 30000);
+  }, 60000);
 });

@@ -3154,13 +3154,20 @@
     }
   }
 
+  function scheduleAnimationFrame(callback) {
+    const raf = typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame.bind(window)
+      : (runner) => window.setTimeout(runner, 0);
+    raf(callback);
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      requestAnimationFrame(repaintAllWorkshopTerminals);
+      scheduleAnimationFrame(repaintAllWorkshopTerminals);
     }
   });
   window.addEventListener("focus", () => {
-    requestAnimationFrame(repaintAllWorkshopTerminals);
+    scheduleAnimationFrame(repaintAllWorkshopTerminals);
   });
 
   let workshopTerminalResizeTimer = null;

@@ -526,7 +526,9 @@
 
 /* Mobile + landscape phone: the document overlay should consume the whole
  * visible viewport. The header keeps the Close button so navigation back
- * to the topbar is one tap away. */
+ * to the topbar is one tap away. Document chrome is compressed so the
+ * embedded screen (Workshop terminal, Explorer preview, etc.) gets every
+ * pixel back. */
 @media (max-width: 900px) {
   .viewer-document {
     inset: 0;
@@ -537,6 +539,23 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .viewer-document__header {
+    padding: 6px 10px;
+  }
+
+  .viewer-document__title {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .viewer-document__eyebrow {
+    font-size: 10px;
+  }
+
+  .viewer-document__content {
+    padding: 6px;
   }
 }
 
@@ -1281,14 +1300,14 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     height: 100%;
-    min-height: 280px;
+    min-height: 520px;
   }
 
   .viewer-workshop__terminal-list {
     border-right: 0;
     border-bottom: 1px solid var(--vscode-panel-border, #333333);
-    padding: 8px;
-    gap: 8px;
+    padding: 4px 6px;
+    gap: 4px;
     overflow-y: visible;
   }
 

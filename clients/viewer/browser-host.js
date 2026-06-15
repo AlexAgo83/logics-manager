@@ -134,12 +134,16 @@
   }
 
   function refreshLanBannerPairingState() {
+    const banner = document.getElementById("viewer-lan-banner");
     const pairButton = document.getElementById("viewer-lan-banner-pair");
     const pairedLabel = document.getElementById("viewer-lan-banner-paired");
     const deviceLabel = (() => {
       try { return window.localStorage.getItem(deviceLabelKey) || ""; } catch { return ""; }
     })();
     const hasDeviceToken = Boolean(getDeviceToken());
+    if (banner instanceof HTMLElement && hasDeviceToken) {
+      banner.hidden = true;
+    }
     if (pairButton instanceof HTMLButtonElement) {
       pairButton.hidden = !window.__logicsLanRwEnabled || hasDeviceToken;
     }
@@ -878,7 +882,11 @@
   function applyLanBanner(active, shareUrl, rwMode = false) {
     const banner = document.getElementById("viewer-lan-banner");
     if (!(banner instanceof HTMLElement)) return;
-    banner.hidden = !active;
+    // Once a device is paired the banner has nothing left to ask the user
+    // for — share URL was needed only to bootstrap, pairing is done, and
+    // mutations are unlocked. Hide it to give the actual viewport back.
+    const paired = Boolean(getDeviceToken());
+    banner.hidden = !active || paired;
     latestLanShareUrl = active ? String(shareUrl || "") : "";
     window.__logicsLanRwEnabled = Boolean(active && rwMode);
     const urlNode = document.getElementById("viewer-lan-banner-url");

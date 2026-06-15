@@ -1179,6 +1179,32 @@
   background: var(--vscode-list-errorBackground, rgb(244 135 113 / 25%));
 }
 
+.viewer-workshop__terminal-row-close.is-closing {
+  opacity: 0.85;
+  pointer-events: none;
+  cursor: progress;
+}
+
+.viewer-workshop__terminal-row.is-closing {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: progress;
+}
+
+.viewer-workshop__spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: viewer-workshop-spin 0.7s linear infinite;
+}
+
+@keyframes viewer-workshop-spin {
+  to { transform: rotate(360deg); }
+}
+
 .viewer-workshop__terminal-stage {
   padding: 6px;
   min-width: 0;

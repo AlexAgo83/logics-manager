@@ -2776,10 +2776,17 @@
     const rows = entries.map((entry) => {
       const isActive = entry.id === workshopTerminalState.activeId;
       const stateBadge = entry.state ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(entry.state)}">${escapeHtml(entry.state)}</span>` : "";
-      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
+      const closing = Boolean(entry.closing);
+      const closeAttrs = closing
+        ? `aria-busy="true" aria-label="Closing session" title="Closing session..."`
+        : `data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Close session" aria-label="Close session"`;
+      const closeGlyph = closing
+        ? `<span class="viewer-workshop__spinner" aria-hidden="true"></span>`
+        : `×`;
+      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
         <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.id)}</span>
         ${stateBadge}
-        <span class="viewer-workshop__terminal-row-close" data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" title="Close session" role="button" tabindex="0">×</span>
+        <span class="viewer-workshop__terminal-row-close${closing ? " is-closing" : ""}" ${closeAttrs}>${closeGlyph}</span>
       </button>`;
     }).join("");
     node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}</div>`;
@@ -2972,6 +2979,12 @@
 
   async function stopWorkshopTerminal(sessionId) {
     if (!sessionId) return;
+    const pending = workshopTerminalState.sessions.get(sessionId);
+    if (pending?.closing) return;
+    if (pending) {
+      pending.closing = true;
+      renderWorkshopTerminalList();
+    }
     try {
       await fetch("/api/workshop-terminal-stop", {
         method: "POST",

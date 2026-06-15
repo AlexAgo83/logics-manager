@@ -476,7 +476,9 @@ def test_viewer_lan_share_url_renders_qr_or_textual_fallback() -> None:
     lines = _render_qr_lines("http://example/?t=abc")
     assert lines  # never empty when url is provided
     joined = "\n".join(lines)
-    assert "http://example" in joined or "█" in joined or "▀" in joined
+    # Either the textual fallback (no segno installed) or a segno render
+    # (block glyphs or ANSI inverse-video) is acceptable.
+    assert "http://example" in joined or "█" in joined or "▀" in joined or "\x1b[" in joined
 
 
 def test_workshop_commands_discovers_npm_project_and_poetry_scripts(tmp_path: Path) -> None:

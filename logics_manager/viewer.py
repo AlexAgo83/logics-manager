@@ -3160,11 +3160,28 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return True
         return False
 
-    def _lan_auth_passes(self, parsed: Any) -> bool:
+    def _is_public_get_route(self, route: str) -> bool:
+        """Static UI assets that must load before the JS can attach the bearer.
+
+        Browsers do not auto-attach Authorization headers to <script src>,
+        <link href>, or @font-face fetches, and we cannot put ?t= on every
+        asset URL the page references. We let these routes through
+        unauthenticated; they expose no repository data — every actual
+        payload lives under /api/* which stays gated.
+        """
+        if route in {"/", "/browser-host.js", "/viewer.css", "/vendor/mermaid.min.js"}:
+            return True
+        if route.startswith("/media/"):
+            return True
+        return False
+
+    def _lan_auth_passes(self, parsed: Any, *, method: str = "GET") -> bool:
         token = self.server.lan_token
         if not token:
             return True
         if self._client_is_loopback():
+            return True
+        if method == "GET" and self._is_public_get_route(parsed.path):
             return True
         header = self.headers.get("Authorization", "")
         if header.lower().startswith("bearer "):
@@ -3190,7 +3207,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
-        if not self._lan_auth_passes(parsed):
+        if not self._lan_auth_passes(parsed, method="GET"):
             self._send_lan_unauthorized()
             return
         route = parsed.path
@@ -3348,7 +3365,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
-        if not self._lan_auth_passes(parsed):
+        if not self._lan_auth_passes(parsed, method="POST"):
             self._send_lan_unauthorized()
             return
         if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:

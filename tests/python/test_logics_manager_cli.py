@@ -346,14 +346,16 @@ def test_viewer_open_file_launches_system_editor_for_repo_files(tmp_path: Path) 
     launched: list[list[str]] = []
 
     relative_payload = open_file_payload(repo_root, "logics.log", launcher=launched.append)
-    absolute_payload = open_file_payload(repo_root, str(nested_repo_file), launcher=launched.append)
+    nested_payload = open_file_payload(repo_root, "logs/cdx-run.log", launcher=launched.append)
 
     assert relative_payload["path"] == str(repo_file)
-    assert absolute_payload["path"] == str(nested_repo_file)
+    assert nested_payload["path"] == str(nested_repo_file)
     assert launched[0][-1] == str(repo_file)
     assert launched[1][-1] == str(nested_repo_file)
     with pytest.raises(ValueError):
         open_file_payload(repo_root, str(external_file), launcher=launched.append)
+    with pytest.raises(ValueError):
+        open_file_payload(repo_root, "../outside.log", launcher=launched.append)
     with pytest.raises(FileNotFoundError):
         open_file_payload(repo_root, "missing.log", launcher=launched.append)
 
@@ -370,16 +372,18 @@ def test_viewer_file_preview_reads_repo_files_with_truncation(tmp_path: Path) ->
     external_file.write_text("external log\n", encoding="utf-8")
 
     relative_payload = file_preview_payload(repo_root, "logics.log", max_bytes=3, max_chars=10)
-    absolute_payload = file_preview_payload(repo_root, str(nested_repo_file))
+    nested_payload = file_preview_payload(repo_root, "logs/cdx-run.log")
 
     assert relative_payload["path"] == str(repo_file)
     assert relative_payload["name"] == "logics.log"
     assert relative_payload["content"] == "def"
     assert relative_payload["truncated"] is True
-    assert absolute_payload["path"] == str(nested_repo_file)
-    assert "nested log" in absolute_payload["content"]
+    assert nested_payload["path"] == str(nested_repo_file)
+    assert "nested log" in nested_payload["content"]
     with pytest.raises(ValueError):
         file_preview_payload(repo_root, str(external_file))
+    with pytest.raises(ValueError):
+        file_preview_payload(repo_root, "../outside.log")
     with pytest.raises(FileNotFoundError):
         file_preview_payload(repo_root, "missing.log")
 

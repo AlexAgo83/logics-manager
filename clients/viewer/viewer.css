@@ -1253,7 +1253,12 @@
   height: 100%;
 }
 
-@media (max-width: 700px) {
+/* Hidden by default — only the portrait-mobile media query reveals it. */
+.viewer-workshop__portrait-blocker {
+  display: none;
+}
+
+@media (max-width: 900px) {
   .viewer-workshop__panel--terminals-active {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
@@ -1363,6 +1368,46 @@
 @media (max-width: 360px) {
   .viewer-workshop__terminal-host .xterm {
     min-width: 288px;
+  }
+}
+
+/* Phone portrait: terminals are unusable, swap the panel for a rotate hint. */
+@media (orientation: portrait) and (max-width: 700px) {
+  .viewer-workshop__panel--terminals-active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .viewer-workshop__panel--terminals-active > .viewer-workshop__terminal-list,
+  .viewer-workshop__panel--terminals-active > .viewer-workshop__terminal-stage {
+    display: none;
+  }
+
+  .viewer-workshop__portrait-blocker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    max-width: 320px;
+    color: var(--vscode-foreground, #d4d4d4);
+  }
+
+  .viewer-workshop__portrait-blocker-icon {
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .viewer-workshop__portrait-blocker-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .viewer-workshop__portrait-blocker-body {
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground, #aaaaaa);
   }
 }
 

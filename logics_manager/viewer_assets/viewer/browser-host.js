@@ -1,6 +1,58 @@
 (() => {
   const stateKey = "logics.localViewer.state";
   const preferenceKey = "logics.localViewer.preferences.v1";
+  const lanTokenKey = "logics.lan.token";
+
+  function captureLanTokenFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const queryToken = url.searchParams.get("t");
+      if (queryToken) {
+        window.sessionStorage.setItem(lanTokenKey, queryToken);
+        url.searchParams.delete("t");
+        const cleaned = `${url.pathname}${url.search}${url.hash}`;
+        window.history.replaceState(null, "", cleaned || "/");
+      }
+    } catch {
+      // sessionStorage / history may be unavailable in some embed contexts.
+    }
+  }
+
+  function getLanToken() {
+    try {
+      return window.sessionStorage.getItem(lanTokenKey) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  captureLanTokenFromUrl();
+
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const token = getLanToken();
+    if (!token) return originalFetch(input, init);
+    const next = init ? { ...init } : {};
+    const headers = new Headers(next.headers || (input instanceof Request ? input.headers : undefined));
+    if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+    next.headers = headers;
+    return originalFetch(input, next);
+  };
+
+  if (typeof window.EventSource === "function") {
+    const NativeEventSource = window.EventSource;
+    window.EventSource = function PatchedEventSource(url, init) {
+      const token = getLanToken();
+      if (!token || typeof url !== "string") {
+        return new NativeEventSource(url, init);
+      }
+      const separator = url.includes("?") ? "&" : "?";
+      const tokenized = `${url}${separator}t=${encodeURIComponent(token)}`;
+      return new NativeEventSource(tokenized, init);
+    };
+    window.EventSource.prototype = NativeEventSource.prototype;
+  }
+
   const preferenceVersion = 1;
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
@@ -19,6 +71,7 @@
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const workspaceButton = () => document.getElementById("viewer-workspace");
+  const workshopButton = () => document.getElementById("viewer-workshop");
   const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
@@ -681,11 +734,64 @@
     setMeta(created > 0 ? `Logics bootstrapped · ${created} paths created.` : "Logics bootstrap checked.");
   }
 
+  let latestLanShareUrl = "";
+
+  async function copyTextToClipboard(text) {
+    if (!text) return false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch { /* fall through to legacy path */ }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      textarea.setSelectionRange(0, text.length);
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  function applyLanBanner(active, shareUrl) {
+    const banner = document.getElementById("viewer-lan-banner");
+    if (!(banner instanceof HTMLElement)) return;
+    banner.hidden = !active;
+    latestLanShareUrl = active ? String(shareUrl || "") : "";
+    const urlNode = document.getElementById("viewer-lan-banner-url");
+    const copyButton = document.getElementById("viewer-lan-banner-copy");
+    if (urlNode instanceof HTMLElement) {
+      if (latestLanShareUrl) {
+        urlNode.hidden = false;
+        urlNode.textContent = latestLanShareUrl;
+      } else {
+        urlNode.hidden = true;
+        urlNode.textContent = "";
+      }
+    }
+    if (copyButton instanceof HTMLButtonElement) {
+      copyButton.hidden = !latestLanShareUrl;
+    }
+  }
+
   function normalizeCapabilities(payload) {
     const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
     return {
       logics: capabilities.logics || { state: "ready", available: true, message: "" },
       workspace: capabilities.workspace || { state: "ready", available: true, message: "" },
+      workshop: capabilities.workshop || { state: "missing", available: false, message: "" },
       git: capabilities.git || { state: "ready", available: true, message: "" },
       ci: capabilities.ci || { state: "ready", available: true, message: "" },
       cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
@@ -732,6 +838,19 @@
       } else {
         setButtonUnavailable(workspace, capabilityMessage("workspace", "Explorer is not available for this project."));
       }
+    }
+
+    const workshop = workshopButton();
+    if (workshop instanceof HTMLElement) {
+      const workshopAvailable = isCapabilityAvailable("workshop");
+      workshop.hidden = !workshopAvailable;
+      if (workshopAvailable) {
+        setButtonAvailable(workshop, "Show Workshop (terminals and commands)");
+      } else {
+        setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
+      }
+      updateWorkshopBadges();
+      hydrateWorkshopTerminals();
     }
 
     const gitButton = document.getElementById("viewer-git");
@@ -841,6 +960,42 @@
       filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
     ].filter(Boolean).join("");
     return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
+  }
+
+  let workshopBadgeCounts = { terminals: 0, commands: 0 };
+
+  function updateWorkshopBadges() {
+    const button = document.getElementById("viewer-workshop");
+    if (!(button instanceof HTMLElement)) return;
+    button.querySelector('[data-viewer-workshop-badges]')?.remove();
+    const { terminals, commands } = workshopBadgeCounts;
+    if (terminals <= 0 && commands <= 0) return;
+    const html = [
+      terminals > 0
+        ? `<span class="viewer-git-badge viewer-git-badge--commits" title="${escapeHtml(terminals + " terminal session(s) running")}" aria-label="${escapeHtml(terminals + " terminal session(s) running")}">${escapeHtml(String(terminals))}</span>`
+        : "",
+      commands > 0
+        ? `<span class="viewer-git-badge viewer-git-badge--files" title="${escapeHtml(commands + " command(s) running")}" aria-label="${escapeHtml(commands + " command(s) running")}">${escapeHtml(String(commands))}</span>`
+        : "",
+    ].filter(Boolean).join("");
+    if (html) {
+      button.insertAdjacentHTML("beforeend", `<span class="viewer-git-badges" data-viewer-workshop-badges>${html}</span>`);
+    }
+  }
+
+  function recomputeWorkshopBadges() {
+    const isRunning = (state) => state === "running" || state === "starting";
+    let terminals = 0;
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (isRunning(entry.state)) terminals += 1;
+    }
+    let commands = 0;
+    for (const entry of workshopCommandState.sessions.values()) {
+      if (isRunning(entry.state)) commands += 1;
+    }
+    if (workshopBadgeCounts.terminals === terminals && workshopBadgeCounts.commands === commands) return;
+    workshopBadgeCounts = { terminals, commands };
+    updateWorkshopBadges();
   }
 
   function updateMainGitBadges() {
@@ -1346,6 +1501,7 @@
     }
     updateRepositoryIdentity(payload);
     latestCapabilities = normalizeCapabilities(payload);
+    applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""));
     updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems };
     const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
@@ -2177,14 +2333,42 @@
     return parts.join("/");
   }
 
+  function renderWorkspaceBreadcrumb(currentPath) {
+    const segments = String(currentPath || "").split("/").filter(Boolean);
+    const crumbs = [
+      `<button class="viewer-workspace__crumb" type="button" data-viewer-workspace-tree="" title="Workspace root">/</button>`,
+    ];
+    let accum = "";
+    segments.forEach((segment, idx) => {
+      accum = accum ? `${accum}/${segment}` : segment;
+      const isLast = idx === segments.length - 1;
+      crumbs.push(`<span class="viewer-workspace__crumb-sep" aria-hidden="true">/</span>`);
+      crumbs.push(
+        `<button class="viewer-workspace__crumb${isLast ? " is-current" : ""}" type="button" data-viewer-workspace-tree="${escapeHtml(accum)}" title="${escapeHtml(accum)}"${isLast ? ' aria-current="location"' : ""}>${escapeHtml(segment)}</button>`,
+      );
+    });
+    return `<nav class="viewer-workspace__breadcrumb" aria-label="Workspace breadcrumb">${crumbs.join("")}</nav>`;
+  }
+
+  function workspaceEntryIcon(kind, ignored) {
+    if (kind === "directory") {
+      return ignored
+        ? '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Zm9.5 3.2L9.7 9l1.8 1.8-.7.7L9 9.7l-1.8 1.8-.7-.7L8.3 9 6.5 7.2l.7-.7L9 8.3l1.8-1.8.7.7Z"/></svg>'
+        : '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Z"/></svg>';
+    }
+    return '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 2h6l3 3v9H4V2Zm6 0v3h3"/></svg>';
+  }
+
   function renderWorkspaceTree(treePayload, selectedPath = "") {
     if (!treePayload || treePayload.state !== "ok") {
-      return `<div class="viewer-workspace__empty">${escapeHtml(treePayload?.message || "Workspace tree is unavailable.")}</div>`;
+      const message = treePayload?.message || "Workspace tree is unavailable.";
+      const state = treePayload?.state === "unavailable" ? "unavailable" : "empty";
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--${state}"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">${state === "unavailable" ? "!" : "·"}</span><span>${escapeHtml(message)}</span></div>`;
     }
     const currentPath = String(treePayload.path || "");
     const parentPath = workspaceParentPath(currentPath);
     const upButton = currentPath
-      ? `<button class="viewer-workspace__item viewer-workspace__item--up" type="button" data-viewer-workspace-tree="${escapeHtml(parentPath)}">..</button>`
+      ? `<button class="viewer-workspace__item viewer-workspace__item--up" type="button" data-viewer-workspace-tree="${escapeHtml(parentPath)}" title="Parent directory"><span class="viewer-workspace__item-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path fill="currentColor" d="M8 3 3 8h3v5h4V8h3L8 3Z"/></svg></span><span class="viewer-workspace__item-name">..</span></button>`
       : "";
     const rows = (Array.isArray(treePayload.entries) ? treePayload.entries : []).map((entry) => {
       const path = String(entry.path || "");
@@ -2194,29 +2378,34 @@
       const actionAttr = kind === "directory" && !ignored
         ? `data-viewer-workspace-tree="${escapeHtml(path)}"`
         : `data-viewer-workspace-preview="${escapeHtml(path)}"`;
-      const icon = kind === "directory" ? (ignored ? "x" : ">") : "-";
+      const classes = [
+        "viewer-workspace__item",
+        `viewer-workspace__item--${kind === "directory" ? "directory" : "file"}`,
+      ];
+      if (selected) classes.push("is-selected");
+      if (ignored) classes.push("is-muted");
       return `
-        <button class="viewer-workspace__item${selected ? " is-selected" : ""}${ignored ? " is-muted" : ""}" type="button" ${actionAttr} title="${escapeHtml(path)}">
-          <span class="viewer-workspace__item-icon" aria-hidden="true">${escapeHtml(icon)}</span>
+        <button class="${classes.join(" ")}" type="button" ${actionAttr} title="${escapeHtml(path)}"${selected ? ' aria-current="true"' : ""}>
+          <span class="viewer-workspace__item-icon" aria-hidden="true">${workspaceEntryIcon(kind, ignored)}</span>
           <span class="viewer-workspace__item-name">${escapeHtml(entry.name || path || "/")}</span>
         </button>
       `;
     }).join("");
     return `
       <div class="viewer-workspace__tree-header">
-        <span>${escapeHtml(currentPath || "/")}</span>
+        ${renderWorkspaceBreadcrumb(currentPath)}
       </div>
-      <div class="viewer-workspace__tree-list">
+      <div class="viewer-workspace__tree-list" role="list">
         ${upButton}
-        ${rows || '<div class="viewer-workspace__empty">Directory is empty.</div>'}
+        ${rows || '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Directory is empty.</span></div>'}
       </div>
-      ${treePayload.truncated ? '<div class="viewer-workspace__empty">Directory listing truncated.</div>' : ""}
+      ${treePayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Directory listing truncated.</span></div>' : ""}
     `;
   }
 
   function renderWorkspacePreview(previewPayload) {
     if (!previewPayload) {
-      return '<div class="viewer-workspace__empty">Select a file or directory.</div>';
+      return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select a file or directory.</span></div>';
     }
     const path = previewPayload.path || "/";
     const name = previewPayload.name || path || "/";
@@ -2227,7 +2416,7 @@
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
           <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
         </div>
-        ${previewPayload.truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated.</div>' : ""}
+        ${previewPayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Preview truncated.</span></div>' : ""}
         <pre class="viewer-workspace__code">${escapeHtml(previewPayload.content || "")}</pre>
       `;
     }
@@ -2240,12 +2429,14 @@
         <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
       `;
     }
+    const placeholderState = state === "unavailable" ? "unavailable" : "empty";
+    const placeholderIcon = placeholderState === "unavailable" ? "!" : "·";
     return `
       <div class="viewer-workspace__preview-header">
         <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
         <em>${escapeHtml(state)}</em>
       </div>
-      <div class="viewer-workspace__empty">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
+      <div class="viewer-workspace__placeholder viewer-workspace__placeholder--${placeholderState}"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">${placeholderIcon}</span><span>${escapeHtml(previewPayload.message || "No preview is available.")}</span></div>
     `;
   }
 
@@ -2295,6 +2486,630 @@
     const preview = await fetchWorkspacePreview("");
     setDocument("Explorer", renderWorkspace(tree, preview));
     setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
+  }
+
+  const workshopTabs = [
+    { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
+    { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+  ];
+
+  function preferredWorkshopTab() {
+    const stored = String(viewerPreferences.workshopActiveTab || "");
+    return workshopTabs.some((tab) => tab.id === stored) ? stored : "terminals";
+  }
+
+  function setWorkshopActiveTab(tabId) {
+    const next = workshopTabs.some((tab) => tab.id === tabId) ? tabId : "terminals";
+    if (next === viewerPreferences.workshopActiveTab) return;
+    updateViewerPreferences({ workshopActiveTab: next });
+  }
+
+  function renderWorkshopTabs(activeTab) {
+    const buttons = workshopTabs.map((tab) => {
+      const isActive = tab.id === activeTab;
+      return `<button class="viewer-cdx__mode${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
+    }).join("");
+    return `<div class="viewer-cdx__modes" role="tablist" aria-label="Workshop sub-screens">${buttons}</div>`;
+  }
+
+  function renderWorkshopPanel(tabId) {
+    if (tabId === "commands") {
+      return `
+        <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="commands" data-viewer-workshop-commands>
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+            <span>Discovering commands...</span>
+          </div>
+        </div>
+      `;
+    }
+    const terminalsAvailable = Boolean(capability("workshop").detail?.terminalsAvailable);
+    if (!terminalsAvailable) {
+      return `
+        <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
+            <span>In-app terminals require a Unix host with stdlib pty support (macOS or Linux). Use the Commands tab to run discovered scripts in the meantime.</span>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="viewer-workshop__panel viewer-workshop__panel--terminals-active" role="tabpanel" data-viewer-workshop-panel="terminals">
+        <aside class="viewer-workshop__terminal-list" data-viewer-workshop-terminal-list aria-label="Terminal sessions"></aside>
+        <section class="viewer-workshop__terminal-stage" data-viewer-workshop-terminal-stage>
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty" data-viewer-workshop-terminal-empty>
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+            <span>No terminal session yet. Click "New terminal" to spawn one.</span>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  const workshopCommandState = {
+    catalog: null,
+    sessions: new Map(),
+    streams: new Map(),
+  };
+
+  function renderWorkshopCommandRow(entry) {
+    const session = workshopCommandState.sessions.get(entry.id) || null;
+    const state = session?.state || "idle";
+    const running = state === "running" || state === "starting";
+    const exitBadge = session && session.exitCode !== null && session.exitCode !== undefined
+      ? `<span class="viewer-workshop__exit viewer-workshop__exit--${session.exitCode === 0 ? "ok" : "fail"}">exit ${escapeHtml(String(session.exitCode))}</span>`
+      : "";
+    return `
+      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
+        <div class="viewer-workshop__command-header">
+          <div class="viewer-workshop__command-name">
+            <strong>${escapeHtml(entry.name)}</strong>
+            <span class="viewer-workshop__command-source">${escapeHtml(entry.source)}</span>
+          </div>
+          <div class="viewer-workshop__command-actions">
+            <span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}</span>
+            ${exitBadge}
+            ${running
+              ? `<button class="btn" type="button" data-viewer-workshop-command-stop="${escapeHtml(entry.id)}">Stop</button>`
+              : `<button class="btn" type="button" data-viewer-workshop-command-run="${escapeHtml(entry.id)}">Run</button>`}
+          </div>
+        </div>
+        <div class="viewer-workshop__command-meta"><code>${escapeHtml(entry.command)}</code></div>
+        <pre class="viewer-workshop__log" data-viewer-workshop-command-log="${escapeHtml(entry.id)}" aria-live="polite">${escapeHtml(session?.logText || "")}</pre>
+      </li>
+    `;
+  }
+
+  function renderWorkshopCommandList(catalog) {
+    if (!catalog || catalog.state === "unavailable") {
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>${escapeHtml(catalog?.message || "Commands are unavailable.")}</span></div>`;
+    }
+    const commands = Array.isArray(catalog.commands) ? catalog.commands : [];
+    if (commands.length === 0) {
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
+    }
+    const groups = new Map();
+    commands.forEach((entry) => {
+      const group = entry.group || "Commands";
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group).push(entry);
+    });
+    const sections = [...groups.entries()].map(([group, entries]) => `
+      <section class="viewer-workshop__group">
+        <h3 class="viewer-workshop__group-title">${escapeHtml(group)}</h3>
+        <ul class="viewer-workshop__commands">
+          ${entries.map(renderWorkshopCommandRow).join("")}
+        </ul>
+      </section>
+    `).join("");
+    return sections;
+  }
+
+  function renderWorkshopCommands() {
+    const container = document.querySelector("[data-viewer-workshop-commands]");
+    if (!(container instanceof HTMLElement)) return;
+    container.innerHTML = renderWorkshopCommandList(workshopCommandState.catalog);
+  }
+
+  async function loadWorkshopCommands() {
+    try {
+      const response = await fetch("/api/workshop-commands");
+      const data = await response.json();
+      workshopCommandState.catalog = data?.payload || null;
+    } catch (error) {
+      workshopCommandState.catalog = { state: "unavailable", commands: [], message: String(error?.message || error) };
+    }
+    renderWorkshopCommands();
+  }
+
+  function updateWorkshopCommandSession(commandId, patch) {
+    const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
+    workshopCommandState.sessions.set(commandId, { ...previous, ...patch });
+    renderWorkshopCommands();
+    recomputeWorkshopBadges();
+  }
+
+  function appendWorkshopCommandLog(commandId, line) {
+    const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
+    const next = previous.logText ? `${previous.logText}\n${line}` : line;
+    workshopCommandState.sessions.set(commandId, { ...previous, logText: next });
+    const node = document.querySelector(`[data-viewer-workshop-command-log="${commandId}"]`);
+    if (node instanceof HTMLElement) {
+      node.textContent = next;
+      node.scrollTop = node.scrollHeight;
+    }
+  }
+
+  function closeWorkshopCommandStream(commandId) {
+    const stream = workshopCommandState.streams.get(commandId);
+    if (stream) {
+      try { stream.close(); } catch { /* noop */ }
+      workshopCommandState.streams.delete(commandId);
+    }
+  }
+
+  async function startWorkshopCommand(commandId) {
+    try {
+      const response = await fetch("/api/workshop-command-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commandId }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to start command.");
+      }
+      const session = data.payload;
+      updateWorkshopCommandSession(commandId, {
+        sessionId: session.id,
+        state: session.state,
+        exitCode: session.exitCode,
+        logText: "",
+      });
+      openWorkshopCommandStream(commandId, session.id);
+    } catch (error) {
+      updateWorkshopCommandSession(commandId, { state: "error", logText: `! ${error?.message || error}` });
+    }
+  }
+
+  function openWorkshopCommandStream(commandId, sessionId) {
+    closeWorkshopCommandStream(commandId);
+    const source = new EventSource(`/api/workshop-session/${encodeURIComponent(sessionId)}/stream`);
+    workshopCommandState.streams.set(commandId, source);
+    source.addEventListener("line", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        appendWorkshopCommandLog(commandId, String(payload.line || ""));
+      } catch { /* noop */ }
+    });
+    source.addEventListener("end", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        updateWorkshopCommandSession(commandId, {
+          state: payload.state,
+          exitCode: payload.exitCode,
+        });
+      } catch { /* noop */ }
+      closeWorkshopCommandStream(commandId);
+    });
+    source.addEventListener("error", () => {
+      closeWorkshopCommandStream(commandId);
+    });
+  }
+
+  async function stopWorkshopCommand(commandId) {
+    const session = workshopCommandState.sessions.get(commandId);
+    if (!session?.sessionId) return;
+    try {
+      await fetch("/api/workshop-command-stop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: session.sessionId }),
+      });
+    } catch { /* noop */ }
+  }
+
+  const workshopTerminalState = {
+    sessions: new Map(),
+    activeId: "",
+    streams: new Map(),
+    hydrated: false,
+  };
+
+  async function hydrateWorkshopTerminals() {
+    if (workshopTerminalState.hydrated) return;
+    if (!isCapabilityAvailable("workshop")) return;
+    if (!capability("workshop").detail?.terminalsAvailable) return;
+    workshopTerminalState.hydrated = true;
+    try {
+      const response = await fetch("/api/workshop-terminals");
+      const data = await response.json();
+      const sessions = Array.isArray(data?.payload?.sessions) ? data.payload.sessions : [];
+      for (const remote of sessions) {
+        const id = String(remote?.id || "");
+        if (!id) continue;
+        if (workshopTerminalState.sessions.has(id)) continue;
+        const state = String(remote?.state || "");
+        // Only restore live sessions; the server reaps stopped/failed ones via TTL.
+        if (state !== "running" && state !== "starting") continue;
+        workshopTerminalState.sessions.set(id, {
+          id,
+          label: String(remote?.label || "shell"),
+          state,
+          bufferedOutput: "",
+        });
+      }
+      if (!workshopTerminalState.activeId) {
+        const next = workshopTerminalState.sessions.keys().next();
+        workshopTerminalState.activeId = next.done ? "" : next.value;
+      }
+      recomputeWorkshopBadges();
+    } catch {
+      workshopTerminalState.hydrated = false;
+    }
+  }
+
+  function workshopTerminalListNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-list]");
+  }
+
+  function workshopTerminalStageNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-stage]");
+  }
+
+  function renderWorkshopTerminalList() {
+    const node = workshopTerminalListNode();
+    if (!(node instanceof HTMLElement)) return;
+    const entries = [...workshopTerminalState.sessions.values()];
+    const header = `<div class="viewer-workshop__terminal-list-header">
+      <span>Terminals</span>
+      <span class="viewer-workshop__terminal-actions">
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new title="Spawn a shell session">+ Shell</button>
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-custom title="Spawn a session with a custom command">+ Custom</button>
+      </span>
+    </div>`;
+    if (entries.length === 0) {
+      node.innerHTML = `${header}<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>No sessions yet.</span></div>`;
+      return;
+    }
+    const rows = entries.map((entry) => {
+      const isActive = entry.id === workshopTerminalState.activeId;
+      const stateBadge = entry.state ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(entry.state)}">${escapeHtml(entry.state)}</span>` : "";
+      const closing = Boolean(entry.closing);
+      const closeAttrs = closing
+        ? `aria-busy="true" aria-label="Closing session" title="Closing session..."`
+        : `data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Close session" aria-label="Close session"`;
+      const closeGlyph = closing
+        ? `<span class="viewer-workshop__spinner" aria-hidden="true"></span>`
+        : `×`;
+      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
+        <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.id)}</span>
+        ${stateBadge}
+        <span class="viewer-workshop__terminal-row-close${closing ? " is-closing" : ""}" ${closeAttrs}>${closeGlyph}</span>
+      </button>`;
+    }).join("");
+    node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}</div>`;
+  }
+
+  function ensureWorkshopTerminalStage() {
+    const stage = workshopTerminalStageNode();
+    if (!(stage instanceof HTMLElement)) return null;
+    const active = workshopTerminalState.activeId
+      ? workshopTerminalState.sessions.get(workshopTerminalState.activeId)
+      : null;
+    // Clean up placeholder and host elements for sessions that no longer exist.
+    const placeholder = stage.querySelector("[data-viewer-workshop-terminal-empty]");
+    if (placeholder) placeholder.remove();
+    stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const id = node.getAttribute("data-viewer-workshop-terminal-host") || "";
+      if (!workshopTerminalState.sessions.has(id)) {
+        node.remove();
+      }
+    });
+    if (!active) {
+      if (!stage.querySelector("[data-viewer-workshop-terminal-empty]")) {
+        const empty = document.createElement("div");
+        empty.className = "viewer-workspace__placeholder viewer-workspace__placeholder--empty";
+        empty.setAttribute("data-viewer-workshop-terminal-empty", "");
+        empty.innerHTML = '<span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select or create a terminal session to start.</span>';
+        stage.appendChild(empty);
+      }
+      // Hide every existing host while no session is active.
+      stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+        if (node instanceof HTMLElement) node.style.display = "none";
+      });
+      return null;
+    }
+    // Toggle visibility: only the active host shows, every other host stays
+    // mounted in the DOM so its xterm.js instance and scrollback survive.
+    let host = stage.querySelector(`[data-viewer-workshop-terminal-host="${active.id}"]`);
+    stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const id = node.getAttribute("data-viewer-workshop-terminal-host") || "";
+      node.style.display = id === active.id ? "" : "none";
+    });
+    if (!(host instanceof HTMLElement)) {
+      host = document.createElement("div");
+      host.className = "viewer-workshop__terminal-host";
+      host.setAttribute("data-viewer-workshop-terminal-host", active.id);
+      stage.appendChild(host);
+    }
+    return host instanceof HTMLElement ? host : null;
+  }
+
+  function ensureWorkshopTerminalHostFor(sessionId) {
+    const stage = workshopTerminalStageNode();
+    if (!(stage instanceof HTMLElement)) return null;
+    const placeholder = stage.querySelector("[data-viewer-workshop-terminal-empty]");
+    if (placeholder) placeholder.remove();
+    let host = stage.querySelector(`[data-viewer-workshop-terminal-host="${sessionId}"]`);
+    if (!(host instanceof HTMLElement)) {
+      host = document.createElement("div");
+      host.className = "viewer-workshop__terminal-host";
+      host.setAttribute("data-viewer-workshop-terminal-host", sessionId);
+      stage.appendChild(host);
+    }
+    return host;
+  }
+
+  function mountWorkshopTerminalEmulator(entry) {
+    if (typeof window.Terminal !== "function") return;
+    if (entry.terminal) return;
+    const host = ensureWorkshopTerminalHostFor(entry.id);
+    if (!host) return;
+    const term = new window.Terminal({
+      fontSize: 12,
+      fontFamily: 'var(--vscode-editor-font-family, "Menlo", "Consolas", monospace)',
+      theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
+      cursorBlink: true,
+      scrollback: 5000,
+      convertEol: true,
+    });
+    const fitAddon = typeof window.FitAddon === "function"
+      ? new window.FitAddon()
+      : (window.FitAddon && typeof window.FitAddon.FitAddon === "function" ? new window.FitAddon.FitAddon() : null);
+    const linksAddon = window.WebLinksAddon && typeof window.WebLinksAddon.WebLinksAddon === "function"
+      ? new window.WebLinksAddon.WebLinksAddon()
+      : null;
+    if (fitAddon) term.loadAddon(fitAddon);
+    if (linksAddon) term.loadAddon(linksAddon);
+    term.open(host);
+    if (fitAddon) {
+      try { fitAddon.fit(); } catch { /* noop */ }
+    }
+    term.onData((data) => {
+      writeWorkshopTerminalInput(entry.id, data);
+    });
+    term.onResize((size) => {
+      resizeWorkshopTerminal(entry.id, size.rows, size.cols);
+    });
+    entry.terminal = term;
+    entry.fitAddon = fitAddon;
+    if (fitAddon) {
+      try {
+        const dim = fitAddon.proposeDimensions();
+        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      } catch { /* noop */ }
+    }
+    openWorkshopTerminalStream(entry.id);
+    if (entry.bufferedOutput) {
+      term.write(entry.bufferedOutput);
+    }
+  }
+
+  function setActiveWorkshopTerminal(sessionId) {
+    workshopTerminalState.activeId = sessionId || "";
+    renderWorkshopTerminalList();
+    const entry = sessionId ? workshopTerminalState.sessions.get(sessionId) : null;
+    ensureWorkshopTerminalStage();
+    if (entry) {
+      mountWorkshopTerminalEmulator(entry);
+      try { entry.terminal?.focus(); } catch { /* noop */ }
+      try { entry.fitAddon?.fit(); } catch { /* noop */ }
+    }
+  }
+
+  async function spawnWorkshopTerminal(options = {}) {
+    try {
+      const body = {};
+      if (Array.isArray(options.command) && options.command.length) body.command = options.command;
+      if (options.label) body.label = String(options.label);
+      const response = await fetch("/api/workshop-terminal-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to start terminal.");
+      const session = data.payload;
+      workshopTerminalState.sessions.set(session.id, {
+        id: session.id,
+        label: session.label || "shell",
+        state: session.state,
+        bufferedOutput: "",
+      });
+      recomputeWorkshopBadges();
+      // Ensure the Workshop view is mounted before activating.
+      if (preferredWorkshopTab() !== "terminals") {
+        await showWorkshop({ tab: "terminals" });
+      } else {
+        await showWorkshop({ tab: "terminals" });
+      }
+      setActiveWorkshopTerminal(session.id);
+      return session.id;
+    } catch (error) {
+      setMeta(`Terminal: ${error?.message || error}`);
+      return "";
+    }
+  }
+
+  function spawnCustomWorkshopTerminal() {
+    const raw = window.prompt("Command to run (space-separated, e.g. 'node --version'):", "");
+    if (!raw) return;
+    const command = raw.trim().split(/\s+/).filter(Boolean);
+    if (!command.length) return;
+    const label = command.slice(0, 2).join(" ").slice(0, 32) || "custom";
+    spawnWorkshopTerminal({ command, label });
+  }
+
+  // Public API for CDX / handoff launchers and other callers that want to
+  // open a Workshop terminal pre-running a canonical command.
+  window.logicsViewer = window.logicsViewer || {};
+  window.logicsViewer.launchTerminal = (command, label) => spawnWorkshopTerminal({ command, label });
+
+  function writeWorkshopTerminalInput(sessionId, data) {
+    if (!sessionId || !data) return;
+    fetch("/api/workshop-terminal-input", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, data }),
+    }).catch(() => { /* noop */ });
+  }
+
+  function resizeWorkshopTerminal(sessionId, rows, cols) {
+    if (!sessionId || rows <= 0 || cols <= 0) return;
+    fetch("/api/workshop-terminal-resize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, rows, cols }),
+    }).catch(() => { /* noop */ });
+  }
+
+  async function stopWorkshopTerminal(sessionId) {
+    if (!sessionId) return;
+    const pending = workshopTerminalState.sessions.get(sessionId);
+    if (pending?.closing) return;
+    if (pending) {
+      pending.closing = true;
+      renderWorkshopTerminalList();
+    }
+    try {
+      await fetch("/api/workshop-terminal-stop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+    } catch { /* noop */ }
+    closeWorkshopTerminalStream(sessionId);
+    const entry = workshopTerminalState.sessions.get(sessionId);
+    if (entry?.terminal) {
+      try { entry.terminal.dispose(); } catch { /* noop */ }
+    }
+    workshopTerminalState.sessions.delete(sessionId);
+    if (workshopTerminalState.activeId === sessionId) {
+      const next = workshopTerminalState.sessions.keys().next();
+      setActiveWorkshopTerminal(next.done ? "" : next.value);
+    } else {
+      renderWorkshopTerminalList();
+    }
+    recomputeWorkshopBadges();
+  }
+
+  function closeWorkshopTerminalStream(sessionId) {
+    const stream = workshopTerminalState.streams.get(sessionId);
+    if (stream) {
+      try { stream.close(); } catch { /* noop */ }
+      workshopTerminalState.streams.delete(sessionId);
+    }
+  }
+
+  function openWorkshopTerminalStream(sessionId) {
+    closeWorkshopTerminalStream(sessionId);
+    const source = new EventSource(`/api/workshop-terminal/${encodeURIComponent(sessionId)}/stream`);
+    workshopTerminalState.streams.set(sessionId, source);
+    source.addEventListener("data", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        const chunk = String(payload.data || "");
+        const entry = workshopTerminalState.sessions.get(sessionId);
+        if (!entry) return;
+        if (entry.terminal) {
+          entry.terminal.write(chunk);
+        } else {
+          entry.bufferedOutput = (entry.bufferedOutput || "") + chunk;
+        }
+      } catch { /* noop */ }
+    });
+    source.addEventListener("end", (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        const entry = workshopTerminalState.sessions.get(sessionId);
+        if (entry) entry.state = payload.state;
+        renderWorkshopTerminalList();
+        recomputeWorkshopBadges();
+      } catch { /* noop */ }
+      closeWorkshopTerminalStream(sessionId);
+    });
+    source.addEventListener("error", () => {
+      closeWorkshopTerminalStream(sessionId);
+    });
+  }
+
+  function renderWorkshop(activeTab, options = {}) {
+    if (options.unavailable) {
+      return `
+        <div class="viewer-workshop">
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
+            <span>${escapeHtml(options.message || "Workshop is not available for this project.")}</span>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="viewer-workshop">
+        <div class="viewer-workshop__tabs" role="tablist" aria-label="Workshop sub-screens">
+          ${renderWorkshopTabs(activeTab)}
+        </div>
+        ${renderWorkshopPanel(activeTab)}
+      </div>
+    `;
+  }
+
+  async function showWorkshop(options = {}) {
+    if (!isCapabilityAvailable("workshop")) {
+      const message = capabilityMessage("workshop", "Workshop is not available for this project.");
+      setDocument("Workshop", renderWorkshop("terminals", { unavailable: true, message }));
+      setMeta(message);
+      return;
+    }
+    const activeTab = options.tab && workshopTabs.some((tab) => tab.id === options.tab)
+      ? options.tab
+      : preferredWorkshopTab();
+    setWorkshopActiveTab(activeTab);
+    setDocument("Workshop", renderWorkshop(activeTab));
+    setMeta(`Workshop / ${activeTab}`);
+    if (activeTab === "commands") {
+      await loadWorkshopCommands();
+    } else if (activeTab === "terminals") {
+      // The Workshop DOM was just re-rendered, so every prior xterm host /
+      // EventSource is gone. Drop them from the in-memory state too so the
+      // remount path recreates fresh ones and the SSE stream replays the
+      // session buffer.
+      for (const entry of workshopTerminalState.sessions.values()) {
+        if (entry.terminal) {
+          try { entry.terminal.dispose(); } catch { /* noop */ }
+        }
+        entry.terminal = null;
+        entry.fitAddon = null;
+        closeWorkshopTerminalStream(entry.id);
+      }
+      renderWorkshopTerminalList();
+      // Remount every session so switching between rows is instant and
+      // none of the terminals show a black/empty stage.
+      for (const entry of workshopTerminalState.sessions.values()) {
+        mountWorkshopTerminalEmulator(entry);
+        if (entry.id !== workshopTerminalState.activeId) {
+          const host = workshopTerminalStageNode()?.querySelector(`[data-viewer-workshop-terminal-host="${entry.id}"]`);
+          if (host instanceof HTMLElement) host.style.display = "none";
+        }
+      }
+      if (workshopTerminalState.activeId) {
+        setActiveWorkshopTerminal(workshopTerminalState.activeId);
+      }
+    }
   }
 
   async function openWorkspaceTree(path) {
@@ -4218,6 +5033,19 @@
       setRefreshMenuOpen(false);
       withPrimaryAction("health", "Checking health", showHealth);
     });
+    document.getElementById("viewer-lan-banner-copy")?.addEventListener("click", async () => {
+      const share = latestLanShareUrl;
+      if (!share) return;
+      const ok = await copyTextToClipboard(share);
+      if (ok) {
+        setMeta("LAN share URL copied to the clipboard.");
+      } else {
+        setMeta(`Copy failed — long-press to select: ${share}`);
+      }
+    });
+    document.getElementById("viewer-workshop")?.addEventListener("click", () => {
+      withPrimaryAction("workshop", "Opening Workshop", () => showWorkshop());
+    });
     document.getElementById("viewer-git")?.addEventListener("click", () => {
       withPrimaryAction("git", "Checking Git status", showGitStatus);
     });
@@ -4312,6 +5140,13 @@
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
+      const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
+      const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
+      const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
+      const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
+      const workshopTerminalCustomTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-custom]") : null;
+      const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
+      const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
@@ -4383,6 +5218,52 @@
           withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
         } else {
           withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
+        }
+        return;
+      }
+      if (workshopTabTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
+        withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+        return;
+      }
+      if (workshopTerminalCloseTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = workshopTerminalCloseTarget.getAttribute("data-viewer-workshop-terminal-close") || "";
+        if (id) stopWorkshopTerminal(id);
+        return;
+      }
+      if (workshopTerminalNewTarget instanceof HTMLElement) {
+        event.preventDefault();
+        spawnWorkshopTerminal();
+        return;
+      }
+      if (workshopTerminalCustomTarget instanceof HTMLElement) {
+        event.preventDefault();
+        spawnCustomWorkshopTerminal();
+        return;
+      }
+      if (workshopTerminalSelectTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const id = workshopTerminalSelectTarget.getAttribute("data-viewer-workshop-terminal-select") || "";
+        if (id) setActiveWorkshopTerminal(id);
+        return;
+      }
+      if (workshopRunTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const commandId = workshopRunTarget.getAttribute("data-viewer-workshop-command-run") || "";
+        if (commandId) {
+          updateWorkshopCommandSession(commandId, { state: "starting", logText: "" });
+          startWorkshopCommand(commandId);
+        }
+        return;
+      }
+      if (workshopStopTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const commandId = workshopStopTarget.getAttribute("data-viewer-workshop-command-stop") || "";
+        if (commandId) {
+          stopWorkshopCommand(commandId);
         }
         return;
       }

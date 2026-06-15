@@ -283,7 +283,9 @@
   z-index: 60;
   display: grid;
   gap: 12px;
-  min-width: 220px;
+  width: max-content;
+  min-width: 260px;
+  max-width: min(360px, calc(100vw - 24px));
   padding: 10px;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
@@ -834,7 +836,7 @@
   display: grid;
   grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
   gap: 12px;
-  min-height: min(62vh, 760px);
+  align-items: start;
 }
 
 .viewer-workspace__tree,
@@ -845,68 +847,175 @@
   background: var(--vscode-editorWidget-background, #202020);
 }
 
-.viewer-workspace__tree {
-  overflow: auto;
-}
-
 .viewer-workspace__preview {
   display: grid;
   align-content: start;
   gap: 10px;
   padding: 12px;
-  overflow: auto;
 }
 
 .viewer-workspace__tree-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-editorWidget-background, #202020);
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 11px;
-  font-weight: 700;
   overflow-wrap: anywhere;
+}
+
+.viewer-workspace__breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.viewer-workspace__crumb {
+  border: 0;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-workspace__crumb:hover {
+  color: var(--vscode-foreground, #d4d4d4);
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workspace__crumb:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 0;
+}
+
+.viewer-workspace__crumb.is-current {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+  cursor: default;
+}
+
+.viewer-workspace__crumb-sep {
+  color: var(--vscode-descriptionForeground, #888888);
+  font-size: 11px;
+  user-select: none;
 }
 
 .viewer-workspace__tree-list {
   display: grid;
   gap: 1px;
-  padding: 6px;
+  padding: 4px;
 }
 
 .viewer-workspace__item {
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 5px;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 6px;
   align-items: center;
   border: 0;
   border-radius: 4px;
-  padding: 5px 6px;
+  padding: 4px 6px;
   background: transparent;
   color: var(--vscode-foreground, #d4d4d4);
   font: inherit;
   font-size: 12px;
+  line-height: 1.4;
   text-align: left;
   cursor: pointer;
 }
 
-.viewer-workspace__item:hover,
+.viewer-workspace__item:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workspace__item:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: -1px;
+  background: var(--vscode-list-focusBackground, rgb(255 255 255 / 4%));
+}
+
 .viewer-workspace__item.is-selected {
-  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+  background: var(--vscode-list-activeSelectionBackground, #094771);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+.viewer-workspace__item.is-selected .viewer-workspace__item-icon {
+  color: inherit;
 }
 
 .viewer-workspace__item.is-muted {
-  color: var(--vscode-descriptionForeground, #aaaaaa);
+  color: var(--vscode-descriptionForeground, #888888);
   cursor: default;
 }
 
-.viewer-workspace__item-icon {
+.viewer-workspace__item--up {
   color: var(--vscode-descriptionForeground, #aaaaaa);
-  text-align: center;
+  font-style: italic;
+}
+
+.viewer-workspace__item-icon {
+  color: var(--vscode-symbolIcon-folderForeground, #c5c5c5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.viewer-workspace__item--file .viewer-workspace__item-icon {
+  color: var(--vscode-symbolIcon-fileForeground, #9cdcfe);
+}
+
+.viewer-workspace__item.is-muted .viewer-workspace__item-icon {
+  color: var(--vscode-descriptionForeground, #666666);
+}
+
+.viewer-workspace__item-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.viewer-workspace__placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  margin: 6px;
+}
+
+.viewer-workspace__placeholder--warn {
+  border-color: var(--vscode-editorWarning-foreground, #cca700);
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.viewer-workspace__placeholder--unavailable {
+  border-color: var(--vscode-editorError-foreground, #f48771);
+  color: var(--vscode-editorError-foreground, #f48771);
+}
+
+.viewer-workspace__placeholder-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
+  font-size: 11px;
 }
 
 .viewer-workspace__item-name {
@@ -943,8 +1052,6 @@
 }
 
 .viewer-workspace__code {
-  max-height: min(70vh, 760px);
-  overflow: auto;
   margin: 0;
   padding: 12px;
   border: 1px solid var(--vscode-panel-border, #333333);
@@ -955,6 +1062,345 @@
   line-height: 1.45;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.viewer-workshop {
+  display: grid;
+  gap: 10px;
+}
+
+.viewer-workshop__panel {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  padding: 8px;
+}
+
+.viewer-workshop__panel--terminals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.viewer-workshop__panel--terminals .viewer-workspace__placeholder {
+  margin: 0;
+  max-width: 480px;
+}
+
+.viewer-workshop__panel--terminals-active {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 8px;
+  padding: 0;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-workshop__terminal-list {
+  border-right: 1px solid var(--vscode-panel-border, #333333);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 360px;
+}
+
+.viewer-workshop__terminal-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  text-transform: uppercase;
+}
+
+.viewer-workshop__terminal-new {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.viewer-workshop__terminal-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.viewer-workshop__terminal-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viewer-workshop__terminal-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.viewer-workshop__terminal-row:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workshop__terminal-row.is-active {
+  background: var(--vscode-list-activeSelectionBackground, #094771);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+.viewer-workshop__terminal-row-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-workshop__terminal-row-close {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.viewer-workshop__terminal-row-close:hover {
+  background: var(--vscode-list-errorBackground, rgb(244 135 113 / 25%));
+}
+
+.viewer-workshop__terminal-row-close.is-closing {
+  opacity: 0.85;
+  pointer-events: none;
+  cursor: progress;
+}
+
+.viewer-workshop__terminal-row.is-closing {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: progress;
+}
+
+.viewer-workshop__spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: viewer-workshop-spin 0.7s linear infinite;
+}
+
+@keyframes viewer-workshop-spin {
+  to { transform: rotate(360deg); }
+}
+
+.viewer-workshop__terminal-stage {
+  padding: 6px;
+  min-width: 0;
+}
+
+.viewer-workshop__terminal-host {
+  width: 100%;
+  height: 480px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.viewer-workshop__terminal-host .xterm {
+  height: 100%;
+}
+
+.viewer-workshop__group {
+  margin-bottom: 12px;
+}
+
+.viewer-workshop__group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  margin: 0 0 4px;
+}
+
+.viewer-workshop__commands {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-workshop__command {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-textCodeBlock-background, #161616);
+  padding: 6px 8px;
+}
+
+.viewer-workshop__command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.viewer-workshop__command-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.viewer-workshop__command-name strong {
+  font-size: 12px;
+}
+
+.viewer-workshop__command-source {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground, #888888);
+}
+
+.viewer-workshop__command-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewer-workshop__command-meta {
+  margin: 4px 0;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  overflow-wrap: anywhere;
+}
+
+.viewer-workshop__command-meta code {
+  font-family: var(--vscode-editor-font-family, monospace);
+}
+
+.viewer-workshop__state {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-workshop__state--running,
+.viewer-workshop__state--starting {
+  background: var(--vscode-debugIcon-startForeground, #387a14);
+  color: #ffffff;
+}
+
+.viewer-workshop__state--failed,
+.viewer-workshop__state--error {
+  background: var(--vscode-editorError-foreground, #f48771);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__state--finished {
+  background: var(--vscode-charts-green, #4caf50);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__state--stopped {
+  background: var(--vscode-charts-orange, #cca700);
+  color: #1e1e1e;
+}
+
+.viewer-workshop__exit {
+  font-size: 10px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
+.viewer-workshop__exit--fail {
+  color: var(--vscode-editorError-foreground, #f48771);
+}
+
+.viewer-workshop__log {
+  margin: 6px 0 0;
+  padding: 6px 8px;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 1.4;
+  background: var(--vscode-terminal-background, #0a0a0a);
+  color: var(--vscode-terminal-foreground, #d4d4d4);
+  border-radius: 3px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.viewer-workshop__log:empty {
+  display: none;
+}
+
+.viewer-lan-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--vscode-statusBarItem-warningBackground, #b08600);
+  color: var(--vscode-statusBarItem-warningForeground, #1e1e1e);
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(0 0 0 / 30%);
+}
+
+.viewer-lan-banner[hidden] {
+  display: none !important;
+}
+
+.viewer-lan-banner__icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 30%);
+  color: #ffd33d;
+  font-weight: 700;
+}
+
+.viewer-lan-banner__copy {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.viewer-lan-banner__copy-short {
+  display: none;
+}
+
+.viewer-lan-banner__url {
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-weight: 500;
+  font-size: 11px;
+  background: rgb(0 0 0 / 25%);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+
+.viewer-lan-banner__copy-button {
+  margin-left: auto;
 }
 
 .viewer-workspace__image {
@@ -2200,9 +2646,10 @@
   }
 
   .viewer-refresh-menu__panel {
-    left: 0;
-    right: auto;
-    min-width: min(260px, 100%);
+    right: 0;
+    left: auto;
+    min-width: 260px;
+    max-width: calc(100vw - 16px);
   }
 
   .viewer-document {
@@ -2230,5 +2677,175 @@
 
   .viewer-health__summary {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Responsive viewer conventions (req_246 / task_221).
+ *
+ *   Desktop:       default rules above.
+ *   Tablet (=600): collapse multi-column grids and soften min-width floors so
+ *                  any iPad-portrait or split-screen layout still works.
+ *   Phone  (=420): shrink chrome (topbar, toolbar, banner, filter panel) and
+ *                  let monospace blocks (diffs, code preview) wrap without
+ *                  triggering a viewport-level horizontal scroll.
+ *
+ * Items 2-4 add their rules in clearly-labelled @media blocks below; new
+ * responsive tweaks should land in the matching block instead of creating
+ * one-off breakpoints (the historical 560/700/860/980 queries above stay so
+ * existing layouts do not regress).
+ * --------------------------------------------------------------------------- */
+
+/* req_246 item_426 — Git screen fixes at small breakpoints. */
+@media (max-width: 600px) {
+  .viewer-git__workspace,
+  .viewer-git__workspace.has-diff-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* req_246 item_428 — Phone (=420px) chrome adjustments. Compress the
+ * topbar (wrap actions to a second row, shrink padding), let the filter
+ * panel stack, give the floating document inset more screen, tighten the
+ * update + LAN banners, and shrink the buttons enough to fit a 360px
+ * viewport without breaking primary affordances.
+ */
+@media (max-width: 420px) {
+  .viewer-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .viewer-topbar__actions {
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .viewer-topbar__actions button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .viewer-topbar__identity {
+    flex-wrap: wrap;
+  }
+
+  .viewer-topbar__meta {
+    width: 100%;
+    font-size: 11px;
+  }
+
+  .viewer-filter-panel {
+    gap: 8px;
+  }
+
+  .viewer-document {
+    inset: 56px 6px 6px;
+    border-radius: 6px;
+  }
+
+  .viewer-update {
+    flex-wrap: wrap;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+/* LAN banner: compact form on every non-desktop viewport. The full message
+ * + URL chip + Copy button row needs at least a desktop-width line to read
+ * cleanly; below that we drop the URL chip (the Copy button covers it) and
+ * switch to a short message variant. */
+@media (max-width: 720px) {
+  .viewer-lan-banner {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .viewer-lan-banner__icon {
+    width: 14px;
+    height: 14px;
+    font-size: 10px;
+  }
+
+  .viewer-lan-banner__copy {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .viewer-lan-banner__url {
+    display: none !important;
+  }
+
+  .viewer-lan-banner__copy-long {
+    display: none;
+  }
+
+  .viewer-lan-banner__copy-short {
+    display: inline;
+  }
+
+  .viewer-lan-banner__copy-button {
+    margin-left: auto;
+    padding: 2px 8px;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+}
+
+/* req_246 item_427 — Tablet (=600px) grid collapses for board, CDX, CI,
+ * Workspace, and insights screens. Also soften the hard min-width floors so
+ * an iPad-portrait or split-screen layout no longer triggers a horizontal
+ * scroll on the body.
+ */
+@media (max-width: 600px) {
+  .viewer-filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-cdx__workspace,
+  .viewer-cdx__workspace--missions,
+  .viewer-ci__workspace,
+  .viewer-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-git__summary,
+  .viewer-cdx__summary,
+  .viewer-ci__summary,
+  .viewer-insights__summary,
+  .viewer-health__summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .viewer-git__files li {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .viewer-git-badges,
+  .viewer-git-badge {
+    flex-wrap: wrap;
+  }
+
+  .viewer-git__diff pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+  }
+
+  .viewer-git__diff-meta {
+    flex-wrap: wrap;
+    gap: 4px;
   }
 }

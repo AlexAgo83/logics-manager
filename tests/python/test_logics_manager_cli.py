@@ -100,6 +100,7 @@ def test_main_prints_version_with_short_alias(capsys: pytest.CaptureFixture[str]
 def test_python_viewer_assets_include_workshop_terminal_vendor_files() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     package_asset_root = repo_root / "logics_manager" / "viewer_assets" / "media" / "vendor" / "xterm"
+    package_viewer_root = repo_root / "logics_manager" / "viewer_assets" / "viewer"
     expected_files = {
         "xterm.css",
         "xterm.js",
@@ -112,6 +113,14 @@ def test_python_viewer_assets_include_workshop_terminal_vendor_files() -> None:
     pyproject = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
     package_data = pyproject["tool"]["setuptools"]["package-data"]["logics_manager"]
     assert "viewer_assets/media/vendor/xterm/*" in package_data
+
+    package_index = (package_viewer_root / "index.html").read_text(encoding="utf-8")
+    assert 'id="viewer-workshop"' in package_index
+    assert 'id="viewer-lan-banner"' in package_index
+    assert "/media/vendor/xterm/xterm.css" in package_index
+    assert "/media/vendor/xterm/xterm.js" in package_index
+    assert "/media/vendor/xterm/xterm-addon-fit.js" in package_index
+    assert "/media/vendor/xterm/xterm-addon-web-links.js" in package_index
 
 
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:

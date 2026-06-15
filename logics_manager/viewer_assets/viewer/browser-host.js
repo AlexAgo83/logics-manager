@@ -2982,13 +2982,36 @@
   window.logicsViewer = window.logicsViewer || {};
   window.logicsViewer.launchTerminal = (command, label) => spawnWorkshopTerminal({ command, label });
 
+  const workshopTerminalInputBuffers = new Map();
+  const workshopTerminalInputInFlight = new Set();
+
   function writeWorkshopTerminalInput(sessionId, data) {
     if (!sessionId || !data) return;
+    workshopTerminalInputBuffers.set(
+      sessionId,
+      (workshopTerminalInputBuffers.get(sessionId) || "") + data,
+    );
+    flushWorkshopTerminalInput(sessionId);
+  }
+
+  function flushWorkshopTerminalInput(sessionId) {
+    if (workshopTerminalInputInFlight.has(sessionId)) return;
+    const buffered = workshopTerminalInputBuffers.get(sessionId);
+    if (!buffered) return;
+    workshopTerminalInputBuffers.set(sessionId, "");
+    workshopTerminalInputInFlight.add(sessionId);
     fetch("/api/workshop-terminal-input", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, data }),
-    }).catch(() => { /* noop */ });
+      body: JSON.stringify({ sessionId, data: buffered }),
+    })
+      .catch(() => { /* noop */ })
+      .finally(() => {
+        workshopTerminalInputInFlight.delete(sessionId);
+        if (workshopTerminalInputBuffers.get(sessionId)) {
+          flushWorkshopTerminalInput(sessionId);
+        }
+      });
   }
 
   function resizeWorkshopTerminal(sessionId, rows, cols) {

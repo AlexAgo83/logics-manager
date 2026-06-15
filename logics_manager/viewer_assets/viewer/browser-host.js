@@ -3001,7 +3001,7 @@
     const host = ensureWorkshopTerminalHostFor(entry.id);
     if (!host) return;
     const term = new window.Terminal({
-      fontSize: 12,
+      fontSize: workshopTerminalPreferredFontSize(),
       fontFamily: 'var(--vscode-editor-font-family, "Menlo", "Consolas", monospace)',
       theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
       cursorBlink: true,
@@ -3075,10 +3075,24 @@
     }
   }
 
+  function workshopTerminalPreferredFontSize() {
+    // Smaller cells on narrow viewports keep enough columns visible to make
+    // TUIs (btop, lazygit, cdx) usable on a phone without horizontal scroll
+    // taking over.
+    const width = window.innerWidth || document.documentElement?.clientWidth || 0;
+    if (width <= 480) return 9;
+    if (width <= 700) return 10;
+    return 12;
+  }
+
   function refitAllWorkshopTerminals() {
+    const fontSize = workshopTerminalPreferredFontSize();
     for (const entry of workshopTerminalState.sessions.values()) {
       if (!entry.fitAddon || !entry.terminal) continue;
       try {
+        if (entry.terminal.options && entry.terminal.options.fontSize !== fontSize) {
+          entry.terminal.options.fontSize = fontSize;
+        }
         entry.fitAddon.fit();
         const dim = entry.fitAddon.proposeDimensions();
         if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);

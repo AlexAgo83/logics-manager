@@ -1332,7 +1332,13 @@
   }
 
   .viewer-workshop__terminal-host .xterm {
-    min-width: 640px;
+    min-width: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .viewer-workshop__terminal-host .xterm {
+    min-width: 430px;
   }
 }
 

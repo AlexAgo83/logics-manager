@@ -17,7 +17,10 @@
 <body class="viewer-shell">
   <div class="viewer-lan-banner" id="viewer-lan-banner" role="region" aria-label="LAN exposure notice" hidden>
     <span class="viewer-lan-banner__icon" aria-hidden="true">!</span>
-    <span class="viewer-lan-banner__copy">LAN exposure is active — the viewer is reachable on this network in read-only mode. Bearer token required for non-loopback clients.</span>
+    <span class="viewer-lan-banner__copy">
+      <span class="viewer-lan-banner__copy-long">LAN exposure is active — the viewer is reachable on this network in read-only mode. Bearer token required for non-loopback clients.</span>
+      <span class="viewer-lan-banner__copy-short">LAN read-only · token required</span>
+    </span>
     <span class="viewer-lan-banner__url" id="viewer-lan-banner-url" hidden></span>
     <button class="btn viewer-lan-banner__copy-button" id="viewer-lan-banner-copy" type="button" title="Copy share URL with token to clipboard" hidden>Copy URL</button>
   </div>

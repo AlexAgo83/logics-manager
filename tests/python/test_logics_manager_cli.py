@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import tomllib
 from http.client import HTTPConnection
 from pathlib import Path
 
@@ -94,6 +95,23 @@ def test_main_prints_version_with_short_alias(capsys: pytest.CaptureFixture[str]
     assert exit_code == 0
     version = (Path(__file__).resolve().parents[2] / "VERSION").read_text(encoding="utf-8").strip()
     assert f"logics-manager {version}" in captured.out
+
+
+def test_python_viewer_assets_include_workshop_terminal_vendor_files() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    package_asset_root = repo_root / "logics_manager" / "viewer_assets" / "media" / "vendor" / "xterm"
+    expected_files = {
+        "xterm.css",
+        "xterm.js",
+        "xterm-addon-fit.js",
+        "xterm-addon-web-links.js",
+    }
+
+    assert expected_files <= {path.name for path in package_asset_root.iterdir()}
+
+    pyproject = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
+    package_data = pyproject["tool"]["setuptools"]["package-data"]["logics_manager"]
+    assert "viewer_assets/media/vendor/xterm/*" in package_data
 
 
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:

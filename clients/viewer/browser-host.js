@@ -850,6 +850,7 @@
         setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
       }
       updateWorkshopBadges();
+      hydrateWorkshopTerminals();
     }
 
     const gitButton = document.getElementById("viewer-git");
@@ -2713,7 +2714,41 @@
     sessions: new Map(),
     activeId: "",
     streams: new Map(),
+    hydrated: false,
   };
+
+  async function hydrateWorkshopTerminals() {
+    if (workshopTerminalState.hydrated) return;
+    if (!isCapabilityAvailable("workshop")) return;
+    if (!capability("workshop").detail?.terminalsAvailable) return;
+    workshopTerminalState.hydrated = true;
+    try {
+      const response = await fetch("/api/workshop-terminals");
+      const data = await response.json();
+      const sessions = Array.isArray(data?.payload?.sessions) ? data.payload.sessions : [];
+      for (const remote of sessions) {
+        const id = String(remote?.id || "");
+        if (!id) continue;
+        if (workshopTerminalState.sessions.has(id)) continue;
+        const state = String(remote?.state || "");
+        // Only restore live sessions; the server reaps stopped/failed ones via TTL.
+        if (state !== "running" && state !== "starting") continue;
+        workshopTerminalState.sessions.set(id, {
+          id,
+          label: String(remote?.label || "shell"),
+          state,
+          bufferedOutput: "",
+        });
+      }
+      if (!workshopTerminalState.activeId) {
+        const next = workshopTerminalState.sessions.keys().next();
+        workshopTerminalState.activeId = next.done ? "" : next.value;
+      }
+      recomputeWorkshopBadges();
+    } catch {
+      workshopTerminalState.hydrated = false;
+    }
+  }
 
   function workshopTerminalListNode() {
     return document.querySelector("[data-viewer-workshop-terminal-list]");

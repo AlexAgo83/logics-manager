@@ -2671,6 +2671,11 @@
     }
     return `
       <div class="viewer-workshop__panel viewer-workshop__panel--terminals-active" role="tabpanel" data-viewer-workshop-panel="terminals">
+        <div class="viewer-workshop__portrait-blocker" data-viewer-workshop-portrait-blocker aria-hidden="true">
+          <span class="viewer-workshop__portrait-blocker-icon" aria-hidden="true">↻</span>
+          <span class="viewer-workshop__portrait-blocker-title">Rotate your device</span>
+          <span class="viewer-workshop__portrait-blocker-body">Workshop terminals need a wider viewport. Switch to landscape (or resize the window) to use them.</span>
+        </div>
         <aside class="viewer-workshop__terminal-list" data-viewer-workshop-terminal-list aria-label="Terminal sessions"></aside>
         <section class="viewer-workshop__terminal-stage" data-viewer-workshop-terminal-stage>
           <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty" data-viewer-workshop-terminal-empty>

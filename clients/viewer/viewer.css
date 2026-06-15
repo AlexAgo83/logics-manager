@@ -524,6 +524,22 @@
   display: none !important;
 }
 
+/* Mobile + landscape phone: the document overlay should consume the whole
+ * visible viewport. The header keeps the Close button so navigation back
+ * to the topbar is one tap away. */
+@media (max-width: 900px) {
+  .viewer-document {
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+
 .viewer-document__header {
   display: flex;
   align-items: flex-start;
@@ -1076,7 +1092,10 @@
 
 .viewer-workshop {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 10px;
+  height: 100%;
+  min-height: 0;
 }
 
 .viewer-workshop__panel {
@@ -1104,9 +1123,8 @@
   gap: 8px;
   padding: 0;
   background: var(--vscode-editorWidget-background, #202020);
-  height: calc(100vh - 200px);
-  max-height: calc(100vh - 200px);
-  min-height: 420px;
+  height: 100%;
+  min-height: 320px;
 }
 
 .viewer-workshop__terminal-list {
@@ -1262,9 +1280,8 @@
   .viewer-workshop__panel--terminals-active {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
-    height: calc(100dvh - 120px);
-    max-height: calc(100dvh - 120px);
-    min-height: 420px;
+    height: 100%;
+    min-height: 280px;
   }
 
   .viewer-workshop__terminal-list {
@@ -2497,7 +2514,14 @@
   }
 
   .viewer-document {
-    inset: 8px;
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
   .viewer-git__workspace {
@@ -2852,7 +2876,10 @@
   }
 
   .viewer-document {
-    inset: 10px;
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .viewer-insights__hero,
@@ -2942,8 +2969,10 @@
   }
 
   .viewer-document {
-    inset: 56px 6px 6px;
-    border-radius: 6px;
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .viewer-update {

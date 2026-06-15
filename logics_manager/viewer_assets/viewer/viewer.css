@@ -1104,9 +1104,9 @@
   gap: 8px;
   padding: 0;
   background: var(--vscode-editorWidget-background, #202020);
-  height: calc(100vh - 260px);
-  max-height: calc(100vh - 260px);
-  min-height: 280px;
+  height: calc(100vh - 200px);
+  max-height: calc(100vh - 200px);
+  min-height: 420px;
 }
 
 .viewer-workshop__terminal-list {
@@ -1262,9 +1262,9 @@
   .viewer-workshop__panel--terminals-active {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
-    height: calc(100dvh - 200px);
-    max-height: calc(100dvh - 200px);
-    min-height: 320px;
+    height: calc(100dvh - 120px);
+    max-height: calc(100dvh - 120px);
+    min-height: 420px;
   }
 
   .viewer-workshop__terminal-list {

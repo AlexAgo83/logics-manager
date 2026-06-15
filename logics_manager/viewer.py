@@ -692,8 +692,10 @@ def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
 def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = None) -> dict[str, str]:
     normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
     command = _system_editor_command(absolute)
-    runner = launcher or subprocess.Popen
-    runner(command)
+    if launcher is not None:
+        launcher(command)
+    else:
+        webbrowser.open(absolute.as_uri())
     return {
         "path": normalized,
         "command": command[0],
@@ -721,8 +723,10 @@ def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
 def open_file_payload(repo_root: Path, file_path: str, *, launcher: Any | None = None) -> dict[str, str]:
     absolute = _resolve_openable_file_path(repo_root, file_path)
     command = _system_editor_command(absolute)
-    runner = launcher or subprocess.Popen
-    runner(command)
+    if launcher is not None:
+        launcher(command)
+    else:
+        webbrowser.open(absolute.as_uri())
     return {
         "path": str(absolute),
         "command": command[0],
@@ -756,8 +760,10 @@ def file_preview_payload(
 def open_repo_folder_payload(repo_root: Path, *, launcher: Any | None = None) -> dict[str, str]:
     root = repo_root.resolve()
     command = _system_editor_command(root)
-    runner = launcher or subprocess.Popen
-    runner(command)
+    if launcher is not None:
+        launcher(command)
+    else:
+        webbrowser.open(root.as_uri())
     return {
         "path": str(root),
         "command": command[0],
@@ -772,10 +778,16 @@ def _system_editor_command(path: Path) -> list[str]:
     return ["xdg-open", str(path)]
 
 
-def _safe_http_content_type(content_type: str) -> str:
-    if "\r" in content_type or "\n" in content_type:
-        return "application/octet-stream"
-    return content_type
+STATIC_CONTENT_TYPES = {
+    ".css": "text/css; charset=utf-8",
+    ".html": "text/html; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".map": "application/json; charset=utf-8",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".wasm": "application/wasm",
+}
 
 
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
@@ -3071,7 +3083,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_bytes(self, content: bytes, *, status: int = 200, content_type: str = "application/octet-stream") -> None:
         self.send_response(status)
-        self.send_header("Content-Type", _safe_http_content_type(content_type))
+        self.send_header("Content-Type", content_type)
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         try:
@@ -3085,14 +3097,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def _send_error_json(self, status: HTTPStatus, message: str) -> None:
         self._send_json({"ok": False, "error": message}, status=status.value)
 
-    def _serve_file(self, path: Path) -> None:
-        if not path.is_file():
+    def _serve_file(self, path: Path, *, root: Path) -> None:
+        root_path = root.resolve()
+        absolute = path.resolve()
+        try:
+            absolute.relative_to(root_path)
+        except ValueError:
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
-        content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
-        if content_type.startswith("text/") or path.suffix in {".js", ".css", ".html"}:
-            content_type = f"{content_type}; charset=utf-8"
-        self._send_bytes(path.read_bytes(), content_type=content_type)
+        if not absolute.is_file():
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
+            return
+        content_type = STATIC_CONTENT_TYPES.get(absolute.suffix.lower(), "application/octet-stream")
+        self._send_bytes(absolute.read_bytes(), content_type=content_type)
 
     def _stream_workshop_terminal(self, session: "WorkshopTerminalSession", parsed: Any) -> None:
         import time as _time
@@ -3265,28 +3282,31 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         route = parsed.path
         if route == "/":
-            self._serve_file(VIEWER_ROOT / "index.html")
+            self._serve_file(VIEWER_ROOT / "index.html", root=VIEWER_ROOT)
             return
         if route == "/browser-host.js":
-            self._serve_file(VIEWER_ROOT / "browser-host.js")
+            self._serve_file(VIEWER_ROOT / "browser-host.js", root=VIEWER_ROOT)
             return
         if route == "/viewer.css":
-            self._serve_file(VIEWER_ROOT / "viewer.css")
+            self._serve_file(VIEWER_ROOT / "viewer.css", root=VIEWER_ROOT)
             return
         if route == "/vendor/mermaid.min.js":
             vendor_path = DIST_VENDOR_ROOT / "mermaid.min.js"
+            vendor_root = DIST_VENDOR_ROOT
             if not vendor_path.is_file():
                 vendor_path = NODE_MERMAID_ROOT / "mermaid.min.js"
+                vendor_root = NODE_MERMAID_ROOT
             if not vendor_path.is_file():
                 vendor_path = PACKAGE_VENDOR_ROOT / "mermaid.min.js"
-            self._serve_file(vendor_path)
+                vendor_root = PACKAGE_VENDOR_ROOT
+            self._serve_file(vendor_path, root=vendor_root)
             return
         if route.startswith("/media/"):
             media_path = (SHARED_MEDIA_ROOT / route.removeprefix("/media/")).resolve()
             if SHARED_MEDIA_ROOT.resolve() != media_path and SHARED_MEDIA_ROOT.resolve() not in media_path.parents:
                 self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
                 return
-            self._serve_file(media_path)
+            self._serve_file(media_path, root=SHARED_MEDIA_ROOT)
             return
         if route == "/api/items":
             self._send_json(
@@ -3410,7 +3430,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     self._send_error_json(HTTPStatus.BAD_REQUEST, "Workspace file is not an image preview.")
                     return
                 _normalized, absolute = _resolve_workspace_path(self.server.repo_root, rel_path)
-                self._serve_file(absolute)
+                self._serve_file(absolute, root=self.server.repo_root)
             except (FileNotFoundError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return

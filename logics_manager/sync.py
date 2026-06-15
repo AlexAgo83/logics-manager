@@ -43,35 +43,25 @@ APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confiden
 MAX_MUTATION_TEXT_CHARS = 2000
 
 
-def _read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
+def _read_text(repo_root: Path, path: Path) -> str:
+    root = repo_root.resolve()
+    absolute = path.resolve()
+    try:
+        absolute.relative_to(root)
+    except ValueError as exc:
+        raise SystemExit(f"Unsupported workflow doc path `{path}`.") from exc
+    approved_dirs = {(root / kind["directory"]).resolve() for kind in DOC_KINDS.values()}
+    if absolute.parent not in approved_dirs:
+        raise SystemExit(f"Unsupported workflow doc path `{path}`.")
+    return absolute.read_text(encoding="utf-8")
 
 
-def _read_lines(path: Path) -> list[str]:
-    return _read_text(path).splitlines()
-
-
-def _resolved_repo_root(repo_root: Path) -> Path:
-    return repo_root.resolve()
+def _read_lines(repo_root: Path, path: Path) -> list[str]:
+    return _read_text(repo_root, path).splitlines()
 
 
 def _is_relative_path(path: Path) -> bool:
     return not path.is_absolute() and ".." not in path.parts
-
-
-def _approved_doc_target(repo_root: Path, candidate: Path) -> tuple[str, Path] | None:
-    absolute = candidate.resolve()
-    root = _resolved_repo_root(repo_root)
-    try:
-        absolute.relative_to(root)
-    except ValueError:
-        return None
-    if not absolute.is_file():
-        return None
-    for kind_name, kind in DOC_KINDS.items():
-        if absolute.parent == (root / kind["directory"]).resolve():
-            return kind_name, absolute
-    return None
 
 
 def _indicator_value(lines: list[str], key: str) -> str | None:
@@ -151,7 +141,7 @@ def _detect_workflow_kind(path: Path) -> str:
 
 
 def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> WorkflowDocModel:
-    text = _read_text(path)
+    text = _read_text(repo_root or path.parent.parent.parent, path)
     lines = text.splitlines()
     sections = _extract_sections(text)
     indicators = {key: value for key in ("From version", "Schema version", "Status", "Understanding", "Confidence", "Progress", "Complexity", "Theme", "Date", "Drivers", "Related request", "Related backlog", "Related task", "Reminder") if (value := _indicator_value(lines, key)) is not None}
@@ -345,14 +335,28 @@ def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str,
         raw_source = Path(source)
         if not _is_relative_path(raw_source):
             raise SystemExit(f"Unsupported workflow doc target `{source}`.")
-        target = _approved_doc_target(repo_root, repo_root / raw_source)
-        if target is not None:
-            resolved.append(target)
+        root = repo_root.resolve()
+        direct_candidate = (repo_root / raw_source).resolve()
+        try:
+            direct_candidate.relative_to(root)
+        except ValueError as exc:
+            raise SystemExit(f"Unsupported workflow doc target `{source}`.") from exc
+        matched_direct = False
+        for kind_name, kind in DOC_KINDS.items():
+            if direct_candidate.parent == (root / kind["directory"]).resolve() and direct_candidate.is_file():
+                resolved.append((kind_name, direct_candidate))
+                matched_direct = True
+                break
+        if matched_direct:
             continue
         for kind_name, kind in DOC_KINDS.items():
-            target = _approved_doc_target(repo_root, repo_root / kind["directory"] / f"{source}.md")
-            if target is not None and target[0] == kind_name:
-                resolved.append(target)
+            path = (repo_root / kind["directory"] / f"{source}.md").resolve()
+            try:
+                path.relative_to(root)
+            except ValueError as exc:
+                raise SystemExit(f"Unsupported workflow doc target `{source}`.") from exc
+            if path.parent == (root / kind["directory"]).resolve() and path.is_file():
+                resolved.append((kind_name, path))
                 break
         else:
             raise SystemExit(f"Could not resolve workflow doc target `{source}`.")
@@ -405,7 +409,7 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         for heading in requested_sections
         if heading in doc.sections
     }
-    text = _read_text(path)
+    text = _read_text(repo_root, path)
     return {
         "ref": doc.ref,
         "kind": doc.kind,
@@ -484,7 +488,7 @@ def search_logics_docs_payload(
         doc = docs_by_ref.get(ref)
         if doc is None:
             continue
-        text = _strip_mermaid_blocks(_read_text(repo_root / doc.path))
+        text = _strip_mermaid_blocks(_read_text(repo_root, repo_root / doc.path))
         lines = text.splitlines()
         for idx, line in enumerate(lines):
             if normalized_query in line.lower():
@@ -551,7 +555,7 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
     if len(targets) != 1:
         raise SystemExit(f"Expected one workflow doc target for `{source}`.")
     kind, path = targets[0]
-    lines = _read_lines(path)
+    lines = _read_lines(repo_root, path)
     changed = False
     for key in APPROVED_WORKFLOW_INDICATORS:
         if key not in cleaned:
@@ -593,7 +597,7 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
     section = _section_for_note(kind, note_kind)
     cleaned = _clean_mutation_text(text, field="text")
     bullet = f"- {cleaned}"
-    lines = _read_lines(path)
+    lines = _read_lines(repo_root, path)
     insert_at = None
     for idx, line in enumerate(lines):
         if line.startswith("# ") and line[2:].strip().lower() == section.lower():
@@ -651,13 +655,13 @@ def _collect_docs_linking_ref(repo_root: Path, kind: str, ref: str) -> list[Path
     directory = repo_root / DOC_KINDS[kind]["directory"]
     linked: list[Path] = []
     for path in sorted(directory.glob("*.md")):
-        if ref in _read_text(path):
+        if ref in _read_text(repo_root, path):
             linked.append(path)
     return linked
 
 
-def _is_doc_done(path: Path, kind: str) -> bool:
-    lines = _read_lines(path)
+def _is_doc_done(repo_root: Path, path: Path, kind: str) -> bool:
+    lines = _read_lines(repo_root, path)
     status_value = _indicator_value(lines, "Status")
     if status_value is not None and " ".join(status_value.split()).lower() in {"done", "archived"}:
         return True
@@ -668,10 +672,10 @@ def _is_doc_done(path: Path, kind: str) -> bool:
     return False
 
 
-def _close_doc(path: Path, kind: str, dry_run: bool) -> None:
+def _close_doc(repo_root: Path, path: Path, kind: str, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = _read_lines(path)
+    lines = _read_lines(repo_root, path)
     updated = []
     saw_status = False
     saw_progress = False
@@ -716,7 +720,7 @@ def _refresh_workflow_mermaid_signature_text(text: str, kind: str, *, repo_root:
 
 
 def refresh_workflow_mermaid_signature_file(path: Path, kind: str, dry_run: bool, *, repo_root: Path | None = None) -> bool:
-    original = _read_text(path)
+    original = _read_text(repo_root or path.parent.parent.parent, path)
     refreshed, changed = _refresh_workflow_mermaid_signature_text(original, kind, repo_root=repo_root, dry_run=dry_run)
     if not changed:
         return False
@@ -731,14 +735,14 @@ def _close_eligible_requests(repo_root: Path, dry_run: bool, *, quiet: bool = Fa
     scanned = 0
     for request_path in sorted(request_dir.glob("req_*.md")):
         scanned += 1
-        if _is_doc_done(request_path, "request"):
+        if _is_doc_done(repo_root, request_path, "request"):
             continue
         request_ref = request_path.stem
         linked_items = _collect_docs_linking_ref(repo_root, "backlog", request_ref)
         if not linked_items:
             continue
-        if all(_is_doc_done(item_path, "backlog") for item_path in linked_items):
-            _close_doc(request_path, "request", dry_run)
+        if all(_is_doc_done(repo_root, item_path, "backlog") for item_path in linked_items):
+            _close_doc(repo_root, request_path, "request", dry_run)
             if not quiet:
                 print(f"Auto-closed request {request_ref} (all linked backlog items are done).")
             closed += 1

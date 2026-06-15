@@ -2916,19 +2916,26 @@
         if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
       } catch { /* noop */ }
     }
-    openWorkshopTerminalStream(entry.id);
+    if (entry.id === workshopTerminalState.activeId) {
+      openWorkshopTerminalStream(entry.id);
+    }
     if (entry.bufferedOutput) {
       term.write(entry.bufferedOutput);
+      entry.bufferedOutput = "";
     }
   }
 
   function setActiveWorkshopTerminal(sessionId) {
     workshopTerminalState.activeId = sessionId || "";
+    closeAllInactiveWorkshopTerminalStreams();
     renderWorkshopTerminalList();
     const entry = sessionId ? workshopTerminalState.sessions.get(sessionId) : null;
     ensureWorkshopTerminalStage();
     if (entry) {
       mountWorkshopTerminalEmulator(entry);
+      if (!workshopTerminalState.streams.has(entry.id)) {
+        openWorkshopTerminalStream(entry.id);
+      }
       try { entry.terminal?.focus(); } catch { /* noop */ }
       try { entry.fitAddon?.fit(); } catch { /* noop */ }
     }
@@ -2956,6 +2963,12 @@
 
   async function spawnWorkshopTerminal(options = {}) {
     try {
+      const liveCount = [...workshopTerminalState.sessions.values()].filter((entry) => entry.state === "running" || entry.state === "starting").length;
+      const WORKSHOP_TERMINAL_SOFT_CAP = 12;
+      if (liveCount >= WORKSHOP_TERMINAL_SOFT_CAP) {
+        setMeta(`Terminal limit reached (${WORKSHOP_TERMINAL_SOFT_CAP} live sessions). Close one before spawning another.`);
+        return "";
+      }
       const body = {};
       if (Array.isArray(options.command) && options.command.length) body.command = options.command;
       if (options.label) body.label = String(options.label);
@@ -3081,28 +3094,40 @@
     }
   }
 
+  function closeAllInactiveWorkshopTerminalStreams() {
+    const keep = workshopTerminalState.activeId;
+    for (const id of Array.from(workshopTerminalState.streams.keys())) {
+      if (id !== keep) closeWorkshopTerminalStream(id);
+    }
+  }
+
   function openWorkshopTerminalStream(sessionId) {
     closeWorkshopTerminalStream(sessionId);
-    const source = new EventSource(`/api/workshop-terminal/${encodeURIComponent(sessionId)}/stream`);
+    closeAllInactiveWorkshopTerminalStreams();
+    const entry = workshopTerminalState.sessions.get(sessionId);
+    const since = entry && Number.isFinite(entry.lastSeq) ? entry.lastSeq : 0;
+    const source = new EventSource(`/api/workshop-terminal/${encodeURIComponent(sessionId)}/stream?since=${since}`);
     workshopTerminalState.streams.set(sessionId, source);
     source.addEventListener("data", (event) => {
       try {
         const payload = JSON.parse(event.data || "{}");
         const chunk = String(payload.data || "");
-        const entry = workshopTerminalState.sessions.get(sessionId);
-        if (!entry) return;
-        if (entry.terminal) {
-          entry.terminal.write(chunk);
+        const seq = Number(payload.seq);
+        const target = workshopTerminalState.sessions.get(sessionId);
+        if (!target) return;
+        if (Number.isFinite(seq)) target.lastSeq = seq;
+        if (target.terminal) {
+          target.terminal.write(chunk);
         } else {
-          entry.bufferedOutput = (entry.bufferedOutput || "") + chunk;
+          target.bufferedOutput = (target.bufferedOutput || "") + chunk;
         }
       } catch { /* noop */ }
     });
     source.addEventListener("end", (event) => {
       try {
         const payload = JSON.parse(event.data || "{}");
-        const entry = workshopTerminalState.sessions.get(sessionId);
-        if (entry) entry.state = payload.state;
+        const target = workshopTerminalState.sessions.get(sessionId);
+        if (target) target.state = payload.state;
         renderWorkshopTerminalList();
         recomputeWorkshopBadges();
       } catch { /* noop */ }

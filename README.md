@@ -206,6 +206,34 @@ shareable URL and, when the optional `segno` package is installed, a QR code.
 LAN mode is still read-only at the HTTP layer; workflow mutations continue to go
 through canonical CLI commands.
 
+### Phone-friendly write access (`--lan-rw` + `--tls`)
+
+To actually use Workshop terminals or run actions from a phone on the same
+network, opt-in to read/write mode with `--lan-rw` and serve over HTTPS:
+
+```bash
+logics-manager view --lan --lan-rw --tls --open
+```
+
+- `--tls` generates a self-signed certificate under
+  `~/.cache/logics-manager/tls/` on first launch (delegated to the `openssl`
+  binary). The SAN covers loopback plus the detected LAN IP, so iOS/Android
+  accept the cert after a one-time trust prompt. Pass `--tls-cert PATH
+  --tls-key PATH` to supply your own pair instead.
+- `--lan-rw` enables a PIN-based pairing handshake. When a device clicks
+  "Pair this device" in the LAN banner, the host prints a 6-digit PIN on
+  stdout. Type the PIN on the device and it receives a per-device bearer
+  token persisted as a SHA-256 hash under
+  `~/.cache/logics-manager/devices.json`. Cleartext is only sent to the
+  device once; revoke a lost device via the device list or by deleting its
+  entry from the JSON file.
+- Cross-origin POSTs are refused (CSRF). Mutating endpoints require a
+  loopback client *or* a request whose bearer token matches a paired device.
+
+Without `--tls`, `--lan-rw` works but the boot banner warns that device
+tokens transit in cleartext. Either add `--tls` or wrap the viewer in a
+Tailscale / WireGuard / VPN tunnel before pairing real devices.
+
 The CDX missions panel includes guarded workflows for audits, release reviews,
 turning a free-form wish into a structured Logics request, preparing a corpus
 plan, and preparing a guarded pre-release from an editable `vX.X.X` version.

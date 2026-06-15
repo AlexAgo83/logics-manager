@@ -306,6 +306,7 @@
       "#viewer-insights",
       "#viewer-health",
       "#viewer-workspace",
+      "#viewer-workshop",
       "#viewer-git",
       "#viewer-ci",
       "#viewer-cdx",

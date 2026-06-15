@@ -692,10 +692,7 @@ def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
 def edit_doc_payload(repo_root: Path, rel_path: str, *, launcher: Any | None = None) -> dict[str, str]:
     normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
     command = _system_editor_command(absolute)
-    if launcher is not None:
-        launcher(command)
-    else:
-        webbrowser.open(absolute.as_uri())
+    _dispatch_system_open(command, absolute, launcher=launcher)
     return {
         "path": normalized,
         "command": command[0],
@@ -730,10 +727,7 @@ def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
 def open_file_payload(repo_root: Path, file_path: str, *, launcher: Any | None = None) -> dict[str, str]:
     absolute = _resolve_openable_file_path(repo_root, file_path)
     command = _system_editor_command(absolute)
-    if launcher is not None:
-        launcher(command)
-    else:
-        webbrowser.open(absolute.as_uri())
+    _dispatch_system_open(command, absolute, launcher=launcher)
     return {
         "path": str(absolute),
         "command": command[0],
@@ -767,14 +761,40 @@ def file_preview_payload(
 def open_repo_folder_payload(repo_root: Path, *, launcher: Any | None = None) -> dict[str, str]:
     root = repo_root.resolve()
     command = _system_editor_command(root)
-    if launcher is not None:
-        launcher(command)
-    else:
-        webbrowser.open(root.as_uri())
+    _dispatch_system_open(command, root, launcher=launcher)
     return {
         "path": str(root),
         "command": command[0],
     }
+
+
+def _is_wsl() -> bool:
+    if os.name == "nt" or sys.platform == "darwin":
+        return False
+    if os.environ.get("WSL_DISTRO_NAME") or os.environ.get("WSL_INTEROP"):
+        return True
+    try:
+        with open("/proc/version", encoding="utf-8", errors="ignore") as fh:
+            return "microsoft" in fh.read().lower()
+    except OSError:
+        return False
+
+
+def _wsl_translate_path(path: Path) -> str | None:
+    try:
+        result = subprocess.run(
+            ["wslpath", "-w", str(path)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    translated = result.stdout.strip()
+    return translated or None
 
 
 def _system_editor_command(path: Path) -> list[str]:
@@ -782,7 +802,35 @@ def _system_editor_command(path: Path) -> list[str]:
         return ["open", str(path)]
     if os.name == "nt":
         return ["explorer.exe", str(path)]
+    if _is_wsl():
+        translated = _wsl_translate_path(path)
+        if translated:
+            return ["explorer.exe", translated]
     return ["xdg-open", str(path)]
+
+
+def _dispatch_system_open(
+    command: list[str],
+    path: Path,
+    *,
+    launcher: Any | None = None,
+    spawner: Any | None = None,
+) -> None:
+    if launcher is not None:
+        launcher(command)
+        return
+    spawn = spawner or subprocess.Popen
+    try:
+        spawn(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            close_fds=True,
+        )
+        return
+    except (OSError, subprocess.SubprocessError):
+        webbrowser.open(path.as_uri())
 
 
 STATIC_CONTENT_TYPES = {

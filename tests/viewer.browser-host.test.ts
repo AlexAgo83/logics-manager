@@ -805,6 +805,8 @@ describe("local viewer browser host", () => {
   }
 
   function cdxRowsStatusPayload() {
+    const soonReset = new Date(Date.now() + 3 * 60 * 60_000).toISOString();
+    const weekReset = new Date(Date.now() + 4 * 24 * 60 * 60_000).toISOString();
     return {
       ok: true,
       body: {
@@ -827,8 +829,8 @@ describe("local viewer browser host", () => {
                 remaining_5h_pct: 0,
                 remaining_week_pct: 3,
                 credits: "9.6752125000",
-                reset_5h_at: "Jun 10 03:03",
-                reset_week_at: "Jun 11 15:04",
+                reset_5h_at: soonReset,
+                reset_week_at: weekReset,
                 updated_at: new Date(Date.now() - 90_000).toISOString()
               },
               {
@@ -841,8 +843,8 @@ describe("local viewer browser host", () => {
                 available_pct: 100,
                 remaining_5h_pct: 100,
                 remaining_week_pct: 100,
-                reset_5h_at: "Jun 10 04:50",
-                reset_week_at: "Jun 15 18:00",
+                reset_5h_at: soonReset,
+                reset_week_at: weekReset,
                 updated_at: new Date(Date.now() - 8 * 60_000).toISOString()
               }
             ]

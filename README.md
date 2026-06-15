@@ -51,7 +51,21 @@ The CLI owns the behavior. The extension and MCP server call into it instead of 
 
 ## Quick Start
 
-Install the CLI from this repository:
+Install the CLI from PyPI:
+
+```bash
+python3.11 -m pip install logics-manager
+logics-manager --help
+```
+
+For an isolated user-level install, use `pipx`:
+
+```bash
+pipx install logics-manager
+logics-manager --help
+```
+
+Install the CLI from this repository when developing locally:
 
 ```bash
 python3.11 -m pip install .
@@ -67,7 +81,7 @@ pipx ensurepath
 pipx install logics-manager
 ```
 
-Or install the npm package:
+Or install the npm package from npm:
 
 ```bash
 npm install -g @grifhinz/logics-manager
@@ -151,6 +165,17 @@ logics-manager view --open
 
 The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
 
+The topbar includes focused operational views:
+
+| View | Purpose |
+| --- | --- |
+| Explorer | Read-only repository tree with bounded previews for text, images, directories, oversized files, and unsupported binary files. |
+| Workshop | Local terminals and command runs. Terminals use the vendored xterm.js frontend; commands are discovered from `package.json` and `pyproject.toml` scripts and stream output over SSE. |
+| Git | Repository status, changed files, and diffs for review-oriented inspection. |
+| CI | Local/remote validation status surfaced for release and handoff checks. |
+| CDX | Guarded assistant workflows for audits, release reviews, corpus planning, and pre-release preparation. |
+| Settings | Viewer preferences, display controls, refresh behavior, and local UI state. |
+
 Viewer preferences are stored locally in the browser profile. Auto-refresh
 restores the interval chosen in the viewer unless the launch command explicitly
 sets `--refresh-interval`, in which case that launch value controls only the
@@ -160,6 +185,24 @@ filtering defaults to all providers so newly discovered providers remain visible
 When workspace inspection is available, the topbar shows an `Explorer` view
 before `Git`; it provides a read-only file tree and bounded previews for text,
 directories, images, oversized files, and unsupported binary files.
+
+The Workshop view is local-machine only. Terminal sessions and command runs are
+created on the machine running `logics-manager view`, appear with running-count
+badges in the topbar, and can be stopped from the UI. Terminal sessions are
+cleaned up after the browser disconnects, while quick reloads can reattach
+without leaving duplicate sessions behind.
+
+For phone or tablet inspection on the same trusted network, launch with `--lan`:
+
+```bash
+logics-manager view --lan --open
+```
+
+LAN mode binds to `0.0.0.0`, computes a reachable local-network URL, and adds a
+per-session bearer token for non-loopback requests. The browser receives a
+shareable URL and, when the optional `segno` package is installed, a QR code.
+LAN mode is still read-only at the HTTP layer; workflow mutations continue to go
+through canonical CLI commands.
 
 The CDX missions panel includes guarded workflows for audits, release reviews,
 turning a free-form wish into a structured Logics request, preparing a corpus
@@ -177,6 +220,7 @@ Useful options:
 
 ```bash
 logics-manager view --port 0 --open
+logics-manager view --lan --port 0 --open
 logics-manager view --host 127.0.0.1 --port 9876
 logics-manager view --focus req_001_example --open
 logics-manager view --focus logics/tasks/task_001_example.md --read --open
@@ -284,6 +328,12 @@ npm list -g @grifhinz/logics-manager --depth=0
 
 If the direct npm binary shows the expected version, remove the older Python install or move the npm global `bin` directory earlier on `PATH`. In zsh, run `rehash` or open a new terminal after changing installs so the shell forgets any cached command location.
 
+When installed with `pipx` from a local path, `self-update` reports that original
+spec, for example `from spec '/path/to/logics-manager'`. That installation is
+updated from the local working tree, not from the PyPI artifact. Use
+`pipx uninstall logics-manager && pipx install logics-manager` when you want to
+switch back to the published PyPI package.
+
 ## VS Code Extension
 
 The VS Code extension is the human cockpit around the same runtime. It helps you:
@@ -376,6 +426,13 @@ python3 -m logics_manager mcp connect --repo-root . --public-url https://example
 ```
 
 The connector plan prints the bearer token when used, server command, tunnel target, assistant connector URL, auth mode, auth header, smoke checks, warnings, and cleanup steps.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for supported versions and vulnerability
+reporting guidance. Do not publish suspected vulnerabilities in public issues
+until they are triaged; use GitHub's private vulnerability reporting or a
+private security advisory draft for this repository.
 
 ## Assistant Model
 

@@ -3360,6 +3360,60 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return True
         return False
 
+    def _allowed_origins(self) -> set[str]:
+        """Origins the viewer is willing to accept mutating requests from.
+
+        Built from the actual bound host/port plus the detected LAN IP and
+        the canonical loopback names so the same set covers every URL the
+        launch banner can hand out.
+        """
+        scheme = self.server.url_scheme
+        port = int(self.server.server_address[1])
+        hosts = {"127.0.0.1", "localhost", "::1", "[::1]"}
+        bind_host = str(self.server.server_address[0])
+        if bind_host and bind_host not in {"0.0.0.0", "::", ""}:
+            hosts.add(bind_host)
+        lan_ip = _detect_lan_ip()
+        if lan_ip:
+            hosts.add(lan_ip)
+        return {f"{scheme}://{host}:{port}" for host in hosts}
+
+    def _origin_check_passes(self) -> bool:
+        """Reject cross-origin mutations.
+
+        Loopback clients are trusted (the desktop UI itself, scripts, dev
+        tools). For every other client we require Origin (or Referer
+        fallback for redirects) to match one of the URLs the server hands
+        out. This blocks CSRF: a malicious page on the user's phone cannot
+        POST to the viewer's mutating endpoints because its Origin will
+        not match.
+        """
+        if self._client_is_loopback():
+            return True
+        allowed = self._allowed_origins()
+        origin = self.headers.get("Origin", "").strip()
+        if origin:
+            return origin in allowed
+        referer = self.headers.get("Referer", "").strip()
+        if referer:
+            parsed_referer = urlparse(referer)
+            referer_origin = f"{parsed_referer.scheme}://{parsed_referer.netloc}"
+            return referer_origin in allowed
+        # No Origin and no Referer from a non-loopback client: refuse. A
+        # legitimate browser always sends one or the other on a POST.
+        return False
+
+    def _send_cross_origin_forbidden(self) -> None:
+        body = _json_bytes({"ok": False, "error": "Cross-origin mutation refused."})
+        try:
+            self.send_response(HTTPStatus.FORBIDDEN)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            return
+
     def _lan_auth_passes(self, parsed: Any, *, method: str = "GET") -> bool:
         token = self.server.lan_token
         if not token:
@@ -3553,6 +3607,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if not self._origin_check_passes():
+            self._send_cross_origin_forbidden()
+            return
         if not self._lan_auth_passes(parsed, method="POST"):
             self._send_lan_unauthorized()
             return

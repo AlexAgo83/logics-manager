@@ -455,3 +455,13 @@
   border-color: rgba(56, 189, 248, 0.3);
   cursor: default;
 }
+
+/* Mobile (<=900px): the details panel + its splitter eat too much room on
+ * a phone. Hide them entirely; selection info is still reachable by
+ * tapping the item to open the read-preview document. */
+@media (max-width: 900px) {
+  .details,
+  .splitter {
+    display: none !important;
+  }
+}

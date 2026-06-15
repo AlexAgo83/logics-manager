@@ -2894,6 +2894,13 @@
     if (fitAddon) {
       try { fitAddon.fit(); } catch { /* noop */ }
     }
+    term.attachCustomKeyEventHandler((ev) => {
+      if (ev.type === "keydown" && ev.key === "Enter" && ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
+        writeWorkshopTerminalInput(entry.id, "\x1b\r");
+        return false;
+      }
+      return true;
+    });
     term.onData((data) => {
       writeWorkshopTerminalInput(entry.id, data);
     });

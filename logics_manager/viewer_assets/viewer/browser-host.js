@@ -57,7 +57,6 @@
   const meta = () => document.getElementById("viewer-meta");
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
-  const documentDescription = () => document.getElementById("viewer-document-description");
   const documentContent = () => document.getElementById("viewer-document-content");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
   const updateBanner = () => document.getElementById("viewer-update");
@@ -1325,33 +1324,13 @@
     }
   }
 
-  function screenDescription(titleText) {
-    const title = String(titleText || "");
-    if (title === "Corpus insights") return "Corpus signals and follow-up hotspots.";
-    if (title === "Validation health") return "Lint, audit, and workflow validation status.";
-    if (title === "Explorer") return "Workspace files with bounded previews.";
-    if (title === "Workshop") return "Commands and terminals for local project work.";
-    if (title === "CDX status") return "Assistant runtime, sessions, and provider health.";
-    if (title === "CDX missions") return "Plan, launch, and apply assistant missions.";
-    if (title === "CDX runs") return "Recent assistant runs and report links.";
-    if (title === "CDX run report") return "Structured output from one assistant run.";
-    if (title.startsWith("CDX log")) return "Captured log output from an assistant artifact.";
-    if (title === "CI status") return "Latest GitHub Actions workflow state.";
-    if (title === "Git status") return "Branch, changes, history, and remote state.";
-    return "Rendered Logics document with linked context.";
-  }
-
-  function setDocument(titleText, html, descriptionText = "") {
+  function setDocument(titleText, html) {
     cdxCloseTarget = null;
     const panel = documentPanel();
     const title = documentTitle();
-    const description = documentDescription();
     const content = documentContent();
     if (title) {
       title.textContent = titleText || "Document";
-    }
-    if (description) {
-      description.textContent = descriptionText || screenDescription(titleText);
     }
     if (content) {
       content.innerHTML = html || "";
@@ -1367,11 +1346,9 @@
 
   function currentDocumentSnapshot(fallbackTitle = "Document") {
     const title = documentTitle();
-    const description = documentDescription();
     const content = documentContent();
     return {
       title: title?.textContent || fallbackTitle,
-      description: description?.textContent || screenDescription(fallbackTitle),
       html: content?.innerHTML || ""
     };
   }
@@ -1380,7 +1357,7 @@
     const target = cdxCloseTarget;
     cdxCloseTarget = null;
     if (target?.type === "cdx-report") {
-      setDocument(target.title || "CDX run report", target.html || "", target.description || "");
+      setDocument(target.title || "CDX run report", target.html || "");
       cdxCloseTarget = { type: "cdx-runs" };
       setMeta("Returned to CDX run report.");
       return;
@@ -2934,6 +2911,26 @@
     }
   }
 
+  function refitAllWorkshopTerminals() {
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (!entry.fitAddon || !entry.terminal) continue;
+      try {
+        entry.fitAddon.fit();
+        const dim = entry.fitAddon.proposeDimensions();
+        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      } catch { /* noop */ }
+    }
+  }
+
+  let workshopTerminalResizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (workshopTerminalResizeTimer) clearTimeout(workshopTerminalResizeTimer);
+    workshopTerminalResizeTimer = setTimeout(() => {
+      workshopTerminalResizeTimer = null;
+      refitAllWorkshopTerminals();
+    }, 80);
+  });
+
   async function spawnWorkshopTerminal(options = {}) {
     try {
       const body = {};
@@ -3603,10 +3600,16 @@
       return `<div class="viewer-cdx__empty">${escapeHtml(emptyText)}</div>`;
     }
     const visibleColumns = cdxColumnVisibilityPreference();
+    const workshopCap = capability("workshop");
+    const canLaunchTerminal = workshopCap.available === true && Boolean(workshopCap.detail?.terminalsAvailable);
     const cellRenderers = {
       session: (item) => {
         const name = cdxField(item, ["session_name", "name", "id", "value"]);
-        return `<td class="viewer-cdx__session-name">${escapeHtml(`${name}${item.active ? "*" : ""}`)}</td>`;
+        const label = `${name}${item.active ? "*" : ""}`;
+        if (canLaunchTerminal && name && name !== "-") {
+          return `<td class="viewer-cdx__session-name"><button class="viewer-cdx__path-link" type="button" data-viewer-cdx-session-launch="${escapeHtml(name)}" title="Open Workshop terminal: cdx ${escapeHtml(name)}">${escapeHtml(label)}</button></td>`;
+        }
+        return `<td class="viewer-cdx__session-name">${escapeHtml(label)}</td>`;
       },
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
       status: (item) => `<td>${renderCdxBadge(cdxField(item, ["status", "state"]))}</td>`,
@@ -5206,6 +5209,15 @@
       const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
       const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
+      const cdxSessionLaunchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-launch]") : null;
+      if (cdxSessionLaunchTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const sessionName = cdxSessionLaunchTarget.getAttribute("data-viewer-cdx-session-launch") || "";
+        if (sessionName) {
+          spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
+        }
+        return;
+      }
       if (cdxMissionTarget instanceof HTMLElement) {
         latestCdxMissionState.missionId = cdxMissionTarget.getAttribute("data-viewer-cdx-mission") || "full-audit";
         latestCdxMissionState.planPayload = null;

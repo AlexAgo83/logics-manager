@@ -2834,7 +2834,9 @@
       }
       // Hide every existing host while no session is active.
       stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
-        if (node instanceof HTMLElement) node.style.display = "none";
+        if (node instanceof HTMLElement) {
+          node.classList.add("viewer-workshop__terminal-host--hidden");
+        }
       });
       return null;
     }
@@ -2844,7 +2846,11 @@
     stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
       if (!(node instanceof HTMLElement)) return;
       const id = node.getAttribute("data-viewer-workshop-terminal-host") || "";
-      node.style.display = id === active.id ? "" : "none";
+      if (id === active.id) {
+        node.classList.remove("viewer-workshop__terminal-host--hidden");
+      } else {
+        node.classList.add("viewer-workshop__terminal-host--hidden");
+      }
     });
     if (!(host instanceof HTMLElement)) {
       host = document.createElement("div");
@@ -2960,6 +2966,29 @@
       } catch { /* noop */ }
     }
   }
+
+  // Whenever the page/tab regains visibility or the workshop becomes
+  // visible again, force every mounted xterm to repaint from its cell
+  // buffer. The renderer's DOM state can drift while the host is hidden
+  // (display:none on parent, browser tab inactive, OS window minimised)
+  // and decorations (SGR backgrounds, box-drawing glyphs) end up blanked
+  // until the next full repaint.
+  function repaintAllWorkshopTerminals() {
+    for (const entry of workshopTerminalState.sessions.values()) {
+      const term = entry.terminal;
+      if (!term) continue;
+      try { term.refresh(0, Math.max(0, term.rows - 1)); } catch { /* noop */ }
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      requestAnimationFrame(repaintAllWorkshopTerminals);
+    }
+  });
+  window.addEventListener("focus", () => {
+    requestAnimationFrame(repaintAllWorkshopTerminals);
+  });
 
   let workshopTerminalResizeTimer = null;
   window.addEventListener("resize", () => {
@@ -3199,6 +3228,13 @@
         }
         entry.terminal = null;
         entry.fitAddon = null;
+        // Reset lastSeq so the new SSE stream replays the FULL server-side
+        // buffer instead of resuming after the dispose point. Otherwise the
+        // freshly-created xterm only sees writes emitted since the dispose,
+        // missing every escape sequence the TUI sent at startup (box-drawing
+        // decor, SGR backgrounds) — visible to the user as "text is there
+        // but the decor disappeared".
+        entry.lastSeq = 0;
         closeWorkshopTerminalStream(entry.id);
       }
       renderWorkshopTerminalList();
@@ -3208,7 +3244,7 @@
         mountWorkshopTerminalEmulator(entry);
         if (entry.id !== workshopTerminalState.activeId) {
           const host = workshopTerminalStageNode()?.querySelector(`[data-viewer-workshop-terminal-host="${entry.id}"]`);
-          if (host instanceof HTMLElement) host.style.display = "none";
+          if (host instanceof HTMLElement) host.classList.add("viewer-workshop__terminal-host--hidden");
         }
       }
       if (workshopTerminalState.activeId) {

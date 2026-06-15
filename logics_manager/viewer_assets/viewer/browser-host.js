@@ -2,6 +2,9 @@
   const stateKey = "logics.localViewer.state";
   const preferenceKey = "logics.localViewer.preferences.v1";
   const lanTokenKey = "logics.lan.token";
+  const deviceTokenKey = "logics.lan.deviceToken";
+  const deviceIdKey = "logics.lan.deviceId";
+  const deviceLabelKey = "logics.lan.deviceLabel";
 
   function captureLanTokenFromUrl() {
     try {
@@ -26,11 +29,43 @@
     }
   }
 
+  function getDeviceToken() {
+    try {
+      return window.localStorage.getItem(deviceTokenKey) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function setDeviceCredentials({ token, deviceId, label }) {
+    try {
+      window.localStorage.setItem(deviceTokenKey, token || "");
+      window.localStorage.setItem(deviceIdKey, deviceId || "");
+      window.localStorage.setItem(deviceLabelKey, label || "");
+    } catch { /* noop */ }
+  }
+
+  function clearDeviceCredentials() {
+    try {
+      window.localStorage.removeItem(deviceTokenKey);
+      window.localStorage.removeItem(deviceIdKey);
+      window.localStorage.removeItem(deviceLabelKey);
+    } catch { /* noop */ }
+  }
+
+  // Prefer the persistent per-device token over the per-session share
+  // token when both exist — mutations require the device token under
+  // --lan-rw, and a paired device should not lose access if the share
+  // URL is regenerated.
+  function getActiveToken() {
+    return getDeviceToken() || getLanToken();
+  }
+
   captureLanTokenFromUrl();
 
   const originalFetch = window.fetch.bind(window);
   window.fetch = (input, init) => {
-    const token = getLanToken();
+    const token = getActiveToken();
     if (!token) return originalFetch(input, init);
     const next = init ? { ...init } : {};
     const headers = new Headers(next.headers || (input instanceof Request ? input.headers : undefined));
@@ -42,7 +77,7 @@
   if (typeof window.EventSource === "function") {
     const NativeEventSource = window.EventSource;
     window.EventSource = function PatchedEventSource(url, init) {
-      const token = getLanToken();
+      const token = getActiveToken();
       if (!token || typeof url !== "string") {
         return new NativeEventSource(url, init);
       }
@@ -52,6 +87,80 @@
     };
     window.EventSource.prototype = NativeEventSource.prototype;
   }
+
+  async function startDevicePairing() {
+    const label = (window.prompt("Label for this device (e.g. 'iPhone Corvus')") || "").trim();
+    if (!label) return;
+    let pairingId = "";
+    try {
+      const startResponse = await fetch("/api/lan/pair/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label }),
+      });
+      const startData = await startResponse.json();
+      if (!startResponse.ok || !startData.ok) {
+        window.alert(`Pairing refused: ${startData.error || startResponse.status}`);
+        return;
+      }
+      pairingId = String(startData.payload?.pairingId || "");
+    } catch (err) {
+      window.alert(`Pairing failed: ${err?.message || err}`);
+      return;
+    }
+    const pin = (window.prompt("Enter the 6-digit PIN displayed on the host terminal:") || "").trim();
+    if (!pin) return;
+    try {
+      const completeResponse = await fetch("/api/lan/pair/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pairingId, pin, label }),
+      });
+      const completeData = await completeResponse.json();
+      if (!completeResponse.ok || !completeData.ok) {
+        window.alert(`Pairing failed: ${completeData.error || completeResponse.status}`);
+        return;
+      }
+      setDeviceCredentials({
+        token: String(completeData.payload?.deviceToken || ""),
+        deviceId: String(completeData.payload?.deviceId || ""),
+        label: String(completeData.payload?.label || label),
+      });
+      window.alert(`Device paired as '${completeData.payload?.label || label}'. Write access enabled on this device.`);
+      refreshLanBannerPairingState();
+    } catch (err) {
+      window.alert(`Pairing failed: ${err?.message || err}`);
+    }
+  }
+
+  function refreshLanBannerPairingState() {
+    const pairButton = document.getElementById("viewer-lan-banner-pair");
+    const pairedLabel = document.getElementById("viewer-lan-banner-paired");
+    const deviceLabel = (() => {
+      try { return window.localStorage.getItem(deviceLabelKey) || ""; } catch { return ""; }
+    })();
+    const hasDeviceToken = Boolean(getDeviceToken());
+    if (pairButton instanceof HTMLButtonElement) {
+      pairButton.hidden = !window.__logicsLanRwEnabled || hasDeviceToken;
+    }
+    if (pairedLabel instanceof HTMLElement) {
+      if (hasDeviceToken && deviceLabel) {
+        pairedLabel.hidden = false;
+        pairedLabel.textContent = `Paired as ${deviceLabel}`;
+      } else {
+        pairedLabel.hidden = true;
+        pairedLabel.textContent = "";
+      }
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const pairButton = document.getElementById("viewer-lan-banner-pair");
+    if (pairButton instanceof HTMLButtonElement) {
+      pairButton.addEventListener("click", () => { startDevicePairing(); });
+    }
+    refreshLanBannerPairingState();
+  });
 
   const preferenceVersion = 1;
   const meta = () => document.getElementById("viewer-meta");
@@ -766,11 +875,12 @@
     }
   }
 
-  function applyLanBanner(active, shareUrl) {
+  function applyLanBanner(active, shareUrl, rwMode = false) {
     const banner = document.getElementById("viewer-lan-banner");
     if (!(banner instanceof HTMLElement)) return;
     banner.hidden = !active;
     latestLanShareUrl = active ? String(shareUrl || "") : "";
+    window.__logicsLanRwEnabled = Boolean(active && rwMode);
     const urlNode = document.getElementById("viewer-lan-banner-url");
     const copyButton = document.getElementById("viewer-lan-banner-copy");
     if (urlNode instanceof HTMLElement) {
@@ -785,6 +895,7 @@
     if (copyButton instanceof HTMLButtonElement) {
       copyButton.hidden = !latestLanShareUrl;
     }
+    refreshLanBannerPairingState();
   }
 
   function normalizeCapabilities(payload) {
@@ -1502,7 +1613,7 @@
     }
     updateRepositoryIdentity(payload);
     latestCapabilities = normalizeCapabilities(payload);
-    applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""));
+    applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
     updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems };
     const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });

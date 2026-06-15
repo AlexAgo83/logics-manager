@@ -14,6 +14,8 @@ import socket
 import ssl
 import subprocess
 import sys
+import threading
+import time
 import tomllib
 import webbrowser
 from dataclasses import dataclass
@@ -3112,6 +3114,202 @@ def workshop_terminal_default_command() -> list[str]:
     return _default_workshop_shell()
 
 
+_PAIRING_PIN_TTL_SECONDS = 120
+_PAIRING_MAX_ATTEMPTS = 5
+
+
+def _hash_device_token(token: str) -> str:
+    return "sha256:" + hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _iso_now() -> str:
+    return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+
+@dataclass
+class _PairedDevice:
+    id: str
+    label: str
+    token_hash: str
+    created_at: str
+    last_seen_at: str
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "label": self.label,
+            "createdAt": self.created_at,
+            "lastSeenAt": self.last_seen_at,
+        }
+
+
+class LanDeviceRegistry:
+    """JSON-backed store of paired device tokens.
+
+    Tokens are persisted only as SHA-256 hashes; the cleartext is shown to
+    the device exactly once at pair-completion time. Every match uses
+    hmac.compare_digest on the hash to keep comparisons constant-time.
+    """
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self._lock = threading.RLock()
+        self._devices: dict[str, _PairedDevice] = {}
+        self._load()
+
+    def _load(self) -> None:
+        if not self.path.exists():
+            return
+        try:
+            raw = json.loads(self.path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return
+        for entry in raw.get("devices", []) or []:
+            try:
+                device = _PairedDevice(
+                    id=str(entry["id"]),
+                    label=str(entry.get("label") or ""),
+                    token_hash=str(entry["tokenHash"]),
+                    created_at=str(entry.get("createdAt") or _iso_now()),
+                    last_seen_at=str(entry.get("lastSeenAt") or ""),
+                )
+            except KeyError:
+                continue
+            self._devices[device.id] = device
+
+    def _save(self) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {"devices": [
+            {
+                "id": d.id,
+                "label": d.label,
+                "tokenHash": d.token_hash,
+                "createdAt": d.created_at,
+                "lastSeenAt": d.last_seen_at,
+            }
+            for d in self._devices.values()
+        ]}
+        tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        try:
+            os.chmod(tmp, 0o600)
+        except OSError:
+            pass
+        tmp.replace(self.path)
+
+    def register(self, label: str, token: str) -> _PairedDevice:
+        device_id = secrets.token_urlsafe(8)
+        now = _iso_now()
+        device = _PairedDevice(
+            id=device_id,
+            label=label or "device",
+            token_hash=_hash_device_token(token),
+            created_at=now,
+            last_seen_at=now,
+        )
+        with self._lock:
+            self._devices[device.id] = device
+            self._save()
+        return device
+
+    def revoke(self, device_id: str) -> bool:
+        with self._lock:
+            removed = self._devices.pop(device_id, None) is not None
+            if removed:
+                self._save()
+        return removed
+
+    def list_payload(self) -> list[dict[str, Any]]:
+        with self._lock:
+            return [d.to_payload() for d in self._devices.values()]
+
+    def find_matching(self, token: str) -> _PairedDevice | None:
+        if not token:
+            return None
+        candidate_hash = _hash_device_token(token)
+        match: _PairedDevice | None = None
+        with self._lock:
+            for device in self._devices.values():
+                if hmac.compare_digest(candidate_hash, device.token_hash):
+                    match = device
+        if match is None:
+            return None
+        with self._lock:
+            stored = self._devices.get(match.id)
+            if stored is not None:
+                stored.last_seen_at = _iso_now()
+                try:
+                    self._save()
+                except OSError:
+                    pass
+        return match
+
+
+@dataclass
+class _PendingPairing:
+    pairing_id: str
+    pin: str
+    label: str
+    requester_ip: str
+    created_at: float
+    attempts: int = 0
+
+
+class LanPairingBroker:
+    """In-memory broker for active PIN pairings.
+
+    A pairing is created when a device requests write access; the host CLI
+    prints the PIN. The device must echo the PIN back within the TTL. PINs
+    are single-use and rate-limited per pairing.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.RLock()
+        self._pending: dict[str, _PendingPairing] = {}
+
+    @staticmethod
+    def _generate_pin() -> str:
+        return f"{secrets.randbelow(1_000_000):06d}"
+
+    def start(self, *, label: str, requester_ip: str) -> _PendingPairing:
+        pairing_id = secrets.token_urlsafe(12)
+        entry = _PendingPairing(
+            pairing_id=pairing_id,
+            pin=self._generate_pin(),
+            label=label or "device",
+            requester_ip=requester_ip,
+            created_at=time.monotonic(),
+        )
+        with self._lock:
+            self._purge_expired_locked()
+            self._pending[pairing_id] = entry
+        return entry
+
+    def _purge_expired_locked(self) -> None:
+        now = time.monotonic()
+        expired = [pid for pid, entry in self._pending.items() if now - entry.created_at > _PAIRING_PIN_TTL_SECONDS]
+        for pid in expired:
+            self._pending.pop(pid, None)
+
+    def try_complete(self, *, pairing_id: str, pin: str) -> tuple[str, _PendingPairing] | None:
+        """Return ('ok', entry) on match. None means hard refusal (expired,
+        unknown, or too many attempts). Wrong PIN increments attempts but
+        leaves the entry alive until the cap or TTL is hit."""
+        with self._lock:
+            self._purge_expired_locked()
+            entry = self._pending.get(pairing_id)
+            if entry is None:
+                return None
+            entry.attempts += 1
+            if entry.attempts > _PAIRING_MAX_ATTEMPTS:
+                self._pending.pop(pairing_id, None)
+                return None
+            if hmac.compare_digest(entry.pin, pin or ""):
+                self._pending.pop(pairing_id, None)
+                return ("ok", entry)
+            return ("wrong", entry)
+
+
 class LogicsViewerServer(ThreadingHTTPServer):
     def __init__(
         self,
@@ -3121,6 +3319,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         auto_refresh_interval_seconds: int = 15,
         auto_refresh_interval_forced: bool = False,
         lan_mode: bool = False,
+        lan_rw_mode: bool = False,
         tls_context: ssl.SSLContext | None = None,
     ):
         self.launch_repo_root = repo_root.resolve()
@@ -3131,8 +3330,11 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
         self.lan_mode = bool(lan_mode)
+        self.lan_rw_mode = bool(lan_rw_mode) and self.lan_mode
         self.lan_token = secrets.token_urlsafe(32) if self.lan_mode else ""
         self.tls_enabled = tls_context is not None
+        self.device_registry = LanDeviceRegistry(_viewer_state_dir() / "devices.json") if self.lan_rw_mode else None
+        self.pairing_broker = LanPairingBroker() if self.lan_rw_mode else None
         self.workshop_sessions = WorkshopSessionRegistry()
         self.workshop_terminals = WorkshopTerminalRegistry()
         super().__init__(server_address, LogicsViewerRequestHandler)
@@ -3164,6 +3366,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             projects=self.project_registry_payload(),
         )
         payload["lanMode"] = bool(self.lan_mode)
+        payload["lanRwMode"] = bool(self.lan_rw_mode)
         if self.lan_mode and self.lan_token:
             host, port = self.server_address[:2]
             lan_url = (
@@ -3207,6 +3410,91 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_error_json(self, status: HTTPStatus, message: str) -> None:
         self._send_json({"ok": False, "error": message}, status=status.value)
+
+    def _read_json_body(self) -> dict[str, Any]:
+        length = int(self.headers.get("Content-Length", "0") or "0")
+        if length <= 0:
+            return {}
+        raw = self.rfile.read(length).decode("utf-8")
+        try:
+            payload = json.loads(raw or "{}")
+        except json.JSONDecodeError:
+            return {}
+        return payload if isinstance(payload, dict) else {}
+
+    def _handle_pair_start(self) -> None:
+        broker = self.server.pairing_broker
+        if broker is None:
+            self._send_error_json(HTTPStatus.FORBIDDEN, "Device pairing is disabled. Start the viewer with --lan-rw.")
+            return
+        body = self._read_json_body()
+        label = str(body.get("label") or "").strip()[:64]
+        requester_ip = self.client_address[0] if self.client_address else ""
+        entry = broker.start(label=label or "device", requester_ip=requester_ip)
+        # Emit the PIN on the host's stdout so the operator can read it
+        # without having to keep the viewer UI in foreground.
+        sys.stdout.write(
+            f"[lan-pair] '{entry.label}' wants write access from {requester_ip or 'unknown'}.\n"
+            f"[lan-pair] PIN: {entry.pin}  (valid {_PAIRING_PIN_TTL_SECONDS}s)\n"
+        )
+        sys.stdout.flush()
+        self._send_json({
+            "ok": True,
+            "payload": {
+                "pairingId": entry.pairing_id,
+                "ttlSeconds": _PAIRING_PIN_TTL_SECONDS,
+                "label": entry.label,
+            },
+        })
+
+    def _handle_pair_complete(self) -> None:
+        broker = self.server.pairing_broker
+        registry = self.server.device_registry
+        if broker is None or registry is None:
+            self._send_error_json(HTTPStatus.FORBIDDEN, "Device pairing is disabled. Start the viewer with --lan-rw.")
+            return
+        body = self._read_json_body()
+        pairing_id = str(body.get("pairingId") or "")
+        pin = str(body.get("pin") or "")
+        label_override = str(body.get("label") or "").strip()[:64]
+        outcome = broker.try_complete(pairing_id=pairing_id, pin=pin)
+        if outcome is None:
+            self._send_error_json(HTTPStatus.UNAUTHORIZED, "Pairing expired, unknown, or too many attempts.")
+            return
+        status, entry = outcome
+        if status != "ok":
+            self._send_error_json(HTTPStatus.UNAUTHORIZED, "Wrong PIN.")
+            return
+        token = secrets.token_urlsafe(32)
+        device = registry.register(label_override or entry.label, token)
+        sys.stdout.write(f"[lan-pair] Approved '{device.label}' (id={device.id}).\n")
+        sys.stdout.flush()
+        self._send_json({
+            "ok": True,
+            "payload": {
+                "deviceId": device.id,
+                "deviceToken": token,
+                "label": device.label,
+            },
+        })
+
+    def _handle_device_revoke(self, parsed: Any) -> None:
+        registry = self.server.device_registry
+        if registry is None:
+            self._send_error_json(HTTPStatus.FORBIDDEN, "Device pairing is disabled.")
+            return
+        body = self._read_json_body()
+        device_id = str(body.get("deviceId") or "")
+        if not device_id:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "deviceId is required.")
+            return
+        removed = registry.revoke(device_id)
+        if not removed:
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Device not found.")
+            return
+        sys.stdout.write(f"[lan-pair] Revoked device id={device_id}.\n")
+        sys.stdout.flush()
+        self._send_json({"ok": True, "payload": {"deviceId": device_id}})
 
     def _serve_file(self, path: Path, *, root: Path) -> None:
         root_name = os.path.realpath(root)
@@ -3414,6 +3702,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
+    def _bearer_token(self, parsed: Any) -> str:
+        header = self.headers.get("Authorization", "")
+        if header.lower().startswith("bearer "):
+            return header.split(" ", 1)[1].strip()
+        return (parse_qs(parsed.query).get("t") or [""])[0]
+
     def _lan_auth_passes(self, parsed: Any, *, method: str = "GET") -> bool:
         token = self.server.lan_token
         if not token:
@@ -3422,15 +3716,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return True
         if method == "GET" and self._is_public_get_route(parsed.path):
             return True
-        header = self.headers.get("Authorization", "")
-        if header.lower().startswith("bearer "):
-            candidate = header.split(" ", 1)[1].strip()
-            if candidate and hmac.compare_digest(candidate, token):
-                return True
-        query_token = (parse_qs(parsed.query).get("t") or [""])[0]
-        if query_token and hmac.compare_digest(query_token, token):
+        candidate = self._bearer_token(parsed)
+        if candidate and hmac.compare_digest(candidate, token):
+            return True
+        if self.server.device_registry is not None and self.server.device_registry.find_matching(candidate) is not None:
             return True
         return False
+
+    def _paired_device_for_request(self, parsed: Any) -> _PairedDevice | None:
+        registry = self.server.device_registry
+        if registry is None:
+            return None
+        candidate = self._bearer_token(parsed)
+        if not candidate:
+            return None
+        return registry.find_matching(candidate)
 
     def _send_lan_unauthorized(self) -> None:
         body = _json_bytes({"ok": False, "error": "LAN viewer requires a bearer token. Open the share URL from the launch banner."})
@@ -3450,6 +3750,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_lan_unauthorized()
             return
         route = parsed.path
+        if route == "/api/lan/devices":
+            registry = self.server.device_registry
+            payload = registry.list_payload() if registry is not None else []
+            self._send_json({"ok": True, "payload": payload})
+            return
         if route == "/":
             self._serve_file(VIEWER_ROOT / "index.html", root=VIEWER_ROOT)
             return
@@ -3614,10 +3919,25 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_lan_unauthorized()
             return
         if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:
-            self._send_error_json(
-                HTTPStatus.FORBIDDEN,
-                "Mutating endpoint refused: the viewer is exposed on the LAN in read-only mode.",
-            )
+            allow = False
+            if self._client_is_loopback():
+                allow = True
+            elif self.server.lan_rw_mode and self._paired_device_for_request(parsed) is not None:
+                allow = True
+            if not allow:
+                self._send_error_json(
+                    HTTPStatus.FORBIDDEN,
+                    "Mutating endpoint refused: pair this device first (see /api/lan/pair/start).",
+                )
+                return
+        if parsed.path == "/api/lan/pair/start":
+            self._handle_pair_start()
+            return
+        if parsed.path == "/api/lan/pair/complete":
+            self._handle_pair_complete()
+            return
+        if parsed.path == "/api/lan/devices/revoke":
+            self._handle_device_revoke(parsed)
             return
         if parsed.path == "/api/refresh":
             self._send_json(
@@ -3844,6 +4164,7 @@ def create_viewer_server(
     auto_refresh_interval_seconds: int = 15,
     auto_refresh_interval_forced: bool = False,
     lan_mode: bool = False,
+    lan_rw_mode: bool = False,
     tls_context: ssl.SSLContext | None = None,
 ) -> LogicsViewerServer:
     return LogicsViewerServer(
@@ -3852,6 +4173,7 @@ def create_viewer_server(
         auto_refresh_interval_seconds=auto_refresh_interval_seconds,
         auto_refresh_interval_forced=auto_refresh_interval_forced,
         lan_mode=lan_mode,
+        lan_rw_mode=lan_rw_mode,
         tls_context=tls_context,
     )
 
@@ -3990,12 +4312,18 @@ def render_start_status(
     bind_host: str = "localhost",
     auto_refresh_interval_seconds: int = 15,
     lan_mode: bool = False,
+    lan_rw_mode: bool = False,
     lan_token: str | None = None,
     lan_url: str | None = None,
     qr_lines: list[str] | None = None,
     tls_enabled: bool = False,
 ) -> str:
-    mode_label = "LAN read-only (token required)" if lan_mode else "read-only"
+    if lan_rw_mode:
+        mode_label = "LAN read/write (token + paired device required)"
+    elif lan_mode:
+        mode_label = "LAN read-only (token required)"
+    else:
+        mode_label = "read-only"
     transport_label = "HTTPS (self-signed)" if tls_enabled else "HTTP"
     lines = [
         "Logics viewer running:",
@@ -4013,7 +4341,10 @@ def render_start_status(
         lines.append(f"Focus: {focus}")
     if lan_mode:
         lines.append("")
-        lines.append("LAN exposure is active. Mutating endpoints are refused; non-loopback clients must present the session token below.")
+        if lan_rw_mode:
+            lines.append("LAN exposure is active in read/write mode. Devices need the session token AND a PIN-paired device token to mutate state.")
+        else:
+            lines.append("LAN exposure is active. Mutating endpoints are refused; non-loopback clients must present the session token below.")
         if lan_url:
             lines.append(f"Share URL: {lan_url}")
         if lan_token:
@@ -4032,6 +4363,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--lan",
         action="store_true",
         help="Expose the viewer on the local network (0.0.0.0). Enforces read-only access and requires a per-session bearer token for non-loopback requests.",
+    )
+    parser.add_argument(
+        "--lan-rw",
+        action="store_true",
+        help="Allow paired devices to mutate state over LAN. Devices must complete a PIN handshake first (PIN is printed on the host's stdout). Implies --lan.",
     )
     parser.add_argument(
         "--tls",
@@ -4074,7 +4410,13 @@ def main(argv: list[str]) -> int:
         focus = normalize_viewer_focus_target(repo_root, args.focus) if args.focus else None
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    bind_host = "0.0.0.0" if args.lan and args.host == "127.0.0.1" else args.host
+    lan_enabled = bool(args.lan) or bool(args.lan_rw)
+    bind_host = "0.0.0.0" if lan_enabled and args.host == "127.0.0.1" else args.host
+    if args.lan_rw and not args.tls and not (args.tls_cert and args.tls_key):
+        sys.stdout.write(
+            "[warn] --lan-rw without --tls exposes device tokens over plain HTTP. "
+            "Add --tls (or wrap the viewer in a Tailscale / VPN) before pairing real devices.\n"
+        )
     tls_requested = bool(args.tls) or bool(args.tls_cert) or bool(args.tls_key)
     tls_context: ssl.SSLContext | None = None
     if tls_requested:
@@ -4098,7 +4440,8 @@ def main(argv: list[str]) -> int:
         port=args.port,
         auto_refresh_interval_seconds=refresh_interval,
         auto_refresh_interval_forced=refresh_interval_forced,
-        lan_mode=bool(args.lan),
+        lan_mode=lan_enabled,
+        lan_rw_mode=bool(args.lan_rw),
         tls_context=tls_context,
     )
     host, port = server.server_address[:2]
@@ -4107,7 +4450,7 @@ def main(argv: list[str]) -> int:
     network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
     lan_share_url = ""
     qr_lines: list[str] = []
-    if args.lan and server.lan_token:
+    if lan_enabled and server.lan_token:
         base_for_lan = network_url or url
         lan_share_url = _append_lan_token(base_for_lan, server.lan_token)
         qr_lines = _render_qr_lines(lan_share_url)
@@ -4119,8 +4462,9 @@ def main(argv: list[str]) -> int:
             network_url=network_url,
             bind_host=str(host),
             auto_refresh_interval_seconds=refresh_interval,
-            lan_mode=bool(args.lan),
-            lan_token=server.lan_token if args.lan else None,
+            lan_mode=lan_enabled,
+            lan_rw_mode=server.lan_rw_mode,
+            lan_token=server.lan_token if lan_enabled else None,
             lan_url=lan_share_url or None,
             qr_lines=qr_lines or None,
             tls_enabled=server.tls_enabled,

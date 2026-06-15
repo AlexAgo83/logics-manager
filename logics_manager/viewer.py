@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import hmac
 import json
@@ -496,6 +497,7 @@ def viewer_data_payload(
         "canRepairLogicsKit": False,
         "canPublishRelease": False,
         "shouldRecommendCheckEnvironment": False,
+        "environmentWarning": viewer_environment_warning(active_root),
     }
 
 
@@ -845,40 +847,82 @@ STATIC_CONTENT_TYPES = {
 }
 
 
+def _path_on_windows_drive_mount(path: Path) -> bool:
+    try:
+        parts = path.resolve().parts
+    except OSError:
+        parts = path.parts
+    return len(parts) >= 3 and parts[0] == "/" and parts[1] == "mnt" and len(parts[2]) == 1 and parts[2].isalpha()
+
+
+@functools.lru_cache(maxsize=8)
+def _subprocess_timeout_scale(repo_root_key: str) -> float:
+    """Return a timeout multiplier for slow filesystems (WSL on /mnt/<drive>)."""
+    if not _is_wsl():
+        return 1.0
+    try:
+        if _path_on_windows_drive_mount(Path(repo_root_key)):
+            return 6.0
+    except (OSError, ValueError):
+        pass
+    return 2.0
+
+
+def _scaled_timeout(repo_root: Path, base: float) -> float:
+    return base * _subprocess_timeout_scale(str(repo_root))
+
+
+def viewer_environment_warning(repo_root: Path) -> dict[str, str] | None:
+    """Surface an environment warning when the repo lives on a slow filesystem."""
+    if _is_wsl() and _path_on_windows_drive_mount(repo_root):
+        return {
+            "id": "wsl-windows-drive",
+            "severity": "warning",
+            "title": "Slow filesystem detected",
+            "message": (
+                "This repository lives on the Windows filesystem accessed from WSL "
+                "(/mnt/<drive>). Subprocess timeouts have been scaled up, but git, "
+                "cdx and insights operations will still be noticeably slower. "
+                "Move the repo to the WSL filesystem (e.g. ~/) for ~10x faster access."
+            ),
+        }
+    return None
+
+
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["git", *args]
     git_runner = runner or subprocess.run
-    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
+    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 5))
 
 
 def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=5)
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 5))
 
 
 def _run_cdx_mission(repo_root: Path, args: list[str], *, timeout: int, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=timeout)
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, timeout))
 
 
 def _run_logics_flow(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", "flow", *args]
     flow_runner = runner or subprocess.run
-    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=30)
+    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_logics_command(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", *args]
     logics_runner = runner or subprocess.run
-    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=30)
+    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["gh", *args]
     gh_runner = runner or subprocess.run
-    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=8)
+    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 8))
 
 
 def _logics_doc_type(rel_path: str) -> str:

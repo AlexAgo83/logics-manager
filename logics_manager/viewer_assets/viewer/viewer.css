@@ -390,6 +390,16 @@
   background: rgba(245, 158, 11, 0.12);
 }
 
+.viewer-update--warning {
+  flex-wrap: wrap;
+  border-bottom-color: rgba(248, 113, 113, 0.5);
+  background: rgba(127, 29, 29, 0.22);
+}
+
+.viewer-update--warning strong {
+  font-weight: 700;
+}
+
 .viewer-connection {
   justify-content: space-between;
   border-bottom: 1px solid rgba(248, 113, 113, 0.45);

@@ -159,7 +159,7 @@
     "@typescript-eslint/parser": "^8.58.1",
     "@vitest/coverage-v8": "^4.1.2",
     "@vscode/vsce": "^3.9.1",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "eslint": "^10.2.0",
     "jsdom": "^25.0.1",
     "mermaid": "^11.14.0",

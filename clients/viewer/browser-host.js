@@ -2718,22 +2718,66 @@
     const active = workshopTerminalState.activeId
       ? workshopTerminalState.sessions.get(workshopTerminalState.activeId)
       : null;
+    // Clean up placeholder and host elements for sessions that no longer exist.
+    const placeholder = stage.querySelector("[data-viewer-workshop-terminal-empty]");
+    if (placeholder) placeholder.remove();
+    stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const id = node.getAttribute("data-viewer-workshop-terminal-host") || "";
+      if (!workshopTerminalState.sessions.has(id)) {
+        node.remove();
+      }
+    });
     if (!active) {
-      stage.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select or create a terminal session to start.</span></div>`;
+      if (!stage.querySelector("[data-viewer-workshop-terminal-empty]")) {
+        const empty = document.createElement("div");
+        empty.className = "viewer-workspace__placeholder viewer-workspace__placeholder--empty";
+        empty.setAttribute("data-viewer-workshop-terminal-empty", "");
+        empty.innerHTML = '<span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select or create a terminal session to start.</span>';
+        stage.appendChild(empty);
+      }
+      // Hide every existing host while no session is active.
+      stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+        if (node instanceof HTMLElement) node.style.display = "none";
+      });
       return null;
     }
+    // Toggle visibility: only the active host shows, every other host stays
+    // mounted in the DOM so its xterm.js instance and scrollback survive.
     let host = stage.querySelector(`[data-viewer-workshop-terminal-host="${active.id}"]`);
+    stage.querySelectorAll("[data-viewer-workshop-terminal-host]").forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const id = node.getAttribute("data-viewer-workshop-terminal-host") || "";
+      node.style.display = id === active.id ? "" : "none";
+    });
     if (!(host instanceof HTMLElement)) {
-      stage.innerHTML = `<div class="viewer-workshop__terminal-host" data-viewer-workshop-terminal-host="${escapeHtml(active.id)}"></div>`;
-      host = stage.querySelector(`[data-viewer-workshop-terminal-host="${active.id}"]`);
+      host = document.createElement("div");
+      host.className = "viewer-workshop__terminal-host";
+      host.setAttribute("data-viewer-workshop-terminal-host", active.id);
+      stage.appendChild(host);
     }
     return host instanceof HTMLElement ? host : null;
+  }
+
+  function ensureWorkshopTerminalHostFor(sessionId) {
+    const stage = workshopTerminalStageNode();
+    if (!(stage instanceof HTMLElement)) return null;
+    const placeholder = stage.querySelector("[data-viewer-workshop-terminal-empty]");
+    if (placeholder) placeholder.remove();
+    let host = stage.querySelector(`[data-viewer-workshop-terminal-host="${sessionId}"]`);
+    if (!(host instanceof HTMLElement)) {
+      host = document.createElement("div");
+      host.className = "viewer-workshop__terminal-host";
+      host.setAttribute("data-viewer-workshop-terminal-host", sessionId);
+      stage.appendChild(host);
+    }
+    return host;
   }
 
   function mountWorkshopTerminalEmulator(entry) {
     if (typeof window.Terminal !== "function") return;
     if (entry.terminal) return;
-    const host = ensureWorkshopTerminalStage();
+    const host = ensureWorkshopTerminalHostFor(entry.id);
     if (!host) return;
     const term = new window.Terminal({
       fontSize: 12,
@@ -2951,13 +2995,29 @@
     if (activeTab === "commands") {
       await loadWorkshopCommands();
     } else if (activeTab === "terminals") {
-      renderWorkshopTerminalList();
-      if (workshopTerminalState.activeId) {
-        const entry = workshopTerminalState.sessions.get(workshopTerminalState.activeId);
-        if (entry) {
-          entry.terminal = null;
-          entry.fitAddon = null;
+      // The Workshop DOM was just re-rendered, so every prior xterm host /
+      // EventSource is gone. Drop them from the in-memory state too so the
+      // remount path recreates fresh ones and the SSE stream replays the
+      // session buffer.
+      for (const entry of workshopTerminalState.sessions.values()) {
+        if (entry.terminal) {
+          try { entry.terminal.dispose(); } catch { /* noop */ }
         }
+        entry.terminal = null;
+        entry.fitAddon = null;
+        closeWorkshopTerminalStream(entry.id);
+      }
+      renderWorkshopTerminalList();
+      // Remount every session so switching between rows is instant and
+      // none of the terminals show a black/empty stage.
+      for (const entry of workshopTerminalState.sessions.values()) {
+        mountWorkshopTerminalEmulator(entry);
+        if (entry.id !== workshopTerminalState.activeId) {
+          const host = workshopTerminalStageNode()?.querySelector(`[data-viewer-workshop-terminal-host="${entry.id}"]`);
+          if (host instanceof HTMLElement) host.style.display = "none";
+        }
+      }
+      if (workshopTerminalState.activeId) {
         setActiveWorkshopTerminal(workshopTerminalState.activeId);
       }
     }

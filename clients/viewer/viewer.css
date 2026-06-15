@@ -2720,12 +2720,38 @@
   .viewer-update,
   .viewer-lan-banner {
     flex-wrap: wrap;
-    padding: 6px 10px;
-    font-size: 11px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .viewer-lan-banner {
+    gap: 6px 8px;
+    align-items: flex-start;
+  }
+
+  .viewer-lan-banner__icon {
+    flex: 0 0 auto;
+    margin-top: 1px;
+  }
+
+  .viewer-lan-banner__copy {
+    flex: 1 1 100%;
+    min-width: 0;
+    line-height: 1.35;
   }
 
   .viewer-lan-banner__url {
+    flex: 1 1 100%;
     max-width: 100%;
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-left: 24px;
+  }
+
+  .viewer-lan-banner__copy-button {
+    margin-left: 24px;
+    padding: 4px 12px;
+    font-size: 12px;
   }
 }
 

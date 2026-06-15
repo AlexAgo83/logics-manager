@@ -152,3 +152,19 @@ jobs:
         with:
           generate_release_notes: true
           files: artifacts/vscode/logics-manager-${{ steps.release_changelog.outputs.version }}.vsix
+
+  publish-npm:
+    needs: release
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/publish-npm.yml
+    secrets: inherit
+
+  publish-pypi:
+    needs: release
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/publish-pypi.yml
+    secrets: inherit

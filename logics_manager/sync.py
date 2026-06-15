@@ -51,6 +51,29 @@ def _read_lines(path: Path) -> list[str]:
     return _read_text(path).splitlines()
 
 
+def _resolved_repo_root(repo_root: Path) -> Path:
+    return repo_root.resolve()
+
+
+def _is_relative_path(path: Path) -> bool:
+    return not path.is_absolute() and ".." not in path.parts
+
+
+def _approved_doc_target(repo_root: Path, candidate: Path) -> tuple[str, Path] | None:
+    absolute = candidate.resolve()
+    root = _resolved_repo_root(repo_root)
+    try:
+        absolute.relative_to(root)
+    except ValueError:
+        return None
+    if not absolute.is_file():
+        return None
+    for kind_name, kind in DOC_KINDS.items():
+        if absolute.parent == (root / kind["directory"]).resolve():
+            return kind_name, absolute
+    return None
+
+
 def _indicator_value(lines: list[str], key: str) -> str | None:
     pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
     for line in lines:
@@ -320,19 +343,16 @@ def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str,
     resolved: list[tuple[str, Path]] = []
     for source in sources:
         raw_source = Path(source)
-        if raw_source.is_absolute() or any(part == ".." for part in raw_source.parts):
+        if not _is_relative_path(raw_source):
             raise SystemExit(f"Unsupported workflow doc target `{source}`.")
-        candidate = (repo_root / source).resolve()
-        if candidate.is_file():
-            for kind_name, kind in DOC_KINDS.items():
-                if candidate.parent == (repo_root / kind["directory"]).resolve():
-                    resolved.append((kind_name, candidate))
-                    break
+        target = _approved_doc_target(repo_root, repo_root / raw_source)
+        if target is not None:
+            resolved.append(target)
             continue
         for kind_name, kind in DOC_KINDS.items():
-            path = repo_root / kind["directory"] / f"{source}.md"
-            if path.is_file():
-                resolved.append((kind_name, path))
+            target = _approved_doc_target(repo_root, repo_root / kind["directory"] / f"{source}.md")
+            if target is not None and target[0] == kind_name:
+                resolved.append(target)
                 break
         else:
             raise SystemExit(f"Could not resolve workflow doc target `{source}`.")

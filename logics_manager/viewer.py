@@ -708,6 +708,11 @@ def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
     if not candidate.is_absolute():
         candidate = repo_root / raw_path.lstrip("/\\")
     absolute = candidate.resolve()
+    root = repo_root.resolve()
+    try:
+        absolute.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("File path escapes repository root.") from exc
     if not absolute.is_file():
         raise FileNotFoundError(str(candidate))
     return absolute
@@ -763,8 +768,14 @@ def _system_editor_command(path: Path) -> list[str]:
     if sys.platform == "darwin":
         return ["open", str(path)]
     if os.name == "nt":
-        return ["cmd", "/c", "start", "", str(path)]
+        return ["explorer.exe", str(path)]
     return ["xdg-open", str(path)]
+
+
+def _safe_http_content_type(content_type: str) -> str:
+    if "\r" in content_type or "\n" in content_type:
+        return "application/octet-stream"
+    return content_type
 
 
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
@@ -3060,7 +3071,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_bytes(self, content: bytes, *, status: int = 200, content_type: str = "application/octet-stream") -> None:
         self.send_response(status)
-        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Type", _safe_http_content_type(content_type))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         try:

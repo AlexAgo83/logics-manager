@@ -88,8 +88,13 @@ function parseRemoteLine(line: string): GitRemote | null {
 }
 
 function isGitHubRemoteUrl(url: string): boolean {
-  const normalized = url.toLowerCase();
-  return normalized.includes("github.com/") || normalized.includes("github.com:");
+  try {
+    const parsed = new URL(url);
+    return (parsed.protocol === "https:" || parsed.protocol === "ssh:") && parsed.hostname.toLowerCase() === "github.com";
+  } catch {
+    const scpLikeMatch = url.match(/^[^@\s]+@([^:\s]+):[^:\s]+\/[^:\s]+(?:\.git)?$/);
+    return scpLikeMatch?.[1]?.toLowerCase() === "github.com";
+  }
 }
 
 async function detectGitHubCli(): Promise<boolean> {

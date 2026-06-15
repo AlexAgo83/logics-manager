@@ -1,6 +1,6 @@
 ## adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice - LAN viewer auth model, read-only contract, and QR library choice
 > Date: 2026-06-15
-> Status: Accepted
+> Status: Settled
 > Drivers: Keep the viewer safe to expose on a trusted LAN without persisting secrets, enforce read-only at the HTTP layer so future endpoints cannot regress the posture, and give operators a friction-free phone handoff with no native build step.
 > Related request: `req_245_expose_the_viewer_on_the_local_network_with_token_authentication_and_read_only_safety`
 > Related backlog: `item_423_add_lan_opt_in_cli_flag_with_http_layer_read_only_enforcement`

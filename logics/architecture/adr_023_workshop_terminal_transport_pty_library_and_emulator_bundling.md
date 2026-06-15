@@ -1,6 +1,6 @@
 ## adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling - Workshop terminal transport, PTY library, and emulator bundling
 > Date: 2026-06-15 (phase log updated 2026-06-15)
-> Status: Accepted
+> Status: Settled
 > Drivers: No native build step on operator machines, stdlib-first dependencies, clean unavailable state when backends fail to import, low-latency bidirectional terminal I/O, and a vendored emulator that loads without a bundler.
 > Related request: `req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner`
 > Related backlog: `item_421_add_in_app_terminal_manager_with_pty_transport_and_cdx_handoff_launchers`

@@ -2726,7 +2726,13 @@
     padding: 6px 10px;
     font-size: 11px;
   }
+}
 
+/* LAN banner: compact form on every non-desktop viewport. The full message
+ * + URL chip + Copy button row needs at least a desktop-width line to read
+ * cleanly; below that we drop the URL chip (the Copy button covers it) and
+ * switch to a short message variant. */
+@media (max-width: 720px) {
   .viewer-lan-banner {
     flex-wrap: wrap;
     align-items: center;

@@ -1223,19 +1223,30 @@
   padding: 6px;
   min-width: 0;
   min-height: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
 }
 
 .viewer-workshop__terminal-host {
-  width: 100%;
-  flex: 1 1 auto;
-  min-height: 200px;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
   background: #0a0a0a;
   border-radius: 4px;
   padding: 6px 6px 12px;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* Hidden hosts stay laid out so xterm.js can keep measuring them — using
+ * display:none caused the renderer to drift from the cell buffer and lose
+ * SGR backgrounds / box-drawing glyphs on the next activation. */
+.viewer-workshop__terminal-host--hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .viewer-workshop__terminal-host .xterm {
@@ -1312,6 +1323,10 @@
   }
 
   .viewer-workshop__terminal-host {
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

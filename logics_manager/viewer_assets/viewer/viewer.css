@@ -2883,6 +2883,11 @@
     min-width: 0;
   }
 
+  .viewer-topbar__actions .btn {
+    justify-content: center;
+    text-align: center;
+  }
+
   .viewer-refresh-menu > .btn {
     width: 100%;
     justify-content: center;

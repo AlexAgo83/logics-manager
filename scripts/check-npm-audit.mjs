@@ -164,9 +164,10 @@ function npmCommand() {
 function isRegistryUnavailable(stdout, stderr, parsedPayload = null) {
   const code = typeof parsedPayload?.error?.code === "string" ? parsedPayload.error.code.toLowerCase() : "";
   const summary = `${stdout || ""}\n${stderr || ""}`.toLowerCase();
+  const summaryTokens = new Set(summary.split(/[^a-z0-9.-]+/).filter(Boolean));
   return (
     ["enotfound", "eai_again", "econnreset", "econnrefused", "etimedout", "enetunreach"].includes(code) ||
-    summary.includes("registry.npmjs.org") && (
+    summaryTokens.has("registry.npmjs.org") && (
       summary.includes("enotfound") ||
       summary.includes("eai_again") ||
       summary.includes("econnreset") ||

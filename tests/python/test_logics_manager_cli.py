@@ -333,45 +333,55 @@ def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) ->
         edit_doc_payload(repo_root, "../outside.md", launcher=launched.append)
 
 
-def test_viewer_open_file_launches_system_editor_for_repo_and_absolute_files(tmp_path: Path) -> None:
+def test_viewer_open_file_launches_system_editor_for_repo_files(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     repo_file = repo_root / "logics.log"
     repo_file.write_text("repo log\n", encoding="utf-8")
+    nested_repo_file = repo_root / "logs" / "cdx-run.log"
+    nested_repo_file.parent.mkdir()
+    nested_repo_file.write_text("nested log\n", encoding="utf-8")
     external_file = tmp_path / "cdx-run.log"
     external_file.write_text("external log\n", encoding="utf-8")
     launched: list[list[str]] = []
 
     relative_payload = open_file_payload(repo_root, "logics.log", launcher=launched.append)
-    absolute_payload = open_file_payload(repo_root, str(external_file), launcher=launched.append)
+    absolute_payload = open_file_payload(repo_root, str(nested_repo_file), launcher=launched.append)
 
     assert relative_payload["path"] == str(repo_file)
-    assert absolute_payload["path"] == str(external_file)
+    assert absolute_payload["path"] == str(nested_repo_file)
     assert launched[0][-1] == str(repo_file)
-    assert launched[1][-1] == str(external_file)
+    assert launched[1][-1] == str(nested_repo_file)
+    with pytest.raises(ValueError):
+        open_file_payload(repo_root, str(external_file), launcher=launched.append)
     with pytest.raises(FileNotFoundError):
-        open_file_payload(repo_root, str(tmp_path / "missing.log"), launcher=launched.append)
+        open_file_payload(repo_root, "missing.log", launcher=launched.append)
 
 
-def test_viewer_file_preview_reads_repo_and_absolute_files_with_truncation(tmp_path: Path) -> None:
+def test_viewer_file_preview_reads_repo_files_with_truncation(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     repo_file = repo_root / "logics.log"
     repo_file.write_text("abcdef", encoding="utf-8")
+    nested_repo_file = repo_root / "logs" / "cdx-run.log"
+    nested_repo_file.parent.mkdir()
+    nested_repo_file.write_text("nested log\n", encoding="utf-8")
     external_file = tmp_path / "cdx-run.log"
     external_file.write_text("external log\n", encoding="utf-8")
 
     relative_payload = file_preview_payload(repo_root, "logics.log", max_bytes=3, max_chars=10)
-    absolute_payload = file_preview_payload(repo_root, str(external_file))
+    absolute_payload = file_preview_payload(repo_root, str(nested_repo_file))
 
     assert relative_payload["path"] == str(repo_file)
     assert relative_payload["name"] == "logics.log"
     assert relative_payload["content"] == "def"
     assert relative_payload["truncated"] is True
-    assert absolute_payload["path"] == str(external_file)
-    assert "external log" in absolute_payload["content"]
+    assert absolute_payload["path"] == str(nested_repo_file)
+    assert "nested log" in absolute_payload["content"]
+    with pytest.raises(ValueError):
+        file_preview_payload(repo_root, str(external_file))
     with pytest.raises(FileNotFoundError):
-        file_preview_payload(repo_root, str(tmp_path / "missing.log"))
+        file_preview_payload(repo_root, "missing.log")
 
 
 def test_viewer_file_preview_truncates_to_latest_characters(tmp_path: Path) -> None:

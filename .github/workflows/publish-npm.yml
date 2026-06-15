@@ -2,11 +2,10 @@ name: Publish npm
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - Release
+  workflow_call:
+  release:
     types:
-      - completed
+      - published
 
 permissions:
   id-token: write
@@ -14,7 +13,7 @@ permissions:
 
 jobs:
   publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || startsWith(github.event.release.tag_name, 'v') }}
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -22,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -35,11 +34,14 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Ensure tag matches package version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           RELEASE_REF="${GITHUB_REF_NAME}"
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            RELEASE_REF="${{ github.event.workflow_run.head_branch }}"
+          if [ "${EVENT_NAME}" = "release" ]; then
+            RELEASE_REF="${RELEASE_TAG}"
           fi
           if [ "v${PACKAGE_VERSION}" != "${RELEASE_REF}" ]; then
             echo "Ref ${RELEASE_REF} does not match package.json version v${PACKAGE_VERSION}" >&2

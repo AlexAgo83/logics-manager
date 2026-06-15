@@ -1517,6 +1517,16 @@
   margin-left: auto;
 }
 
+.viewer-lan-banner__pair-button {
+  margin-left: 6px;
+}
+
+.viewer-lan-banner__paired {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
 .viewer-workspace__image {
   max-width: 100%;
   max-height: min(70vh, 760px);

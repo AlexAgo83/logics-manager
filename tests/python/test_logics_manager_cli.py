@@ -487,6 +487,39 @@ def test_viewer_lan_mode_disabled_by_default(tmp_path: Path) -> None:
         server.server_close()
 
 
+def test_viewer_lan_rw_pairing_flow_round_trips(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setattr(viewer_module, "_viewer_state_dir", lambda: tmp_path / "state")
+    server = viewer_module.create_viewer_server(
+        tmp_path,
+        host="127.0.0.1",
+        port=0,
+        lan_mode=True,
+        lan_rw_mode=True,
+    )
+    try:
+        broker = server.pairing_broker
+        registry = server.device_registry
+        assert broker is not None and registry is not None
+        entry = broker.start(label="iPhone", requester_ip="127.0.0.1")
+        # Wrong PIN does not complete the pairing.
+        result = broker.try_complete(pairing_id=entry.pairing_id, pin="000000")
+        assert result is not None and result[0] == "wrong"
+        # Right PIN completes and registers a device once.
+        completed = broker.try_complete(pairing_id=entry.pairing_id, pin=entry.pin)
+        assert completed is not None and completed[0] == "ok"
+        token = "tok_" + "x" * 40
+        device = registry.register("iPhone", token)
+        assert registry.find_matching(token) is not None
+        # A replay against the same pairing must fail because the entry was consumed.
+        again = broker.try_complete(pairing_id=entry.pairing_id, pin=entry.pin)
+        assert again is None
+        # Revocation removes the match.
+        assert registry.revoke(device.id) is True
+        assert registry.find_matching(token) is None
+    finally:
+        server.server_close()
+
+
 def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> None:
     must_be_gated = {
         "/api/edit",
@@ -2193,6 +2226,7 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
         tls_enabled = False
         url_scheme = "http"
         lan_token = ""
+        lan_rw_mode = False
 
         def __init__(self) -> None:
             self.closed = False

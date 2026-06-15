@@ -709,12 +709,15 @@ def _resolve_openable_file_path(repo_root: Path, file_path: str) -> Path:
     candidate = Path(raw_path).expanduser()
     if not candidate.is_absolute():
         candidate = repo_root / raw_path.lstrip("/\\")
-    absolute = candidate.resolve()
-    root = repo_root.resolve()
+    root = os.path.realpath(repo_root)
+    absolute_name = os.path.realpath(candidate)
     try:
-        absolute.relative_to(root)
+        common = os.path.commonpath([root, absolute_name])
     except ValueError as exc:
         raise ValueError("File path escapes repository root.") from exc
+    if common != root:
+        raise ValueError("File path escapes repository root.")
+    absolute = Path(absolute_name)
     if not absolute.is_file():
         raise FileNotFoundError(str(candidate))
     return absolute
@@ -3098,13 +3101,17 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"ok": False, "error": message}, status=status.value)
 
     def _serve_file(self, path: Path, *, root: Path) -> None:
-        root_path = root.resolve()
-        absolute = path.resolve()
+        root_name = os.path.realpath(root)
+        absolute_name = os.path.realpath(path)
         try:
-            absolute.relative_to(root_path)
+            common = os.path.commonpath([root_name, absolute_name])
         except ValueError:
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
+        if common != root_name:
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
+            return
+        absolute = Path(absolute_name)
         if not absolute.is_file():
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return

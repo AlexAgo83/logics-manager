@@ -1242,6 +1242,85 @@
   height: 100%;
 }
 
+@media (max-width: 700px) {
+  .viewer-workshop__panel--terminals-active {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    height: calc(100dvh - 200px);
+    max-height: calc(100dvh - 200px);
+    min-height: 320px;
+  }
+
+  .viewer-workshop__terminal-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--vscode-panel-border, #333333);
+    padding: 8px;
+    gap: 8px;
+    overflow-y: visible;
+  }
+
+  .viewer-workshop__terminal-list-header {
+    font-size: 12px;
+  }
+
+  .viewer-workshop__terminal-new {
+    font-size: 12px;
+    padding: 6px 12px;
+    min-height: 32px;
+  }
+
+  .viewer-workshop__terminal-rows {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+
+  .viewer-workshop__terminal-row {
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    max-width: 220px;
+    padding: 6px 6px 6px 12px;
+    border: 1px solid var(--vscode-panel-border, #333333);
+    border-radius: 18px;
+    scroll-snap-align: start;
+    font-size: 13px;
+  }
+
+  .viewer-workshop__terminal-row .viewer-workshop__state {
+    display: none;
+  }
+
+  .viewer-workshop__terminal-row.is-active {
+    border-color: var(--vscode-focusBorder, #007fd4);
+  }
+
+  .viewer-workshop__terminal-row-close {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .viewer-workshop__terminal-stage {
+    padding: 8px;
+  }
+
+  .viewer-workshop__terminal-host {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .viewer-workshop__terminal-host .xterm {
+    min-width: 640px;
+  }
+}
+
 .viewer-workshop__group {
   margin-bottom: 12px;
 }

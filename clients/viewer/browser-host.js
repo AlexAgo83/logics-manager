@@ -3047,12 +3047,17 @@
       });
   }
 
+  const WORKSHOP_TERMINAL_MIN_COLS = 80;
+  const WORKSHOP_TERMINAL_MIN_ROWS = 24;
+
   function resizeWorkshopTerminal(sessionId, rows, cols) {
     if (!sessionId || rows <= 0 || cols <= 0) return;
+    const safeRows = Math.max(rows, WORKSHOP_TERMINAL_MIN_ROWS);
+    const safeCols = Math.max(cols, WORKSHOP_TERMINAL_MIN_COLS);
     fetch("/api/workshop-terminal-resize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, rows, cols }),
+      body: JSON.stringify({ sessionId, rows: safeRows, cols: safeCols }),
     }).catch(() => { /* noop */ });
   }
 

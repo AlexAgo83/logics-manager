@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from copy import deepcopy
 from dataclasses import dataclass
@@ -44,13 +45,16 @@ MAX_MUTATION_TEXT_CHARS = 2000
 
 
 def _read_text(repo_root: Path, path: Path) -> str:
-    root = repo_root.resolve()
-    absolute = path.resolve()
+    root = os.path.realpath(repo_root)
+    absolute_name = os.path.realpath(path)
     try:
-        absolute.relative_to(root)
+        common = os.path.commonpath([root, absolute_name])
     except ValueError as exc:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.") from exc
-    approved_dirs = {(root / kind["directory"]).resolve() for kind in DOC_KINDS.values()}
+    if common != root:
+        raise SystemExit(f"Unsupported workflow doc path `{path}`.")
+    absolute = Path(absolute_name)
+    approved_dirs = {Path(os.path.realpath(repo_root / kind["directory"])) for kind in DOC_KINDS.values()}
     if absolute.parent not in approved_dirs:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.")
     return absolute.read_text(encoding="utf-8")
@@ -320,6 +324,7 @@ def _build_context_pack(
 
 
 def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str, Path]]:
+    candidates: dict[str, tuple[str, Path]] = {}
     if not sources:
         targets: list[tuple[str, Path]] = []
         for kind_name, kind in DOC_KINDS.items():
@@ -330,36 +335,25 @@ def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str,
                 targets.append((kind_name, path))
         return targets
 
+    for kind_name, kind in DOC_KINDS.items():
+        directory = repo_root / kind["directory"]
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.glob(f"{kind['prefix']}_*.md")):
+            candidates[path.relative_to(repo_root).as_posix()] = (kind_name, path)
+            candidates[path.stem] = (kind_name, path)
+
     resolved: list[tuple[str, Path]] = []
     for source in sources:
         raw_source = Path(source)
         if not _is_relative_path(raw_source):
             raise SystemExit(f"Unsupported workflow doc target `{source}`.")
-        root = repo_root.resolve()
-        direct_candidate = (repo_root / raw_source).resolve()
-        try:
-            direct_candidate.relative_to(root)
-        except ValueError as exc:
-            raise SystemExit(f"Unsupported workflow doc target `{source}`.") from exc
-        matched_direct = False
-        for kind_name, kind in DOC_KINDS.items():
-            if direct_candidate.parent == (root / kind["directory"]).resolve() and direct_candidate.is_file():
-                resolved.append((kind_name, direct_candidate))
-                matched_direct = True
-                break
-        if matched_direct:
+        normalized = raw_source.as_posix()
+        target = candidates.get(normalized) or candidates.get(Path(source).stem if "/" not in normalized else "")
+        if target is not None:
+            resolved.append(target)
             continue
-        for kind_name, kind in DOC_KINDS.items():
-            path = (repo_root / kind["directory"] / f"{source}.md").resolve()
-            try:
-                path.relative_to(root)
-            except ValueError as exc:
-                raise SystemExit(f"Unsupported workflow doc target `{source}`.") from exc
-            if path.parent == (root / kind["directory"]).resolve() and path.is_file():
-                resolved.append((kind_name, path))
-                break
-        else:
-            raise SystemExit(f"Could not resolve workflow doc target `{source}`.")
+        raise SystemExit(f"Could not resolve workflow doc target `{source}`.")
     return resolved
 
 

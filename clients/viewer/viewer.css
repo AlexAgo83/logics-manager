@@ -565,12 +565,25 @@
   gap: 6px;
 }
 
-.viewer-document__refresh {
+.viewer-document__btn,
+.viewer-document__screen-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+.viewer-document__icon {
+  display: inline-flex;
+  font-size: 13px;
   line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .viewer-document__btn-text {
+    display: none;
+  }
 }
 
 .viewer-document__header {

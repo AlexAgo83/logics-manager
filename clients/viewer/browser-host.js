@@ -1518,6 +1518,14 @@
     return "";
   }
 
+  function updateScreenActions(titleText) {
+    const isGit = titleText === "Git status";
+    const pull = document.getElementById("viewer-git-pull");
+    const push = document.getElementById("viewer-git-push");
+    if (pull) pull.hidden = !isGit;
+    if (push) push.hidden = !isGit;
+  }
+
   function setDocument(titleText, html) {
     cdxCloseTarget = null;
     const panel = documentPanel();
@@ -1532,6 +1540,7 @@
       eyebrow.textContent = description;
       eyebrow.hidden = !description;
     }
+    updateScreenActions(titleText);
     if (content) {
       content.innerHTML = html || "";
     }
@@ -5936,6 +5945,12 @@
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);
+    });
+    document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
+      spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });
+    });
+    document.getElementById("viewer-git-push")?.addEventListener("click", () => {
+      spawnWorkshopTerminal({ command: ["git", "push"], label: "git push" });
     });
     startAutoRefresh();
   });

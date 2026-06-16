@@ -627,43 +627,21 @@ def test_workshop_terminal_session_stop_terminates_long_running(tmp_path: Path) 
 
 
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
-def test_workshop_terminal_session_idle_kill_fires_when_listener_drops(tmp_path: Path) -> None:
+def test_workshop_terminal_session_survives_with_no_listeners(tmp_path: Path) -> None:
+    """Sessions must stay alive while their process runs, even when no SSE
+    consumer is attached — multiple terminals share one focused viewer."""
     import time as _time
 
     registry = WorkshopTerminalRegistry()
-    session = registry.create(["/bin/sh", "-c", "sleep 30"], tmp_path, label="idle-kill")
-    # Tighten the idle grace so the test does not need to wait 60 seconds.
-    session._idle_kill_seconds = 0.3
-    session.attach_listener()
-    _time.sleep(0.1)
-    assert session.state == "running"
-    session.detach_listener()
+    session = registry.create(["/bin/sh", "-c", "sleep 2"], tmp_path, label="no-listener")
+    _time.sleep(0.8)
+    assert session.state == "running", f"unexpected state {session.state}"
     for _ in range(40):
-        if session.state in {"stopped", "failed", "finished"}:
+        if session.state in {"finished", "failed", "stopped"}:
             break
-        _time.sleep(0.05)
-    status = session.status_payload()
+        _time.sleep(0.1)
     registry.shutdown()
-    assert status["state"] in {"stopped", "failed"}, f"unexpected state {status['state']}"
-
-
-@pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
-def test_workshop_terminal_session_reattach_cancels_idle_timer(tmp_path: Path) -> None:
-    import time as _time
-
-    registry = WorkshopTerminalRegistry()
-    session = registry.create(["/bin/sh", "-c", "sleep 30"], tmp_path, label="reattach")
-    session._idle_kill_seconds = 0.3
-    session.attach_listener()
-    _time.sleep(0.05)
-    session.detach_listener()
-    # Re-attach before the grace window elapses → timer must be cancelled.
-    _time.sleep(0.1)
-    session.attach_listener()
-    _time.sleep(0.5)
-    assert session.state == "running"
-    session.detach_listener()
-    registry.shutdown()
+    assert session.state in {"finished", "failed", "stopped"}
 
 
 def test_workshop_terminal_registry_rejects_when_no_workspace(tmp_path: Path) -> None:

@@ -2927,7 +2927,6 @@ class WorkshopSessionRegistry:
 
 _WORKSHOP_TERMINAL_BUFFER_MAX = 8000
 _WORKSHOP_TERMINAL_TTL_SECONDS = 1800
-_WORKSHOP_TERMINAL_IDLE_KILL_SECONDS = 60.0
 
 
 def workshop_terminals_available() -> bool:
@@ -2984,9 +2983,6 @@ class WorkshopTerminalSession:
         self._reaper: threading.Thread | None = None
         self._created_at = self._now()
         self._last_activity = self._created_at
-        self._listeners = 0
-        self._idle_timer: threading.Timer | None = None
-        self._idle_kill_seconds = _WORKSHOP_TERMINAL_IDLE_KILL_SECONDS
 
     @staticmethod
     def _now() -> float:
@@ -3026,38 +3022,6 @@ class WorkshopTerminalSession:
         if self.state in {"running", "starting"}:
             return False
         return (self._now() - self._last_activity) > ttl_seconds
-
-    def attach_listener(self) -> None:
-        """Register a live SSE consumer for this session."""
-        with self._lock:
-            self._listeners += 1
-            if self._idle_timer is not None:
-                self._idle_timer.cancel()
-                self._idle_timer = None
-
-    def detach_listener(self) -> None:
-        """Release an SSE consumer; arm the idle-kill timer if none remain."""
-        import threading
-        arm = False
-        with self._lock:
-            self._listeners = max(0, self._listeners - 1)
-            if self._listeners == 0 and self.state in {"running", "starting"}:
-                if self._idle_timer is not None:
-                    self._idle_timer.cancel()
-                self._idle_timer = threading.Timer(self._idle_kill_seconds, self._on_idle_timeout)
-                self._idle_timer.daemon = True
-                arm = True
-        if arm and self._idle_timer is not None:
-            self._idle_timer.start()
-
-    def _on_idle_timeout(self) -> None:
-        with self._lock:
-            still_idle = self._listeners == 0 and self.state in {"running", "starting"}
-            self._idle_timer = None
-        if not still_idle:
-            return
-        # Best-effort: SIGTERM the session group, falling back to SIGKILL.
-        self.stop(timeout=3.0)
 
     def start(self) -> None:
         import threading
@@ -3161,9 +3125,6 @@ class WorkshopTerminalSession:
             self.finished_at = self._iso_now()
             self.state = "finished" if code == 0 else ("stopped" if code in (-15, -9) else "failed")
             self._last_activity = self._now()
-            if self._idle_timer is not None:
-                self._idle_timer.cancel()
-                self._idle_timer = None
 
     def stop(self, *, timeout: float = 3.0) -> None:
         pid = self._pid
@@ -3656,7 +3617,6 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
         except (BrokenPipeError, ConnectionResetError):
             return
-        session.attach_listener()
         try:
             last_seq = since
             idle_ticks = 0
@@ -3692,8 +3652,6 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 _time.sleep(0.1)
         except (BrokenPipeError, ConnectionResetError):
             return
-        finally:
-            session.detach_listener()
 
     def _stream_workshop_session(self, session: "WorkshopCommandSession", parsed: Any) -> None:
         import time as _time

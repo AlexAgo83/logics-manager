@@ -260,8 +260,7 @@
     { id: "credits", label: "CR", defaultVisible: false },
     { id: "reset5h", label: "RESET 5H" },
     { id: "resetWeek", label: "RESET WEEK" },
-    { id: "updated", label: "UPDATED" },
-    { id: "toggle", label: "ON/OFF" }
+    { id: "updated", label: "UPDATED" }
   ];
 
   function readStoredState() {
@@ -3976,7 +3975,13 @@
         return `<td class="viewer-cdx__session-name">${escapeHtml(label)}</td>`;
       },
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
-      status: (item) => `<td>${renderCdxBadge(cdxField(item, ["status", "state"]))}</td>`,
+      status: (item) => {
+        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        const isEnabled = item.enabled !== false;
+        const badge = renderCdxBadge(cdxField(item, ["status", "state"]));
+        if (!name || name === "-") return `<td>${badge}</td>`;
+        return `<td><button class="viewer-cdx__status-toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${badge}</button></td>`;
+      },
       auth: (item) => `<td>${escapeHtml(String(cdxField(item, ["auth_status", "authStatus"], "-")).replace("authenticated", "logged"))}</td>`,
       ok: (item) => `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`,
       remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
@@ -3985,12 +3990,7 @@
       credits: (item) => `<td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>`,
       reset5h: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>`,
       resetWeek: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>`,
-      updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`,
-      toggle: (item) => {
-        const name = cdxField(item, ["session_name", "name", "id", "value"]);
-        const isEnabled = item.enabled !== false;
-        return `<td><button class="viewer-cdx__toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${isEnabled ? "on" : "off"}</button></td>`;
-      }
+      updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`
     };
     const activeColumns = cdxStatusColumns.filter((column) => visibleColumns[column.id]);
     const rows = sessions.slice(0, 24).map((entry) => {
@@ -5674,9 +5674,9 @@
         }).then((r) => r.json()).then((data) => {
           if (data.ok) {
             cdxToggleTarget.setAttribute("data-viewer-cdx-toggle-state", enable ? "on" : "off");
-            cdxToggleTarget.className = `viewer-cdx__toggle${enable ? " is-on" : " is-off"}`;
+            cdxToggleTarget.classList.toggle("is-on", enable);
+            cdxToggleTarget.classList.toggle("is-off", !enable);
             cdxToggleTarget.title = `${enable ? "Disable" : "Enable"} ${sessionName}`;
-            cdxToggleTarget.textContent = enable ? "on" : "off";
           }
         }).catch(() => {}).finally(() => { cdxToggleTarget.disabled = false; });
         return;

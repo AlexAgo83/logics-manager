@@ -260,7 +260,8 @@
     { id: "credits", label: "CR", defaultVisible: false },
     { id: "reset5h", label: "RESET 5H" },
     { id: "resetWeek", label: "RESET WEEK" },
-    { id: "updated", label: "UPDATED" }
+    { id: "updated", label: "UPDATED" },
+    { id: "toggle", label: "ON/OFF" }
   ];
 
   function readStoredState() {
@@ -3991,7 +3992,12 @@
       credits: (item) => `<td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>`,
       reset5h: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>`,
       resetWeek: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>`,
-      updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`
+      updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`,
+      toggle: (item) => {
+        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        const isEnabled = item.enabled !== false;
+        return `<td><button class="viewer-cdx__toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${isEnabled ? "on" : "off"}</button></td>`;
+      }
     };
     const activeColumns = cdxStatusColumns.filter((column) => visibleColumns[column.id]);
     const rows = sessions.slice(0, 24).map((entry) => {
@@ -4319,7 +4325,7 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("status")}
         <div class="viewer-cdx__summary">${cards}</div>
-        ${renderCdxStatusControls(knownProviders, allSessions.map((s) => cdxField(s, ["session_name", "name", "id", "value"]) || "").filter(Boolean), cdxColumnVisibilityPreference(), providerFilter)}
+        ${renderCdxStatusControls(knownProviders, allSessions.filter((s) => s.enabled !== false).map((s) => cdxField(s, ["session_name", "name", "id", "value"]) || "").filter(Boolean), cdxColumnVisibilityPreference(), providerFilter)}
         <div class="viewer-cdx__workspace">
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">
@@ -5659,7 +5665,29 @@
       const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
       const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
+      const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
       const cdxSessionLaunchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-launch]") : null;
+      if (cdxToggleTarget instanceof HTMLButtonElement) {
+        event.preventDefault();
+        const sessionName = cdxToggleTarget.getAttribute("data-viewer-cdx-toggle") || "";
+        const currentState = cdxToggleTarget.getAttribute("data-viewer-cdx-toggle-state") || "on";
+        const enable = currentState === "off";
+        if (!sessionName) return;
+        cdxToggleTarget.disabled = true;
+        fetch("/api/cdx-toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session: sessionName, enable }),
+        }).then((r) => r.json()).then((data) => {
+          if (data.ok) {
+            cdxToggleTarget.setAttribute("data-viewer-cdx-toggle-state", enable ? "on" : "off");
+            cdxToggleTarget.className = `viewer-cdx__toggle${enable ? " is-on" : " is-off"}`;
+            cdxToggleTarget.title = `${enable ? "Disable" : "Enable"} ${sessionName}`;
+            cdxToggleTarget.textContent = enable ? "on" : "off";
+          }
+        }).catch(() => {}).finally(() => { cdxToggleTarget.disabled = false; });
+        return;
+      }
       if (cdxSessionLaunchTarget instanceof HTMLElement) {
         event.preventDefault();
         const sessionName = cdxSessionLaunchTarget.getAttribute("data-viewer-cdx-session-launch") || "";

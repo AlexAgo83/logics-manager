@@ -559,6 +559,19 @@
   }
 }
 
+.viewer-document__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewer-document__refresh {
+  padding: 2px 8px;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
 .viewer-document__header {
   display: flex;
   align-items: flex-start;

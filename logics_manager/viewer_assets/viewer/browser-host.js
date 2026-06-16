@@ -5900,6 +5900,9 @@
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {
       withPrimaryAction("close-document", "Closing preview", closeDocumentPanel);
     });
+    document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
+      withPrimaryAction("refresh-document", "Refreshing", () => refreshViewer("POST", { force: true }));
+    });
     startAutoRefresh();
   });
 })();

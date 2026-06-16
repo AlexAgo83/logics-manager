@@ -566,9 +566,10 @@
 }
 
 .viewer-document__refresh {
-  padding: 2px 8px;
-  min-width: 0;
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
   line-height: 1;
 }
 

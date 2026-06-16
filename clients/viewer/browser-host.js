@@ -4325,7 +4325,7 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("status")}
         <div class="viewer-cdx__summary">${cards}</div>
-        ${renderCdxStatusControls(knownProviders, allSessions.filter((s) => s.enabled !== false).map((s) => cdxField(s, ["session_name", "name", "id", "value"]) || "").filter(Boolean), cdxColumnVisibilityPreference(), providerFilter)}
+        ${renderCdxStatusControls(knownProviders, sessions.filter((s) => s.enabled !== false).map((s) => cdxField(s, ["session_name", "name", "id", "value"]) || "").filter(Boolean), cdxColumnVisibilityPreference(), providerFilter)}
         <div class="viewer-cdx__workspace">
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">

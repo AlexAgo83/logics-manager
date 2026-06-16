@@ -2425,6 +2425,96 @@ def cdx_mission_apply_plan_payload(repo_root: Path, body: dict[str, Any], *, run
     return {"state": "ok", "message": "", "results": results}
 
 
+def cdx_import_payload(
+    repo_root: Path,
+    file_bytes: bytes,
+    passphrase: str,
+    merge: bool = True,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        import_path = Path(tmp_dir) / "cdx-import.cdx"
+        import_path.write_bytes(file_bytes)
+        args = ["import", str(import_path), "--json"]
+        if merge:
+            args.append("--merge")
+        env = {**os.environ}
+        if passphrase:
+            env["CDX_IMPORT_PASS"] = passphrase
+            args += ["--passphrase-env", "CDX_IMPORT_PASS"]
+        cdx_runner = runner or subprocess.run
+        try:
+            result = cdx_runner(
+                ["cdx", *args],
+                cwd=repo_root,
+                text=True,
+                capture_output=True,
+                timeout=_scaled_timeout(repo_root, 30),
+                env=env,
+            )
+        except subprocess.TimeoutExpired:
+            return {"ok": False, "error": "CDX import timed out."}
+    if result.returncode != 0:
+        msg = (result.stderr or result.stdout or "").strip()
+        return {"ok": False, "error": msg or "CDX import failed."}
+    try:
+        parsed = json.loads(result.stdout)
+        return {"ok": True, "message": parsed.get("message") or "Import complete."}
+    except Exception:
+        return {"ok": True, "message": result.stdout.strip() or "Import complete."}
+
+
+def cdx_export_payload(
+    repo_root: Path,
+    sessions: list[str],
+    passphrase: str,
+    include_auth: bool = True,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    import tempfile, base64
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        export_path = Path(tmp_dir) / "cdx-export.cdx"
+        args = ["export", str(export_path), "--json"]
+        if include_auth:
+            args.append("--include-auth")
+        if sessions:
+            args += ["--sessions", ",".join(sessions)]
+        env = {**os.environ}
+        if passphrase:
+            env["CDX_EXPORT_PASS"] = passphrase
+            args += ["--passphrase-env", "CDX_EXPORT_PASS"]
+        cdx_runner = runner or subprocess.run
+        try:
+            result = cdx_runner(
+                ["cdx", *args],
+                cwd=repo_root,
+                text=True,
+                capture_output=True,
+                timeout=_scaled_timeout(repo_root, 30),
+                env=env,
+            )
+        except subprocess.TimeoutExpired:
+            return {"ok": False, "error": "CDX export timed out."}
+        if result.returncode != 0:
+            msg = (result.stderr or result.stdout or "").strip()
+            return {"ok": False, "error": msg or "CDX export failed."}
+        if not export_path.exists():
+            return {"ok": False, "error": "CDX export produced no file."}
+        file_b64 = base64.b64encode(export_path.read_bytes()).decode()
+    return {"ok": True, "fileBase64": file_b64, "filename": "cdx-accounts.cdx"}
+
+
 def _slugify_viewer_doc(text: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
     return slug[:80] or "cdx_code_review_findings"
@@ -2580,6 +2670,8 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/workshop-terminal-stop",
         "/api/workshop-terminal-input",
         "/api/workshop-terminal-resize",
+        "/api/cdx-import",
+        "/api/cdx-export",
     }
 )
 
@@ -4111,6 +4203,49 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": cdx_mission_apply_plan_payload(self.server.repo_root, body)})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            return
+        if parsed.path == "/api/cdx-import":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            file_b64 = str(body.get("fileBase64") or "")
+            passphrase = str(body.get("passphrase") or "")
+            merge = bool(body.get("merge", True))
+            if not file_b64:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "fileBase64 is required.")
+                return
+            import base64
+            try:
+                file_bytes = base64.b64decode(file_b64)
+            except Exception:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid base64 in fileBase64.")
+                return
+            result = cdx_import_payload(self.server.repo_root, file_bytes, passphrase, merge)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Import failed."))
+            return
+        if parsed.path == "/api/cdx-export":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            sessions = [str(s) for s in (body.get("sessions") or []) if s]
+            passphrase = str(body.get("passphrase") or "")
+            include_auth = bool(body.get("includeAuth", True))
+            result = cdx_export_payload(self.server.repo_root, sessions, passphrase, include_auth)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Export failed."))
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

@@ -3101,3 +3101,83 @@
     gap: 4px;
   }
 }
+
+.viewer-cdx__menu-panel--wide {
+  min-width: 260px;
+}
+
+.viewer-cdx__import-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.viewer-cdx__form-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85em;
+}
+
+.viewer-cdx__form-label span {
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.viewer-cdx__file-input,
+.viewer-cdx__pass-input {
+  padding: 4px 6px;
+  border: 1px solid var(--vscode-input-border, rgba(128,128,128,0.35));
+  border-radius: 3px;
+  background: var(--vscode-input-background, rgba(128,128,128,0.1));
+  color: inherit;
+  font-size: 0.9em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.viewer-cdx__form-section-label {
+  font-size: 0.8em;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.viewer-cdx__menu-action--primary {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.9em;
+  align-self: flex-start;
+}
+
+.viewer-cdx__menu-action--primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.viewer-cdx__menu-action--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.viewer-cdx__form-status {
+  font-size: 0.85em;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
+.viewer-cdx__form-status--ok {
+  color: var(--vscode-testing-iconPassed, #4caf50);
+}
+
+.viewer-cdx__form-status--error {
+  color: var(--vscode-testing-iconFailed, #f44336);
+}
+
+.viewer-cdx__form-status--info {
+  opacity: 0.7;
+}

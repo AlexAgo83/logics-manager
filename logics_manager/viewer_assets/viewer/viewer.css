@@ -3207,3 +3207,20 @@
   cursor: not-allowed;
   opacity: 0.35;
 }
+
+.viewer-cdx__auth-login {
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vscode-errorForeground, #e06c75);
+  transition: background 0.15s, color 0.15s;
+}
+
+.viewer-cdx__auth-login:hover:not(:disabled) {
+  background: var(--vscode-errorForeground, #e06c75);
+  color: var(--vscode-editor-background, #1e1e1e);
+}

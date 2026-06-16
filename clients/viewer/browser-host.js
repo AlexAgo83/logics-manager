@@ -626,6 +626,38 @@
     return String(value ?? "").replace(/["\\]/g, "\\$&");
   }
 
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = typeof result === "string" ? result.split(",")[1] || "" : "";
+        resolve(base64);
+      };
+      reader.onerror = () => reject(new Error("Failed to read file."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function downloadBase64File(base64, filename) {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  }
+
+  function showCdxFormStatus(el, type, message) {
+    if (!el) return;
+    el.hidden = false;
+    el.className = `viewer-cdx__form-status viewer-cdx__form-status--${type}`;
+    el.textContent = message;
+  }
+
   function setMeta(text) {
     latestMetaText = text;
     renderMeta();
@@ -3834,7 +3866,66 @@
     return entries.filter((entry) => selected.has(cdxProviderName(entry)));
   }
 
-  function renderCdxStatusControls(knownProviders, visibleColumns, providerFilter) {
+  function renderCdxImportExportControls(knownSessions) {
+    const sessionRows = knownSessions.map((name) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" class="viewer-cdx__export-session" value="${escapeHtml(name)}" checked>
+        <span>${escapeHtml(name)}</span>
+      </label>
+    `).join("");
+    return `
+      <details class="viewer-cdx__menu" id="viewer-cdx-import-menu">
+        <summary class="viewer-cdx__icon-button" title="Import CDX accounts" aria-label="Import CDX accounts">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </summary>
+        <div class="viewer-cdx__menu-panel viewer-cdx__menu-panel--wide" role="dialog" aria-label="Import CDX accounts">
+          <div class="viewer-cdx__import-form">
+            <label class="viewer-cdx__form-label">
+              <span>File (.cdx)</span>
+              <input type="file" class="viewer-cdx__file-input" id="viewer-cdx-import-file" accept=".cdx,.json">
+            </label>
+            <label class="viewer-cdx__form-label">
+              <span>Passphrase</span>
+              <input type="password" class="viewer-cdx__pass-input" id="viewer-cdx-import-pass" placeholder="Leave empty if unencrypted" autocomplete="off">
+            </label>
+            <label class="viewer-cdx__menu-check">
+              <input type="checkbox" id="viewer-cdx-import-merge" checked>
+              <span>Merge (keep existing accounts)</span>
+            </label>
+            <button class="viewer-cdx__menu-action viewer-cdx__menu-action--primary" type="button" id="viewer-cdx-import-btn">Import</button>
+            <div class="viewer-cdx__form-status" id="viewer-cdx-import-status" hidden></div>
+          </div>
+        </div>
+      </details>
+      <details class="viewer-cdx__menu" id="viewer-cdx-export-menu">
+        <summary class="viewer-cdx__icon-button" title="Export CDX accounts" aria-label="Export CDX accounts">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </summary>
+        <div class="viewer-cdx__menu-panel viewer-cdx__menu-panel--wide" role="dialog" aria-label="Export CDX accounts">
+          <div class="viewer-cdx__import-form">
+            <div class="viewer-cdx__form-section-label">Sessions to export</div>
+            <label class="viewer-cdx__menu-check">
+              <input type="checkbox" id="viewer-cdx-export-all" checked>
+              <span>All sessions</span>
+            </label>
+            <div id="viewer-cdx-export-sessions">${sessionRows || '<div class="viewer-cdx__empty">No sessions available.</div>'}</div>
+            <label class="viewer-cdx__form-label">
+              <span>Passphrase</span>
+              <input type="password" class="viewer-cdx__pass-input" id="viewer-cdx-export-pass" placeholder="Recommended — encrypts credentials" autocomplete="off">
+            </label>
+            <label class="viewer-cdx__menu-check">
+              <input type="checkbox" id="viewer-cdx-export-auth" checked>
+              <span>Include credentials (--include-auth)</span>
+            </label>
+            <button class="viewer-cdx__menu-action viewer-cdx__menu-action--primary" type="button" id="viewer-cdx-export-btn">Export</button>
+            <div class="viewer-cdx__form-status" id="viewer-cdx-export-status" hidden></div>
+          </div>
+        </div>
+      </details>
+    `;
+  }
+
+  function renderCdxStatusControls(knownProviders, knownSessions, visibleColumns, providerFilter) {
     const columnRows = cdxStatusColumns.map((column) => `
       <label class="viewer-cdx__menu-check">
         <input type="checkbox" data-viewer-cdx-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
@@ -3869,6 +3960,7 @@
             ${providerRows || '<div class="viewer-cdx__empty">No providers reported.</div>'}
           </div>
         </details>
+        ${renderCdxImportExportControls(knownSessions)}
       </div>
     `;
   }
@@ -4227,7 +4319,7 @@
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("status")}
         <div class="viewer-cdx__summary">${cards}</div>
-        ${renderCdxStatusControls(knownProviders, cdxColumnVisibilityPreference(), providerFilter)}
+        ${renderCdxStatusControls(knownProviders, allSessions.map((s) => cdxField(s, ["session_name", "name", "id", "value"]) || "").filter(Boolean), cdxColumnVisibilityPreference(), providerFilter)}
         <div class="viewer-cdx__workspace">
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">
@@ -4257,6 +4349,85 @@
   function rerenderCdxStatusFromPreferences() {
     if (isCdxStatusOpen() && latestCdxStatusPayload) {
       setDocument("CDX status", renderCdxStatus(latestCdxStatusPayload));
+      setupCdxImportExportHandlers();
+    }
+  }
+
+  function setupCdxImportExportHandlers() {
+    const importBtn = document.getElementById("viewer-cdx-import-btn");
+    if (importBtn) {
+      importBtn.addEventListener("click", async () => {
+        const fileInput = document.getElementById("viewer-cdx-import-file");
+        const passInput = document.getElementById("viewer-cdx-import-pass");
+        const mergeCheck = document.getElementById("viewer-cdx-import-merge");
+        const statusEl = document.getElementById("viewer-cdx-import-status");
+        const file = fileInput?.files?.[0];
+        if (!file) { showCdxFormStatus(statusEl, "error", "Please select a file."); return; }
+        importBtn.disabled = true;
+        showCdxFormStatus(statusEl, "info", "Importing…");
+        try {
+          const fileBase64 = await fileToBase64(file);
+          const response = await fetch("/api/cdx-import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileBase64, passphrase: passInput?.value || "", merge: mergeCheck?.checked ?? true }),
+          });
+          const data = await response.json();
+          if (data.ok) {
+            showCdxFormStatus(statusEl, "ok", data.payload?.message || "Import complete.");
+            if (fileInput) fileInput.value = "";
+            if (passInput) passInput.value = "";
+          } else {
+            showCdxFormStatus(statusEl, "error", data.error || "Import failed.");
+          }
+        } catch (err) {
+          showCdxFormStatus(statusEl, "error", err?.message || "Import failed.");
+        } finally {
+          importBtn.disabled = false;
+        }
+      });
+    }
+
+    const exportBtn = document.getElementById("viewer-cdx-export-btn");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", async () => {
+        const passInput = document.getElementById("viewer-cdx-export-pass");
+        const authCheck = document.getElementById("viewer-cdx-export-auth");
+        const allCheck = document.getElementById("viewer-cdx-export-all");
+        const statusEl = document.getElementById("viewer-cdx-export-status");
+        exportBtn.disabled = true;
+        showCdxFormStatus(statusEl, "info", "Exporting…");
+        const sessions = allCheck?.checked
+          ? []
+          : Array.from(document.querySelectorAll(".viewer-cdx__export-session:checked")).map((el) => el.value);
+        try {
+          const response = await fetch("/api/cdx-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessions, passphrase: passInput?.value || "", includeAuth: authCheck?.checked ?? true }),
+          });
+          const data = await response.json();
+          if (data.ok) {
+            downloadBase64File(data.payload?.fileBase64 || "", data.payload?.filename || "cdx-accounts.cdx");
+            showCdxFormStatus(statusEl, "ok", "Export ready — file downloaded.");
+            if (passInput) passInput.value = "";
+          } else {
+            showCdxFormStatus(statusEl, "error", data.error || "Export failed.");
+          }
+        } catch (err) {
+          showCdxFormStatus(statusEl, "error", err?.message || "Export failed.");
+        } finally {
+          exportBtn.disabled = false;
+        }
+      });
+    }
+
+    const exportAllCheck = document.getElementById("viewer-cdx-export-all");
+    if (exportAllCheck) {
+      exportAllCheck.addEventListener("change", () => {
+        const sessionBoxes = document.querySelectorAll(".viewer-cdx__export-session");
+        sessionBoxes.forEach((cb) => { cb.disabled = exportAllCheck.checked; });
+      });
     }
   }
 
@@ -4593,6 +4764,7 @@
     latestCdxStatusPayload = data.payload;
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
+    setupCdxImportExportHandlers();
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
   }
 

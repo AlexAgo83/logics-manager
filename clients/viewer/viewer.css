@@ -3182,31 +3182,28 @@
   opacity: 0.7;
 }
 
-.viewer-cdx__toggle {
-  font-size: 0.75em;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 10px;
-  border: 1px solid transparent;
+.viewer-cdx__status-toggle {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
   cursor: pointer;
-  letter-spacing: 0.03em;
+  font: inherit;
+  color: inherit;
   transition: opacity 0.15s;
 }
 
-.viewer-cdx__toggle.is-on {
-  background: var(--vscode-testing-iconPassed, rgba(76, 175, 80, 0.15));
-  color: var(--vscode-testing-iconPassed, #4caf50);
-  border-color: var(--vscode-testing-iconPassed, rgba(76, 175, 80, 0.3));
+.viewer-cdx__status-toggle.is-off {
+  opacity: 0.45;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }
 
-.viewer-cdx__toggle.is-off {
-  background: rgba(128, 128, 128, 0.1);
-  color: inherit;
-  border-color: rgba(128, 128, 128, 0.25);
-  opacity: 0.6;
+.viewer-cdx__status-toggle:hover:not(:disabled) {
+  filter: brightness(1.15);
 }
 
-.viewer-cdx__toggle:disabled {
-  opacity: 0.35;
+.viewer-cdx__status-toggle:disabled {
   cursor: not-allowed;
+  opacity: 0.35;
 }

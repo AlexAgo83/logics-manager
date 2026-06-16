@@ -117,6 +117,9 @@
     ]
   },
   "scripts": {
+    "view": "node scripts/dev/run-viewer.mjs",
+    "sync:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs",
+    "check:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs --check",
     "bundle:extension": "node scripts/build/package-extension.mjs",
     "watch:bundle": "node scripts/build/package-extension.mjs --watch",
     "watch:types": "tsc -watch -p ./",

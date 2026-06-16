@@ -3181,3 +3181,32 @@
 .viewer-cdx__form-status--info {
   opacity: 0.7;
 }
+
+.viewer-cdx__toggle {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s;
+}
+
+.viewer-cdx__toggle.is-on {
+  background: var(--vscode-testing-iconPassed, rgba(76, 175, 80, 0.15));
+  color: var(--vscode-testing-iconPassed, #4caf50);
+  border-color: var(--vscode-testing-iconPassed, rgba(76, 175, 80, 0.3));
+}
+
+.viewer-cdx__toggle.is-off {
+  background: rgba(128, 128, 128, 0.1);
+  color: inherit;
+  border-color: rgba(128, 128, 128, 0.25);
+  opacity: 0.6;
+}
+
+.viewer-cdx__toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

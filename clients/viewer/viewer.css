@@ -574,6 +574,11 @@
   line-height: 1.2;
 }
 
+.viewer-document__btn[hidden],
+.viewer-document__screen-action[hidden] {
+  display: none;
+}
+
 .viewer-document__icon {
   display: inline-flex;
   font-size: 13px;

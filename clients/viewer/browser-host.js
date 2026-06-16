@@ -3982,7 +3982,16 @@
         if (!name || name === "-") return `<td>${badge}</td>`;
         return `<td><button class="viewer-cdx__status-toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${badge}</button></td>`;
       },
-      auth: (item) => `<td>${escapeHtml(String(cdxField(item, ["auth_status", "authStatus"], "-")).replace("authenticated", "logged"))}</td>`,
+      auth: (item) => {
+        const rawAuth = String(cdxField(item, ["auth_status", "authStatus"], "-"));
+        const displayAuth = rawAuth.replace("authenticated", "logged");
+        const isLoggedOut = rawAuth.toLowerCase() === "logged_out";
+        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        if (isLoggedOut && canLaunchTerminal && name && name !== "-") {
+          return `<td><button class="viewer-cdx__auth-login" type="button" data-viewer-cdx-login="${escapeHtml(name)}" title="Open Workshop terminal: cdx login ${escapeHtml(name)}">${escapeHtml(displayAuth)}</button></td>`;
+        }
+        return `<td>${escapeHtml(displayAuth)}</td>`;
+      },
       ok: (item) => `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`,
       remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
       remainingWeek: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>`,
@@ -5660,6 +5669,7 @@
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
       const cdxSessionLaunchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-launch]") : null;
+      const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
       if (cdxToggleTarget instanceof HTMLButtonElement) {
         event.preventDefault();
         const sessionName = cdxToggleTarget.getAttribute("data-viewer-cdx-toggle") || "";
@@ -5687,6 +5697,14 @@
         const sessionName = cdxSessionLaunchTarget.getAttribute("data-viewer-cdx-session-launch") || "";
         if (sessionName) {
           spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
+        }
+        return;
+      }
+      if (cdxLoginTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const sessionName = cdxLoginTarget.getAttribute("data-viewer-cdx-login") || "";
+        if (sessionName) {
+          spawnWorkshopTerminal({ command: ["cdx", "login", sessionName], label: `cdx login ${sessionName}` });
         }
         return;
       }

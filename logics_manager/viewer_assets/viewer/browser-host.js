@@ -5677,6 +5677,7 @@
             cdxToggleTarget.classList.toggle("is-on", enable);
             cdxToggleTarget.classList.toggle("is-off", !enable);
             cdxToggleTarget.title = `${enable ? "Disable" : "Enable"} ${sessionName}`;
+            showCdxStatus({ silent: true, force: true }).catch(() => {});
           }
         }).catch(() => {}).finally(() => { cdxToggleTarget.disabled = false; });
         return;

@@ -1,4 +1,12 @@
 (() => {
+  const nativeFetch = window.fetch.bind(window);
+  window.fetch = function patchedFetch(input, init) {
+    const opts = init ? { ...init } : {};
+    if (!opts.signal && primaryActionController) {
+      opts.signal = primaryActionController.signal;
+    }
+    return nativeFetch(input, opts);
+  };
   const stateKey = "logics.localViewer.state";
   const preferenceKey = "logics.localViewer.preferences.v1";
   const lanTokenKey = "logics.lan.token";
@@ -244,6 +252,7 @@
   let latestCdxStatusPayload = null;
   let latestCiStatusSignature = "";
   let primaryActionBusyKey = "";
+  let primaryActionController = null;
   let cdxMissionBusyKey = "";
   let cdxCloseTarget = null;
   let viewerPreferences = readViewerPreferences();
@@ -465,20 +474,27 @@
   }
 
   function withPrimaryAction(actionKey, label, action) {
-    if (primaryActionBusyKey) {
-      setMeta("Another viewer action is still running.");
-      return Promise.resolve(false);
+    if (primaryActionController) {
+      try { primaryActionController.abort(); } catch { /* noop */ }
     }
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    primaryActionController = controller;
     setPrimaryActionBusy(actionKey, label);
     return Promise.resolve()
       .then(action)
       .then(() => true)
       .catch((error) => {
-        setMeta(error.message || "Viewer action failed.");
+        if (error && (error.name === "AbortError" || controller?.signal.aborted)) {
+          return false;
+        }
+        setMeta(error?.message || "Viewer action failed.");
         return false;
       })
       .finally(() => {
-        setPrimaryActionBusy("", "");
+        if (primaryActionController === controller) {
+          primaryActionController = null;
+          setPrimaryActionBusy("", "");
+        }
       });
   }
 

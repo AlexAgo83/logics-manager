@@ -4,6 +4,10 @@ import * as vm from "vm";
 import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+async function flushViewerAsync() {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 function loadScript(dom: JSDOM, relPath: string) {
   const source = fs.readFileSync(path.resolve(process.cwd(), relPath), "utf8");
   new vm.Script(source, { filename: relPath }).runInContext(dom.getInternalVMContext());
@@ -1558,11 +1562,12 @@ describe("local viewer browser host", () => {
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
+    await flushViewerAsync();
     const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
     refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
 
     expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
     expect(refresh?.disabled).toBe(true);
@@ -1586,11 +1591,12 @@ describe("local viewer browser host", () => {
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
+    await flushViewerAsync();
     const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
     dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
 
     expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
     expect(calls.filter((call) => call === "/api/git-status")).toHaveLength(gitCallsBefore);
@@ -1608,11 +1614,12 @@ describe("local viewer browser host", () => {
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
+    await flushViewerAsync();
     const refresh = dom.window.document.querySelector('[data-action="refresh"]') as HTMLButtonElement | null;
     refresh?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
+    await flushViewerAsync();
 
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Refresh failed");
     expect(refresh?.disabled).toBe(false);
@@ -2811,6 +2818,7 @@ describe("local viewer browser host", () => {
     expect(claude?.checked).toBe(true);
     claude!.checked = false;
     claude?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    await flushViewerAsync();
 
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("codex");
@@ -2821,6 +2829,7 @@ describe("local viewer browser host", () => {
     });
 
     dom.window.document.querySelector("[data-viewer-cdx-provider-all]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("corvus");
     expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusProviders).toMatchObject({

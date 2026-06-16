@@ -1827,6 +1827,24 @@
     }
   }
 
+  async function refreshCurrentScreen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    if (!panel || panel.hidden || !title) return;
+    const screen = title.textContent || "";
+    const opts = { force: true };
+    if (screen === "CDX status") return showCdxStatus(opts);
+    if (screen === "CDX missions") return showCdxMissions(opts);
+    if (screen === "CDX runs") return showCdxRuns(opts);
+    if (screen === "CI status") return showCiStatus(opts);
+    if (screen === "Git status") return showGitStatus({ preserve: true, ...opts });
+    if (screen === "Explorer") return showWorkspace(opts);
+    if (screen === "Workshop") return showWorkshop(opts);
+    if (screen === "Corpus insights") return showCorpusInsights();
+    if (screen === "Validation health") return showHealth();
+    return showDocumentByPath(screen);
+  }
+
   function autoRefreshItems() {
     if (!autoRefreshEnabled) {
       return;
@@ -5901,7 +5919,7 @@
       withPrimaryAction("close-document", "Closing preview", closeDocumentPanel);
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
-      withPrimaryAction("refresh-document", "Refreshing", () => refreshViewer("POST", { force: true }));
+      withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);
     });
     startAutoRefresh();
   });

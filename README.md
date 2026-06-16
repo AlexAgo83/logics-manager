@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)
-![Version](https://img.shields.io/badge/version-v2.9.6-4C8BF5)
+![Version](https://img.shields.io/badge/version-v2.9.7-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-4.1.2-6E9F18?logo=vitest&logoColor=white)
@@ -181,9 +181,28 @@ The topbar includes focused operational views:
 Viewer preferences are stored locally in the browser profile. Auto-refresh
 restores the interval chosen in the viewer unless the launch command explicitly
 sets `--refresh-interval`, in which case that launch value controls only the
-current session. The CDX status table has compact controls for column visibility
-and provider filtering; `BLOCK` and `CR` are hidden by default, and provider
-filtering defaults to all providers so newly discovered providers remain visible.
+current session. The CDX status table has compact controls for column visibility, provider
+filtering, and account management. `BLOCK` and `CR` are hidden by default, and
+provider filtering defaults to all providers so newly discovered providers remain
+visible. An **ON/OFF** toggle column lets you enable or disable any CDX session
+directly from the table without leaving the viewer; the change takes effect
+immediately via `cdx enable` / `cdx disable` on the host.
+
+Two additional controls sit next to the configure and filter icons:
+
+- **Import (↑)** — select a `.cdx` export file, enter the optional passphrase,
+  and choose whether to merge with existing accounts or replace them. The file
+  is decoded client-side and sent to the local viewer server, which calls
+  `cdx import --merge` (or without `--merge`) with the passphrase passed
+  exclusively through an environment variable — it never appears in any command
+  line or log.
+- **Export (↓)** — choose which enabled sessions to include (disabled accounts
+  are excluded from the list automatically), supply an optional passphrase to
+  encrypt the bundle, and tick whether credentials should be embedded
+  (`--include-auth`). The server calls `cdx export` into a temporary file,
+  returns the bundle to the browser, and the browser triggers an automatic
+  download named `cdx-accounts.cdx`. Temporary files are cleaned up immediately
+  after each operation.
 When workspace inspection is available, the topbar shows an `Explorer` view
 before `Git`; it provides a read-only file tree and bounded previews for text,
 directories, images, oversized files, and unsupported binary files.

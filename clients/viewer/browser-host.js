@@ -1580,6 +1580,7 @@
     if (panel) {
       panel.hidden = true;
     }
+    updateScreenActions("");
   }
 
   function showMermaidFallback(message) {

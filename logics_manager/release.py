@@ -16,6 +16,7 @@ CONTRACT_PATH = Path("logics/release/contract.json")
 GATE_STATUSES = {"pending", "passed", "failed", "stale", "skipped", "not_configured", "blocked"}
 SOURCE_EVIDENCE_KINDS = {"command", "file", "git"}
 PUBLICATION_EVIDENCE_KINDS = {"github_release", "external"}
+EVIDENCE_KINDS = {"command", "file", "git", "ci", "github_release", "external"}
 
 
 @dataclass(frozen=True)
@@ -184,6 +185,107 @@ def _load_evidence(repo_root: Path, contract: dict[str, Any]) -> list[dict[str, 
         if isinstance(entry, dict):
             entries.append(entry)
     return entries
+
+
+def _write_evidence_entry(repo_root: Path, contract: dict[str, Any], entry: dict[str, Any]) -> Path:
+    path = _evidence_store_path(repo_root, contract)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, sort_keys=True, separators=(",", ":")) + "\n")
+    return path
+
+
+def _contract_gate(contract: dict[str, Any], gate_id: str) -> dict[str, Any] | None:
+    gates = contract.get("gates") if isinstance(contract.get("gates"), list) else []
+    for gate in gates:
+        if isinstance(gate, dict) and gate.get("id") == gate_id:
+            return gate
+    return None
+
+
+def _expected_tag(contract: dict[str, Any], version: str | None) -> str | None:
+    tag_policy = (contract.get("git") or {}).get("tag_policy") if isinstance(contract.get("git"), dict) else {}
+    if not isinstance(tag_policy, dict) or not version:
+        return None
+    pattern = tag_policy.get("pattern")
+    if not isinstance(pattern, str) or not pattern:
+        return None
+    return pattern.replace("{version}", version)
+
+
+def release_add_evidence_payload(
+    repo_root: Path,
+    *,
+    gate_id: str,
+    kind: str,
+    status: str,
+    summary: str,
+    target_version: str | None = None,
+    commit: str | None = None,
+    tag: str | None = None,
+    observed_at: str | None = None,
+    path: str | None = None,
+    url: str | None = None,
+    command: str | None = None,
+    run_id: str | None = None,
+) -> dict[str, Any]:
+    context = load_release_context(repo_root)
+    if context.contract is None:
+        payload = _not_configured_payload(repo_root)
+        payload.update({"command": "release-evidence-add", "recorded": False})
+        return payload
+    contract = context.contract
+    gate = _contract_gate(contract, gate_id)
+    if gate is None:
+        raise ConfigError(f"Unknown release gate: {gate_id}")
+    if kind not in EVIDENCE_KINDS:
+        raise ConfigError(f"Unsupported evidence kind: {kind}")
+    if kind not in set(gate.get("evidence_kinds") or []):
+        raise ConfigError(f"Evidence kind {kind} is not allowed for gate {gate_id}.")
+    if status not in GATE_STATUSES:
+        raise ConfigError(f"Unsupported evidence status: {status}")
+    if not summary.strip():
+        raise ConfigError("Evidence summary is required.")
+
+    current_version, _version_sources = _current_version(repo_root, contract)
+    resolved_version = target_version or current_version
+    resolved_commit = commit or _current_commit(repo_root)
+    entry: dict[str, Any] = {
+        "gate_id": gate_id,
+        "kind": kind,
+        "status": status,
+        "observed_at": observed_at or _now_iso(),
+        "target_version": resolved_version,
+        "summary": summary.strip(),
+    }
+    if resolved_commit and kind in SOURCE_EVIDENCE_KINDS | {"ci"}:
+        entry["commit"] = resolved_commit
+    resolved_tag = tag or (_expected_tag(contract, resolved_version) if kind in PUBLICATION_EVIDENCE_KINDS else None)
+    if resolved_tag:
+        entry["tag"] = resolved_tag
+    if path:
+        entry["path"] = path
+    if url:
+        entry["url"] = url
+    if command:
+        entry["command"] = command
+    if run_id:
+        entry["run_id"] = run_id
+
+    evidence_path = _write_evidence_entry(repo_root, contract, entry)
+    status_payload = release_status_payload(repo_root)
+    return {
+        "ok": True,
+        "configured": True,
+        "command": "release-evidence-add",
+        "recorded": True,
+        "evidence_path": _rel(evidence_path, repo_root),
+        "entry": entry,
+        "state": status_payload.get("state"),
+        "next_action": status_payload.get("next_action"),
+        "generated_at": _now_iso(),
+        "repo_root": repo_root.as_posix(),
+    }
 
 
 def _gate_evidence(gate_id: str, evidence: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -442,6 +544,19 @@ def render_release_validate(payload: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def render_release_evidence_add(payload: dict[str, Any]) -> str:
+    entry = payload.get("entry") if isinstance(payload.get("entry"), dict) else {}
+    return "\n".join(
+        [
+            f"Release evidence recorded: {'yes' if payload.get('recorded') else 'no'}",
+            f"Gate: {entry.get('gate_id') or '<unknown>'}",
+            f"Status: {entry.get('status') or '<unknown>'}",
+            f"Evidence store: {payload.get('evidence_path') or '<unknown>'}",
+            f"Next action: {payload.get('next_action')}",
+        ]
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = []
@@ -456,6 +571,7 @@ def main(argv: list[str] | None = None) -> int:
                     "  logics-manager release status [--format text|json]",
                     "  logics-manager release plan <version> [--format text|json]",
                     "  logics-manager release validate <version> [--format text|json]",
+                    "  logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]",
                 ]
             )
         )
@@ -465,6 +581,7 @@ def main(argv: list[str] | None = None) -> int:
             "status": "Usage: logics-manager release status [--format text|json]",
             "plan": "Usage: logics-manager release plan <version> [--format text|json]",
             "validate": "Usage: logics-manager release validate <version> [--format text|json]",
+            "evidence": "Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]",
         }.get(argv[0])
         if help_text:
             print(help_text)
@@ -479,6 +596,22 @@ def main(argv: list[str] | None = None) -> int:
     validate = sub.add_parser("validate", add_help=False)
     validate.add_argument("version")
     validate.add_argument("--format", choices=("text", "json"), default="text")
+    evidence = sub.add_parser("evidence", add_help=False)
+    evidence_sub = evidence.add_subparsers(dest="evidence_command")
+    evidence_add = evidence_sub.add_parser("add", add_help=False)
+    evidence_add.add_argument("gate_id")
+    evidence_add.add_argument("--kind", required=True, choices=sorted(EVIDENCE_KINDS))
+    evidence_add.add_argument("--status", required=True, choices=sorted(GATE_STATUSES))
+    evidence_add.add_argument("--summary", required=True)
+    evidence_add.add_argument("--target-version")
+    evidence_add.add_argument("--commit")
+    evidence_add.add_argument("--tag")
+    evidence_add.add_argument("--observed-at")
+    evidence_add.add_argument("--path")
+    evidence_add.add_argument("--url")
+    evidence_add.add_argument("--command", dest="evidence_command_text")
+    evidence_add.add_argument("--run-id")
+    evidence_add.add_argument("--format", choices=("text", "json"), default="text")
     parsed = parser.parse_args(argv)
     if parsed.command is None:
         raise SystemExit("Usage: logics-manager release <plan|status|validate> [args...]")
@@ -491,6 +624,26 @@ def main(argv: list[str] | None = None) -> int:
         payload = release_plan_payload(repo_root, parsed.version)
         print(render_payload(payload, parsed.format, lambda: render_release_plan(payload)))
         return 0 if payload.get("configured") else 1
+    if parsed.command == "evidence":
+        if parsed.evidence_command != "add":
+            raise SystemExit("Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text>")
+        payload = release_add_evidence_payload(
+            repo_root,
+            gate_id=parsed.gate_id,
+            kind=parsed.kind,
+            status=parsed.status,
+            summary=parsed.summary,
+            target_version=parsed.target_version,
+            commit=parsed.commit,
+            tag=parsed.tag,
+            observed_at=parsed.observed_at,
+            path=parsed.path,
+            url=parsed.url,
+            command=parsed.evidence_command_text,
+            run_id=parsed.run_id,
+        )
+        print(render_payload(payload, parsed.format, lambda: render_release_evidence_add(payload)))
+        return 0 if payload.get("ok") else 1
     payload = release_validate_payload(repo_root, parsed.version)
     print(render_payload(payload, parsed.format, lambda: render_release_validate(payload)))
     return 0 if payload.get("ok") else 1

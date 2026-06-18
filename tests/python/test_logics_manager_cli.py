@@ -3543,6 +3543,35 @@ def test_render_lint_reports_ok_for_minimal_consistent_repo(tmp_path: Path, monk
     assert "Logics lint: OK" in render_lint(repo_root, output_format="text")
 
 
+def test_lint_accepts_changed_workflow_docs_without_mermaid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    request_path.parent.mkdir(parents=True)
+    backlog_path.parent.mkdir(parents=True)
+    task_path.parent.mkdir(parents=True)
+
+    _write_minimal_lint_doc(request_path, title="Demo request", status="Ready", include_progress=False)
+    _write_minimal_lint_doc(backlog_path, title="Demo backlog", status="Ready", include_progress=True)
+    _write_minimal_lint_doc(task_path, title="Demo task", status="Ready", include_progress=True)
+    backlog_path.write_text(backlog_path.read_text(encoding="utf-8").replace("> Progress: 0%", "> Progress: 50%"), encoding="utf-8")
+    task_path.write_text(task_path.read_text(encoding="utf-8").replace("> Progress: 0%", "> Progress: 50%"), encoding="utf-8")
+    changed = {
+        Path("logics/request/req_001_demo.md"),
+        Path("logics/backlog/item_001_demo.md"),
+        Path("logics/tasks/task_001_demo.md"),
+    }
+    monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: set())
+    monkeypatch.setattr("logics_manager.lint._git_untracked_paths", lambda _repo_root: changed)
+
+    payload = lint_payload(repo_root, require_status=True)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+    assert payload["warning_count"] == 0
+
+
 def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "product").mkdir(parents=True)
@@ -3630,7 +3659,9 @@ def test_main_runs_native_flow_new_request(
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert (repo_root / "logics" / "request" / "req_000_demo_request.md").is_file()
+    created = repo_root / "logics" / "request" / "req_000_demo_request.md"
+    assert created.is_file()
+    assert "```mermaid" not in created.read_text(encoding="utf-8")
     assert "Created request:" in captured.out
 
 
@@ -3684,7 +3715,9 @@ def test_main_runs_native_flow_new_backlog_with_companions(
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert len(list((repo_root / "logics" / "backlog").glob("item_*.md"))) == 1
+    backlog_docs = list((repo_root / "logics" / "backlog").glob("item_*.md"))
+    assert len(backlog_docs) == 1
+    assert "```mermaid" not in backlog_docs[0].read_text(encoding="utf-8")
     assert len(list((repo_root / "logics" / "product").glob("prod_*.md"))) == 1
     assert len(list((repo_root / "logics" / "architecture").glob("adr_*.md"))) == 1
     assert "Created backlog:" in captured.out
@@ -3780,6 +3813,9 @@ def test_main_runs_native_flow_deliver_from_product(
     request_text = request_path.read_text(encoding="utf-8")
     backlog_text = backlog_path.read_text(encoding="utf-8")
     task_text = task_path.read_text(encoding="utf-8")
+    assert "```mermaid" not in request_text
+    assert "```mermaid" not in backlog_text
+    assert "```mermaid" not in task_text
     assert "- Product brief(s): `prod_001_demo_product`" in request_text
     assert "`item_001_demo_product`" in request_text
     assert "- none" not in request_text
@@ -3832,6 +3868,7 @@ def test_main_runs_native_flow_promote_request_to_backlog(
     assert exit_code == 0
     created = repo_root / "logics" / "backlog" / "item_001_demo_request.md"
     assert created.is_file()
+    assert "```mermaid" not in created.read_text(encoding="utf-8")
     assert "Created backlog slice from request" in captured.out
     assert created.stem in source_path.read_text(encoding="utf-8")
 
@@ -3874,7 +3911,9 @@ def test_main_runs_native_flow_split_request(
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert (repo_root / "logics" / "backlog" / "item_001_child_a.md").is_file()
+    created = repo_root / "logics" / "backlog" / "item_001_child_a.md"
+    assert created.is_file()
+    assert "```mermaid" not in created.read_text(encoding="utf-8")
     assert "Split request into 1 backlog item(s)" in captured.out
     assert "item_001_child_a" in source_path.read_text(encoding="utf-8")
 
@@ -3918,6 +3957,7 @@ def test_main_runs_native_flow_promote_backlog_to_task(
     assert exit_code == 0
     created = repo_root / "logics" / "tasks" / "task_001_demo_backlog.md"
     assert created.is_file()
+    assert "```mermaid" not in created.read_text(encoding="utf-8")
     assert "Created task from backlog" in captured.out
     assert created.stem in source_path.read_text(encoding="utf-8")
 
@@ -4290,8 +4330,8 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     assert "ac_missing_task_traceability" in {issue["code"] for issue in preflight["issues"]}
     assert "`task_001_demo`" in backlog_text
     assert "> Related task: `task_001_demo`" in product_text
-    assert "```mermaid" in request_text
-    assert "```mermaid" in backlog_text
+    assert "```mermaid" not in request_text
+    assert "```mermaid" not in backlog_text
     assert "```mermaid" not in task_text
 
 

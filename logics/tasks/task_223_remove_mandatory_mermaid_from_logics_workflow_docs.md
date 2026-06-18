@@ -1,21 +1,21 @@
 ## task_223_remove_mandatory_mermaid_from_logics_workflow_docs - Remove mandatory Mermaid from Logics workflow docs
 > From version: 2.9.8
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Workflow templates generate request, backlog, and task docs without mandatory Mermaid blocks.
-- [ ] Lint and audit behavior accept Mermaid-free workflow docs.
-- [ ] Legacy workflow Mermaid remains readable or non-blocking during transition.
-- [ ] Generated graph or viewer functionality still derives relationships from structured workflow links.
-- [ ] Tests and documentation are updated.
-- [ ] Validation passes.
+- [x] Workflow templates generate request, backlog, and task docs without mandatory Mermaid blocks.
+- [x] Lint and audit behavior accept Mermaid-free workflow docs.
+- [x] Legacy workflow Mermaid remains readable or non-blocking during transition.
+- [x] Generated graph or viewer functionality still derives relationships from structured workflow links.
+- [x] Tests and documentation are updated.
+- [x] Validation passes.
 
 # Backlog
 - `item_429_remove_mandatory_mermaid_from_logics_workflow_docs`
@@ -57,9 +57,18 @@
 - Run `logics-manager lint --require-status`.
 - Run `logics-manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.
 - Run `logics-manager flow finish task logics/tasks/task_223_remove_mandatory_mermaid_from_logics_workflow_docs.md` after implementation.
+- PYTHONPATH=. python3.11 -m pytest tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_new_request tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_new_backlog_with_companions tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_deliver_from_product tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_promote_request_to_backlog tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_split_request tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_promote_backlog_to_task tests/python/test_logics_manager_cli.py::test_lint_accepts_changed_workflow_docs_without_mermaid tests/python/test_logics_manager_cli.py::test_main_runs_native_flow_repair_closeout_helpers -vv passed (8 tests).
+- PYTHONPATH=. python3.11 -m pytest tests/python/test_logics_manager_cli.py::test_main_runs_native_sync_refresh_mermaid_signatures tests/python/test_logics_manager_cli.py::test_main_runs_native_sync_append_note_reports_mermaid_refresh tests/python/test_logics_manager_cli.py::test_sync_refresh_mermaid_signatures_can_scope_targets tests/python/test_logics_manager_mcp.py::test_mcp_controlled_mutation_tools -vv passed (4 tests).
+- PYTHONPATH=. python3.11 -m py_compile logics_manager/flow.py logics_manager/lint.py logics_manager/sync.py logics_manager/mcp.py passed.
+- Finish workflow executed on 2026-06-18.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Removed mandatory workflow Mermaid insertion for request/backlog/task generation, made missing Mermaid valid in lint and closeout, kept legacy signature refresh for existing blocks only, and documented Mermaid as optional legacy presentation.
+- Finished on 2026-06-18.
+- Linked backlog item(s): `item_429_remove_mandatory_mermaid_from_logics_workflow_docs`
+- Related request(s): `req_247_remove_mandatory_mermaid_from_logics_workflow_docs`
 
 # AI Context
 - Summary: Implement remove mandatory mermaid from logics workflow docs.

@@ -1,7 +1,7 @@
 ## item_431_implement_release_status_and_validation_commands - Implement release status and validation commands
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 91%
 > Progress: 100%

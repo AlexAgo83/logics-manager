@@ -1310,6 +1310,8 @@ def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path) -> 
                 ),
                 "",
             )
+        if args == ["cdx", "can-resume", "session-1", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"resumable": True, "reason": "supported", "strategy": "provider_last"}), "")
         raise AssertionError(args)
 
     payload = cdx_status_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -1318,7 +1320,9 @@ def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path) -> 
     assert payload["message"] == ""
     assert payload["status"]["availability"] == "ready"
     assert payload["status"]["providers"][0]["name"] == "openai"
-    assert calls == [["cdx", "status", "--json"]]
+    assert payload["status"]["sessions"][0]["resume_available"] is True
+    assert payload["status"]["sessions"][0]["resume_reason"] == "supported"
+    assert calls == [["cdx", "status", "--json"], ["cdx", "can-resume", "session-1", "--json"]]
 
 
 def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invalid_json(tmp_path: Path) -> None:

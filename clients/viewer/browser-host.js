@@ -439,6 +439,7 @@
       "[data-viewer-project-id]",
       "[data-viewer-ci-mode]",
       "[data-viewer-cdx-mode]",
+      "[data-viewer-cdx-session-action]",
       "[data-viewer-cdx-report]",
       "[data-viewer-cdx-artifact-path]",
       "[data-viewer-cdx-create-request]"
@@ -3640,6 +3641,24 @@
     return sortCdxSessionsByRemaining(explicitSessions.length ? explicitSessions : cdxRows(status));
   }
 
+  function latestCdxSessionName(sessions) {
+    let latest = null;
+    sessions.forEach((entry) => {
+      if (!entry || typeof entry !== "object") {
+        return;
+      }
+      const name = cdxField(entry, ["session_name", "name", "id", "value"]);
+      const timestamp = Date.parse(String(cdxField(entry, ["last_launched_at", "lastLaunchedAt"], "")));
+      if (!name || name === "-" || !Number.isFinite(timestamp)) {
+        return;
+      }
+      if (!latest || timestamp > latest.timestamp) {
+        latest = { name, timestamp };
+      }
+    });
+    return latest?.name || "";
+  }
+
   function cdxReadiness(status) {
     const explicitReadiness = pickFirstObject(status, ["readiness", "quota", "quotas", "limits"]);
     if (objectEntries(explicitReadiness).length) {
@@ -4013,21 +4032,49 @@
     `;
   }
 
-  function renderCdxSessionTable(sessions, emptyText) {
+  function renderCdxSessionActionMenu(item, name, label, latestSessionName, canLaunchTerminal) {
+    if (!canLaunchTerminal || !name || name === "-") {
+      return escapeHtml(label);
+    }
+    const resumeAvailable = item.resume_available === true || item.resumeAvailable === true || item.resumable === true;
+    const canHandoff = Boolean(latestSessionName && latestSessionName !== name);
+    if (!resumeAvailable && !canHandoff) {
+      return `<button class="viewer-cdx__path-link" type="button" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}" title="Open Workshop terminal: cdx ${escapeHtml(name)}">${escapeHtml(label)}</button>`;
+    }
+    return `
+      <details class="viewer-cdx__menu viewer-cdx__session-menu">
+        <summary class="viewer-cdx__path-link viewer-cdx__session-summary" title="Choose how to open ${escapeHtml(name)}">${escapeHtml(label)}</summary>
+        <div class="viewer-cdx__menu-panel viewer-cdx__session-menu-panel" role="menu" aria-label="CDX session actions for ${escapeHtml(name)}">
+          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>
+          ${resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
+          ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}" data-viewer-cdx-handoff-source="${escapeHtml(latestSessionName)}">Handoff (${escapeHtml(latestSessionName)})</button>` : ""}
+        </div>
+      </details>
+    `;
+  }
+
+  function closeCdxSessionMenus(exceptMenu = null) {
+    document.querySelectorAll(".viewer-cdx__session-menu[open]").forEach((menu) => {
+      if (exceptMenu && menu === exceptMenu) {
+        return;
+      }
+      menu.removeAttribute("open");
+    });
+  }
+
+  function renderCdxSessionTable(sessions, emptyText, latestSessionNameOverride = "") {
     if (!sessions.length) {
       return `<div class="viewer-cdx__empty">${escapeHtml(emptyText)}</div>`;
     }
     const visibleColumns = cdxColumnVisibilityPreference();
     const workshopCap = capability("workshop");
     const canLaunchTerminal = workshopCap.available === true && Boolean(workshopCap.detail?.terminalsAvailable);
+    const latestSessionName = latestSessionNameOverride || latestCdxSessionName(sessions);
     const cellRenderers = {
       session: (item) => {
         const name = cdxField(item, ["session_name", "name", "id", "value"]);
         const label = `${name}${item.active ? "*" : ""}`;
-        if (canLaunchTerminal && name && name !== "-") {
-          return `<td class="viewer-cdx__session-name"><button class="viewer-cdx__path-link" type="button" data-viewer-cdx-session-launch="${escapeHtml(name)}" title="Open Workshop terminal: cdx ${escapeHtml(name)}">${escapeHtml(label)}</button></td>`;
-        }
-        return `<td class="viewer-cdx__session-name">${escapeHtml(label)}</td>`;
+        return `<td class="viewer-cdx__session-name">${renderCdxSessionActionMenu(item, name, label, latestSessionName, canLaunchTerminal)}</td>`;
       },
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
       status: (item) => {
@@ -4387,7 +4434,7 @@
           <div class="viewer-cdx__stack">
             <section class="viewer-cdx__section">
               <h2 class="viewer-cdx__heading">Sessions</h2>
-              ${renderCdxSessionTable(sessions, "No sessions reported.")}
+              ${renderCdxSessionTable(sessions, "No sessions reported.", latestCdxSessionName(allSessions))}
             </section>
           </div>
           <div class="viewer-cdx__stack">
@@ -5821,6 +5868,8 @@
     });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu") : null;
+      closeCdxSessionMenus(activeCdxSessionMenu);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
       const filterTarget = event.target instanceof Element ? event.target.closest("[data-viewer-filter-group][data-viewer-filter-value]") : null;
@@ -5852,7 +5901,7 @@
       const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
-      const cdxSessionLaunchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-launch]") : null;
+      const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
       if (cdxToggleTarget instanceof HTMLButtonElement) {
         event.preventDefault();
@@ -5885,10 +5934,20 @@
         }
         return;
       }
-      if (cdxSessionLaunchTarget instanceof HTMLElement) {
+      if (cdxSessionActionTarget instanceof HTMLElement) {
         event.preventDefault();
-        const sessionName = cdxSessionLaunchTarget.getAttribute("data-viewer-cdx-session-launch") || "";
-        if (sessionName) {
+        const action = cdxSessionActionTarget.getAttribute("data-viewer-cdx-session-action") || "new";
+        const sessionName = cdxSessionActionTarget.getAttribute("data-viewer-cdx-session") || "";
+        const handoffSource = cdxSessionActionTarget.getAttribute("data-viewer-cdx-handoff-source") || "";
+        cdxSessionActionTarget.closest("details")?.removeAttribute("open");
+        if (!sessionName) {
+          return;
+        }
+        if (action === "resume") {
+          spawnWorkshopTerminal({ command: ["cdx", "resume", sessionName], label: `cdx resume ${sessionName}` });
+        } else if (action === "handoff" && handoffSource) {
+          spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });
+        } else {
           spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
         }
         return;
@@ -6088,6 +6147,15 @@
       const path = target instanceof HTMLElement ? target.getAttribute("data-viewer-doc-path") : "";
       if (path) {
         withPrimaryAction("read-document", "Loading document", () => showDocumentByPath(path));
+      }
+    });
+    document.addEventListener("focusin", (event) => {
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu") : null;
+      closeCdxSessionMenus(activeCdxSessionMenu);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeCdxSessionMenus();
       }
     });
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {

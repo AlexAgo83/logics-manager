@@ -90,11 +90,15 @@ def _write_release_repo(tmp_path: Path, evidence: list[dict[str, object]], *, ve
     release_dir = repo_root / "logics" / "release"
     release_dir.mkdir(parents=True)
     (repo_root / "package.json").write_text(json.dumps({"version": version}), encoding="utf-8")
+    (repo_root / "README.md").write_text(f"![Version](https://img.shields.io/badge/version-v{version}-4C8BF5)\n", encoding="utf-8")
     (repo_root / "CHANGELOG.md").write_text(f"## {version}\n\n- Release note.\n", encoding="utf-8")
     contract = {
         "schema_version": "1.0",
         "project": {"id": "demo", "display_name": "Demo"},
-        "version_sources": [{"path": "package.json", "format": "json", "selector": "version", "required": True}],
+        "version_sources": [
+            {"path": "package.json", "format": "json", "selector": "version", "required": True},
+            {"path": "README.md", "format": "plain_text", "selector": "badge.version", "required": True},
+        ],
         "changelog": {"required": True, "paths": [{"path": "CHANGELOG.md", "format": "markdown", "required": True}]},
         "state_machine": EXPECTED_STATES,
         "gates": [
@@ -166,6 +170,7 @@ def test_release_plan_is_non_mutating_and_lists_expected_steps(tmp_path: Path) -
     assert plan["ok"] is True
     assert plan["target_version"] == "1.2.4"
     assert [step["kind"] for step in plan["steps"]] == [
+        "version_source",
         "version_source",
         "changelog",
         "validation_command",
@@ -273,6 +278,16 @@ def test_release_cli_status_returns_stable_json(
     assert payload["state"] == "ready"
     assert payload["configured"] is True
     assert [gate["id"] for gate in payload["gates"]] == ["version_metadata", "local_validation", "github_release"]
+
+
+def test_release_status_reads_readme_badge_version_source(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, _passing_evidence())
+
+    status = release_status_payload(repo_root)
+
+    readme_source = next(source for source in status["version_sources"] if source["path"] == "README.md")
+    assert readme_source["ok"] is True
+    assert readme_source["version"] == "1.2.3"
 
 
 def test_release_add_evidence_appends_jsonl_and_updates_gate(tmp_path: Path) -> None:

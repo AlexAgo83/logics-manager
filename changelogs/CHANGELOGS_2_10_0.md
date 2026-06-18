@@ -4,6 +4,7 @@
 
 - Added the project-owned release workflow contract at `logics/release/contract.json`, enabling release status, plan, validation, and assistant readiness checks to use explicit repo evidence instead of conversation state.
 - Added `logics-manager release evidence add` to record release gate evidence into `logics/release/evidence.jsonl` with validated gate, kind, status, version, commit, and tag metadata.
+- Updated the release contract so release planning includes the README version badge and uses `node scripts/ci-check.mjs` as the canonical local validation command, matching GitHub Actions.
 - Exposed release workflow state in the viewer CI screen, including configured gates, blocking reasons, evidence references, and next actions.
 - Added release status surfaces for CLI, context-pack, and MCP consumers so assistants and external clients can inspect release readiness consistently.
 - Improved Logics workflow scaffolding with request-chain generation, AC-aware backlog/task splits, scoped validation diagnostics, and optional Mermaid blocks.

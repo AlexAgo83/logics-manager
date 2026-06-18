@@ -8,7 +8,8 @@
   "version_sources": [
     { "path": "VERSION", "format": "plain_text", "required": true },
     { "path": "pyproject.toml", "format": "toml", "selector": "project.version", "required": true },
-    { "path": "package.json", "format": "json", "selector": "version", "required": true }
+    { "path": "package.json", "format": "json", "selector": "version", "required": true },
+    { "path": "README.md", "format": "plain_text", "selector": "badge.version", "required": true }
   ],
   "changelog": {
     "required": true,
@@ -55,9 +56,7 @@
     "required_fields": ["kind", "status", "observed_at", "target_version", "commit", "summary"]
   },
   "validation_commands": [
-    { "id": "lint", "command": ["python3", "-m", "logics_manager", "lint", "--require-status"], "required": true, "evidence_kind": "command" },
-    { "id": "audit", "command": ["python3", "-m", "logics_manager", "audit", "--legacy-cutoff-version", "1.1.0", "--group-by-doc"], "required": true, "evidence_kind": "command" },
-    { "id": "tests", "command": ["npm", "test"], "required": true, "evidence_kind": "command" }
+    { "id": "ci_check", "command": ["node", "scripts/ci-check.mjs"], "required": true, "evidence_kind": "command" }
   ],
   "git": {
     "release_branch_policy": "main_only",

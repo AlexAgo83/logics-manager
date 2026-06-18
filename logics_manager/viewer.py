@@ -57,6 +57,7 @@ CDX_MISSION_STRENGTHS = {
     "deep": {"id": "deep", "label": "Deep", "timeout": 300, "reasoningEffort": "high", "power": "high"},
     "max": {"id": "max", "label": "Max", "timeout": 600, "reasoningEffort": "high", "power": "high"},
 }
+CDX_MISSION_LEVELS = {"minimal", "low", "medium", "high", "xhigh"}
 CDX_MISSION_PARENT_TIMEOUT_GRACE_SECONDS = 90
 CDX_WRITABLE_MISSION_MIN_TIMEOUT_SECONDS = 600
 CDX_MISSION_CATALOG = {
@@ -2092,6 +2093,9 @@ def _cdx_mission_command(
     *,
     session: str,
     strength: dict[str, Any],
+    model: str = "",
+    reasoning_effort: str = "",
+    power: str = "",
     release_tag: str = "",
     mission_inputs: dict[str, str] | None = None,
     allow_file_writes: bool = False,
@@ -2109,10 +2113,10 @@ def _cdx_mission_command(
         commit_at_end=commit_at_end,
     )
     timeout = _cdx_mission_timeout(strength, allow_file_writes=allow_file_writes, commit_at_end=commit_at_end)
-    reasoning_effort = str(strength.get("reasoningEffort") or "medium")
-    power = str(strength.get("power") or "medium")
+    effective_reasoning_effort = reasoning_effort or str(strength.get("reasoningEffort") or "medium")
+    effective_power = power or str(strength.get("power") or "medium")
     permission = "workspace-write" if allow_file_writes else "read-only"
-    return [
+    command = [
         "run",
         session,
         "--cwd",
@@ -2121,16 +2125,21 @@ def _cdx_mission_command(
         prompt,
         "--kind",
         "assistant",
+    ]
+    if model:
+        command.extend(["--model", model])
+    command.extend([
         "--reasoning-effort",
-        reasoning_effort,
+        effective_reasoning_effort,
         "--power",
-        power,
+        effective_power,
         "--permission",
         permission,
         "--timeout-seconds",
         str(timeout),
         "--json",
-    ]
+    ])
+    return command
 
 
 def _parse_json_from_text(text: str) -> dict[str, Any] | None:
@@ -2281,6 +2290,15 @@ def cdx_mission_plan_payload(
     strength_def = CDX_MISSION_STRENGTHS.get(strength)
     if strength_def is None:
         return {"state": "error", "message": "Unknown CDX mission strength.", "plan": None}
+    model = _mission_text_input(body, "model", max_chars=120)
+    reasoning_effort = _mission_text_input(body, "reasoningEffort", max_chars=20)
+    power = _mission_text_input(body, "power", max_chars=20)
+    if reasoning_effort and reasoning_effort not in CDX_MISSION_LEVELS:
+        return {"state": "error", "message": "Unknown CDX reasoning effort.", "plan": None}
+    if power and power not in CDX_MISSION_LEVELS:
+        return {"state": "error", "message": "Unknown CDX model power.", "plan": None}
+    effective_reasoning_effort = reasoning_effort or str(strength_def.get("reasoningEffort") or "medium")
+    effective_power = power or str(strength_def.get("power") or "medium")
 
     status_payload = cdx_status_payload(repo_root, runner=cdx_runner, which=which)
     session = _normalize_cdx_session(body.get("sessionId"), status_payload if status_payload.get("state") == "ok" else None)
@@ -2329,6 +2347,9 @@ def cdx_mission_plan_payload(
         mission_id,
         session=session,
         strength=strength_def,
+        model=model,
+        reasoning_effort=reasoning_effort,
+        power=power,
         release_tag=release_tag,
         mission_inputs=mission_inputs,
         allow_file_writes=allow_file_writes,
@@ -2340,6 +2361,9 @@ def cdx_mission_plan_payload(
         "sessionId": session,
         "strength": strength_def,
         "strengthId": strength,
+        "model": model,
+        "reasoningEffort": effective_reasoning_effort,
+        "power": effective_power,
         "missionInputs": mission_inputs,
         "scope": mission["scope"],
         "releaseTag": release_tag,

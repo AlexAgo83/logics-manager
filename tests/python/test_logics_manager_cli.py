@@ -1424,10 +1424,20 @@ def test_viewer_cdx_run_report_payload_extracts_mission_output(tmp_path: Path) -
     assert payload["report"]["missionOutput"]["generatedFiles"] == [{"path": "changelogs/CHANGELOGS_2_8_0.md"}]
 
 
+def _cdx_test_status_response(args: list[str], sessions: list[dict[str, object]] | None = None) -> subprocess.CompletedProcess[str] | None:
+    session_rows = sessions or [{"id": "work"}]
+    if args == ["cdx", "status", "--json"]:
+        return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": session_rows}), "")
+    if len(args) == 4 and args[0:2] == ["cdx", "can-resume"] and args[3] == "--json":
+        return subprocess.CompletedProcess(args, 0, json.dumps({"resumable": False}), "")
+    return None
+
+
 def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -1437,7 +1447,7 @@ def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path:
 
     payload = cdx_mission_plan_payload(
         tmp_path,
-        {"missionId": "release-review", "sessionId": "work", "strengthId": "deep"},
+        {"missionId": "release-review", "sessionId": "work", "strengthId": "deep", "model": "gpt-5.1-codex", "reasoningEffort": "xhigh", "power": "high"},
         cdx_runner=cdx_runner,
         git_runner=git_runner,
         which=lambda name: f"/usr/bin/{name}",
@@ -1452,10 +1462,14 @@ def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path:
     assert "--mission" not in command
     assert "--scope" not in command
     assert "--prompt" in command
+    assert command[command.index("--model") + 1] == "gpt-5.1-codex"
     assert "--json" in command
     prompt = command[command.index("--prompt") + 1]
     assert "since the latest release tag v2.4.0" in prompt
-    assert command[command.index("--reasoning-effort") + 1] == "high"
+    assert payload["plan"]["model"] == "gpt-5.1-codex"
+    assert payload["plan"]["reasoningEffort"] == "xhigh"
+    assert payload["plan"]["power"] == "high"
+    assert command[command.index("--reasoning-effort") + 1] == "xhigh"
     assert command[command.index("--power") + 1] == "high"
     assert command[command.index("--timeout-seconds") + 1] == "300"
 
@@ -1464,6 +1478,16 @@ def test_viewer_cdx_mission_plan_rejects_unknown_strength_and_unusable_session(t
     assert cdx_mission_plan_payload(
         tmp_path,
         {"missionId": "full-audit", "sessionId": "work", "strengthId": "turbo"},
+        which=lambda name: f"/usr/bin/{name}",
+    )["state"] == "error"
+    assert cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "reasoningEffort": "reckless"},
+        which=lambda name: f"/usr/bin/{name}",
+    )["state"] == "error"
+    assert cdx_mission_plan_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "power": "reckless"},
         which=lambda name: f"/usr/bin/{name}",
     )["state"] == "error"
 
@@ -1565,8 +1589,9 @@ def test_viewer_cdx_runs_normalizes_unended_stale_runs_as_running(tmp_path: Path
 
 def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(
@@ -1596,8 +1621,9 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
 
 def test_viewer_cdx_mission_plan_passes_commit_at_end_instruction(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(
@@ -1625,8 +1651,9 @@ def test_viewer_cdx_mission_plan_passes_commit_at_end_instruction(tmp_path: Path
 
 def test_viewer_cdx_mission_plan_ignores_commit_at_end_when_writes_disabled(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(
@@ -1738,8 +1765,9 @@ def test_viewer_cdx_mission_release_review_direct_fix_prompt_stays_guarded(tmp_p
 
 def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(
@@ -1772,8 +1800,9 @@ def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_pa
 
 def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     missing = cdx_mission_plan_payload(
@@ -1821,8 +1850,9 @@ def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -
 
 def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     invalid = cdx_mission_plan_payload(
@@ -1865,8 +1895,9 @@ def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Pat
 
 def test_viewer_cdx_mission_plan_keeps_pre_release_read_only_when_writes_disabled(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(

@@ -3230,6 +3230,19 @@
   min-width: 260px;
 }
 
+.viewer-cdx__mission-config {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.viewer-cdx__mission-config-panel {
+  gap: 8px;
+}
+
+.viewer-cdx__mission-config-panel .viewer-cdx__field {
+  margin-bottom: 0;
+}
+
 .viewer-cdx__import-form {
   display: flex;
   flex-direction: column;

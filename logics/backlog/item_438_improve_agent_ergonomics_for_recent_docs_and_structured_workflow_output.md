@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 5%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -42,6 +42,8 @@ flowchart TD
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: Improves recent/open/changed doc discovery and structured next actions.
 - request-AC8 -> This backlog slice. Proof: Updates command help for the recommended workflow.
+- request-AC6 -> This backlog slice. Evidence needed: The improved flow preserves existing safety boundaries: no silent destructive edits, no publication actions, and no unrelated workflow docs modified by repair commands.
+- request-AC7 -> This backlog slice. Evidence needed: Tests cover rich scaffold generation, AC-aware split metadata, fixable diagnostics, context-pack handoff, and failure cases where auto-fix should decline.
 
 # Decision framing
 - Product framing: Not needed

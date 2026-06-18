@@ -3942,6 +3942,111 @@ def test_main_runs_native_flow_split_request(
     assert "item_001_child_a" in source_path.read_text(encoding="utf-8")
 
 
+def _write_ac_split_request(path: Path) -> None:
+    path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Draft",
+                "> From version: 1.0.0",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- Clarify scope",
+                "# Context",
+                "- Context note",
+                "# Acceptance criteria",
+                "- AC1: Generate mapped slice A.",
+                "- AC2: Generate mapped slice B.",
+                "- AC3: Leave this AC for later.",
+                "# Backlog",
+                "- none",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_flow_split_request_accepts_ac_mappings_and_orchestration_task(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    source_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_ac_split_request(source_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "flow",
+            "split",
+            "request",
+            "req_001_demo",
+            "--slice",
+            "Slice A:AC1",
+            "--slice",
+            "Slice B:AC2",
+            "--orchestration-task",
+            "Coordinate Demo Split",
+            "--orchestration-summary",
+            "Coordinate mapped slices.",
+            "--format",
+            "json",
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["created_refs"] == ["item_001_slice_a", "item_002_slice_b"]
+    assert payload["ac_mappings"] == [
+        {"backlog_ref": "item_001_slice_a", "title": "Slice A", "request_acs": ["AC1"]},
+        {"backlog_ref": "item_002_slice_b", "title": "Slice B", "request_acs": ["AC2"]},
+    ]
+    assert payload["omitted_ac_ids"] == ["AC3"]
+    assert payload["orchestration_task"]["ref"] == "task_001_coordinate_demo_split"
+    first_text = (repo_root / "logics" / "backlog" / "item_001_slice_a.md").read_text(encoding="utf-8")
+    task_text = (repo_root / "logics" / "tasks" / "task_001_coordinate_demo_split.md").read_text(encoding="utf-8")
+    assert "- AC1: Generate mapped slice A." in first_text
+    assert "AC2: Generate mapped slice B." not in first_text
+    assert "request-AC1 -> This backlog slice" in first_text
+    assert "`task_001_coordinate_demo_split`" in first_text
+    assert "Coordinate mapped slices." in task_text
+
+
+def test_flow_split_request_rejects_unknown_ac_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    source_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_ac_split_request(source_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="Unknown request AC"):
+        main(["flow", "split", "request", "req_001_demo", "--slice", "Slice A:AC9"])
+
+
+def test_flow_split_request_rejects_duplicate_ac_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    source_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_ac_split_request(source_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="Duplicate request AC"):
+        main(["flow", "split", "request", "req_001_demo", "--slice", "Slice A:AC1", "--slice", "Slice B:AC1"])
+
+
 def test_main_runs_native_flow_promote_backlog_to_task(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3984,6 +4089,133 @@ def test_main_runs_native_flow_promote_backlog_to_task(
     assert "```mermaid" not in created.read_text(encoding="utf-8")
     assert "Created task from backlog" in captured.out
     assert created.stem in source_path.read_text(encoding="utf-8")
+
+
+def _write_request_chain_input(path: Path) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "title": "Scaffold Demo",
+                "request": {
+                    "needs": ["Create a development-ready scaffold."],
+                    "context": ["This fixture should avoid generic generated text."],
+                    "acceptance_criteria": [
+                        "AC1: The request chain is scaffolded.",
+                        "AC2: Context pack handoff is available.",
+                    ],
+                },
+                "product": {
+                    "title": "Scaffold Demo Product",
+                    "overview": "Structured product context for scaffold tests.",
+                    "goals": ["Reduce manual rewrites."],
+                    "non_goals": ["Implementing generated tasks."],
+                },
+                "backlog_items": [
+                    {
+                        "title": "First Scaffold Slice",
+                        "problem": ["Implement the first generated slice."],
+                        "scope_in": ["request-chain generation"],
+                        "scope_out": ["sibling validation surfaces"],
+                        "acceptance_criteria": ["AC1: First slice is ready."],
+                        "request_acs": ["AC1"],
+                    },
+                    {
+                        "title": "Context Pack Slice",
+                        "problem": ["Generate handoff context."],
+                        "acceptance_criteria": ["AC1: Context pack exists."],
+                        "request_acs": ["AC2"],
+                    },
+                ],
+                "orchestration_task": {
+                    "title": "Orchestrate Scaffold Demo",
+                    "plan": ["Inspect generated docs.", "Run lint and audit."],
+                },
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_flow_scaffold_request_chain_creates_docs_context_pack_and_index(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    for rel in ("request", "backlog", "tasks", "product"):
+        (repo_root / "logics" / rel).mkdir(parents=True)
+    input_path = repo_root / "logics" / "scaffold-input.json"
+    _write_request_chain_input(input_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "scaffold", "request-chain", "--input", "logics/scaffold-input.json", "--context-pack", "logics/context/scaffold.json", "--format", "json"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert payload["request_ref"] == "req_000_scaffold_demo"
+    assert payload["product_ref"] == "prod_001_scaffold_demo_product"
+    assert payload["backlog_refs"] == ["item_001_first_scaffold_slice", "item_002_context_pack_slice"]
+    assert payload["task_ref"] == "task_001_orchestrate_scaffold_demo"
+    assert (repo_root / "logics" / "INDEX.md").is_file()
+    assert (repo_root / "logics" / "context" / "scaffold.json").is_file()
+    request_text = (repo_root / "logics" / "request" / "req_000_scaffold_demo.md").read_text(encoding="utf-8")
+    backlog_text = (repo_root / "logics" / "backlog" / "item_001_first_scaffold_slice.md").read_text(encoding="utf-8")
+    assert "This fixture should avoid generic generated text." in request_text
+    assert "- `item_001_first_scaffold_slice`" in request_text
+    assert "request-AC1 -> This backlog slice" in backlog_text
+    assert "```mermaid" not in request_text
+
+
+def test_flow_scaffold_request_chain_dry_run_lists_changes_without_writing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics").mkdir(parents=True)
+    input_path = repo_root / "input.json"
+    _write_request_chain_input(input_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "scaffold", "request-chain", "--input", "input.json", "--context-pack", "logics/context/scaffold.json", "--dry-run", "--format", "json"])
+
+    assert exit_code == 0
+    assert not (repo_root / "logics" / "request").exists()
+
+
+def test_flow_scaffold_request_chain_rejects_invalid_input(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    input_path = repo_root / "input.json"
+    input_path.write_text(json.dumps({"title": "Missing Items"}), encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit, match="backlog_items"):
+        main(["flow", "scaffold", "request-chain", "--input", "input.json"])
+
+
+def test_flow_scaffold_request_chain_rejects_existing_ref_collision(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    target = repo_root / "logics" / "request" / "req_000_scaffold_demo.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("existing\n", encoding="utf-8")
+    input_path = repo_root / "input.json"
+    _write_request_chain_input(input_path)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.flow._plan_doc",
+        lambda *_args, **_kwargs: PlannedDoc(ref="req_000_scaffold_demo", path=target),
+    )
+
+    with pytest.raises(SystemExit, match="Ref collision"):
+        main(["flow", "scaffold", "request-chain", "--input", "input.json"])
 
 
 def test_main_runs_native_flow_split_backlog(

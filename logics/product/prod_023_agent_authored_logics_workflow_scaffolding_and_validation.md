@@ -3,7 +3,7 @@
 > Status: Proposed
 > Related request: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
 > Related backlog: `item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly`, `item_436_add_deterministic_validation_repair_and_fixable_diagnostics`, `item_437_improve_context_pack_corpus_generation_for_implementation_handoff`, `item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
-> Related task: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`
+> Related task: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -59,5 +59,5 @@ flowchart TD
 - Context-pack output is compact enough to hand to an implementation agent directly.
 
 # References
-- Product back-reference: `logics/request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md`
-- Task back-reference: `logics/tasks/task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md`
+- Product back-reference: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
+- Task back-reference: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`

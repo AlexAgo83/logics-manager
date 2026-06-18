@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 5%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -44,6 +44,7 @@ flowchart TD
 - request-AC3 -> This backlog slice. Proof: Provides deterministic validation repair and fixable diagnostics.
 - request-AC6 -> This backlog slice. Proof: Requires no unrelated workflow doc modifications.
 - request-AC7 -> This backlog slice. Proof: Defines tests for fixable and unsafe cases.
+- request-AC8 -> This backlog slice. Evidence needed: Documentation and CLI help show the recommended one-pass workflow for turning a product conversation into development-ready Logics corpus.
 
 # Decision framing
 - Product framing: Not needed

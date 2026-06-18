@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,12 +55,13 @@ flowchart TD
 - Architecture framing: Not needed
 - Architecture signals: (none detected)
 - Architecture follow-up: No architecture decision follow-up is expected based on current signals.
+- Use repo-owned release artifacts under logics/release/: a JSON Schema for the common contract, a README for operator and assistant rules, and fixture profiles for known project release patterns. Leave executable CLI/viewer/MCP behavior to sibling backlog items.
 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`
-- Primary task(s): `logics/tasks/task_224_define_the_release_workflow_contract_and_schema.md`
+- Request: `req_248_release_workflow_multi_project_ai_assistants`
+- Primary task(s): `task_224_define_the_release_workflow_contract_and_schema`
 
 # AI Context
 - Summary: Define the release workflow contract, states, evidence model, and initial project fixtures.
@@ -76,6 +77,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_248_release_workflow_multi_project_ai_assistants` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`.
 - Generated locally by logics-manager.
+- Task `task_224_define_the_release_workflow_contract_and_schema` was finished via `logics-manager flow finish task` on 2026-06-18.
 
 # Tasks
 - `task_224_define_the_release_workflow_contract_and_schema`

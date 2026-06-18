@@ -12,6 +12,7 @@ from pathlib import Path
 from .config import find_repo_root
 from .lint import expected_workflow_mermaid_signature
 from .path_utils import resolve_repo_output_path
+from .release import release_context_pack_payload
 from .termstyle import colorize_help
 
 
@@ -246,6 +247,7 @@ def _context_pack_cache_key(
     profile: str,
     changed_paths: list[str],
     ordered_docs: list[WorkflowDocModel],
+    release_context: dict[str, object],
 ) -> str:
     payload = {
         "repo_root": str(repo_root.resolve()),
@@ -253,6 +255,7 @@ def _context_pack_cache_key(
         "mode": mode,
         "profile": profile,
         "changed_paths": changed_paths,
+        "release": release_context,
         "docs": [
             {
                 "ref": doc.ref,
@@ -294,6 +297,7 @@ def _build_context_pack(
             ordered.append(doc)
             seen.add(doc.ref)
     changed_paths = _git_changed_paths(repo_root) if mode == "diff-first" else []
+    release_context = release_context_pack_payload(repo_root)
     cache_key = _context_pack_cache_key(
         repo_root,
         seed_ref,
@@ -301,6 +305,7 @@ def _build_context_pack(
         profile=profile,
         changed_paths=changed_paths,
         ordered_docs=ordered,
+        release_context=release_context,
     )
     cached_pack = _CONTEXT_PACK_CACHE.get(cache_key)
     if isinstance(cached_pack, dict):
@@ -313,6 +318,7 @@ def _build_context_pack(
         "refs": seed_refs,
         "budgets": {"max_docs": per_seed_limit * max(1, len(seed_refs)), "max_docs_per_ref": per_seed_limit},
         "changed_paths": changed_paths,
+        "release": release_context,
         "docs": pack_docs,
         "estimates": {
             "doc_count": len(pack_docs),

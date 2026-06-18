@@ -23,6 +23,7 @@ from .config import ConfigError, find_repo_root
 from .flow import flow_list_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
+from .release import release_plan_payload, release_status_payload
 from .sync import append_workflow_note_payload, build_context_pack_payload, list_logics_docs_payload, read_logics_doc_payload, search_logics_docs_payload, update_workflow_indicators_payload
 
 
@@ -162,6 +163,18 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
+        "name": "get_release_status",
+        "description": "Read project-owned release workflow status without publishing or mutating files.",
+        "inputSchema": _tool_schema({}),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
+        "name": "get_release_plan",
+        "description": "Build a non-mutating release plan for a target version; publication steps are explicitly marked.",
+        "inputSchema": _tool_schema({"version": {"type": "string"}}, ["version"]),
+        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
+    },
+    {
         "name": "list_logics_docs",
         "description": "List Logics workflow documents by bounded criteria.",
         "inputSchema": _tool_schema(
@@ -240,7 +253,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "refresh_mermaid_signatures",
-        "description": "Refresh deterministic workflow Mermaid signatures.",
+        "description": "Refresh deterministic signatures for legacy workflow Mermaid blocks when present.",
         "inputSchema": _tool_schema({"dry_run": {"type": "boolean"}}),
         "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
@@ -829,6 +842,13 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         except SystemExit as exc:
             raise _mcp_read_error(exc) from exc
         return {"ok": True, **payload}
+    if name == "get_release_status":
+        return release_status_payload(root)
+    if name == "get_release_plan":
+        version = str(args.get("version") or "").strip()
+        if not version:
+            raise McpToolError("missing_required_argument", "version is required.", details={"argument": "version"})
+        return release_plan_payload(root, version)
     if name == "list_logics_docs":
         payload = list_logics_docs_payload(
             root,

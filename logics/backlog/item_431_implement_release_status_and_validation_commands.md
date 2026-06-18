@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -47,6 +47,7 @@ flowchart TD
 - request-AC2 -> This backlog slice. Proof: Provides structured release status.
 - request-AC3 -> This backlog slice. Proof: Separates plan, validation, CI, release, and publication states.
 - request-AC8 -> This backlog slice. Proof: Blocks readiness when required proof is stale or missing.
+- request-AC7 -> This backlog slice. Evidence needed: Validation covers at least fixture-style examples for the known release patterns from `logics-manager`, `cdx-manager`, and `cp-wc-26`.
 
 # Decision framing
 - Product framing: Not needed
@@ -55,12 +56,13 @@ flowchart TD
 - Architecture framing: Not needed
 - Architecture signals: (none detected)
 - Architecture follow-up: No architecture decision follow-up is expected based on current signals.
+- Keep release validate non-destructive for this slice: it checks configured files, evidence freshness, gate status, and git cleanliness, but does not execute validation commands or publish anything.
 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`
-- Primary task(s): (none yet)
+- Request: `req_248_release_workflow_multi_project_ai_assistants`
+- Primary task(s): `task_226_implement_release_status_and_validation_commands`
 
 # AI Context
 - Summary: Implement release status and validation commands
@@ -76,3 +78,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_248_release_workflow_multi_project_ai_assistants` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`.
 - Generated locally by logics-manager.
+- Task `task_226_implement_release_status_and_validation_commands` was finished via `logics-manager flow finish task` on 2026-06-18.
+
+# Tasks
+- `task_226_implement_release_status_and_validation_commands`

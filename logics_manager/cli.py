@@ -44,6 +44,7 @@ ROOT_COMMANDS = (
     "view",
     "config",
     "doctor",
+    "release",
     "mcp",
     "self-update",
     "search",
@@ -104,6 +105,7 @@ def _build_root_help() -> str:
         "             JSON output includes issue_count, warning_count, can_continue,",
         "             and release_ready for agent workflows.",
         "  doctor     Check required workflow directories and schema metadata.",
+        "  release    Plan, inspect, and validate project-owned release workflow state.",
         "",
         "Agent and integration surfaces:",
         "  assist     Inspect runtime signals and build bounded context bundles.",
@@ -300,6 +302,10 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(str(exc)) from exc
         print(output)
         return 0
+    if command == "release":
+        from .release import main as release_main
+
+        return release_main(rest)
     if command == "bootstrap":
         parser = argparse.ArgumentParser(prog="logics-manager bootstrap", add_help=False)
         parser.add_argument("--check", action="store_true")

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager.cli import main
-from logics_manager.release import release_context_pack_payload, release_plan_payload, release_status_payload, release_validate_payload
+from logics_manager.release import release_add_evidence_payload, release_context_pack_payload, release_plan_payload, release_status_payload, release_validate_payload
 from logics_manager.sync import build_context_pack_payload
 
 
@@ -273,3 +273,61 @@ def test_release_cli_status_returns_stable_json(
     assert payload["state"] == "ready"
     assert payload["configured"] is True
     assert [gate["id"] for gate in payload["gates"]] == ["version_metadata", "local_validation", "github_release"]
+
+
+def test_release_add_evidence_appends_jsonl_and_updates_gate(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, [])
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+
+    payload = release_add_evidence_payload(
+        repo_root,
+        gate_id="local_validation",
+        kind="command",
+        status="passed",
+        summary="npm test passed",
+        command="npm test",
+    )
+
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    entries = [json.loads(line) for line in evidence_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert payload["ok"] is True
+    assert payload["entry"]["target_version"] == "1.2.3"
+    assert payload["entry"]["commit"] == commit
+    assert entries[-1]["gate_id"] == "local_validation"
+    assert entries[-1]["command"] == "npm test"
+    status = release_status_payload(repo_root)
+    local_gate = next(gate for gate in status["gates"] if gate["id"] == "local_validation")
+    assert local_gate["status"] == "passed"
+
+
+def test_release_cli_evidence_add_returns_stable_json(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = _write_release_repo(tmp_path, [])
+    monkeypatch.setattr("logics_manager.release.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "release",
+            "evidence",
+            "add",
+            "github_release",
+            "--kind",
+            "github_release",
+            "--status",
+            "passed",
+            "--summary",
+            "GitHub release published",
+            "--format",
+            "json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["recorded"] is True
+    assert payload["entry"]["gate_id"] == "github_release"
+    assert payload["entry"]["tag"] == "v1.2.3"

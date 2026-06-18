@@ -24,6 +24,7 @@ logics/.cache/
 logics/hybrid_assist_audit.jsonl
 logics/hybrid_assist_measurements.jsonl
 logics/mutation_audit.jsonl
+logics/release/evidence.jsonl
 
 .env.local
 logics/.cache/hybrid_assist_audit.jsonl

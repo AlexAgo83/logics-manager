@@ -413,7 +413,7 @@ function createViewerDom(options: {
               status: {
                 availability: "ready",
                 providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
-                sessions: [{ id: "session-1", status: "active", title: "Logics work" }],
+                sessions: [{ id: "session-1", status: "active", title: "Logics work", model: "gpt-5-codex" }],
                 readiness: { auth: "ready", quota: "ok" },
                 nextCommands: ["cdx status", "cdx session list"]
               }
@@ -698,6 +698,12 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/cdx-mission-plan") {
+        const requestBody = JSON.parse(String(fetchOptions?.body || "{}"));
+        const command = ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant"];
+        if (requestBody.model) {
+          command.push("--model", String(requestBody.model));
+        }
+        command.push("--reasoning-effort", String(requestBody.reasoningEffort || "high"), "--power", String(requestBody.power || "high"), "--permission", "read-only", "--timeout-seconds", "300", "--json");
         return {
           ok: true,
           json: async () => ({
@@ -724,7 +730,7 @@ function createViewerDom(options: {
               status: {
                 state: "ok",
                 status: {
-                  sessions: [{ id: "session-1", status: "active" }]
+                  sessions: [{ id: "session-1", status: "active", model: "gpt-5-codex" }]
                 }
               },
               plan: {
@@ -738,7 +744,10 @@ function createViewerDom(options: {
                 requestedFileWrites: true,
                 supportsFileWrites: false,
                 permission: "read-only",
-                command: ["cdx", "run", "session-1", "--cwd", "/workspace/logics-manager", "--prompt", "Prepare the open Logics workflow corpus for development.\nReturn JSON only with allowed actions.", "--kind", "assistant", "--reasoning-effort", "high", "--power", "high", "--permission", "read-only", "--timeout-seconds", "300", "--json"],
+                model: requestBody.model || "",
+                reasoningEffort: requestBody.reasoningEffort || "high",
+                power: requestBody.power || "high",
+                command,
                 warnings: [],
                 requiresConfirmation: true,
                 canRun: true
@@ -2597,7 +2606,22 @@ describe("local viewer browser host", () => {
     expect(allowWrites).toBeNull();
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("Corpus updates are applied after CDX returns allowed actions.");
-    dom.window.document.querySelector('[data-viewer-cdx-strength="deep"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const modelInput = dom.window.document.querySelector('[data-viewer-cdx-input="model"]') as HTMLInputElement | null;
+    expect(modelInput?.value).toBe("gpt-5-codex");
+    if (modelInput) {
+      modelInput.value = "gpt-5.1-codex";
+      modelInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    const reasoningSelect = dom.window.document.querySelector('[data-viewer-cdx-input="reasoningEffort"]') as HTMLSelectElement | null;
+    const powerSelect = dom.window.document.querySelector('[data-viewer-cdx-input="power"]') as HTMLSelectElement | null;
+    if (reasoningSelect) {
+      reasoningSelect.value = "xhigh";
+      reasoningSelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    if (powerSelect) {
+      powerSelect.value = "high";
+      powerSelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
     dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2605,10 +2629,15 @@ describe("local viewer browser host", () => {
     const corpusPlanCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
     expect(JSON.parse(String(corpusPlanCall?.options?.body))).toMatchObject({
       missionId: "corpus-ready",
-      allowFileWrites: "false"
+      allowFileWrites: "false",
+      model: "gpt-5.1-codex",
+      reasoningEffort: "xhigh",
+      power: "high"
     });
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("cdx run session-1 --cwd /workspace/logics-manager");
+    expect(text).toContain("--model gpt-5.1-codex");
+    expect(text).toContain("--reasoning-effort xhigh");
     expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
 

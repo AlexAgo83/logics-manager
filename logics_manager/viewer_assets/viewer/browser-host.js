@@ -4054,7 +4054,7 @@
   }
 
   function closeCdxSessionMenus(exceptMenu = null) {
-    document.querySelectorAll(".viewer-cdx__session-menu[open]").forEach((menu) => {
+    document.querySelectorAll(".viewer-cdx__session-menu[open], .viewer-cdx__mission-config[open]").forEach((menu) => {
       if (exceptMenu && menu === exceptMenu) {
         return;
       }
@@ -4180,6 +4180,10 @@
     const missions = Array.isArray(catalog.missions) ? catalog.missions : [];
     const missionId = latestCdxMissionState.missionId || "full-audit";
     const mission = missions.find((entry) => entry.id === missionId) || {};
+    const status = latestCdxMissionState.statusPayload?.status || {};
+    const sessions = cdxSessions(status);
+    const selectedSession = sessions.find((session) => cdxField(session && typeof session === "object" ? session : { value: session }, ["id", "name", "session_name", "value"], "") === latestCdxMissionState.sessionId);
+    const selectedModel = cdxField(selectedSession && typeof selectedSession === "object" ? selectedSession : {}, ["model", "model_name", "modelName"], "");
     const allowFileWrites = mission.supportsFileWrites === false
       ? "false"
       : (latestCdxMissionState.missionInputs.allowFileWrites === "false" ? "false" : "true");
@@ -4188,9 +4192,41 @@
       sessionId: latestCdxMissionState.sessionId || "",
       strengthId: latestCdxMissionState.strengthId || "standard",
       ...latestCdxMissionState.missionInputs,
+      model: Object.prototype.hasOwnProperty.call(latestCdxMissionState.missionInputs, "model") ? latestCdxMissionState.missionInputs.model : selectedModel,
       allowFileWrites,
       commitAtEnd: latestCdxMissionState.missionInputs.commitAtEnd === "true" ? "true" : "false"
     };
+  }
+
+  function renderCdxMissionConfigMenu(session, strength) {
+    const model = Object.prototype.hasOwnProperty.call(latestCdxMissionState.missionInputs, "model")
+      ? latestCdxMissionState.missionInputs.model
+      : cdxField(session && typeof session === "object" ? session : {}, ["model", "model_name", "modelName"], "");
+    const levels = ["minimal", "low", "medium", "high", "xhigh"];
+    const defaultReasoning = strength?.reasoningEffort || "medium";
+    const defaultPower = strength?.power || "medium";
+    const reasoningEffort = latestCdxMissionState.missionInputs.reasoningEffort || defaultReasoning;
+    const power = latestCdxMissionState.missionInputs.power || defaultPower;
+    const optionRows = (selected) => levels.map((level) => `<option value="${escapeHtml(level)}"${level === selected ? " selected" : ""}>${escapeHtml(cdxLabel(level))}</option>`).join("");
+    return `
+      <details class="viewer-cdx__menu viewer-cdx__mission-config">
+        <summary class="viewer-cdx__icon-button" title="Configure CDX model and reasoning">Config</summary>
+        <div class="viewer-cdx__menu-panel viewer-cdx__menu-panel--wide viewer-cdx__mission-config-panel" role="menu" aria-label="CDX mission configuration">
+          <label class="viewer-cdx__field">
+            <span>Model</span>
+            <input data-viewer-cdx-input="model" type="text" value="${escapeHtml(model)}" placeholder="Default session model">
+          </label>
+          <label class="viewer-cdx__field">
+            <span>Reasoning</span>
+            <select data-viewer-cdx-input="reasoningEffort">${optionRows(reasoningEffort)}</select>
+          </label>
+          <label class="viewer-cdx__field">
+            <span>Power</span>
+            <select data-viewer-cdx-input="power">${optionRows(power)}</select>
+          </label>
+        </div>
+      </details>
+    `;
   }
 
   function renderCdxMissionInputs(mission) {
@@ -4235,9 +4271,11 @@
     const status = statusPayload?.status || {};
     const sessions = cdxSessions(status);
     const selectedSession = latestCdxMissionState.sessionId || cdxField(sessions[0] || {}, ["id", "name", "session_name", "value"], "");
+    const selectedSessionItem = sessions.find((session) => cdxField(session && typeof session === "object" ? session : { value: session }, ["id", "name", "session_name", "value"], "") === selectedSession) || {};
     const missionId = latestCdxMissionState.missionId || catalog.defaultMissionId || "full-audit";
     const selectedMission = missions.find((mission) => mission.id === missionId) || {};
     const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
+    const selectedStrength = strengths.find((strength) => strength.id === strengthId) || strengths.find((strength) => strength.id === catalog.defaultStrengthId) || {};
     const supportsFileWrites = selectedMission.supportsFileWrites !== false;
     const allowFileWrites = supportsFileWrites && latestCdxMissionState.missionInputs.allowFileWrites !== "false";
     const fileWriteLabel = ["full-audit", "release-review"].includes(selectedMission.id)
@@ -4271,9 +4309,6 @@
       const label = [id, cdxField(item, ["provider"], ""), renderTextRemaining(item)].filter(Boolean).join(" · ");
       return `<option value="${escapeHtml(id)}"${id === selectedSession ? " selected" : ""}>${escapeHtml(label || id)}</option>`;
     }).join("");
-    const strengthButtons = strengths.map((strength) => `
-      <button class="viewer-cdx__mode${strength.id === strengthId ? " is-active" : ""}" type="button" data-viewer-cdx-strength="${escapeHtml(strength.id)}" aria-pressed="${strength.id === strengthId ? "true" : "false"}">${escapeHtml(strength.label || cdxLabel(strength.id))}</button>
-    `).join("");
     const plan = planPayload?.plan;
     const warnings = Array.isArray(plan?.warnings) ? plan.warnings : [];
     const command = Array.isArray(plan?.command) ? plan.command.join(" ") : "";
@@ -4305,7 +4340,7 @@
               <span>Session</span>
               <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
             </label>
-            <div class="viewer-cdx__strengths">${strengthButtons}</div>
+            ${renderCdxMissionConfigMenu(selectedSessionItem, selectedStrength)}
             ${fileWriteControl}
             ${renderCdxMissionInputs(selectedMission)}
             <div class="viewer-cdx__actions">
@@ -5832,12 +5867,13 @@
       const cdxProviderTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider]") : null;
       if (sessionTarget instanceof HTMLSelectElement) {
         latestCdxMissionState.sessionId = sessionTarget.value || "";
+        delete latestCdxMissionState.missionInputs.model;
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
       }
-      if (cdxInputTarget instanceof HTMLInputElement || cdxInputTarget instanceof HTMLTextAreaElement) {
+      if (cdxInputTarget instanceof HTMLInputElement || cdxInputTarget instanceof HTMLTextAreaElement || cdxInputTarget instanceof HTMLSelectElement) {
         const key = cdxInputTarget.getAttribute("data-viewer-cdx-input") || "";
         if (key) {
           latestCdxMissionState.missionInputs[key] = cdxInputTarget instanceof HTMLInputElement && cdxInputTarget.type === "checkbox" ? (cdxInputTarget.checked ? "true" : "false") : (cdxInputTarget.value || "");
@@ -5868,7 +5904,7 @@
     });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu") : null;
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config") : null;
       closeCdxSessionMenus(activeCdxSessionMenu);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
@@ -6150,7 +6186,7 @@
       }
     });
     document.addEventListener("focusin", (event) => {
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu") : null;
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config") : null;
       closeCdxSessionMenus(activeCdxSessionMenu);
     });
     document.addEventListener("keydown", (event) => {

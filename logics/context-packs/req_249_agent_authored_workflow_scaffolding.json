@@ -1,0 +1,297 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, ac-aware-split, validation-autofix, context-pack, corpus-handoff, agent-ergonomics, mermaid-signature",
+        "skip when": "You are only implementing the product feature described by a generated workflow, not the workflow authoring system itself.",
+        "summary": "Improve Logics so agents can create development-ready workflow corpus with fewer manual edits, fewer lint/audit repair loops, and less token-heavy exploration.",
+        "use when": "You are implementing or reviewing Logics workflow authoring improvements for agent-generated request/backlog/product/task/context-pack chains."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+          "item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly",
+          "item_436_add_deterministic_validation_repair_and_fixable_diagnostics",
+          "item_437_improve_context_pack_corpus_generation_for_implementation_handoff",
+          "item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ]
+      },
+      "path": "logics/request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md",
+      "ref": "req_249_improve_logics_workflow_scaffolding_validation_agent_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Logics can scaffold a request, product brief, backlog slices, orchestration task, traceability, Mermaid signatures, index changes, and optional context pack from structured input without forcing broad manual rewrites.",
+          "- AC2: Request splitting can map specific request ACs to specific backlog slices and can create an orchestration task with an explicit title and role.",
+          "- AC3: Deterministic lint/audit warnings such as stale Mermaid signatures, missing overview blocks, missing AC traceability, and index drift can be repaired or explained through one validation surface.",
+          "- AC4: Context-pack corpus generation can produce a compact, implementation-ready handoff from the new workflow refs with predictable output path and token profile.",
+          "- AC5: Agent-facing command output prioritizes current/recent/open/changed docs and returns structured next actions instead of forcing agents to infer state from generic lists.",
+          "- AC6: The improved flow preserves existing safety boundaries: no silent destructive edits, no publication actions, and no unrelated workflow docs modified by repair commands."
+        ],
+        "Needs": [
+          "- Make Logics workflow document creation faster, less token-heavy, and less correction-prone when an AI agent turns a conversation into request, backlog, product brief, task, and implementation context.",
+          "- Provide first-class commands for rich request-chain scaffolding, AC-aware splitting, orchestration task generation, deterministic fixes, and context-pack corpus handoff.",
+          "- Reduce the number of manual patch cycles needed after generation by making the CLI produce audit-ready docs and actionable diagnostics by default."
+        ]
+      },
+      "status": "Draft",
+      "title": "Improve Logics workflow scaffolding and validation for agent-authored docs"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, rich-generation, context-pack, dry-run, generated-docs",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Add a rich request-chain scaffold command that creates development-ready workflow docs and optional context-pack corpus from structured input.",
+        "use when": "Use when implementing or reviewing the delivery slice for Add rich request-chain scaffolding for development-ready Logics work."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ],
+        "task": [
+          "task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work"
+        ]
+      },
+      "path": "logics/backlog/item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md",
+      "ref": "item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A scaffold command can generate request, product brief, backlog items, orchestration task, links, Mermaid signatures, and index updates from one structured input.",
+          "- AC2: Generated docs avoid generic placeholder problem statements when structured content is provided.",
+          "- AC3: The scaffold can optionally generate a context-pack corpus for the created refs.",
+          "- AC4: Dry-run output lists every file that would be created or changed.",
+          "- AC5: Tests cover successful scaffold, dry-run, invalid input, and existing-ref collision behavior."
+        ],
+        "Problem": [
+          "The current generators create valid but generic docs. Agents then spend tokens reading examples, rewriting large sections, repairing signatures, adding traceability, updating the index, and creating context packs manually. This slice adds a richer scaffold command for a complete development-ready request chain."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add rich request-chain scaffolding for development-ready Logics work"
+    },
+    {
+      "ai_context": {
+        "keywords": "ac-aware-split, orchestration-task, request-traceability, structured-json, flow-promote",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Add AC-aware request splitting and orchestration task metadata so generated backlog items do not need manual traceability rewrites.",
+        "use when": "Use when implementing or reviewing the delivery slice for Make request splitting AC-aware and task-orchestration friendly."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ]
+      },
+      "path": "logics/backlog/item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly.md",
+      "ref": "item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `split request` can accept per-slice AC mappings without requiring manual item rewrites.",
+          "- AC2: Generated items include slice-specific problem, scope, ACs, and AC Traceability.",
+          "- AC3: Promotion or split can create an orchestration task with custom title, summary, and linked role.",
+          "- AC4: JSON output includes created refs, AC mappings, and task links.",
+          "- AC5: Tests cover valid mapping, unknown AC, duplicate mapping, omitted AC, and orchestration task options."
+        ],
+        "Problem": [
+          "`flow split request` creates sibling backlog items, but agents still have to rewrite each item and manually map request ACs to the right slice. Task promotion also lacks orchestration-friendly metadata such as custom title and role."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make request splitting AC-aware and task-orchestration friendly"
+    },
+    {
+      "ai_context": {
+        "keywords": "flow-validate, lint-audit, fixable-diagnostics, mermaid-repair, ac-traceability",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Add a validation surface that merges lint/audit findings and can safely apply deterministic repairs.",
+        "use when": "Use when implementing or reviewing the delivery slice for Add deterministic validation repair and fixable diagnostics."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_436_add_deterministic_validation_repair_and_fixable_diagnostics"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ]
+      },
+      "path": "logics/backlog/item_436_add_deterministic_validation_repair_and_fixable_diagnostics.md",
+      "ref": "item_436_add_deterministic_validation_repair_and_fixable_diagnostics",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `flow validate` can report lint and audit state together for selected refs.",
+          "- AC2: Output distinguishes blocking, warning, fixable, unsafe, and informational findings.",
+          "- AC3: `--apply-fixes` repairs deterministic issues without touching unrelated workflow docs.",
+          "- AC4: Mermaid repair applies the exact expected signatures instead of only reporting them.",
+          "- AC5: Tests cover applied fix, dry-run, ambiguous fix refusal, and no-unrelated-doc-churn behavior."
+        ],
+        "Problem": [
+          "Agents currently run `lint`, then `audit`, then infer which repair command or manual patch is needed. Some deterministic fixes, such as Mermaid signatures and request AC traceability, are reported but not applied. This slice creates a clearer validation surface with fixable diagnostics."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add deterministic validation repair and fixable diagnostics"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, workflow-corpus, validation-repair, context-pack, agent-ergonomics",
+        "skip when": "You are working only on a sibling slice such as viewer-free context-pack generation or list-doc filters.",
+        "summary": "Orchestrate implementation of richer Logics workflow scaffolding and validation for agent-authored docs.",
+        "use when": "You need the first implementation task for request-chain scaffold and handoff corpus improvements."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+          "item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly",
+          "item_436_add_deterministic_validation_repair_and_fixable_diagnostics",
+          "item_437_improve_context_pack_corpus_generation_for_implementation_handoff",
+          "item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ],
+        "task": [
+          "task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work"
+        ]
+      },
+      "path": "logics/tasks/task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md",
+      "ref": "task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run `python3 -m logics_manager audit --legacy-cutoff-version 1.1.0 --group-by-doc`.",
+          "- Generate a context pack for `req_249`, `prod_023`, `item_434` through `item_438`, and `task_225`."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate agent-authored Logics workflow scaffolding improvements"
+    },
+    {
+      "ai_context": {
+        "keywords": "context-pack, corpus-handoff, implementation-context, workflow-chain, bounded-context",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Make context-pack corpus generation a first-class implementation handoff for newly scaffolded workflow chains.",
+        "use when": "Use when implementing or reviewing the delivery slice for Improve context-pack corpus generation for implementation handoff."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_437_improve_context_pack_corpus_generation_for_implementation_handoff"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ]
+      },
+      "path": "logics/backlog/item_437_improve_context_pack_corpus_generation_for_implementation_handoff.md",
+      "ref": "item_437_improve_context_pack_corpus_generation_for_implementation_handoff",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Context-pack handoff can be generated from a request-chain ref set with one command or scaffold option.",
+          "- AC2: Output includes request, product brief, backlog items, orchestration task, and validation summary when available.",
+          "- AC3: Output records source refs, mode, profile, generation timestamp, and command.",
+          "- AC4: The default handoff excludes stale unrelated docs unless explicitly requested.",
+          "- AC5: Tests cover generated pack shape, missing refs, profile selection, and bounded size behavior."
+        ],
+        "Problem": [
+          "After a workflow chain is created, an implementation agent still needs compact context. Today the agent must remember to run `sync context-pack`, choose refs, choose a path, and decide the profile. This slice makes context-pack corpus generation a first-class handoff step."
+        ]
+      },
+      "status": "Ready",
+      "title": "Improve context-pack corpus generation for implementation handoff"
+    },
+    {
+      "ai_context": {
+        "keywords": "agent-ergonomics, recent-docs, open-docs, changed-docs, structured-output",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Improve command output and doc discovery so agents can find current workflow state without broad scans.",
+        "use when": "Use when implementing or reviewing the delivery slice for Improve agent ergonomics for recent docs and structured workflow output."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output"
+        ],
+        "prod": [
+          "prod_023_agent_authored_logics_workflow_scaffolding_and_validation"
+        ],
+        "req": [
+          "req_249_improve_logics_workflow_scaffolding_validation_agent_docs"
+        ]
+      },
+      "path": "logics/backlog/item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output.md",
+      "ref": "item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `sync list-docs` supports recent, open, and changed views that prioritize the current work over historical docs.",
+          "- AC2: Flow creation commands return structured next actions, created refs, changed files, and validation suggestions.",
+          "- AC3: Agent-facing text output stays concise while JSON output remains complete.",
+          "- AC4: Help text shows the recommended one-pass workflow for request-chain creation and corpus handoff.",
+          "- AC5: Tests cover sorting/filtering behavior and JSON schema stability for agent consumption."
+        ],
+        "Problem": [
+          "Some existing command output is technically correct but low-signal for agents. For example, listing docs with a small limit may return old historical entries instead of current open docs. Agents need recent/open/changed filters and structured next-action output."
+        ]
+      },
+      "status": "Ready",
+      "title": "Improve agent ergonomics for recent docs and structured workflow output"
+    }
+  ],
+  "estimates": {
+    "char_count": 14670,
+    "doc_count": 7
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_249_improve_logics_workflow_scaffolding_validation_agent_docs,item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work,item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly,item_436_add_deterministic_validation_repair_and_fixable_diagnostics,item_437_improve_context_pack_corpus_generation_for_implementation_handoff,item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output,task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+  "refs": [
+    "req_249_improve_logics_workflow_scaffolding_validation_agent_docs",
+    "item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work",
+    "item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly",
+    "item_436_add_deterministic_validation_repair_and_fixable_diagnostics",
+    "item_437_improve_context_pack_corpus_generation_for_implementation_handoff",
+    "item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output",
+    "task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work"
+  ]
+}

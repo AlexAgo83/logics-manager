@@ -3528,6 +3528,7 @@ def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context
                 refs,
                 mode=_string_value(raw_context_pack, "mode", default="summary-only"),
                 profile=_string_value(raw_context_pack, "profile", default="normal"),
+                handoff=True,
             )
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(json.dumps(context_pack_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")

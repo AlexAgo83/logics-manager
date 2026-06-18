@@ -4277,8 +4277,11 @@ def test_flow_scaffold_request_chain_creates_docs_context_pack_and_index(
     assert payload["task_ref"] == "task_001_orchestrate_scaffold_demo"
     assert (repo_root / "logics" / "INDEX.md").is_file()
     assert (repo_root / "logics" / "context" / "scaffold.json").is_file()
+    context_payload = json.loads((repo_root / "logics" / "context" / "scaffold.json").read_text(encoding="utf-8"))
     request_text = (repo_root / "logics" / "request" / "req_000_scaffold_demo.md").read_text(encoding="utf-8")
     backlog_text = (repo_root / "logics" / "backlog" / "item_001_first_scaffold_slice.md").read_text(encoding="utf-8")
+    assert context_payload["handoff"]["enabled"] is True
+    assert context_payload["command"].endswith("--handoff")
     assert "This fixture should avoid generic generated text." in request_text
     assert "- `item_001_first_scaffold_slice`" in request_text
     assert "request-AC1 -> This backlog slice" in backlog_text
@@ -5141,10 +5144,11 @@ def test_main_runs_native_sync_context_pack(
     monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
     monkeypatch.setattr(
         "logics_manager.sync._build_context_pack",
-        lambda _repo_root, ref, mode, profile, config=None: {
+        lambda _repo_root, ref, mode, profile, config=None, handoff=False: {
             "ref": ref,
             "mode": mode,
             "profile": profile,
+            "handoff": {"enabled": handoff},
             "estimates": {"doc_count": 1, "char_count": 10},
             "docs": [{"ref": ref}],
             "changed_paths": [],
@@ -5256,6 +5260,66 @@ def test_sync_context_pack_accepts_multiple_refs(
     assert exit_code == 0
     assert payload["refs"] == ["req_001_demo", "task_001_demo"]
     assert {doc["ref"] for doc in payload["docs"]} == {"req_001_demo", "task_001_demo"}
+
+
+def test_sync_context_pack_handoff_includes_companions_metadata_and_validation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "# Companion docs",
+                "- Product brief(s): `prod_001_demo`",
+                "# Needs",
+                "- One.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "tasks" / "task_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## task_001_demo - Demo Task",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "# Backlog",
+                "- `req_001_demo`",
+                "# Validation",
+                "- pytest passed.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "product" / "prod_001_demo.md").write_text(
+        "## prod_001_demo - Demo Product\n> Status: Proposed\n# Overview\nProduct context.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "context-pack", "req_001_demo", "task_001_demo", "--handoff", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["profile"] == "deep"
+    assert payload["handoff"]["enabled"] is True
+    assert payload["handoff"]["source_refs"] == ["req_001_demo", "task_001_demo"]
+    assert payload["command"] == "logics-manager sync context-pack req_001_demo task_001_demo --mode summary-only --profile deep --handoff"
+    assert payload["generated_at"].endswith("Z")
+    assert [doc["ref"] for doc in payload["companion_docs"]] == ["prod_001_demo"]
+    assert payload["validation_summary"] == [
+        {"ref": "task_001_demo", "path": "logics/tasks/task_001_demo.md", "items": ["- pytest passed."]}
+    ]
 
 
 def test_sync_refresh_mermaid_signatures_can_scope_targets(
@@ -6257,10 +6321,11 @@ def test_sync_outside_output_is_rejected_even_in_dry_run(tmp_path: Path, monkeyp
     monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
     monkeypatch.setattr(
         "logics_manager.sync._build_context_pack",
-        lambda _repo_root, ref, mode, profile, config=None: {
+        lambda _repo_root, ref, mode, profile, config=None, handoff=False: {
             "ref": ref,
             "mode": mode,
             "profile": profile,
+            "handoff": {"enabled": handoff},
             "estimates": {"doc_count": 0, "char_count": 0},
             "docs": [],
             "changed_paths": [],

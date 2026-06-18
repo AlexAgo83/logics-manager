@@ -1804,7 +1804,41 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     if not isinstance(parsed, dict):
         return {"state": "invalid-json", "message": "CDX status JSON must be an object.", "status": {}}
 
+    _enrich_cdx_resume_status(repo_root, parsed, runner=runner)
     return {"state": "ok", "message": "", "status": parsed}
+
+
+def _enrich_cdx_resume_status(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:
+    rows = status.get("rows")
+    if not isinstance(rows, list):
+        rows = status.get("sessions")
+    if not isinstance(rows, list):
+        return
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        session = str(row.get("session_name") or row.get("name") or row.get("id") or "").strip()
+        if not session:
+            continue
+        try:
+            result = _run_read_only_cdx(repo_root, ["can-resume", session, "--json"], runner=runner)
+        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+            row["resume_available"] = False
+            continue
+        if result.returncode != 0:
+            row["resume_available"] = False
+            continue
+        try:
+            parsed = json.loads(result.stdout or "{}")
+        except json.JSONDecodeError:
+            row["resume_available"] = False
+            continue
+        if isinstance(parsed, dict):
+            row["resume_available"] = bool(parsed.get("resumable"))
+            if parsed.get("reason"):
+                row["resume_reason"] = str(parsed["reason"])
+            if parsed.get("strategy"):
+                row["resume_strategy"] = str(parsed["strategy"])
 
 
 def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:

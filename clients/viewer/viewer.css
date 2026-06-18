@@ -1209,10 +1209,19 @@
 }
 
 .viewer-workshop__panel {
+  min-height: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editorWidget-background, #202020);
   padding: 8px;
+}
+
+.viewer-workshop__panel[data-viewer-workshop-panel="commands"] {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .viewer-workshop__panel--terminals {
@@ -1540,6 +1549,7 @@
 
 .viewer-workshop__group {
   margin-bottom: 12px;
+  min-width: 0;
 }
 
 .viewer-workshop__group-title {
@@ -1559,6 +1569,7 @@
 }
 
 .viewer-workshop__command {
+  min-width: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 4px;
   background: var(--vscode-textCodeBlock-background, #161616);
@@ -1569,6 +1580,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -1590,6 +1602,8 @@
 .viewer-workshop__command-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -1910,6 +1924,25 @@
 
 .viewer-cdx__path-link:hover {
   text-decoration: underline;
+}
+
+.viewer-cdx__session-menu {
+  display: inline-block;
+}
+
+.viewer-cdx__session-summary {
+  display: inline-flex;
+  list-style: none;
+}
+
+.viewer-cdx__session-summary::-webkit-details-marker {
+  display: none;
+}
+
+.viewer-cdx__session-menu-panel {
+  right: 0;
+  left: auto;
+  min-width: 150px;
 }
 
 .viewer-cdx__entity-status {

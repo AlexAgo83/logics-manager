@@ -39,6 +39,7 @@ function createViewerDom(options: {
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
   releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  terminalCommands?: Array<{ command: string[]; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
   url?: string;
@@ -324,6 +325,22 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             payload
+          })
+        };
+      }
+      if (url === "/api/workshop-terminal-start") {
+        const body = fetchOptions?.body ? JSON.parse(String(fetchOptions.body)) : {};
+        options.terminalCommands?.push({
+          command: Array.isArray(body.command) ? body.command : [],
+          label: String(body.label || "")
+        });
+        const id = `terminal-${(options.terminalCommands?.length || 1)}`;
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { id, label: body.label || "shell", state: "running" }
           })
         };
       }
@@ -935,6 +952,15 @@ describe("local viewer browser host", () => {
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
     expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "CDX", "Settings"]);
+  });
+
+  it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+
+    expect(css).toContain('.viewer-workshop__panel[data-viewer-workshop-panel="commands"]');
+    expect(css).toContain("overflow-y: auto");
+    expect(css).toContain(".viewer-workshop__command-header");
+    expect(css).toContain("flex-wrap: wrap");
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
@@ -2850,6 +2876,68 @@ describe("local viewer browser host", () => {
     expect(leftStackText).toContain("Sessions");
     expect(leftStackText).not.toContain("Providers");
     expect(rightStackText.indexOf("Safe next commands")).toBeLessThan(rightStackText.indexOf("Providers"));
+  });
+
+  it("opens CDX session action menus with resume and handoff choices", async () => {
+    const payload = cdxRowsStatusPayload();
+    const rows = payload.body.payload.status.rows;
+    rows[0].resume_available = true;
+    rows[0].last_launched_at = "2026-06-19T10:00:00.000Z";
+    rows[1].resume_available = true;
+    rows[1].last_launched_at = "2026-06-19T09:00:00.000Z";
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom } = createViewerDom({
+      cdxResponse: payload,
+      terminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const work2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
+    const corvusHandoff = dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null;
+    expect(work2Menu?.textContent).toBe("Resume");
+    expect(corvusHandoff?.textContent).toBe("Handoff (work2)");
+    const sessionMenu = work2Menu?.closest("details") as HTMLDetailsElement | null;
+    if (sessionMenu) {
+      sessionMenu.open = true;
+    }
+    dom.window.document.getElementById("viewer-meta")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(sessionMenu?.open).toBe(false);
+    if (sessionMenu) {
+      sessionMenu.open = true;
+    }
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.FocusEvent("focusin", { bubbles: true }));
+    expect(sessionMenu?.open).toBe(false);
+
+    work2Menu?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
+    expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-1"]')).toBeTruthy();
+    expect(terminalCommands[0]).toEqual({ command: ["cdx", "resume", "work2"], label: "cdx resume work2" });
+
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-2"]')).toBeTruthy();
+    expect(terminalCommands).toContainEqual({ command: ["cdx", "handoff", "work2", "corvus"], label: "cdx handoff work2 corvus" });
   });
 
   it("persists CDX status column visibility with Block and CR hidden by default", async () => {

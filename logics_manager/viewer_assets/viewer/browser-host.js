@@ -194,7 +194,6 @@
   const workspaceButton = () => document.getElementById("viewer-workspace");
   const workshopButton = () => document.getElementById("viewer-workshop");
   const ciButton = () => document.getElementById("viewer-ci");
-  const releaseButton = () => document.getElementById("viewer-release");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
@@ -252,6 +251,7 @@
   let latestCdxStatusSignature = "";
   let latestCdxStatusPayload = null;
   let latestCiStatusSignature = "";
+  let latestCiScreenMode = "runs";
   let primaryActionBusyKey = "";
   let primaryActionController = null;
   let cdxMissionBusyKey = "";
@@ -432,12 +432,12 @@
       "#viewer-workshop",
       "#viewer-git",
       "#viewer-ci",
-      "#viewer-release",
       "#viewer-cdx",
       "#viewer-repo-folder",
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
+      "[data-viewer-ci-mode]",
       "[data-viewer-cdx-mode]",
       "[data-viewer-cdx-report]",
       "[data-viewer-cdx-artifact-path]",
@@ -1843,7 +1843,11 @@
     } else if (isGitStatusOpen()) {
       await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCiStatusOpen()) {
-      await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
+      if (latestCiScreenMode === "release") {
+        await showReleaseStatus({ silent: Boolean(options.silent), force: Boolean(options.force) });
+      } else {
+        await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
+      }
     } else if (isCdxStatusOpen()) {
       await showCdxStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
     } else if (isCdxRunsOpen()) {
@@ -1867,7 +1871,9 @@
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX runs") return showCdxRuns(opts);
-    if (screen === "CI status") return showCiStatus(opts);
+    if (screen === "CI status") {
+      return latestCiScreenMode === "release" ? showReleaseStatus(opts) : showCiStatus(opts);
+    }
     if (screen === "Git status") return showGitStatus({ preserve: true, ...opts });
     if (screen === "Explorer") return showWorkspace(opts);
     if (screen === "Workshop") return showWorkshop(opts);
@@ -5025,10 +5031,20 @@
     return new Date(timestamp).toLocaleString();
   }
 
+  function renderCiModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes viewer-ci__modes" role="tablist" aria-label="CI views">
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-ci-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Runs</button>
+        <button class="viewer-cdx__mode${active === "release" ? " is-active" : ""}" type="button" data-viewer-ci-mode="release" aria-selected="${active === "release" ? "true" : "false"}">Release</button>
+      </div>
+    `;
+  }
+
   function renderCiStatus(payload) {
     if (!payload || !payload.visible) {
       return `
         <div class="viewer-ci">
+          ${renderCiModeSwitcher("runs")}
           <div class="viewer-ci__state">${escapeHtml(payload?.message || "GitHub Actions CI is not configured for this repository.")}</div>
         </div>
       `;
@@ -5079,6 +5095,7 @@
     }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
     return `
       <div class="viewer-ci">
+        ${renderCiModeSwitcher("runs")}
         <div class="viewer-ci__summary">${cards}</div>
         <div class="viewer-ci__workspace">
           <section class="viewer-ci__section">
@@ -5167,6 +5184,7 @@
     `;
     return `
       <div class="viewer-release">
+        ${renderCiModeSwitcher("release")}
         <div class="viewer-ci__summary">${cards}</div>
         <div class="viewer-ci__workspace viewer-release__workspace">
           <section class="viewer-ci__section">
@@ -5187,6 +5205,7 @@
   }
 
   async function showReleaseStatus(options = {}) {
+    latestCiScreenMode = "release";
     if (!options.silent) {
       setMeta("Checking release workflow state...");
     }
@@ -5200,16 +5219,17 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load release workflow state.");
     }
-    setDocument("Release workflow", renderReleaseStatus(data.payload));
+    setDocument("CI status", renderReleaseStatus(data.payload));
     const state = data.payload?.state || "unknown";
-    const button = releaseButton();
+    const button = ciButton();
     if (button instanceof HTMLElement) {
-      button.title = data.payload?.next_action || "Show release workflow state";
+      button.title = data.payload?.next_action || "Show CI and release workflow state";
     }
     setMeta(options.silent ? "Release workflow refreshed." : `Release workflow state: ${state}.`);
   }
 
   async function showCiStatus(options = {}) {
+    latestCiScreenMode = "runs";
     if (!isCapabilityAvailable("ci")) {
       const message = capabilityMessage("ci", "CI is not available for this project.");
       setDocument("CI status", renderCiStatus({ visible: false, state: capability("ci").state, message }));
@@ -5722,9 +5742,6 @@
     ciButton()?.addEventListener("click", () => {
       withPrimaryAction("ci", "Checking CI status", showCiStatus);
     });
-    releaseButton()?.addEventListener("click", () => {
-      withPrimaryAction("release", "Checking release workflow", showReleaseStatus);
-    });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
     });
@@ -5822,6 +5839,7 @@
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
+      const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
       const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
@@ -5856,6 +5874,15 @@
             showCdxStatus({ silent: true, force: true }).catch(() => {});
           }
         }).catch(() => {}).finally(() => { cdxToggleTarget.disabled = false; });
+        return;
+      }
+      if (ciModeTarget instanceof HTMLElement) {
+        const mode = ciModeTarget.getAttribute("data-viewer-ci-mode") || "runs";
+        if (mode === "release") {
+          withPrimaryAction("ci-release", "Checking release workflow", showReleaseStatus);
+        } else {
+          withPrimaryAction("ci-runs", "Checking CI status", showCiStatus);
+        }
         return;
       }
       if (cdxSessionLaunchTarget instanceof HTMLElement) {

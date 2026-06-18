@@ -58,7 +58,6 @@ function createViewerDom(options: {
     <button id="viewer-workspace" type="button" hidden>Explorer</button>
     <button id="viewer-workshop" type="button" hidden>Workshop</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
-    <button id="viewer-release" type="button">Release</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
@@ -935,7 +934,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "Release", "CDX", "Settings"]);
+    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "CDX", "Settings"]);
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
@@ -2077,13 +2076,22 @@ describe("local viewer browser host", () => {
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-release")?.dispatchEvent(new dom.window.Event("click"));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    const releaseTab = dom.window.document.querySelector('[data-viewer-ci-mode="release"]') as HTMLElement | null;
+    expect(releaseTab).toBeTruthy();
+    releaseTab?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/release-status");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Release workflow");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CI status");
+    expect(content?.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
     expect(content?.textContent).toContain("blocked");
     expect(content?.textContent).toContain("1.2.3");
     expect(content?.textContent).toContain("local_validation");

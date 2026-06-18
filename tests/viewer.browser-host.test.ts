@@ -38,6 +38,7 @@ function createViewerDom(options: {
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
+  releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
   url?: string;
@@ -57,6 +58,7 @@ function createViewerDom(options: {
     <button id="viewer-workspace" type="button" hidden>Explorer</button>
     <button id="viewer-workshop" type="button" hidden>Workshop</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
+    <button id="viewer-release" type="button">Release</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
@@ -446,6 +448,35 @@ function createViewerDom(options: {
               headSha: "abc123",
               run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
               jobs: []
+            }
+          })
+        };
+      }
+      if (url === "/api/release-status") {
+        const releaseResponse = options.releaseResponse;
+        if (releaseResponse) {
+          return {
+            ok: releaseResponse.ok,
+            status: releaseResponse.status ?? (releaseResponse.ok ? 200 : 500),
+            json: async () => {
+              if (releaseResponse.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return releaseResponse.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              configured: false,
+              state: "not_configured",
+              target_version: null,
+              next_action: "Add logics/release/contract.json using logics/release/release-contract.v1.schema.json.",
+              gates: [],
+              evidence: []
             }
           })
         };
@@ -904,7 +935,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "Release", "CDX", "Settings"]);
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
@@ -1991,6 +2022,74 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Readiness and quota");
     expect(content?.textContent).toContain("cdx status");
     expect(content?.querySelector("button[data-cdx-command]")).toBeNull();
+  });
+
+  it("renders the release workflow screen from the read-only endpoint", async () => {
+    const { dom, calls } = createViewerDom({
+      releaseResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            configured: true,
+            state: "blocked",
+            target_version: "1.2.3",
+            commit: "abcdef1234567890",
+            contract_path: "logics/release/contract.json",
+            next_action: "local_validation: evidence targets a different commit",
+            gates: [
+              {
+                id: "version_metadata",
+                state: "preparing",
+                required: true,
+                status: "passed",
+                evidence: {
+                  kind: "file",
+                  status: "passed",
+                  observed_at: "2026-06-18T10:00:00Z",
+                  target_version: "1.2.3",
+                  commit: "abcdef1234567890",
+                  summary: "version files updated"
+                }
+              },
+              {
+                id: "local_validation",
+                state: "local_validation",
+                required: true,
+                status: "stale",
+                blocking_reason: "evidence targets a different commit",
+                evidence: {
+                  kind: "command",
+                  status: "passed",
+                  observed_at: "2026-06-18T10:01:00Z",
+                  target_version: "1.2.3",
+                  commit: "deadbeef",
+                  summary: "tests passed",
+                  url: "https://github.com/example/repo/actions/runs/1"
+                }
+              }
+            ],
+            evidence: []
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-release")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/release-status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Release workflow");
+    expect(content?.textContent).toContain("blocked");
+    expect(content?.textContent).toContain("1.2.3");
+    expect(content?.textContent).toContain("local_validation");
+    expect(content?.textContent).toContain("evidence targets a different commit");
+    expect(content?.querySelectorAll(".viewer-release__gate")).toHaveLength(2);
+    expect(content?.querySelector(".viewer-release__inline-link")?.textContent).toContain("github.com/example/repo");
   });
 
   it("shows running CI badge and active HEAD match details", async () => {

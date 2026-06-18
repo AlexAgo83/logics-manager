@@ -223,6 +223,10 @@ def _build_help() -> str:
             "    Create a request, product brief, backlog slices, orchestration task, index, and optional context pack from structured JSON.",
             "    Flags: --context-pack <path>, --format {text,json}, --dry-run",
             "",
+            "  validate [refs...]",
+            "    Combine lint and audit findings, classify fixable diagnostics, and optionally apply scoped deterministic fixes.",
+            "    Flags: --fixable, --explain, --apply-fixes, --proof, --proof-source, --format {text,json}, --dry-run",
+            "",
             "  validate-closeout <task>",
             "    Preflight whether a task can be safely closed.",
             "    Flags: --format {text,json}",
@@ -260,6 +264,7 @@ def _build_help() -> str:
             "Examples:",
             '  logics-manager flow new request --title "My request"',
             "  logics-manager flow scaffold request-chain --input logics/scaffold/request-chain.json --context-pack logics/context-pack.json",
+            "  logics-manager flow validate req_001_my_request --fixable --explain",
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow show req_001_my_request",
             "  logics-manager flow validate-closeout task_003_fix_docs",
@@ -2327,6 +2332,17 @@ def build_parser() -> argparse.ArgumentParser:
     request_chain.add_argument("--dry-run", action="store_true")
     request_chain.set_defaults(func=cmd_scaffold_request_chain)
 
+    validate_parser = sub.add_parser("validate", help="Combine lint/audit findings and classify deterministic fixes.")
+    validate_parser.add_argument("sources", nargs="*", help="Optional workflow refs or paths to scope diagnostics.")
+    validate_parser.add_argument("--fixable", action="store_true", help="Only show diagnostics with a known deterministic repair.")
+    validate_parser.add_argument("--explain", action="store_true", help="Include fixability explanations in JSON output.")
+    validate_parser.add_argument("--apply-fixes", action="store_true", help="Apply safe deterministic fixes scoped to selected refs.")
+    validate_parser.add_argument("--proof", help="Explicit proof text required for AC traceability fixes.")
+    validate_parser.add_argument("--proof-source", help="Optional source reference for proof text.")
+    validate_parser.add_argument("--format", choices=("text", "json"), default="text")
+    validate_parser.add_argument("--dry-run", action="store_true")
+    validate_parser.set_defaults(func=cmd_validate)
+
     validate_closeout_parser = sub.add_parser("validate-closeout", help="Preflight whether a task can be safely closed.")
     validate_closeout_parser.add_argument("source")
     validate_closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
@@ -2717,6 +2733,177 @@ def cmd_validate_closeout(args: argparse.Namespace) -> dict[str, object]:
                     print(f"  repair: {issue['repair_command']}")
         else:
             print("- no blocking closeout issues found")
+    return payload
+
+
+def _flow_validate_scope(repo_root: Path, sources: list[str]) -> tuple[set[str], list[str]]:
+    if not sources:
+        return set(), []
+    scoped_paths: set[str] = set()
+    scoped_refs: list[str] = []
+    for source in sources:
+        path, _kind = _resolve_any_workflow_source(repo_root, source)
+        scoped_paths.add(path.relative_to(repo_root).as_posix())
+        scoped_refs.append(path.stem)
+    return scoped_paths, scoped_refs
+
+
+def _scoped_findings(findings: list[dict[str, object]], scoped_paths: set[str]) -> list[dict[str, object]]:
+    if not scoped_paths:
+        return list(findings)
+    return [finding for finding in findings if str(finding.get("path") or "") in scoped_paths]
+
+
+def _validate_repair_kind(finding: dict[str, object]) -> str | None:
+    command = str(finding.get("repair_command") or "")
+    code = str(finding.get("code") or "")
+    message = str(finding.get("message") or "")
+    if "refresh-mermaid-signatures" in command or "Mermaid context signature" in message or code == "mermaid_signature_stale":
+        return "mermaid"
+    if "repair ac-traceability" in command or code in {"ac_missing_item_traceability", "ac_missing_task_traceability"}:
+        return "ac-traceability"
+    if "repair links" in command or code in {"backlog_missing_task_link", "companion_link_missing"}:
+        return "links"
+    if "repair gates" in command or code in {"task_gate_unchecked", "task_missing_done_gate", "request_dor_unchecked"}:
+        return "gates"
+    return None
+
+
+def _validate_finding(source: str, finding: dict[str, object], *, explain: bool) -> dict[str, object]:
+    severity = str(finding.get("severity") or "info")
+    repair_kind = _validate_repair_kind(finding)
+    fixable = repair_kind in {"mermaid", "links", "gates", "ac-traceability"}
+    unsafe_reason = None
+    if repair_kind == "ac-traceability":
+        unsafe_reason = "requires explicit proof to avoid inventing implementation evidence"
+    payload: dict[str, object] = {
+        "source": source,
+        "path": str(finding.get("path") or ""),
+        "severity": severity,
+        "category": "blocking" if severity == "blocking" else severity if severity in {"warning", "strict"} else "informational",
+        "message": str(finding.get("message") or ""),
+        "fixable": fixable,
+        "unsafe": bool(unsafe_reason),
+    }
+    if finding.get("code"):
+        payload["code"] = finding["code"]
+    if finding.get("repair_command"):
+        payload["repair_command"] = finding["repair_command"]
+    if repair_kind:
+        payload["repair_kind"] = repair_kind
+    if unsafe_reason:
+        payload["unsafe_reason"] = unsafe_reason
+    if explain:
+        payload["explanation"] = "safe deterministic repair available" if fixable and not unsafe_reason else unsafe_reason or "reported by lint/audit"
+    return payload
+
+
+def flow_validate_payload(
+    repo_root: Path,
+    sources: list[str],
+    *,
+    fixable_only: bool,
+    explain: bool,
+    apply_fixes: bool,
+    dry_run: bool,
+    proof: str | None,
+    proof_source: str | None,
+) -> dict[str, object]:
+    scoped_paths, scoped_refs = _flow_validate_scope(repo_root, sources)
+    lint_result = lint_payload(repo_root, require_status=True)
+    audit_result = audit_payload(repo_root, legacy_cutoff_version="1.1.0", group_by_doc=True)
+    raw_findings = [
+        *[("lint", item) for item in _scoped_findings(list(lint_result.get("findings", [])), scoped_paths)],
+        *[("audit", item) for item in _scoped_findings(list(audit_result.get("findings", [])), scoped_paths)],
+    ]
+    findings = [_validate_finding(source, finding, explain=explain) for source, finding in raw_findings]
+    if fixable_only:
+        findings = [finding for finding in findings if finding.get("fixable")]
+
+    repairs: list[dict[str, object]] = []
+    refused: list[dict[str, object]] = []
+    if apply_fixes:
+        repair_kinds = {str(finding.get("repair_kind")) for finding in findings if finding.get("fixable")}
+        if "mermaid" in repair_kinds:
+            repair_refs = scoped_refs or sorted({Path(str(finding.get("path"))).stem for finding in findings if finding.get("repair_kind") == "mermaid"})
+            repairs.append(repair_mermaid_payload(repo_root, repair_refs, dry_run=dry_run))
+        if "links" in repair_kinds:
+            for finding in findings:
+                if finding.get("repair_kind") != "links":
+                    continue
+                try:
+                    path, kind = _resolve_any_workflow_source(repo_root, str(finding.get("path")))
+                except SystemExit:
+                    continue
+                if kind == "task":
+                    repairs.append(repair_links_payload(repo_root, path.stem, dry_run=dry_run))
+        if "gates" in repair_kinds:
+            for finding in findings:
+                if finding.get("repair_kind") != "gates":
+                    continue
+                try:
+                    path, kind = _resolve_any_workflow_source(repo_root, str(finding.get("path")))
+                except SystemExit:
+                    continue
+                if kind == "task":
+                    repairs.append(repair_gates_payload(repo_root, path.stem, dry_run=dry_run))
+        if "ac-traceability" in repair_kinds:
+            if proof and proof.strip():
+                repair_refs = scoped_refs or sorted({Path(str(finding.get("path"))).stem for finding in findings if finding.get("repair_kind") == "ac-traceability"})
+                for ref in repair_refs:
+                    try:
+                        _path, kind = _resolve_any_workflow_source(repo_root, ref)
+                    except SystemExit:
+                        continue
+                    if kind == "request":
+                        repairs.append(repair_ac_traceability_payload(repo_root, ref, dry_run=dry_run, proof=proof, proof_source=proof_source))
+            else:
+                refused.append({"repair_kind": "ac-traceability", "reason": "explicit --proof is required before applying AC traceability repairs"})
+
+    blocking_count = len([finding for finding in findings if finding.get("category") == "blocking"])
+    warning_count = len([finding for finding in findings if finding.get("category") == "warning"])
+    return {
+        "command": "validate",
+        "ok": blocking_count == 0 and not refused,
+        "refs": scoped_refs,
+        "paths": sorted(scoped_paths),
+        "finding_count": len(findings),
+        "blocking_count": blocking_count,
+        "warning_count": warning_count,
+        "fixable_count": len([finding for finding in findings if finding.get("fixable")]),
+        "unsafe_count": len([finding for finding in findings if finding.get("unsafe")]) + len(refused),
+        "findings": findings,
+        "repairs": repairs,
+        "refused_repairs": refused,
+        "dry_run": dry_run,
+        "applied_fixes": bool(apply_fixes and not dry_run),
+        "next_action": "Apply safe fixes or inspect blocking findings." if blocking_count or refused else "Validation findings are clear for selected refs.",
+    }
+
+
+def cmd_validate(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = flow_validate_payload(
+        repo_root,
+        args.sources,
+        fixable_only=args.fixable,
+        explain=args.explain,
+        apply_fixes=args.apply_fixes,
+        dry_run=args.dry_run,
+        proof=args.proof,
+        proof_source=args.proof_source,
+    )
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        action = "would apply" if args.dry_run and args.apply_fixes else "applied" if args.apply_fixes else "found"
+        print(f"Flow validate: {action} {payload['finding_count']} finding(s).")
+        for finding in payload["findings"]:
+            marker = "fixable" if finding.get("fixable") else str(finding.get("category") or "info")
+            print(f"- {marker}: {finding['message']} ({finding['path']})")
+        for refused in payload["refused_repairs"]:
+            print(f"- refused {refused['repair_kind']}: {refused['reason']}")
+        print(f"Next action: {payload['next_action']}")
     return payload
 
 
@@ -3879,7 +4066,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
+    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

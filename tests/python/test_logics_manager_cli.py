@@ -4091,6 +4091,123 @@ def test_main_runs_native_flow_promote_backlog_to_task(
     assert created.stem in source_path.read_text(encoding="utf-8")
 
 
+def test_flow_validate_reports_and_applies_scoped_fixable_diagnostics(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_demo.md").write_text("## req_001_demo - Demo\n> Status: Ready\n", encoding="utf-8")
+    (request_dir / "req_002_other.md").write_text("## req_002_other - Other\n> Status: Ready\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.flow.lint_payload",
+        lambda _repo_root, require_status=False: {
+            "findings": [
+                {
+                    "path": "logics/request/req_001_demo.md",
+                    "message": "Mermaid context signature is stale",
+                    "severity": "warning",
+                    "repair_command": "logics-manager sync refresh-mermaid-signatures",
+                },
+                {"path": "logics/request/req_002_other.md", "message": "unrelated", "severity": "blocking"},
+            ]
+        },
+    )
+    monkeypatch.setattr("logics_manager.flow.audit_payload", lambda *_args, **_kwargs: {"findings": []})
+    calls: list[tuple[list[str], bool]] = []
+
+    def fake_repair(_repo_root: Path, refs: list[str], *, dry_run: bool) -> dict[str, object]:
+        calls.append((refs, dry_run))
+        return {"kind": "mermaid", "changed_files": ["logics/request/req_001_demo.md"], "dry_run": dry_run}
+
+    monkeypatch.setattr("logics_manager.flow.repair_mermaid_payload", fake_repair)
+
+    exit_code = main(["flow", "validate", "req_001_demo", "--fixable", "--apply-fixes", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["finding_count"] == 1
+    assert payload["fixable_count"] == 1
+    assert payload["repairs"][0]["changed_files"] == ["logics/request/req_001_demo.md"]
+    assert calls == [(["req_001_demo"], False)]
+
+
+def test_flow_validate_dry_run_does_not_apply_fix(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_demo.md").write_text("## req_001_demo - Demo\n> Status: Ready\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        "logics_manager.flow.lint_payload",
+        lambda _repo_root, require_status=False: {
+            "findings": [
+                {
+                    "path": "logics/request/req_001_demo.md",
+                    "message": "Mermaid context signature is stale",
+                    "severity": "warning",
+                    "repair_command": "logics-manager sync refresh-mermaid-signatures",
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr("logics_manager.flow.audit_payload", lambda *_args, **_kwargs: {"findings": []})
+    monkeypatch.setattr(
+        "logics_manager.flow.repair_mermaid_payload",
+        lambda _repo_root, refs, *, dry_run: {"kind": "mermaid", "refs": refs, "changed_files": ["logics/request/req_001_demo.md"], "dry_run": dry_run},
+    )
+
+    exit_code = main(["flow", "validate", "req_001_demo", "--apply-fixes", "--dry-run", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["repairs"][0]["dry_run"] is True
+    assert payload["applied_fixes"] is False
+
+
+def test_flow_validate_refuses_ambiguous_ac_traceability_fix(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_demo.md").write_text("## req_001_demo - Demo\n> Status: Ready\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.flow.lint_payload", lambda _repo_root, require_status=False: {"findings": []})
+    monkeypatch.setattr(
+        "logics_manager.flow.audit_payload",
+        lambda *_args, **_kwargs: {
+            "findings": [
+                {
+                    "path": "logics/request/req_001_demo.md",
+                    "code": "ac_missing_item_traceability",
+                    "message": "missing AC proof",
+                    "severity": "blocking",
+                    "repair_command": "python3 -m logics_manager flow repair ac-traceability req_001_demo",
+                }
+            ]
+        },
+    )
+
+    exit_code = main(["flow", "validate", "req_001_demo", "--apply-fixes", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["ok"] is False
+    assert payload["refused_repairs"] == [
+        {"repair_kind": "ac-traceability", "reason": "explicit --proof is required before applying AC traceability repairs"}
+    ]
+
+
 def _write_request_chain_input(path: Path) -> None:
     path.write_text(
         json.dumps(

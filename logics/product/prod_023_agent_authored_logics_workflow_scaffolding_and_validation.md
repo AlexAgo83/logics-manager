@@ -1,9 +1,9 @@
 ## prod_023_agent_authored_logics_workflow_scaffolding_and_validation - Agent-authored Logics workflow scaffolding and validation
 > Date: 2026-06-18
-> Status: Proposed
+> Status: Settled
 > Related request: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
 > Related backlog: `item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly`, `item_436_add_deterministic_validation_repair_and_fixable_diagnostics`, `item_437_improve_context_pack_corpus_generation_for_implementation_handoff`, `item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
-> Related task: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`
+> Related task: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`, `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`, `task_231_improve_context_pack_corpus_generation_for_implementation_handoff`, `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -60,4 +60,4 @@ flowchart TD
 
 # References
 - Product back-reference: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
-- Task back-reference: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`
+- Task back-reference: `task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work`, `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`, `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`, `task_231_improve_context_pack_corpus_generation_for_implementation_handoff`, `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`

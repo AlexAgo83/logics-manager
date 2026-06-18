@@ -194,6 +194,7 @@
   const workspaceButton = () => document.getElementById("viewer-workspace");
   const workshopButton = () => document.getElementById("viewer-workshop");
   const ciButton = () => document.getElementById("viewer-ci");
+  const releaseButton = () => document.getElementById("viewer-release");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
@@ -431,6 +432,7 @@
       "#viewer-workshop",
       "#viewer-git",
       "#viewer-ci",
+      "#viewer-release",
       "#viewer-cdx",
       "#viewer-repo-folder",
       '[data-action="refresh"]',
@@ -5093,6 +5095,120 @@
     `;
   }
 
+  function releaseBadgeTone(value) {
+    const state = String(value || "").toLowerCase();
+    if (["ready", "passed"].includes(state)) {
+      return "passing";
+    }
+    if (["blocked", "failed", "stale"].includes(state)) {
+      return "failing";
+    }
+    if (["pending", "planning", "preparing", "local_validation", "commit_ready", "pushed", "ci_verification", "github_release", "external_publication"].includes(state)) {
+      return "running";
+    }
+    return "unknown";
+  }
+
+  function releaseEvidenceRows(evidence) {
+    if (!evidence || typeof evidence !== "object") {
+      return '<li class="viewer-ci__empty">No evidence recorded.</li>';
+    }
+    const rows = [
+      ["Kind", evidence.kind || "unknown"],
+      ["Status", evidence.status || "unknown"],
+      ["Observed", formatCiDate(evidence.observed_at) || evidence.observed_at || "unknown"],
+      ["Version", evidence.target_version || "unknown"],
+      ["Commit", evidence.commit ? String(evidence.commit).slice(0, 12) : ""],
+      ["Tag", evidence.tag || ""],
+      ["Summary", evidence.summary || ""],
+    ].filter(([, value]) => String(value || "").trim());
+    if (evidence.url) {
+      rows.push(["Link", evidence.url]);
+    }
+    return rows.map(([label, value]) => {
+      const renderedValue = label === "Link"
+        ? `<a class="viewer-ci__link viewer-release__inline-link" href="${escapeHtml(value)}" target="_blank" rel="noreferrer">${escapeHtml(value)}</a>`
+        : `<strong>${escapeHtml(value)}</strong>`;
+      return `<li class="viewer-ci__row"><span>${escapeHtml(label)}</span>${renderedValue}</li>`;
+    }).join("");
+  }
+
+  function renderReleaseGate(gate) {
+    const status = String(gate?.status || "pending");
+    const tone = releaseBadgeTone(status);
+    const reason = gate?.blocking_reason ? `<div class="viewer-release__reason">${escapeHtml(gate.blocking_reason)}</div>` : "";
+    return `
+      <details class="viewer-release__gate">
+        <summary>
+          <span>
+            <strong>${escapeHtml(gate?.id || "gate")}</strong>
+            <em>${escapeHtml(gate?.state || "")}${gate?.required === false ? " · optional" : ""}</em>
+          </span>
+          <span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(tone)}">${escapeHtml(status)}</span>
+        </summary>
+        ${reason}
+        <ul class="viewer-ci__list">${releaseEvidenceRows(gate?.evidence)}</ul>
+      </details>
+    `;
+  }
+
+  function renderReleaseStatus(payload) {
+    const state = payload?.state || "not_configured";
+    const gates = Array.isArray(payload?.gates) ? payload.gates : [];
+    const blockedGate = gates.find((gate) => gate && gate.required !== false && gate.blocking_reason);
+    const cards = renderMetricCards([
+      ["State", state],
+      ["Version", payload?.target_version || "Unknown"],
+      ["Blocked gate", blockedGate?.id || "None"],
+      ["Evidence", `${gates.filter((gate) => gate?.evidence).length}/${gates.length}`],
+    ]);
+    const gateRows = gates.length ? gates.map(renderReleaseGate).join("") : `
+      <div class="viewer-ci__empty">${escapeHtml(payload?.next_action || "Add logics/release/contract.json to configure release workflow state.")}</div>
+    `;
+    return `
+      <div class="viewer-release">
+        <div class="viewer-ci__summary">${cards}</div>
+        <div class="viewer-ci__workspace viewer-release__workspace">
+          <section class="viewer-ci__section">
+            <div class="viewer-ci__heading"><h2>Release state</h2><span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(releaseBadgeTone(state))}">${escapeHtml(state)}</span></div>
+            <ul class="viewer-ci__list">
+              <li class="viewer-ci__row"><span>Contract</span><strong>${escapeHtml(payload?.configured ? payload.contract_path || "configured" : "not configured")}</strong></li>
+              <li class="viewer-ci__row"><span>Commit</span><strong>${escapeHtml(payload?.commit ? String(payload.commit).slice(0, 12) : "unknown")}</strong></li>
+              <li class="viewer-ci__row"><span>Next action</span><strong>${escapeHtml(payload?.next_action || "Inspect release workflow state.")}</strong></li>
+            </ul>
+          </section>
+          <section class="viewer-ci__section">
+            <div class="viewer-ci__heading"><h2>Gates</h2><span>${escapeHtml(String(gates.length))} configured</span></div>
+            <div class="viewer-release__gates">${gateRows}</div>
+          </section>
+        </div>
+      </div>
+    `;
+  }
+
+  async function showReleaseStatus(options = {}) {
+    if (!options.silent) {
+      setMeta("Checking release workflow state...");
+    }
+    const response = await fetch("/api/release-status");
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load release workflow state.");
+    }
+    setDocument("Release workflow", renderReleaseStatus(data.payload));
+    const state = data.payload?.state || "unknown";
+    const button = releaseButton();
+    if (button instanceof HTMLElement) {
+      button.title = data.payload?.next_action || "Show release workflow state";
+    }
+    setMeta(options.silent ? "Release workflow refreshed." : `Release workflow state: ${state}.`);
+  }
+
   async function showCiStatus(options = {}) {
     if (!isCapabilityAvailable("ci")) {
       const message = capabilityMessage("ci", "CI is not available for this project.");
@@ -5605,6 +5721,9 @@
     });
     ciButton()?.addEventListener("click", () => {
       withPrimaryAction("ci", "Checking CI status", showCiStatus);
+    });
+    releaseButton()?.addEventListener("click", () => {
+      withPrimaryAction("release", "Checking release workflow", showReleaseStatus);
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);

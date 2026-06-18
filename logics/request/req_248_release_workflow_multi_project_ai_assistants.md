@@ -1,7 +1,7 @@
 ## req_248_release_workflow_multi_project_ai_assistants - Formaliser un workflow de release multi-projet pour les assistants IA
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High

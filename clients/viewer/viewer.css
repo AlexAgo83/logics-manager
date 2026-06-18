@@ -797,11 +797,20 @@
   gap: 12px;
 }
 
+.viewer-release {
+  display: grid;
+  gap: 12px;
+}
+
 .viewer-ci__workspace {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(240px, 0.85fr);
   gap: 12px;
   align-items: start;
+}
+
+.viewer-release__workspace {
+  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
 }
 
 .viewer-ci__section {
@@ -907,6 +916,56 @@
 .viewer-ci__state,
 .viewer-ci__empty {
   color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-release__gates {
+  display: grid;
+  gap: 8px;
+}
+
+.viewer-release__gate {
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #333333) 74%, transparent);
+  border-radius: 6px;
+  background: var(--vscode-sideBar-background, #252526);
+}
+
+.viewer-release__gate > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px;
+  cursor: pointer;
+}
+
+.viewer-release__gate > summary span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.viewer-release__gate > summary strong {
+  overflow-wrap: anywhere;
+}
+
+.viewer-release__gate > summary em,
+.viewer-release__reason {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.viewer-release__gate > .viewer-ci__list {
+  padding: 0 9px 9px;
+}
+
+.viewer-release__reason {
+  padding: 0 9px 8px;
+}
+
+.viewer-release__inline-link {
+  margin-top: 0;
+  overflow-wrap: anywhere;
 }
 
 .viewer-workspace {

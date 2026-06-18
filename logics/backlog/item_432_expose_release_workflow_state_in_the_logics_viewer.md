@@ -2,9 +2,9 @@
 > From version: 2.8.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 91%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,6 +43,8 @@ flowchart TD
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: Adds compact viewer representation and evidence drill-down.
 - request-AC8 -> This backlog slice. Proof: Shows blocked/stale/missing proof instead of hiding it.
+- request-AC6 -> This backlog slice. Evidence needed: The workflow supports repo-specific profiles without hard-coding the release habits of one project into the global implementation.
+- request-AC7 -> This backlog slice. Evidence needed: Validation covers at least fixture-style examples for the known release patterns from `logics-manager`, `cdx-manager`, and `cp-wc-26`.
 
 # Decision framing
 - Product framing: Not needed
@@ -51,12 +53,13 @@ flowchart TD
 - Architecture framing: Not needed
 - Architecture signals: (none detected)
 - Architecture follow-up: No architecture decision follow-up is expected based on current signals.
+- Expose release state in the existing document panel rather than adding a new top-level layout: this keeps the viewer compact and reuses the established CI/CDX status interaction pattern.
 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`
-- Primary task(s): (none yet)
+- Request: `req_248_release_workflow_multi_project_ai_assistants`
+- Primary task(s): `task_227_expose_release_workflow_state_in_the_logics_viewer`
 
 # AI Context
 - Summary: Expose release workflow state in the Logics viewer
@@ -72,3 +75,8 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_248_release_workflow_multi_project_ai_assistants` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`.
 - Generated locally by logics-manager.
+- Task `task_227_expose_release_workflow_state_in_the_logics_viewer` was finished via `logics-manager flow finish task` on 2026-06-18.
+
+# Tasks
+- (none yet)
+- `task_227_expose_release_workflow_state_in_the_logics_viewer`

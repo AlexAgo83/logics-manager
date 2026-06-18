@@ -34,6 +34,10 @@ DOC_KINDS = {
     "backlog": {"directory": "logics/backlog", "prefix": "item"},
     "task": {"directory": "logics/tasks", "prefix": "task"},
 }
+COMPANION_KINDS = {
+    "prod": {"directory": "logics/product", "kind": "product"},
+    "adr": {"directory": "logics/architecture", "kind": "architecture"},
+}
 
 _find_repo_root = find_repo_root
 
@@ -58,6 +62,21 @@ def _read_text(repo_root: Path, path: Path) -> str:
     approved_dirs = {Path(os.path.realpath(repo_root / kind["directory"])) for kind in DOC_KINDS.values()}
     if absolute.parent not in approved_dirs:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.")
+    return absolute.read_text(encoding="utf-8")
+
+
+def _read_repo_bounded_text(repo_root: Path, path: Path, *, approved_dirs: set[Path], label: str) -> str:
+    root = os.path.realpath(repo_root)
+    absolute_name = os.path.realpath(path)
+    try:
+        common = os.path.commonpath([root, absolute_name])
+    except ValueError as exc:
+        raise SystemExit(f"Unsupported {label} path `{path}`.") from exc
+    if common != root:
+        raise SystemExit(f"Unsupported {label} path `{path}`.")
+    absolute = Path(absolute_name)
+    if absolute.parent not in approved_dirs:
+        raise SystemExit(f"Unsupported {label} path `{path}`.")
     return absolute.read_text(encoding="utf-8")
 
 
@@ -239,6 +258,64 @@ def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, objec
     return entry
 
 
+def _companion_doc_entry(repo_root: Path, ref: str, *, mode: str) -> dict[str, object] | None:
+    prefix = ref.split("_", 1)[0]
+    spec = COMPANION_KINDS.get(prefix)
+    if spec is None:
+        return None
+    path = repo_root / str(spec["directory"]) / f"{ref}.md"
+    if not path.is_file():
+        return None
+    approved_dirs = {Path(os.path.realpath(repo_root / str(item["directory"]))) for item in COMPANION_KINDS.values()}
+    text = _read_repo_bounded_text(repo_root, path, approved_dirs=approved_dirs, label="companion doc")
+    lines = text.splitlines()
+    sections = _extract_sections(text)
+    entry: dict[str, object] = {
+        "ref": ref,
+        "kind": spec["kind"],
+        "path": path.relative_to(repo_root).as_posix(),
+        "title": _extract_title(lines) or ref,
+        "status": _indicator_value(lines, "Status") or "",
+        "linked_refs": {prefix_name: _extract_refs(_strip_mermaid_blocks(text), prefix_name) for prefix_name in REF_PREFIXES if _extract_refs(_strip_mermaid_blocks(text), prefix_name)},
+    }
+    if mode != "summary-only":
+        entry["sections"] = {
+            heading: [line for line in sections.get(heading, []) if line.strip()][:6]
+            for heading in ("Overview", "Goals", "Key product decisions", "References")
+            if sections.get(heading)
+        }
+    return entry
+
+
+def _context_pack_companion_entries(repo_root: Path, docs: list[WorkflowDocModel], *, mode: str) -> list[dict[str, object]]:
+    refs: list[str] = []
+    seen: set[str] = set()
+    for doc in docs:
+        for prefix in ("prod", "adr"):
+            for ref in doc.refs.get(prefix, []):
+                if ref in seen:
+                    continue
+                seen.add(ref)
+                refs.append(ref)
+    entries: list[dict[str, object]] = []
+    for ref in refs:
+        entry = _companion_doc_entry(repo_root, ref, mode=mode)
+        if entry is not None:
+            entries.append(entry)
+    return entries
+
+
+def _context_pack_validation_summary(docs: list[WorkflowDocModel]) -> list[dict[str, object]]:
+    summary: list[dict[str, object]] = []
+    for doc in docs:
+        if doc.kind != "task":
+            continue
+        lines = [line for line in doc.sections.get("Validation", []) if line.strip()][:8]
+        if lines:
+            summary.append({"ref": doc.ref, "path": doc.path, "items": lines})
+    return summary
+
+
 def _context_pack_cache_key(
     repo_root: Path,
     seed_ref: str,
@@ -248,6 +325,7 @@ def _context_pack_cache_key(
     changed_paths: list[str],
     ordered_docs: list[WorkflowDocModel],
     release_context: dict[str, object],
+    handoff: bool,
 ) -> str:
     payload = {
         "repo_root": str(repo_root.resolve()),
@@ -256,6 +334,7 @@ def _context_pack_cache_key(
         "profile": profile,
         "changed_paths": changed_paths,
         "release": release_context,
+        "handoff": handoff,
         "docs": [
             {
                 "ref": doc.ref,
@@ -278,6 +357,7 @@ def _build_context_pack(
     mode: str,
     profile: str,
     config: dict[str, object] | None = None,
+    handoff: bool = False,
 ) -> dict[str, object]:
     seed_refs = [ref for ref in seed_ref.split(",") if ref]
     docs = _load_workflow_docs(repo_root)
@@ -306,23 +386,41 @@ def _build_context_pack(
         changed_paths=changed_paths,
         ordered_docs=ordered,
         release_context=release_context,
+        handoff=handoff,
     )
     cached_pack = _CONTEXT_PACK_CACHE.get(cache_key)
     if isinstance(cached_pack, dict):
         return deepcopy(cached_pack)
     pack_docs = [_context_pack_doc_entry(doc, mode) for doc in ordered]
+    companion_docs = _context_pack_companion_entries(repo_root, ordered, mode=mode) if handoff else []
+    validation_summary = _context_pack_validation_summary(ordered) if handoff else []
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     payload = {
         "ref": seed_ref,
         "mode": mode,
         "profile": profile,
         "refs": seed_refs,
+        "generated_at": generated_at,
+        "command": "logics-manager sync context-pack "
+        + " ".join(seed_refs)
+        + f" --mode {mode} --profile {profile}"
+        + (" --handoff" if handoff else ""),
         "budgets": {"max_docs": per_seed_limit * max(1, len(seed_refs)), "max_docs_per_ref": per_seed_limit},
         "changed_paths": changed_paths,
         "release": release_context,
+        "handoff": {
+            "enabled": handoff,
+            "source_refs": seed_refs,
+            "companion_doc_count": len(companion_docs),
+            "validation_summary_count": len(validation_summary),
+        },
         "docs": pack_docs,
+        "companion_docs": companion_docs,
+        "validation_summary": validation_summary,
         "estimates": {
             "doc_count": len(pack_docs),
-            "char_count": sum(len(json.dumps(entry, sort_keys=True)) for entry in pack_docs),
+            "companion_doc_count": len(companion_docs),
+            "char_count": sum(len(json.dumps(entry, sort_keys=True)) for entry in [*pack_docs, *companion_docs]),
         },
     }
     _CONTEXT_PACK_CACHE[cache_key] = deepcopy(payload)
@@ -385,8 +483,8 @@ def _schema_status(repo_root: Path, targets: list[str]) -> dict[str, object]:
     }
 
 
-def build_context_pack_payload(repo_root: Path, ref: str, *, mode: str = "summary-only", profile: str = "normal", config: dict[str, object] | None = None) -> dict[str, object]:
-    return _build_context_pack(repo_root, ref, mode=mode, profile=profile, config=config)
+def build_context_pack_payload(repo_root: Path, ref: str, *, mode: str = "summary-only", profile: str = "normal", config: dict[str, object] | None = None, handoff: bool = False) -> dict[str, object]:
+    return _build_context_pack(repo_root, ref, mode=mode, profile=profile, config=config, handoff=handoff)
 
 
 def _default_section_names(kind: str) -> list[str]:
@@ -821,6 +919,7 @@ def build_parser() -> argparse.ArgumentParser:
     context_pack.add_argument("refs", nargs="+", help="Seed workflow ref(s) for the context pack.")
     context_pack.add_argument("--mode", choices=("summary-only", "diff-first", "full"), default="summary-only")
     context_pack.add_argument("--profile", choices=("tiny", "normal", "deep"), default="normal")
+    context_pack.add_argument("--handoff", action="store_true", help="Include implementation handoff metadata, companion docs, and validation summary.")
     context_pack.add_argument("--out", help="Write the JSON artifact to this relative path.")
     context_pack.add_argument("--format", choices=("text", "json"), default="text")
     context_pack.add_argument("--dry-run", action="store_true")
@@ -1224,7 +1323,8 @@ def cmd_append_note(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_context_pack(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    payload = _build_context_pack(repo_root, ",".join(args.refs), mode=args.mode, profile=args.profile, config=None)
+    profile = "deep" if args.handoff and args.profile == "normal" else args.profile
+    payload = _build_context_pack(repo_root, ",".join(args.refs), mode=args.mode, profile=profile, config=None, handoff=args.handoff)
     if args.out:
         out_path, output_path = resolve_repo_output_path(repo_root, args.out)
         serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"

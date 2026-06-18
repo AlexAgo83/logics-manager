@@ -1,7 +1,7 @@
 ## item_430_define_the_release_workflow_contract_and_schema - Define the release workflow contract and schema
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%

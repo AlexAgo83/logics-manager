@@ -1,7 +1,7 @@
 ## item_432_expose_release_workflow_state_in_the_logics_viewer - Expose release workflow state in the Logics viewer
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 97%
 > Confidence: 91%
 > Progress: 100%

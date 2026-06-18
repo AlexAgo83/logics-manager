@@ -1510,8 +1510,9 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
 
     def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         assert kwargs["timeout"] == 270
         assert args[:4] == ["cdx", "run", "work", "--cwd"]
         assert args[4] == str(tmp_path)
@@ -1538,8 +1539,9 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
 
 def test_viewer_cdx_mission_run_extends_timeout_for_writable_closeout(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         assert args[args.index("--timeout-seconds") + 1] == "600"
         assert kwargs["timeout"] == 690
         return subprocess.CompletedProcess(args, 0, json.dumps({"run_id": "run-42"}), "")
@@ -1672,8 +1674,9 @@ def test_viewer_cdx_mission_plan_ignores_commit_at_end_when_writes_disabled(tmp_
 
 def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     payload = cdx_mission_plan_payload(
@@ -1702,8 +1705,9 @@ def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: 
 
 def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -1734,8 +1738,9 @@ def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: 
 
 def test_viewer_cdx_mission_release_review_direct_fix_prompt_stays_guarded(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        if args == ["cdx", "status", "--json"]:
-            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
         raise AssertionError(args)
 
     def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:

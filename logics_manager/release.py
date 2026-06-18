@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -104,6 +105,13 @@ def _read_simple_toml_value(text: str, selector: str | None) -> str | None:
     return None
 
 
+def _read_plain_text_value(text: str, selector: str | None) -> str:
+    if selector == "badge.version":
+        match = re.search(r"img\.shields\.io/badge/version-v([^-)\s]+)-", text)
+        return match.group(1).strip() if match else ""
+    return text.strip()
+
+
 def _read_version_source(repo_root: Path, source: dict[str, Any]) -> dict[str, Any]:
     rel_path = source.get("path")
     if not isinstance(rel_path, str) or not rel_path:
@@ -120,7 +128,7 @@ def _read_version_source(repo_root: Path, source: dict[str, Any]) -> dict[str, A
         elif fmt == "toml":
             value = _read_simple_toml_value(text, selector if isinstance(selector, str) else None)
         else:
-            value = text.strip()
+            value = _read_plain_text_value(text, selector if isinstance(selector, str) else None)
     except Exception as exc:
         return {"ok": False, "path": rel_path, "version": None, "reason": f"could not read version: {exc}"}
     if not isinstance(value, str) or not value.strip():

@@ -57,6 +57,7 @@
 | [prod_020_local_web_viewer_for_cli_driven_logics_work](product/prod_020_local_web_viewer_for_cli_driven_logics_work.md) | Local web viewer for CLI-driven Logics work | Settled |  | product/prod_020_local_web_viewer_for_cli_driven_logics_work.md |
 | [prod_021_git_cockpit_for_the_local_viewer](product/prod_021_git_cockpit_for_the_local_viewer.md) | Git cockpit for the local viewer | Settled |  | product/prod_021_git_cockpit_for_the_local_viewer.md |
 | [prod_022_cdx_status_cockpit_for_the_local_viewer](product/prod_022_cdx_status_cockpit_for_the_local_viewer.md) | CDX status cockpit for the local viewer | Settled |  | product/prod_022_cdx_status_cockpit_for_the_local_viewer.md |
+| [prod_023_agent_authored_logics_workflow_scaffolding_and_validation](product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md) | Agent-authored Logics workflow scaffolding and validation | Proposed |  | product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md |
 
 ## Requests
 
@@ -309,6 +310,7 @@
 | [req_246_make_the_viewer_responsive_on_tablet_and_phone_breakpoints](request/req_246_make_the_viewer_responsive_on_tablet_and_phone_breakpoints.md) | Make the viewer responsive on tablet and phone breakpoints | Done |  | request/req_246_make_the_viewer_responsive_on_tablet_and_phone_breakpoints.md |
 | [req_247_remove_mandatory_mermaid_from_logics_workflow_docs](request/req_247_remove_mandatory_mermaid_from_logics_workflow_docs.md) | Remove mandatory Mermaid from Logics workflow docs | Draft |  | request/req_247_remove_mandatory_mermaid_from_logics_workflow_docs.md |
 | [req_248_release_workflow_multi_project_ai_assistants](request/req_248_release_workflow_multi_project_ai_assistants.md) | Formaliser un workflow de release multi-projet pour les assistants IA | Draft |  | request/req_248_release_workflow_multi_project_ai_assistants.md |
+| [req_249_improve_logics_workflow_scaffolding_validation_agent_docs](request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md) | Improve Logics workflow scaffolding and validation for agent-authored docs | Draft |  | request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md |
 
 ## Backlog
 
@@ -747,6 +749,11 @@
 | [item_431_implement_release_status_and_validation_commands](backlog/item_431_implement_release_status_and_validation_commands.md) | Implement release status and validation commands | Ready | 0% | backlog/item_431_implement_release_status_and_validation_commands.md |
 | [item_432_expose_release_workflow_state_in_the_logics_viewer](backlog/item_432_expose_release_workflow_state_in_the_logics_viewer.md) | Expose release workflow state in the Logics viewer | Ready | 0% | backlog/item_432_expose_release_workflow_state_in_the_logics_viewer.md |
 | [item_433_expose_release_workflow_context_for_assistants_and_mcp_clients](backlog/item_433_expose_release_workflow_context_for_assistants_and_mcp_clients.md) | Expose release workflow context for assistants and MCP clients | Ready | 0% | backlog/item_433_expose_release_workflow_context_for_assistants_and_mcp_clients.md |
+| [item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work](backlog/item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md) | Add rich request-chain scaffolding for development-ready Logics work | Ready | 0% | backlog/item_434_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md |
+| [item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly](backlog/item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly.md) | Make request splitting AC-aware and task-orchestration friendly | Ready | 0% | backlog/item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly.md |
+| [item_436_add_deterministic_validation_repair_and_fixable_diagnostics](backlog/item_436_add_deterministic_validation_repair_and_fixable_diagnostics.md) | Add deterministic validation repair and fixable diagnostics | Ready | 0% | backlog/item_436_add_deterministic_validation_repair_and_fixable_diagnostics.md |
+| [item_437_improve_context_pack_corpus_generation_for_implementation_handoff](backlog/item_437_improve_context_pack_corpus_generation_for_implementation_handoff.md) | Improve context-pack corpus generation for implementation handoff | Ready | 0% | backlog/item_437_improve_context_pack_corpus_generation_for_implementation_handoff.md |
+| [item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output](backlog/item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output.md) | Improve agent ergonomics for recent docs and structured workflow output | Ready | 0% | backlog/item_438_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output.md |
 
 ## Tasks
 
@@ -970,3 +977,4 @@
 | [task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers](tasks/task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers.md) | Implement Workshop in-app terminal manager and CDX handoff launchers | Done | 100% | tasks/task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers.md |
 | [task_223_remove_mandatory_mermaid_from_logics_workflow_docs](tasks/task_223_remove_mandatory_mermaid_from_logics_workflow_docs.md) | Remove mandatory Mermaid from Logics workflow docs | Ready | 0% | tasks/task_223_remove_mandatory_mermaid_from_logics_workflow_docs.md |
 | [task_224_define_the_release_workflow_contract_and_schema](tasks/task_224_define_the_release_workflow_contract_and_schema.md) | Orchestrate release workflow contract and assistant readiness | Ready | 0% | tasks/task_224_define_the_release_workflow_contract_and_schema.md |
+| [task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work](tasks/task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md) | Orchestrate agent-authored Logics workflow scaffolding improvements | Ready | 0% | tasks/task_225_add_rich_request_chain_scaffolding_for_development_ready_logics_work.md |

@@ -1,10 +1,10 @@
 ## item_435_make_request_splitting_ac_aware_and_task_orchestration_friendly - Make request splitting AC-aware and task-orchestration friendly
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,6 +43,7 @@ flowchart TD
 - request-AC2 -> This backlog slice. Proof: Provides AC-aware splitting and orchestration task metadata.
 - request-AC6 -> This backlog slice. Proof: Keeps mappings explicit and rejects ambiguous input.
 - request-AC7 -> This backlog slice. Proof: Defines mapping and task option test coverage.
+- request-AC8 -> This backlog slice. Evidence needed: Documentation and CLI help show the recommended one-pass workflow for turning a product conversation into development-ready Logics corpus.
 
 # Decision framing
 - Product framing: Not needed
@@ -55,8 +56,8 @@ flowchart TD
 # Links
 - Product brief(s): `logics/product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md`
-- Primary task(s): (none yet)
+- Request: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
+- Primary task(s): `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`
 
 # AI Context
 - Summary: Add AC-aware request splitting and orchestration task metadata so generated backlog items do not need manual traceability rewrites.
@@ -72,3 +73,10 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_249_improve_logics_workflow_scaffolding_validation_agent_docs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md`.
 - Generated locally by logics-manager.
+- Task `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly` was finished via `logics-manager flow finish task` on 2026-06-19.
+
+# Tasks
+- `task_229_make_request_splitting_ac_aware_and_task_orchestration_friendly`
+
+# Validation
+- Covered by split request tests for valid mapping, unknown AC, duplicate AC, omitted AC reporting, and orchestration task output.

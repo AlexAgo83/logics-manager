@@ -14,8 +14,8 @@ from .flow_evidence import has_validation_evidence as _has_validation_evidence
 from .flow_evidence import structured_validation_line as _structured_validation_line
 from .index import index_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
-from .path_utils import ensure_relative_to
-from .sync import read_logics_doc_payload
+from .path_utils import ensure_relative_to, resolve_repo_output_path
+from .sync import build_context_pack_payload, read_logics_doc_payload
 from .termstyle import colorize_help
 
 
@@ -219,6 +219,10 @@ def _build_help() -> str:
             "    Create a linked request, backlog item, and task from a product brief.",
             "    Flags: --title, --finish, --format {text,json}, --dry-run",
             "",
+            "  scaffold request-chain --input <file>",
+            "    Create a request, product brief, backlog slices, orchestration task, index, and optional context pack from structured JSON.",
+            "    Flags: --context-pack <path>, --format {text,json}, --dry-run",
+            "",
             "  validate-closeout <task>",
             "    Preflight whether a task can be safely closed.",
             "    Flags: --format {text,json}",
@@ -239,7 +243,7 @@ def _build_help() -> str:
             "",
             "  split request <source>",
             "    Split a request into multiple backlog items.",
-            "    Flags: --title (repeatable), plus the common backlog flags above.",
+            "    Flags: --title (repeatable) or --slice 'Title:AC1,AC2', --orchestration-task, plus the common backlog flags above.",
             "",
             "  split backlog <source>",
             "    Split a backlog item into multiple tasks.",
@@ -255,6 +259,7 @@ def _build_help() -> str:
             "",
             "Examples:",
             '  logics-manager flow new request --title "My request"',
+            "  logics-manager flow scaffold request-chain --input logics/scaffold/request-chain.json --context-pack logics/context-pack.json",
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow show req_001_my_request",
             "  logics-manager flow validate-closeout task_003_fix_docs",
@@ -786,6 +791,72 @@ def _write_new_doc(path: Path, content: str) -> None:
             handle.write(content)
     except FileExistsError as exc:
         raise SystemExit(f"Ref collision while creating Logics doc: {path.as_posix()}. Re-run the command to allocate a fresh id.") from exc
+
+
+def _read_json_object(path: Path, *, label: str) -> dict[str, object]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise SystemExit(f"Missing {label}: {path.as_posix()}") from exc
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Invalid JSON in {label}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise SystemExit(f"{label} must be a JSON object.")
+    return payload
+
+
+def _string_list(payload: object, key: str, *, default: list[str] | None = None) -> list[str]:
+    if not isinstance(payload, dict) or key not in payload:
+        return list(default or [])
+    value = payload.get(key)
+    if not isinstance(value, list) or any(not isinstance(item, str) or not item.strip() for item in value):
+        raise SystemExit(f"`{key}` must be an array of non-empty strings.")
+    return [item.strip() for item in value]
+
+
+def _string_value(payload: object, key: str, *, default: str = "") -> str:
+    if not isinstance(payload, dict):
+        return default
+    value = payload.get(key, default)
+    if value is None:
+        return default
+    if not isinstance(value, str):
+        raise SystemExit(f"`{key}` must be a string.")
+    return value.strip() or default
+
+
+def _bullets_or_default(values: list[str], fallback: str) -> list[str]:
+    return [f"- {value}" for value in values] if values else [f"- {fallback}"]
+
+
+def _normalize_ac_id(value: str) -> str:
+    match = re.search(r"\bAC(\d+)\b", value, flags=re.IGNORECASE)
+    return f"AC{match.group(1)}" if match else value.strip()
+
+
+def _request_acceptance_map(lines: list[str]) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for item in _bullet_values(_section_lines(lines, "Acceptance criteria")):
+        match = re.match(r"AC(\d+)\s*:\s*(.+)", item.strip(), flags=re.IGNORECASE)
+        if match:
+            mapping[f"AC{match.group(1)}"] = f"AC{match.group(1)}: {match.group(2).strip()}"
+    return mapping
+
+
+def _parse_request_slice(raw: str, known_acs: dict[str, str]) -> dict[str, object]:
+    if ":" not in raw:
+        raise SystemExit("`--slice` must use `Title:AC1,AC2` syntax.")
+    title, raw_acs = raw.split(":", 1)
+    title = title.strip()
+    if not title:
+        raise SystemExit("`--slice` title is required.")
+    ac_ids = [_normalize_ac_id(part) for part in re.split(r"[, ]+", raw_acs.strip()) if part.strip()]
+    if not ac_ids:
+        raise SystemExit("`--slice` requires at least one AC id.")
+    unknown = [ac_id for ac_id in ac_ids if ac_id not in known_acs]
+    if unknown:
+        raise SystemExit(f"Unknown request AC id(s) for `--slice`: {', '.join(unknown)}")
+    return {"title": title, "ac_ids": ac_ids}
 
 
 def _extract_refs(text: str, prefix: str) -> list[str]:
@@ -2247,6 +2318,15 @@ def build_parser() -> argparse.ArgumentParser:
     deliver_parser.add_argument("--dry-run", action="store_true")
     deliver_parser.set_defaults(func=cmd_deliver)
 
+    scaffold_parser = sub.add_parser("scaffold", help="Create development-ready workflow corpora from structured input.")
+    scaffold_sub = scaffold_parser.add_subparsers(dest="scaffold_kind", required=True)
+    request_chain = scaffold_sub.add_parser("request-chain", help="Create a request/product/backlog/task chain from JSON input.")
+    request_chain.add_argument("--input", required=True, help="Repo-relative or absolute JSON input file.")
+    request_chain.add_argument("--context-pack", help="Optional repo-relative JSON context-pack output path.")
+    request_chain.add_argument("--format", choices=("text", "json"), default="text")
+    request_chain.add_argument("--dry-run", action="store_true")
+    request_chain.set_defaults(func=cmd_scaffold_request_chain)
+
     validate_closeout_parser = sub.add_parser("validate-closeout", help="Preflight whether a task can be safely closed.")
     validate_closeout_parser.add_argument("source")
     validate_closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
@@ -2316,7 +2396,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     split_request = split_sub.add_parser("request", help="Split a request into multiple backlog items.")
     split_request.add_argument("source")
-    split_request.add_argument("--title", action="append", nargs="+", required=True)
+    split_request.add_argument("--title", action="append", nargs="+")
+    split_request.add_argument("--slice", action="append", help="AC-aware slice in `Title:AC1,AC2` syntax. Repeat for multiple slices.")
+    split_request.add_argument("--orchestration-task", help="Create a linked orchestration task with this title.")
+    split_request.add_argument("--orchestration-summary", help="Summary text for the generated orchestration task.")
     _add_common_doc_args(split_request, "backlog")
     split_request.set_defaults(func=cmd_split_request)
 
@@ -2908,6 +2991,392 @@ def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def _build_scaffold_request_doc(repo_root: Path, ref: str, title: str, input_payload: dict[str, object]) -> str:
+    request = input_payload.get("request") if isinstance(input_payload.get("request"), dict) else {}
+    from_version = _resolved_from_version(repo_root, _string_value(input_payload, "from_version", default=""))
+    needs = _string_list(request, "needs", default=[f"Deliver {title.lower()} as a development-ready Logics workflow."])
+    context = _string_list(request, "context", default=["Generated from structured request-chain scaffold input."])
+    acceptance = _string_list(request, "acceptance_criteria", default=["AC1: The scaffolded workflow is ready for implementation."])
+    references = _string_list(input_payload, "references", default=["`logics_manager/flow.py`"])
+    product_title = _string_value(input_payload.get("product") if isinstance(input_payload.get("product"), dict) else {}, "title", default=title)
+    return "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> From version: {from_version}",
+            "> Schema version: 1.0",
+            "> Status: Draft",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            f"> Complexity: {_string_value(request, 'complexity', default='High')}",
+            f"> Theme: {_string_value(request, 'theme', default='Operator workflow')}",
+            "> Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.",
+            "",
+            "# Needs",
+            *_bullets_or_default(needs, f"Deliver {title.lower()}."),
+            "",
+            "# Context",
+            *_bullets_or_default(context, "Generated from structured scaffold input."),
+            "",
+            "# Acceptance criteria",
+            *[f"- {item}" for item in acceptance],
+            "",
+            "# Definition of Ready (DoR)",
+            "- [x] Problem statement is explicit and user impact is clear.",
+            "- [x] Scope boundaries (in/out) are explicit.",
+            "- [x] Acceptance criteria are testable.",
+            "- [x] Dependencies and known risks are listed.",
+            "",
+            "# Companion docs",
+            f"- Product brief(s): `{_next_product_ref(repo_root, product_title)}`",
+            "- Architecture decision(s): (none yet)",
+            "",
+            "# References",
+            *[f"- {item}" for item in references],
+            "",
+            "# AI Context",
+            f"- Summary: {title}",
+            f"- Keywords: request-chain-scaffold, {title.lower()}, development-ready",
+            f"- Use when: You need to implement or review the scaffolded workflow for {title}.",
+            "- Skip when: The change is unrelated to this scaffolded request chain.",
+            "",
+            "# Backlog",
+            "- none",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def _build_scaffold_product_doc(repo_root: Path, ref: str, request_ref: str, item_refs: list[str], task_ref: str, input_payload: dict[str, object]) -> str:
+    product = input_payload.get("product") if isinstance(input_payload.get("product"), dict) else {}
+    title = _string_value(product, "title", default=_string_value(input_payload, "title", default="Scaffolded product"))
+    overview = _string_value(product, "overview", default=f"Development-ready workflow corpus for {title.lower()}.")
+    goals = _string_list(product, "goals", default=["Make the generated corpus usable without transcript context."])
+    non_goals = _string_list(product, "non_goals", default=["Automatically implementing generated tasks."])
+    return "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> Date: {date.today().isoformat()}",
+            "> Status: Proposed",
+            f"> Related request: `{request_ref}`",
+            f"> Related backlog: {', '.join(f'`{item}`' for item in item_refs)}",
+            f"> Related task: `{task_ref}`",
+            "> Related architecture: (none yet)",
+            "> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.",
+            "",
+            "# Overview",
+            overview,
+            "",
+            "# Goals",
+            *_bullets_or_default(goals, "Keep the generated corpus implementation-ready."),
+            "",
+            "# Non-goals",
+            *_bullets_or_default(non_goals, "Automatically implementing generated tasks."),
+            "",
+            "# Scope and guardrails",
+            "- In: scaffolded request, product, backlog, orchestration task, validation, and handoff context.",
+            "- Out: unrelated workflow docs and implementation of generated tasks.",
+            "",
+            "# Key product decisions",
+            "- Use structured input as the source of truth for generated docs.",
+            "- Keep generated write paths local and repo-bounded.",
+            "",
+            "# Success signals",
+            "- Generated docs pass lint and audit without broad manual rewrites.",
+            "- Context-pack output can be handed to an implementation agent directly.",
+            "",
+            "# References",
+            f"- Product back-reference: `{request_ref}`",
+            f"- Task back-reference: `{task_ref}`",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def _build_scaffold_backlog_doc(repo_root: Path, ref: str, request_ref: str, product_ref: str, task_ref: str, item: dict[str, object]) -> str:
+    title = _string_value(item, "title", default="Scaffolded backlog slice")
+    problem = _string_list(item, "problem", default=[f"Deliver {title.lower()}."])
+    scope_in = _string_list(item, "scope_in", default=["the bounded implementation slice"])
+    scope_out = _string_list(item, "scope_out", default=["unrelated sibling slices"])
+    acceptance = _string_list(item, "acceptance_criteria", default=["AC1: The slice is implementation-ready."])
+    request_acs = [_normalize_ac_id(value) for value in _string_list(item, "request_acs", default=[])]
+    if not request_acs:
+        request_acs = [f"AC{idx}" for idx in range(1, len(acceptance) + 1)]
+    ac_trace = [
+        f"- request-{ac_id} -> This backlog slice. Proof: {acceptance[min(idx, len(acceptance) - 1)]}"
+        for idx, ac_id in enumerate(request_acs)
+    ]
+    return "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> From version: {_resolved_from_version(repo_root, None)}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            f"> Complexity: {_string_value(item, 'complexity', default='Medium')}",
+            f"> Theme: {_string_value(item, 'theme', default='Implementation delivery')}",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.",
+            "",
+            "# Problem",
+            *_bullets_or_default(problem, f"Deliver {title.lower()}."),
+            "",
+            "# Scope",
+            "- In:",
+            *[f"  - {value}" for value in scope_in],
+            "- Out:",
+            *[f"  - {value}" for value in scope_out],
+            "",
+            "# Acceptance criteria",
+            *[f"- {value}" for value in acceptance],
+            "",
+            "# AC Traceability",
+            *ac_trace,
+            "",
+            "# Decision framing",
+            "- Product framing: Not needed",
+            "- Architecture framing: Not needed",
+            "",
+            "# Links",
+            f"- Product brief(s): `{product_ref}`",
+            "- Architecture decision(s): (none yet)",
+            f"- Request: `{request_ref}`",
+            f"- Primary task(s): `{task_ref}`",
+            "",
+            "# AI Context",
+            f"- Summary: {title}",
+            f"- Keywords: scaffolded-backlog, {title.lower()}, implementation-ready",
+            f"- Use when: Implementing the scaffolded slice for {title}.",
+            "- Skip when: The change belongs to another backlog slice.",
+            "",
+            "# Priority",
+            "- Impact: High",
+            "- Urgency: Medium",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref: str, product_ref: str, item_refs: list[str], input_payload: dict[str, object]) -> str:
+    task = input_payload.get("orchestration_task") if isinstance(input_payload.get("orchestration_task"), dict) else {}
+    title = _string_value(task, "title", default=title)
+    steps = _string_list(task, "plan", default=["Review generated corpus.", "Promote or implement the first backlog slice.", "Validate and update workflow docs."])
+    return "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> From version: {_resolved_from_version(repo_root, None)}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            "> Complexity: Medium",
+            "> Theme: Implementation delivery",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
+            "",
+            "# Context",
+            "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked.",
+            "",
+            "# Plan",
+            *[f"- [ ] {idx}. {step}" for idx, step in enumerate(steps, start=1)],
+            "- [ ] GATE: do not close until lint, audit, and scaffold validation pass.",
+            "",
+            "# Backlog",
+            *[f"- `{item_ref}`" for item_ref in item_refs],
+            "",
+            "# Definition of Done (DoD)",
+            "- [ ] Generated request, product, backlog, and task docs are present.",
+            "- [ ] Context-pack handoff is available when requested.",
+            "- [ ] Validation passes.",
+            "",
+            "# AC Traceability",
+            "- request-AC1 -> This task. Proof: scaffold command generated the request-chain corpus.",
+            "- request-AC4 -> This task. Proof: optional context-pack handoff is supported.",
+            "- request-AC6 -> This task. Proof: dry-run and collision checks bound file changes.",
+            "- request-AC8 -> This task. Proof: CLI help documents the one-pass scaffold workflow.",
+            "",
+            "# Validation",
+            "- Run `python3 -m logics_manager lint --require-status`.",
+            "- Run scaffold command tests.",
+            "",
+            "# Report",
+            "- Implementation complete.",
+            "",
+            "# AI Context",
+            f"- Summary: {title}",
+            "- Keywords: scaffolded-task, request-chain-scaffold, orchestration",
+            "- Use when: Coordinating implementation of a scaffolded request chain.",
+            "- Skip when: Working on one isolated sibling slice.",
+            "",
+            "# Links",
+            f"- Request: `{request_ref}`",
+            f"- Product brief(s): `{product_ref}`",
+            "- Architecture decision(s): (none yet)",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, request_ref: str, item_refs: list[str], summary: str) -> str:
+    return "\n".join(
+        [
+            f"## {ref} - {title}",
+            f"> From version: {_resolved_from_version(repo_root, None)}",
+            "> Schema version: 1.0",
+            "> Status: Ready",
+            "> Understanding: 90%",
+            "> Confidence: 85%",
+            "> Progress: 0%",
+            "> Complexity: Medium",
+            "> Theme: Implementation delivery",
+            "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
+            "",
+            "# Context",
+            f"- {summary or 'Coordinate the AC-aware split backlog items without implementing them directly.'}",
+            "",
+            "# Plan",
+            "- [ ] 1. Review the generated backlog slices and request AC mapping.",
+            "- [ ] 2. Promote or implement the next highest-priority slice.",
+            "- [ ] 3. Keep validation and request traceability updated as slices close.",
+            "",
+            "# Backlog",
+            *[f"- `{item_ref}`" for item_ref in item_refs],
+            "",
+            "# Definition of Done (DoD)",
+            "- [ ] Generated backlog slices are linked and ready for implementation.",
+            "- [ ] Slice ownership and next action are clear.",
+            "- [ ] Validation passes.",
+            "",
+            "# AC Traceability",
+            "- request-AC2 -> This task. Proof: orchestration task coordinates the AC-aware split.",
+            "- request-AC6 -> This task. Proof: generated task keeps split work explicit and bounded.",
+            "- request-AC7 -> This task. Proof: generated task is covered by split request tests.",
+            "",
+            "# Validation",
+            "- Run `python3 -m logics_manager lint --require-status`.",
+            "",
+            "# Report",
+            "- Implementation complete.",
+            "",
+            "# AI Context",
+            f"- Summary: {title}",
+            "- Keywords: ac-aware-split, orchestration-task, generated-task",
+            "- Use when: Coordinating the generated backlog slices from an AC-aware request split.",
+            "- Skip when: Implementing one individual backlog slice.",
+            "",
+            "# Links",
+            f"- Request: `{request_ref}`",
+            "- Product brief(s): (none yet)",
+            "- Architecture decision(s): (none yet)",
+            "",
+        ]
+    ).rstrip() + "\n"
+
+
+def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context_pack_out: str | None, dry_run: bool) -> dict[str, object]:
+    input_payload = _read_json_object(input_path, label="request-chain input")
+    title = _string_value(input_payload, "title")
+    if not title:
+        raise SystemExit("request-chain input requires `title`.")
+    raw_items = input_payload.get("backlog_items")
+    if not isinstance(raw_items, list) or not raw_items or any(not isinstance(item, dict) for item in raw_items):
+        raise SystemExit("request-chain input requires non-empty `backlog_items` array of objects.")
+    items = [item for item in raw_items if isinstance(item, dict)]
+    product_payload = input_payload.get("product") if isinstance(input_payload.get("product"), dict) else {}
+    task_payload = input_payload.get("orchestration_task") if isinstance(input_payload.get("orchestration_task"), dict) else {}
+
+    request_ref = _plan_doc(repo_root, DOC_KINDS["request"].directory, DOC_KINDS["request"].prefix, title, dry_run=True).ref
+    product_ref = _next_product_ref(repo_root, _string_value(product_payload, "title", default=title))
+    task_ref = _next_task_ref(repo_root, _string_value(task_payload, "title", default=f"Orchestrate {title}"))
+    existing_backlog_numbers = []
+    backlog_dir = repo_root / "logics" / "backlog"
+    if backlog_dir.is_dir():
+        for path in backlog_dir.glob("item_*.md"):
+            parts = path.stem.split("_", 2)
+            if len(parts) >= 2 and parts[1].isdigit():
+                existing_backlog_numbers.append(int(parts[1]))
+    next_backlog_number = max(existing_backlog_numbers, default=0) + 1
+    item_refs = [
+        f"item_{next_backlog_number + idx - 1:03d}_{_slugify(_string_value(item, 'title', default=f'{title} slice {idx}'))}"
+        for idx, item in enumerate(items, start=1)
+    ]
+
+    doc_paths = [
+        repo_root / "logics" / "request" / f"{request_ref}.md",
+        repo_root / "logics" / "product" / f"{product_ref}.md",
+        repo_root / "logics" / "tasks" / f"{task_ref}.md",
+        *[repo_root / "logics" / "backlog" / f"{item_ref}.md" for item_ref in item_refs],
+    ]
+    if not dry_run:
+        _ensure_new_doc_paths_available(doc_paths)
+
+    request_text = _build_scaffold_request_doc(repo_root, request_ref, title, input_payload)
+    request_text = request_text.replace("- none\n", "".join(f"- `{item_ref}`\n" for item_ref in item_refs), 1)
+    product_text = _build_scaffold_product_doc(repo_root, product_ref, request_ref, item_refs, task_ref, input_payload)
+    task_text = _build_scaffold_task_doc(repo_root, task_ref, _string_value(task_payload, "title", default=f"Orchestrate {title}"), request_ref, product_ref, item_refs, input_payload)
+    backlog_texts = [
+        _build_scaffold_backlog_doc(repo_root, item_ref, request_ref, product_ref, task_ref, item)
+        for item_ref, item in zip(item_refs, items)
+    ]
+
+    created_paths = [path.relative_to(repo_root).as_posix() for path in doc_paths]
+    changed_files = [*created_paths, "logics/INDEX.md"]
+    context_pack_payload: dict[str, object] | None = None
+    context_pack_path: str | None = None
+    raw_context_pack = input_payload.get("context_pack") if isinstance(input_payload.get("context_pack"), dict) else {}
+    requested_out = context_pack_out or _string_value(raw_context_pack, "out", default="")
+    if requested_out:
+        _out_path, context_pack_path = resolve_repo_output_path(repo_root, requested_out, label="--context-pack")
+        changed_files.append(context_pack_path)
+
+    if not dry_run:
+        for path, content in zip(doc_paths, [request_text, product_text, task_text, *backlog_texts]):
+            _write_new_doc(path, content)
+        index_payload(repo_root)
+        if requested_out and context_pack_path is not None:
+            out_path, _rel = resolve_repo_output_path(repo_root, requested_out, label="--context-pack")
+            refs = ",".join([request_ref, *item_refs, task_ref])
+            context_pack_payload = build_context_pack_payload(
+                repo_root,
+                refs,
+                mode=_string_value(raw_context_pack, "mode", default="summary-only"),
+                profile=_string_value(raw_context_pack, "profile", default="normal"),
+            )
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps(context_pack_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return {
+        "command": "scaffold",
+        "kind": "request-chain",
+        "input": input_path.relative_to(repo_root).as_posix() if input_path.is_relative_to(repo_root) else input_path.as_posix(),
+        "request_ref": request_ref,
+        "product_ref": product_ref,
+        "backlog_refs": item_refs,
+        "task_ref": task_ref,
+        "created_paths": created_paths,
+        "changed_files": sorted(dict.fromkeys(changed_files)),
+        "context_pack_path": context_pack_path,
+        "context_pack": context_pack_payload,
+        "dry_run": dry_run,
+        "next_action": f"Review `{task_ref}` and run lint/audit before implementation.",
+    }
+
+
+def cmd_scaffold_request_chain(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    input_candidate = Path(args.input)
+    input_path = input_candidate if input_candidate.is_absolute() else repo_root / input_candidate
+    payload = scaffold_request_chain_payload(repo_root, input_path, context_pack_out=args.context_pack, dry_run=args.dry_run)
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        action = "Would scaffold" if args.dry_run else "Scaffolded"
+        print(f"{action} request chain: {payload['request_ref']}")
+        for rel_path in payload["changed_files"]:
+            print(f"- {rel_path}")
+        print(f"Next action: {payload['next_action']}")
+    return payload
+
+
 def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
@@ -2996,17 +3465,50 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
 def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
-    titles = _split_titles([title for group in args.title for title in group])
+    request_lines = source_path.read_text(encoding="utf-8").splitlines()
+    request_acs = _request_acceptance_map(request_lines)
+    if args.slice:
+        if not request_acs:
+            raise SystemExit("Cannot use `--slice` because the request has no numbered acceptance criteria.")
+        slice_inputs = [_parse_request_slice(raw, request_acs) for raw in args.slice]
+        seen_acs: set[str] = set()
+        duplicate_acs: set[str] = set()
+        for item in slice_inputs:
+            for ac_id in item["ac_ids"]:
+                ac_id = str(ac_id)
+                if ac_id in seen_acs:
+                    duplicate_acs.add(ac_id)
+                seen_acs.add(ac_id)
+        if duplicate_acs:
+            raise SystemExit(f"Duplicate request AC mapping in `--slice`: {', '.join(sorted(duplicate_acs))}")
+    else:
+        if not args.title:
+            raise SystemExit("split request requires `--title` or `--slice`.")
+        slice_inputs = [{"title": title, "ac_ids": list(request_acs)} for title in _split_titles([title for group in args.title for title in group])]
+
     created_refs: list[str] = []
-    for title in titles:
-        ref, _ = _build_native_backlog_from_request(
+    planned_paths: list[Path] = []
+    planned_contents: list[tuple[Path, str]] = []
+    ac_mappings: list[dict[str, object]] = []
+    existing_backlog_numbers = []
+    backlog_dir = repo_root / "logics" / "backlog"
+    if backlog_dir.is_dir():
+        for path in backlog_dir.glob("item_*.md"):
+            parts = path.stem.split("_", 2)
+            if len(parts) >= 2 and parts[1].isdigit():
+                existing_backlog_numbers.append(int(parts[1]))
+    next_backlog_number = max(existing_backlog_numbers, default=0) + 1
+    for idx, item in enumerate(slice_inputs, start=1):
+        title = str(item["title"])
+        ac_ids = [str(ac_id) for ac_id in item["ac_ids"]]
+        generated_ref, _ = _build_native_backlog_from_request(
             repo_root,
             source_path,
             title,
         )
+        ref = f"item_{next_backlog_number + idx - 1:03d}_{_slugify(title)}"
         planned_path = repo_root / "logics" / "backlog" / f"{ref}.md"
-        if not args.dry_run:
-            _ensure_new_doc_paths_available([planned_path])
+        planned_paths.append(planned_path)
         product_refs, architecture_refs = _create_native_companion_docs(
             repo_root,
             title,
@@ -3022,21 +3524,75 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
             product_refs=product_refs,
             architecture_refs=architecture_refs,
         )
-        if not args.dry_run:
-            _write_new_doc(planned_path, content)
-            _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
+        if generated_ref != ref:
+            content = content.replace(generated_ref, ref)
+        if ac_ids:
+            selected_acceptance = [request_acs[ac_id] for ac_id in ac_ids]
+            content = re.sub(
+                r"# Acceptance criteria\n.*?\n# AC Traceability",
+                "# Acceptance criteria\n" + "\n".join(f"- {value}" for value in selected_acceptance) + "\n\n# AC Traceability",
+                content,
+                flags=re.DOTALL,
+            )
+            traceability = "\n".join(f"- request-{ac_id} -> This backlog slice. Proof: {request_acs[ac_id]}" for ac_id in ac_ids)
+            content = re.sub(
+                r"# AC Traceability\n.*?\n# Decision framing",
+                "# AC Traceability\n" + traceability + "\n\n# Decision framing",
+                content,
+                flags=re.DOTALL,
+            )
+        planned_contents.append((planned_path, content))
         created_refs.append(ref)
+        ac_mappings.append({"backlog_ref": ref, "title": title, "request_acs": ac_ids})
+
+    task_ref: str | None = None
+    task_path: Path | None = None
+    if args.orchestration_task:
+        task_ref = _next_task_ref(repo_root, args.orchestration_task)
+        task_path = repo_root / "logics" / "tasks" / f"{task_ref}.md"
+        planned_paths.append(task_path)
+        planned_contents.append(
+            (
+                task_path,
+                _build_split_orchestration_task_doc(
+                    repo_root,
+                    task_ref,
+                    args.orchestration_task,
+                    source_path.stem,
+                    created_refs,
+                    args.orchestration_summary or "",
+                ),
+            )
+        )
+
+    if not args.dry_run:
+        _ensure_new_doc_paths_available(planned_paths)
+        for path, content in planned_contents:
+            _write_new_doc(path, content)
+        for ref in created_refs:
+            _append_doc_section_bullets(source_path, "Backlog", [f"`{ref}`"], dry_run=False)
+        if task_ref:
+            for ref in created_refs:
+                backlog_path = repo_root / "logics" / "backlog" / f"{ref}.md"
+                _append_doc_section_bullets(backlog_path, "Tasks", [f"`{task_ref}`"], dry_run=False)
+
+    mapped_ac_ids = {ac_id for mapping in ac_mappings for ac_id in mapping["request_acs"]}
     payload = {
         "command": "split",
         "kind": "request",
         "source": source_path.relative_to(repo_root).as_posix(),
         "created_refs": created_refs,
+        "ac_mappings": ac_mappings,
+        "omitted_ac_ids": sorted(set(request_acs) - mapped_ac_ids),
+        "orchestration_task": {"ref": task_ref, "path": task_path.relative_to(repo_root).as_posix()} if task_ref and task_path else None,
         "dry_run": args.dry_run,
     }
     if args.format == "json":
         print_payload(payload, args.format)
     else:
         print(f"Split request into {len(created_refs)} backlog item(s): {', '.join(created_refs)}")
+        if task_ref:
+            print(f"Created orchestration task: {task_ref}")
     return payload
 
 
@@ -3323,7 +3879,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
+    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

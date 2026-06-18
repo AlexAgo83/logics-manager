@@ -262,6 +262,36 @@ def test_release_status_blocks_stale_version_and_wrong_commit_or_tag(tmp_path: P
     assert gates["github_release"]["status"] == "stale"
 
 
+def test_release_status_blocks_ci_evidence_from_wrong_commit(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, _passing_evidence())
+    contract_path = repo_root / "logics" / "release" / "contract.json"
+    contract = _load_json(contract_path)
+    contract["gates"].append({"id": "ci", "state": "ci_verification", "required": True, "evidence_kinds": ["ci"]})
+    contract_path.write_text(json.dumps(contract, indent=2), encoding="utf-8")
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    with evidence_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            json.dumps(
+                {
+                    "gate_id": "ci",
+                    "kind": "ci",
+                    "status": "passed",
+                    "observed_at": "2026-06-18T10:03:00Z",
+                    "target_version": "1.2.3",
+                    "commit": "deadbeef",
+                    "summary": "CI passed on an old commit",
+                }
+            )
+            + "\n"
+        )
+
+    status = release_status_payload(repo_root)
+    ci_gate = next(gate for gate in status["gates"] if gate["id"] == "ci")
+
+    assert ci_gate["status"] == "stale"
+    assert ci_gate["blocking_reason"] == "evidence targets a different commit"
+
+
 def test_release_cli_status_returns_stable_json(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

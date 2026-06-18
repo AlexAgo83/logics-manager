@@ -1,10 +1,10 @@
 ## item_436_add_deterministic_validation_repair_and_fixable_diagnostics - Add deterministic validation repair and fixable diagnostics
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 5%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,3 +74,7 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_249_improve_logics_workflow_scaffolding_validation_agent_docs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md`.
 - Generated locally by logics-manager.
+- Task `task_230_add_deterministic_validation_repair_and_fixable_diagnostics` was finished via `logics-manager flow finish task` on 2026-06-19.
+
+# Tasks
+- `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`

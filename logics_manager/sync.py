@@ -47,6 +47,7 @@ MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
 MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
 APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
 MAX_MUTATION_TEXT_CHARS = 2000
+OPEN_STATUS_EXCLUSIONS = {"accepted", "archived", "closed", "done", "obsolete", "settled", "superseded", "validated"}
 
 
 def _read_text(repo_root: Path, path: Path) -> str:
@@ -221,8 +222,24 @@ def _context_profile_limit(profile: str) -> int:
 
 def _git_changed_paths(repo_root: Path) -> list[str]:
     try:
-        result = __import__("subprocess").run(
+        diff_result = __import__("subprocess").run(
             ["git", "diff", "--name-only", "--relative=."],
+            cwd=repo_root,
+            stdout=__import__("subprocess").PIPE,
+            stderr=__import__("subprocess").PIPE,
+            text=True,
+            check=False,
+        )
+        staged_result = __import__("subprocess").run(
+            ["git", "diff", "--cached", "--name-only", "--relative=."],
+            cwd=repo_root,
+            stdout=__import__("subprocess").PIPE,
+            stderr=__import__("subprocess").PIPE,
+            text=True,
+            check=False,
+        )
+        untracked_result = __import__("subprocess").run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
             cwd=repo_root,
             stdout=__import__("subprocess").PIPE,
             stderr=__import__("subprocess").PIPE,
@@ -231,9 +248,14 @@ def _git_changed_paths(repo_root: Path) -> list[str]:
         )
     except OSError:
         return []
-    if result.returncode != 0:
+    if diff_result.returncode != 0:
         return []
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    changed = [line.strip() for line in diff_result.stdout.splitlines() if line.strip()]
+    if staged_result.returncode == 0:
+        changed.extend(line.strip() for line in staged_result.stdout.splitlines() if line.strip())
+    if untracked_result.returncode == 0:
+        changed.extend(line.strip() for line in untracked_result.stdout.splitlines() if line.strip())
+    return sorted(dict.fromkeys(changed))
 
 
 def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, object]:
@@ -530,17 +552,41 @@ def list_logics_docs_payload(
     status: str | None = None,
     ref_prefix: str | None = None,
     limit: int = 50,
+    recent: bool = False,
+    open_only: bool = False,
+    changed: bool = False,
 ) -> dict[str, object]:
     docs = sorted(_load_workflow_docs(repo_root).values(), key=lambda doc: doc.path)
+    changed_paths = set(_git_changed_paths(repo_root)) if changed else set()
     if kind != "all":
         docs = [doc for doc in docs if doc.kind == kind]
     if status:
         expected_status = " ".join(status.split()).lower()
         docs = [doc for doc in docs if " ".join(doc.indicators.get("Status", "").split()).lower() == expected_status]
+    if open_only:
+        docs = [
+            doc
+            for doc in docs
+            if " ".join(doc.indicators.get("Status", "").split()).lower() not in OPEN_STATUS_EXCLUSIONS
+        ]
+    if changed:
+        docs = [doc for doc in docs if doc.path in changed_paths]
     if ref_prefix:
         docs = [doc for doc in docs if doc.ref.startswith(ref_prefix)]
+    if recent:
+        docs = sorted(docs, key=lambda doc: (-(repo_root / doc.path).stat().st_mtime, doc.path))
     limited = docs[:limit]
     return {
+        "view": "changed" if changed else "open" if open_only else "recent" if recent else "all",
+        "filters": {
+            "kind": kind,
+            "status": status,
+            "ref_prefix": ref_prefix,
+            "recent": recent,
+            "open": open_only,
+            "changed": changed,
+        },
+        "changed_paths": sorted(changed_paths),
         "items": [
             {
                 "ref": doc.ref,
@@ -883,6 +929,9 @@ def build_parser() -> argparse.ArgumentParser:
     list_docs.add_argument("--status", default=None)
     list_docs.add_argument("--ref-prefix", default=None)
     list_docs.add_argument("--limit", type=int, default=50)
+    list_docs.add_argument("--recent", action="store_true", help="Sort by newest filesystem modification time first.")
+    list_docs.add_argument("--open", action="store_true", dest="open_only", help="Only include workflow docs that are not terminal/closed.")
+    list_docs.add_argument("--changed", action="store_true", help="Only include workflow docs changed in git, including untracked files.")
     list_docs.add_argument("--format", choices=("text", "json"), default="text")
     list_docs.set_defaults(func=cmd_list_docs)
 
@@ -967,7 +1016,7 @@ def _build_help() -> str:
             "",
             "  list-docs",
             "    List workflow docs by bounded criteria.",
-            "    Flags: --kind {all,request,backlog,task}, --status, --ref-prefix, --limit, --format {text,json}",
+            "    Flags: --kind {all,request,backlog,task}, --status, --ref-prefix, --limit, --recent, --open, --changed, --format {text,json}",
             "",
             "  search-docs <query>",
             "    Search approved workflow docs with bounded snippets.",
@@ -987,7 +1036,8 @@ def _build_help() -> str:
             "",
             "Examples:",
             "  logics-manager sync schema-status",
-            "  logics-manager sync context-pack req_001_my_request task_002_fix_bug --out logics/context-pack.json",
+            "  logics-manager sync list-docs --open --recent --limit 10 --format json",
+            "  logics-manager sync context-pack req_001_my_request task_002_fix_bug --handoff --out logics/context-pack.json",
             "  logics-manager sync export-graph --format json",
         ]
     )
@@ -1091,7 +1141,14 @@ def _build_subcommand_help(command: str) -> str:
                 "  --status",
                 "  --ref-prefix",
                 "  --limit",
+                "  --recent",
+                "  --open",
+                "  --changed",
                 "  --format {text,json}",
+                "",
+                "Examples:",
+                "  logics-manager sync list-docs --open --recent --limit 10",
+                "  logics-manager sync list-docs --changed --format json",
             ]
         )
     if command == "search-docs":
@@ -1262,11 +1319,20 @@ def cmd_read_doc(args: argparse.Namespace) -> dict[str, object]:
 
 def cmd_list_docs(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
-    payload = list_logics_docs_payload(repo_root, kind=args.kind, status=args.status, ref_prefix=args.ref_prefix, limit=_bounded_positive(args.limit, default=50, maximum=200))
+    payload = list_logics_docs_payload(
+        repo_root,
+        kind=args.kind,
+        status=args.status,
+        ref_prefix=args.ref_prefix,
+        limit=_bounded_positive(args.limit, default=50, maximum=200),
+        recent=args.recent,
+        open_only=args.open_only,
+        changed=args.changed,
+    )
     if args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
-        print(f"Workflow docs: {payload['returned_count']} returned of {payload['total_count']}")
+        print(f"Workflow docs ({payload['view']}): {payload['returned_count']} returned of {payload['total_count']}")
         for item in payload["items"]:
             print(f"- {item['ref']} [{item['status']}]: {item['title']}")
     return {"command": "sync", "kind": "list-docs", "repo_root": repo_root.as_posix(), **payload}

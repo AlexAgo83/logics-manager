@@ -222,6 +222,7 @@ def _build_help() -> str:
             "  scaffold request-chain --input <file>",
             "    Create a request, product brief, backlog slices, orchestration task, index, and optional context pack from structured JSON.",
             "    Flags: --context-pack <path>, --format {text,json}, --dry-run",
+            "    Recommended: create the full request chain and handoff pack in one pass with --context-pack.",
             "",
             "  validate [refs...]",
             "    Combine lint and audit findings, classify fixable diagnostics, and optionally apply scoped deterministic fixes.",
@@ -264,6 +265,7 @@ def _build_help() -> str:
             "Examples:",
             '  logics-manager flow new request --title "My request"',
             "  logics-manager flow scaffold request-chain --input logics/scaffold/request-chain.json --context-pack logics/context-pack.json",
+            "  logics-manager sync context-pack req_001_my_request item_002_slice task_003_orchestrate --handoff --format json",
             "  logics-manager flow validate req_001_my_request --fixable --explain",
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
             "  logics-manager flow show req_001_my_request",
@@ -2454,6 +2456,17 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         "kind": doc_kind.kind,
         "ref": planned.ref,
         "path": planned.path.relative_to(repo_root).as_posix(),
+        "created_refs": [planned.ref],
+        "changed_files": [planned.path.relative_to(repo_root).as_posix()],
+        "validation_suggestions": [
+            f"logics-manager flow validate {planned.ref} --format json",
+            "logics-manager lint --require-status",
+        ],
+        "next_actions": [
+            f"Review `{planned.ref}`.",
+            f"Run `logics-manager flow validate {planned.ref}` before closing related work.",
+        ],
+        "next_action": f"Review `{planned.ref}` and run flow validation before closing related work.",
         "dry_run": args.dry_run,
     }
     if doc_kind.kind == "request":
@@ -2862,6 +2875,11 @@ def flow_validate_payload(
 
     blocking_count = len([finding for finding in findings if finding.get("category") == "blocking"])
     warning_count = len([finding for finding in findings if finding.get("category") == "warning"])
+    next_actions = ["Apply safe fixes or inspect blocking findings."] if blocking_count or refused else ["Validation findings are clear for selected refs."]
+    if len([finding for finding in findings if finding.get("fixable") and not finding.get("unsafe")]):
+        next_actions.append("Run with `--apply-fixes` to apply deterministic safe repairs.")
+    if refused:
+        next_actions.append("Provide explicit `--proof` before applying AC traceability repairs.")
     return {
         "command": "validate",
         "ok": blocking_count == 0 and not refused,
@@ -2877,7 +2895,8 @@ def flow_validate_payload(
         "refused_repairs": refused,
         "dry_run": dry_run,
         "applied_fixes": bool(apply_fixes and not dry_run),
-        "next_action": "Apply safe fixes or inspect blocking findings." if blocking_count or refused else "Validation findings are clear for selected refs.",
+        "next_actions": next_actions,
+        "next_action": next_actions[0],
     }
 
 
@@ -3540,11 +3559,22 @@ def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context
         "product_ref": product_ref,
         "backlog_refs": item_refs,
         "task_ref": task_ref,
+        "created_refs": [request_ref, product_ref, *item_refs, task_ref],
         "created_paths": created_paths,
         "changed_files": sorted(dict.fromkeys(changed_files)),
         "context_pack_path": context_pack_path,
         "context_pack": context_pack_payload,
+        "validation_suggestions": [
+            "logics-manager lint --require-status",
+            "logics-manager audit --legacy-cutoff-version 1.1.0 --group-by-doc",
+            f"logics-manager flow validate {request_ref} {' '.join(item_refs)} {task_ref} --format json",
+        ],
         "dry_run": dry_run,
+        "next_actions": [
+            f"Review `{task_ref}`.",
+            f"Run `logics-manager sync context-pack {request_ref} {' '.join(item_refs)} {task_ref} --handoff --format json` if no context pack was written.",
+            "Run lint/audit before implementation.",
+        ],
         "next_action": f"Review `{task_ref}` and run lint/audit before implementation.",
     }
 
@@ -3596,7 +3626,18 @@ def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object
         "promotion": "request-to-backlog",
         "source": source_path.relative_to(repo_root).as_posix(),
         "created_ref": ref,
+        "created_refs": [ref],
         "created_path": planned_path.relative_to(repo_root).as_posix(),
+        "changed_files": [planned_path.relative_to(repo_root).as_posix(), source_path.relative_to(repo_root).as_posix()],
+        "validation_suggestions": [
+            f"logics-manager flow validate {source_path.stem} {ref} --format json",
+            "logics-manager lint --require-status",
+        ],
+        "next_actions": [
+            f"Review `{ref}`.",
+            f"Promote `{ref}` to a task when the slice is implementation-ready.",
+        ],
+        "next_action": f"Review `{ref}` and promote it to a task when ready.",
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -3640,7 +3681,18 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
         "promotion": "backlog-to-task",
         "source": source_path.relative_to(repo_root).as_posix(),
         "created_ref": ref,
+        "created_refs": [ref],
         "created_path": planned_path.relative_to(repo_root).as_posix(),
+        "changed_files": [planned_path.relative_to(repo_root).as_posix(), source_path.relative_to(repo_root).as_posix()],
+        "validation_suggestions": [
+            f"logics-manager flow validate {source_path.stem} {ref} --format json",
+            "logics-manager lint --require-status",
+        ],
+        "next_actions": [
+            f"Implement `{ref}`.",
+            f"Finish with `logics-manager flow finish task {ref}` after validation.",
+        ],
+        "next_action": f"Implement `{ref}` and finish it after validation.",
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -3770,9 +3822,24 @@ def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
         "kind": "request",
         "source": source_path.relative_to(repo_root).as_posix(),
         "created_refs": created_refs,
+        "changed_files": sorted(
+            [
+                source_path.relative_to(repo_root).as_posix(),
+                *[path.relative_to(repo_root).as_posix() for path in planned_paths],
+            ]
+        ),
         "ac_mappings": ac_mappings,
         "omitted_ac_ids": sorted(set(request_acs) - mapped_ac_ids),
         "orchestration_task": {"ref": task_ref, "path": task_path.relative_to(repo_root).as_posix()} if task_ref and task_path else None,
+        "validation_suggestions": [
+            f"logics-manager flow validate {source_path.stem} {' '.join(created_refs)} --format json",
+            "logics-manager lint --require-status",
+        ],
+        "next_actions": [
+            "Review AC mappings and omitted ACs.",
+            "Promote or implement the highest-priority generated backlog slice.",
+        ],
+        "next_action": "Review AC mappings and promote or implement the highest-priority generated slice.",
         "dry_run": args.dry_run,
     }
     if args.format == "json":
@@ -3821,6 +3888,21 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
         "kind": "backlog",
         "source": source_path.relative_to(repo_root).as_posix(),
         "created_refs": created_refs,
+        "changed_files": sorted(
+            [
+                source_path.relative_to(repo_root).as_posix(),
+                *[f"logics/tasks/{ref}.md" for ref in created_refs],
+            ]
+        ),
+        "validation_suggestions": [
+            f"logics-manager flow validate {source_path.stem} {' '.join(created_refs)} --format json",
+            "logics-manager lint --require-status",
+        ],
+        "next_actions": [
+            "Review generated tasks.",
+            "Implement one bounded task at a time and finish after validation.",
+        ],
+        "next_action": "Review generated tasks and implement one bounded task at a time.",
         "dry_run": args.dry_run,
     }
     if args.format == "json":

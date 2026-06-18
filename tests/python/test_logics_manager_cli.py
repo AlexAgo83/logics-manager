@@ -195,6 +195,65 @@ def test_main_accepts_json_alias_for_native_subcommand(
     assert payload["items"][0]["ref"] == "req_001_demo"
 
 
+def test_sync_list_docs_recent_open_changed_filters(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    backlog_dir = repo_root / "logics" / "backlog"
+    task_dir = repo_root / "logics" / "tasks"
+    request_dir.mkdir(parents=True)
+    backlog_dir.mkdir(parents=True)
+    task_dir.mkdir(parents=True)
+    _write_minimal_workflow_doc(request_dir / "req_001_old.md", title="Old", kind="request", status="Done", links=[])
+    _write_minimal_workflow_doc(backlog_dir / "item_001_current.md", title="Current", kind="backlog", status="Ready", links=[])
+    _write_minimal_workflow_doc(task_dir / "task_001_changed.md", title="Changed", kind="task", status="Ready", links=[])
+    old_time = 1_700_000_000
+    (request_dir / "req_001_old.md").touch()
+    (backlog_dir / "item_001_current.md").touch()
+    (task_dir / "task_001_changed.md").touch()
+    os.utime(request_dir / "req_001_old.md", (old_time, old_time))
+    os.utime(backlog_dir / "item_001_current.md", (old_time + 10, old_time + 10))
+    os.utime(task_dir / "task_001_changed.md", (old_time + 20, old_time + 20))
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr("logics_manager.sync._git_changed_paths", lambda _repo_root: ["logics/tasks/task_001_changed.md"])
+
+    exit_code = main(["sync", "list-docs", "--open", "--recent", "--format", "json"])
+    open_payload = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert open_payload["filters"]["open"] is True
+    assert [item["ref"] for item in open_payload["items"]] == ["task_001_changed", "item_001_current"]
+
+    exit_code = main(["sync", "list-docs", "--changed", "--format", "json"])
+    changed_payload = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert changed_payload["view"] == "changed"
+    assert changed_payload["changed_paths"] == ["logics/tasks/task_001_changed.md"]
+    assert [item["ref"] for item in changed_payload["items"]] == ["task_001_changed"]
+
+
+def test_flow_creation_json_includes_agent_next_actions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "new", "request", "--title", "Agent JSON Contract", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["created_refs"] == [payload["ref"]]
+    assert payload["changed_files"] == [payload["path"]]
+    assert payload["validation_suggestions"][0].startswith("logics-manager flow validate ")
+    assert payload["next_actions"]
+    assert payload["next_action"]
+
+
 def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:
     cache_path = tmp_path / "update-check.json"
     calls = 0
@@ -4131,6 +4190,8 @@ def test_flow_validate_reports_and_applies_scoped_fixable_diagnostics(
     assert exit_code == 0
     assert payload["finding_count"] == 1
     assert payload["fixable_count"] == 1
+    assert payload["next_actions"][0] == "Validation findings are clear for selected refs."
+    assert "Run with `--apply-fixes`" in payload["next_actions"][1]
     assert payload["repairs"][0]["changed_files"] == ["logics/request/req_001_demo.md"]
     assert calls == [(["req_001_demo"], False)]
 

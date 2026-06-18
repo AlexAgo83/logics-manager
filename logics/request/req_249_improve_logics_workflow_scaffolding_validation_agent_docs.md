@@ -1,7 +1,7 @@
 ## req_249_improve_logics_workflow_scaffolding_validation_agent_docs - Improve Logics workflow scaffolding and validation for agent-authored docs
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High

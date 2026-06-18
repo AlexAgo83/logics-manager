@@ -59,7 +59,7 @@ describe("logics-manager CLI help", () => {
     expect(output).toContain("Workflow authoring:");
     expect(output).toContain("Validation:");
     expect(output).toContain("flow");
-    expect(output).toContain("Subcommands: new, list, show, companion, deliver, validate-closeout, repair, closeout, promote, split, close, finish");
+    expect(output).toContain("Subcommands: new, list, show, companion, deliver, scaffold, validate-closeout, repair, closeout, promote, split, close, finish");
     expect(output).toContain("audit");
     expect(output).toContain("self-update");
   });

@@ -1,10 +1,10 @@
 ## item_433_expose_release_workflow_context_for_assistants_and_mcp_clients - Expose release workflow context for assistants and MCP clients
 > From version: 2.8.1
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -45,6 +45,7 @@ flowchart TD
 - request-AC5 -> This backlog slice. Proof: Exposes assistant and MCP release context.
 - request-AC6 -> This backlog slice. Proof: Keeps context driven by project contract, not provider-specific prompts.
 - request-AC8 -> This backlog slice. Proof: Requires agents to respect missing or stale evidence.
+- request-AC7 -> This backlog slice. Evidence needed: Validation covers at least fixture-style examples for the known release patterns from `logics-manager`, `cdx-manager`, and `cp-wc-26`.
 
 # Decision framing
 - Product framing: Not needed
@@ -57,8 +58,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`
-- Primary task(s): (none yet)
+- Request: `req_248_release_workflow_multi_project_ai_assistants`
+- Primary task(s): `task_228_expose_release_workflow_context_for_assistants_and_mcp_clients`
 
 # AI Context
 - Summary: Expose release workflow context for assistants and MCP clients
@@ -74,3 +75,11 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_248_release_workflow_multi_project_ai_assistants` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_248_release_workflow_multi_project_ai_assistants.md`.
 - Generated locally by logics-manager.
+- Task `task_228_expose_release_workflow_context_for_assistants_and_mcp_clients` was finished via `logics-manager flow finish task` on 2026-06-18.
+
+# Tasks
+- (none yet)
+- `task_228_expose_release_workflow_context_for_assistants_and_mcp_clients`
+
+# Validation
+- Covered by release context-pack projection tests and MCP status/plan tool tests against a temporary non-logics-manager release contract.

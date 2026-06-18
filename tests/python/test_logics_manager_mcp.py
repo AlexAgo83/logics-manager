@@ -195,6 +195,48 @@ def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
     assert pack["ref"] == created["ref"]
     assert pack["estimates"]["doc_count"] >= 1
 
+    release_dir = repo_root / "logics" / "release"
+    release_dir.mkdir(parents=True)
+    (repo_root / "package.json").write_text(json.dumps({"version": "4.5.6"}), encoding="utf-8")
+    (release_dir / "contract.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "project": {"id": "other-project", "display_name": "Other Project"},
+                "version_sources": [{"path": "package.json", "format": "json", "selector": "version", "required": True}],
+                "gates": [
+                    {"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"]},
+                    {"id": "github_release", "state": "github_release", "required": True, "evidence_kinds": ["github_release"]},
+                ],
+                "evidence": {"store": {"path": "logics/release/evidence.jsonl", "format": "jsonl", "required": True}},
+                "git": {"tag_policy": {"required": True, "pattern": "v{version}"}, "require_clean_worktree": False},
+                "github_release": {"required": True, "mode": "manual"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (release_dir / "evidence.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps({"gate_id": "local_validation", "kind": "command", "status": "passed", "target_version": "4.5.6"}),
+                json.dumps({"gate_id": "github_release", "kind": "github_release", "status": "passed", "target_version": "4.5.6", "tag": "v4.5.6"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    release_status = call_tool("get_release_status", {}, repo_root=repo_root)
+    release_plan = call_tool("get_release_plan", {"version": "4.5.7"}, repo_root=repo_root)
+    release_pack = call_tool("build_context_pack", {"ref": created["ref"], "mode": "summary-only", "profile": "tiny"}, repo_root=repo_root)
+
+    assert release_status["configured"] is True
+    assert release_status["target_version"] == "4.5.6"
+    assert release_plan["publication_requires_explicit_operator_action"] is True
+    assert [step["kind"] for step in release_plan["steps"] if step.get("publication_action")] == ["github_release"]
+    assert release_pack["release"]["target_version"] == "4.5.6"
+    assert "Release readiness must come from project-owned evidence, not conversational memory." in release_pack["release"]["guidance"]
+
 
 def test_mcp_operator_signal_tools(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)

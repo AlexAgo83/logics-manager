@@ -2143,6 +2143,30 @@ def test_viewer_cdx_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPa
         thread.join(timeout=5)
 
 
+def test_viewer_release_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        viewer_module,
+        "release_status_payload",
+        lambda repo_root: {"state": "not_configured", "configured": False, "next_action": str(repo_root), "gates": []},
+    )
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/release-status")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["state"] == "not_configured"
+        assert payload["payload"]["next_action"] == str(tmp_path)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
     output = render_start_status(
         "http://127.0.0.1:8765",

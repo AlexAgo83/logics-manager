@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "id": "cp-wc-26",
+    "display_name": "CP WC 26",
+    "release_profile": "web-app-deployment"
+  },
+  "version_sources": [
+    { "path": "package.json", "format": "json", "selector": "version", "required": true }
+  ],
+  "changelog": {
+    "required": true,
+    "version_heading_required": true,
+    "paths": [
+      { "path": "CHANGELOG.md", "format": "markdown", "required": true }
+    ]
+  },
+  "state_machine": [
+    "planning",
+    "preparing",
+    "local_validation",
+    "commit_ready",
+    "pushed",
+    "ci_verification",
+    "github_release",
+    "external_publication",
+    "ready",
+    "blocked"
+  ],
+  "gates": [
+    { "id": "version_metadata", "state": "preparing", "required": true, "evidence_kinds": ["file"] },
+    { "id": "changelog", "state": "preparing", "required": true, "evidence_kinds": ["file"] },
+    { "id": "local_validation", "state": "local_validation", "required": true, "evidence_kinds": ["command"] },
+    { "id": "git_push", "state": "pushed", "required": true, "evidence_kinds": ["git"] },
+    { "id": "ci", "state": "ci_verification", "required": true, "evidence_kinds": ["ci"] },
+    { "id": "github_release", "state": "github_release", "required": false, "evidence_kinds": ["github_release"] },
+    { "id": "production_deployment", "state": "external_publication", "required": true, "evidence_kinds": ["external"] }
+  ],
+  "evidence": {
+    "store": { "path": "logics/release/evidence.jsonl", "format": "jsonl", "required": true },
+    "freshness": {
+      "match_target_version": true,
+      "match_commit_for_source_gates": true,
+      "match_tag_for_publication_gates": false
+    },
+    "required_fields": ["kind", "status", "observed_at", "target_version", "commit", "summary"]
+  },
+  "validation_commands": [
+    { "id": "lint", "command": ["npm", "run", "lint"], "required": true, "evidence_kind": "command" },
+    { "id": "test", "command": ["npm", "test"], "required": true, "evidence_kind": "command" },
+    { "id": "build", "command": ["npm", "run", "build"], "required": true, "evidence_kind": "command" }
+  ],
+  "git": {
+    "release_branch_policy": "main_only",
+    "allowed_branches": ["main"],
+    "tag_policy": { "required": false, "pattern": "v{version}" },
+    "require_clean_worktree": true,
+    "require_pushed_commit": true
+  },
+  "github_release": {
+    "required": false,
+    "mode": "manual",
+    "draft_allowed": true,
+    "asset_paths": []
+  },
+  "external_publication": [
+    { "id": "production_deployment", "kind": "deployment", "required": true, "description": "Verify the hosted production deployment for the target commit and version." }
+  ],
+  "assistant_readiness": {
+    "must_inspect_status_before_claiming_ready": true,
+    "readiness_source": "project_owned_evidence",
+    "publication_requires_explicit_operator_approval": true
+  }
+}

@@ -31,6 +31,7 @@ from .audit import audit_payload
 from .bootstrap import bootstrap_payload
 from .config import find_repo_root
 from .lint import lint_payload
+from .release import release_status_payload
 from .update_check import get_update_info
 
 
@@ -3900,6 +3901,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/ci-status":
             self._send_json({"ok": True, "payload": ci_status_payload(self.server.repo_root)})
+            return
+        if route == "/api/release-status":
+            self._send_json({"ok": True, "payload": release_status_payload(self.server.repo_root)})
             return
         if route == "/api/cdx-status":
             self._send_json({"ok": True, "payload": cdx_status_payload(self.server.repo_root)})

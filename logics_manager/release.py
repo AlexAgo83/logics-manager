@@ -15,7 +15,7 @@ from .cli_output import render_payload
 
 CONTRACT_PATH = Path("logics/release/contract.json")
 GATE_STATUSES = {"pending", "passed", "failed", "stale", "skipped", "not_configured", "blocked"}
-SOURCE_EVIDENCE_KINDS = {"command", "file", "git"}
+SOURCE_EVIDENCE_KINDS = {"command", "file", "git", "ci"}
 PUBLICATION_EVIDENCE_KINDS = {"github_release", "external"}
 EVIDENCE_KINDS = {"command", "file", "git", "ci", "github_release", "external"}
 

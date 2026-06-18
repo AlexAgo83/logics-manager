@@ -1,10 +1,10 @@
 ## item_429_remove_mandatory_mermaid_from_logics_workflow_docs - Remove mandatory Mermaid from Logics workflow docs
 > From version: 2.9.8
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -84,8 +84,8 @@ flowchart TD
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_247_remove_mandatory_mermaid_from_logics_workflow_docs.md`
-- Primary task(s): (none yet)
+- Request: `req_247_remove_mandatory_mermaid_from_logics_workflow_docs`
+- Primary task(s): `task_223_remove_mandatory_mermaid_from_logics_workflow_docs`
 
 # AI Context
 - Summary: Remove mandatory Mermaid from Logics workflow docs
@@ -101,6 +101,10 @@ flowchart TD
 - Hybrid rationale: Derived from request `req_247_remove_mandatory_mermaid_from_logics_workflow_docs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_247_remove_mandatory_mermaid_from_logics_workflow_docs.md`.
 - Generated locally by logics-manager.
+- Task `task_223_remove_mandatory_mermaid_from_logics_workflow_docs` was finished via `logics-manager flow finish task` on 2026-06-18.
 
 # Tasks
 - `task_223_remove_mandatory_mermaid_from_logics_workflow_docs`
+
+# Validation
+- Covered by targeted flow generation, lint, repair, sync refresh, MCP mutation tests plus source lint/audit.

@@ -151,11 +151,18 @@ small set of request, backlog, or task refs. The command deduplicates each
 ref's direct neighborhood and supports `--mode diff-first` when recent changes
 matter.
 
-For targeted hygiene repair, use
+Workflow Mermaid blocks in request, backlog, and task docs are optional legacy
+presentation. The source of truth is the structured Markdown: indicators,
+lineage links, acceptance criteria, validation records, and `# Links` sections.
+For generated relationship views, use `logics-manager sync export-graph` or the
+viewer instead of maintaining diagrams by hand.
+
+For targeted legacy hygiene, use
 `logics-manager sync refresh-mermaid-signatures <refs-or-paths...>` or
-`--changed-only` to avoid unrelated workflow diffs. For end-of-delivery cleanup,
-use `logics-manager flow closeout <task>` with validation evidence plus
-`--lint --audit` when you want the command to run the gates before reporting.
+`--changed-only` to refresh signatures only when Mermaid blocks already exist;
+the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
+`logics-manager flow closeout <task>` with validation evidence plus `--lint
+--audit` when you want the command to run the gates before reporting.
 
 ### Local Browser Viewer
 

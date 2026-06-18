@@ -827,23 +827,7 @@ def _workflow_mermaid_block(kind: str, signature: str) -> list[str]:
 
 
 def _with_workflow_mermaid_overview(kind: str, content: str) -> str:
-    if kind == "task":
-        return content
-    lines = content.rstrip().splitlines()
-    signature = expected_workflow_mermaid_signature(kind, lines)
-    if not signature:
-        return content
-    block = _workflow_mermaid_block(kind, signature)
-    heading = {"request": "Context", "backlog": "Scope", "task": "Backlog"}[kind]
-    insert_at = len(lines)
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == heading.lower():
-            insert_at = idx + 1
-            while insert_at < len(lines) and not lines[insert_at].startswith("# "):
-                insert_at += 1
-            break
-    updated = [*lines[:insert_at], "", *block, "", *lines[insert_at:]]
-    return "\n".join(updated).rstrip() + "\n"
+    return content
 
 
 def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
@@ -1024,9 +1008,7 @@ def _mermaid_closeout_issue(path: Path, kind: str) -> str | None:
     text = path.read_text(encoding="utf-8")
     match = re.search(r"```mermaid\s*\n(.*?)\n```", text, flags=re.DOTALL)
     if match is None:
-        if kind == "task":
-            return None
-        return "missing Mermaid overview block"
+        return None
     signature_match = re.search(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", match.group(1), flags=re.MULTILINE)
     expected = expected_workflow_mermaid_signature(kind, text.splitlines())
     if signature_match is None:
@@ -1399,11 +1381,7 @@ def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -
         path, kind = _resolve_any_workflow_source(repo_root, ref)
         before = path.read_text(encoding="utf-8")
         if "```mermaid" not in before:
-            repaired = _with_workflow_mermaid_overview(kind, before)
-            if repaired != before:
-                changed_paths.add(path.relative_to(repo_root))
-                if not dry_run:
-                    path.write_text(repaired, encoding="utf-8")
+            continue
         else:
             signature = expected_workflow_mermaid_signature(kind, before.splitlines())
             repaired = re.sub(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", f"%% logics-signature: {signature}", before, count=1, flags=re.MULTILINE)
@@ -2300,7 +2278,7 @@ def build_parser() -> argparse.ArgumentParser:
     repair_links.add_argument("--dry-run", action="store_true")
     repair_links.set_defaults(func=cmd_repair_links)
 
-    repair_mermaid = repair_sub.add_parser("mermaid", help="Insert or refresh workflow Mermaid signatures.")
+    repair_mermaid = repair_sub.add_parser("mermaid", help="Refresh legacy workflow Mermaid signatures when blocks are present.")
     repair_mermaid.add_argument("--refs", nargs="+", required=True)
     repair_mermaid.add_argument("--verify-closeout")
     repair_mermaid.add_argument("--format", choices=("text", "json"), default="text")

@@ -488,7 +488,7 @@ def _mermaid_warnings(kind_name: str, lines: list[str]) -> list[str]:
     text = "\n".join(lines)
     match = re.search(r"```mermaid\s*\n(.*?)\n```", text, flags=re.DOTALL)
     if match is None:
-        return ["missing Mermaid overview block"]
+        return []
     block = match.group(1)
     warnings: list[str] = []
     signature_match = re.search(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", block, flags=re.MULTILINE)

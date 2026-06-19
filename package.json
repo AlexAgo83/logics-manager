@@ -2,7 +2,7 @@
   "name": "@grifhinz/logics-manager",
   "displayName": "Logics Orchestrator",
   "description": "Visual orchestration for Logics workflows inside VS Code.",
-  "version": "2.11.1",
+  "version": "2.11.3",
   "publisher": "cdx-logics",
   "icon": "clients/shared-web/media/icon.png",
   "repository": {
@@ -118,6 +118,7 @@
   },
   "scripts": {
     "view": "node scripts/dev/run-viewer.mjs",
+    "view:lan-rw": "node scripts/dev/run-viewer.mjs --lan --lan-rw",
     "clean:local-artifacts": "node scripts/dev/clean-local-artifacts.mjs",
     "sync:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs",
     "check:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs --check",

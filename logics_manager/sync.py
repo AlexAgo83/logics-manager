@@ -38,6 +38,12 @@ COMPANION_KINDS = {
     "prod": {"directory": "logics/product", "kind": "product"},
     "adr": {"directory": "logics/architecture", "kind": "architecture"},
 }
+INDICATOR_TARGET_KINDS = {
+    **DOC_KINDS,
+    "product": {"directory": "logics/product", "prefix": "prod"},
+    "architecture": {"directory": "logics/architecture", "prefix": "adr"},
+    "spec": {"directory": "logics/specs", "prefix": ("spec", "req")},
+}
 
 _find_repo_root = find_repo_root
 
@@ -60,7 +66,7 @@ def _read_text(repo_root: Path, path: Path) -> str:
     if common != root:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.")
     absolute = Path(absolute_name)
-    approved_dirs = {Path(os.path.realpath(repo_root / kind["directory"])) for kind in DOC_KINDS.values()}
+    approved_dirs = {Path(os.path.realpath(repo_root / str(kind["directory"]))) for kind in INDICATOR_TARGET_KINDS.values()}
     if absolute.parent not in approved_dirs:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.")
     return absolute.read_text(encoding="utf-8")
@@ -449,25 +455,35 @@ def _build_context_pack(
     return payload
 
 
-def _resolve_target_docs(repo_root: Path, sources: list[str]) -> list[tuple[str, Path]]:
+def _prefixes(kind: dict[str, object]) -> tuple[str, ...]:
+    prefix = kind["prefix"]
+    if isinstance(prefix, tuple):
+        return tuple(str(item) for item in prefix)
+    return (str(prefix),)
+
+
+def _resolve_target_docs(repo_root: Path, sources: list[str], *, kinds: dict[str, dict[str, object]] | None = None) -> list[tuple[str, Path]]:
+    search_kinds = kinds or DOC_KINDS
     candidates: dict[str, tuple[str, Path]] = {}
     if not sources:
         targets: list[tuple[str, Path]] = []
-        for kind_name, kind in DOC_KINDS.items():
-            directory = repo_root / kind["directory"]
+        for kind_name, kind in search_kinds.items():
+            directory = repo_root / str(kind["directory"])
             if not directory.is_dir():
                 continue
-            for path in sorted(directory.glob(f"{kind['prefix']}_*.md")):
-                targets.append((kind_name, path))
+            for prefix in _prefixes(kind):
+                for path in sorted(directory.glob(f"{prefix}_*.md")):
+                    targets.append((kind_name, path))
         return targets
 
-    for kind_name, kind in DOC_KINDS.items():
-        directory = repo_root / kind["directory"]
+    for kind_name, kind in search_kinds.items():
+        directory = repo_root / str(kind["directory"])
         if not directory.is_dir():
             continue
-        for path in sorted(directory.glob(f"{kind['prefix']}_*.md")):
-            candidates[path.relative_to(repo_root).as_posix()] = (kind_name, path)
-            candidates[path.stem] = (kind_name, path)
+        for prefix in _prefixes(kind):
+            for path in sorted(directory.glob(f"{prefix}_*.md")):
+                candidates[path.relative_to(repo_root).as_posix()] = (kind_name, path)
+                candidates[path.stem] = (kind_name, path)
 
     resolved: list[tuple[str, Path]] = []
     for source in sources:
@@ -518,7 +534,7 @@ def _default_section_names(kind: str) -> list[str]:
 
 
 def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 4000, sections: list[str] | None = None) -> dict[str, object]:
-    targets = _resolve_target_docs(repo_root, [source])
+    targets = _resolve_target_docs(repo_root, [source], kinds=INDICATOR_TARGET_KINDS)
     if len(targets) != 1:
         raise SystemExit(f"Expected one workflow doc target for `{source}`.")
     kind, path = targets[0]
@@ -695,7 +711,7 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
     if not cleaned:
         raise SystemExit("At least one workflow indicator is required.")
 
-    targets = _resolve_target_docs(repo_root, [source])
+    targets = _resolve_target_docs(repo_root, [source], kinds=INDICATOR_TARGET_KINDS)
     if len(targets) != 1:
         raise SystemExit(f"Expected one workflow doc target for `{source}`.")
     kind, path = targets[0]
@@ -710,7 +726,8 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
         changed = changed or key_changed
     if changed and not dry_run:
         path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-        refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
+        if kind in DOC_KINDS:
+            refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
     return {
         "path": path.relative_to(repo_root).as_posix(),
         "ref": path.stem,

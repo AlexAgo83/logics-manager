@@ -1820,6 +1820,99 @@
   color: var(--vscode-descriptionForeground, #aaaaaa);
 }
 
+.viewer-themed-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 48%);
+}
+
+.viewer-themed-modal__panel {
+  width: min(440px, 100%);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #d4d4d4));
+  box-shadow: 0 18px 48px rgb(0 0 0 / 42%);
+}
+
+.viewer-themed-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333333);
+}
+
+.viewer-themed-modal__title {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 650;
+}
+
+.viewer-themed-modal__copy {
+  margin: 5px 0 0;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.viewer-themed-modal__close {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-icon-foreground, #c5c5c5);
+  cursor: pointer;
+}
+
+.viewer-themed-modal__close:hover,
+.viewer-themed-modal__close:focus-visible {
+  border-color: var(--vscode-focusBorder, #0078d4);
+  background: var(--vscode-toolbar-hoverBackground, rgb(255 255 255 / 8%));
+  outline: none;
+}
+
+.viewer-themed-modal__body {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.viewer-themed-modal__input,
+.viewer-themed-modal__select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--vscode-input-border, var(--vscode-panel-border, #333333));
+  border-radius: 4px;
+  background: var(--vscode-input-background, #1f1f1f);
+  color: var(--vscode-input-foreground, #d4d4d4);
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.viewer-themed-modal__input:focus,
+.viewer-themed-modal__select:focus {
+  border-color: var(--vscode-focusBorder, #0078d4);
+  outline: none;
+}
+
+.viewer-themed-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px 18px;
+}
+
 .viewer-workspace__image {
   max-width: 100%;
   max-height: min(70vh, 760px);

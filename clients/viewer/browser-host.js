@@ -3283,11 +3283,14 @@
     }
     term.attachCustomKeyEventHandler((ev) => {
       if (ev.type === "keydown" && ev.key === "Enter" && ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
-        // Send a bare line feed (0x0a / Ctrl+J) for Shift+Enter. Prompt UIs
-        // such as Claude and Codex treat plain Enter (\r) as submit and a
-        // line feed as "insert newline"; the previous ESC+CR (Meta+Enter)
-        // was not recognised by them and fell through to a submit.
-        writeWorkshopTerminalInput(entry.id, "\n");
+        // Insert a newline instead of submitting. Prompt UIs such as Claude
+        // and Codex read a bare \n or ESC+CR as "submit"; they only treat a
+        // line break as a newline when it arrives as bracketed paste (the
+        // same path a real multi-line paste takes). Wrap the carriage return
+        // in paste markers when the app has bracketed paste enabled (which
+        // these TUIs do), and fall back to a plain CR otherwise.
+        const bracketed = Boolean(term.modes && term.modes.bracketedPasteMode);
+        writeWorkshopTerminalInput(entry.id, bracketed ? "\x1b[200~\r\x1b[201~" : "\r");
         return false;
       }
       return true;

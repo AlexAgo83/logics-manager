@@ -238,7 +238,7 @@
     sessionId: "",
     strengthId: "standard",
     missionInputs: {},
-    runMode: "background",
+    runMode: "terminal",
     promptOverride: "",
     catalog: null,
     statusPayload: null,
@@ -2980,8 +2980,8 @@
       <details class="viewer-cdx__menu viewer-workshop__command-run-menu">
         <summary class="btn viewer-workshop__command-run-summary" title="Choose how to run ${name}">Run</summary>
         <div class="viewer-cdx__menu-panel viewer-workshop__command-run-panel" role="menu" aria-label="Run options for ${name}">
-          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-workshop-command-run="${id}">Run here</button>
           <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-workshop-command-run-terminal="${id}">New terminal</button>
+          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-workshop-command-run="${id}">Run here</button>
         </div>
       </details>
     `;
@@ -3434,7 +3434,11 @@
         // submit), and returning false suppresses xterm's own handling.
         if (typeof ev.preventDefault === "function") ev.preventDefault();
         if (typeof ev.stopPropagation === "function") ev.stopPropagation();
-        writeWorkshopTerminalInput(entry.id, "\x1b[13;2u");
+        // Send the Shift+Enter newline, then a form feed (Ctrl+L) in the same
+        // ordered write so the app inserts the newline and immediately
+        // clears/redraws — multi-line composition otherwise redraws over the
+        // same line and leaves artifacts.
+        writeWorkshopTerminalInput(entry.id, "\x1b[13;2u\f");
         return false;
       }
       return true;

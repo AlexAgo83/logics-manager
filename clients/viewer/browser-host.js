@@ -258,6 +258,12 @@
   let cdxCloseTarget = null;
   let viewerPreferences = readViewerPreferences();
   let autoRefreshIntervalForcedByLaunch = false;
+  // View-transition guard. Prevents a slow async render (a previous document
+  // fetch, or a silent auto-refresh in flight) from committing its DOM write
+  // after the operator has already opened a different screen.
+  let viewSeq = 0; // bumps on every view transition (operator or silent refresh)
+  let userViewSeq = 0; // bumps only on operator-initiated transitions
+  let activeUserViewController = null;
   const cdxStatusColumns = [
     { id: "session", label: "SESSION" },
     { id: "provider", label: "PROV." },
@@ -1532,6 +1538,44 @@
     if (push) push.hidden = !isGit;
   }
 
+  // Open a new view transition. `silent` transitions (auto-refresh) are
+  // subordinate: they never abort an operator's in-flight fetch and never
+  // commit once the operator has navigated elsewhere. Operator transitions
+  // abort the previous operator fetch so the latest navigation always wins.
+  function beginView(options = {}) {
+    const silent = Boolean(options.silent);
+    const seq = ++viewSeq;
+    let userSeq = userViewSeq;
+    let signal;
+    if (!silent) {
+      userSeq = ++userViewSeq;
+      if (activeUserViewController) {
+        activeUserViewController.abort();
+      }
+      activeUserViewController = new AbortController();
+      signal = activeUserViewController.signal;
+    }
+    return { seq, userSeq, silent, signal };
+  }
+
+  // True when a newer transition has superseded `view` and it must not commit.
+  function isViewStale(view) {
+    if (!view) {
+      return false; // untracked callers always commit
+    }
+    if (view.silent) {
+      // Subordinate: yield to any later transition, and to any operator nav.
+      return view.userSeq !== userViewSeq || view.seq !== viewSeq;
+    }
+    // Operator transition: superseded only by a later operator transition.
+    // A silent auto-refresh must never suppress the operator's own commit.
+    return view.userSeq !== userViewSeq;
+  }
+
+  function isAbortError(error) {
+    return Boolean(error) && (error.name === "AbortError" || error.code === 20);
+  }
+
   function setDocument(titleText, html) {
     cdxCloseTarget = null;
     const panel = documentPanel();
@@ -2448,37 +2492,62 @@
     `;
   }
 
-  async function showCorpusInsights() {
-    const [lintResponse, auditResponse] = await Promise.all([fetch("/api/lint"), fetch("/api/audit")]);
-    const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
-    setDocument("Corpus insights", buildCorpusInsights(lintData, auditData));
-    setMeta("Corpus insights loaded.");
+  async function showCorpusInsights(options = {}) {
+    const view = options.view || beginView();
+    try {
+      const [lintResponse, auditResponse] = await Promise.all([
+        fetch("/api/lint", { signal: view.signal }),
+        fetch("/api/audit", { signal: view.signal })
+      ]);
+      const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
+      if (isViewStale(view)) {
+        return;
+      }
+      setDocument("Corpus insights", buildCorpusInsights(lintData, auditData));
+      setMeta("Corpus insights loaded.");
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
   }
 
-  async function showDocument(item) {
+  async function showDocument(item, view) {
     if (!item || !item.relPath) {
       return;
     }
-    const response = await fetch(`/api/doc?path=${encodeURIComponent(item.relPath)}`);
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      setMeta(data.error || "Unable to read document.");
-      return;
+    const tracked = view || beginView();
+    try {
+      const response = await fetch(`/api/doc?path=${encodeURIComponent(item.relPath)}`, { signal: tracked.signal });
+      const data = await response.json();
+      if (isViewStale(tracked)) {
+        return;
+      }
+      if (!response.ok || !data.ok) {
+        setMeta(data.error || "Unable to read document.");
+        return;
+      }
+      const api = markdownApi();
+      let markdown = data.document.content || "";
+      if (api && typeof api.stripLeadingDocumentFrontMatter === "function") {
+        markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
+      }
+      const html = api && typeof api.renderMarkdownToHtml === "function"
+        ? api.renderMarkdownToHtml(markdown)
+        : `<pre>${escapeHtml(markdown)}</pre>`;
+      setDocument(data.document.path, html);
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
     }
-    const api = markdownApi();
-    let markdown = data.document.content || "";
-    if (api && typeof api.stripLeadingDocumentFrontMatter === "function") {
-      markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
-    }
-    const html = api && typeof api.renderMarkdownToHtml === "function"
-      ? api.renderMarkdownToHtml(markdown)
-      : `<pre>${escapeHtml(markdown)}</pre>`;
-    setDocument(data.document.path, html);
   }
 
-  async function showDocumentByPath(relPath) {
+  async function showDocumentByPath(relPath, view) {
     const item = findItemByPath(relPath) || { relPath, title: relPath, id: relPath };
-    await showDocument(item);
+    await showDocument(item, view);
   }
 
   async function editDocument(item) {
@@ -2574,12 +2643,26 @@
     `;
   }
 
-  async function showHealth() {
+  async function showHealth(options = {}) {
+    const view = options.view || beginView();
     setMeta("Checking health...");
-    const [lintResponse, auditResponse] = await Promise.all([fetch("/api/lint"), fetch("/api/audit")]);
-    const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
-    setDocument("Validation health", renderHealthSummary(lintData, auditData));
-    setMeta("Health loaded.");
+    try {
+      const [lintResponse, auditResponse] = await Promise.all([
+        fetch("/api/lint", { signal: view.signal }),
+        fetch("/api/audit", { signal: view.signal })
+      ]);
+      const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
+      if (isViewStale(view)) {
+        return;
+      }
+      setDocument("Validation health", renderHealthSummary(lintData, auditData));
+      setMeta("Health loaded.");
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
   }
 
   function workspaceParentPath(path) {
@@ -2737,8 +2820,12 @@
     if (!options.silent) {
       setMeta("Loading workspace...");
     }
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
     const tree = await fetchWorkspaceTree("");
     const preview = await fetchWorkspacePreview("");
+    if (isViewStale(view)) {
+      return;
+    }
     setDocument("Explorer", renderWorkspace(tree, preview));
     setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
   }
@@ -4879,12 +4966,24 @@
     if (!options.silent) {
       setMeta("Checking CDX status...");
     }
-    const response = await fetch("/api/cdx-status");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/cdx-status", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (response.status === 404) {
       setDocument("CDX status", renderCdxStatus({
@@ -4923,12 +5022,24 @@
     if (!options.silent) {
       setMeta("Loading CDX missions...");
     }
-    const response = await fetch("/api/cdx-status");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/cdx-status", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX mission status.");
@@ -5033,12 +5144,24 @@
     if (!options.silent) {
       setMeta("Checking CDX runs...");
     }
-    const response = await fetch("/api/cdx-runs");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/cdx-runs", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX runs.");
@@ -5047,13 +5170,26 @@
     setMeta(options.silent ? "CDX runs refreshed." : "CDX runs loaded.");
   }
 
-  async function showCdxReport(runId) {
+  async function showCdxReport(runId, options = {}) {
     if (!runId) {
       return;
     }
     setMeta("Loading CDX report...");
-    const response = await fetch(`/api/cdx-run-report?${new URLSearchParams({ runId }).toString()}`);
-    const data = await response.json();
+    const view = options.view || beginView();
+    let response;
+    let data;
+    try {
+      response = await fetch(`/api/cdx-run-report?${new URLSearchParams({ runId }).toString()}`, { signal: view.signal });
+      data = await response.json();
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
+    }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX report.");
     }
@@ -5291,12 +5427,24 @@
     if (!options.silent) {
       setMeta("Checking release workflow state...");
     }
-    const response = await fetch("/api/release-status");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/release-status", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load release workflow state.");
@@ -5321,12 +5469,24 @@
     if (!options.silent) {
       setMeta("Checking CI status...");
     }
-    const response = await fetch("/api/ci-status");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/ci-status", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (response.status === 404) {
       setDocument("CI status", renderCiStatus({
@@ -5658,12 +5818,24 @@
     if (!options.silent) {
       setMeta("Checking Git status...");
     }
-    const response = await fetch("/api/git-status");
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
     let data = {};
     try {
-      data = await response.json();
-    } catch {
-      data = {};
+      response = await fetch("/api/git-status", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
     }
     if (response.status === 404) {
       setDocument("Git status", renderGitStatus({

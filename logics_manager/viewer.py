@@ -2924,6 +2924,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-toggle",
         "/api/cdx-remove",
         "/api/update-status",
+        "/api/lan/devices/revoke",
     }
 )
 
@@ -3873,6 +3874,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         device_id = str(body.get("deviceId") or "")
         if not device_id:
             self._send_error_json(HTTPStatus.BAD_REQUEST, "deviceId is required.")
+            return
+        paired_device = self._paired_device_for_request(parsed)
+        if not self._client_is_loopback() and (paired_device is None or paired_device.id != device_id):
+            self._send_error_json(HTTPStatus.FORBIDDEN, "Device can only revoke its own pairing.")
             return
         removed = registry.revoke(device_id)
         if not removed:

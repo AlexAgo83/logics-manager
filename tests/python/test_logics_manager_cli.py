@@ -10,6 +10,7 @@ import threading
 import tomllib
 from http.client import HTTPConnection
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -593,6 +594,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/workshop-command-start",
         "/api/workshop-command-stop",
         "/api/cdx-remove",
+        "/api/lan/devices/revoke",
     }
     assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
 
@@ -605,6 +607,34 @@ def test_viewer_lan_auth_helpers_accept_token_and_loopback() -> None:
     assert handler._client_is_loopback() is False
     handler.client_address = ("::ffff:127.0.0.1", 0)
     assert handler._client_is_loopback() is True
+
+
+def test_viewer_lan_device_revoke_requires_own_pairing(tmp_path: Path) -> None:
+    registry = viewer_module.LanDeviceRegistry(tmp_path / "devices.json")
+    own = registry.register("own", "own-token")
+    other = registry.register("other", "other-token")
+    handler = viewer_module.LogicsViewerRequestHandler.__new__(viewer_module.LogicsViewerRequestHandler)
+    handler.server = SimpleNamespace(device_registry=registry)
+    handler._client_is_loopback = lambda: False  # type: ignore[method-assign]
+    handler._paired_device_for_request = lambda _parsed: own  # type: ignore[method-assign]
+    errors: list[tuple[object, str]] = []
+    responses: list[dict[str, object]] = []
+    handler._send_error_json = lambda status, message: errors.append((status, message))  # type: ignore[method-assign]
+    handler._send_json = lambda payload: responses.append(payload)  # type: ignore[method-assign]
+
+    handler._read_json_body = lambda: {"deviceId": other.id}  # type: ignore[method-assign]
+    handler._handle_device_revoke(object())
+
+    assert errors == [(viewer_module.HTTPStatus.FORBIDDEN, "Device can only revoke its own pairing.")]
+    assert registry.find_matching("other-token") is not None
+
+    errors.clear()
+    handler._read_json_body = lambda: {"deviceId": own.id}  # type: ignore[method-assign]
+    handler._handle_device_revoke(object())
+
+    assert errors == []
+    assert responses[-1]["ok"] is True
+    assert registry.find_matching("own-token") is None
 
 
 def test_viewer_lan_share_url_renders_qr_or_textual_fallback() -> None:

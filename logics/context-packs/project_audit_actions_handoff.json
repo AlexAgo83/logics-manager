@@ -9,13 +9,11 @@
     {
       "kind": "product",
       "linked_refs": {
+        "adr": [
+          "adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync"
+        ],
         "item": [
-          "item_439_resolve_npm_audit_blocking_dependency_findings",
-          "item_440_make_ci_check_enforce_npm_audit_policy",
-          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
-          "item_442_add_local_artifact_cleanup_command",
-          "item_443_target_coverage_gaps_in_high_risk_modules",
-          "item_444_document_lifecycle_test_prerequisites_and_execution_path"
+          "item_439_resolve_npm_audit_blocking_dependency_findings"
         ],
         "prod": [
           "prod_024_project_audit_remediation_plan"
@@ -61,7 +59,7 @@
       "path": "logics/request/req_250_address_project_audit_follow_up_actions.md",
       "ref": "req_250_address_project_audit_follow_up_actions",
       "schema_version": "1.0",
-      "status": "Draft",
+      "status": "Done",
       "title": "Address project audit follow-up actions"
     },
     {
@@ -89,7 +87,7 @@
       "path": "logics/backlog/item_439_resolve_npm_audit_blocking_dependency_findings.md",
       "ref": "item_439_resolve_npm_audit_blocking_dependency_findings",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Resolve npm audit blocking dependency findings"
     },
     {
@@ -117,7 +115,7 @@
       "path": "logics/backlog/item_440_make_ci_check_enforce_npm_audit_policy.md",
       "ref": "item_440_make_ci_check_enforce_npm_audit_policy",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Make ci check enforce npm audit policy"
     },
     {
@@ -145,7 +143,7 @@
       "path": "logics/backlog/item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards.md",
       "ref": "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Plan viewer surface modularization and asset sync safeguards"
     },
     {
@@ -173,7 +171,7 @@
       "path": "logics/backlog/item_442_add_local_artifact_cleanup_command.md",
       "ref": "item_442_add_local_artifact_cleanup_command",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Add local artifact cleanup command"
     },
     {
@@ -201,7 +199,7 @@
       "path": "logics/backlog/item_443_target_coverage_gaps_in_high_risk_modules.md",
       "ref": "item_443_target_coverage_gaps_in_high_risk_modules",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Target coverage gaps in high-risk modules"
     },
     {
@@ -229,7 +227,7 @@
       "path": "logics/backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md",
       "ref": "item_444_document_lifecycle_test_prerequisites_and_execution_path",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Document lifecycle test prerequisites and execution path"
     },
     {
@@ -262,16 +260,16 @@
       "path": "logics/tasks/task_233_orchestrate_project_audit_remediation.md",
       "ref": "task_233_orchestrate_project_audit_remediation",
       "schema_version": "1.0",
-      "status": "Ready",
+      "status": "Done",
       "title": "Orchestrate project audit remediation"
     }
   ],
   "estimates": {
-    "char_count": 8161,
+    "char_count": 7947,
     "companion_doc_count": 1,
     "doc_count": 8
   },
-  "generated_at": "2026-06-19T18:12:03Z",
+  "generated_at": "2026-06-19T18:23:51Z",
   "handoff": {
     "companion_doc_count": 1,
     "enabled": true,
@@ -377,7 +375,10 @@
     {
       "items": [
         "- Run `python3 -m logics_manager lint --require-status`.",
-        "- Run scaffold command tests."
+        "- Run scaffold command tests.",
+        "- implemented audit remediation in staged commits c2d1c6a, 93ec2dd, c5a1a6b, ff9fbde; npm run audit:ci passed; npm test -- tests/cleanLocalArtifacts.test.ts passed; npm test -- tests/renderMarkdown.test.ts passed; npm run test:lifecycle skipped explicitly unless PLUGIN_LIFECYCLE_TESTS=1; npm run docs:check passed; npm run test:coverage passed; logics-manager lint passed; logics-manager audit passed",
+        "- Finish workflow executed on 2026-06-19.",
+        "- Linked backlog/request close verification passed."
       ],
       "path": "logics/tasks/task_233_orchestrate_project_audit_remediation.md",
       "ref": "task_233_orchestrate_project_audit_remediation"

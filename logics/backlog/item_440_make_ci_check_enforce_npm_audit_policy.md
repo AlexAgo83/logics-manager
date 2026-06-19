@@ -1,10 +1,10 @@
 ## item_440_make_ci_check_enforce_npm_audit_policy - Make ci check enforce npm audit policy
 > From version: 2.11.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Validation gates
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -29,6 +29,9 @@
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: `npm run ci:check` fails when `npm run audit:ci` has blocking findings.
 - request-AC7 -> This backlog slice. Proof: AC2: `npm run ci:check` passes only when Logics validation, tests, package validation, and npm audit policy all pass.
+- request-AC4 -> This backlog slice. Evidence needed: Ignored local build, smoke, cache, and graph artifacts can be cleaned with a documented, bounded command.
+- request-AC5 -> This backlog slice. Evidence needed: Low-coverage high-risk modules have targeted tests or explicit coverage goals tied to observable behavior.
+- request-AC6 -> This backlog slice. Evidence needed: Lifecycle/integration tests have documented prerequisites and a clear path for optional or scheduled execution.
 
 # Decision framing
 - Product framing: Not needed
@@ -49,3 +52,9 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Tasks
+- `task_233_orchestrate_project_audit_remediation`
+
+# Notes
+- Task `task_233_orchestrate_project_audit_remediation` was finished via `logics-manager flow finish task` on 2026-06-19.

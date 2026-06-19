@@ -2,7 +2,7 @@
 > Date: 2026-06-19
 > Status: Proposed
 > Related request: `req_250_address_project_audit_follow_up_actions`
-> Related backlog: `item_439_resolve_npm_audit_blocking_dependency_findings`, `item_440_make_ci_check_enforce_npm_audit_policy`, `item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards`, `item_442_add_local_artifact_cleanup_command`, `item_443_target_coverage_gaps_in_high_risk_modules`, `item_444_document_lifecycle_test_prerequisites_and_execution_path`
+> Related backlog: `item_439_resolve_npm_audit_blocking_dependency_findings`
 > Related task: `task_233_orchestrate_project_audit_remediation`
 > Related architecture: `adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,6 +48,6 @@ flowchart TD
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_250_address_project_audit_follow_up_actions`
+- Product back-reference: `item_439_resolve_npm_audit_blocking_dependency_findings`
 - Task back-reference: `task_233_orchestrate_project_audit_remediation`
 - Architecture back-reference: `adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync`

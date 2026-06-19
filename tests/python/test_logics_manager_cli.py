@@ -2169,6 +2169,44 @@ def test_viewer_status_endpoint_caches_and_revalidates_with_etag(
         thread.join(timeout=5)
 
 
+def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    calls: dict[str, int] = {"git": 0, "ci": 0, "cdx": 0, "cdxRuns": 0}
+
+    def make(name: str, value: dict[str, object]):
+        def producer(repo_root: Path) -> dict[str, object]:
+            calls[name] += 1
+            return value
+        return producer
+
+    monkeypatch.setattr(viewer_module, "git_status_payload", make("git", {"state": "ok"}))
+    monkeypatch.setattr(viewer_module, "ci_status_payload", make("ci", {"visible": True}))
+    monkeypatch.setattr(viewer_module, "cdx_status_payload", make("cdx", {"state": "ok"}))
+    monkeypatch.setattr(viewer_module, "cdx_runs_payload", make("cdxRuns", {"runs": []}))
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/status")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))["payload"]
+        assert response.status == 200
+        assert set(payload) == {"git", "ci", "cdx", "cdxRuns"}
+        assert payload["git"]["state"] == "ok"
+
+        # An individual endpoint hit within the TTL reuses the shared component
+        # computed for the consolidated response (no second git computation).
+        conn.request("GET", "/api/git-status")
+        conn.getresponse().read()
+        assert calls["git"] == 1
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     sibling = tmp_path / "cdx-manager"

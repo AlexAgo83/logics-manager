@@ -5428,8 +5428,13 @@
     if (plan.sessionId) {
       latestCdxMissionState.sessionId = plan.sessionId;
     }
+    // The plan command targets the background runner, which parses a single
+    // --json blob emitted only when the run finishes. In a PTY that reads as a
+    // black screen for the whole run, so drop --json to stream human-readable
+    // progress instead.
+    const terminalCommand = plan.command.filter((arg) => arg !== "--json");
     const terminalId = await spawnWorkshopTerminal({
-      command: plan.command,
+      command: terminalCommand,
       label: `cdx mission ${plan.missionId || latestCdxMissionState.missionId}`
     });
     const launched = Boolean(terminalId);

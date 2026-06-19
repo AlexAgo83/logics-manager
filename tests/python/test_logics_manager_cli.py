@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from importlib import metadata as importlib_metadata
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -597,6 +598,21 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/lan/devices/revoke",
     }
     assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
+
+
+def test_viewer_post_routes_are_classified_for_lan_gating() -> None:
+    source = (Path(__file__).resolve().parents[2] / "logics_manager" / "viewer.py").read_text(encoding="utf-8")
+    post_routes = set(re.findall(r'if parsed\.path == "(/api/[^"]+)"', source))
+    intentionally_bootstrap_or_readonly = {
+        "/api/lan/pair/start",
+        "/api/lan/pair/complete",
+        "/api/refresh",
+        "/api/cdx-mission-plan",
+        "/api/file-preview",
+    }
+    unclassified = post_routes - VIEWER_MUTATING_ROUTES - intentionally_bootstrap_or_readonly
+
+    assert unclassified == set()
 
 
 def test_viewer_lan_auth_helpers_accept_token_and_loopback() -> None:

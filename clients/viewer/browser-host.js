@@ -1427,6 +1427,7 @@
         latestCdxStatusPayload = payload.cdx;
         latestCdxStatusSignature = runtimeStatusSignature({ status: payload.cdx, runs: runsPayload });
         updateMainCdxBadge(payload.cdx, runsPayload);
+        refreshWorkshopTerminalUsage();
       }
     } else {
       updateMainCdxBadge(null);
@@ -3167,6 +3168,66 @@
     return document.querySelector("[data-viewer-workshop-terminal-stage]");
   }
 
+  // Detect the cdx session a terminal runs, by parsing its command label
+  // (e.g. "cdx resume work2") and correlating tokens with known session names.
+  function cdxSessionForTerminal(entry) {
+    const label = String(entry?.label || "").trim();
+    if (!label) return "";
+    const tokens = label.split(/\s+/).filter(Boolean);
+    if (tokens.length < 2 || tokens[0].toLowerCase() !== "cdx") return "";
+    const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
+    const names = new Set(
+      sessions
+        .map((session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim())
+        .filter(Boolean)
+    );
+    for (let i = 1; i < tokens.length; i += 1) {
+      if (names.has(tokens[i])) return tokens[i];
+    }
+    // Fallback when status is not loaded yet: first non-flag arg after the verb.
+    const candidate = tokens.slice(2).find((token) => token && !token.startsWith("-"));
+    return candidate || "";
+  }
+
+  // Remaining usage ({ percent, reset }) for a session name from latest status.
+  function cdxSessionUsage(sessionName) {
+    if (!sessionName) return null;
+    const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
+    const match = sessions.find(
+      (session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim() === sessionName
+    );
+    if (!match) return null;
+    return {
+      percent: cdxRemainingPct(match),
+      reset: formatCdxResetAt(cdxField(match, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
+    };
+  }
+
+  // A thin vertical bar showing remaining session usage, coloured by level.
+  function renderCdxUsageGauge(usage) {
+    if (!usage || usage.percent === null || usage.percent === undefined) return "";
+    const pct = Math.max(0, Math.min(100, usage.percent));
+    const tone = cdxRemainingClass(usage.percent);
+    const resetText = usage.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
+    const title = `CDX usage remaining: ${pct}%${resetText}`;
+    return `<span class="viewer-workshop__usage viewer-workshop__usage--${tone}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
+      <span class="viewer-workshop__usage-fill" style="height:${pct}%"></span>
+    </span>`;
+  }
+
+  // Re-render the terminal list when CDX usage changes so the gauges stay live
+  // without the operator opening the CDX status screen. Self-guards: only runs
+  // when the list is on screen and at least one terminal is a cdx session.
+  function refreshWorkshopTerminalUsage() {
+    if (!workshopTerminalListNode()) return;
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (cdxSessionForTerminal(entry)) {
+        renderWorkshopTerminalList();
+        return;
+      }
+    }
+  }
+
   function renderWorkshopTerminalList() {
     const node = workshopTerminalListNode();
     if (!(node instanceof HTMLElement)) return;
@@ -3195,8 +3256,16 @@
       const clearSpan = closing
         ? ""
         : `<span class="viewer-workshop__terminal-row-clear" data-viewer-workshop-terminal-clear="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Clear screen (Ctrl+L)" aria-label="Clear screen">⎚</span>`;
+      // When the terminal runs a cdx session, show the session name instead of
+      // the raw command and a discreet usage gauge next to it.
+      const cdxSession = cdxSessionForTerminal(entry);
+      const displayLabel = cdxSession || entry.label || entry.id;
+      const gauge = cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession)) : "";
       return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
-        <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.id)}</span>
+        <span class="viewer-workshop__terminal-row-main">
+          ${gauge}
+          <span class="viewer-workshop__terminal-row-label">${escapeHtml(displayLabel)}</span>
+        </span>
         ${stateBadge}
         <span class="viewer-workshop__terminal-row-controls">
           ${clearSpan}

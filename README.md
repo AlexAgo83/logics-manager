@@ -725,6 +725,7 @@ If the current plugin version is already published, `logics-manager assist next-
 - Strict Logics governance audit: `npm run audit:logics:strict`
 - README metadata drift check: `npm run docs:check`
 - Local browser viewer smoke: `logics-manager view --port 0 --open`
+- Plugin lifecycle sandbox checks: `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle`
 - Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
 - Security audit policy gate: `npm run audit:ci`
@@ -744,7 +745,21 @@ If the current plugin version is already published, `logics-manager assist next-
 
 `npm run test:viewer-smoke` writes `artifacts/local-viewer-smoke/summary.json`. A localhost socket bind denial is recorded as an explicit skipped result. CI still has non-skipped coverage for the viewer path: Linux/macOS-capable environments exercise Chrome or the JSDOM fallback, while Windows CI runs a server/API smoke that proves the shell and `/api/items` path without launching a browser.
 
+`npm run test:lifecycle` is an opt-in sandbox integration check for extension install, reinstall, and uninstall behavior. By default it exits 0 with an explicit skipped message. To run it for release validation, install the VS Code `code` CLI on `PATH`, ensure packaging works locally, then run `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle`. Treat a skipped lifecycle run as "not exercised", not as full integration coverage.
+
 Oversized runtime, viewer, and test files are tracked through `logics/architecture/adr_020_split_the_oversized_plugin_and_workflow_surfaces_into_focused_modules.md`. The decomposition rule is correctness-first: extract pure helpers and API contracts before cosmetic file-size work, keep entrypoints thin, and cover each seam with targeted Python, Vitest, or smoke tests before moving on.
+
+Current coverage goals are behavior-focused:
+
+| Hotspot | Goal |
+| --- | --- |
+| `logicsFlowOperations.ts` | Keep promotion, closeout, and validation command routing covered through user-visible success and failure paths. |
+| `logicsViewProvider.ts` | Cover refresh, command dispatch, and degraded bootstrap behavior before extracting orchestration helpers. |
+| `logicsViewDocumentController.ts` | Cover document open/read routing, missing-file handling, and safe preview fallbacks. |
+| `renderMarkdown.js` | Cover rendered Markdown semantics that users inspect directly: front matter stripping, escaping, task lists, tables, code fences, and Mermaid fallback. |
+| `hostApi.js` / `harnessApi.js` | Cover message contract shape, fallback behavior outside VS Code, and project-root harness transitions. |
+
+The enforced coverage floors are intentionally split by surface: `npm run test:coverage:src` guards extension source coverage and `npm run test:coverage:media` guards browser media coverage. Viewer behavior that is hard to measure meaningfully in unit coverage stays protected by browser-host tests and `npm run test:viewer-smoke`.
 
 CI runs compile, lint, tests, Logics docs lint, and VSIX packaging validation on every `push` and `pull_request` via `.github/workflows/ci.yml`.
 

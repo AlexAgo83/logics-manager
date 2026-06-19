@@ -14,17 +14,17 @@ const coverageReportsDirectory =
 const coverageThresholds =
   coverageTarget === "src"
     ? {
-      lines: 68,
-      statements: 68,
-      functions: 73,
-      branches: 62.4
+      lines: 72,
+      statements: 72,
+      functions: 78,
+      branches: 63
       }
     : coverageTarget === "media"
       ? {
-        lines: 75,
-        statements: 75,
-        functions: 75,
-        branches: 60
+        lines: 78,
+        statements: 78,
+        functions: 78,
+        branches: 64
       }
     : undefined;
 

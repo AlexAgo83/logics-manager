@@ -2391,6 +2391,50 @@ def test_viewer_update_status_accepts_absolute_repo_path(tmp_path: Path) -> None
         thread.join(timeout=5)
 
 
+@pytest.mark.parametrize(
+    ("rel_path", "next_status", "expected_kind"),
+    [
+        ("logics/product/prod_001_demo.md", "Accepted", "product"),
+        ("logics/architecture/adr_001_demo.md", "Accepted", "architecture"),
+        ("logics/specs/spec_001_demo.md", "Validated", "spec"),
+    ],
+)
+def test_viewer_update_status_resolves_companion_doc_paths(tmp_path: Path, rel_path: str, next_status: str, expected_kind: str) -> None:
+    doc_path = tmp_path / rel_path
+    doc_path.parent.mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        doc_path,
+        title="Demo companion",
+        kind=expected_kind,
+        status="Draft",
+        links=[],
+    )
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request(
+            "POST",
+            "/api/update-status",
+            body=json.dumps({"path": rel_path, "status": next_status}),
+            headers={"Content-Type": "application/json"},
+        )
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["path"] == rel_path
+        assert payload["payload"]["kind"] == expected_kind
+        assert payload["payload"]["updated_indicators"] == {"Status": next_status}
+        assert f"> Status: {next_status}" in doc_path.read_text(encoding="utf-8")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     sibling = tmp_path / "cdx-manager"

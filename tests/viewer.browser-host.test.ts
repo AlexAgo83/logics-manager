@@ -1166,6 +1166,35 @@ describe("local viewer browser host", () => {
     promptSpy.mockRestore();
   });
 
+  it("uses the paired device token when changing status from a LAN RW viewer", async () => {
+    const { dom, fetchCalls } = createViewerDom({
+      lanMode: true,
+      lanRwMode: true,
+      url: "https://192.168.1.42:8765/?t=share-token"
+    });
+    dom.window.localStorage.setItem("logics.lan.deviceToken", "device-token");
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-document-status")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    if (select) select.value = "Done";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const updateCall = fetchCalls.find((call) => call.url === "/api/update-status");
+    const headers = updateCall?.options?.headers as Headers | undefined;
+    expect(headers?.get("Authorization")).toBe("Bearer device-token");
+  });
+
   it("opens the selected document through the local edit endpoint", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

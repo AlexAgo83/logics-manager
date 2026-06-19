@@ -72,14 +72,22 @@
   captureLanTokenFromUrl();
 
   const originalFetch = window.fetch.bind(window);
-  window.fetch = (input, init) => {
+  function withLanAuthorization(input, init) {
     const token = getActiveToken();
-    if (!token) return originalFetch(input, init);
+    if (!token) return init;
     const next = init ? { ...init } : {};
     const headers = new Headers(next.headers || (input instanceof Request ? input.headers : undefined));
     if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
     next.headers = headers;
-    return originalFetch(input, next);
+    return next;
+  }
+
+  function viewerFetch(input, init) {
+    return originalFetch(input, withLanAuthorization(input, init));
+  }
+
+  window.fetch = (input, init) => {
+    return viewerFetch(input, init);
   };
 
   if (typeof window.EventSource === "function") {
@@ -2858,7 +2866,7 @@
       setMeta(`${item.id || item.relPath} is already ${normalized}.`);
       return;
     }
-    const response = await fetch("/api/update-status", {
+    const response = await viewerFetch("/api/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path: item.relPath, status: normalized })

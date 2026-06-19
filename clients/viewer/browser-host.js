@@ -3296,10 +3296,31 @@
     });
     entry.terminal = term;
     entry.fitAddon = fitAddon;
-    if (fitAddon) {
+    syncWorkshopTerminalSize(entry);
+    // Web fonts load asynchronously: once the real monospace font replaces the
+    // fallback, the cell metrics (and therefore the column count) change. Refit
+    // and re-sync the PTY, otherwise the TUI keeps wrapping against stale
+    // columns and redraws over the same line while you type.
+    if (document.fonts && typeof document.fonts.ready?.then === "function") {
+      document.fonts.ready.then(() => {
+        if (entry.terminal === term) syncWorkshopTerminalSize(entry);
+      }).catch(() => { /* noop */ });
+    }
+    // A bare window 'resize' listener misses container-only changes (sidebar
+    // toggle, panel layout, font-size class swaps). Observe the host element so
+    // the PTY size always tracks what is actually visible.
+    if (typeof window.ResizeObserver === "function") {
       try {
-        const dim = fitAddon.proposeDimensions();
-        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+        const observer = new window.ResizeObserver(() => {
+          if (entry.terminal !== term) return;
+          if (entry.resizeRaf) cancelAnimationFrame(entry.resizeRaf);
+          entry.resizeRaf = requestAnimationFrame(() => {
+            entry.resizeRaf = 0;
+            syncWorkshopTerminalSize(entry);
+          });
+        });
+        observer.observe(host);
+        entry.resizeObserver = observer;
       } catch { /* noop */ }
     }
     if (entry.id === workshopTerminalState.activeId) {
@@ -3323,7 +3344,10 @@
         openWorkshopTerminalStream(entry.id);
       }
       try { entry.terminal?.focus(); } catch { /* noop */ }
-      try { entry.fitAddon?.fit(); } catch { /* noop */ }
+      // The host may have been display:none (so it had zero size and the PTY
+      // size is stale). Fit AND push the new dimensions to the backend, not
+      // just a local fit, so the TUI stops wrapping against the old width.
+      syncWorkshopTerminalSize(entry);
       // Force a full repaint from the cell buffer: while the host was
       // display:none, xterm.js's renderer cannot measure the element and
       // its DOM state can drift from the buffer — SGR backgrounds and
@@ -3347,6 +3371,30 @@
     if (width <= 700) return 9;
     if (width <= 900) return 10;
     return 12;
+  }
+
+  // Fit the emulator to its host and push the resulting dimensions to the PTY
+  // (TIOCSWINSZ) so the backend's terminal width matches what is rendered.
+  function syncWorkshopTerminalSize(entry) {
+    if (!entry || !entry.terminal || !entry.fitAddon) return;
+    try {
+      entry.fitAddon.fit();
+      const dim = entry.fitAddon.proposeDimensions();
+      if (dim && dim.rows > 0 && dim.cols > 0) {
+        resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      }
+    } catch { /* noop */ }
+  }
+
+  function releaseWorkshopTerminalObserver(entry) {
+    if (entry?.resizeObserver) {
+      try { entry.resizeObserver.disconnect(); } catch { /* noop */ }
+      entry.resizeObserver = null;
+    }
+    if (entry?.resizeRaf) {
+      cancelAnimationFrame(entry.resizeRaf);
+      entry.resizeRaf = 0;
+    }
   }
 
   function refitAllWorkshopTerminals() {
@@ -3513,6 +3561,7 @@
     } catch { /* noop */ }
     closeWorkshopTerminalStream(sessionId);
     const entry = workshopTerminalState.sessions.get(sessionId);
+    releaseWorkshopTerminalObserver(entry);
     if (entry?.terminal) {
       try { entry.terminal.dispose(); } catch { /* noop */ }
     }
@@ -3620,6 +3669,7 @@
       // remount path recreates fresh ones and the SSE stream replays the
       // session buffer.
       for (const entry of workshopTerminalState.sessions.values()) {
+        releaseWorkshopTerminalObserver(entry);
         if (entry.terminal) {
           try { entry.terminal.dispose(); } catch { /* noop */ }
         }

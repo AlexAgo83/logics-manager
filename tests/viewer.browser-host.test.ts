@@ -2662,6 +2662,12 @@ describe("local viewer browser host", () => {
     expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
 
+    // Run defaults to terminal mode now; select the background runner explicitly.
+    const corpusRunMode = dom.window.document.querySelector('[data-viewer-cdx-run-mode]') as HTMLSelectElement | null;
+    if (corpusRunMode) {
+      corpusRunMode.value = "background";
+      corpusRunMode.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
     dom.window.document.querySelector('[data-viewer-cdx-run]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2864,6 +2870,12 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
+    // Run defaults to terminal mode now; select the background runner explicitly.
+    const corpusRunMode = dom.window.document.querySelector('[data-viewer-cdx-run-mode]') as HTMLSelectElement | null;
+    if (corpusRunMode) {
+      corpusRunMode.value = "background";
+      corpusRunMode.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
     const missionRun = dom.window.document.querySelector('[data-viewer-cdx-run]') as HTMLButtonElement | null;
     missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     missionRun?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

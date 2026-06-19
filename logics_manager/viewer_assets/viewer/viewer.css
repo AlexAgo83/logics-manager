@@ -1308,10 +1308,48 @@
   color: var(--vscode-list-activeSelectionForeground, #ffffff);
 }
 
+.viewer-workshop__terminal-row-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .viewer-workshop__terminal-row-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.viewer-workshop__usage {
+  position: relative;
+  flex: 0 0 auto;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--vscode-editorWidget-border, rgb(255 255 255 / 14%));
+  overflow: hidden;
+}
+
+.viewer-workshop__usage-fill {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--vscode-descriptionForeground, #9d9d9d);
+}
+
+.viewer-workshop__usage--ok .viewer-workshop__usage-fill {
+  background: var(--vscode-testing-iconPassed, #4ec9b0);
+}
+
+.viewer-workshop__usage--warn .viewer-workshop__usage-fill {
+  background: var(--vscode-charts-yellow, #d7ba7d);
+}
+
+.viewer-workshop__usage--bad .viewer-workshop__usage-fill {
+  background: var(--vscode-charts-red, #f48771);
 }
 
 .viewer-workshop__terminal-row-controls {

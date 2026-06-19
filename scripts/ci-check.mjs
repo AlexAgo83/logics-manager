@@ -22,6 +22,7 @@ const steps = [
     args: [...pythonInvocation.argsPrefix, "-m", "logics_manager", "audit", "--format", "json"]
   },
   { label: "README badge metadata drift check", command: npmCommand(), args: ["run", "docs:check"] },
+  { label: "npm audit policy", command: npmCommand(), args: ["run", "audit:ci"] },
   {
     label: "Logics manager CLI tests",
     command: pythonInvocation.command,

@@ -60,6 +60,25 @@
         }
       }
     },
+    "operator_intents": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operator_intent" }
+    },
+    "missing_contract_discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["draft_path", "local_first", "neighbor_projects_allowed"],
+      "properties": {
+        "draft_path": { "$ref": "#/$defs/path_rule" },
+        "local_first": { "type": "boolean" },
+        "neighbor_projects_allowed": { "type": "boolean" },
+        "local_sources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/path_rule" }
+        },
+        "assistant_rule": { "type": "string" }
+      }
+    },
     "state_machine": {
       "type": "array",
       "minItems": 10,
@@ -163,6 +182,16 @@
         "format": { "type": "string" },
         "required": { "type": "boolean" },
         "description": { "type": "string" }
+      }
+    },
+    "operator_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["utterance", "boundary"],
+      "properties": {
+        "utterance": { "type": "string", "minLength": 1 },
+        "boundary": { "type": "string", "minLength": 1 },
+        "publication_action": { "type": "boolean" }
       }
     },
     "version_source": {

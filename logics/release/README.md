@@ -11,6 +11,14 @@ Projects should place their active contract at `logics/release/contract.json`.
 The examples in `logics/release/fixtures/` show project-specific profiles
 without hard-coding those projects into the global model.
 
+If a project does not have an active contract, assistants should create or
+update `logics/release/contract.draft.json` from local evidence before
+executing release work. Local evidence comes first: `LOGICS.md`, `README.md`,
+version files, package manifests, release scripts, GitHub Actions workflows,
+changelog folders, checksum metadata, and deployment docs. Neighbor projects
+are comparison evidence only; they must not override the current repo's local
+signals.
+
 ## State Machine
 
 The common state machine is:
@@ -60,3 +68,8 @@ claiming a release is ready. Conversation memory, prior chat state, or a
 successful local command without matching evidence is not enough. Publication
 actions must remain explicit operator actions unless the project contract and
 current permission model say otherwise.
+
+Contracts may include `operator_intents` to bind common user phrases to release
+boundaries. For example, `prepare release` should remain metadata and
+validation work, while `publish release` may include tags, GitHub releases, and
+downstream publication checks when the current permission model allows it.

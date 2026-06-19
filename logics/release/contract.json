@@ -25,6 +25,39 @@
       { "path": "logics/RELEASE_NOTES.md", "format": "markdown", "required": false }
     ]
   },
+  "operator_intents": [
+    {
+      "utterance": "prepare release",
+      "boundary": "Prepare metadata, changelog, and validation evidence only. Do not tag, push, publish, upload assets, or create a GitHub release unless the operator explicitly asks for those actions.",
+      "publication_action": false
+    },
+    {
+      "utterance": "commit and push, fix if CI is not green",
+      "boundary": "Commit and push the prepared change first, then inspect the real remote CI run for that exact pushed commit before making fixes.",
+      "publication_action": false
+    },
+    {
+      "utterance": "publish release",
+      "boundary": "Create or verify the release tag, publish the GitHub release, and verify required downstream registry or deployment evidence before calling the release complete.",
+      "publication_action": true
+    }
+  ],
+  "missing_contract_discovery": {
+    "draft_path": { "path": "logics/release/contract.draft.json", "format": "json", "required": false },
+    "local_first": true,
+    "neighbor_projects_allowed": true,
+    "local_sources": [
+      { "path": "LOGICS.md", "required": false },
+      { "path": "README.md", "required": false },
+      { "path": "package.json", "required": false },
+      { "path": "pyproject.toml", "required": false },
+      { "path": ".github/workflows/", "required": false },
+      { "path": "changelogs/", "required": false },
+      { "path": "VERSION", "required": false },
+      { "path": "checksums/", "required": false }
+    ],
+    "assistant_rule": "When a project has no active release contract, infer a draft from local sources first. Use neighboring projects only as comparison evidence after local release surfaces have been inspected."
+  },
   "state_machine": [
     "planning",
     "preparing",

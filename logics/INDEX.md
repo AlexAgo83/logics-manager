@@ -29,6 +29,7 @@
 | [adr_022_chatgpt_logics_agent_mcp_contract](architecture/adr_022_chatgpt_logics_agent_mcp_contract.md) | `show_git_diff` | Settled |  | architecture/adr_022_chatgpt_logics_agent_mcp_contract.md |
 | [adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling](architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md) | Phase 2.1 (shipped under `task_222`, 2026-06-15) — stdlib-only PTY + SSE | Settled |  | architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md |
 | [adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice](architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md) | LAN viewer auth model, read-only contract, and QR library choice | Settled |  | architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md |
+| [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Proposed |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
 
 ## Product briefs
 

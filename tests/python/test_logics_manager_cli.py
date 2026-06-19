@@ -2310,6 +2310,41 @@ def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
         thread.join(timeout=5)
 
 
+def test_viewer_update_status_accepts_absolute_repo_path(tmp_path: Path) -> None:
+    request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
+    request_path.parent.mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        request_path,
+        title="Demo request",
+        kind="request",
+        status="Ready",
+        links=[],
+    )
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request(
+            "POST",
+            "/api/update-status",
+            body=json.dumps({"path": str(request_path), "status": "Done"}),
+            headers={"Content-Type": "application/json"},
+        )
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["path"] == "logics/request/req_001_demo.md"
+        assert payload["payload"]["updated_indicators"] == {"Status": "Done"}
+        assert "> Status: Done" in request_path.read_text(encoding="utf-8")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     sibling = tmp_path / "cdx-manager"
@@ -2477,10 +2512,12 @@ def test_viewer_refresh_interval_tracks_explicit_cli_override() -> None:
 
 def test_viewer_focus_targets_are_normalized_and_safe(tmp_path: Path) -> None:
     repo_root = tmp_path
+    absolute_request = repo_root / "logics" / "request" / "req_001_demo.md"
 
     assert normalize_viewer_focus_target(repo_root, "req_001_demo") == "logics/request/req_001_demo.md"
     assert normalize_viewer_focus_target(repo_root, "logics/tasks/task_001_demo.md") == "logics/tasks/task_001_demo.md"
     assert normalize_viewer_focus_target(repo_root, "logics%2Fbacklog%2Fitem_001_demo.md") == "logics/backlog/item_001_demo.md"
+    assert normalize_viewer_focus_target(repo_root, str(absolute_request)) == "logics/request/req_001_demo.md"
 
     with pytest.raises(ValueError):
         normalize_viewer_focus_target(repo_root, "../outside.md")

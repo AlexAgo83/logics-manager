@@ -304,8 +304,14 @@ def normalize_viewer_focus_target(repo_root: Path, value: str) -> str:
     raw = unquote(value).replace("\\", "/").strip()
     if not raw:
         raise ValueError("Focus target cannot be empty.")
-    if raw.startswith("~") or raw.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", raw):
+    if raw.startswith("~"):
         raise ValueError("Focus target must be a workflow ref or repo-relative Logics path.")
+    if raw.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", raw):
+        absolute = Path(raw).expanduser().resolve()
+        root = repo_root.resolve()
+        if root != absolute and root not in absolute.parents:
+            raise ValueError("Focus target must be a workflow ref or repo-relative Logics path.")
+        raw = absolute.relative_to(root).as_posix()
     parts = [part for part in raw.split("/") if part]
     if any(part == ".." for part in parts):
         raise ValueError("Focus target cannot contain path traversal.")

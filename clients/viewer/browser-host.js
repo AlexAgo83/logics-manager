@@ -5428,11 +5428,14 @@
     if (plan.sessionId) {
       latestCdxMissionState.sessionId = plan.sessionId;
     }
-    // The plan command targets the background runner, which parses a single
-    // --json blob emitted only when the run finishes. In a PTY that reads as a
-    // black screen for the whole run, so drop --json to stream human-readable
-    // progress instead.
-    const terminalCommand = plan.command.filter((arg) => arg !== "--json");
+    // `cdx run` is a one-shot batch command: --json is mandatory and it only
+    // prints its result once the run finishes, so a bare PTY launch shows a
+    // black screen for the whole run. Keep the plan command intact (incl.
+    // --json) but wrap it in a tiny shell that prints a notice first. `exec
+    // "$@"` forwards the original argv verbatim, preserving the multi-line
+    // prompt without any re-quoting.
+    const noticeScript = 'printf "%s\\n\\n" "CDX mission running — one-shot batch run; the JSON result prints here once it completes (timeout-bounded)."; exec "$@"';
+    const terminalCommand = ["/bin/sh", "-c", noticeScript, "cdx-mission", ...plan.command];
     const terminalId = await spawnWorkshopTerminal({
       command: terminalCommand,
       label: `cdx mission ${plan.missionId || latestCdxMissionState.missionId}`

@@ -1970,7 +1970,16 @@
     }
     if (screen === "Git status") return showGitStatus({ preserve: true, ...opts });
     if (screen === "Explorer") return showWorkspace(opts);
-    if (screen === "Workshop") return showWorkshop(opts);
+    if (screen === "Workshop") {
+      // For mounted terminals, Refresh should redraw in place (SIGWINCH nudge)
+      // rather than tear down and replay the whole server buffer.
+      if (preferredWorkshopTab() === "terminals" && hasMountedWorkshopTerminals()) {
+        const count = redrawWorkshopTerminals();
+        setMeta(count === 1 ? "Redrew 1 terminal." : `Redrew ${count} terminals.`);
+        return;
+      }
+      return showWorkshop(opts);
+    }
     if (screen === "Corpus insights") return showCorpusInsights();
     if (screen === "Validation health") return showHealth();
     return showDocumentByPath(screen);
@@ -3179,10 +3188,16 @@
       const closeGlyph = closing
         ? `<span class="viewer-workshop__spinner" aria-hidden="true"></span>`
         : `×`;
+      const clearSpan = closing
+        ? ""
+        : `<span class="viewer-workshop__terminal-row-clear" data-viewer-workshop-terminal-clear="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Clear screen (Ctrl+L)" aria-label="Clear screen">⎚</span>`;
       return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
         <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.id)}</span>
         ${stateBadge}
-        <span class="viewer-workshop__terminal-row-close${closing ? " is-closing" : ""}" ${closeAttrs}>${closeGlyph}</span>
+        <span class="viewer-workshop__terminal-row-controls">
+          ${clearSpan}
+          <span class="viewer-workshop__terminal-row-close${closing ? " is-closing" : ""}" ${closeAttrs}>${closeGlyph}</span>
+        </span>
       </button>`;
     }).join("");
     node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}</div>`;
@@ -3391,6 +3406,60 @@
         resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
       }
     } catch { /* noop */ }
+  }
+
+  function hasMountedWorkshopTerminals() {
+    for (const entry of workshopTerminalState.sessions.values()) {
+      if (entry.terminal) return true;
+    }
+    return false;
+  }
+
+  // Force a running TUI to repaint its current frame without replaying the
+  // server buffer or sending it any input: briefly change the PTY size so the
+  // kernel raises SIGWINCH, then restore it. This is exactly what a window
+  // resize does, so every terminal app (Claude, Codex, btop, vim) redraws.
+  function nudgeWorkshopTerminalRedraw(entry) {
+    if (!entry || !entry.terminal || !entry.fitAddon) return;
+    let dim;
+    try {
+      entry.fitAddon.fit();
+      dim = entry.fitAddon.proposeDimensions();
+    } catch { return; }
+    if (!dim || dim.rows <= 0 || dim.cols <= 0) return;
+    const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+    const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+    // Shrink by one row (or grow if already at the floor) so the value sent
+    // actually differs and the kernel emits a SIGWINCH, then restore.
+    const nudgeRows = rows > WORKSHOP_TERMINAL_MIN_ROWS ? rows - 1 : rows + 1;
+    resizeWorkshopTerminal(entry.id, nudgeRows, cols);
+    setTimeout(() => resizeWorkshopTerminal(entry.id, rows, cols), 60);
+  }
+
+  // Non-destructive redraw of every mounted terminal: repaint xterm's DOM from
+  // its cell buffer and nudge each running app to re-render. Returns the count.
+  function redrawWorkshopTerminals() {
+    let count = 0;
+    for (const entry of workshopTerminalState.sessions.values()) {
+      const term = entry.terminal;
+      if (!term) continue;
+      count += 1;
+      try { term.refresh(0, Math.max(0, term.rows - 1)); } catch { /* noop */ }
+      nudgeWorkshopTerminalRedraw(entry);
+    }
+    return count;
+  }
+
+  function clearWorkshopTerminal(sessionId) {
+    if (!sessionId) return;
+    // Ctrl+L (form feed): the running app clears/redraws its own screen. This
+    // is input to the app, so the underlying PTY session is never disturbed.
+    writeWorkshopTerminalInput(sessionId, "\f");
+    const entry = workshopTerminalState.sessions.get(sessionId);
+    if (entry?.terminal) {
+      try { entry.terminal.focus(); } catch { /* noop */ }
+    }
+    setMeta("Sent clear (Ctrl+L) to terminal.");
   }
 
   function releaseWorkshopTerminalObserver(entry) {
@@ -6200,6 +6269,7 @@
       const workshopTerminalCustomTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-custom]") : null;
       const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
+      const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
@@ -6346,6 +6416,13 @@
         event.stopPropagation();
         const id = workshopTerminalCloseTarget.getAttribute("data-viewer-workshop-terminal-close") || "";
         if (id) stopWorkshopTerminal(id);
+        return;
+      }
+      if (workshopTerminalClearTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = workshopTerminalClearTarget.getAttribute("data-viewer-workshop-terminal-clear") || "";
+        if (id) clearWorkshopTerminal(id);
         return;
       }
       if (workshopTerminalNewTarget instanceof HTMLElement) {

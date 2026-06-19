@@ -1314,6 +1314,30 @@
   white-space: nowrap;
 }
 
+.viewer-workshop__terminal-row-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.viewer-workshop__terminal-row-clear {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.viewer-workshop__terminal-row-clear:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 12%));
+  opacity: 1;
+}
+
 .viewer-workshop__terminal-row-close {
   display: inline-flex;
   width: 18px;

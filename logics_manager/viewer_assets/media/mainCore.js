@@ -345,6 +345,24 @@
     }
 
     function render() {
+      // A throw inside any sub-renderer used to leave the board cleared but not
+      // rebuilt (renderBoard() empties it first), so the view went blank until a
+      // full page reload — every auto-refresh re-entered the same failing path.
+      // Contain failures here and surface a recoverable error state instead.
+      try {
+        renderInternal();
+      } catch (error) {
+        if (typeof console !== "undefined" && console.error) {
+          console.error("Viewer board render failed; showing a recoverable error state instead of blanking.", error);
+        }
+        renderBoardErrorState(
+          "The board could not be rendered. It will retry on the next refresh." +
+            (error && error.message ? " (" + error.message + ")" : "")
+        );
+      }
+    }
+
+    function renderInternal() {
       if (layoutController && typeof layoutController.updateLayoutMode === "function") {
         layoutController.updateLayoutMode();
       }

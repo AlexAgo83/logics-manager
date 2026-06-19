@@ -62,7 +62,8 @@ const allowedPackages = new Map([
 
 const auditResult = spawnSync(npmCommand(), ["audit", "--json"], {
   cwd: process.cwd(),
-  encoding: "utf8"
+  encoding: "utf8",
+  shell: process.platform === "win32"
 });
 
 if (auditResult.error) {

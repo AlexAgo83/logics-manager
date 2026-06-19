@@ -1471,7 +1471,8 @@ def test_viewer_cdx_mission_plan_builds_release_review_from_latest_tag(tmp_path:
     assert payload["plan"]["power"] == "high"
     assert command[command.index("--reasoning-effort") + 1] == "xhigh"
     assert command[command.index("--power") + 1] == "high"
-    assert command[command.index("--timeout-seconds") + 1] == "300"
+    # release-review always requires file writes, so the writable minimum timeout applies.
+    assert command[command.index("--timeout-seconds") + 1] == "600"
 
 
 def test_viewer_cdx_mission_plan_rejects_unknown_strength_and_unusable_session(tmp_path: Path) -> None:
@@ -1513,15 +1514,16 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         response = _cdx_test_status_response(args)
         if response is not None:
             return response
-        assert kwargs["timeout"] == 270
+        # full-audit always requires file writes: workspace-write plan and writable minimum timeout.
+        assert kwargs["timeout"] == 690
         assert args[:4] == ["cdx", "run", "work", "--cwd"]
         assert args[4] == str(tmp_path)
         assert "--session" not in args
         assert "--mission" not in args
         assert "--scope" not in args
         assert args[args.index("--prompt") + 1].startswith("Run a full repository audit")
-        assert args[args.index("--permission") + 1] == "read-only"
-        assert args[args.index("--timeout-seconds") + 1] == "180"
+        assert args[args.index("--permission") + 1] == "workspace-write"
+        assert args[args.index("--timeout-seconds") + 1] == "600"
         return subprocess.CompletedProcess(args, 0, json.dumps({"runId": "run-42", "usage": {"input_tokens": 10, "output_tokens": 5}}), "")
 
     payload = cdx_mission_run_payload(
@@ -1614,9 +1616,8 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert args[args.index("--permission") + 1] == "workspace-write"
     prompt = args[args.index("--prompt") + 1]
     assert "File edits are allowed" in prompt
-    assert "Create or update a bounded Logics request under logics/request/" in prompt
-    assert "Do not directly modify product/source files" in prompt
-    assert "Do not write a separate audit corpus/report artifact" in prompt
+    assert "Always capture the outcome as a bounded Logics request" in prompt
+    assert "do not directly modify product/source files" in prompt
     assert "requestFiles" in prompt
     assert "validationEvidence" in prompt
 
@@ -1698,9 +1699,10 @@ def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: 
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Fix safe, scoped issues directly" in prompt
-    assert "Do not write a separate audit corpus/report artifact" in prompt
+    assert "capture the completed work as a full Logics workflow chain as proof" in prompt
     assert "directFixes" in prompt
     assert "changedFiles" in prompt
+    assert "workflowRefs" in prompt
 
 
 def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: Path) -> None:
@@ -1728,10 +1730,9 @@ def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: 
     assert payload["plan"]["releaseTag"] == "v2.7.0"
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
-    assert "Create or update a bounded Logics request under logics/request/" in prompt
-    assert "Do not write a separate release-review corpus/report artifact under logics/external" in prompt
-    assert "Do not directly modify product/source files" in prompt
-    assert "Do not bump versions, tag, push, publish" in prompt
+    assert "Always capture the outcome as a bounded Logics request" in prompt
+    assert "do not directly modify product/source files" in prompt
+    assert "do not bump versions, tag, push, publish" in prompt
     assert "requestFiles" in prompt
     assert "validationEvidence" in prompt
 
@@ -1761,11 +1762,11 @@ def test_viewer_cdx_mission_release_review_direct_fix_prompt_stays_guarded(tmp_p
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Fix safe, scoped release-readiness issues directly" in prompt
-    assert "Do not write a separate release-review corpus/report artifact" in prompt
-    assert "Do not bump versions unless explicitly requested" in prompt
-    assert "do not tag, push, publish" in prompt
+    assert "Do not bump versions, tag, push, publish" in prompt
+    assert "capture the completed work as a full Logics workflow chain as proof" in prompt
     assert "directFixes" in prompt
     assert "changedFiles" in prompt
+    assert "workflowRefs" in prompt
 
 
 def test_viewer_cdx_mission_plan_builds_corpus_prompt_for_current_cdx_cli(tmp_path: Path) -> None:
@@ -1887,13 +1888,14 @@ def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Pat
     assert payload["plan"]["missionInputs"] == {"releaseVersion": "v2.8.0", "runFullValidation": "true"}
     assert payload["plan"]["permission"] == "workspace-write"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
+    assert prompt == payload["plan"]["prompt"]
+    assert payload["plan"]["promptEdited"] is False
     assert "version v2.8.0" in prompt
-    assert "Run the project-defined full validation path" in prompt
-    assert "Prepare release metadata files" in prompt
-    assert "package.json" in prompt
-    assert "pyproject.toml" in prompt
-    assert "VERSION" in prompt
-    assert "changelogs/CHANGELOGS_X_Y_Z.md" in prompt
+    assert "Run the release contract validation commands" in prompt
+    assert "Prepare release metadata for the requested version" in prompt
+    # No contract exists under tmp_path, so the mission instructs CDX to infer a draft.
+    assert "No active release contract" in prompt
+    assert "Infer a release contract draft" in prompt
     assert "create Git tags" in prompt
     assert "publish packages" in prompt
 
@@ -1915,8 +1917,88 @@ def test_viewer_cdx_mission_plan_keeps_pre_release_read_only_when_writes_disable
     assert payload["state"] == "ok"
     assert payload["plan"]["permission"] == "read-only"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
-    assert "Do not modify package versions" in prompt
+    assert "Do not modify version sources" in prompt
     assert "Do not modify files." in prompt
+
+
+def test_viewer_cdx_mission_pre_release_prompt_uses_release_contract(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
+        raise AssertionError(args)
+
+    contract_dir = tmp_path / "logics" / "release"
+    contract_dir.mkdir(parents=True)
+    (contract_dir / "contract.json").write_text(
+        json.dumps({
+            "schema_version": "1.0",
+            "version_sources": [
+                {"path": "VERSION", "format": "plain_text"},
+                {"path": "pyproject.toml", "format": "toml", "selector": "project.version"},
+            ],
+            "changelog": {"version_heading_required": True, "paths": [{"path": "changelogs/CHANGELOGS_{version_underscore}.md"}]},
+            "validation_commands": [{"id": "ci_check", "command": ["node", "scripts/ci-check.mjs"]}],
+            "git": {"allowed_branches": ["main"], "tag_policy": {"pattern": "v{version}"}},
+            "operator_intents": [{"utterance": "prepare release", "boundary": "Prepare metadata only; do not tag or publish."}],
+            "gates": [],
+        }),
+        encoding="utf-8",
+    )
+
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {
+            "missionId": "pre-release",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "releaseVersion": "v2.8.0",
+            "runFullValidation": True,
+            "allowFileWrites": True,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    prompt = payload["plan"]["prompt"]
+    assert "release contract (logics/release/contract.json) as the single source of truth" in prompt
+    assert "pyproject.toml (project.version)" in prompt
+    assert "changelogs/CHANGELOGS_{version_underscore}.md" in prompt
+    assert "node scripts/ci-check.mjs" in prompt
+    assert "release tag pattern: v{version}" in prompt
+    assert "Prepare metadata only; do not tag or publish." in prompt
+    assert "No active release contract" not in prompt
+
+
+def test_viewer_cdx_mission_plan_respects_operator_prompt_override(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        response = _cdx_test_status_response(args)
+        if response is not None:
+            return response
+        raise AssertionError(args)
+
+    override = "Custom operator prompt.\nKeep changes scoped."
+    payload = cdx_mission_plan_payload(
+        tmp_path,
+        {
+            "missionId": "full-audit",
+            "sessionId": "work",
+            "strengthId": "standard",
+            "promptOverride": override,
+        },
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "ok"
+    plan = payload["plan"]
+    assert plan["promptEdited"] is True
+    assert plan["prompt"] == override
+    assert plan["arguments"][plan["arguments"].index("--prompt") + 1] == override
+    # Structural flags stay server-enforced regardless of the edited prompt.
+    assert "--permission" in plan["arguments"]
+    assert any("operator-edited prompt" in warning for warning in plan["warnings"])
 
 
 def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path) -> None:

@@ -2131,6 +2131,44 @@ def test_viewer_capabilities_endpoint_returns_payload(monkeypatch: pytest.Monkey
         thread.join(timeout=5)
 
 
+def test_viewer_status_endpoint_caches_and_revalidates_with_etag(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    calls = {"count": 0}
+
+    def fake_git_status_payload(repo_root: Path) -> dict[str, object]:
+        calls["count"] += 1
+        return {"state": "ok", "changes": []}
+
+    monkeypatch.setattr(viewer_module, "git_status_payload", fake_git_status_payload)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/git-status")
+        first = conn.getresponse()
+        body = first.read().decode("utf-8")
+        etag = first.getheader("ETag")
+        assert first.status == 200
+        assert etag
+        assert first.getheader("Cache-Control") == "no-cache"
+        assert json.loads(body)["payload"]["state"] == "ok"
+
+        # Second poll within the TTL reuses the cached body (no recompute) and
+        # revalidates to 304 when the client presents the ETag.
+        conn.request("GET", "/api/git-status", headers={"If-None-Match": etag})
+        second = conn.getresponse()
+        second.read()
+        assert second.status == 304
+        assert second.getheader("ETag") == etag
+        assert calls["count"] == 1
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_project_registry_marks_active_and_logics_availability(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     sibling = tmp_path / "cdx-manager"

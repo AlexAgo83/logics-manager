@@ -2748,6 +2748,13 @@ def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
 
+# Status endpoints (git/ci/release/cdx) recompute by spawning subprocesses.
+# A short server-side TTL lets back-to-back polls and the several badge
+# fetches that fire on each auto-refresh share a single computation, while
+# the ETag emitted alongside lets the browser revalidate cheaply (304).
+STATUS_CACHE_TTL_SECONDS = 2.0
+
+
 VIEWER_MUTATING_ROUTES = frozenset(
     {
         "/api/edit",
@@ -3485,6 +3492,9 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.pairing_broker = LanPairingBroker() if self.lan_rw_mode else None
         self.workshop_sessions = WorkshopSessionRegistry()
         self.workshop_terminals = WorkshopTerminalRegistry()
+        # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
+        self.status_cache: dict[str, tuple[float, str, bytes]] = {}
+        self.status_cache_lock = threading.Lock()
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
             self.socket = tls_context.wrap_socket(self.socket, server_side=True)
@@ -3543,10 +3553,24 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: object) -> None:
         return
 
-    def _send_bytes(self, content: bytes, *, status: int = 200, content_type: str = "application/octet-stream") -> None:
+    def _send_bytes(
+        self,
+        content: bytes,
+        *,
+        status: int = 200,
+        content_type: str = "application/octet-stream",
+        etag: str = "",
+    ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
-        self.send_header("Cache-Control", "no-store")
+        if etag:
+            # no-cache (not no-store) keeps the response in the browser cache
+            # but forces revalidation, so fetch() transparently sends
+            # If-None-Match and we can answer 304 when nothing changed.
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("ETag", etag)
+        else:
+            self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         try:
@@ -3556,6 +3580,36 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
+
+    def _send_status_json(self, cache_key: str, producer: Any) -> None:
+        """Serve a status payload with a short TTL cache and ETag revalidation.
+
+        `producer` is a zero-arg callable returning the inner payload dict; it
+        is only invoked on a cache miss. Identical back-to-back polls (and the
+        several badge fetches each auto-refresh fires) reuse the cached body.
+        """
+        server = self.server
+        full_key = f"{cache_key}::{server.repo_root}"
+        now = time.monotonic()
+        cached: tuple[float, str, bytes] | None = None
+        with server.status_cache_lock:
+            entry = server.status_cache.get(full_key)
+            if entry is not None and (now - entry[0]) < STATUS_CACHE_TTL_SECONDS:
+                cached = entry
+        if cached is None:
+            body = _json_bytes({"ok": True, "payload": producer()})
+            etag = '"%s"' % hashlib.sha1(body).hexdigest()
+            with server.status_cache_lock:
+                server.status_cache[full_key] = (now, etag, body)
+        else:
+            _, etag, body = cached
+        if etag and self.headers.get("If-None-Match", "") == etag:
+            self.send_response(HTTPStatus.NOT_MODIFIED.value)
+            self.send_header("ETag", etag)
+            self.send_header("Cache-Control", "no-cache")
+            self.end_headers()
+            return
+        self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag)
 
     def _send_error_json(self, status: HTTPStatus, message: str) -> None:
         self._send_json({"ok": False, "error": message}, status=status.value)
@@ -3956,19 +4010,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
             return
         if route == "/api/git-status":
-            self._send_json({"ok": True, "payload": git_status_payload(self.server.repo_root)})
+            self._send_status_json("git-status", lambda: git_status_payload(self.server.repo_root))
             return
         if route == "/api/ci-status":
-            self._send_json({"ok": True, "payload": ci_status_payload(self.server.repo_root)})
+            self._send_status_json("ci-status", lambda: ci_status_payload(self.server.repo_root))
             return
         if route == "/api/release-status":
-            self._send_json({"ok": True, "payload": release_status_payload(self.server.repo_root)})
+            self._send_status_json("release-status", lambda: release_status_payload(self.server.repo_root))
             return
         if route == "/api/cdx-status":
-            self._send_json({"ok": True, "payload": cdx_status_payload(self.server.repo_root)})
+            self._send_status_json("cdx-status", lambda: cdx_status_payload(self.server.repo_root))
             return
         if route == "/api/cdx-runs":
-            self._send_json({"ok": True, "payload": cdx_runs_payload(self.server.repo_root)})
+            self._send_status_json("cdx-runs", lambda: cdx_runs_payload(self.server.repo_root))
             return
         if route == "/api/cdx-run-report":
             run_id = parse_qs(parsed.query).get("runId", [""])[0]

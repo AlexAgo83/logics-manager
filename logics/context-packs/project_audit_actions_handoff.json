@@ -1,0 +1,386 @@
+{
+  "budgets": {
+    "max_docs": 64,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_250_address_project_audit_follow_up_actions item_439_resolve_npm_audit_blocking_dependency_findings item_440_make_ci_check_enforce_npm_audit_policy item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards item_442_add_local_artifact_cleanup_command item_443_target_coverage_gaps_in_high_risk_modules item_444_document_lifecycle_test_prerequisites_and_execution_path task_233_orchestrate_project_audit_remediation --mode summary-only --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_439_resolve_npm_audit_blocking_dependency_findings",
+          "item_440_make_ci_check_enforce_npm_audit_policy",
+          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+          "item_442_add_local_artifact_cleanup_command",
+          "item_443_target_coverage_gaps_in_high_risk_modules",
+          "item_444_document_lifecycle_test_prerequisites_and_execution_path"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/product/prod_024_project_audit_remediation_plan.md",
+      "ref": "prod_024_project_audit_remediation_plan",
+      "status": "Proposed",
+      "title": "Project audit remediation plan"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, address project audit follow-up actions, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Address project audit follow-up actions",
+        "use when": "You need to implement or review the scaffolded workflow for Address project audit follow-up actions."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_439_resolve_npm_audit_blocking_dependency_findings",
+          "item_440_make_ci_check_enforce_npm_audit_policy",
+          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+          "item_442_add_local_artifact_cleanup_command",
+          "item_443_target_coverage_gaps_in_high_risk_modules",
+          "item_444_document_lifecycle_test_prerequisites_and_execution_path"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ]
+      },
+      "path": "logics/request/req_250_address_project_audit_follow_up_actions.md",
+      "ref": "req_250_address_project_audit_follow_up_actions",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Address project audit follow-up actions"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, resolve npm audit blocking dependency findings, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Resolve npm audit blocking dependency findings",
+        "use when": "Implementing the scaffolded slice for Resolve npm audit blocking dependency findings."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_439_resolve_npm_audit_blocking_dependency_findings"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_439_resolve_npm_audit_blocking_dependency_findings.md",
+      "ref": "item_439_resolve_npm_audit_blocking_dependency_findings",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Resolve npm audit blocking dependency findings"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make ci check enforce npm audit policy, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make ci check enforce npm audit policy",
+        "use when": "Implementing the scaffolded slice for Make ci check enforce npm audit policy."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_440_make_ci_check_enforce_npm_audit_policy"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_440_make_ci_check_enforce_npm_audit_policy.md",
+      "ref": "item_440_make_ci_check_enforce_npm_audit_policy",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make ci check enforce npm audit policy"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, plan viewer surface modularization and asset sync safeguards, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Plan viewer surface modularization and asset sync safeguards",
+        "use when": "Implementing the scaffolded slice for Plan viewer surface modularization and asset sync safeguards."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards.md",
+      "ref": "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Plan viewer surface modularization and asset sync safeguards"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add local artifact cleanup command, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add local artifact cleanup command",
+        "use when": "Implementing the scaffolded slice for Add local artifact cleanup command."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_442_add_local_artifact_cleanup_command"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_442_add_local_artifact_cleanup_command.md",
+      "ref": "item_442_add_local_artifact_cleanup_command",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add local artifact cleanup command"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, target coverage gaps in high-risk modules, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Target coverage gaps in high-risk modules",
+        "use when": "Implementing the scaffolded slice for Target coverage gaps in high-risk modules."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_443_target_coverage_gaps_in_high_risk_modules"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_443_target_coverage_gaps_in_high_risk_modules.md",
+      "ref": "item_443_target_coverage_gaps_in_high_risk_modules",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Target coverage gaps in high-risk modules"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, document lifecycle test prerequisites and execution path, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Document lifecycle test prerequisites and execution path",
+        "use when": "Implementing the scaffolded slice for Document lifecycle test prerequisites and execution path."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_444_document_lifecycle_test_prerequisites_and_execution_path"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md",
+      "ref": "item_444_document_lifecycle_test_prerequisites_and_execution_path",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Document lifecycle test prerequisites and execution path"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate project audit remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_439_resolve_npm_audit_blocking_dependency_findings",
+          "item_440_make_ci_check_enforce_npm_audit_policy",
+          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+          "item_442_add_local_artifact_cleanup_command",
+          "item_443_target_coverage_gaps_in_high_risk_modules",
+          "item_444_document_lifecycle_test_prerequisites_and_execution_path"
+        ],
+        "prod": [
+          "prod_024_project_audit_remediation_plan"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_233_orchestrate_project_audit_remediation.md",
+      "ref": "task_233_orchestrate_project_audit_remediation",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate project audit remediation"
+    }
+  ],
+  "estimates": {
+    "char_count": 8161,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-06-19T18:12:03Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_250_address_project_audit_follow_up_actions",
+      "item_439_resolve_npm_audit_blocking_dependency_findings",
+      "item_440_make_ci_check_enforce_npm_audit_policy",
+      "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+      "item_442_add_local_artifact_cleanup_command",
+      "item_443_target_coverage_gaps_in_high_risk_modules",
+      "item_444_document_lifecycle_test_prerequisites_and_execution_path",
+      "task_233_orchestrate_project_audit_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "deep",
+  "ref": "req_250_address_project_audit_follow_up_actions,item_439_resolve_npm_audit_blocking_dependency_findings,item_440_make_ci_check_enforce_npm_audit_policy,item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards,item_442_add_local_artifact_cleanup_command,item_443_target_coverage_gaps_in_high_risk_modules,item_444_document_lifecycle_test_prerequisites_and_execution_path,task_233_orchestrate_project_audit_remediation",
+  "refs": [
+    "req_250_address_project_audit_follow_up_actions",
+    "item_439_resolve_npm_audit_blocking_dependency_findings",
+    "item_440_make_ci_check_enforce_npm_audit_policy",
+    "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards",
+    "item_442_add_local_artifact_cleanup_command",
+    "item_443_target_coverage_gaps_in_high_risk_modules",
+    "item_444_document_lifecycle_test_prerequisites_and_execution_path",
+    "task_233_orchestrate_project_audit_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: missing required evidence"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "missing required evidence",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "pending"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.11.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_233_orchestrate_project_audit_remediation.md",
+      "ref": "task_233_orchestrate_project_audit_remediation"
+    }
+  ]
+}

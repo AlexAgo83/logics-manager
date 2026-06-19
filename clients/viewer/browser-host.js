@@ -3283,14 +3283,14 @@
     }
     term.attachCustomKeyEventHandler((ev) => {
       if (ev.type === "keydown" && ev.key === "Enter" && ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
-        // Insert a newline instead of submitting. Prompt UIs such as Claude
-        // and Codex read a bare \n or ESC+CR as "submit"; they only treat a
-        // line break as a newline when it arrives as bracketed paste (the
-        // same path a real multi-line paste takes). Wrap the carriage return
-        // in paste markers when the app has bracketed paste enabled (which
-        // these TUIs do), and fall back to a plain CR otherwise.
-        const bracketed = Boolean(term.modes && term.modes.bracketedPasteMode);
-        writeWorkshopTerminalInput(entry.id, bracketed ? "\x1b[200~\r\x1b[201~" : "\r");
+        // Insert a newline instead of submitting. Claude and Codex enable the
+        // kitty keyboard protocol and expect Shift+Enter as a CSI-u key event
+        // (key 13 = Enter, modifier 2 = Shift). preventDefault/stopPropagation
+        // keep the browser/xterm from also emitting a plain Enter (which would
+        // submit), and returning false suppresses xterm's own handling.
+        if (typeof ev.preventDefault === "function") ev.preventDefault();
+        if (typeof ev.stopPropagation === "function") ev.stopPropagation();
+        writeWorkshopTerminalInput(entry.id, "\x1b[13;2u");
         return false;
       }
       return true;

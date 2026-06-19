@@ -4433,9 +4433,6 @@
     }
     const resumeAvailable = item.resume_available === true || item.resumeAvailable === true || item.resumable === true;
     const canHandoff = Boolean(latestSessionName && latestSessionName !== name);
-    if (!resumeAvailable && !canHandoff) {
-      return `<button class="viewer-cdx__path-link" type="button" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}" title="Open Workshop terminal: cdx ${escapeHtml(name)}">${escapeHtml(label)}</button>`;
-    }
     return `
       <details class="viewer-cdx__menu viewer-cdx__session-menu">
         <summary class="viewer-cdx__path-link viewer-cdx__session-summary" title="Choose how to open ${escapeHtml(name)}">${escapeHtml(label)}</summary>
@@ -4443,6 +4440,7 @@
           <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>
           ${resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
           ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}" data-viewer-cdx-handoff-source="${escapeHtml(latestSessionName)}">Handoff (${escapeHtml(latestSessionName)})</button>` : ""}
+          <button class="viewer-cdx__menu-action viewer-cdx__menu-action--danger" type="button" role="menuitem" data-viewer-cdx-session-action="remove" data-viewer-cdx-session="${escapeHtml(name)}">Remove</button>
         </div>
       </details>
     `;
@@ -6561,6 +6559,8 @@
           spawnWorkshopTerminal({ command: ["cdx", "resume", sessionName], label: `cdx resume ${sessionName}` });
         } else if (action === "handoff" && handoffSource) {
           spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });
+        } else if (action === "remove") {
+          spawnWorkshopTerminal({ command: ["cdx", "remove", sessionName], label: `cdx remove ${sessionName}` });
         } else {
           spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
         }

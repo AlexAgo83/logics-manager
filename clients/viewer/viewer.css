@@ -2224,6 +2224,14 @@
   cursor: pointer;
 }
 
+.viewer-cdx__menu-action--danger {
+  color: var(--vscode-errorForeground, #f48771);
+}
+
+.viewer-cdx__menu-action--danger:hover {
+  background: color-mix(in srgb, var(--vscode-errorForeground, #f48771) 18%, transparent);
+}
+
 .viewer-cdx__table-wrap {
   min-width: 0;
   overflow-x: auto;

@@ -1,10 +1,10 @@
 ## item_444_document_lifecycle_test_prerequisites_and_execution_path - Document lifecycle test prerequisites and execution path
 > From version: 2.11.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Integration validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -30,6 +30,8 @@
 # AC Traceability
 - request-AC6 -> This backlog slice. Proof: AC1: Lifecycle test prerequisites and enabling command are documented.
 - request-AC7 -> This backlog slice. Proof: AC2: Release or CI guidance states whether lifecycle tests are required, optional, or scheduled.
+- request-AC4 -> This backlog slice. Evidence needed: Ignored local build, smoke, cache, and graph artifacts can be cleaned with a documented, bounded command.
+- request-AC5 -> This backlog slice. Evidence needed: Low-coverage high-risk modules have targeted tests or explicit coverage goals tied to observable behavior.
 
 # Decision framing
 - Product framing: Not needed
@@ -50,3 +52,9 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Tasks
+- `task_233_orchestrate_project_audit_remediation`
+
+# Notes
+- Task `task_233_orchestrate_project_audit_remediation` was finished via `logics-manager flow finish task` on 2026-06-19.

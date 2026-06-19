@@ -2717,6 +2717,12 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
+    // full-audit / release-review now require file writes; pick a mission that still supports opt-out.
+    dom.window.document.querySelector('[data-viewer-cdx-mission="wish-to-request"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const wish = dom.window.document.querySelector('[data-viewer-cdx-input="wishText"]') as HTMLTextAreaElement | null;
+    wish!.value = "Capture a safer release checklist";
+    wish!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
     const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;
     expect(allowWrites?.checked).toBe(true);
     allowWrites!.checked = false;
@@ -2753,6 +2759,32 @@ describe("local viewer browser host", () => {
     expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
       allowFileWrites: "true",
       commitAtEnd: "true"
+    });
+  });
+
+  it("hides the file-write opt-out for missions that always write", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Default mission (full-audit) always requires file writes: no opt-out checkbox, explanatory note instead.
+    expect(dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]')).toBeNull();
+    const cdxText = dom.window.document.body.textContent || "";
+    expect(cdxText).toContain("This mission always drafts a Logics request");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-input="commitAtEnd"]')).toBeTruthy();
+
+    dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const planCall = fetchCalls.find((call) => call.url === "/api/cdx-mission-plan" && call.options?.body);
+    expect(JSON.parse(String(planCall?.options?.body))).toMatchObject({
+      missionId: "full-audit"
     });
   });
 

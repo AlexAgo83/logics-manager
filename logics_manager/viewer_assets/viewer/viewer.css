@@ -1674,6 +1674,16 @@
   gap: 6px;
 }
 
+.viewer-workshop__command-run-summary {
+  cursor: pointer;
+}
+
+/* Anchor the run menu to the right edge so it does not clip off-screen. */
+.viewer-workshop__command-run-menu .viewer-workshop__command-run-panel {
+  left: auto;
+  right: 0;
+}
+
 .viewer-workshop__command-meta {
   margin: 4px 0;
   font-size: 11px;

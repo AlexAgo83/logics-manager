@@ -656,6 +656,20 @@ The harness runs at `http://localhost:4173/` and supports mock scenarios such as
 
 ## Deploy / Release (VSIX)
 
+Release work is governed by `logics/release/contract.json`. Before preparing or
+publishing, inspect the repo-owned state:
+
+```bash
+logics-manager release status
+```
+
+If a project does not have a contract yet, generate a local-first draft instead
+of copying a neighboring project's workflow:
+
+```bash
+logics-manager release discover --write
+```
+
 1. Bump the version in `package.json`, `pyproject.toml`, and root `VERSION` when preparing a release manually.
 2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`.
 3. Validate that the changelog matches the current package version:

@@ -7,7 +7,14 @@ from pathlib import Path
 import pytest
 
 from logics_manager.cli import main
-from logics_manager.release import release_add_evidence_payload, release_context_pack_payload, release_plan_payload, release_status_payload, release_validate_payload
+from logics_manager.release import (
+    release_add_evidence_payload,
+    release_context_pack_payload,
+    release_discover_payload,
+    release_plan_payload,
+    release_status_payload,
+    release_validate_payload,
+)
 from logics_manager.sync import build_context_pack_payload
 
 
@@ -231,6 +238,61 @@ def test_release_status_reports_missing_config(tmp_path: Path) -> None:
     assert status["configured"] is False
     assert status["state"] == "not_configured"
     assert status["blocking_reasons"] == ["Missing logics/release/contract.json."]
+
+
+def test_release_discover_infers_draft_from_local_sources(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    workflows = repo_root / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (repo_root / "logics" / "release").mkdir(parents=True)
+    (repo_root / "package.json").write_text(
+        json.dumps({"name": "@example/demo-app", "version": "1.2.3", "scripts": {"ci:check": "node scripts/ci-check.mjs", "test": "vitest run"}}),
+        encoding="utf-8",
+    )
+    (repo_root / "VERSION").write_text("1.2.3\n", encoding="utf-8")
+    (repo_root / "changelogs").mkdir()
+    (workflows / "release.yml").write_text("name: Release\n", encoding="utf-8")
+    (workflows / "publish-npm.yml").write_text("name: Publish npm\n", encoding="utf-8")
+
+    payload = release_discover_payload(repo_root)
+
+    assert payload["configured"] is False
+    assert payload["draft_written"] is False
+    assert payload["draft"]["project"]["id"] == "demo-app"
+    assert payload["draft"]["changelog"]["paths"][0]["path"] == "changelogs/CHANGELOGS_{version_underscore}.md"
+    assert [command["id"] for command in payload["draft"]["validation_commands"]] == ["ci_check", "test"]
+    github_gate = next(gate for gate in payload["draft"]["gates"] if gate["id"] == "github_release")
+    npm_gate = next(gate for gate in payload["draft"]["gates"] if gate["id"] == "npm_package")
+    assert github_gate["required"] is True
+    assert npm_gate["required"] is True
+    assert payload["draft"]["missing_contract_discovery"]["local_first"] is True
+    assert payload["draft"]["operator_intents"][0]["publication_action"] is False
+
+
+def test_release_discover_write_creates_draft_contract(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    (repo_root / "logics" / "release").mkdir(parents=True)
+    (repo_root / "pyproject.toml").write_text('[project]\nname = "demo-py"\nversion = "0.1.0"\n', encoding="utf-8")
+    (repo_root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+
+    payload = release_discover_payload(repo_root, write=True)
+
+    draft_path = repo_root / "logics" / "release" / "contract.draft.json"
+    draft = json.loads(draft_path.read_text(encoding="utf-8"))
+    assert payload["draft_written"] is True
+    assert payload["draft_path"] == "logics/release/contract.draft.json"
+    assert draft["project"]["id"] == "demo-py"
+    assert draft["version_sources"] == [{"path": "pyproject.toml", "format": "toml", "selector": "project.version", "required": True}]
+
+
+def test_release_discover_keeps_existing_contract_unmodified(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, [])
+
+    payload = release_discover_payload(repo_root, write=True)
+
+    assert payload["configured"] is True
+    assert payload["draft_written"] is False
+    assert not (repo_root / "logics" / "release" / "contract.draft.json").exists()
 
 
 def test_release_status_blocks_failed_command_evidence(tmp_path: Path) -> None:

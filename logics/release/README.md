@@ -19,6 +19,11 @@ changelog folders, checksum metadata, and deployment docs. Neighbor projects
 are comparison evidence only; they must not override the current repo's local
 signals.
 
+Use `logics-manager release discover --write` to generate the draft from the
+current repository. Without `--write`, the command prints the inferred contract
+without mutating files. If an active contract already exists, discovery reports
+that contract unless `--force` is used for comparison.
+
 ## State Machine
 
 The common state machine is:

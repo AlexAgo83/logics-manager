@@ -31,7 +31,7 @@ from .audit import audit_payload
 from .bootstrap import bootstrap_payload
 from .config import find_repo_root
 from .lint import lint_payload
-from .release import release_status_payload
+from .release import load_release_context, release_status_payload
 from .update_check import get_update_info
 
 
@@ -64,11 +64,12 @@ CDX_MISSION_CATALOG = {
     "full-audit": {
         "id": "full-audit",
         "title": "Full audit",
-        "description": "Audit the repository and optionally apply safe, validated fixes.",
+        "description": "Audit the repository, always draft a Logics request, and optionally apply fixes with a full request→item→task chain.",
         "scope": "repository",
         "requiresReleaseTag": False,
         "requiresPlanConfirmation": False,
         "supportsFileWrites": True,
+        "requiresFileWrites": True,
         "inputFields": [
             {
                 "id": "directFixes",
@@ -81,11 +82,12 @@ CDX_MISSION_CATALOG = {
     "release-review": {
         "id": "release-review",
         "title": "Review since latest release",
-        "description": "Review changes since the latest release and optionally apply safe fixes.",
+        "description": "Review changes since the latest release, always draft a Logics request, and optionally apply fixes with a full request→item→task chain.",
         "scope": "latest-release",
         "requiresReleaseTag": True,
         "requiresPlanConfirmation": False,
         "supportsFileWrites": True,
+        "requiresFileWrites": True,
         "inputFields": [
             {
                 "id": "directFixes",
@@ -1966,6 +1968,14 @@ def _mission_text_input(body: dict[str, Any], key: str, *, max_chars: int = 4000
     return normalized[:max_chars]
 
 
+def _mission_prompt_override(body: dict[str, Any], *, max_chars: int = 12000) -> str:
+    """Read an operator-edited prompt verbatim, preserving newlines and bounding length."""
+    raw = body.get("promptOverride")
+    if not isinstance(raw, str):
+        return ""
+    return raw.strip()[:max_chars]
+
+
 def _mission_bool_input(body: dict[str, Any], key: str) -> bool:
     value = body.get(key)
     if isinstance(value, bool):
@@ -1973,6 +1983,71 @@ def _mission_bool_input(body: dict[str, Any], key: str) -> bool:
     if isinstance(value, str):
         return value.strip().lower() in {"1", "true", "yes", "on"}
     return False
+
+
+def _release_contract_prompt_block(repo_root: Path) -> str:
+    """Summarise the active release contract so the pre-release mission stays
+    aligned with the project's release surfaces instead of hard-coded guesses."""
+    try:
+        context = load_release_context(repo_root)
+    except Exception:
+        return ""
+    if context.contract is None:
+        return "\n".join([
+            "No active release contract exists at logics/release/contract.json.",
+            "Infer a release contract draft from local sources first (VERSION, pyproject.toml, package.json, README.md, .github/workflows/, changelogs/). Use neighboring projects only as comparison evidence after inspecting local release surfaces.",
+        ])
+    contract = context.contract
+    lines: list[str] = [
+        "Use the project release contract (logics/release/contract.json) as the single source of truth for this pre-release.",
+    ]
+    version_sources = contract.get("version_sources") if isinstance(contract.get("version_sources"), list) else []
+    src_descs: list[str] = []
+    for src in version_sources:
+        if not isinstance(src, dict):
+            continue
+        path = src.get("path")
+        if not path:
+            continue
+        selector = src.get("selector")
+        src_descs.append(f"{path}{f' ({selector})' if selector else ''}")
+    if src_descs:
+        lines.append("Update exactly these version sources to the target version: " + "; ".join(src_descs) + ".")
+    changelog = contract.get("changelog") if isinstance(contract.get("changelog"), dict) else {}
+    cl_paths = [entry.get("path") for entry in (changelog.get("paths") or []) if isinstance(entry, dict) and entry.get("path")]
+    if cl_paths:
+        heading = " A version heading is required." if changelog.get("version_heading_required") else ""
+        lines.append("Create or update the changelog at: " + "; ".join(cl_paths) + "." + heading)
+    validation = contract.get("validation_commands") if isinstance(contract.get("validation_commands"), list) else []
+    cmd_descs: list[str] = []
+    for entry in validation:
+        if isinstance(entry, dict) and isinstance(entry.get("command"), list) and entry["command"]:
+            cmd_descs.append(" ".join(str(part) for part in entry["command"]))
+    if cmd_descs:
+        lines.append("Project validation commands: " + "; ".join(cmd_descs) + ".")
+    git = contract.get("git") if isinstance(contract.get("git"), dict) else {}
+    tag_policy = git.get("tag_policy") if isinstance(git.get("tag_policy"), dict) else {}
+    git_bits: list[str] = []
+    if git.get("allowed_branches"):
+        git_bits.append("allowed branches: " + ", ".join(str(branch) for branch in git["allowed_branches"]))
+    if tag_policy.get("pattern"):
+        git_bits.append(f"release tag pattern: {tag_policy['pattern']}")
+    if git_bits:
+        lines.append("Git policy — " + "; ".join(git_bits) + ".")
+    for intent in (contract.get("operator_intents") if isinstance(contract.get("operator_intents"), list) else []):
+        if isinstance(intent, dict) and intent.get("utterance") == "prepare release" and intent.get("boundary"):
+            lines.append(f"Operator-intent boundary for preparing a release: {intent['boundary']}")
+            break
+    try:
+        status = release_status_payload(repo_root)
+    except Exception:
+        status = {}
+    if isinstance(status, dict) and status.get("configured"):
+        if status.get("target_version"):
+            lines.append(f"Current version detected across sources: {status['target_version']}.")
+        if status.get("state"):
+            lines.append(f"Current release state: {status['state']}.")
+    return "\n".join(lines)
 
 
 def _cdx_mission_prompt(
@@ -1985,6 +2060,7 @@ def _cdx_mission_prompt(
     allow_file_writes: bool = False,
     direct_fixes: bool = False,
     commit_at_end: bool = False,
+    contract_block: str = "",
 ) -> str:
     write_guidance = (
         "File edits are allowed when they directly complete the selected mission mode. Keep changes scoped, run relevant validation, and report changed files."
@@ -1996,16 +2072,19 @@ def _cdx_mission_prompt(
         if commit_at_end
         else "Do not create git commits."
     )
+    request_only_guidance = (
+        "Always capture the outcome as a bounded Logics request. Create it under logics/request/ with `logics-manager flow new request` (use the next available req_ slug), summarizing findings and the recommended follow-up. Leave it as a request draft for later triage; do not promote it to a backlog item or task, and do not directly modify product/source files."
+    )
+    direct_fix_chain_guidance = (
+        "Fix safe, scoped issues directly in repository files when you can validate them; do not make broad refactors, and do not release, tag, push, or publish. Then capture the completed work as a full Logics workflow chain as proof: create a request under logics/request/ with `logics-manager flow new request`, then promote it with `logics-manager flow promote request-to-backlog <req_slug>` and `logics-manager flow promote backlog-to-task <item_slug>` so the request, backlog item, and task all document the applied fixes and their validation evidence."
+    )
     if mission_id == "full-audit":
         if direct_fixes:
-            action_guidance = "Fix safe, scoped issues directly in repository files when you can validate them. Do not write a separate audit corpus/report artifact. Do not make broad refactors, release, tag, push, or publish."
-            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
-        elif allow_file_writes:
-            action_guidance = "Create or update a bounded Logics request under logics/request/ for actionable full-audit follow-up. Do not write a separate audit corpus/report artifact. Do not directly modify product/source files to fix issues."
-            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
+            action_guidance = direct_fix_chain_guidance
+            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence, workflowRefs (the created request, backlog item, and task references)."
         else:
-            action_guidance = "Report only; do not write corpus files, fix issues, or modify files."
-            schema = "Return concise JSON with keys: summary, findings, recommendations."
+            action_guidance = request_only_guidance
+            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
         return "\n".join([
             "Run a full repository audit for this Logics Manager checkout.",
             "Focus on correctness bugs, workflow risks, missing validation, stale documentation, and test gaps.",
@@ -2016,14 +2095,11 @@ def _cdx_mission_prompt(
         ])
     if mission_id == "release-review":
         if direct_fixes:
-            action_guidance = "Fix safe, scoped release-readiness issues directly in repository files when you can validate them, such as stale documentation, missing release notes, or narrow test failures. Do not write a separate release-review corpus/report artifact. Do not bump versions unless explicitly requested, and do not tag, push, publish, upload assets, or create GitHub releases."
-            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence."
-        elif allow_file_writes:
-            action_guidance = "Create or update a bounded Logics request under logics/request/ for actionable release-review follow-up. Do not write a separate release-review corpus/report artifact under logics/external. Do not directly modify product/source files to fix issues. Do not bump versions, tag, push, publish, upload assets, or create GitHub releases."
-            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
+            action_guidance = "Fix safe, scoped release-readiness issues directly in repository files when you can validate them (stale documentation, missing release notes, narrow test failures). Do not bump versions, tag, push, publish, upload assets, or create GitHub releases. Then capture the completed work as a full Logics workflow chain as proof: create a request under logics/request/ with `logics-manager flow new request`, then promote it with `logics-manager flow promote request-to-backlog <req_slug>` and `logics-manager flow promote backlog-to-task <item_slug>` so the request, backlog item, and task all document the applied fixes and their validation evidence."
+            schema = "Return concise JSON with keys: summary, findings, directFixes, changedFiles, validationEvidence, workflowRefs (the created request, backlog item, and task references)."
         else:
-            action_guidance = "Report only; do not update release files, write corpus files, fix issues, tag, push, publish, upload assets, or create GitHub releases."
-            schema = "Return concise JSON with keys: summary, findings, recommendations."
+            action_guidance = "Always capture the outcome as a bounded Logics request. Create it under logics/request/ with `logics-manager flow new request` (use the next available req_ slug), summarizing release-readiness findings and follow-up. Leave it as a request draft for later triage; do not promote it, do not directly modify product/source files, and do not bump versions, tag, push, publish, upload assets, or create GitHub releases."
+            schema = "Return concise JSON with keys: summary, findings, recommendations, requestFiles, validationEvidence."
         return "\n".join([
             f"Review repository changes since the latest release tag {release_tag}.",
             "Focus on regressions, incomplete release notes, migration risks, and missing tests.",
@@ -2062,20 +2138,23 @@ def _cdx_mission_prompt(
             wish_text,
         ])
     if mission_id == "pre-release":
-        validation_mode = "Run the project-defined full validation path before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the validation commands that should be run before release."
+        validation_mode = "Run the release contract validation commands before finalizing the report, and include actionable fixes for any failures." if run_full_validation else "Do not run full validation; identify the release contract validation commands that should be run before release."
         release_prep_guidance = (
-            "Prepare release metadata files for the requested version when needed: update package.json, pyproject.toml, VERSION, and create or update the matching changelogs/CHANGELOGS_X_Y_Z.md. Do not create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
+            "Prepare release metadata for the requested version by updating the exact version sources and changelog declared by the release contract. Do not create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
             if allow_file_writes
-            else "Do not modify package versions, changelog files, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
+            else "Do not modify version sources, changelog files, create Git tags, push branches, publish packages, upload release assets, or create GitHub releases."
         )
         return "\n".join([
-            f"Prepare a guarded pre-release for version {release_version}.",
-            validation_mode,
-            release_prep_guidance,
-            write_guidance,
-            commit_guidance,
-            "Return JSON only with this schema:",
-            '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',
+            line for line in [
+                f"Prepare a guarded pre-release for version {release_version}.",
+                contract_block,
+                validation_mode,
+                release_prep_guidance,
+                write_guidance,
+                commit_guidance,
+                "Return JSON only with this schema:",
+                '{"summary":"...","version":"vX.X.X","validationMode":"full|plan-only","validationEvidence":["..."],"actionableFixes":[{"title":"...","command":"...","risk":"..."}],"generatedFiles":[{"path":"...","purpose":"..."}],"releasePlan":["..."],"blocked":false}',
+            ] if line
         ])
     raise ValueError("Unknown CDX mission.")
 
@@ -2100,18 +2179,25 @@ def _cdx_mission_command(
     mission_inputs: dict[str, str] | None = None,
     allow_file_writes: bool = False,
     commit_at_end: bool = False,
+    prompt_override: str = "",
 ) -> list[str]:
     mission_inputs = mission_inputs or {}
-    prompt = _cdx_mission_prompt(
-        mission_id,
-        release_tag=release_tag,
-        wish_text=mission_inputs.get("wishText", ""),
-        release_version=mission_inputs.get("releaseVersion", ""),
-        run_full_validation=mission_inputs.get("runFullValidation") == "true",
-        allow_file_writes=allow_file_writes,
-        direct_fixes=mission_inputs.get("directFixes") == "true",
-        commit_at_end=commit_at_end,
-    )
+    override = prompt_override.strip()
+    if override:
+        prompt = override
+    else:
+        contract_block = _release_contract_prompt_block(repo_root) if mission_id == "pre-release" else ""
+        prompt = _cdx_mission_prompt(
+            mission_id,
+            release_tag=release_tag,
+            wish_text=mission_inputs.get("wishText", ""),
+            release_version=mission_inputs.get("releaseVersion", ""),
+            run_full_validation=mission_inputs.get("runFullValidation") == "true",
+            allow_file_writes=allow_file_writes,
+            direct_fixes=mission_inputs.get("directFixes") == "true",
+            commit_at_end=commit_at_end,
+            contract_block=contract_block,
+        )
     timeout = _cdx_mission_timeout(strength, allow_file_writes=allow_file_writes, commit_at_end=commit_at_end)
     effective_reasoning_effort = reasoning_effort or str(strength.get("reasoningEffort") or "medium")
     effective_power = power or str(strength.get("power") or "medium")
@@ -2335,13 +2421,15 @@ def cdx_mission_plan_payload(
     requested_commit_at_end = _mission_bool_input(body, "commitAtEnd")
     direct_fixes = mission_inputs.get("directFixes") == "true"
     supports_file_writes = bool(mission.get("supportsFileWrites", True))
-    allow_file_writes = (requested_file_writes or direct_fixes) and supports_file_writes
+    requires_file_writes = bool(mission.get("requiresFileWrites"))
+    allow_file_writes = (requested_file_writes or direct_fixes or requires_file_writes) and supports_file_writes
     commit_at_end = requested_commit_at_end and allow_file_writes
     if requested_file_writes and not supports_file_writes:
         warnings.append("This mission is plan-first; direct CDX file writes are disabled. Use Apply allowed actions after CDX returns actions.")
     if requested_commit_at_end and not allow_file_writes:
         warnings.append("Commit-at-end was requested but direct file writes are disabled for this mission.")
     permission = "workspace-write" if allow_file_writes else "read-only"
+    prompt_override = _mission_prompt_override(body)
     command = _cdx_mission_command(
         repo_root,
         mission_id,
@@ -2354,7 +2442,15 @@ def cdx_mission_plan_payload(
         mission_inputs=mission_inputs,
         allow_file_writes=allow_file_writes,
         commit_at_end=commit_at_end,
+        prompt_override=prompt_override,
     )
+    prompt_text = ""
+    if "--prompt" in command:
+        prompt_index = command.index("--prompt")
+        if prompt_index + 1 < len(command):
+            prompt_text = command[prompt_index + 1]
+    if prompt_override:
+        warnings.append("Using an operator-edited prompt. Session, permission, and timeout remain enforced by the server.")
     plan = {
         "mission": mission,
         "missionId": mission_id,
@@ -2365,6 +2461,8 @@ def cdx_mission_plan_payload(
         "reasoningEffort": effective_reasoning_effort,
         "power": effective_power,
         "missionInputs": mission_inputs,
+        "prompt": prompt_text,
+        "promptEdited": bool(prompt_override),
         "scope": mission["scope"],
         "releaseTag": release_tag,
         "allowFileWrites": allow_file_writes,

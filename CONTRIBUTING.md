@@ -26,10 +26,13 @@ Run the narrowest useful checks first, then expand if needed:
 - `npm run audit:logics`
 - `npm run ci:fast`
 - `npm run ci:check`
+- `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle` when validating a release candidate with the VS Code `code` CLI available
 
 If your change touches Logics docs or workflow behavior, also validate the relevant flow-manager tests or doc checks before opening a PR.
 
 Use `npm run clean:local-artifacts` to preview generated local outputs that are safe to discard, including build products, smoke artifacts, coverage output, graph cache, and Logics cache. Run `npm run clean:local-artifacts -- --apply` only after checking the preview.
+
+`npm run test:lifecycle` skips by default unless `PLUGIN_LIFECYCLE_TESTS=1` is set. A skipped lifecycle run is expected during normal development, but it is not release integration evidence.
 
 ## Pull Requests
 

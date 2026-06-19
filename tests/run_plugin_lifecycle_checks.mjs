@@ -28,12 +28,12 @@ const codeCommand = process.platform === "win32" ? "code.cmd" : "code";
 // ── Gate checks ──────────────────────────────────────────────────────────────
 
 if (process.env.PLUGIN_LIFECYCLE_TESTS !== "1") {
-  console.log("Plugin lifecycle tests: SKIPPED (set PLUGIN_LIFECYCLE_TESTS=1 to enable)");
+  console.log("Plugin lifecycle tests: SKIPPED (set PLUGIN_LIFECYCLE_TESTS=1 to enable; lifecycle integration not exercised)");
   process.exit(0);
 }
 
 if (!isCodeAvailable()) {
-  console.log("Plugin lifecycle tests: SKIPPED (VS Code `code` CLI not found on PATH)");
+  console.log("Plugin lifecycle tests: SKIPPED (VS Code `code` CLI not found on PATH; lifecycle integration not exercised)");
   process.exit(0);
 }
 

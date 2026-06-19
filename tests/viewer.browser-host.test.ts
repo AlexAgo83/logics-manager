@@ -41,6 +41,7 @@ function createViewerDom(options: {
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
   releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
@@ -114,6 +115,8 @@ function createViewerDom(options: {
     <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option></select>
     <select id="sort-by"><option value="updated-desc">Updated</option></select>
     <button id="viewer-document-close" type="button">Close</button>
+    <button id="viewer-document-refresh" type="button">Refresh</button>
+    <button id="viewer-document-status" type="button" hidden>Status</button>
     <button data-action="open" type="button">Open</button>
     <button data-action="read" type="button">Read</button>
     <button data-action="promote" type="button">Promote</button>
@@ -319,6 +322,23 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             document: { path: "logics/request/req_001_demo.md", command: "open" }
+          })
+        };
+      }
+      if (url === "/api/update-status") {
+        if (options.updateStatusResponse) {
+          return {
+            ok: options.updateStatusResponse.ok,
+            status: options.updateStatusResponse.status ?? (options.updateStatusResponse.ok ? 200 : 500),
+            json: async () => options.updateStatusResponse?.body || {}
+          };
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { path: "logics/request/req_001_demo.md", ref: "req_001_demo", kind: "request", updated_indicators: { Status: "Done" }, changed: true }
           })
         };
       }
@@ -1063,6 +1083,38 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector("table")).not.toBeNull();
     expect(content?.querySelector("pre.mermaid")?.textContent).toContain("flowchart TD");
     expect(dom.window.__mermaidRuns).toEqual([1]);
+  });
+
+  it("changes status from the opened document header and refreshes the preview", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const promptSpy = vi.spyOn(dom.window, "prompt").mockReturnValue("Done");
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const statusButton = dom.window.document.getElementById("viewer-document-status") as HTMLButtonElement | null;
+    expect(statusButton?.hidden).toBe(false);
+    expect(statusButton?.title).toContain("Ready");
+
+    statusButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const updateCall = fetchCalls.find((call) => call.url === "/api/update-status");
+    expect(updateCall).toBeTruthy();
+    expect(JSON.parse(String(updateCall?.options?.body || "{}"))).toMatchObject({
+      path: "logics/request/req_001_demo.md",
+      status: "Done"
+    });
+    expect(fetchCalls.filter((call) => String(call.url).startsWith("/api/doc")).length).toBeGreaterThanOrEqual(2);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Updated req_001_demo to Done");
+
+    promptSpy.mockRestore();
   });
 
   it("opens the selected document through the local edit endpoint", async () => {

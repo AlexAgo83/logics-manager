@@ -32,6 +32,7 @@ from .bootstrap import bootstrap_payload
 from .config import find_repo_root
 from .lint import lint_payload
 from .release import load_release_context, release_status_payload
+from .sync import update_workflow_indicators_payload
 from .update_check import get_update_info
 
 
@@ -52,6 +53,14 @@ DOC_FAMILIES = (
 )
 
 STAGE_ORDER = {family.stage: index for index, family in enumerate(DOC_FAMILIES)}
+VIEWER_STATUS_OPTIONS_BY_STAGE = {
+    "request": ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"),
+    "backlog": ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"),
+    "task": ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"),
+    "product": ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"),
+    "architecture": ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"),
+    "spec": ("Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"),
+}
 CDX_MISSION_STRENGTHS = {
     "standard": {"id": "standard", "label": "Standard", "timeout": 180, "reasoningEffort": "medium", "power": "medium"},
     "deep": {"id": "deep", "label": "Deep", "timeout": 300, "reasoningEffort": "high", "power": "high"},
@@ -2908,6 +2917,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-export",
         "/api/cdx-toggle",
         "/api/cdx-remove",
+        "/api/update-status",
     }
 )
 
@@ -4566,6 +4576,33 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": result})
             else:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Remove failed."))
+            return
+        if parsed.path == "/api/update-status":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                rel_path = normalize_viewer_focus_target(self.server.repo_root, str(body.get("path") or body.get("ref") or ""))
+                status = " ".join(str(body.get("status") or "").split())
+                stage = _infer_stage(rel_path, Path(rel_path).stem)
+                allowed = VIEWER_STATUS_OPTIONS_BY_STAGE.get(stage, ())
+                if not status:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing status.")
+                    return
+                matched_status = next((entry for entry in allowed if entry.lower() == status.lower()), "")
+                if not matched_status:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, f"Unsupported status for {stage}: {status}.")
+                    return
+                payload = update_workflow_indicators_payload(self.server.repo_root, rel_path, {"Status": matched_status})
+                self._send_json({"ok": True, "payload": payload, "viewer": self.server.viewer_payload(selected_id=str(payload.get("ref") or ""))})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except SystemExit as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

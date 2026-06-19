@@ -576,7 +576,7 @@
 
 .viewer-document__btn[hidden],
 .viewer-document__screen-action[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .viewer-document__icon {

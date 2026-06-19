@@ -179,6 +179,7 @@
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
+  const documentStatusButton = () => document.getElementById("viewer-document-status");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
   const updateBanner = () => document.getElementById("viewer-update");
   const updateCopy = () => document.getElementById("viewer-update-copy");
@@ -254,6 +255,7 @@
   let latestCdxStatusPayload = null;
   let latestCiStatusSignature = "";
   let latestCiScreenMode = "runs";
+  let currentDocumentItem = null;
   let primaryActionBusyKey = "";
   let primaryActionController = null;
   let cdxMissionBusyKey = "";
@@ -280,6 +282,14 @@
     { id: "resetWeek", label: "RESET WEEK" },
     { id: "updated", label: "UPDATED" }
   ];
+  const statusOptionsByStage = {
+    request: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+  };
 
   function readStoredState() {
     try {
@@ -442,6 +452,7 @@
       "#viewer-ci",
       "#viewer-cdx",
       "#viewer-repo-folder",
+      "#viewer-document-status",
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
@@ -1591,8 +1602,16 @@
     const isGit = titleText === "Git status";
     const pull = document.getElementById("viewer-git-pull");
     const push = document.getElementById("viewer-git-push");
+    const status = documentStatusButton();
     if (pull) pull.hidden = !isGit;
     if (push) push.hidden = !isGit;
+    if (status instanceof HTMLButtonElement) {
+      const options = statusOptionsByStage[currentDocumentItem?.stage] || [];
+      const currentStatus = String(currentDocumentItem?.indicators?.Status || currentDocumentItem?.status || "").trim();
+      status.hidden = !(currentDocumentItem && currentDocumentItem.relPath && options.length);
+      status.disabled = status.hidden;
+      status.title = currentStatus ? `Change status from ${currentStatus}` : "Change status";
+    }
   }
 
   // Open a new view transition. `silent` transitions (auto-refresh) are
@@ -1638,9 +1657,10 @@
     return Boolean(error) && (error.name === "AbortError" || error.code === 20);
   }
 
-  function setDocument(titleText, html) {
+  function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxCloseTarget = null;
+    currentDocumentItem = options.item || null;
     const panel = documentPanel();
     const title = documentTitle();
     const content = documentContent();
@@ -2608,7 +2628,7 @@
       const html = api && typeof api.renderMarkdownToHtml === "function"
         ? api.renderMarkdownToHtml(markdown)
         : `<pre>${escapeHtml(markdown)}</pre>`;
-      setDocument(data.document.path, html);
+      setDocument(data.document.path, html, { item: { ...item, relPath: data.document.path || item.relPath } });
     } catch (error) {
       if (isAbortError(error)) {
         return;
@@ -2637,6 +2657,51 @@
       throw new Error(data.error || "Unable to open document editor.");
     }
     setMeta(`Opened ${data.document.path} in system editor.`);
+  }
+
+  async function changeCurrentDocumentStatus() {
+    const item = currentDocumentItem;
+    if (!item || !item.relPath) {
+      setMeta("Open a Logics document before changing status.");
+      return;
+    }
+    const options = statusOptionsByStage[item.stage] || [];
+    if (!options.length) {
+      setMeta("Status changes are not available for this document type.");
+      return;
+    }
+    const currentStatus = String(item?.indicators?.Status || item?.status || "").trim();
+    const promptLines = [
+      `Status for ${item.id || item.relPath}`,
+      currentStatus ? `Current: ${currentStatus}` : "",
+      `Allowed: ${options.join(", ")}`,
+      "Enter a new status:"
+    ].filter(Boolean);
+    const requested = window.prompt(promptLines.join("\n"), currentStatus || options[0]);
+    if (requested === null) {
+      return;
+    }
+    const normalized = options.find((status) => status.toLowerCase() === requested.trim().toLowerCase());
+    if (!normalized) {
+      setMeta(`Unsupported status. Allowed: ${options.join(", ")}.`);
+      return;
+    }
+    if (normalized === currentStatus) {
+      setMeta(`${item.id || item.relPath} is already ${normalized}.`);
+      return;
+    }
+    const response = await fetch("/api/update-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: item.relPath, status: normalized })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to update status.");
+    }
+    await loadItems("POST", { force: true });
+    await showDocumentByPath(data.payload?.path || item.relPath);
+    setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
   }
 
   function countPayloadEntries(payload, keys) {
@@ -6834,6 +6899,9 @@
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);
+    });
+    documentStatusButton()?.addEventListener("click", () => {
+      withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
     });
     document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
       spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });

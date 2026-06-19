@@ -3203,16 +3203,41 @@
     };
   }
 
-  // A thin vertical bar showing remaining session usage, coloured by level.
-  function renderCdxUsageGauge(usage) {
-    if (!usage || usage.percent === null || usage.percent === undefined) return "";
-    const pct = Math.max(0, Math.min(100, usage.percent));
-    const tone = cdxRemainingClass(usage.percent);
-    const resetText = usage.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
-    const title = `CDX usage remaining: ${pct}%${resetText}`;
-    return `<span class="viewer-workshop__usage viewer-workshop__usage--${tone}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
+  // A small vertical gauge of remaining session usage, coloured by level.
+  // Clickable: refreshes this session's CDX status. Rendered for every cdx
+  // session (neutral/empty when usage is not known yet) so it stays clickable.
+  function renderCdxUsageGauge(usage, sessionName) {
+    if (!sessionName) return "";
+    const hasPct = Boolean(usage) && usage.percent !== null && usage.percent !== undefined;
+    const pct = hasPct ? Math.max(0, Math.min(100, usage.percent)) : 0;
+    const tone = hasPct ? cdxRemainingClass(usage.percent) : "neutral";
+    const resetText = usage?.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
+    const title = `CDX usage remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText} · click to refresh`;
+    return `<span class="viewer-workshop__usage viewer-workshop__usage--${tone}" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
       <span class="viewer-workshop__usage-fill" style="height:${pct}%"></span>
     </span>`;
+  }
+
+  async function refreshCdxSessionUsage(sessionName) {
+    try {
+      setMeta(sessionName ? `Refreshing CDX usage for ${sessionName}...` : "Refreshing CDX usage...");
+      const response = await fetch("/api/cdx-status", { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.ok) return;
+      latestCdxStatusPayload = data.payload;
+      latestCdxStatusSignature = runtimeStatusSignature({ status: data.payload });
+      renderWorkshopTerminalList();
+      const usage = cdxSessionUsage(sessionName);
+      if (usage && usage.percent !== null && usage.percent !== undefined) {
+        const resetText = usage.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
+        setMeta(`CDX usage ${sessionName}: ${usage.percent}% remaining${resetText}.`);
+      } else {
+        setMeta(`Refreshed CDX usage${sessionName ? ` for ${sessionName}` : ""}.`);
+      }
+    } catch (error) {
+      setMeta(`CDX usage: ${error?.message || error}`);
+    }
   }
 
   // Re-render the terminal list when CDX usage changes so the gauges stay live
@@ -3260,7 +3285,7 @@
       // the raw command and a discreet usage gauge next to it.
       const cdxSession = cdxSessionForTerminal(entry);
       const displayLabel = cdxSession || entry.label || entry.id;
-      const gauge = cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession)) : "";
+      const gauge = cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : "";
       return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
         <span class="viewer-workshop__terminal-row-main">
           ${gauge}
@@ -6343,6 +6368,7 @@
       const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
+      const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
@@ -6496,6 +6522,13 @@
         event.stopPropagation();
         const id = workshopTerminalClearTarget.getAttribute("data-viewer-workshop-terminal-clear") || "";
         if (id) clearWorkshopTerminal(id);
+        return;
+      }
+      if (workshopCdxUsageTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const session = workshopCdxUsageTarget.getAttribute("data-viewer-cdx-usage-refresh") || "";
+        refreshCdxSessionUsage(session);
         return;
       }
       if (workshopTerminalNewTarget instanceof HTMLElement) {

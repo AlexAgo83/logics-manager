@@ -784,7 +784,7 @@ describe("webview harness filters, details, and docs", () => {
     );
   });
 
-  it("posts lifecycle actions in non-harness mode", () => {
+  it("posts lifecycle actions in non-harness mode", async () => {
     const { dom, postedMessages, confirmMessages } = bootstrapWebview({ harness: false });
     pushData(dom, {
       root: "/workspace/mock",
@@ -794,13 +794,14 @@ describe("webview harness filters, details, and docs", () => {
 
     const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
     doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(postedMessages.some((message) => message.type === "mark-done")).toBe(true);
     expect(dom.window.document.querySelector('[data-action="mark-obsolete"]')).toBeNull();
     expect(confirmMessages[0]).toContain("Mark req_000_kickoff");
   });
 
-  it("does not post lifecycle actions when confirmation is cancelled", () => {
+  it("does not post lifecycle actions when confirmation is cancelled", async () => {
     const { dom, postedMessages } = bootstrapWebview({
       harness: false,
       confirmImpl: () => false
@@ -813,6 +814,7 @@ describe("webview harness filters, details, and docs", () => {
 
     const doneButton = dom.window.document.querySelector('[data-action="mark-done"]');
     doneButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(postedMessages.some((message) => message.type === "mark-done")).toBe(false);
     expect(dom.window.document.querySelector('[data-action="mark-obsolete"]')).toBeNull();

@@ -1421,6 +1421,10 @@
     if (isCapabilityAvailable("cdx")) {
       if (payload.cdx) {
         const runsPayload = payload.cdxRuns || null;
+        // Keep the full CDX status payload fresh from the lightweight badge
+        // poll (same shape as /api/cdx-status), so consumers like the Workshop
+        // terminal usage gauge have current data without opening the CDX screen.
+        latestCdxStatusPayload = payload.cdx;
         latestCdxStatusSignature = runtimeStatusSignature({ status: payload.cdx, runs: runsPayload });
         updateMainCdxBadge(payload.cdx, runsPayload);
       }

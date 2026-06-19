@@ -118,6 +118,7 @@
   },
   "scripts": {
     "view": "node scripts/dev/run-viewer.mjs",
+    "clean:local-artifacts": "node scripts/dev/clean-local-artifacts.mjs",
     "sync:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs",
     "check:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs --check",
     "bundle:extension": "node scripts/build/package-extension.mjs",

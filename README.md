@@ -728,6 +728,7 @@ If the current plugin version is already published, `logics-manager assist next-
 - Fast extension-focused local check: `npm run ci:fast`
 - Full CI-equivalent local check: `npm run ci:check`
 - Security audit policy gate: `npm run audit:ci`
+- Local generated-artifact cleanup preview: `npm run clean:local-artifacts`
 
 `npm run audit:logics` uses the default active-work profile. It blocks correctness and traceability failures with a nonzero process exit, but reports early companion-doc polish such as missing overview Mermaid diagrams as warnings so drafting and agent handoffs can continue.
 
@@ -738,6 +739,8 @@ If the current plugin version is already published, `logics-manager assist next-
 `npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, README badge drift detection, Python tests, CLI smoke checks, TypeScript validation, extension tests, local viewer smoke, and VSIX packaging.
 
 `npm run audit:ci` enforces the repository audit policy locally. It runs `npm audit --json` against the configured npm registry, blocks new actionable vulnerabilities, and only allows the explicitly documented temporary exceptions tracked in the backlog. If the registry is unreachable, the command fails as `registry unavailable` rather than reporting a clean advisory state. `npm run package:ci` is local-only package validation and does not require registry access after dependencies are installed.
+
+`npm run clean:local-artifacts` previews the bounded local cleanup set for generated outputs: `artifacts/`, `build/`, `coverage/`, `.code-review-graph/`, and `logics/.cache/`. Add `-- --apply` to remove only those repo-relative paths after inspecting the preview.
 
 `npm run test:viewer-smoke` writes `artifacts/local-viewer-smoke/summary.json`. A localhost socket bind denial is recorded as an explicit skipped result. CI still has non-skipped coverage for the viewer path: Linux/macOS-capable environments exercise Chrome or the JSDOM fallback, while Windows CI runs a server/API smoke that proves the shell and `/api/items` path without launching a browser.
 

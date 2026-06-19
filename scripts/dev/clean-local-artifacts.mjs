@@ -54,7 +54,7 @@ export function buildCleanupPlan(repoRoot, targets = DEFAULT_ARTIFACT_TARGETS) {
     const sizeBytes = exists ? directorySize(absolutePath) : 0;
     return {
       target,
-      path: relPath,
+      path: toRepoRelativePath(relPath),
       absolutePath,
       exists,
       sizeBytes
@@ -132,6 +132,10 @@ function formatBytes(bytes) {
     value /= 1024;
   }
   return `${value.toFixed(1)} TB`;
+}
+
+function toRepoRelativePath(path) {
+  return sep === "/" ? path : path.split(sep).join("/");
 }
 
 export function printHelp() {

@@ -3002,8 +3002,11 @@ describe("local viewer browser host", () => {
 
     const work2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
     const corvusHandoff = dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null;
+    const work2Remove = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null;
     expect(work2Menu?.textContent).toBe("Resume");
     expect(corvusHandoff?.textContent).toBe("Handoff (work2)");
+    expect(work2Remove?.textContent).toBe("Remove");
+    expect(work2Remove?.classList.contains("viewer-cdx__menu-action--danger")).toBe(true);
     const sessionMenu = work2Menu?.closest("details") as HTMLDetailsElement | null;
     if (sessionMenu) {
       sessionMenu.open = true;
@@ -3032,6 +3035,15 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-2"]')).toBeTruthy();
     expect(terminalCommands).toContainEqual({ command: ["cdx", "handoff", "work2", "corvus"], label: "cdx handoff work2 corvus" });
+
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(terminalCommands).toContainEqual({ command: ["cdx", "remove", "work2"], label: "cdx remove work2" });
   });
 
   it("persists CDX status column visibility with Block and CR hidden by default", async () => {

@@ -28,6 +28,7 @@ from logics_manager.viewer import (
     cdx_mission_apply_plan_payload,
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
+    cdx_remove_payload,
     cdx_run_report_payload,
     cdx_runs_payload,
     cdx_status_payload,
@@ -591,6 +592,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/cdx-mission-apply-plan",
         "/api/workshop-command-start",
         "/api/workshop-command-stop",
+        "/api/cdx-remove",
     }
     assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
 
@@ -1349,6 +1351,25 @@ def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invali
         return subprocess.CompletedProcess(args, 0, "[]", "")
 
     assert cdx_status_payload(tmp_path, runner=array_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 10
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Removed work2."}), "")
+
+    payload = cdx_remove_payload(tmp_path, "work2", runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload == {"ok": True, "message": "Removed work2."}
+    assert calls == [["cdx", "rmv", "work2", "--force", "--json"]]
+    assert cdx_remove_payload(tmp_path, "../bad", runner=runner, which=lambda _name: "/usr/bin/cdx") == {
+        "ok": False,
+        "error": "Invalid session name.",
+    }
 
 
 def test_viewer_cdx_runs_payload_reads_observable_runs(tmp_path: Path) -> None:

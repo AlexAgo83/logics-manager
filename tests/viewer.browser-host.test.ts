@@ -16,9 +16,11 @@ function loadScript(dom: JSDOM, relPath: string) {
 function createViewerDom(options: {
   capabilities?: Record<string, { state: string; available: boolean; message: string; detail?: Record<string, unknown> }>;
   cdxReportResponse?: { state: string; message: string; report: Record<string, unknown> };
+  cdxRemoveResponse?: { ok: boolean; status?: number; body?: unknown };
   cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  cdxStatusGate?: Promise<void>;
   cdxResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   ciResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxMissionRunGate?: Promise<void>;
@@ -402,6 +404,9 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/cdx-status") {
+        if (options.cdxStatusGate) {
+          await options.cdxStatusGate;
+        }
         const queuedCdxResponse = options.cdxResponses?.shift();
         const cdxResponse = queuedCdxResponse || options.cdxResponseFactory?.() || options.cdxResponse;
         if (cdxResponse) {
@@ -448,6 +453,13 @@ function createViewerDom(options: {
               ]
             }
           })
+        };
+      }
+      if (url === "/api/cdx-remove") {
+        return {
+          ok: options.cdxRemoveResponse?.ok ?? true,
+          status: options.cdxRemoveResponse?.status ?? (options.cdxRemoveResponse?.ok === false ? 500 : 200),
+          json: async () => options.cdxRemoveResponse?.body ?? { ok: true, payload: { message: "Remove complete." } }
         };
       }
       if (url === "/api/ci-status") {
@@ -1594,6 +1606,33 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
     expect((dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement | null)?.value).toBe("task");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain(metaBefore?.split(" · next auto refresh")[0] || "");
+  });
+
+  it("does not let a delayed silent CDX refresh reopen CDX over another screen", async () => {
+    let releaseCdxStatus: () => void = () => {};
+    const cdxStatusGate = new Promise<void>((resolve) => {
+      releaseCdxStatus = resolve;
+    });
+    const { dom } = createViewerDom({ cdxStatusGate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
+
+    releaseCdxStatus();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
   });
 
   it("lets users disable automatic refresh without disabling manual refresh", async () => {
@@ -2979,8 +3018,22 @@ describe("local viewer browser host", () => {
     rows[0].last_launched_at = "2026-06-19T10:00:00.000Z";
     rows[1].resume_available = true;
     rows[1].last_launched_at = "2026-06-19T09:00:00.000Z";
+    rows.push({
+      session_name: "retired",
+      provider: "codex",
+      enabled: false,
+      active: false,
+      status: "disabled",
+      auth_status: "authenticated",
+      available_pct: null,
+      remaining_5h_pct: null,
+      remaining_week_pct: null,
+      reset_5h_at: null,
+      reset_week_at: null,
+      updated_at: null
+    });
     const terminalCommands: Array<{ command: string[]; label: string }> = [];
-    const { dom } = createViewerDom({
+    const { dom, calls, fetchCalls } = createViewerDom({
       cdxResponse: payload,
       terminalCommands,
       capabilities: {
@@ -3003,10 +3056,14 @@ describe("local viewer browser host", () => {
     const work2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
     const corvusHandoff = dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null;
     const work2Remove = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null;
+    const disabledRemove = dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null;
     expect(work2Menu?.textContent).toBe("Resume");
     expect(corvusHandoff?.textContent).toBe("Handoff (work2)");
     expect(work2Remove?.textContent).toBe("Remove");
     expect(work2Remove?.classList.contains("viewer-cdx__menu-action--danger")).toBe(true);
+    expect(disabledRemove?.textContent).toBe("Remove");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="new"]')).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="resume"]')).toBeNull();
     const sessionMenu = work2Menu?.closest("details") as HTMLDetailsElement | null;
     if (sessionMenu) {
       sessionMenu.open = true;
@@ -3043,7 +3100,10 @@ describe("local viewer browser host", () => {
       ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(terminalCommands).toContainEqual({ command: ["cdx", "remove", "work2"], label: "cdx remove work2" });
+    expect(calls).toContain("/api/cdx-remove");
+    const removeCall = fetchCalls.find((call) => call.url === "/api/cdx-remove");
+    expect(removeCall?.options?.body).toBe(JSON.stringify({ session: "work2" }));
+    expect(terminalCommands).not.toContainEqual({ command: ["cdx", "remove", "work2"], label: "cdx remove work2" });
   });
 
   it("persists CDX status column visibility with Block and CR hidden by default", async () => {

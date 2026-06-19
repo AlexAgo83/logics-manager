@@ -2617,6 +2617,41 @@ def cdx_toggle_payload(
         return {"ok": True, "message": result.stdout.strip() or f"{action.capitalize()} complete."}
 
 
+def cdx_remove_payload(
+    repo_root: Path,
+    session: str,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    if not session:
+        return {"ok": False, "error": "Session name is required."}
+    if not re.match(r"^[A-Za-z0-9_.:-]{1,120}$", session):
+        return {"ok": False, "error": "Invalid session name."}
+    cdx_runner = runner or subprocess.run
+    try:
+        result = cdx_runner(
+            ["cdx", "rmv", session, "--force", "--json"],
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=_scaled_timeout(repo_root, 10),
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "CDX remove timed out."}
+    if result.returncode != 0:
+        msg = (result.stderr or result.stdout or "").strip()
+        return {"ok": False, "error": msg or "CDX remove failed."}
+    try:
+        parsed = json.loads(result.stdout)
+        return {"ok": True, "message": parsed.get("message") or "Remove complete."}
+    except Exception:
+        return {"ok": True, "message": result.stdout.strip() or "Remove complete."}
+
+
 def cdx_import_payload(
     repo_root: Path,
     file_bytes: bytes,
@@ -2872,6 +2907,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-import",
         "/api/cdx-export",
         "/api/cdx-toggle",
+        "/api/cdx-remove",
     }
 )
 
@@ -4515,6 +4551,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": result})
             else:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Toggle failed."))
+            return
+        if parsed.path == "/api/cdx-remove":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            session = str(body.get("session") or "")
+            result = cdx_remove_payload(self.server.repo_root, session)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Remove failed."))
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

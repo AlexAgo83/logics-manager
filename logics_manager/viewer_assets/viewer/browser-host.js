@@ -238,6 +238,8 @@
     sessionId: "",
     strengthId: "standard",
     missionInputs: {},
+    runMode: "background",
+    promptOverride: "",
     catalog: null,
     statusPayload: null,
     planPayload: null,
@@ -2963,6 +2965,28 @@
     streams: new Map(),
   };
 
+  // Run control for a discovered command. When in-app terminals are available
+  // and the command exposes a runnable argv, offer a hover menu (like the CDX
+  // session launcher): run inline here, or launch in a new Workshop terminal.
+  function renderWorkshopCommandRunMenu(entry) {
+    const id = escapeHtml(entry.id);
+    const terminalsAvailable = Boolean(capability("workshop")?.detail?.terminalsAvailable);
+    const canLaunchTerminal = terminalsAvailable && Array.isArray(entry.runner) && entry.runner.length > 0;
+    if (!canLaunchTerminal) {
+      return `<button class="btn" type="button" data-viewer-workshop-command-run="${id}">Run</button>`;
+    }
+    const name = escapeHtml(entry.name || entry.id);
+    return `
+      <details class="viewer-cdx__menu viewer-workshop__command-run-menu">
+        <summary class="btn viewer-workshop__command-run-summary" title="Choose how to run ${name}">Run</summary>
+        <div class="viewer-cdx__menu-panel viewer-workshop__command-run-panel" role="menu" aria-label="Run options for ${name}">
+          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-workshop-command-run="${id}">Run here</button>
+          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-workshop-command-run-terminal="${id}">New terminal</button>
+        </div>
+      </details>
+    `;
+  }
+
   function renderWorkshopCommandRow(entry) {
     const session = workshopCommandState.sessions.get(entry.id) || null;
     const state = session?.state || "idle";
@@ -2982,7 +3006,7 @@
             ${exitBadge}
             ${running
               ? `<button class="btn" type="button" data-viewer-workshop-command-stop="${escapeHtml(entry.id)}">Stop</button>`
-              : `<button class="btn" type="button" data-viewer-workshop-command-run="${escapeHtml(entry.id)}">Run</button>`}
+              : renderWorkshopCommandRunMenu(entry)}
           </div>
         </div>
         <div class="viewer-workshop__command-meta"><code>${escapeHtml(entry.command)}</code></div>
@@ -3175,6 +3199,13 @@
     if (!label) return "";
     const tokens = label.split(/\s+/).filter(Boolean);
     if (tokens.length < 2 || tokens[0].toLowerCase() !== "cdx") return "";
+    // A handoff terminal runs the destination (new) session it migrates into
+    // (`cdx handoff <source> <destination>`), so name it after the last
+    // positional argument rather than the source it correlates against first.
+    if (tokens[1].toLowerCase() === "handoff") {
+      const positional = tokens.slice(2).filter((token) => token && !token.startsWith("-"));
+      return positional.length ? positional[positional.length - 1] : "";
+    }
     const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
     const names = new Set(
       sessions
@@ -4414,7 +4445,7 @@
   }
 
   function closeCdxSessionMenus(exceptMenu = null) {
-    document.querySelectorAll(".viewer-cdx__session-menu[open], .viewer-cdx__mission-config[open]").forEach((menu) => {
+    document.querySelectorAll(".viewer-cdx__session-menu[open], .viewer-cdx__mission-config[open], .viewer-workshop__command-run-menu[open]").forEach((menu) => {
       if (exceptMenu && menu === exceptMenu) {
         return;
       }
@@ -4519,8 +4550,8 @@
   function cdxMissionCatalog(payload = {}) {
     return payload.catalog || {
       missions: [
-        { id: "full-audit", title: "Full audit", description: "Audit the repository and optionally apply safe, validated fixes.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
-        { id: "release-review", title: "Review since latest release", description: "Review changes since the latest release and optionally apply safe fixes.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
+        { id: "full-audit", title: "Full audit", description: "Audit the repository, always draft a Logics request, and optionally apply fixes with a full request→item→task chain.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
+        { id: "release-review", title: "Review since latest release", description: "Review changes since the latest release, always draft a Logics request, and optionally apply fixes with a full request→item→task chain.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
         { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan for explicit deterministic application.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
         { id: "wish-to-request", title: "Wish to request", description: "Create or draft a structured Logics request from a free-form wish.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
         { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
@@ -4547,7 +4578,7 @@
     const allowFileWrites = mission.supportsFileWrites === false
       ? "false"
       : (latestCdxMissionState.missionInputs.allowFileWrites === "false" ? "false" : "true");
-    return {
+    const request = {
       missionId,
       sessionId: latestCdxMissionState.sessionId || "",
       strengthId: latestCdxMissionState.strengthId || "standard",
@@ -4556,6 +4587,10 @@
       allowFileWrites,
       commitAtEnd: latestCdxMissionState.missionInputs.commitAtEnd === "true" ? "true" : "false"
     };
+    if (latestCdxMissionState.promptOverride) {
+      request.promptOverride = latestCdxMissionState.promptOverride;
+    }
+    return request;
   }
 
   function renderCdxMissionConfigMenu(session, strength) {
@@ -4636,23 +4671,29 @@
     const selectedMission = missions.find((mission) => mission.id === missionId) || {};
     const strengthId = latestCdxMissionState.strengthId || catalog.defaultStrengthId || "standard";
     const selectedStrength = strengths.find((strength) => strength.id === strengthId) || strengths.find((strength) => strength.id === catalog.defaultStrengthId) || {};
+    const runMode = latestCdxMissionState.runMode === "terminal" ? "terminal" : "background";
     const supportsFileWrites = selectedMission.supportsFileWrites !== false;
+    const requiresFileWrites = selectedMission.requiresFileWrites === true;
     const allowFileWrites = supportsFileWrites && latestCdxMissionState.missionInputs.allowFileWrites !== "false";
-    const fileWriteLabel = ["full-audit", "release-review"].includes(selectedMission.id)
-      ? "Write mission corpus/report"
-      : "Allow CDX to modify files";
-    const fileWriteControl = supportsFileWrites
-      ? `
-            <label class="viewer-cdx__field viewer-cdx__field--check">
-              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
-              <span>${escapeHtml(fileWriteLabel)}</span>
-            </label>
+    const commitControl = `
             <label class="viewer-cdx__field viewer-cdx__field--check">
               <input data-viewer-cdx-input="commitAtEnd" type="checkbox"${latestCdxMissionState.missionInputs.commitAtEnd === "true" ? " checked" : ""}>
               <span>Commit changes at end</span>
-            </label>
+            </label>`;
+    const fileWriteControl = requiresFileWrites
+      ? `
+            <div class="viewer-cdx__meta">This mission always drafts a Logics request. Enabling "Fix directly" also promotes it into a backlog item and task as proof.</div>
+            ${commitControl}
         `
-      : `
+      : supportsFileWrites
+        ? `
+            <label class="viewer-cdx__field viewer-cdx__field--check">
+              <input data-viewer-cdx-input="allowFileWrites" type="checkbox"${allowFileWrites ? " checked" : ""}>
+              <span>Allow CDX to modify files</span>
+            </label>
+            ${commitControl}
+        `
+        : `
             <div class="viewer-cdx__meta">Corpus updates are applied after CDX returns allowed actions.</div>
         `;
     latestCdxMissionState.sessionId = selectedSession;
@@ -4672,6 +4713,8 @@
     const plan = planPayload?.plan;
     const warnings = Array.isArray(plan?.warnings) ? plan.warnings : [];
     const command = Array.isArray(plan?.command) ? plan.command.join(" ") : "";
+    const promptValue = latestCdxMissionState.promptOverride || (plan && typeof plan.prompt === "string" ? plan.prompt : "");
+    const promptEdited = Boolean(plan?.promptEdited || latestCdxMissionState.promptOverride);
     const warningRows = warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
     const canRun = planPayload?.state === "ok" && plan?.canRun;
     const usage = runPayload?.run?.usage || {};
@@ -4703,9 +4746,16 @@
             ${renderCdxMissionConfigMenu(selectedSessionItem, selectedStrength)}
             ${fileWriteControl}
             ${renderCdxMissionInputs(selectedMission)}
+            <label class="viewer-cdx__field">
+              <span>Run in</span>
+              <select data-viewer-cdx-run-mode>
+                <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner</option>
+                <option value="terminal"${runMode === "terminal" ? " selected" : ""}>New terminal</option>
+              </select>
+            </label>
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
-              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>Launch run</button>
+              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
             </div>
           </section>
         </div>
@@ -4714,6 +4764,13 @@
             <h2 class="viewer-cdx__heading">Plan preview</h2>
             ${planPayload && planPayload.state !== "ok" ? `<div class="viewer-cdx__state">${escapeHtml(planPayload.message || "Unable to build mission plan.")}</div>` : ""}
             ${command ? `<pre class="viewer-cdx__code">${escapeHtml(command)}</pre>` : '<div class="viewer-cdx__empty">Preview a mission to inspect the exact command before launch.</div>'}
+            ${plan && typeof plan.prompt === "string" ? `
+              <label class="viewer-cdx__field">
+                <span>Prompt${promptEdited ? " (edited)" : " (editable)"}</span>
+                <textarea data-viewer-cdx-prompt rows="10" spellcheck="false" placeholder="Generated mission prompt">${escapeHtml(promptValue)}</textarea>
+              </label>
+              <div class="viewer-cdx__meta">Edits apply on the next Preview or Launch run. Session, permission, and timeout stay enforced by the server and release contract.</div>
+            ` : ""}
             ${plan?.releaseTag ? `<div class="viewer-cdx__meta">Base tag: ${escapeHtml(plan.releaseTag)}</div>` : ""}
             ${plan?.commitAtEnd ? '<div class="viewer-cdx__meta">Commit at end: enabled when mission changes files.</div>' : ""}
             ${plan?.requiresConfirmation ? '<div class="viewer-cdx__meta">Plan-first mission: Logics changes need explicit apply after CDX returns allowed actions.</div>' : ""}
@@ -5348,7 +5405,53 @@
     setMeta(data.payload?.state === "ok" ? "CDX mission preview ready." : (data.payload?.message || "CDX mission preview failed."));
   }
 
+  async function launchCdxMissionInTerminal() {
+    setMeta("Preparing CDX mission for a new terminal...");
+    const response = await fetch("/api/cdx-mission-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedCdxMissionRequest())
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to prepare CDX mission.");
+    }
+    latestCdxMissionState.planPayload = data.payload;
+    const plan = data.payload?.plan || null;
+    if (data.payload?.state !== "ok" || !plan || !Array.isArray(plan.command) || !plan.command.length) {
+      latestCdxMissionState.runPayload = null;
+      latestCdxMissionState.applyPayload = null;
+      setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, data.payload, null, null));
+      setMeta(data.payload?.message || "CDX mission could not be prepared for a terminal.");
+      return;
+    }
+    if (plan.sessionId) {
+      latestCdxMissionState.sessionId = plan.sessionId;
+    }
+    const terminalId = await spawnWorkshopTerminal({
+      command: plan.command,
+      label: `cdx mission ${plan.missionId || latestCdxMissionState.missionId}`
+    });
+    const launched = Boolean(terminalId);
+    latestCdxMissionState.runPayload = {
+      state: launched ? "terminal" : "error",
+      message: launched
+        ? "Mission launched in a Workshop terminal. Track its result and run id from the Runs tab once it completes."
+        : "Unable to start a Workshop terminal for this mission.",
+      plan,
+      run: null
+    };
+    latestCdxMissionState.applyPayload = null;
+    if (isCdxMissionsOpen()) {
+      setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, null));
+    }
+    setMeta(launched ? "CDX mission launched in a new terminal." : "CDX mission terminal launch failed.");
+  }
+
   async function launchCdxMission() {
+    if (latestCdxMissionState.runMode === "terminal") {
+      return launchCdxMissionInTerminal();
+    }
     setMeta("Launching CDX mission...");
     const request = selectedCdxMissionRequest();
     const plan = latestCdxMissionState.planPayload?.plan || null;
@@ -6308,14 +6411,28 @@
     document.addEventListener("change", (event) => {
       const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
       const cdxInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-input]") : null;
+      const cdxRunModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run-mode]") : null;
+      const cdxPromptTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-prompt]") : null;
       const cdxColumnTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-column]") : null;
       const cdxProviderTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider]") : null;
+      if (cdxPromptTarget instanceof HTMLTextAreaElement) {
+        // Store the operator-edited prompt without resetting the plan so the
+        // edit survives until the next Preview or Launch run.
+        latestCdxMissionState.promptOverride = cdxPromptTarget.value || "";
+        return;
+      }
+      if (cdxRunModeTarget instanceof HTMLSelectElement) {
+        latestCdxMissionState.runMode = cdxRunModeTarget.value === "terminal" ? "terminal" : "background";
+        setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, latestCdxMissionState.applyPayload));
+        return;
+      }
       if (sessionTarget instanceof HTMLSelectElement) {
         latestCdxMissionState.sessionId = sessionTarget.value || "";
         delete latestCdxMissionState.missionInputs.model;
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
+        latestCdxMissionState.promptOverride = "";
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
       }
       if (cdxInputTarget instanceof HTMLInputElement || cdxInputTarget instanceof HTMLTextAreaElement || cdxInputTarget instanceof HTMLSelectElement) {
@@ -6325,6 +6442,7 @@
           latestCdxMissionState.planPayload = null;
           latestCdxMissionState.runPayload = null;
           latestCdxMissionState.applyPayload = null;
+          latestCdxMissionState.promptOverride = "";
         }
       }
       if (cdxColumnTarget instanceof HTMLInputElement) {
@@ -6349,7 +6467,7 @@
     });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config") : null;
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config, .viewer-workshop__command-run-menu") : null;
       closeCdxSessionMenus(activeCdxSessionMenu);
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
@@ -6362,6 +6480,7 @@
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
+      const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
       const workshopTerminalCustomTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-custom]") : null;
@@ -6449,6 +6568,7 @@
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
         latestCdxMissionState.missionInputs = {};
+        latestCdxMissionState.promptOverride = "";
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
         return;
       }
@@ -6457,6 +6577,7 @@
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
+        latestCdxMissionState.promptOverride = "";
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
         return;
       }
@@ -6549,10 +6670,22 @@
       }
       if (workshopRunTarget instanceof HTMLElement) {
         event.preventDefault();
+        workshopRunTarget.closest("details")?.removeAttribute("open");
         const commandId = workshopRunTarget.getAttribute("data-viewer-workshop-command-run") || "";
         if (commandId) {
           updateWorkshopCommandSession(commandId, { state: "starting", logText: "" });
           startWorkshopCommand(commandId);
+        }
+        return;
+      }
+      if (workshopRunTerminalTarget instanceof HTMLElement) {
+        event.preventDefault();
+        workshopRunTerminalTarget.closest("details")?.removeAttribute("open");
+        const commandId = workshopRunTerminalTarget.getAttribute("data-viewer-workshop-command-run-terminal") || "";
+        const commands = workshopCommandState.catalog?.commands;
+        const entry = Array.isArray(commands) ? commands.find((item) => item?.id === commandId) : null;
+        if (entry && Array.isArray(entry.runner) && entry.runner.length) {
+          spawnWorkshopTerminal({ command: entry.runner.map(String), label: String(entry.name || commandId) });
         }
         return;
       }
@@ -6647,7 +6780,7 @@
       }
     });
     document.addEventListener("focusin", (event) => {
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config") : null;
+      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config, .viewer-workshop__command-run-menu") : null;
       closeCdxSessionMenus(activeCdxSessionMenu);
     });
     document.addEventListener("keydown", (event) => {

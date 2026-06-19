@@ -155,11 +155,24 @@ function createViewerDom(options: {
     "| `x` | y |"
   ].join("\n");
 
-  Object.defineProperty(dom.window, "fetch", {
-    configurable: true,
-    value: async (url: string, fetchOptions?: RequestInit) => {
-      calls.push(String(url));
-      fetchCalls.push({ url: String(url), options: fetchOptions });
+  // Resolves a single endpoint without recording the call, so the consolidated
+  // /api/status handler can compose its components without polluting the
+  // tracked `calls` array that assertions count against.
+  const respond = async (url: string, fetchOptions?: RequestInit): Promise<any> => {
+      if (url === "/api/status") {
+        const pick = async (componentUrl: string) => {
+          const res = await respond(componentUrl);
+          const data = await res.json();
+          return data?.payload;
+        };
+        const [git, ci, cdx, cdxRuns] = await Promise.all([
+          pick("/api/git-status"),
+          pick("/api/ci-status"),
+          pick("/api/cdx-status"),
+          pick("/api/cdx-runs")
+        ]);
+        return { ok: true, status: 200, json: async () => ({ ok: true, payload: { git, ci, cdx, cdxRuns } }) };
+      }
       if (url === "/api/items" || url === "/api/refresh") {
         if (url === "/api/refresh" && options.refreshGate) {
           await options.refreshGate;
@@ -822,6 +835,14 @@ function createViewerDom(options: {
         };
       }
       throw new Error(`Unexpected fetch: ${url}`);
+  };
+
+  Object.defineProperty(dom.window, "fetch", {
+    configurable: true,
+    value: async (url: string, fetchOptions?: RequestInit) => {
+      calls.push(String(url));
+      fetchCalls.push({ url: String(url), options: fetchOptions });
+      return respond(url, fetchOptions);
     }
   });
 

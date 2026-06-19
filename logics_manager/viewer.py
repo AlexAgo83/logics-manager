@@ -3494,6 +3494,11 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.workshop_terminals = WorkshopTerminalRegistry()
         # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
         self.status_cache: dict[str, tuple[float, str, bytes]] = {}
+        # Cache of (monotonic_ts, payload) keyed by "<component>::<repo_root>",
+        # shared between the individual status endpoints and the consolidated
+        # /api/status so an open screen and the badge refresh in the same tick
+        # do not each recompute the same component.
+        self.status_components: dict[str, tuple[float, Any]] = {}
         self.status_cache_lock = threading.Lock()
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
@@ -3514,6 +3519,23 @@ class LogicsViewerServer(ThreadingHTTPServer):
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
         return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
+
+    def status_component(self, name: str, producer: Any) -> Any:
+        """Return a status component payload, recomputing at most once per TTL.
+
+        Shared by the individual status endpoints and the consolidated
+        /api/status so concurrent consumers reuse a single computation.
+        """
+        key = f"{name}::{self.repo_root}"
+        now = time.monotonic()
+        with self.status_cache_lock:
+            entry = self.status_components.get(key)
+            if entry is not None and (now - entry[0]) < STATUS_CACHE_TTL_SECONDS:
+                return entry[1]
+        value = producer()
+        with self.status_cache_lock:
+            self.status_components[key] = (time.monotonic(), value)
+        return value
 
     def viewer_payload(self, *, selected_id: str | None = None) -> dict[str, Any]:
         payload = viewer_data_payload(
@@ -3580,6 +3602,17 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
+
+    def _status_component(self, name: str) -> Any:
+        repo_root = self.server.repo_root
+        producers = {
+            "git": lambda: git_status_payload(repo_root),
+            "ci": lambda: ci_status_payload(repo_root),
+            "release": lambda: release_status_payload(repo_root),
+            "cdx": lambda: cdx_status_payload(repo_root),
+            "cdxRuns": lambda: cdx_runs_payload(repo_root),
+        }
+        return self.server.status_component(name, producers[name])
 
     def _send_status_json(self, cache_key: str, producer: Any) -> None:
         """Serve a status payload with a short TTL cache and ETag revalidation.
@@ -4010,19 +4043,30 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
             return
         if route == "/api/git-status":
-            self._send_status_json("git-status", lambda: git_status_payload(self.server.repo_root))
+            self._send_status_json("git-status", lambda: self._status_component("git"))
             return
         if route == "/api/ci-status":
-            self._send_status_json("ci-status", lambda: ci_status_payload(self.server.repo_root))
+            self._send_status_json("ci-status", lambda: self._status_component("ci"))
             return
         if route == "/api/release-status":
-            self._send_status_json("release-status", lambda: release_status_payload(self.server.repo_root))
+            self._send_status_json("release-status", lambda: self._status_component("release"))
             return
         if route == "/api/cdx-status":
-            self._send_status_json("cdx-status", lambda: cdx_status_payload(self.server.repo_root))
+            self._send_status_json("cdx-status", lambda: self._status_component("cdx"))
             return
         if route == "/api/cdx-runs":
-            self._send_status_json("cdx-runs", lambda: cdx_runs_payload(self.server.repo_root))
+            self._send_status_json("cdx-runs", lambda: self._status_component("cdxRuns"))
+            return
+        if route == "/api/status":
+            self._send_status_json(
+                "status",
+                lambda: {
+                    "git": self._status_component("git"),
+                    "ci": self._status_component("ci"),
+                    "cdx": self._status_component("cdx"),
+                    "cdxRuns": self._status_component("cdxRuns"),
+                },
+            )
             return
         if route == "/api/cdx-run-report":
             run_id = parse_qs(parsed.query).get("runId", [""])[0]

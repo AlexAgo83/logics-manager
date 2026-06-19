@@ -1388,6 +1388,56 @@
     }
   }
 
+  // Update the CI, CDX and Git badges from a single consolidated /api/status
+  // request instead of firing ci-status + cdx-status + cdx-runs (+ git-status)
+  // separately on every auto-refresh tick. Falls back to the legacy per-badge
+  // refreshers when talking to an older backend without /api/status.
+  async function refreshBadgeCounters() {
+    let payload;
+    try {
+      const response = await fetch("/api/status");
+      if (response.status === 404) {
+        refreshCiBadgeCounters();
+        refreshCdxBadgeCounters();
+        refreshGitBadgeCounters();
+        return;
+      }
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        return;
+      }
+      payload = data.payload || {};
+    } catch {
+      return; // leave badges as-is on network/parse failure
+    }
+    if (isCapabilityAvailable("ci")) {
+      if (payload.ci) {
+        latestCiStatusSignature = runtimeStatusSignature(payload.ci);
+        updateMainCiBadge(payload.ci);
+      }
+    } else {
+      updateMainCiBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "CI is not available for this project.") });
+    }
+    if (isCapabilityAvailable("cdx")) {
+      if (payload.cdx) {
+        const runsPayload = payload.cdxRuns || null;
+        latestCdxStatusSignature = runtimeStatusSignature({ status: payload.cdx, runs: runsPayload });
+        updateMainCdxBadge(payload.cdx, runsPayload);
+      }
+    } else {
+      updateMainCdxBadge(null);
+    }
+    if (isCapabilityAvailable("git")) {
+      if (payload.git && payload.git.state === "ok") {
+        latestGitStatusSignature = gitStatusSignature(payload.git);
+        setGitBadgeCountsFromPayload(payload.git);
+      }
+    } else {
+      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      updateMainGitBadges();
+    }
+  }
+
   function findItemByPath(relPath) {
     const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
     return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
@@ -1774,8 +1824,7 @@
     updateVersionLink(payload.updateInfo);
     renderUpdateNotice(payload.updateInfo);
     renderEnvironmentWarning(payload.environmentWarning);
-    refreshCiBadgeCounters();
-    refreshCdxBadgeCounters();
+    refreshBadgeCounters();
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();

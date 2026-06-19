@@ -4,7 +4,7 @@
 > Related request: `req_250_address_project_audit_follow_up_actions`
 > Related backlog: `item_439_resolve_npm_audit_blocking_dependency_findings`, `item_440_make_ci_check_enforce_npm_audit_policy`, `item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards`, `item_442_add_local_artifact_cleanup_command`, `item_443_target_coverage_gaps_in_high_risk_modules`, `item_444_document_lifecycle_test_prerequisites_and_execution_path`
 > Related task: `task_233_orchestrate_project_audit_remediation`
-> Related architecture: (none yet)
+> Related architecture: `adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
@@ -41,6 +41,7 @@ flowchart TD
 # Key product decisions
 - Use structured input as the source of truth for generated docs.
 - Keep generated write paths local and repo-bounded.
+- Treat viewer/CDX modularization as a staged risk-reduction plan around payload helpers, browser state, rendering, and the existing asset sync gate rather than a broad rewrite.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.
@@ -49,3 +50,4 @@ flowchart TD
 # References
 - Product back-reference: `req_250_address_project_audit_follow_up_actions`
 - Task back-reference: `task_233_orchestrate_project_audit_remediation`
+- Architecture back-reference: `adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync`

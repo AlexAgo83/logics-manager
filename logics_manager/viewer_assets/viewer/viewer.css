@@ -1325,11 +1325,16 @@
 .viewer-workshop__usage {
   position: relative;
   flex: 0 0 auto;
-  width: 3px;
+  width: 12px;
   height: 14px;
-  border-radius: 2px;
+  border-radius: 3px;
   background: var(--vscode-editorWidget-border, rgb(255 255 255 / 14%));
   overflow: hidden;
+  cursor: pointer;
+}
+
+.viewer-workshop__usage:hover {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
 }
 
 .viewer-workshop__usage-fill {

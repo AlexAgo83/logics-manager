@@ -1615,6 +1615,11 @@
     return { seq, userSeq, silent, signal };
   }
 
+  function invalidatePendingViews() {
+    viewSeq += 1;
+    userViewSeq += 1;
+  }
+
   // True when a newer transition has superseded `view` and it must not commit.
   function isViewStale(view) {
     if (!view) {
@@ -1634,6 +1639,7 @@
   }
 
   function setDocument(titleText, html) {
+    invalidatePendingViews();
     cdxCloseTarget = null;
     const panel = documentPanel();
     const title = documentTitle();
@@ -1685,6 +1691,7 @@
     }
     const panel = documentPanel();
     if (panel) {
+      invalidatePendingViews();
       panel.hidden = true;
     }
     updateScreenActions("");
@@ -4427,18 +4434,27 @@
     `;
   }
 
+  function isCdxSessionEnabled(item) {
+    if (item.enabled === false) {
+      return false;
+    }
+    const state = String(cdxField(item, ["status", "state"], "")).toLowerCase();
+    return state !== "disabled";
+  }
+
   function renderCdxSessionActionMenu(item, name, label, latestSessionName, canLaunchTerminal) {
-    if (!canLaunchTerminal || !name || name === "-") {
+    if (!name || name === "-") {
       return escapeHtml(label);
     }
+    const enabled = isCdxSessionEnabled(item);
     const resumeAvailable = item.resume_available === true || item.resumeAvailable === true || item.resumable === true;
-    const canHandoff = Boolean(latestSessionName && latestSessionName !== name);
+    const canHandoff = Boolean(enabled && canLaunchTerminal && latestSessionName && latestSessionName !== name);
     return `
       <details class="viewer-cdx__menu viewer-cdx__session-menu">
-        <summary class="viewer-cdx__path-link viewer-cdx__session-summary" title="Choose how to open ${escapeHtml(name)}">${escapeHtml(label)}</summary>
+        <summary class="viewer-cdx__path-link viewer-cdx__session-summary" title="CDX session actions for ${escapeHtml(name)}">${escapeHtml(label)}</summary>
         <div class="viewer-cdx__menu-panel viewer-cdx__session-menu-panel" role="menu" aria-label="CDX session actions for ${escapeHtml(name)}">
-          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>
-          ${resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
+          ${enabled && canLaunchTerminal ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>` : ""}
+          ${enabled && canLaunchTerminal && resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
           ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}" data-viewer-cdx-handoff-source="${escapeHtml(latestSessionName)}">Handoff (${escapeHtml(latestSessionName)})</button>` : ""}
           <button class="viewer-cdx__menu-action viewer-cdx__menu-action--danger" type="button" role="menuitem" data-viewer-cdx-session-action="remove" data-viewer-cdx-session="${escapeHtml(name)}">Remove</button>
         </div>
@@ -4472,7 +4488,7 @@
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
       status: (item) => {
         const name = cdxField(item, ["session_name", "name", "id", "value"]);
-        const isEnabled = item.enabled !== false;
+        const isEnabled = isCdxSessionEnabled(item);
         const badge = renderCdxBadge(cdxField(item, ["status", "state"]));
         if (!name || name === "-") return `<td>${badge}</td>`;
         return `<td><button class="viewer-cdx__status-toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${badge}</button></td>`;
@@ -6560,7 +6576,20 @@
         } else if (action === "handoff" && handoffSource) {
           spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });
         } else if (action === "remove") {
-          spawnWorkshopTerminal({ command: ["cdx", "remove", sessionName], label: `cdx remove ${sessionName}` });
+          cdxSessionActionTarget.disabled = true;
+          fetch("/api/cdx-remove", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session: sessionName }),
+          }).then((r) => r.json().then((data) => ({ ok: r.ok, data }))).then(({ ok, data }) => {
+            if (!ok || !data.ok) {
+              throw new Error(data.error || "Remove failed.");
+            }
+            setMeta(data.payload?.message || `Removed ${sessionName}.`);
+            showCdxStatus({ silent: true, force: true }).catch(() => {});
+          }).catch((error) => {
+            setMeta(`CDX remove: ${error?.message || error}`);
+          }).finally(() => { cdxSessionActionTarget.disabled = false; });
         } else {
           spawnWorkshopTerminal({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
         }

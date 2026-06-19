@@ -96,8 +96,136 @@
     window.EventSource.prototype = NativeEventSource.prototype;
   }
 
+  function closeThemedModal(modal) {
+    if (modal instanceof HTMLElement) {
+      modal.remove();
+    }
+  }
+
+  function createThemedModal({ title, message, submitLabel = "OK", cancelLabel = "Cancel" }) {
+    const modal = document.createElement("div");
+    modal.className = "viewer-themed-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = `
+      <div class="viewer-themed-modal__panel">
+        <div class="viewer-themed-modal__header">
+          <div>
+            <h2 class="viewer-themed-modal__title"></h2>
+            <p class="viewer-themed-modal__copy"></p>
+          </div>
+          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">x</button>
+        </div>
+        <div class="viewer-themed-modal__body"></div>
+        <div class="viewer-themed-modal__actions">
+          <button class="btn viewer-themed-modal__cancel" type="button"></button>
+          <button class="btn primary viewer-themed-modal__submit" type="button"></button>
+        </div>
+      </div>
+    `;
+    const titleTarget = modal.querySelector(".viewer-themed-modal__title");
+    const copyTarget = modal.querySelector(".viewer-themed-modal__copy");
+    const submit = modal.querySelector(".viewer-themed-modal__submit");
+    const cancel = modal.querySelector(".viewer-themed-modal__cancel");
+    if (titleTarget instanceof HTMLElement) titleTarget.textContent = title;
+    if (copyTarget instanceof HTMLElement) copyTarget.textContent = message || "";
+    if (submit instanceof HTMLButtonElement) submit.textContent = submitLabel;
+    if (cancel instanceof HTMLButtonElement) cancel.textContent = cancelLabel;
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  function showThemedInputModal({ title, message, defaultValue = "", placeholder = "", submitLabel = "OK", inputMode = "text", maxLength = 0 }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const input = document.createElement("input");
+      input.className = "viewer-themed-modal__input";
+      input.type = "text";
+      input.value = defaultValue;
+      input.placeholder = placeholder;
+      input.inputMode = inputMode;
+      if (maxLength > 0) input.maxLength = maxLength;
+      body?.appendChild(input);
+      const done = (value) => {
+        closeThemedModal(modal);
+        resolve(value);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done(input.value));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(null);
+        if (event.key === "Enter") done(input.value);
+      });
+      window.setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 0);
+    });
+  }
+
+  function showThemedChoiceModal({ title, message, options, value, submitLabel = "Apply" }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const select = document.createElement("select");
+      select.className = "viewer-themed-modal__select";
+      for (const option of options) {
+        const element = document.createElement("option");
+        element.value = option;
+        element.textContent = option;
+        select.appendChild(element);
+      }
+      select.value = value && options.includes(value) ? value : (options[0] || "");
+      body?.appendChild(select);
+      const done = (nextValue) => {
+        closeThemedModal(modal);
+        resolve(nextValue);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done(select.value));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(null);
+        if (event.key === "Enter") done(select.value);
+      });
+      window.setTimeout(() => {
+        select.focus();
+      }, 0);
+    });
+  }
+
+  function showThemedMessageModal({ title, message, submitLabel = "OK" }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel, cancelLabel: "Close" });
+      const cancel = modal.querySelector(".viewer-themed-modal__cancel");
+      if (cancel instanceof HTMLButtonElement) cancel.hidden = true;
+      const done = () => {
+        closeThemedModal(modal);
+        resolve();
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", done);
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", done);
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" || event.key === "Enter") done();
+      });
+      window.setTimeout(() => {
+        const submit = modal.querySelector(".viewer-themed-modal__submit");
+        if (submit instanceof HTMLButtonElement) submit.focus();
+      }, 0);
+    });
+  }
+
   async function startDevicePairing() {
-    const label = (window.prompt("Label for this device (e.g. 'iPhone Corvus')") || "").trim();
+    const defaultLabel = String(window.navigator?.platform || "").trim() || "LAN device";
+    const label = String(await showThemedInputModal({
+      title: "Pair device",
+      message: "Name this browser so the host can identify it before granting write access.",
+      defaultValue: defaultLabel,
+      placeholder: "Windows test",
+      submitLabel: "Request PIN"
+    }) || "").trim();
     if (!label) return;
     let pairingId = "";
     try {
@@ -108,15 +236,22 @@
       });
       const startData = await startResponse.json();
       if (!startResponse.ok || !startData.ok) {
-        window.alert(`Pairing refused: ${startData.error || startResponse.status}`);
+        await showThemedMessageModal({ title: "Pairing refused", message: String(startData.error || startResponse.status) });
         return;
       }
       pairingId = String(startData.payload?.pairingId || "");
     } catch (err) {
-      window.alert(`Pairing failed: ${err?.message || err}`);
+      await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
       return;
     }
-    const pin = (window.prompt("Enter the 6-digit PIN displayed on the host terminal:") || "").trim();
+    const pin = String(await showThemedInputModal({
+      title: "Enter pairing PIN",
+      message: "Enter the 6-digit PIN displayed on the host terminal.",
+      placeholder: "000000",
+      submitLabel: "Pair device",
+      inputMode: "numeric",
+      maxLength: 6
+    }) || "").trim();
     if (!pin) return;
     try {
       const completeResponse = await fetch("/api/lan/pair/complete", {
@@ -126,7 +261,7 @@
       });
       const completeData = await completeResponse.json();
       if (!completeResponse.ok || !completeData.ok) {
-        window.alert(`Pairing failed: ${completeData.error || completeResponse.status}`);
+        await showThemedMessageModal({ title: "Pairing failed", message: String(completeData.error || completeResponse.status) });
         return;
       }
       setDeviceCredentials({
@@ -134,10 +269,13 @@
         deviceId: String(completeData.payload?.deviceId || ""),
         label: String(completeData.payload?.label || label),
       });
-      window.alert(`Device paired as '${completeData.payload?.label || label}'. Write access enabled on this device.`);
       refreshLanBannerPairingState();
+      await showThemedMessageModal({
+        title: "Device paired",
+        message: `Paired as ${completeData.payload?.label || label}. Write access is enabled on this device.`
+      });
     } catch (err) {
-      window.alert(`Pairing failed: ${err?.message || err}`);
+      await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
     }
   }
 
@@ -2671,13 +2809,15 @@
       return;
     }
     const currentStatus = String(item?.indicators?.Status || item?.status || "").trim();
-    const promptLines = [
-      `Status for ${item.id || item.relPath}`,
-      currentStatus ? `Current: ${currentStatus}` : "",
-      `Allowed: ${options.join(", ")}`,
-      "Enter a new status:"
-    ].filter(Boolean);
-    const requested = window.prompt(promptLines.join("\n"), currentStatus || options[0]);
+    const requested = await showThemedChoiceModal({
+      title: "Change status",
+      message: currentStatus
+        ? `${item.id || item.relPath} is currently ${currentStatus}.`
+        : `Choose a status for ${item.id || item.relPath}.`,
+      options,
+      value: currentStatus || options[0],
+      submitLabel: "Update status"
+    });
     if (requested === null) {
       return;
     }
@@ -3765,10 +3905,15 @@
     }
   }
 
-  function spawnCustomWorkshopTerminal() {
-    const raw = window.prompt("Command to run (space-separated, e.g. 'node --version'):", "");
+  async function spawnCustomWorkshopTerminal() {
+    const raw = await showThemedInputModal({
+      title: "Custom terminal",
+      message: "Enter the command to run in a new Workshop terminal.",
+      placeholder: "node --version",
+      submitLabel: "Run command"
+    });
     if (!raw) return;
-    const command = raw.trim().split(/\s+/).filter(Boolean);
+    const command = String(raw).trim().split(/\s+/).filter(Boolean);
     if (!command.length) return;
     const label = command.slice(0, 2).join(" ").slice(0, 32) || "custom";
     spawnWorkshopTerminal({ command, label });

@@ -36,7 +36,10 @@ function createViewerDom(options: {
   initialState?: unknown;
   initialPreferences?: unknown;
   lanMode?: boolean;
+  lanRwMode?: boolean;
   initialUrlToken?: string;
+  pairStartResponse?: { ok: boolean; status?: number; body?: unknown };
+  pairCompleteResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
@@ -57,6 +60,8 @@ function createViewerDom(options: {
     <div id="viewer-lan-banner" hidden>
       <span id="viewer-lan-banner-url" hidden></span>
       <button id="viewer-lan-banner-copy" type="button" hidden>Copy URL</button>
+      <button id="viewer-lan-banner-pair" type="button" hidden>Pair this device</button>
+      <span id="viewer-lan-banner-paired" hidden></span>
     </div>
     <button id="viewer-git" type="button">Git</button>
     <button id="viewer-workspace" type="button" hidden>Explorer</button>
@@ -216,6 +221,7 @@ function createViewerDom(options: {
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               lanMode: Boolean(options.lanMode),
+              lanRwMode: Boolean(options.lanRwMode),
               lanShareUrl: options.lanMode ? "http://192.168.1.42:8765/?t=secret-lan-token" : "",
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
@@ -339,6 +345,40 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             payload: { path: "logics/request/req_001_demo.md", ref: "req_001_demo", kind: "request", updated_indicators: { Status: "Done" }, changed: true }
+          })
+        };
+      }
+      if (url === "/api/lan/pair/start") {
+        if (options.pairStartResponse) {
+          return {
+            ok: options.pairStartResponse.ok,
+            status: options.pairStartResponse.status ?? (options.pairStartResponse.ok ? 200 : 500),
+            json: async () => options.pairStartResponse?.body || {}
+          };
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { pairingId: "pair-123" }
+          })
+        };
+      }
+      if (url === "/api/lan/pair/complete") {
+        if (options.pairCompleteResponse) {
+          return {
+            ok: options.pairCompleteResponse.ok,
+            status: options.pairCompleteResponse.status ?? (options.pairCompleteResponse.ok ? 200 : 500),
+            json: async () => options.pairCompleteResponse?.body || {}
+          };
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { deviceToken: "device-token", deviceId: "device-123", label: "Windows test" }
           })
         };
       }
@@ -1088,7 +1128,9 @@ describe("local viewer browser host", () => {
   it("changes status from the opened document header and refreshes the preview", async () => {
     const { dom, fetchCalls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
-    const promptSpy = vi.spyOn(dom.window, "prompt").mockReturnValue("Done");
+    const promptSpy = vi.spyOn(dom.window, "prompt").mockImplementation(() => {
+      throw new Error("browser prompt should not be used");
+    });
 
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
@@ -1102,6 +1144,12 @@ describe("local viewer browser host", () => {
 
     statusButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Change status");
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    expect(select).not.toBeNull();
+    if (select) select.value = "Done";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
     await flushViewerAsync();
 
@@ -1114,6 +1162,7 @@ describe("local viewer browser host", () => {
     expect(fetchCalls.filter((call) => String(call.url).startsWith("/api/doc")).length).toBeGreaterThanOrEqual(2);
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Updated req_001_demo to Done");
 
+    expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore();
   });
 
@@ -1468,6 +1517,109 @@ describe("local viewer browser host", () => {
     expect(copy?.hidden).toBe(false);
 
     expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it("pairs a LAN RW device through themed modals without browser prompts", async () => {
+    const { dom, calls, fetchCalls } = createViewerDom({
+      url: "http://192.168.1.42:8765/?t=secret-lan-token",
+      lanMode: true,
+      lanRwMode: true,
+    });
+    const promptSpy = vi.spyOn(dom.window, "prompt").mockImplementation(() => {
+      throw new Error("browser prompt should not be used");
+    });
+    const alertSpy = vi.spyOn(dom.window, "alert").mockImplementation(() => {
+      throw new Error("browser alert should not be used");
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const pairButton = dom.window.document.getElementById("viewer-lan-banner-pair") as HTMLButtonElement | null;
+    expect(pairButton?.hidden).toBe(false);
+    pairButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    let modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Pair device");
+    const labelInput = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    expect(labelInput).not.toBeNull();
+    if (labelInput) labelInput.value = "Windows test";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Enter pairing PIN");
+    const pinInput = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    expect(pinInput?.inputMode).toBe("numeric");
+    if (pinInput) pinInput.value = "286940";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/lan/pair/start");
+    expect(calls).toContain("/api/lan/pair/complete");
+    const pairComplete = fetchCalls.find((call) => call.url === "/api/lan/pair/complete");
+    expect(JSON.parse(String(pairComplete?.options?.body || "{}"))).toEqual({
+      pairingId: "pair-123",
+      pin: "286940",
+      label: "Windows test"
+    });
+    expect(dom.window.localStorage.getItem("logics.lan.deviceToken")).toBe("device-token");
+    expect(dom.window.document.getElementById("viewer-lan-banner")?.hidden).toBe(true);
+    expect(dom.window.document.querySelector(".viewer-themed-modal")?.textContent).toContain("Device paired");
+    expect(promptSpy).not.toHaveBeenCalled();
+    expect(alertSpy).not.toHaveBeenCalled();
+    promptSpy.mockRestore();
+    alertSpy.mockRestore();
+  });
+
+  it("runs a custom Workshop terminal command through the themed modal", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom } = createViewerDom({
+      terminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const promptSpy = vi.spyOn(dom.window, "prompt").mockImplementation(() => {
+      throw new Error("browser prompt should not be used");
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const customButton = dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]") as HTMLButtonElement | null;
+    expect(customButton).not.toBeNull();
+    customButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Custom terminal");
+    const input = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    expect(input).not.toBeNull();
+    if (input) input.value = "node --version";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(terminalCommands).toContainEqual({ command: ["node", "--version"], label: "node --version" });
+    expect(promptSpy).not.toHaveBeenCalled();
+    promptSpy.mockRestore();
   });
 
   it("hides the LAN banner when lanMode is false", async () => {

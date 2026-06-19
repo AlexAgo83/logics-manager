@@ -284,10 +284,16 @@
         return;
       }
 
-      const manual = window.prompt(
-        "Directory picker unavailable. Enter a root hint/path for harness mode:",
-        currentRoot || ""
-      );
+      const modals = window.logicsViewerModals;
+      const manual = modals && typeof modals.prompt === "function"
+        ? await modals.prompt({
+            title: "Project root",
+            message: "Directory picker unavailable. Enter a root hint/path for harness mode.",
+            defaultValue: currentRoot || "",
+            placeholder: "path/to/project",
+            submitLabel: "Use root"
+          })
+        : "";
       if (manual && manual.trim()) {
         applyHarnessRoot(manual.trim(), null);
         showStatus(`Harness project root set to "${manual.trim()}".`, "info");

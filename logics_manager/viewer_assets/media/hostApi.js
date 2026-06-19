@@ -25,17 +25,30 @@
       post({ type, ...payload });
     }
 
-    function confirmLifecycleAction(item, action) {
+    async function confirmLifecycleAction(item, action) {
       if (!item) {
         return false;
       }
       const itemLabel = item.title ? `${item.id} (${item.title})` : item.id;
+      const modals = window.logicsViewerModals;
       if (action === "obsolete") {
-        return window.confirm(
-          `Mark ${itemLabel} as obsolete?\n\nThis is a more cautionary lifecycle change and should only be used when the item should no longer be pursued.`
-        );
+        if (modals && typeof modals.confirm === "function") {
+          return modals.confirm({
+            title: "Mark obsolete",
+            message: `Mark ${itemLabel} as obsolete? This is a more cautionary lifecycle change and should only be used when the item should no longer be pursued.`,
+            submitLabel: "Mark obsolete"
+          });
+        }
+        return false;
       }
-      return window.confirm(`Mark ${itemLabel} as done?`);
+      if (modals && typeof modals.confirm === "function") {
+        return modals.confirm({
+          title: "Mark done",
+          message: `Mark ${itemLabel} as done?`,
+          submitLabel: "Mark done"
+        });
+      }
+      return false;
     }
 
     const api = {
@@ -145,14 +158,14 @@
       promote(id) {
         invokeHostOnly("promote", { id }, "Promote");
       },
-      markDone(item) {
-        if (!confirmLifecycleAction(item, "done")) {
+      async markDone(item) {
+        if (!(await confirmLifecycleAction(item, "done"))) {
           return;
         }
         invokeHostOnly("mark-done", { id: item.id }, "Mark as done");
       },
-      markObsolete(item) {
-        if (!confirmLifecycleAction(item, "obsolete")) {
+      async markObsolete(item) {
+        if (!(await confirmLifecycleAction(item, "obsolete"))) {
           return;
         }
         invokeHostOnly("mark-obsolete", { id: item.id }, "Mark as obsolete");

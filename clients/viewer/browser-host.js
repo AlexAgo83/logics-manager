@@ -217,6 +217,34 @@
     });
   }
 
+  function showThemedConfirmModal({ title, message, submitLabel = "Confirm", cancelLabel = "Cancel" }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel, cancelLabel });
+      const done = (confirmed) => {
+        closeThemedModal(modal);
+        resolve(Boolean(confirmed));
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done(true));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(false));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(false));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(false);
+        if (event.key === "Enter") done(true);
+      });
+      window.setTimeout(() => {
+        const submit = modal.querySelector(".viewer-themed-modal__submit");
+        if (submit instanceof HTMLButtonElement) submit.focus();
+      }, 0);
+    });
+  }
+
+  window.logicsViewerModals = {
+    prompt: showThemedInputModal,
+    choice: showThemedChoiceModal,
+    message: showThemedMessageModal,
+    confirm: showThemedConfirmModal
+  };
+
   async function startDevicePairing() {
     const defaultLabel = String(window.navigator?.platform || "").trim() || "LAN device";
     const label = String(await showThemedInputModal({

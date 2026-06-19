@@ -248,6 +248,19 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
       return true;
     }
   });
+  Object.defineProperty(dom.window, "logicsViewerModals", {
+    value: {
+      confirm: ({ message }: { message?: string }) => {
+        confirmMessages.push(String(message || ""));
+        if (options.confirmImpl) {
+          return Promise.resolve(options.confirmImpl(String(message || "")));
+        }
+        return Promise.resolve(true);
+      },
+      prompt: ({ defaultValue }: { defaultValue?: string }) => Promise.resolve(defaultValue || "")
+    },
+    configurable: true
+  });
 
   if (options.showDirectoryPicker) {
     Object.defineProperty(dom.window, "showDirectoryPicker", {

@@ -4176,6 +4176,77 @@ def test_audit_keeps_legacy_ac_proof_compatibility_but_enforces_new_same_line_pr
     }
 
 
+def test_audit_defers_ac_traceability_proof_until_a_linked_task_is_done(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    for directory in ["request", "backlog", "tasks"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+    request_ref, item_ref, task_ref = "req_001_demo", "item_001_demo", "task_001_demo"
+    (repo_root / "logics" / "request" / f"{request_ref}.md").write_text(
+        "\n".join(
+            [
+                f"## {request_ref} - Demo request",
+                "> From version: 2.11.6",
+                "> Status: Draft",
+                "> Schema version: 1.0",
+                "# Acceptance criteria",
+                "- AC1: Demo.",
+                "# Backlog",
+                f"- `{item_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / f"{item_ref}.md").write_text(
+        "\n".join(
+            [
+                f"## {item_ref} - Demo backlog",
+                "> From version: 2.11.6",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "> Schema version: 1.0",
+                "# Links",
+                f"- `{request_ref}`",
+                f"- `{task_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path = repo_root / "logics" / "tasks" / f"{task_ref}.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                f"## {task_ref} - Demo task",
+                "> From version: 2.11.6",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "> Schema version: 1.0",
+                "# Links",
+                f"- `{item_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # Dev-ready chain (no linked task Done): proof-required findings are
+    # deferred to non-blocking warnings, and the audit is OK.
+    payload = audit_payload(repo_root, skip_gates=True)
+    assert payload["ok"] is True
+    assert "ac_missing_task_traceability" not in {issue["code"] for issue in payload["issues"]}
+    deferred = [w for w in payload["warnings"] if w["code"] == "ac_missing_task_traceability"]
+    assert deferred, "deferred traceability should surface as a warning"
+    # Actionable next step (AC3): the warning carries the exact repair command.
+    assert all("--apply-fixes --proof" in w.get("repair_command", "") for w in deferred)
+
+    # Once a linked task is Done, the same gap is genuinely blocking.
+    task_path.write_text(task_path.read_text(encoding="utf-8").replace("> Status: Ready", "> Status: Done"), encoding="utf-8")
+    payload_done = audit_payload(repo_root, skip_gates=True)
+    assert payload_done["ok"] is False
+    assert "ac_missing_task_traceability" in {issue["code"] for issue in payload_done["issues"]}
+
+
 def test_audit_accepts_variable_width_workflow_refs(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

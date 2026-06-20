@@ -1,10 +1,10 @@
 ## item_455_stateful_viewer_refresh_without_scroll_focus_jump - Stateful viewer refresh without scroll/focus jump
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -28,6 +28,8 @@ The browser viewer has three distinct UX pain points that hurt day-to-day operat
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: Refreshing/auto-polling the viewer no longer resets scroll, focus, selection, or open sections on the active screen when content changes; the "jump" is gone across the main screens (Logics, CDX, CI), matching the state preservation Git already has.
 - request-AC4 -> This backlog slice. Proof: AC4: No regression — existing viewer/python tests pass, and the dual-copy `viewer_assets/` stays in sync with `clients/viewer/`.
+- request-AC2 -> This backlog slice. Evidence needed: The viewer starts in a repo with no `logics/` corpus and presents an onboarding/bootstrap flow; triggering it scaffolds the corpus and the viewer transitions to the normal experience without a restart.
+- request-AC3 -> This backlog slice. Evidence needed: A CDX terminal keeps its CDX typing and usage gauge across refresh and close/reopen, with no transient loss; the association is sourced from the server terminal payload rather than re-derived from a possibly-null client status payload.
 
 # Decision framing
 - Product framing: Not needed
@@ -57,6 +59,7 @@ The browser viewer has three distinct UX pain points that hurt day-to-day operat
 - Hybrid rationale: Derived from request `req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing.md`.
 - Generated locally by logics-manager.
+- Task `task_245_orchestrate_viewer_ux_improvements_refresh_bootstrap_terminal_typing` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_245_orchestrate_viewer_ux_improvements_refresh_bootstrap_terminal_typing`

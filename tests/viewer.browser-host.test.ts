@@ -2828,7 +2828,7 @@ describe("local viewer browser host", () => {
     expect(text).not.toContain("Run ended without a final live update.");
   });
 
-  it("opens a CDX run report and creates a Logics request from findings", async () => {
+  it("opens a CDX run report without a redundant request creation action", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -2855,12 +2855,9 @@ describe("local viewer browser host", () => {
 
     dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.querySelector('[data-viewer-cdx-create-request="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/cdx-report-request");
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
-    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-create-request="run-1"]')).toBeFalsy();
+    expect(calls).not.toContain("/api/cdx-report-request");
   });
 
   it("returns from a closed CDX run report to runs", async () => {
@@ -2926,13 +2923,8 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector(".viewer-cdx__row--block .viewer-cdx__detail-value")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-list")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-code")).toBeTruthy();
-    expect(dom.window.document.querySelector('[data-viewer-cdx-create-request="run-42"]')).toBeTruthy();
-
-    dom.window.document.querySelector('[data-viewer-cdx-create-request="run-42"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(calls).toContain("/api/cdx-report-request");
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-create-request="run-42"]')).toBeFalsy();
+    expect(calls).not.toContain("/api/cdx-report-request");
   });
 
   it("renders CDX permission denials in run reports", async () => {

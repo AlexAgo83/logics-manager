@@ -12,6 +12,7 @@ from logics_manager.release import (
     release_context_pack_payload,
     release_discover_payload,
     release_plan_payload,
+    release_reset_payload,
     release_status_payload,
     release_validate_payload,
 )
@@ -167,6 +168,47 @@ def test_release_status_and_validate_pass_with_matching_evidence(tmp_path: Path)
     assert status["ok"] is True
     assert validation["ok"] is True
     assert {check["status"] for check in validation["checks"]} == {"passed"}
+
+
+def test_release_reset_clears_evidence_and_returns_gates_to_pending(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, _passing_evidence())
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    assert evidence_path.is_file()
+    assert release_status_payload(repo_root)["state"] == "ready"
+
+    result = release_reset_payload(repo_root)
+
+    assert result["ok"] is True
+    assert result["reset"] is True
+    assert result["cleared"] == len(_passing_evidence())
+    assert not evidence_path.exists()
+    # Every gate returns to pending once the evidence store is gone.
+    status = release_status_payload(repo_root)
+    assert status["state"] != "ready"
+    assert all(gate.get("status") == "pending" for gate in status["gates"])
+
+
+def test_release_reset_is_idempotent_when_no_evidence(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, [])
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    if evidence_path.exists():
+        evidence_path.unlink()
+
+    result = release_reset_payload(repo_root)
+
+    assert result["ok"] is True
+    assert result["reset"] is True
+    assert result["cleared"] == 0
+
+
+def test_release_reset_reports_missing_config(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+
+    result = release_reset_payload(repo_root)
+
+    assert result["configured"] is False
+    assert result["reset"] is False
 
 
 def test_release_plan_is_non_mutating_and_lists_expected_steps(tmp_path: Path) -> None:

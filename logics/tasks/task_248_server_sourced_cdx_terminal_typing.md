@@ -1,18 +1,18 @@
 ## task_248_server_sourced_cdx_terminal_typing - Server-sourced CDX terminal typing
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_457_server_sourced_cdx_terminal_typing`
@@ -23,9 +23,15 @@
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_248_server_sourced_cdx_terminal_typing.md` after implementation.
+- command: `python3 -m pytest tests/python/test_workshop_cli.py -q` | result: passed | date: 2026-06-20 | note: 11 pass; cdxSession on payload
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_457_server_sourced_cdx_terminal_typing`
+- Related request(s): `req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing`
 
 # AI Context
 - Summary: Implement server-sourced cdx terminal typing.
@@ -43,3 +49,7 @@
 - request-AC2 -> This task. Evidence needed: The viewer starts in a repo with no `logics/` corpus and presents an onboarding/bootstrap flow; triggering it scaffolds the corpus and the viewer transitions to the normal experience without a restart.
 - request-AC3 -> This task. Evidence needed: A CDX terminal keeps its CDX typing and usage gauge across refresh and close/reopen, with no transient loss; the association is sourced from the server terminal payload rather than re-derived from a possibly-null client status payload.
 - request-AC4 -> This task. Evidence needed: No regression — existing viewer/python tests pass, and the dual-copy `viewer_assets/` stays in sync with `clients/viewer/`.
+- request-AC1 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC2 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC3 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC4 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass

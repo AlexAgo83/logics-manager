@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Non-semantic edit: DoR checklist normalized during closeout (no scope change).
 
 # Needs
 - The browser viewer has three distinct UX pain points that hurt day-to-day operation; this request bounds all three so they can be sliced and shipped independently.
@@ -27,10 +28,10 @@
 - AC4: No regression — existing viewer/python tests pass, and the dual-copy `viewer_assets/` stays in sync with `clients/viewer/`.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

@@ -2,8 +2,8 @@
 > From version: 2.11.6
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
@@ -29,6 +29,9 @@ The browser viewer has three distinct UX pain points that hurt day-to-day operat
 - request-AC1 -> This backlog slice. Evidence needed: Refreshing/auto-polling the viewer no longer resets scroll, focus, selection, or open sections on the active screen when content changes; the "jump" is gone across the main screens (Logics, CDX, CI), matching the state preservation Git already has.
 - request-AC2 -> This backlog slice. Evidence needed: The viewer starts in a repo with no `logics/` corpus and presents an onboarding/bootstrap flow; triggering it scaffolds the corpus and the viewer transitions to the normal experience without a restart.
 - request-AC4 -> This backlog slice. Evidence needed: No regression — existing viewer/python tests pass, and the dual-copy `viewer_assets/` stays in sync with `clients/viewer/`.
+- request-AC1 -> This backlog slice. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC2 -> This backlog slice. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC4 -> This backlog slice. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
 
 # Decision framing
 - Product framing: Not needed
@@ -41,8 +44,8 @@ The browser viewer has three distinct UX pain points that hurt day-to-day operat
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing.md`
-- Primary task(s): (none yet)
+- Request: `req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing`
+- Primary task(s): `task_248_server_sourced_cdx_terminal_typing`
 
 # AI Context
 - Summary: Server-sourced CDX terminal typing
@@ -59,6 +62,7 @@ The browser viewer has three distinct UX pain points that hurt day-to-day operat
 - Source file: `logics/request/req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing.md`.
 - Generated locally by logics-manager.
 - Task `task_245_orchestrate_viewer_ux_improvements_refresh_bootstrap_terminal_typing` was finished via `logics-manager flow finish task` on 2026-06-20.
+- Task `task_248_server_sourced_cdx_terminal_typing` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_245_orchestrate_viewer_ux_improvements_refresh_bootstrap_terminal_typing`

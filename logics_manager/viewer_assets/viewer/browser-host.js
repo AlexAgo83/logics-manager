@@ -668,7 +668,6 @@
       "[data-viewer-cdx-session-action]",
       "[data-viewer-cdx-report]",
       "[data-viewer-cdx-artifact-path]",
-      "[data-viewer-cdx-create-request]"
     ].join(","))).filter((node) => node instanceof HTMLElement);
   }
 
@@ -5502,16 +5501,6 @@
     return value ? 1 : 0;
   }
 
-  function cdxReportCanCreateRequest(taskReport, missionOutput) {
-    if (taskReport?.kind === "code-review") {
-      return true;
-    }
-    if (cdxCount(taskReport?.findings)) {
-      return true;
-    }
-    return ["findings", "recommendations", "requestFiles", "actionableFixes", "releasePlan"].some((key) => cdxCount(missionOutput?.[key]));
-  }
-
   function renderCdxDetailValue(value) {
     if (Array.isArray(value)) {
       return `
@@ -5718,7 +5707,6 @@
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
       return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
     }).join("");
-    const canCreate = cdxReportCanCreateRequest(taskReport, missionOutput);
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}
@@ -5740,7 +5728,6 @@
               ["Artifacts", String(objectEntries(artifacts).length)]
             ])}
           </ul>
-          ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>
         ${renderCdxMissionOutput(missionOutput)}
         ${permissionDenials.length ? `
@@ -6087,24 +6074,6 @@
     setDocument(data.payload?.name ? `CDX log · ${data.payload.name}` : "CDX log", renderCdxLogPreview(data.payload));
     cdxCloseTarget = { type: "cdx-report", title: reportSnapshot.title, html: reportSnapshot.html };
     setMeta(`Loaded ${data.payload?.path || path}.`);
-  }
-
-  async function createRequestFromCdxReport(runId) {
-    if (!runId) {
-      return;
-    }
-    setMeta("Creating Logics request from CDX report...");
-    const response = await fetch("/api/cdx-report-request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ runId })
-    });
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to create Logics request.");
-    }
-    postToApp(data.payload);
-    setMeta(`Created ${data.created?.id || "Logics request"} from CDX report.`);
   }
 
   function renderCiBadge(value) {
@@ -7024,7 +6993,6 @@
       const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
       const cdxArtifactTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-artifact-path]") : null;
       const cdxProviderAllTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider-all]") : null;
-      const cdxCreateRequestTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-create-request]") : null;
       const cdxMissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission]") : null;
       const cdxStrengthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-strength]") : null;
       const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
@@ -7180,10 +7148,6 @@
       }
       if (cdxArtifactTarget instanceof HTMLElement) {
         withPrimaryAction("cdx-artifact", "Opening CDX artifact", () => openCdxArtifact(cdxArtifactTarget.getAttribute("data-viewer-cdx-artifact-path") || ""));
-        return;
-      }
-      if (cdxCreateRequestTarget instanceof HTMLElement) {
-        withPrimaryAction("cdx-create-request", "Creating Logics request", () => createRequestFromCdxReport(cdxCreateRequestTarget.getAttribute("data-viewer-cdx-create-request") || ""));
         return;
       }
       if (cdxModeTarget instanceof HTMLElement) {

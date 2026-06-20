@@ -3800,6 +3800,12 @@
   // Detect the cdx session a terminal runs, by parsing its command label
   // (e.g. "cdx resume work2") and correlating tokens with known session names.
   function cdxSessionForTerminal(entry) {
+    // Prefer the server-derived session name: it is carried on the terminal
+    // payload itself, so the CDX typing is stable across refresh/reopen and
+    // does not depend on latestCdxStatusPayload (which is null right after a
+    // refresh, previously dropping the typing until the next status poll).
+    const serverSession = String(entry?.cdxSession || "").trim();
+    if (serverSession) return serverSession;
     const label = String(entry?.label || "").trim();
     if (!label) return "";
     const tokens = label.split(/\s+/).filter(Boolean);

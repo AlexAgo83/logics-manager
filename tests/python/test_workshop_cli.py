@@ -59,6 +59,7 @@ from logics_manager.viewer import (
     WorkshopSessionRegistry,
     WorkshopTerminalRegistry,
     _append_lan_token,
+    _derive_cdx_session_name,
     _render_qr_lines,
     render_start_status,
     workshop_commands_payload,
@@ -100,6 +101,26 @@ def test_workshop_commands_handles_missing_or_malformed_manifests(tmp_path: Path
     (tmp_path / "pyproject.toml").write_text("[broken", encoding="utf-8")
     payload = workshop_commands_payload(tmp_path)
     assert payload["state"] == "empty"
+
+
+def test_derive_cdx_session_name_from_command() -> None:
+    assert _derive_cdx_session_name(["cdx", "resume", "work2"]) == "work2"
+    assert _derive_cdx_session_name(["cdx", "resume", "--json", "work3"]) == "work3"
+    assert _derive_cdx_session_name(["cdx", "handoff", "src", "dst"]) == "dst"
+    assert _derive_cdx_session_name(["cdx", "mission", "m-123"]) == ""
+    assert _derive_cdx_session_name(["bash"]) == ""
+    assert _derive_cdx_session_name(["cdx"]) == ""
+
+
+@pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
+def test_workshop_terminal_payload_carries_server_derived_cdx_session(tmp_path: Path) -> None:
+    registry = WorkshopTerminalRegistry()
+    try:
+        session = registry.create(["cdx", "resume", "work9"], tmp_path, label="cdx resume work9")
+        status = session.status_payload()
+        assert status["cdxSession"] == "work9"
+    finally:
+        registry.shutdown()
 
 
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")

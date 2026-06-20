@@ -1099,6 +1099,27 @@ describe("local viewer browser host", () => {
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
+  it("places the board/list view slider to the right of the search docs bar", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html);
+    const search = dom.window.document.querySelector(".toolbar__search");
+    const view = dom.window.document.querySelector(".toolbar__view");
+    const slider = dom.window.document.querySelector('.toolbar__view-slider[data-action="toggle-view-mode"]');
+    expect(search).toBeTruthy();
+    expect(view).toBeTruthy();
+    expect(slider).toBeTruthy();
+    // The slider container comes after the search bar in document order.
+    expect(search?.compareDocumentPosition(view as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // The slider replaced the old inline filter button (no longer in the filters group).
+    expect(dom.window.document.querySelector('.toolbar__filters [data-action="toggle-view-mode"]')).toBeNull();
+  });
+
+  it("styles the view slider and the mobile search/slider reflow", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="list"\]::after/);
+    expect(css).toMatch(/@media \(max-width: 640px\)/);
+  });
+
   it("declares the responsive viewer breakpoints and their collapse rules", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/req_246 item_426/);

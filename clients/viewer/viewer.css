@@ -356,6 +356,82 @@
   flex: 0 0 auto;
 }
 
+/* Board/List view-mode toggle rendered as a slider beside the search bar. The
+   shared JS keeps flipping it (data-action="toggle-view-mode") and sets
+   data-current-mode; this CSS turns the button into a slider visual. */
+.toolbar__view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.toolbar__view-label {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.toolbar__view-slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 10px;
+  background: var(--vscode-input-background, #2a2a2a);
+  cursor: pointer;
+}
+
+.toolbar__view-slider svg {
+  display: none;
+}
+
+.toolbar__view-slider::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--vscode-foreground, #dddddd);
+  transition: transform 0.15s ease;
+}
+
+.toolbar__view-slider[data-current-mode="list"]::after {
+  transform: translateX(20px);
+}
+
+.toolbar__view-slider:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 1px;
+}
+
+/* Mobile: the search bar drops to its own full-width line; the slider stays
+   right-anchored on the controls line next to the left-hand filter buttons. */
+@media (max-width: 640px) {
+  .toolbar__row--primary {
+    flex-wrap: wrap;
+  }
+
+  .toolbar__filters {
+    order: 1;
+  }
+
+  .toolbar__view {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .toolbar__search {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+    width: 100%;
+  }
+}
+
 .viewer-refresh-menu__panel {
   position: absolute;
   top: calc(100% + 6px);

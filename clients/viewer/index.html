@@ -114,14 +114,6 @@
             <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
           </svg>
         </button>
-        <button class="toolbar__filter toolbar__filter--view" data-action="toggle-view-mode" aria-label="Switch display mode" title="Switch display mode">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <rect x="4" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
-            <rect x="14" y="5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
-            <rect x="4" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
-            <rect x="14" y="13" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" />
-          </svg>
-        </button>
         <button class="toolbar__filter" id="activity-toggle" aria-label="Toggle activity" aria-pressed="false" title="Toggle activity">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h4l2.2-5 3.6 10 2.2-5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
@@ -134,6 +126,11 @@
       </div>
       <div class="toolbar__search">
         <input id="search-input" class="toolbar__search-input" type="search" placeholder="Search docs" aria-label="Search docs" />
+      </div>
+      <div class="toolbar__view" role="group" aria-label="Display mode">
+        <span class="toolbar__view-label" aria-hidden="true">Board</span>
+        <button class="toolbar__view-slider" data-action="toggle-view-mode" aria-label="Switch display mode" title="Switch display mode"></button>
+        <span class="toolbar__view-label" aria-hidden="true">List</span>
       </div>
     </div>
     <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>

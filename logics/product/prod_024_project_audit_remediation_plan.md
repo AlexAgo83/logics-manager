@@ -1,6 +1,6 @@
 ## prod_024_project_audit_remediation_plan - Project audit remediation plan
 > Date: 2026-06-19
-> Status: Proposed
+> Status: Settled
 > Related request: `req_250_address_project_audit_follow_up_actions`
 > Related backlog: `item_439_resolve_npm_audit_blocking_dependency_findings`
 > Related task: `task_233_orchestrate_project_audit_remediation`

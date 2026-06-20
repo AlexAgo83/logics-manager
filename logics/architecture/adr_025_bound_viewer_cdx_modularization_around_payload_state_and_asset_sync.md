@@ -1,6 +1,6 @@
 ## adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync - Bound viewer CDX modularization around payload state and asset sync
 > Date: 2026-06-19
-> Status: Proposed
+> Status: Settled
 > Drivers: Reduce regression risk around CDX refresh/session behavior, keep browser-host changes reviewable, and preserve the packaged viewer asset sync contract.
 > Related request: `req_250_address_project_audit_follow_up_actions`
 > Related backlog: `item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards`

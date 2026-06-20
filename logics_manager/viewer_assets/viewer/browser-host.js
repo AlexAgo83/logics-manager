@@ -366,7 +366,6 @@
   const projectMenu = () => document.getElementById("viewer-project-menu");
   const repoGithubLink = () => document.getElementById("viewer-repo-github");
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
-  const workspaceButton = () => document.getElementById("viewer-workspace");
   const workshopButton = () => document.getElementById("viewer-workshop");
   const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
@@ -620,7 +619,6 @@
     return Array.from(document.querySelectorAll([
       "#viewer-insights",
       "#viewer-health",
-      "#viewer-workspace",
       "#viewer-workshop",
       "#viewer-git",
       "#viewer-ci",
@@ -1197,22 +1195,17 @@
   }
 
   function updateCapabilityControls() {
-    const workspace = workspaceButton();
-    if (workspace instanceof HTMLElement) {
-      workspace.hidden = !isCapabilityAvailable("workspace");
-      if (isCapabilityAvailable("workspace")) {
-        setButtonAvailable(workspace, "Show file explorer");
-      } else {
-        setButtonUnavailable(workspace, capabilityMessage("workspace", "Explorer is not available for this project."));
-      }
-    }
-
     const workshop = workshopButton();
     if (workshop instanceof HTMLElement) {
+      // The Explorer screen now lives as a Workshop sub-tab (alongside
+      // Terminals and Commands), so Workshop stays reachable whenever either
+      // the workshop or the workspace capability is available.
       const workshopAvailable = isCapabilityAvailable("workshop");
-      workshop.hidden = !workshopAvailable;
-      if (workshopAvailable) {
-        setButtonAvailable(workshop, "Show Workshop (terminals and commands)");
+      const workspaceAvailable = isCapabilityAvailable("workspace");
+      const workshopVisible = workshopAvailable || workspaceAvailable;
+      workshop.hidden = !workshopVisible;
+      if (workshopVisible) {
+        setButtonAvailable(workshop, "Show Workshop (terminals, commands, explorer)");
       } else {
         setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
       }
@@ -1753,8 +1746,7 @@
     const title = String(titleText || "").trim();
     if (!title) return "";
     const exact = {
-      "Explorer": "Browse repository files",
-      "Workshop": "Run commands and Workshop terminals",
+      "Workshop": "Terminals, commands, and file explorer",
       "Validation health": "Lint and audit summary",
       "Corpus insights": "Workflow corpus dashboard",
       "CDX status": "Configured agents and runtime checks",
@@ -2107,9 +2099,9 @@
   }
 
   function isWorkspaceOpen() {
+    // Explorer is now a Workshop sub-tab; it's "open" when its panel is mounted.
     const panel = documentPanel();
-    const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "Explorer");
+    return Boolean(panel && !panel.hidden && document.querySelector("[data-viewer-workshop-explorer]"));
   }
 
   function isCdxStatusOpen() {
@@ -2177,7 +2169,6 @@
       return latestCiScreenMode === "release" ? showReleaseStatus(opts) : showCiStatus(opts);
     }
     if (screen === "Git status") return showGitStatus({ preserve: true, ...opts });
-    if (screen === "Explorer") return showWorkspace(opts);
     if (screen === "Workshop") {
       // For mounted terminals, Refresh should redraw in place (SIGWINCH nudge)
       // rather than tear down and replay the whole server buffer.
@@ -3123,10 +3114,25 @@
     return data.payload;
   }
 
+  // Explorer is now a Workshop sub-tab. showWorkspace reloads the Explorer
+  // panel in place when it's already mounted, otherwise it opens Workshop on
+  // the Explorer tab (which mounts and loads it).
   async function showWorkspace(options = {}) {
+    if (!document.querySelector("[data-viewer-workshop-explorer]")) {
+      return showWorkshop({ tab: "explorer", silent: Boolean(options.silent) });
+    }
+    await loadWorkshopExplorer({ silent: Boolean(options.silent), view: options.view });
+  }
+
+  // Load (or reload) the workspace tree + preview into the Workshop Explorer
+  // panel. Mirrors the old standalone Explorer screen, but renders into the
+  // mounted sub-tab container instead of replacing the whole document.
+  async function loadWorkshopExplorer(options = {}) {
+    const container = document.querySelector("[data-viewer-workshop-explorer]");
+    if (!(container instanceof HTMLElement)) return;
     if (!isCapabilityAvailable("workspace")) {
       const message = capabilityMessage("workspace", "Explorer is not available for this project.");
-      setDocument("Explorer", renderWorkspace({ state: "unavailable", message }, { state: "unavailable", message }));
+      container.innerHTML = renderWorkspace({ state: "unavailable", message }, { state: "unavailable", message });
       setMeta(message);
       return;
     }
@@ -3134,18 +3140,21 @@
       setMeta("Loading workspace...");
     }
     const view = options.view || beginView({ silent: Boolean(options.silent) });
-    const tree = await fetchWorkspaceTree("");
-    const preview = await fetchWorkspacePreview("");
+    const [tree, preview] = await Promise.all([fetchWorkspaceTree(""), fetchWorkspacePreview("")]);
     if (isViewStale(view)) {
       return;
     }
-    setDocument("Explorer", renderWorkspace(tree, preview));
+    const fresh = document.querySelector("[data-viewer-workshop-explorer]");
+    if (fresh instanceof HTMLElement) {
+      fresh.innerHTML = renderWorkspace(tree, preview);
+    }
     setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
   }
 
   const workshopTabs = [
     { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
     { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+    { id: "explorer", label: "Explorer", title: "Browse repository files" },
   ];
 
   function preferredWorkshopTab() {
@@ -3168,6 +3177,16 @@
   }
 
   function renderWorkshopPanel(tabId) {
+    if (tabId === "explorer") {
+      return `
+        <div class="viewer-workshop__panel viewer-workshop__panel--explorer" role="tabpanel" data-viewer-workshop-panel="explorer" data-viewer-workshop-explorer>
+          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+            <span>Loading workspace...</span>
+          </div>
+        </div>
+      `;
+    }
     if (tabId === "commands") {
       return `
         <div class="viewer-workshop__panel" role="tabpanel" data-viewer-workshop-panel="commands" data-viewer-workshop-commands>
@@ -4111,19 +4130,26 @@
   }
 
   async function showWorkshop(options = {}) {
-    if (!isCapabilityAvailable("workshop")) {
+    const workshopAvailable = isCapabilityAvailable("workshop");
+    const workspaceAvailable = isCapabilityAvailable("workspace");
+    if (!workshopAvailable && !workspaceAvailable) {
       const message = capabilityMessage("workshop", "Workshop is not available for this project.");
       setDocument("Workshop", renderWorkshop("terminals", { unavailable: true, message }));
       setMeta(message);
       return;
     }
+    // When the host only exposes the workspace (no terminals/commands), default
+    // straight to the Explorer tab so the panel isn't empty.
+    const fallbackTab = workshopAvailable ? preferredWorkshopTab() : "explorer";
     const activeTab = options.tab && workshopTabs.some((tab) => tab.id === options.tab)
       ? options.tab
-      : preferredWorkshopTab();
+      : fallbackTab;
     setWorkshopActiveTab(activeTab);
     setDocument("Workshop", renderWorkshop(activeTab));
     setMeta(`Workshop / ${activeTab}`);
-    if (activeTab === "commands") {
+    if (activeTab === "explorer") {
+      await loadWorkshopExplorer({ silent: Boolean(options.silent) });
+    } else if (activeTab === "commands") {
       await loadWorkshopCommands();
     } else if (activeTab === "terminals") {
       // The Workshop DOM was just re-rendered, so every prior xterm host /
@@ -4163,15 +4189,23 @@
   }
 
   async function openWorkspaceTree(path) {
+    if (!document.querySelector("[data-viewer-workshop-explorer]")) return;
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(path), fetchWorkspacePreview(path)]);
-    setDocument("Explorer", renderWorkspace(tree, preview));
+    const container = document.querySelector("[data-viewer-workshop-explorer]");
+    if (container instanceof HTMLElement) {
+      container.innerHTML = renderWorkspace(tree, preview);
+    }
     setMeta(path ? `Explorer folder ${path}` : "Explorer root.");
   }
 
   async function openWorkspacePreview(path) {
+    if (!document.querySelector("[data-viewer-workshop-explorer]")) return;
     const treePath = workspaceParentPath(path);
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path)]);
-    setDocument("Explorer", renderWorkspace(tree, preview));
+    const container = document.querySelector("[data-viewer-workshop-explorer]");
+    if (container instanceof HTMLElement) {
+      container.innerHTML = renderWorkspace(tree, preview);
+    }
     setMeta(`Previewing ${path || "workspace root"}.`);
   }
 
@@ -6568,12 +6602,6 @@
       button?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
         withPrimaryAction("insights", "Loading insights", showCorpusInsights);
-      });
-    });
-    [workspaceButton()].forEach((button) => {
-      button?.addEventListener("click", () => {
-        setRefreshMenuOpen(false);
-        withPrimaryAction("workspace", "Loading Explorer", showWorkspace);
       });
     });
     const autoControl = autoRefreshControl();

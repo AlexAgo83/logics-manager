@@ -64,7 +64,6 @@ function createViewerDom(options: {
       <span id="viewer-lan-banner-paired" hidden></span>
     </div>
     <button id="viewer-git" type="button">Git</button>
-    <button id="viewer-workspace" type="button" hidden>Explorer</button>
     <button id="viewer-workshop" type="button" hidden>Workshop</button>
     <button id="viewer-ci" type="button" hidden>CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
@@ -1053,7 +1052,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Explorer", "Workshop", "Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Workshop", "Git", "CI", "CDX", "Settings"]);
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
@@ -1404,23 +1403,26 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
-  it("opens the workspace tree before Git and previews selected files", async () => {
+  it("opens the workspace tree as a Workshop sub-tab and previews selected files", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const workspace = dom.window.document.getElementById("viewer-workspace") as HTMLButtonElement | null;
-    expect(workspace?.hidden).toBe(false);
-    workspace?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const workshop = dom.window.document.getElementById("viewer-workshop") as HTMLButtonElement | null;
+    expect(workshop?.hidden).toBe(false);
+    workshop?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/workspace-tree?path=");
     expect(calls).toContain("/api/workspace-preview?path=");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Explorer");
-    let content = dom.window.document.getElementById("viewer-document-content");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
+    let content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(content?.textContent).toContain("src");
     expect(content?.textContent).toContain("README.md");
     expect(content?.textContent).toContain("node_modules");
@@ -1429,14 +1431,14 @@ describe("local viewer browser host", () => {
     content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    content = dom.window.document.getElementById("viewer-document-content");
+    content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(calls).toContain("/api/workspace-tree?path=src");
     expect(content?.textContent).toContain("app.py");
 
     content?.querySelector('[data-viewer-workspace-preview="src/app.py"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    content = dom.window.document.getElementById("viewer-document-content");
+    content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(calls).toContain("/api/workspace-preview?path=src%2Fapp.py");
     expect(content?.textContent).toContain("print('ok')");
   });
@@ -1447,11 +1449,13 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-workspace")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    let content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1668,16 +1672,18 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-workspace")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    let content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    content = dom.window.document.getElementById("viewer-document-content");
+    content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     content?.querySelector('[data-viewer-workspace-preview="src/binary.dat"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));

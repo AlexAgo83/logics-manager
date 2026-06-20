@@ -1453,7 +1453,7 @@ def test_viewer_cdx_runs_payload_reads_observable_runs(tmp_path: Path) -> None:
         return subprocess.CompletedProcess(args, 0, json.dumps({
             "ok": True,
             "runs": [
-                {"run_id": "run-1", "kind": "code-review", "status": "running", "session": "work"},
+                {"run_id": "run-1", "kind": "code-review", "status": "running", "session": "work", "usage": {"input_tokens": 10, "output_tokens": 5}},
                 {"run_id": "run-2", "kind": "assistant", "status": "succeeded", "session": "auto"},
             ],
         }), "")
@@ -1462,6 +1462,9 @@ def test_viewer_cdx_runs_payload_reads_observable_runs(tmp_path: Path) -> None:
 
     assert payload["state"] == "ok"
     assert [run["run_id"] for run in payload["runs"]] == ["run-1", "run-2"]
+    assert payload["runs"][0]["usage"]["inputTokens"] == 10
+    assert payload["runs"][0]["usage"]["outputTokens"] == 5
+    assert payload["runs"][0]["usage"]["totalTokens"] == 15
 
 
 def test_viewer_cdx_runs_payload_handles_unavailable_and_invalid_json(tmp_path: Path) -> None:
@@ -1479,7 +1482,7 @@ def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:
         return subprocess.CompletedProcess(args, 0, json.dumps({
             "ok": True,
             "report": {
-                "run": {"run_id": "run-1", "status": "succeeded"},
+                "run": {"run_id": "run-1", "status": "succeeded", "usage": {"input_tokens": 20, "output_tokens": 7}},
                 "task_report": {"kind": "code-review", "summary": "One issue.", "findings": []},
             },
         }), "")
@@ -1489,6 +1492,9 @@ def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:
     assert payload["state"] == "ok"
     assert payload["report"]["run"]["run_id"] == "run-1"
     assert payload["report"]["task_report"]["kind"] == "code-review"
+    assert payload["report"]["usage"]["inputTokens"] == 20
+    assert payload["report"]["usage"]["outputTokens"] == 7
+    assert payload["report"]["usage"]["totalTokens"] == 27
 
 
 def test_viewer_cdx_run_report_payload_extracts_mission_output(tmp_path: Path) -> None:

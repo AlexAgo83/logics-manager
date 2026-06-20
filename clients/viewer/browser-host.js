@@ -461,6 +461,7 @@
     { id: "status", label: "STATUS" },
     { id: "kind", label: "KIND", defaultVisible: false },
     { id: "session", label: "SESSION" },
+    { id: "tokens", label: "TOKENS" },
     { id: "cwd", label: "CWD", defaultVisible: false },
     { id: "report", label: "REPORT" }
   ];
@@ -1836,7 +1837,7 @@
       "Corpus insights": "Workflow corpus dashboard",
       "CDX status": "Configured agents and runtime checks",
       "CDX missions": "Guided missions and plans",
-      "CDX runs": "Recent CDX session runs",
+      "CDX reports": "Recent CDX session reports",
       "CDX run report": "Run summary and logs",
       "CDX log": "Streaming log output",
     };
@@ -1960,7 +1961,7 @@
     }
     if (target?.type === "cdx-runs") {
       await showCdxRuns({ silent: true });
-      setMeta("Returned to CDX runs.");
+      setMeta("Returned to CDX reports.");
       return;
     }
     const panel = documentPanel();
@@ -2203,7 +2204,7 @@
   function isCdxRunsOpen() {
     const panel = documentPanel();
     const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX runs");
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX reports");
   }
 
   function isCdxMissionsOpen() {
@@ -2248,7 +2249,7 @@
     const opts = { force: true };
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
-    if (screen === "CDX runs") return showCdxRuns(opts);
+    if (screen === "CDX reports") return showCdxRuns(opts);
     if (screen === "Remote") {
       if (latestCiScreenMode === "release") return showReleaseStatus(opts);
       if (latestCiScreenMode === "runs") return showCiStatus(opts);
@@ -4579,6 +4580,49 @@
     return value;
   }
 
+  function cdxUsageNumber(value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function cdxTokenUsage(item) {
+    if (!item || typeof item !== "object") {
+      return null;
+    }
+    const candidates = [
+      item.usage,
+      item.tokenUsage,
+      item.tokens,
+      item.run && typeof item.run === "object" ? item.run.usage : null,
+      item.result && typeof item.result === "object" ? item.result.usage : null
+    ];
+    const usage = candidates.find((candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate));
+    if (!usage || usage.available === false) {
+      return null;
+    }
+    const inputTokens = cdxUsageNumber(usage.inputTokens ?? usage.input_tokens ?? usage.promptTokens ?? usage.prompt_tokens);
+    const outputTokens = cdxUsageNumber(usage.outputTokens ?? usage.output_tokens ?? usage.completionTokens ?? usage.completion_tokens);
+    const explicitTotal = cdxUsageNumber(usage.totalTokens ?? usage.total_tokens);
+    const totalTokens = explicitTotal ?? (inputTokens !== null && outputTokens !== null ? inputTokens + outputTokens : null);
+    if (inputTokens === null && outputTokens === null && totalTokens === null) {
+      return null;
+    }
+    return { inputTokens, outputTokens, totalTokens };
+  }
+
+  function formatCdxTokenUsage(usage) {
+    if (!usage) {
+      return "";
+    }
+    const total = usage.totalTokens ?? "-";
+    const input = usage.inputTokens ?? "-";
+    const output = usage.outputTokens ?? "-";
+    return `${total} total · ${input} in · ${output} out`;
+  }
+
   function parseCdxDate(value) {
     const raw = String(value || "").trim();
     if (!raw) {
@@ -4830,7 +4874,7 @@
       </label>
     `).join("");
     return `
-      <div class="viewer-cdx__controls" aria-label="CDX runs table controls">
+      <div class="viewer-cdx__controls" aria-label="CDX reports table controls">
         <details class="viewer-cdx__menu">
           <summary class="viewer-cdx__icon-button" title="Configure run columns" aria-label="Configure run columns">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
@@ -5255,7 +5299,7 @@
       <div class="viewer-cdx__modes" role="tablist" aria-label="CDX views">
         <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Status</button>
         <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
-        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Runs</button>
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
       </div>
     `;
   }
@@ -5423,7 +5467,7 @@
       return `
         <div class="viewer-cdx">
           ${renderCdxModeSwitcher("runs")}
-          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX runs are unavailable.")}</div>
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX reports are unavailable.")}</div>
         </div>
       `;
     }
@@ -5446,6 +5490,7 @@
       status: (run) => `<td>${renderCdxBadge(cdxField(run, ["status", "state"], "unknown"))}</td>`,
       kind: (run) => `<td>${escapeHtml(cdxField(run, ["kind"], "assistant"))}</td>`,
       session: (run) => `<td>${escapeHtml(cdxField(run, ["session", "session_id", "sessionId"], "-"))}</td>`,
+      tokens: (run) => `<td>${escapeHtml(formatCdxTokenUsage(cdxTokenUsage(run)) || "-")}</td>`,
       cwd: (run) => `<td>${escapeHtml(cdxField(run, ["cwd", "workspace", "repo"], "-"))}</td>`,
       report: (run) => {
         const runId = cdxField(run, ["run_id", "runId", "id"], "");
@@ -5464,7 +5509,7 @@
         ${renderCdxModeSwitcher("runs")}
         ${renderCdxRunControls(visibleColumns)}
         <section class="viewer-cdx__section">
-          <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runsSummary)}</span></div>
+          <div class="viewer-ci__heading"><h2>Reports</h2><span>${escapeHtml(runsSummary)}</span></div>
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
               <thead><tr>${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
@@ -5703,6 +5748,7 @@
     const missionOutput = cdxReportMissionOutput(report, run, taskReport);
     const summary = cdxReportSummary(report, taskReport, missionOutput, runError, permissionDenials);
     const nextAction = cdxReportNextAction(taskReport, missionOutput, runError, permissionDenials, findings);
+    const tokenUsage = formatCdxTokenUsage(cdxTokenUsage(report) || cdxTokenUsage(run) || cdxTokenUsage(taskReport));
     const findingRows = findings.map((finding, index) => {
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
       return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
@@ -5713,7 +5759,7 @@
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading viewer-ci__heading--actions">
             <div><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
-            <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to runs</button>
+            <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to reports</button>
           </div>
           <ul class="viewer-cdx__list">
             <li class="viewer-cdx__row viewer-cdx__row--block"><span>Summary</span><div class="viewer-cdx__detail-value"><strong>${escapeHtml(summary)}</strong></div></li>
@@ -5724,6 +5770,7 @@
               ["Status", run.status || "unknown"],
               ["Run", run.run_id || taskReport.run_id || "-"],
               ["Session", run.session || taskReport.session || ""],
+              ["Tokens", tokenUsage],
               ["Findings", String(findings.length)],
               ["Artifacts", String(objectEntries(artifacts).length)]
             ])}
@@ -5916,7 +5963,7 @@
     latestCdxMissionState.runPayload = {
       state: launched ? "terminal" : "error",
       message: launched
-        ? "Mission launched in a Workshop terminal. Track its result and run id from the Runs tab once it completes."
+        ? "Mission launched in a Workshop terminal. Track its result and run id from the Reports tab once it completes."
         : "Unable to start a Workshop terminal for this mission.",
       plan,
       run: null
@@ -5994,12 +6041,12 @@
     if (!isCapabilityAvailable("cdx")) {
       const message = capabilityMessage("cdx", "CDX is not available for this project.");
       latestCdxRunsPayload = { state: capability("cdx").state, message };
-      setDocument("CDX runs", renderCdxRuns({ state: capability("cdx").state, message }));
+      setDocument("CDX reports", renderCdxRuns({ state: capability("cdx").state, message }));
       setMeta(message);
       return;
     }
     if (!options.silent) {
-      setMeta("Checking CDX runs...");
+      setMeta("Checking CDX reports...");
     }
     const view = options.view || beginView({ silent: Boolean(options.silent) });
     let response;
@@ -6021,11 +6068,11 @@
       return;
     }
     if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to load CDX runs.");
+      throw new Error(data.error || "Unable to load CDX reports.");
     }
     latestCdxRunsPayload = data.payload;
-    setDocument("CDX runs", renderCdxRuns(data.payload));
-    setMeta(options.silent ? "CDX runs refreshed." : "CDX runs loaded.");
+    setDocument("CDX reports", renderCdxRuns(data.payload));
+    setMeta(options.silent ? "CDX reports refreshed." : "CDX reports loaded.");
   }
 
   async function showCdxReport(runId, options = {}) {
@@ -6940,7 +6987,7 @@
       }
       if (cdxRunColumnTarget instanceof HTMLInputElement) {
         persistCdxRunColumnVisibility(cdxRunColumnTarget.getAttribute("data-viewer-cdx-run-column") || "", cdxRunColumnTarget.checked);
-        setDocument("CDX runs", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
+        setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
       }
       if (cdxProviderTarget instanceof HTMLInputElement) {
         const provider = cdxProviderTarget.getAttribute("data-viewer-cdx-provider") || "";
@@ -7019,7 +7066,7 @@
           }
         } else if (screen === "cdx") {
           if (section === "runs") {
-            withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
+            withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
           } else if (section === "missions") {
             withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
           } else {
@@ -7139,7 +7186,7 @@
         return;
       }
       if (cdxBackRunsTarget instanceof HTMLElement) {
-        withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
+        withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
         return;
       }
       if (cdxReportTarget instanceof HTMLElement) {
@@ -7153,7 +7200,7 @@
       if (cdxModeTarget instanceof HTMLElement) {
         const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
         if (mode === "runs") {
-          withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
+          withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
         } else if (mode === "missions") {
           withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
         } else {

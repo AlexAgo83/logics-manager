@@ -1,9 +1,9 @@
 ## req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check - Guard viewer_assets sync with a local pre-commit hook and fail-loud CI check
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
 > Complexity: Low
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -26,10 +26,10 @@
 - AC4: No regression — `check:viewer-assets` exits non-zero only on real drift; existing build/test scripts are unaffected.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

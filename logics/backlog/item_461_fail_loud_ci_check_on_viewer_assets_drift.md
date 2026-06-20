@@ -1,10 +1,10 @@
 ## item_461_fail_loud_ci_check_on_viewer_assets_drift - Fail-loud CI check on viewer_assets drift
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -25,6 +25,9 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC2: CI fails loudly on drift — the test/publish workflow runs `check:viewer-assets` (`--check`) so out-of-sync copies cannot land, instead of silently re-syncing.
+- request-AC1 -> This backlog slice. Proof: Implemented in commit a938b2a; npm run check:viewer-assets passes (in sync); pre-commit hook blocks on drift; CI uses --check
+- request-AC3 -> This backlog slice. Proof: Implemented in commit a938b2a; npm run check:viewer-assets passes (in sync); pre-commit hook blocks on drift; CI uses --check
+- request-AC4 -> This backlog slice. Proof: Implemented in commit a938b2a; npm run check:viewer-assets passes (in sync); pre-commit hook blocks on drift; CI uses --check
 
 # Decision framing
 - Product framing: Not needed
@@ -37,8 +40,8 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md`
-- Primary task(s): (none yet)
+- Request: `req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check`
+- Primary task(s): `task_254_fail_loud_ci_check_on_viewer_assets_drift`
 
 # AI Context
 - Summary: Fail-loud CI check on viewer_assets drift
@@ -54,6 +57,8 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 - Hybrid rationale: Derived from request `req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md`.
 - Generated locally by logics-manager.
+- Task `task_254_fail_loud_ci_check_on_viewer_assets_drift` was finished via `logics-manager flow finish task` on 2026-06-20.
+- Task `task_252_orchestrate_viewer_assets_sync_guard_hook_ci` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_252_orchestrate_viewer_assets_sync_guard_hook_ci`

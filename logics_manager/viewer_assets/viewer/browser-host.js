@@ -413,6 +413,7 @@
     strengthId: "standard",
     missionInputs: {},
     runMode: "terminal",
+    outputMode: "plan",
     promptOverride: "",
     catalog: null,
     statusPayload: null,
@@ -5357,6 +5358,7 @@
     latestCdxMissionState.runPayload = null;
     latestCdxMissionState.applyPayload = null;
     latestCdxMissionState.missionInputs = {};
+    latestCdxMissionState.outputMode = "plan";
     latestCdxMissionState.promptOverride = "";
     setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
   }
@@ -5442,6 +5444,38 @@
     const runState = runPayload
       ? (run ? (Number(run.returnCode) === 0 ? "Succeeded" : `Failed (${run.returnCode ?? "unknown"})`) : cdxLabel(runPayload.state || "Reported"))
       : "Not launched";
+    const outputMode = latestCdxMissionState.outputMode === "run" ? "run" : "plan";
+    const outputSwitch = `
+      <div class="viewer-cdx__panel-switch" role="tablist" aria-label="Mission output view">
+        <button class="viewer-cdx__mode${outputMode === "plan" ? " is-active" : ""}" type="button" data-viewer-cdx-mission-output="plan" aria-selected="${outputMode === "plan" ? "true" : "false"}">Plan preview</button>
+        <button class="viewer-cdx__mode${outputMode === "run" ? " is-active" : ""}" type="button" data-viewer-cdx-mission-output="run" aria-selected="${outputMode === "run" ? "true" : "false"}">Run output</button>
+      </div>
+    `;
+    const planPanel = `
+      ${planPayload && planPayload.state !== "ok" ? `<div class="viewer-cdx__state">${escapeHtml(planPayload.message || "Unable to build mission plan.")}</div>` : ""}
+      ${command ? `<pre class="viewer-cdx__code">${escapeHtml(command)}</pre>` : '<div class="viewer-cdx__empty">Preview a mission to inspect the exact command before launch.</div>'}
+      ${plan && typeof plan.prompt === "string" ? `
+        <label class="viewer-cdx__field">
+          <span>Prompt${promptEdited ? " (edited)" : " (editable)"}</span>
+          <textarea data-viewer-cdx-prompt rows="10" spellcheck="false" placeholder="Generated mission prompt">${escapeHtml(promptValue)}</textarea>
+        </label>
+        <div class="viewer-cdx__meta">Edits apply on the next Preview or Launch run. Session, permission, and timeout stay enforced by the server and release contract.</div>
+      ` : ""}
+      ${plan?.releaseTag ? `<div class="viewer-cdx__meta">Base tag: ${escapeHtml(plan.releaseTag)}</div>` : ""}
+      ${plan?.commitAtEnd ? '<div class="viewer-cdx__meta">Commit at end: enabled when mission changes files.</div>' : ""}
+      ${plan?.requiresConfirmation ? '<div class="viewer-cdx__meta">Plan-first mission: Logics changes need explicit apply after CDX returns allowed actions.</div>' : ""}
+      ${warningRows ? `<ul class="viewer-cdx__warnings">${warningRows}</ul>` : ""}
+    `;
+    const runPanel = `
+      ${runPayload ? `<div class="viewer-cdx__state viewer-cdx__state--${escapeHtml(cdxStateClass(runPayload.state))}">${escapeHtml(runPayload.message || cdxLabel(runPayload.state))}</div>` : '<div class="viewer-cdx__empty">No mission run launched yet.</div>'}
+      ${run ? `<ul class="viewer-cdx__list">
+        <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.runId || "-")}</strong></li>
+        <li class="viewer-cdx__row"><span>Usage</span><strong>${escapeHtml(usageText)}</strong></li>
+        <li class="viewer-cdx__row"><span>Return code</span><strong>${escapeHtml(run.returnCode ?? "-")}</strong></li>
+      </ul>` : ""}
+      ${run?.stdout ? `<pre class="viewer-cdx__code">${escapeHtml(run.stdout)}</pre>` : ""}
+      ${run?.stderr ? `<pre class="viewer-cdx__code viewer-cdx__code--error">${escapeHtml(run.stderr)}</pre>` : ""}
+    `;
     const cards = [
       ["Missions", String(missions.length)],
       ["Sessions", String(sessions.length)],
@@ -5475,7 +5509,7 @@
             <label class="viewer-cdx__field">
               <span>Run in</span>
               <select data-viewer-cdx-run-mode>
-                <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner</option>
+                <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner (Experimental)</option>
                 <option value="terminal"${runMode === "terminal" ? " selected" : ""}>New terminal</option>
               </select>
             </label>
@@ -5487,31 +5521,13 @@
         </div>
         <div class="viewer-cdx__stack">
           <section class="viewer-cdx__section">
-            <h2 class="viewer-cdx__heading">Plan preview</h2>
-            ${planPayload && planPayload.state !== "ok" ? `<div class="viewer-cdx__state">${escapeHtml(planPayload.message || "Unable to build mission plan.")}</div>` : ""}
-            ${command ? `<pre class="viewer-cdx__code">${escapeHtml(command)}</pre>` : '<div class="viewer-cdx__empty">Preview a mission to inspect the exact command before launch.</div>'}
-            ${plan && typeof plan.prompt === "string" ? `
-              <label class="viewer-cdx__field">
-                <span>Prompt${promptEdited ? " (edited)" : " (editable)"}</span>
-                <textarea data-viewer-cdx-prompt rows="10" spellcheck="false" placeholder="Generated mission prompt">${escapeHtml(promptValue)}</textarea>
-              </label>
-              <div class="viewer-cdx__meta">Edits apply on the next Preview or Launch run. Session, permission, and timeout stay enforced by the server and release contract.</div>
-            ` : ""}
-            ${plan?.releaseTag ? `<div class="viewer-cdx__meta">Base tag: ${escapeHtml(plan.releaseTag)}</div>` : ""}
-            ${plan?.commitAtEnd ? '<div class="viewer-cdx__meta">Commit at end: enabled when mission changes files.</div>' : ""}
-            ${plan?.requiresConfirmation ? '<div class="viewer-cdx__meta">Plan-first mission: Logics changes need explicit apply after CDX returns allowed actions.</div>' : ""}
-            ${warningRows ? `<ul class="viewer-cdx__warnings">${warningRows}</ul>` : ""}
-          </section>
-          <section class="viewer-cdx__section">
-            <h2 class="viewer-cdx__heading">Run output</h2>
-            ${runPayload ? `<div class="viewer-cdx__state viewer-cdx__state--${escapeHtml(cdxStateClass(runPayload.state))}">${escapeHtml(runPayload.message || cdxLabel(runPayload.state))}</div>` : '<div class="viewer-cdx__empty">No mission run launched yet.</div>'}
-            ${run ? `<ul class="viewer-cdx__list">
-              <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.runId || "-")}</strong></li>
-              <li class="viewer-cdx__row"><span>Usage</span><strong>${escapeHtml(usageText)}</strong></li>
-              <li class="viewer-cdx__row"><span>Return code</span><strong>${escapeHtml(run.returnCode ?? "-")}</strong></li>
-            </ul>` : ""}
-            ${run?.stdout ? `<pre class="viewer-cdx__code">${escapeHtml(run.stdout)}</pre>` : ""}
-            ${run?.stderr ? `<pre class="viewer-cdx__code viewer-cdx__code--error">${escapeHtml(run.stderr)}</pre>` : ""}
+            <div class="viewer-ci__heading viewer-ci__heading--actions">
+              <h2>${outputMode === "run" ? "Run output" : "Plan preview"}</h2>
+              ${outputSwitch}
+            </div>
+            <div class="viewer-cdx__output-panel">
+              ${outputMode === "run" ? runPanel : planPanel}
+            </div>
           </section>
           ${plan?.missionId === "corpus-ready" || latestCdxMissionState.missionId === "corpus-ready" ? `
             <section class="viewer-cdx__section">
@@ -6287,6 +6303,7 @@
     latestCdxMissionState.planPayload = data.payload;
     latestCdxMissionState.runPayload = null;
     latestCdxMissionState.applyPayload = null;
+    latestCdxMissionState.outputMode = "plan";
     if (data.payload?.plan?.sessionId) {
       latestCdxMissionState.sessionId = data.payload.plan.sessionId;
     }
@@ -6310,6 +6327,7 @@
     if (data.payload?.state !== "ok" || !plan || !Array.isArray(plan.command) || !plan.command.length) {
       latestCdxMissionState.runPayload = null;
       latestCdxMissionState.applyPayload = null;
+      latestCdxMissionState.outputMode = "plan";
       setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, data.payload, null, null));
       setMeta(data.payload?.message || "CDX mission could not be prepared for a terminal.");
       return;
@@ -6339,6 +6357,7 @@
       run: null
     };
     latestCdxMissionState.applyPayload = null;
+    latestCdxMissionState.outputMode = "run";
     if (isCdxMissionsOpen()) {
       setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, null));
     }
@@ -6367,6 +6386,7 @@
     };
     latestCdxMissionState.runPayload = pendingPayload;
     latestCdxMissionState.applyPayload = null;
+    latestCdxMissionState.outputMode = "run";
     setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, pendingPayload, null));
     const response = await fetch("/api/cdx-mission-run", {
       method: "POST",
@@ -6380,6 +6400,7 @@
     latestCdxMissionState.planPayload = { state: data.payload?.state === "ok" ? "ok" : data.payload?.state, message: data.payload?.message || "", plan: data.payload?.plan };
     latestCdxMissionState.runPayload = data.payload;
     latestCdxMissionState.applyPayload = null;
+    latestCdxMissionState.outputMode = "run";
     if (isCdxMissionsOpen()) {
       setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, data.payload, null));
     }
@@ -7379,6 +7400,7 @@
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
+        latestCdxMissionState.outputMode = "plan";
         latestCdxMissionState.promptOverride = "";
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
       }
@@ -7389,6 +7411,7 @@
           latestCdxMissionState.planPayload = null;
           latestCdxMissionState.runPayload = null;
           latestCdxMissionState.applyPayload = null;
+          latestCdxMissionState.outputMode = "plan";
           latestCdxMissionState.promptOverride = "";
         }
       }
@@ -7484,6 +7507,7 @@
       const cdxPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-plan]") : null;
       const cdxRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run]") : null;
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
+      const cdxMissionOutputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission-output]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
@@ -7599,8 +7623,14 @@
         latestCdxMissionState.planPayload = null;
         latestCdxMissionState.runPayload = null;
         latestCdxMissionState.applyPayload = null;
+        latestCdxMissionState.outputMode = "plan";
         latestCdxMissionState.promptOverride = "";
         setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+        return;
+      }
+      if (cdxMissionOutputTarget instanceof HTMLElement) {
+        latestCdxMissionState.outputMode = cdxMissionOutputTarget.getAttribute("data-viewer-cdx-mission-output") === "run" ? "run" : "plan";
+        setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, latestCdxMissionState.applyPayload));
         return;
       }
       if (cdxPlanTarget instanceof HTMLElement) {

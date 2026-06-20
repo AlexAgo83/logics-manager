@@ -49,4 +49,4 @@
 - Skip when: An assist CLI refactor is already in progress or would conflict.
 
 # Backlog
-- none
+- `item_453_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules`

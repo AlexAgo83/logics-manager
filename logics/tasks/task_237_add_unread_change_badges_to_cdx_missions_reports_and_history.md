@@ -1,18 +1,18 @@
 ## task_237_add_unread_change_badges_to_cdx_missions_reports_and_history - Add unread change badges to CDX Missions Reports and History
 > From version: 2.11.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_447_add_unread_change_badges_to_cdx_missions_reports_and_history`
@@ -32,11 +32,20 @@
 - AC12: Tests cover unread detection, per-section clearing, top-level aggregation, `Missions` stats, and coexistence with existing CDX badges in both source and packaged viewer assets.
 
 # Validation
-- Run `python3 -m logics_manager lint --require-status`.
-- Run `python3 -m logics_manager flow finish task task_237_add_unread_change_badges_to_cdx_missions_reports_and_history.md` after implementation.
+- Passed: `rtk npm exec -- vitest run tests/viewer.browser-host.test.ts` (107 tests).
+- Passed: `rtk python -m pytest tests/python/test_logics_manager_cli.py -k cdx_mission` (19 selected tests).
+- Passed: `logics-manager lint --require-status`.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
-- Implementation complete.
+- Implemented CDX unread state tracking for Missions, Reports, and History from the consolidated status refresh payload.
+- Added per-section menu badges, top-level CDX aggregation (`!` for one unread section, count for multiple), and per-screen acknowledgement on open.
+- Preserved existing CDX active session and running run badges alongside unread badges.
+- Updated source and packaged viewer assets and added browser-host coverage for detection, clearing, aggregation, Missions stats, and badge coexistence.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_447_add_unread_change_badges_to_cdx_missions_reports_and_history`
+- Related request(s): `req_252_add_unread_change_badges_to_cdx_missions_reports_and_history`
 
 # AI Context
 - Summary: Implement add unread change badges to cdx missions reports and history.

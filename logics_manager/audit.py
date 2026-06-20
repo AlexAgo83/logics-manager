@@ -13,6 +13,7 @@ from .flow_evidence import has_ac_proof as _has_ac_with_proof
 
 
 CURRENT_WORKFLOW_SCHEMA_VERSION = "1.0"
+STRICT_AC_PROOF_FROM_VERSION = (2, 11, 6)
 
 DOC_KINDS = {
     "request": ("logics/request", "req", False),
@@ -387,6 +388,16 @@ def _is_strict_scope(doc: DocMeta, cutoff: tuple[int, int, int] | None) -> bool:
     return doc.from_version >= cutoff
 
 
+def _has_legacy_ac_with_proof(text: str, ac_id: str) -> bool:
+    return (ac_id.upper() in text.upper()) and ("proof:" in text.lower())
+
+
+def _doc_has_ac_with_proof(doc: DocMeta, ac_id: str) -> bool:
+    if doc.from_version is not None and doc.from_version < STRICT_AC_PROOF_FROM_VERSION:
+        return _has_legacy_ac_with_proof(doc.text, ac_id)
+    return _has_ac_with_proof(doc.text, ac_id)
+
+
 def _upsert_indicator(lines: list[str], key: str, value: str) -> None:
     pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+)\s*$")
     heading_idx = next((idx for idx, line in enumerate(lines) if line.startswith("## ")), None)
@@ -757,14 +768,14 @@ def audit_payload(
                 continue
 
             for ac_id in ac_ids:
-                item_has_mapping = any(_has_ac_with_proof(item.text, ac_id) for item in linked_items)
+                item_has_mapping = any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items)
                 if not item_has_mapping:
                     if autofix_ac_traceability and linked_items:
                         autofix_targets.setdefault(linked_items[0].path, set()).add(ac_id)
                     else:
                         issues.append(AuditIssue(code="ac_missing_item_traceability", path=request.path, message=f"`{ac_id}` missing item-level traceability with proof"))
 
-                task_has_mapping = any(_has_ac_with_proof(task.text, ac_id) for task in linked_tasks)
+                task_has_mapping = any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks)
                 if not task_has_mapping:
                     if autofix_ac_traceability and linked_tasks:
                         autofix_targets.setdefault(linked_tasks[0].path, set()).add(ac_id)
@@ -843,9 +854,9 @@ def audit_payload(
                 for item in linked_items:
                     linked_tasks.extend(_linked_tasks_for_item(item, all_docs))
                 for ac_id in ac_ids:
-                    if linked_items and not any(_has_ac_with_proof(item.text, ac_id) for item in linked_items):
+                    if linked_items and not any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items):
                         issues.append(AuditIssue(code="ac_missing_item_traceability", path=request.path, message=f"`{ac_id}` missing item-level traceability with proof"))
-                    if linked_tasks and not any(_has_ac_with_proof(task.text, ac_id) for task in linked_tasks):
+                    if linked_tasks and not any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks):
                         issues.append(AuditIssue(code="ac_missing_task_traceability", path=request.path, message=f"`{ac_id}` missing task-level traceability with proof"))
 
     if autofix_structure:

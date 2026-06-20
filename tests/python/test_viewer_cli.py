@@ -277,10 +277,33 @@ def test_viewer_workspace_preview_reports_text_directory_binary_and_large_files(
     assert text["state"] == "ok"
     assert text["path"] == "src/app.py"
     assert "print" in text["content"]
+    assert text["lineCount"] == 1
+    assert text["truncated"] is False
+    assert text["canForce"] is False
     assert binary["state"] == "unsupported"
     assert large["state"] == "oversized"
+    # A small-cap oversized file can still be force-loaded (within the hard cap).
+    assert large["canForce"] is True
     with pytest.raises(ValueError):
         workspace_preview_payload(tmp_path, "../outside.md")
+
+
+def test_viewer_workspace_preview_force_load_raises_cap_and_reports_lines(tmp_path: Path) -> None:
+    (tmp_path / "big.py").write_text("a = 1\nb = 2\nc = 3\n", encoding="utf-8")
+
+    # Default small cap truncates by chars and offers a forced load.
+    capped = workspace_preview_payload(tmp_path, "big.py", max_chars=6)
+    assert capped["state"] == "ok"
+    assert capped["truncated"] is True
+    assert capped["canForce"] is True
+
+    # Forcing the load returns the full content, the line count, and no force flag.
+    full = workspace_preview_payload(tmp_path, "big.py", max_chars=6, full=True)
+    assert full["state"] == "ok"
+    assert full["truncated"] is False
+    assert full["canForce"] is False
+    assert full["lineCount"] == 3
+    assert "c = 3" in full["content"]
 
 
 def test_viewer_lan_mode_generates_per_launch_token_and_share_url(tmp_path: Path) -> None:

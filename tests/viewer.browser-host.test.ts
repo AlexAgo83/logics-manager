@@ -846,8 +846,13 @@ function createViewerDom(options: {
       if (String(url).startsWith("/api/workspace-preview")) {
         const requestUrl = new URL(String(url), "http://127.0.0.1:8765");
         const previewPath = requestUrl.searchParams.get("path") || "";
+        const wantsFull = requestUrl.searchParams.get("full") === "1";
         const payload = previewPath === "src/app.py"
-          ? { state: "ok", path: "src/app.py", name: "app.py", kind: "file", size: 12, contentType: "text/x-python", content: "print('ok')\n", truncated: false }
+          ? { state: "ok", path: "src/app.py", name: "app.py", kind: "file", size: 12, contentType: "text/x-python", content: "print('ok')\nprint('two')\n", truncated: false, lineCount: 2 }
+          : previewPath === "src/big.py"
+          ? (wantsFull
+            ? { state: "ok", path: "src/big.py", name: "big.py", kind: "file", size: 999999, content: "a = 1\nb = 2\nc = 3\n", truncated: false, canForce: false, lineCount: 3 }
+            : { state: "ok", path: "src/big.py", name: "big.py", kind: "file", size: 999999, content: "a = 1\nb = 2\n", truncated: true, canForce: true, lineCount: 3 })
           : previewPath === "src/binary.dat"
           ? { state: "unsupported", path: "src/binary.dat", name: "binary.dat", size: 7, message: "Binary or unsupported file content cannot be previewed." }
           : previewPath === "README.md"
@@ -1557,6 +1562,55 @@ describe("local viewer browser host", () => {
     content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(calls).toContain("/api/workspace-preview?path=src%2Fapp.py");
     expect(content?.textContent).toContain("print('ok')");
+  });
+
+  it("renders the shared code viewer with a line-number gutter, line count, and force-load", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+
+    // Non-truncated file: gutter + accurate line count, no force button.
+    explorer.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    explorer.querySelector('[data-viewer-workspace-preview="src/app.py"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    const gutter = explorer.querySelector(".viewer-code__gutter");
+    expect(gutter?.textContent).toBe("1\n2");
+    expect(explorer.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
+    expect(explorer.querySelector("[data-viewer-workspace-preview-full]")).toBeNull();
+
+    // Truncated file: a "Load anyway" control appears and re-fetches with full=1.
+    const trigger = dom.window.document.createElement("button");
+    trigger.setAttribute("data-viewer-workspace-preview", "src/big.py");
+    explorer.appendChild(trigger);
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    const force = explorer.querySelector("[data-viewer-workspace-preview-full]");
+    expect(force?.textContent).toContain("Load anyway");
+    expect(explorer.querySelector(".viewer-code__flag")?.textContent).toContain("truncated");
+
+    force?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(calls).toContain("/api/workspace-preview?path=src%2Fbig.py&full=1");
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(explorer.querySelector("[data-viewer-workspace-preview-full]")).toBeNull();
+    expect(explorer.querySelector(".viewer-code__lines")?.textContent).toBe("3 lines");
   });
 
   it("renders an explorer breadcrumb that lets the operator jump to any ancestor", async () => {
@@ -3419,7 +3473,9 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Structured preview");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("JSON document");
     expect(dom.window.document.querySelector(".viewer-cdx__log-structured")).toBeTruthy();
-    expect(dom.window.document.querySelector(".viewer-cdx__log-content")).toBeTruthy();
+    // Raw log renders through the shared code viewer (line numbers + content).
+    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__body")?.textContent).toContain("first log line");
+    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__gutter")).toBeTruthy();
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Loaded /tmp/run.log");
 
     dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

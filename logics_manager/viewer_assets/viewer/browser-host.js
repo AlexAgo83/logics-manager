@@ -3486,6 +3486,73 @@
     `;
   }
 
+  // Map a file path to a highlight.js language name for the main languages.
+  const HLJS_EXT_LANGUAGE = {
+    js: "javascript", jsx: "javascript", mjs: "javascript", cjs: "javascript",
+    ts: "typescript", tsx: "typescript",
+    py: "python", rb: "ruby", go: "go", rs: "rust", java: "java",
+    c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", cs: "csharp",
+    php: "php", swift: "swift", kt: "kotlin", scala: "scala",
+    sh: "bash", bash: "bash", zsh: "bash", fish: "bash",
+    json: "json", yml: "yaml", yaml: "yaml", toml: "ini", ini: "ini",
+    xml: "xml", html: "xml", htm: "xml", svg: "xml",
+    css: "css", scss: "scss", less: "less",
+    md: "markdown", markdown: "markdown",
+    sql: "sql", dockerfile: "dockerfile", makefile: "makefile",
+    diff: "diff", patch: "diff"
+  };
+
+  function detectHljsLanguage(path) {
+    const file = String(path || "").split(/[\\/]/).pop() || "";
+    const lower = file.toLowerCase();
+    if (lower === "dockerfile") return "dockerfile";
+    if (lower === "makefile") return "makefile";
+    const ext = lower.includes(".") ? lower.split(".").pop() : "";
+    return HLJS_EXT_LANGUAGE[ext] || "";
+  }
+
+  // Highlight code to HTML when highlight.js and the language are available,
+  // otherwise fall back to escaped plain text. Never throws.
+  function highlightCode(content, language) {
+    const text = String(content || "");
+    try {
+      const hljs = typeof window !== "undefined" ? window.hljs : null;
+      if (hljs && language && typeof hljs.getLanguage === "function" && hljs.getLanguage(language)) {
+        return hljs.highlight(text, { language, ignoreIllegals: true }).value;
+      }
+    } catch {
+      /* fall through to plain text */
+    }
+    return escapeHtml(text);
+  }
+
+  // Shared file/code viewer: a discreet line count, an optional "load anyway"
+  // control when truncated, syntax highlighting, and a non-selectable line-number
+  // gutter. Used by the Explorer, git, and CDX preview surfaces.
+  function renderCodeViewer(content, options = {}) {
+    const text = String(content || "");
+    const language = options.language || "";
+    const lineCount = Number.isFinite(options.lineCount)
+      ? options.lineCount
+      : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
+    const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
+    const body = highlightCode(text, language);
+    const langClass = language ? ` language-${escapeHtml(language)}` : "";
+    const bar = [
+      `<span class="viewer-code__lines">${lineCount} line${lineCount === 1 ? "" : "s"}</span>`,
+      options.truncated ? `<span class="viewer-code__flag">truncated</span>` : "",
+      options.hardCapHit ? `<span class="viewer-code__flag">hard cap reached</span>` : "",
+      options.forceButtonHtml || ""
+    ].filter(Boolean).join("");
+    return `<div class="viewer-code">
+      <div class="viewer-code__bar">${bar}</div>
+      <div class="viewer-code__scroll">
+        <pre class="viewer-code__gutter" aria-hidden="true">${gutter}</pre>
+        <pre class="viewer-code__body"><code class="hljs${langClass}">${body}</code></pre>
+      </div>
+    </div>`;
+  }
+
   function renderWorkspacePreview(previewPayload) {
     if (!previewPayload) {
       return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select a file or directory.</span></div>';
@@ -3494,13 +3561,33 @@
     const name = previewPayload.name || path || "/";
     const state = previewPayload.state || "unknown";
     if (state === "ok") {
+      const forceButtonHtml = previewPayload.canForce
+        ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>`
+        : "";
       return `
         <div class="viewer-workspace__preview-header">
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
           <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
         </div>
-        ${previewPayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Preview truncated.</span></div>' : ""}
-        <pre class="viewer-workspace__code">${escapeHtml(previewPayload.content || "")}</pre>
+        ${renderCodeViewer(previewPayload.content || "", {
+          language: detectHljsLanguage(path),
+          lineCount: previewPayload.lineCount,
+          truncated: Boolean(previewPayload.truncated),
+          hardCapHit: Boolean(previewPayload.hardCapHit),
+          forceButtonHtml
+        })}
+      `;
+    }
+    if (state === "oversized") {
+      const forceButtonHtml = previewPayload.canForce
+        ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>`
+        : "";
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(`${previewPayload.size || 0} bytes`)}</em>
+        </div>
+        <div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>${escapeHtml(previewPayload.message || "File too large to preview.")}</span>${forceButtonHtml}</div>
       `;
     }
     if (state === "image") {
@@ -3546,8 +3633,9 @@
     return data.payload;
   }
 
-  async function fetchWorkspacePreview(path = "") {
-    const response = await fetch(`/api/workspace-preview?path=${encodeURIComponent(path)}`);
+  async function fetchWorkspacePreview(path = "", { full = false } = {}) {
+    const query = `path=${encodeURIComponent(path)}${full ? "&full=1" : ""}`;
+    const response = await fetch(`/api/workspace-preview?${query}`);
     const data = await response.json();
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load workspace preview.");
@@ -4648,15 +4736,15 @@
     setMeta(path ? `Explorer folder ${path}` : "Explorer root.");
   }
 
-  async function openWorkspacePreview(path) {
+  async function openWorkspacePreview(path, { full = false } = {}) {
     if (!document.querySelector("[data-viewer-workshop-explorer]")) return;
     const treePath = workspaceParentPath(path);
-    const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path)]);
+    const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path, { full })]);
     const container = document.querySelector("[data-viewer-workshop-explorer]");
     if (container instanceof HTMLElement) {
       container.innerHTML = renderWorkspace(tree, preview);
     }
-    setMeta(`Previewing ${path || "workspace root"}.`);
+    setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
   }
 
   function objectEntries(value) {
@@ -6324,7 +6412,9 @@
             ${renderCdxStructuredLog(parsed)}
             <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
               <summary>Raw log</summary>
-              <pre class="viewer-cdx__log-content">${escapeHtml(content || "Log is empty.")}</pre>
+              ${content
+                ? renderCodeViewer(content, { language: detectHljsLanguage(path), truncated })
+                : '<pre class="viewer-cdx__log-content">Log is empty.</pre>'}
             </details>
           </div>
         </section>
@@ -7843,6 +7933,7 @@
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
+      const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
       const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
@@ -8121,6 +8212,11 @@
       if (workspaceTreeTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("workspace-tree", "Loading Explorer folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+        return;
+      }
+      if (workspacePreviewFullTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("workspace-preview-full", "Loading full file", () => openWorkspacePreview(workspacePreviewFullTarget.getAttribute("data-viewer-workspace-preview-full") || "", { full: true }));
         return;
       }
       if (workspacePreviewTarget instanceof HTMLElement) {

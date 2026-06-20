@@ -90,9 +90,10 @@ def _coerce_scalar(value: str) -> Any:
     stripped = _strip_comment(value)
     if stripped in {"", "null", "Null", "NULL", "~"}:
         return None
-    if stripped in {"true", "True"}:
+    lowered = stripped.lower()
+    if lowered in {"true", "yes", "on"}:
         return True
-    if stripped in {"false", "False"}:
+    if lowered in {"false", "no", "off"}:
         return False
     if stripped.startswith(("'", '"')) and stripped.endswith(("'", '"')) and len(stripped) >= 2:
         return stripped[1:-1]

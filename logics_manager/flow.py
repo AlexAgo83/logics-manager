@@ -2664,7 +2664,7 @@ def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
         backlog_ref,
         title,
         build_args,
-        request_ref=request_planned.path.relative_to(repo_root).as_posix(),
+        request_ref=request_planned.ref,
         product_refs=[product_ref],
         architecture_refs=[],
     )

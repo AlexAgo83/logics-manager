@@ -24,6 +24,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
@@ -3576,6 +3577,22 @@ def test_render_config_show_merges_overrides(tmp_path: Path) -> None:
     assert '"max_children_without_override": 6' in payload
 
 
+def test_load_repo_config_coerces_yaml_boolean_spellings(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "logics").mkdir()
+    (repo_root / "logics.yaml").write_text(
+        "version: 2\nfeatures:\n  enabled: TRUE\n  disabled: off\n  consent: yes\n",
+        encoding="utf-8",
+    )
+
+    config, _config_path = load_repo_config(repo_root)
+
+    assert config["features"]["enabled"] is True
+    assert config["features"]["disabled"] is False
+    assert config["features"]["consent"] is True
+
+
 def test_load_repo_config_uses_defaults_when_missing(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     repo_root.mkdir()
@@ -3585,6 +3602,33 @@ def test_load_repo_config_uses_defaults_when_missing(tmp_path: Path) -> None:
 
     assert config_path is None
     assert config["version"] == DEFAULT_LOGICS_CONFIG["version"]
+
+
+def test_search_docs_truncated_only_when_extra_match_exists(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_one.md",
+        title="One",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_002_two.md",
+        title="Two",
+        kind="request",
+        status="Draft",
+        links=[],
+    )
+
+    exact = search_logics_docs_payload(repo_root, "Status", kind="request", limit=2)
+    truncated = search_logics_docs_payload(repo_root, "Status", kind="request", limit=1)
+
+    assert exact["returned_count"] == 2
+    assert exact["truncated"] is False
+    assert truncated["returned_count"] == 1
+    assert truncated["truncated"] is True
 
 
 def test_render_doctor_reports_missing_workflow_dirs(tmp_path: Path) -> None:
@@ -3829,6 +3873,22 @@ def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
     assert payload["ok"] is False
     assert payload["issue_count"] == 1
     assert payload["issues"][0]["code"] == "stale_pending_doc"
+
+
+def test_audit_structure_autofix_preserves_unrelated_findings(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_orphan.md"
+    _write_minimal_workflow_doc(request_path, title="Demo request", kind="request", status="Ready", links=[])
+    _write_minimal_workflow_doc(backlog_path, title="Orphan backlog", kind="backlog", status="Ready", links=[])
+
+    payload = audit_payload(repo_root, autofix_structure=True, skip_ac_traceability=True, group_by_doc=True)
+
+    issue_codes = {issue["code"] for issue in payload["issues"]}
+    assert "backlog_orphan_no_request" in issue_codes
+    assert "request_dor_unchecked" not in issue_codes
 
 
 def test_audit_reports_early_companion_mermaid_and_link_gaps_as_warnings(tmp_path: Path) -> None:
@@ -4252,6 +4312,8 @@ def test_main_runs_native_flow_deliver_from_product(
     assert "`task_001_demo_product`" in backlog_text
     assert "- Primary task(s): `task_001_demo_product`" in backlog_text
     assert "- Product brief(s): `prod_001_demo_product`" in backlog_text
+    assert "- Request: `req_000_demo_product`" in backlog_text
+    assert "logics/request/req_000_demo_product.md" not in backlog_text
     assert "request-AC3 -> This backlog slice. Proof:" in backlog_text
     assert "- Product brief(s): `prod_001_demo_product`" in task_text
     assert "request-AC3 -> This task. Proof:" in task_text

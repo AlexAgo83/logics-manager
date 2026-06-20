@@ -654,6 +654,32 @@ def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:
     assert payload["result"]["tools"][0]["name"] == "create_request"
 
 
+def test_mcp_http_transport_rejects_oversized_content_length(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.putrequest("POST", "/mcp")
+        conn.putheader("Content-Type", "application/json")
+        conn.putheader("Content-Length", str(2 * 1024 * 1024 + 1))
+        conn.endheaders()
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+    finally:
+        conn.close()
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert response.status == 413
+    assert payload["error"] == "payload_too_large"
+
+
 def test_mcp_http_transport_accepts_sse_get(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
     try:

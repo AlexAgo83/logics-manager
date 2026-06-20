@@ -36,6 +36,7 @@ ALLOWED_WRITE_DIRS = (
 )
 MAX_RAW_DIFF_CHARS = 12000
 JSONRPC_VERSION = "2.0"
+MAX_HTTP_BODY_BYTES = 2 * 1024 * 1024
 AUTH_ENV_VAR = "LOGICS_MCP_BEARER_TOKEN"
 
 
@@ -1272,6 +1273,12 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
                 length = int(self.headers.get("Content-Length", "0"))
             except ValueError:
                 self._send_json(400, {"ok": False, "error": "bad_request", "message": "Invalid Content-Length."})
+                return
+            if length <= 0:
+                self._send_json(400, {"ok": False, "error": "bad_request", "message": "Content-Length must be positive."})
+                return
+            if length > MAX_HTTP_BODY_BYTES:
+                self._send_json(413, {"ok": False, "error": "payload_too_large", "message": f"Content-Length exceeds {MAX_HTTP_BODY_BYTES} bytes."})
                 return
             raw_body = self.rfile.read(length).decode("utf-8")
             try:

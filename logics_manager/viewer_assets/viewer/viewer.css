@@ -344,6 +344,18 @@
   align-items: center;
 }
 
+.viewer-settings-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewer-settings-button__icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
 .viewer-refresh-menu__panel {
   position: absolute;
   top: calc(100% + 6px);

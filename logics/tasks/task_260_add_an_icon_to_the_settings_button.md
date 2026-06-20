@@ -2,17 +2,17 @@
 > From version: 2.12.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 100%
+> Confidence: 100%
+> Progress: 100%
 > Complexity: Low
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Add a gear icon to the Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:77`), consistent with the existing topbar icon style.
-- [ ] Preserve the accessible name (visible label and/or `aria-label`/title) and keep the menu behavior unchanged.
-- [ ] `viewer_assets/` synced; existing viewer tests pass.
+- [x] Add a gear icon to the Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:77`), consistent with the existing topbar icon style.
+- [x] Preserve the accessible name (visible label and/or `aria-label`/title) and keep the menu behavior unchanged.
+- [x] `viewer_assets/` synced; existing viewer tests pass.
 
 # Backlog
 - `item_467_add_an_icon_to_the_settings_button`
@@ -28,7 +28,8 @@
 - Run `python3 -m logics_manager flow finish task task_260_add_an_icon_to_the_settings_button.md` after implementation.
 
 # Report
-- Pending implementation.
+- Implemented: added an inline gear SVG (`.viewer-settings-button__icon`) plus a `<span>Settings</span>` to `#viewer-refresh-menu-button` in `clients/viewer/index.html`, with alignment CSS (`.viewer-settings-button`) in `clients/viewer/viewer.css`. Accessible name and menu behavior unchanged.
+- Validation: `npx vitest run tests/viewer.browser-host.test.ts` → 111 passed; `viewer_assets/` synced via `scripts/dev/sync-viewer-assets.mjs`.
 
 # AI Context
 - Summary: Add a gear icon to the text-only Settings button while preserving accessibility and behavior.

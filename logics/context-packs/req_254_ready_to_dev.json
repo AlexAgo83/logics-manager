@@ -1,0 +1,213 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [
+    "logics/backlog/item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+    "logics/backlog/item_450_use_full_permission_for_write_enabled_cdx_missions.md",
+    "logics/tasks/task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+    "logics/tasks/task_240_use_full_permission_for_write_enabled_cdx_missions.md"
+  ],
+  "command": "logics-manager sync context-pack req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs --mode diff-first --profile normal",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "validation-evidence-gate, ac-proof-per-ac, extract-refs-width, mcp-symlink-confinement, release-version-agreement, evidence-staleness, autofix-ac-traceability, status-done-terminal, security-md-versions, flow-evidence-tests",
+        "skip when": "The work is about unrelated viewer layout, mission UX, or general workflow grooming.",
+        "summary": "Triage follow-up for the June 2026 full repository audit: tighten closure-gating evidence checks, widen ref parsing, harden MCP path safety and release guards, fix audit autofix/terminal-status gaps, and refresh stale docs.",
+        "use when": "You need the delivery thread for the June 2026 repository audit follow-up."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ],
+        "req": [
+          "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ]
+      },
+      "path": "logics/request/req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+      "ref": "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [],
+        "Needs": [
+          "- Capture the read-only repository audit run from `2026-06-20` as tracked Logics work rather than leaving findings in a transient mission artifact.",
+          "- Fix confirmed correctness, validation, and security-hardening findings with scoped changes and regression coverage.",
+          "- Close the highest-risk test gaps around closure-gating helpers and correct tracked stale documentation.",
+          "- Keep this as a draft request for later triage; do not promote it as part of the audit capture."
+        ]
+      },
+      "status": "Draft",
+      "title": "Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, address june 2026 repository audit findings across flow gating, release guards, mcp path safety, and stale docs, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs",
+        "use when": "Use when implementing or reviewing the delivery slice for Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ],
+        "req": [
+          "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ],
+        "task": [
+          "task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ]
+      },
+      "path": "logics/backlog/item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+      "ref": "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The backlog slice stays bounded and reviewable.",
+          "- AC2: The backlog slice preserves the request's core acceptance criteria."
+        ],
+        "Problem": [
+          "Capture the read-only repository audit run from `2026-06-20` as tracked Logics work rather than leaving findings in a transient mission artifact.",
+          "Fix confirmed correctness, validation, and security-hardening findings with scoped changes and regression coverage.",
+          "Close the highest-risk test gaps around closure-gating helpers and correct tracked stale documentation.",
+          "Keep this as a draft request for later triage; do not promote it as part of the audit capture."
+        ]
+      },
+      "status": "Ready",
+      "title": "Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs"
+    },
+    {
+      "ai_context": {
+        "keywords": "task, implementation, backlog, runtime, python",
+        "skip when": "The work is still at the request or backlog shaping stage.",
+        "summary": "Implement address june 2026 repository audit findings across flow gating, release guards, mcp path safety, and stale docs.",
+        "use when": "You need a bounded implementation task for a backlog item."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ],
+        "req": [
+          "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ],
+        "task": [
+          "task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+        ]
+      },
+      "path": "logics/tasks/task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+      "ref": "task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run `python3 -m logics_manager flow finish task task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md` after implementation."
+        ]
+      },
+      "status": "Ready",
+      "title": "Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs"
+    }
+  ],
+  "estimates": {
+    "char_count": 5606,
+    "companion_doc_count": 0,
+    "doc_count": 3
+  },
+  "generated_at": "2026-06-20T04:52:00Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": false,
+    "source_refs": [
+      "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+      "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+      "task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+    ],
+    "validation_summary_count": 0
+  },
+  "mode": "diff-first",
+  "profile": "normal",
+  "ref": "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs,item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs,task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+  "refs": [
+    "req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+    "item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs",
+    "task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.11.5"
+  },
+  "validation_summary": []
+}

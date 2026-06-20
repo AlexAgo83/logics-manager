@@ -1,9 +1,9 @@
 ## req_255_use_full_permission_for_write_enabled_cdx_missions - Use full permission for write-enabled CDX missions
 > From version: 2.11.5
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Ready
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -53,3 +53,4 @@
 
 # Backlog
 - none
+- `item_450_use_full_permission_for_write_enabled_cdx_missions`

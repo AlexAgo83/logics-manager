@@ -1,9 +1,9 @@
 ## req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs - Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs
 > From version: 2.11.5
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Ready
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Repository hardening
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -76,3 +76,4 @@
 
 # Backlog
 - none
+- `item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs`

@@ -272,6 +272,9 @@ def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:
 
     assert is_newer_version("2.3.0", "2.2.0") is True
     assert is_newer_version("2.2.0", "2.2.0") is False
+    assert is_newer_version("2.2.0", "2.2.0-beta.1") is True
+    assert is_newer_version("2.2.0-beta.2", "2.2.0-beta.10") is False
+    assert is_newer_version("2.2.0.1", "2.2.0") is True
     first = get_update_info("2.2.0", cache_path=cache_path, now=100, fetch_latest=fetch_latest)
     second = get_update_info("2.2.0", cache_path=cache_path, now=200, fetch_latest=lambda: "9.9.9")
 
@@ -279,6 +282,24 @@ def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:
     assert first.latest_version == "2.3.0"
     assert second.latest_version == "2.3.0"
     assert calls == 1
+
+
+def test_update_check_does_not_cache_failed_fetch(tmp_path: Path) -> None:
+    cache_path = tmp_path / "update-check.json"
+    calls = 0
+
+    def fetch_latest() -> str | None:
+        nonlocal calls
+        calls += 1
+        return None
+
+    first = get_update_info("2.2.0", cache_path=cache_path, now=100, fetch_latest=fetch_latest)
+    second = get_update_info("2.2.0", cache_path=cache_path, now=200, fetch_latest=fetch_latest)
+
+    assert first.latest_version is None
+    assert second.latest_version is None
+    assert calls == 2
+    assert not cache_path.exists()
 
 
 def test_cli_update_notice_is_human_only(

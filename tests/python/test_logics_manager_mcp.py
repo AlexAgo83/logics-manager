@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+import logics_manager.mcp as mcp_module
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.mcp import McpToolError, call_tool, connector_plan, handle_jsonrpc, make_http_handler
 
@@ -66,6 +67,40 @@ def test_mcp_rejects_unknown_arguments(tmp_path: Path) -> None:
         assert exc.details == {"arguments": ["shell"]}
     else:
         raise AssertionError("Expected unknown arguments to be rejected.")
+
+
+def test_mcp_command_errors_scrub_raw_output_details(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = _repo(tmp_path)
+
+    def fake_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            args[0],
+            1,
+            stdout=f"prefix {repo_root}/secret/stdout",
+            stderr=f"trace {repo_root}/secret/stderr",
+        )
+
+    monkeypatch.setattr(mcp_module.subprocess, "run", fake_run)
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool(
+            "create_request",
+            {
+                "title": "Demo",
+                "needs": ["Need"],
+                "context": ["Context"],
+                "acceptance_criteria": ["AC1: Done"],
+            },
+            repo_root=repo_root,
+        )
+
+    assert exc.value.code == "command_failed"
+    assert "stdout" not in exc.value.details
+    assert "stderr" not in exc.value.details
+    assert str(repo_root) not in exc.value.details["stdout_tail"]
+    assert str(repo_root) not in exc.value.details["stderr_tail"]
+    assert "<repo>/secret/stdout" in exc.value.details["stdout_tail"]
+    assert "<repo>/secret/stderr" in exc.value.details["stderr_tail"]
 
 
 def test_mcp_rejects_dirty_tracked_source_conflicts(tmp_path: Path) -> None:

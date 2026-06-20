@@ -35,6 +35,7 @@ ALLOWED_WRITE_DIRS = (
     "logics/architecture",
 )
 MAX_RAW_DIFF_CHARS = 12000
+MAX_ERROR_OUTPUT_CHARS = 2000
 JSONRPC_VERSION = "2.0"
 MAX_HTTP_BODY_BYTES = 2 * 1024 * 1024
 AUTH_ENV_VAR = "LOGICS_MCP_BEARER_TOKEN"
@@ -447,6 +448,20 @@ def _markdown_file_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str,
     return rel_path
 
 
+def _safe_output_tail(repo_root: Path, value: str) -> str:
+    scrubbed = value.replace(repo_root.as_posix(), "<repo>").replace(str(repo_root), "<repo>")
+    return scrubbed[-MAX_ERROR_OUTPUT_CHARS:] if len(scrubbed) > MAX_ERROR_OUTPUT_CHARS else scrubbed
+
+
+def _command_error_details(repo_root: Path, command: list[str], result: subprocess.CompletedProcess[str]) -> dict[str, Any]:
+    return {
+        "command": command,
+        "stdout_tail": _safe_output_tail(repo_root, result.stdout),
+        "stderr_tail": _safe_output_tail(repo_root, result.stderr),
+        "returncode": result.returncode,
+    }
+
+
 def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, "-m", "logics_manager", *args]
     result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_subprocess_env())
@@ -454,7 +469,7 @@ def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProces
         raise McpToolError(
             "command_failed",
             "Underlying logics-manager command failed.",
-            details={"command": ["python3", "-m", "logics_manager", *args], "stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode},
+            details=_command_error_details(repo_root, ["python3", "-m", "logics_manager", *args], result),
         )
     return result
 
@@ -467,7 +482,7 @@ def _run_json_command(repo_root: Path, args: list[str]) -> dict[str, Any]:
         raise McpToolError(
             "command_failed",
             "Underlying logics-manager command failed.",
-            details={"command": ["python3", "-m", "logics_manager", *args], "stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode},
+            details=_command_error_details(repo_root, ["python3", "-m", "logics_manager", *args], result),
         )
     return payload
 
@@ -520,7 +535,7 @@ def _json_from_stdout_or_none(stdout: str) -> dict[str, Any] | None:
 def _run_git(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if result.returncode != 0:
-        raise McpToolError("command_failed", "Git command failed.", details={"command": ["git", *args], "stderr": result.stderr, "returncode": result.returncode})
+        raise McpToolError("command_failed", "Git command failed.", details=_command_error_details(repo_root, ["git", *args], result))
     return result
 
 

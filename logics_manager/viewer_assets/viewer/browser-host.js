@@ -429,6 +429,11 @@
   let latestCdxStatusPayload = null;
   let latestCdxRunsPayload = null;
   let latestCdxHistoryPayload = null;
+  const cdxUnreadState = {
+    missions: { signature: "", seenSignature: "", unread: false },
+    runs: { signature: "", seenSignature: "", unread: false },
+    history: { signature: "", seenSignature: "", unread: false }
+  };
   let latestCiStatusSignature = "";
   let latestCiScreenMode = "git";
   let currentDocumentItem = null;
@@ -728,6 +733,13 @@
 
   function runtimeStatusSignature(payload) {
     return stableStringify(payload || {});
+  }
+
+  function cdxUnreadSectionTitle(section) {
+    if (section === "missions") return "Missions";
+    if (section === "runs") return "Reports";
+    if (section === "history") return "History";
+    return "CDX";
   }
 
   function primaryActionControls() {
@@ -1638,6 +1650,80 @@
     return payload.runs.filter((run) => ["running", "starting", "pending"].includes(String(cdxField(run, ["status", "state"], "")).toLowerCase())).length;
   }
 
+  function renderCdxUnreadBadge(section, label = "!") {
+    const title = `${cdxUnreadSectionTitle(section)} has unread changes`;
+    return `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
+  }
+
+  function cdxUnreadSections() {
+    return ["missions", "runs", "history"].filter((section) => cdxUnreadState[section]?.unread);
+  }
+
+  function updateCdxUnreadBadges() {
+    const unreadSections = cdxUnreadSections();
+    const unreadCount = unreadSections.length;
+    const button = document.getElementById("viewer-cdx");
+    if (button instanceof HTMLElement) {
+      button.querySelector("[data-viewer-cdx-unread-badge]")?.remove();
+      button.title = (button.title || "Show CDX status").replace(/\s· Unread CDX changes:.*$/, "");
+      if (unreadCount > 0) {
+        const label = unreadCount === 1 ? "!" : String(unreadCount);
+        const title = unreadSections.map(cdxUnreadSectionTitle).join(", ");
+        button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" data-viewer-cdx-unread-badge title="${escapeHtml(`Unread CDX changes: ${title}`)}" aria-label="${escapeHtml(`Unread CDX changes: ${title}`)}">${escapeHtml(label)}</span>`);
+        button.title = `${button.title || "Show CDX status"} · Unread CDX changes: ${title}`;
+      }
+    }
+    ["missions", "runs", "history"].forEach((section) => {
+      const target = section === "runs" ? "cdx:runs" : `cdx:${section}`;
+      const item = navMenuItem(target);
+      if (!(item instanceof HTMLElement)) return;
+      item.querySelector("[data-viewer-cdx-unread-menu-badge]")?.remove();
+      if (cdxUnreadState[section]?.unread) {
+        const container = item.querySelector("[data-viewer-menu-badges]");
+        const badge = renderCdxUnreadBadge(section);
+        if (container) {
+          container.insertAdjacentHTML("beforeend", `<span data-viewer-cdx-unread-menu-badge>${badge}</span>`);
+        } else {
+          item.insertAdjacentHTML("beforeend", `<span class="viewer-nav-menu__badges" data-viewer-menu-badges><span data-viewer-cdx-unread-menu-badge>${badge}</span></span>`);
+        }
+      }
+    });
+  }
+
+  function recordCdxUnreadSnapshot(section, payload, options = {}) {
+    const state = cdxUnreadState[section];
+    if (!state) return;
+    const signature = runtimeStatusSignature(payload);
+    const isOpen = section === "missions" ? isCdxMissionsOpen() : section === "runs" ? isCdxRunsOpen() : isCdxHistoryOpen();
+    if (!signature) return;
+    if (!state.signature) {
+      state.signature = signature;
+      state.seenSignature = signature;
+      state.unread = false;
+      updateCdxUnreadBadges();
+      return;
+    }
+    if (signature !== state.signature && !isOpen && !options.markSeen) {
+      state.unread = true;
+    }
+    state.signature = signature;
+    if (isOpen || options.markSeen) {
+      state.seenSignature = signature;
+      state.unread = false;
+    }
+    updateCdxUnreadBadges();
+  }
+
+  function markCdxSectionSeen(section, payload = null) {
+    const state = cdxUnreadState[section];
+    if (!state) return;
+    const signature = payload ? runtimeStatusSignature(payload) : state.signature;
+    state.signature = signature || state.signature;
+    state.seenSignature = state.signature;
+    state.unread = false;
+    updateCdxUnreadBadges();
+  }
+
   function updateMainCdxBadge(payload, runsPayload = null) {
     const button = document.getElementById("viewer-cdx");
     if (!(button instanceof HTMLElement)) {
@@ -1652,6 +1738,7 @@
       button.title = isCapabilityAvailable("cdx")
         ? "Show CDX status"
         : capabilityMessage("cdx", "CDX is not available for this project.");
+      updateCdxUnreadBadges();
       return;
     }
     const label = activeCount > 9 ? "9+" : String(activeCount);
@@ -1676,6 +1763,7 @@
       const runTitle = activeRuns === 1 ? "1 running run" : `${activeRuns} running runs`;
       setNavMenuBadges("cdx:runs", `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--runs" title="${escapeHtml(runTitle)}" aria-label="${escapeHtml(runTitle)}">${escapeHtml(runLabel)}</span>`);
     }
+    updateCdxUnreadBadges();
   }
 
   async function refreshCdxBadgeCounters() {
@@ -1766,11 +1854,21 @@
     if (isCapabilityAvailable("cdx")) {
       if (payload.cdx) {
         const runsPayload = payload.cdxRuns || null;
+        const historyPayload = payload.cdxHistory || null;
         // Keep the full CDX status payload fresh from the lightweight badge
         // poll (same shape as /api/cdx-status), so consumers like the Workshop
         // terminal usage gauge have current data without opening the CDX screen.
         latestCdxStatusPayload = payload.cdx;
         latestCdxStatusSignature = runtimeStatusSignature({ status: payload.cdx, runs: runsPayload });
+        recordCdxUnreadSnapshot("missions", payload.cdx);
+        if (runsPayload) {
+          latestCdxRunsPayload = runsPayload;
+          recordCdxUnreadSnapshot("runs", runsPayload);
+        }
+        if (historyPayload) {
+          latestCdxHistoryPayload = historyPayload;
+          recordCdxUnreadSnapshot("history", historyPayload);
+        }
         updateMainCdxBadge(payload.cdx, runsPayload);
         refreshWorkshopTerminalUsage();
       }
@@ -6241,6 +6339,7 @@
     }
     latestCdxStatusSignature = nextCdxSignature;
     latestCdxStatusPayload = data.payload;
+    recordCdxUnreadSnapshot("missions", data.payload, { markSeen: isCdxMissionsOpen() });
     updateMainCdxBadge(data.payload);
     setDocument("CDX status", renderCdxStatus(data.payload));
     setupCdxImportExportHandlers();
@@ -6286,6 +6385,7 @@
     }
     updateMainCdxBadge(data.payload);
     setDocument("CDX missions", renderCdxMissions(data.payload, latestCdxMissionState.planPayload, latestCdxMissionState.runPayload, latestCdxMissionState.applyPayload));
+    markCdxSectionSeen("missions", data.payload);
     setMeta(options.silent ? "CDX missions refreshed." : "CDX missions loaded.");
   }
 
@@ -6462,7 +6562,13 @@
       throw new Error(data.error || "Unable to load CDX reports.");
     }
     latestCdxRunsPayload = data.payload;
+    const wasOpen = isCdxRunsOpen();
     setDocument("CDX reports", renderCdxRuns(data.payload));
+    if (options.silent && !wasOpen) {
+      recordCdxUnreadSnapshot("runs", data.payload);
+    } else {
+      markCdxSectionSeen("runs", data.payload);
+    }
     setMeta(options.silent ? "CDX reports refreshed." : "CDX reports loaded.");
   }
 
@@ -6500,7 +6606,13 @@
       throw new Error(data.error || "Unable to load CDX history.");
     }
     latestCdxHistoryPayload = data.payload;
+    const wasOpen = isCdxHistoryOpen();
     setDocument("CDX history", renderCdxHistory(data.payload));
+    if (options.silent && !wasOpen) {
+      recordCdxUnreadSnapshot("history", data.payload);
+    } else {
+      markCdxSectionSeen("history", data.payload);
+    }
     setMeta(options.silent ? "CDX history refreshed." : "CDX history loaded.");
   }
 

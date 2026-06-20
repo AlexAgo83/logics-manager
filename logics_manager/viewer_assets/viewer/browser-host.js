@@ -3539,14 +3539,17 @@
       ? options.lineCount
       : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
     const visibleLines = text ? text.split("\n").slice(0, text.endsWith("\n") ? -1 : undefined) : [];
-    const langClass = language ? ` language-${escapeHtml(language)}` : "";
     const rows = visibleLines.map((line, index) => {
       const body = typeof options.renderLineHtml === "function"
         ? options.renderLineHtml(line, index)
         : highlightCode(line || " ", language);
+      const extraLineClass = typeof options.lineClassName === "function"
+        ? options.lineClassName(line, index)
+        : (options.lineClassName || "");
+      const lineClass = ["viewer-code__line", extraLineClass].filter(Boolean).map(escapeHtml).join(" ");
       return `<div class="viewer-code__row">
         <span class="viewer-code__line-number" aria-hidden="true">${index + 1}</span>
-        <span class="viewer-code__line"><code class="hljs${langClass}">${body}</code></span>
+        <span class="${lineClass}"><code>${body}</code></span>
       </div>`;
     }).join("");
     const bar = [
@@ -3557,7 +3560,7 @@
     ].filter(Boolean).join("");
     return `<div class="viewer-code">
       <div class="viewer-code__bar">${bar}</div>
-      <pre class="viewer-code__scroll"><code class="viewer-code__rows">${rows}</code></pre>
+      <div class="viewer-code__scroll"><div class="viewer-code__rows">${rows}</div></div>
     </div>`;
   }
 
@@ -7494,7 +7497,8 @@
   function renderGitDiffPreview(content) {
     return renderCodeViewer(content, {
       language: "diff",
-      renderLineHtml: (line) => `<span class="viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}">${escapeHtml(line || " ")}</span>`
+      lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
+      renderLineHtml: (line) => escapeHtml(line || " ")
     });
   }
 

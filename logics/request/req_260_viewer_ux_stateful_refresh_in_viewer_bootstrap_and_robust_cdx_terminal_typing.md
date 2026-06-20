@@ -1,9 +1,9 @@
 ## req_260_viewer_ux_stateful_refresh_in_viewer_bootstrap_and_robust_cdx_terminal_typing - Viewer UX: stateful refresh, in-viewer bootstrap, and robust CDX terminal typing
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
 > Complexity: High
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.

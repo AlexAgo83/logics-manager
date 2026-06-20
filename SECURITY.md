@@ -6,8 +6,8 @@ Security fixes target the latest published release line.
 
 | Version | Supported |
 | --- | --- |
-| 2.9.x | Yes |
-| < 2.9 | No |
+| 2.11.x | Yes |
+| < 2.11 | No |
 
 If a security issue affects an older line, upgrade to the latest release before
 testing or reporting unless the issue is specifically about the upgrade path.

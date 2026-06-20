@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve `cdx-logics-vscode`.
+Thanks for helping improve `logics-manager`.
 
 ## Getting Started
 
@@ -13,7 +13,7 @@ Thanks for helping improve `cdx-logics-vscode`.
 - Make focused changes and keep commits small when possible.
 - Prefer one logical change per commit or per wave.
 - Do not edit generated workflow status fields by hand unless the flow specifically requires it.
-- For Logics tasks, use the flow-manager commands so task, backlog, and request status stay synchronized.
+- For Logics tasks, use `logics-manager flow ...` commands so task, backlog, and request status stay synchronized.
 
 ## Validation
 
@@ -28,7 +28,7 @@ Run the narrowest useful checks first, then expand if needed:
 - `npm run ci:check`
 - `PLUGIN_LIFECYCLE_TESTS=1 npm run test:lifecycle` when validating a release candidate with the VS Code `code` CLI available
 
-If your change touches Logics docs or workflow behavior, also validate the relevant flow-manager tests or doc checks before opening a PR.
+If your change touches Logics docs or workflow behavior, also validate the relevant `logics-manager` flow tests or doc checks before opening a PR.
 
 Use `npm run clean:local-artifacts` to preview generated local outputs that are safe to discard, including build products, smoke artifacts, coverage output, graph cache, and Logics cache. Run `npm run clean:local-artifacts -- --apply` only after checking the preview.
 

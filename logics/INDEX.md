@@ -29,7 +29,7 @@
 | [adr_022_chatgpt_logics_agent_mcp_contract](architecture/adr_022_chatgpt_logics_agent_mcp_contract.md) | `show_git_diff` | Settled |  | architecture/adr_022_chatgpt_logics_agent_mcp_contract.md |
 | [adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling](architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md) | Phase 2.1 (shipped under `task_222`, 2026-06-15) — stdlib-only PTY + SSE | Settled |  | architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md |
 | [adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice](architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md) | LAN viewer auth model, read-only contract, and QR library choice | Settled |  | architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md |
-| [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Proposed |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
+| [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Settled |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
 
 ## Product briefs
 
@@ -59,7 +59,7 @@
 | [prod_021_git_cockpit_for_the_local_viewer](product/prod_021_git_cockpit_for_the_local_viewer.md) | Git cockpit for the local viewer | Settled |  | product/prod_021_git_cockpit_for_the_local_viewer.md |
 | [prod_022_cdx_status_cockpit_for_the_local_viewer](product/prod_022_cdx_status_cockpit_for_the_local_viewer.md) | CDX status cockpit for the local viewer | Settled |  | product/prod_022_cdx_status_cockpit_for_the_local_viewer.md |
 | [prod_023_agent_authored_logics_workflow_scaffolding_and_validation](product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md) | Agent-authored Logics workflow scaffolding and validation | Settled |  | product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md |
-| [prod_024_project_audit_remediation_plan](product/prod_024_project_audit_remediation_plan.md) | Project audit remediation plan | Proposed |  | product/prod_024_project_audit_remediation_plan.md |
+| [prod_024_project_audit_remediation_plan](product/prod_024_project_audit_remediation_plan.md) | Project audit remediation plan | Settled |  | product/prod_024_project_audit_remediation_plan.md |
 
 ## Requests
 
@@ -314,6 +314,7 @@
 | [req_248_release_workflow_multi_project_ai_assistants](request/req_248_release_workflow_multi_project_ai_assistants.md) | Formaliser un workflow de release multi-projet pour les assistants IA | Done |  | request/req_248_release_workflow_multi_project_ai_assistants.md |
 | [req_249_improve_logics_workflow_scaffolding_validation_agent_docs](request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md) | Improve Logics workflow scaffolding and validation for agent-authored docs | Done |  | request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md |
 | [req_250_address_project_audit_follow_up_actions](request/req_250_address_project_audit_follow_up_actions.md) | Address project audit follow-up actions | Done |  | request/req_250_address_project_audit_follow_up_actions.md |
+| [req_251_fix_mission_execution_and_repo_audit_findings](request/req_251_fix_mission_execution_and_repo_audit_findings.md) | Fix mission execution and repository audit findings | Done |  | request/req_251_fix_mission_execution_and_repo_audit_findings.md |
 
 ## Backlog
 
@@ -763,6 +764,8 @@
 | [item_442_add_local_artifact_cleanup_command](backlog/item_442_add_local_artifact_cleanup_command.md) | Add local artifact cleanup command | Done | 100% | backlog/item_442_add_local_artifact_cleanup_command.md |
 | [item_443_target_coverage_gaps_in_high_risk_modules](backlog/item_443_target_coverage_gaps_in_high_risk_modules.md) | Target coverage gaps in high-risk modules | Done | 100% | backlog/item_443_target_coverage_gaps_in_high_risk_modules.md |
 | [item_444_document_lifecycle_test_prerequisites_and_execution_path](backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md) | Document lifecycle test prerequisites and execution path | Done | 100% | backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md |
+| [item_445_fix_repository_audit_findings](backlog/item_445_fix_repository_audit_findings.md) | Fix repository audit findings | Done | 100% | backlog/item_445_fix_repository_audit_findings.md |
+| [item_446_fix_cdx_mission_execution_reporting_and_update_alias](backlog/item_446_fix_cdx_mission_execution_reporting_and_update_alias.md) | Fix CDX mission execution reporting and update alias | Done | 100% | backlog/item_446_fix_cdx_mission_execution_reporting_and_update_alias.md |
 
 ## Tasks
 
@@ -995,3 +998,6 @@
 | [task_231_improve_context_pack_corpus_generation_for_implementation_handoff](tasks/task_231_improve_context_pack_corpus_generation_for_implementation_handoff.md) | Improve context-pack corpus generation for implementation handoff | Done | 100% | tasks/task_231_improve_context_pack_corpus_generation_for_implementation_handoff.md |
 | [task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output](tasks/task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output.md) | Improve agent ergonomics for recent docs and structured workflow output | Done | 100% | tasks/task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output.md |
 | [task_233_orchestrate_project_audit_remediation](tasks/task_233_orchestrate_project_audit_remediation.md) | Orchestrate project audit remediation | Done | 100% | tasks/task_233_orchestrate_project_audit_remediation.md |
+| [task_234_orchestrate_mission_execution_and_audit_finding_fixes](tasks/task_234_orchestrate_mission_execution_and_audit_finding_fixes.md) | Orchestrate mission execution and audit finding fixes | Done | 100% | tasks/task_234_orchestrate_mission_execution_and_audit_finding_fixes.md |
+| [task_235_fix_repository_audit_findings](tasks/task_235_fix_repository_audit_findings.md) | Fix repository audit findings | Done | 100% | tasks/task_235_fix_repository_audit_findings.md |
+| [task_236_fix_cdx_mission_execution_reporting_and_update_alias](tasks/task_236_fix_cdx_mission_execution_reporting_and_update_alias.md) | Fix CDX mission execution reporting and update alias | Done | 100% | tasks/task_236_fix_cdx_mission_execution_reporting_and_update_alias.md |

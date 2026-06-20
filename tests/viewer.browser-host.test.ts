@@ -8,6 +8,18 @@ async function flushViewerAsync() {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+async function chooseCdxMission(dom: JSDOM, label: string) {
+  dom.window.document.querySelector("[data-viewer-cdx-mission-select]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+  await flushViewerAsync();
+  const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+  const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+  expect(select).toBeTruthy();
+  expect(Array.from(select!.options).map((option) => option.value)).toContain(label);
+  select!.value = label;
+  (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+  await flushViewerAsync();
+}
+
 function loadScript(dom: JSDOM, relPath: string) {
   const source = fs.readFileSync(path.resolve(process.cwd(), relPath), "utf8");
   new vm.Script(source, { filename: relPath }).runInContext(dom.getInternalVMContext());
@@ -3256,12 +3268,10 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX missions");
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("Full audit");
-    expect(text).toContain("Prepare dev-ready corpus");
-    expect(text).toContain("Wish to request");
-    expect(text).toContain("Guarded pre-release");
+    expect(text).toContain("Choose mission");
+    expect(text).not.toContain("Guarded pre-release");
 
-    dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await chooseCdxMission(dom, "Prepare dev-ready corpus");
     const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;
     expect(allowWrites).toBeNull();
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3335,7 +3345,7 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    dom.window.document.querySelector('[data-viewer-cdx-mission="wish-to-request"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await chooseCdxMission(dom, "Wish to request");
     const input = dom.window.document.querySelector('[data-viewer-cdx-input="wishText"]') as HTMLTextAreaElement | null;
     expect(input).toBeTruthy();
     input!.value = "Capture a safer release checklist";
@@ -3363,7 +3373,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     // full-audit / release-review now require file writes; pick a mission that still supports opt-out.
-    dom.window.document.querySelector('[data-viewer-cdx-mission="wish-to-request"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await chooseCdxMission(dom, "Wish to request");
     const wish = dom.window.document.querySelector('[data-viewer-cdx-input="wishText"]') as HTMLTextAreaElement | null;
     wish!.value = "Capture a safer release checklist";
     wish!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
@@ -3470,7 +3480,7 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    dom.window.document.querySelector('[data-viewer-cdx-mission="pre-release"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await chooseCdxMission(dom, "Guarded pre-release");
     const version = dom.window.document.querySelector('[data-viewer-cdx-input="releaseVersion"]') as HTMLInputElement | null;
     const validation = dom.window.document.querySelector('[data-viewer-cdx-input="runFullValidation"]') as HTMLInputElement | null;
     expect(version).toBeTruthy();
@@ -3505,7 +3515,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.querySelector('[data-viewer-cdx-mission="corpus-ready"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await chooseCdxMission(dom, "Prepare dev-ready corpus");
     dom.window.document.querySelector('[data-viewer-cdx-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 

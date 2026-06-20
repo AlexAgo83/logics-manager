@@ -1,10 +1,10 @@
 ## item_451_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server - Modularize viewer.py (extract LAN, Workshop, payload builders from the HTTP server)
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,8 +43,8 @@ Goal: extract the autonomous concerns into dedicated modules with no behavior ch
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_256_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server.md`
-- Primary task(s): (none yet)
+- Request: `req_256_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server`
+- Primary task(s): `task_241_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server`
 
 # AI Context
 - Summary: Modularize viewer.py (extract LAN, Workshop, payload builders from the HTTP server)
@@ -60,6 +60,7 @@ Goal: extract the autonomous concerns into dedicated modules with no behavior ch
 - Hybrid rationale: Derived from request `req_256_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_256_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server.md`.
 - Generated locally by logics-manager.
+- Task `task_241_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_241_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server`

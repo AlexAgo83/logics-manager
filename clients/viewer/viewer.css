@@ -333,6 +333,11 @@
   color: #f59e0b;
 }
 
+.viewer-cdx-button-badge--unread {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+}
+
 .viewer-refresh-menu {
   position: relative;
   display: inline-flex;

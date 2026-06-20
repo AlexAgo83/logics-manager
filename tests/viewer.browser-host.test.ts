@@ -209,13 +209,14 @@ function createViewerDom(options: {
           const data = await res.json();
           return data?.payload;
         };
-        const [git, ci, cdx, cdxRuns] = await Promise.all([
+        const [git, ci, cdx, cdxRuns, cdxHistory] = await Promise.all([
           pick("/api/git-status"),
           pick("/api/ci-status"),
           pick("/api/cdx-status"),
-          pick("/api/cdx-runs")
+          pick("/api/cdx-runs"),
+          pick("/api/cdx-history")
         ]);
-        return { ok: true, status: 200, json: async () => ({ ok: true, payload: { git, ci, cdx, cdxRuns } }) };
+        return { ok: true, status: 200, json: async () => ({ ok: true, payload: { git, ci, cdx, cdxRuns, cdxHistory } }) };
       }
       if (url === "/api/items" || url === "/api/refresh") {
         if (url === "/api/refresh" && options.refreshGate) {
@@ -2909,6 +2910,81 @@ describe("local viewer browser host", () => {
     expect(badge?.textContent).toBe("2");
     expect(badge?.className).toContain("viewer-cdx-button-badge--runs");
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.title).toContain("1 running run");
+  });
+
+  it("tracks unread CDX Missions, Reports, and History changes independently", async () => {
+    let cdxVersion = 1;
+    const runsResponse = {
+      state: "ok",
+      message: "",
+      runs: [
+        { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager" },
+        { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
+      ]
+    };
+    const historyResponse = {
+      state: "ok",
+      message: "",
+      history: [
+        { session_name: "work", provider: "codex", status: "success", action: "launch", label: "codex", started_at: "2026-06-20T02:14:27Z" }
+      ]
+    };
+    const { dom } = createViewerDom({
+      cdxRunsResponse: runsResponse,
+      cdxHistoryResponse: historyResponse,
+      cdxResponseFactory: () => ({
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            message: "",
+            status: {
+              availability: "ready",
+              providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
+              sessions: [{ id: "session-1", status: "active", title: `Logics work ${cdxVersion}`, model: "gpt-5-codex" }],
+              readiness: { auth: "ready", quota: "ok" }
+            }
+          }
+        }
+      })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+
+    cdxVersion = 2;
+    runsResponse.runs = [...runsResponse.runs, { run_id: "run-3", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" }];
+    historyResponse.history = [...historyResponse.history, { session_name: "auto", provider: "codex", status: "success", action: "run", label: "cdx run", started_at: "2026-06-20T03:14:27Z" }];
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+
+    expect(dom.window.document.querySelector("[data-viewer-cdx-badge]")?.textContent).toBe("2");
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("3");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-menu-badges]')?.textContent).toContain("1");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("2");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("!");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
   });
 
   it("explains stale CDX runs without blocking report access", async () => {

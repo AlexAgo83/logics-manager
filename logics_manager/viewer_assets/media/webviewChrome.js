@@ -179,10 +179,20 @@
           button.className = "activity-panel__entry";
           button.dataset.id = entry.id;
 
+          const stageLabel = getStageLabel(entry.stage);
+          const stageTitle = stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "Item";
+
           const marker = document.createElement("span");
           marker.className = "activity-panel__marker";
-          marker.textContent = entry.marker || String(entry.stage || "?").slice(0, 1).toUpperCase() || "?";
-          marker.title = entry.label || "Updated";
+          marker.textContent = entry.marker || stageTitle.slice(0, 1) || "?";
+          // Make the single-letter pill self-explanatory: the stage name and id
+          // are reachable via tooltip / accessible label, and a per-stage colour
+          // distinguishes request/backlog/task/product/architecture/spec.
+          marker.title = `${stageTitle} · ${entry.id}`;
+          marker.setAttribute("aria-label", `${stageTitle} (${entry.id})`);
+          if (entry.stage) {
+            marker.dataset.stage = entry.stage;
+          }
           button.appendChild(marker);
 
           const body = document.createElement("span");
@@ -195,7 +205,8 @@
 
           const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
-          meta.textContent = `${entry.label} - ${getStageLabel(entry.stage)} - ${entry.id}`;
+          // Readable cell: what changed, the stage name, then the id.
+          meta.textContent = `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
           body.appendChild(meta);
 
           const updated = document.createElement("span");

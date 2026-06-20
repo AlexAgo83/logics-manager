@@ -1,5 +1,14 @@
 (() => {
   const GROUP_RENDER_PAGE_SIZE = 10;
+  // Human-readable stage names for the compact id prefix shown on cards.
+  const stageLabelByStage = {
+    request: "Request",
+    backlog: "Backlog item",
+    task: "Task",
+    product: "Product brief",
+    architecture: "Architecture decision",
+    spec: "Spec"
+  };
   const TASK_COLORS = ["#14b8a6", "#2563eb", "#8b5cf6", "#22c55e", "#06b6d4", "#84cc16", "#0ea5e9", "#7c3aed", "#3b82f6", "#0f766e"];
   const REQUEST_COLORS = ["#f97316", "#f59e0b", "#f43f5e", "#fb7185", "#ef4444", "#d97706", "#ec4899", "#be123c", "#fca5a5", "#fdba74"];
   const CLOSED_TASK_STATUSES = new Set(["done", "archived", "obsolete"]);
@@ -935,6 +944,17 @@
         const prefixEl = document.createElement("span");
         prefixEl.className = "card__title-prefix";
         prefixEl.textContent = prefix;
+        // Make the compact id prefix (e.g. "P001") self-explanatory: expose the
+        // full stage name via tooltip / accessible label and a per-stage colour.
+        const stage = String(item?.stage || "").trim();
+        const stageLabel = stageLabelByStage[stage] || (stage ? stage.charAt(0).toUpperCase() + stage.slice(1) : "");
+        if (stageLabel) {
+          prefixEl.title = `${stageLabel} · ${prefix}`;
+          prefixEl.setAttribute("aria-label", `${stageLabel} (${prefix})`);
+        }
+        if (stage) {
+          prefixEl.dataset.stage = stage;
+        }
         titleEl.appendChild(prefixEl);
       }
 

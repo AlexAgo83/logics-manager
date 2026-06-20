@@ -498,6 +498,11 @@ describe("webview board renderer behavior", () => {
     const title = dom.window.document.querySelector(".card__title-text");
     expect(prefix?.textContent).toBe("R000");
     expect(title?.textContent).toBe("Kickoff");
+    // The compact prefix is decodable: full stage name in tooltip/aria-label and
+    // a per-stage data attribute for colour.
+    expect(prefix?.getAttribute("title")).toBe("Request · R000");
+    expect(prefix?.getAttribute("aria-label")).toBe("Request (R000)");
+    expect(prefix?.getAttribute("data-stage")).toBe("request");
   });
 
   it("shows Theme first in the hover preview when available", () => {

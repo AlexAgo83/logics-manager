@@ -2701,10 +2701,42 @@ describe("local viewer browser host", () => {
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("Reports");
     expect(text).toContain("run-1");
+    expect(text).toContain("Running");
+    expect(text).toContain("Attention");
     expect(text).toContain("1250 total");
     expect(text).toContain("1000 in");
     expect(text).toContain("250 out");
+    expect(text).toContain("Open report");
     expect(text).not.toContain("code-review");
+  });
+
+  it("filters CDX reports by session", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("run-1");
+    expect(text).toContain("run-2");
+
+    const auto = dom.window.document.querySelector('[data-viewer-cdx-run-session="auto"]') as HTMLInputElement | null;
+    expect(auto).toBeTruthy();
+    auto!.checked = false;
+    auto?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("1 shown");
+    expect(text).toContain("run-1");
+    expect(text).not.toContain("run-2");
+
+    dom.window.document.querySelector("[data-viewer-cdx-run-session-all]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("run-2");
   });
 
   it("opens CDX history with launch details, artifacts, and token usage", async () => {
@@ -2736,6 +2768,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("380 total");
     expect(text).toContain("300 in");
     expect(text).toContain("80 out");
+    expect(text).toContain("Transcript");
     expect(dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/cdx-session.log"]')).toBeTruthy();
   });
 

@@ -556,6 +556,16 @@ function createViewerDom(options: {
                   duration_ms: 1332000,
                   transcript_path: "/tmp/cdx-session.log",
                   usage: { input_tokens: 300, output_tokens: 80 }
+                },
+                {
+                  session_name: "auto",
+                  provider: "claude",
+                  status: "failed",
+                  action: "run",
+                  label: "claude",
+                  started_at: "2026-06-20T01:14:27.763605Z",
+                  duration_ms: 32000,
+                  stdout_path: "/tmp/cdx-run.stdout.log"
                 }
               ]
             }
@@ -2761,15 +2771,35 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/cdx-history");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX history");
-    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("History");
+    expect(text).toContain("2 entries");
     expect(text).toContain("work");
+    expect(text).toContain("auto");
     expect(text).toContain("codex");
     expect(text).toContain("380 total");
     expect(text).toContain("300 in");
     expect(text).toContain("80 out");
     expect(text).toContain("Transcript");
+    expect(text).toContain("Stdout");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-history-column="duration"]')).toBeTruthy();
+    expect(dom.window.document.querySelector('[data-viewer-cdx-history-session="auto"]')).toBeTruthy();
     expect(dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/cdx-session.log"]')).toBeTruthy();
+
+    const auto = dom.window.document.querySelector('[data-viewer-cdx-history-session="auto"]') as HTMLInputElement | null;
+    auto!.checked = false;
+    auto?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("1 shown");
+    expect(text).toContain("work");
+    expect(text).not.toContain("claude");
+
+    const duration = dom.window.document.querySelector('[data-viewer-cdx-history-column="duration"]') as HTMLInputElement | null;
+    duration!.checked = false;
+    duration?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("DURATION");
   });
 
   it("persists CDX run column visibility with Kind and CWD hidden by default", async () => {

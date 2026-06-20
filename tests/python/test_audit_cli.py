@@ -1,0 +1,429 @@
+from __future__ import annotations
+
+import json
+from importlib import metadata as importlib_metadata
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import threading
+import tomllib
+from http.client import HTTPConnection
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+
+from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
+from logics_manager.audit import audit_payload, render_audit
+from logics_manager.index import index_payload, render_index
+from logics_manager.lint import lint_payload, render_lint
+from logics_manager.doctor import doctor_payload, render_doctor
+from logics_manager.bootstrap import bootstrap_payload
+from logics_manager.cli import main
+from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
+from logics_manager.flow_evidence import has_ac_proof, has_validation_evidence
+from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from logics_manager.sync import search_logics_docs_payload
+from logics_manager import viewer as viewer_module
+from logics_manager.viewer import (
+    build_viewer_url,
+    cdx_artifact_preview_payload,
+    cdx_mission_apply_plan_payload,
+    cdx_mission_plan_payload,
+    cdx_mission_run_payload,
+    cdx_remove_payload,
+    cdx_history_payload,
+    cdx_run_report_payload,
+    cdx_runs_payload,
+    cdx_status_payload,
+    ci_status_payload,
+    collect_viewer_items,
+    create_request_from_cdx_report,
+    create_viewer_server,
+    edit_doc_payload,
+    file_preview_payload,
+    github_repo_url,
+    git_diff_payload,
+    git_file_preview_payload,
+    git_status_payload,
+    normalize_viewer_focus_target,
+    open_file_payload,
+    open_repo_folder_payload,
+    read_doc_payload,
+    render_start_status,
+    viewer_project_registry,
+    viewer_project_capabilities,
+    VIEWER_MUTATING_ROUTES,
+    WorkshopSessionRegistry,
+    WorkshopTerminalRegistry,
+    _append_lan_token,
+    _render_qr_lines,
+    render_start_status,
+    workshop_commands_payload,
+    workshop_terminals_available,
+    workspace_preview_payload,
+    workspace_tree_payload,
+)
+from logics_manager.update_check import get_update_info, is_newer_version
+from flow_fixtures import write_ac_traceability_chain
+
+from conftest import (
+    _run_logics_manager_subprocess,
+    _write_minimal_product_doc,
+    _write_minimal_workflow_doc,
+)
+
+
+def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_001_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=["item_001_demo_item"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_demo_item.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=["req_001_demo"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_001_demo_task.md",
+        title="Demo task",
+        kind="task",
+        status="Ready",
+        links=["item_001_demo_item"],
+    )
+
+    payload = audit_payload(repo_root)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+    assert payload["workflow_doc_count"] == 3
+    assert '"ok": true' in render_audit(repo_root, output_format="json")
+
+
+def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_workflow_doc(
+        doc_path,
+        title="Demo request",
+        kind="request",
+        status="Ready",
+        links=[],
+    )
+    past = 1_600_000_000
+    os.utime(doc_path, (past, past))
+
+    payload = audit_payload(repo_root, stale_days=30, skip_ac_traceability=True, skip_gates=True)
+
+    assert payload["ok"] is False
+    assert payload["issue_count"] == 1
+    assert payload["issues"][0]["code"] == "stale_pending_doc"
+
+
+def test_audit_structure_autofix_preserves_unrelated_findings(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    backlog_path = repo_root / "logics" / "backlog" / "item_001_orphan.md"
+    _write_minimal_workflow_doc(request_path, title="Demo request", kind="request", status="Ready", links=[])
+    _write_minimal_workflow_doc(backlog_path, title="Orphan backlog", kind="backlog", status="Ready", links=[])
+
+    payload = audit_payload(repo_root, autofix_structure=True, skip_ac_traceability=True, group_by_doc=True)
+
+    issue_codes = {issue["code"] for issue in payload["issues"]}
+    assert "backlog_orphan_no_request" in issue_codes
+    assert "request_dor_unchecked" not in issue_codes
+
+
+def test_validation_evidence_rejects_substring_false_positives() -> None:
+    assert (
+        has_validation_evidence(
+            "\n".join(
+                [
+                    "## task_001_demo - Demo task",
+                    "# Validation",
+                    "- blocked by bypass discussion",
+                    "- broken test command still pending",
+                ]
+            )
+        )
+        is False
+    )
+    assert (
+        has_validation_evidence(
+            "\n".join(
+                [
+                    "## task_001_demo - Demo task",
+                    "# Validation",
+                    "- command: `python3.11 -m pytest -q` | result: passed | date: 2026-06-20",
+                ]
+            )
+        )
+        is True
+    )
+
+
+def test_ac_proof_requires_same_line_for_matching_ac() -> None:
+    assert has_ac_proof("- request-AC1 -> This task. Proof: validated by regression.", "AC1") is True
+    assert has_ac_proof("- AC1 is mentioned here.\n- Proof: validated by unrelated note.", "AC1") is False
+    assert has_ac_proof("- request-AC10 -> This task. Proof: validates AC10.", "AC1") is False
+
+
+def test_audit_keeps_legacy_ac_proof_compatibility_but_enforces_new_same_line_proof(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    for directory in ["request", "backlog", "tasks"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+
+    def write_chain(ref_suffix: str, from_version: str) -> None:
+        request_ref = f"req_001_{ref_suffix}"
+        item_ref = f"item_001_{ref_suffix}"
+        task_ref = f"task_001_{ref_suffix}"
+        (repo_root / "logics" / "request" / f"{request_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {request_ref} - Demo request",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Schema version: 1.0",
+                    "# Acceptance criteria",
+                    "- AC1: Demo.",
+                    "# Backlog",
+                    f"- `{item_ref}`",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (repo_root / "logics" / "backlog" / f"{item_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {item_ref} - Demo backlog",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Progress: 100%",
+                    "> Schema version: 1.0",
+                    "# Links",
+                    f"- `{request_ref}`",
+                    f"- `{task_ref}`",
+                    "# AC Traceability",
+                    "- AC1 is mentioned here.",
+                    "- Proof: legacy doc-wide proof.",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (repo_root / "logics" / "tasks" / f"{task_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {task_ref} - Demo task",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Progress: 100%",
+                    "> Schema version: 1.0",
+                    "# Links",
+                    f"- `{item_ref}`",
+                    "# AC Traceability",
+                    "- AC1 is mentioned here.",
+                    "- Proof: legacy doc-wide proof.",
+                    "# Definition of Done (DoD)",
+                    "- [x] Done.",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    write_chain("legacy", "2.11.5")
+    write_chain("strict", "2.11.6")
+
+    payload = audit_payload(repo_root, legacy_cutoff_version="1.1.0", skip_gates=True)
+    issues_by_path = {}
+    for issue in payload["issues"]:
+        issues_by_path.setdefault(issue["path"], set()).add(issue["code"])
+
+    assert "logics/request/req_001_legacy.md" not in issues_by_path
+    assert issues_by_path["logics/request/req_001_strict.md"] == {
+        "ac_missing_item_traceability",
+        "ac_missing_task_traceability",
+    }
+
+
+def test_audit_defers_ac_traceability_proof_until_a_linked_task_is_done(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    for directory in ["request", "backlog", "tasks"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+    request_ref, item_ref, task_ref = "req_001_demo", "item_001_demo", "task_001_demo"
+    (repo_root / "logics" / "request" / f"{request_ref}.md").write_text(
+        "\n".join(
+            [
+                f"## {request_ref} - Demo request",
+                "> From version: 2.11.6",
+                "> Status: Draft",
+                "> Schema version: 1.0",
+                "# Acceptance criteria",
+                "- AC1: Demo.",
+                "# Backlog",
+                f"- `{item_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / f"{item_ref}.md").write_text(
+        "\n".join(
+            [
+                f"## {item_ref} - Demo backlog",
+                "> From version: 2.11.6",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "> Schema version: 1.0",
+                "# Links",
+                f"- `{request_ref}`",
+                f"- `{task_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path = repo_root / "logics" / "tasks" / f"{task_ref}.md"
+    task_path.write_text(
+        "\n".join(
+            [
+                f"## {task_ref} - Demo task",
+                "> From version: 2.11.6",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "> Schema version: 1.0",
+                "# Links",
+                f"- `{item_ref}`",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # Dev-ready chain (no linked task Done): proof-required findings are
+    # deferred to non-blocking warnings, and the audit is OK.
+    payload = audit_payload(repo_root, skip_gates=True)
+    assert payload["ok"] is True
+    assert "ac_missing_task_traceability" not in {issue["code"] for issue in payload["issues"]}
+    deferred = [w for w in payload["warnings"] if w["code"] == "ac_missing_task_traceability"]
+    assert deferred, "deferred traceability should surface as a warning"
+    # Actionable next step (AC3): the warning carries the exact repair command.
+    assert all("--apply-fixes --proof" in w.get("repair_command", "") for w in deferred)
+
+    # Once a linked task is Done, the same gap is genuinely blocking.
+    task_path.write_text(task_path.read_text(encoding="utf-8").replace("> Status: Ready", "> Status: Done"), encoding="utf-8")
+    payload_done = audit_payload(repo_root, skip_gates=True)
+    assert payload_done["ok"] is False
+    assert "ac_missing_task_traceability" in {issue["code"] for issue in payload_done["issues"]}
+
+
+def test_audit_accepts_variable_width_workflow_refs(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_1000_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=["item_1000_demo_item"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_1000_demo_item.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=["req_1000_demo", "task_1000_demo_task"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_1000_demo_task.md",
+        title="Demo task",
+        kind="task",
+        status="Ready",
+        links=["item_1000_demo_item"],
+    )
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+
+
+def test_audit_reports_early_companion_mermaid_and_link_gaps_as_warnings(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    payload = audit_payload(repo_root, group_by_doc=True)
+    output = render_audit(repo_root, group_by_doc=True)
+
+    assert payload["ok"] is True
+    assert payload["can_continue"] is True
+    assert payload["release_ready"] is False
+    assert payload["issue_count"] == 0
+    assert payload["warning_count"] == 2
+    assert {warning["code"] for warning in payload["warnings"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
+    assert "Workflow audit: OK (warnings)" in output
+    assert "WARNING: [companion_doc_missing_mermaid]" in output
+
+
+def test_strict_audit_blocks_companion_mermaid_and_link_gaps(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    payload = audit_payload(repo_root, governance_profile="strict", group_by_doc=True)
+
+    assert payload["ok"] is False
+    assert payload["can_continue"] is False
+    assert payload["issue_count"] == 2
+    assert payload["warning_count"] == 0
+    assert {issue["code"] for issue in payload["issues"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
+
+
+@pytest.mark.parametrize("output_args", [[], ["--format", "json"]])
+def test_module_audit_subprocess_returns_nonzero_for_failed_payload(tmp_path: Path, output_args: list[str]) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "product").mkdir(parents=True)
+    _write_minimal_product_doc(
+        repo_root / "logics" / "product" / "prod_001_demo.md",
+        title="Demo product brief",
+        status="Proposed",
+    )
+
+    result = _run_logics_manager_subprocess(repo_root, ["audit", "--governance-profile", "strict", *output_args])
+
+    assert result.returncode == 1
+    assert result.stderr == ""
+    if output_args:
+        payload = json.loads(result.stdout)
+        assert payload["ok"] is False
+        assert payload["issue_count"] == 2
+    else:
+        assert "Workflow audit: FAILED" in result.stdout

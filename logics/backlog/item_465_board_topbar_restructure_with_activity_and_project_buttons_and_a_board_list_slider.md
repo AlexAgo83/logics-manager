@@ -2,9 +2,9 @@
 > From version: 2.12.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 88%
-> Confidence: 78%
-> Progress: 0%
+> Understanding: 90%
+> Confidence: 80%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

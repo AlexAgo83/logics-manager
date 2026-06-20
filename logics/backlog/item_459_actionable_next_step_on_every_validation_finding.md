@@ -1,10 +1,10 @@
 ## item_459_actionable_next_step_on_every_validation_finding - Actionable next-step on every validation finding
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -25,6 +25,9 @@ This request makes findings lifecycle-aware (defer proof-required findings until
 
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC3: Every relevant finding carries an actionable next step: deferred findings say "expected until task closeout"; deterministically-fixable findings include the exact repair command (e.g. `flow validate <refs> --apply-fixes --proof "..."`); human-required findings state what is needed.
+- request-AC1 -> This backlog slice. Proof: Implemented in 5746a1b; audit defers traceability to warnings pre-closeout, blocks once task Done; 354 python tests pass incl. new lifecycle regression test
+- request-AC2 -> This backlog slice. Proof: Implemented in 5746a1b; audit defers traceability to warnings pre-closeout, blocks once task Done; 354 python tests pass incl. new lifecycle regression test
+- request-AC4 -> This backlog slice. Proof: Implemented in 5746a1b; audit defers traceability to warnings pre-closeout, blocks once task Done; 354 python tests pass incl. new lifecycle regression test
 
 # Decision framing
 - Product framing: Not needed
@@ -37,8 +40,8 @@ This request makes findings lifecycle-aware (defer proof-required findings until
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_261_make_logics_validation_findings_lifecycle_aware_and_actionable.md`
-- Primary task(s): (none yet)
+- Request: `req_261_make_logics_validation_findings_lifecycle_aware_and_actionable`
+- Primary task(s): `task_251_actionable_next_step_on_every_validation_finding`
 
 # AI Context
 - Summary: Actionable next-step on every validation finding
@@ -54,6 +57,8 @@ This request makes findings lifecycle-aware (defer proof-required findings until
 - Hybrid rationale: Derived from request `req_261_make_logics_validation_findings_lifecycle_aware_and_actionable` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_261_make_logics_validation_findings_lifecycle_aware_and_actionable.md`.
 - Generated locally by logics-manager.
+- Task `task_251_actionable_next_step_on_every_validation_finding` was finished via `logics-manager flow finish task` on 2026-06-20.
+- Task `task_249_orchestrate_lifecycle_aware_actionable_validation_findings` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_249_orchestrate_lifecycle_aware_actionable_validation_findings`

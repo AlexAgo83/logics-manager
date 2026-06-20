@@ -84,7 +84,7 @@ function createViewerDom(options: {
       <div class="viewer-nav-menu__panel" role="menu">
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:status">Status</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Runs</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Reports</button>
       </div>
     </div>
     <button id="viewer-insights" type="button">Insights</button>
@@ -528,7 +528,7 @@ function createViewerDom(options: {
               state: "ok",
               message: "",
               runs: [
-                { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager" },
+                { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager", usage: { input_tokens: 1000, output_tokens: 250 } },
                 { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
               ]
             }
@@ -1536,11 +1536,11 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Remote");
     expect(dom.window.document.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
 
-    // CDX → Runs jumps straight to the runs sub-screen.
+    // CDX -> Reports jumps straight to the reports sub-screen.
     dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX reports");
   });
 
   it("shows the Workshop topbar entry, persists the active sub-tab, and runs commands", async () => {
@@ -2670,10 +2670,13 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/cdx-runs");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX reports");
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("Assistant runs");
+    expect(text).toContain("Reports");
     expect(text).toContain("run-1");
+    expect(text).toContain("1250 total");
+    expect(text).toContain("1000 in");
+    expect(text).toContain("250 out");
     expect(text).not.toContain("code-review");
   });
 
@@ -2691,6 +2694,7 @@ describe("local viewer browser host", () => {
     let headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
     expect(headers).not.toContain("KIND");
     expect(headers).not.toContain("CWD");
+    expect(headers).toContain("TOKENS");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).not.toContain("/workspace/logics-manager");
 
     const cwd = dom.window.document.querySelector('[data-viewer-cdx-run-column="cwd"]') as HTMLInputElement | null;
@@ -2850,8 +2854,8 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector("[data-viewer-cdx-back-runs]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Assistant runs");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX reports");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Reports");
 
     dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2878,8 +2882,8 @@ describe("local viewer browser host", () => {
     dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Assistant runs");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX reports");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Reports");
   });
 
   it("renders structured mission output in CDX run reports", async () => {
@@ -2888,7 +2892,7 @@ describe("local viewer browser host", () => {
         state: "ok",
         message: "",
         report: {
-          run: { run_id: "run-42", status: "succeeded", kind: "assistant" },
+          run: { run_id: "run-42", status: "succeeded", kind: "assistant", usage: { input_tokens: 200, output_tokens: 75 } },
           artifacts: { stdout_path: "/tmp/run.out" },
           task_report: { kind: "assistant", run_id: "run-42", summary: "Mission completed.", findings: [] },
           missionOutput: {
@@ -2920,6 +2924,9 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Create a Logics request for release follow-up.");
     expect(text).toContain("Generated Files");
     expect(text).toContain("changelogs/CHANGELOGS_2_8_0.md");
+    expect(text).toContain("275 total");
+    expect(text).toContain("200 in");
+    expect(text).toContain("75 out");
     expect(dom.window.document.querySelector(".viewer-cdx__row--block .viewer-cdx__detail-value")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-list")).toBeTruthy();
     expect(dom.window.document.querySelector(".viewer-cdx__detail-code")).toBeTruthy();

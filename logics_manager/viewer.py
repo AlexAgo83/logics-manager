@@ -1944,6 +1944,9 @@ def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
             item["status"] = "running"
             item["status_detail"] = "CDX still marks this run active; no end timestamp has been reported yet."
             item["raw_status"] = "stale"
+        usage = _extract_cdx_usage(item)
+        if usage.get("available"):
+            item["usage"] = usage
         normalized_runs.append(item)
     return {"state": "ok", "message": "", "runs": normalized_runs}
 
@@ -1973,6 +1976,9 @@ def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None =
     merged_report = _merge_cdx_mission_output(report)
     if merged_report:
         report = merged_report
+    usage = _extract_cdx_usage(report)
+    if usage.get("available"):
+        report["usage"] = usage
     denials = _extract_cdx_permission_denials(report)
     if denials:
         report["permissionDenials"] = denials

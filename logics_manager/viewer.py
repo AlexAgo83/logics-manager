@@ -195,6 +195,10 @@ FILE_PREVIEW_MAX_CHARS = 200000
 WORKSPACE_TREE_MAX_ENTRIES = 250
 WORKSPACE_PREVIEW_MAX_BYTES = 30000
 WORKSPACE_PREVIEW_MAX_CHARS = 20000
+# Hard safety ceiling applied when the operator explicitly forces a full load
+# ("load anyway"); keeps the browser from choking on pathological files.
+PREVIEW_FORCE_MAX_BYTES = 5_000_000
+PREVIEW_FORCE_MAX_CHARS = 5_000_000
 WORKSPACE_IGNORED_DIRS = {
     ".git",
     ".hg",
@@ -1506,7 +1510,14 @@ def workspace_preview_payload(
     *,
     max_bytes: int = WORKSPACE_PREVIEW_MAX_BYTES,
     max_chars: int = WORKSPACE_PREVIEW_MAX_CHARS,
+    full: bool = False,
 ) -> dict[str, Any]:
+    # When the operator forces a full load, raise the caps to the hard ceiling so
+    # large-but-reasonable files load while pathological files still stay bounded.
+    hard_cap_hit = False
+    if full:
+        max_bytes = PREVIEW_FORCE_MAX_BYTES
+        max_chars = PREVIEW_FORCE_MAX_CHARS
     normalized, target = _resolve_workspace_path(repo_root, rel_path)
     if not target.exists():
         return {"state": "missing", "path": normalized, "message": "Workspace path does not exist."}
@@ -1535,7 +1546,14 @@ def workspace_preview_payload(
             "path": normalized,
             "name": target.name,
             "size": size,
-            "message": f"File preview is limited to {max_bytes} bytes; this file is {size} bytes.",
+            "limit": max_bytes,
+            # Only offer "load anyway" when a forced full load could actually fit.
+            "canForce": (not full) and size <= PREVIEW_FORCE_MAX_BYTES,
+            "message": (
+                f"File is {size} bytes; even a forced load is capped at {PREVIEW_FORCE_MAX_BYTES} bytes."
+                if full or size > PREVIEW_FORCE_MAX_BYTES
+                else f"File preview is limited to {max_bytes} bytes; this file is {size} bytes."
+            ),
         }
     try:
         data = target.read_bytes()
@@ -1573,6 +1591,9 @@ def workspace_preview_payload(
     truncated = len(content) > max_chars
     if truncated:
         content = content[:max_chars]
+        hard_cap_hit = full
+    # Editor convention: a trailing newline does not add a blank final line.
+    line_count = content.count("\n") + (0 if (not content or content.endswith("\n")) else 1)
     return {
         "state": "ok",
         "path": normalized,
@@ -1582,6 +1603,11 @@ def workspace_preview_payload(
         "contentType": content_type or "text/plain",
         "content": content,
         "truncated": truncated,
+        # "canForce" tells the client a "load anyway" can raise the cap; once a
+        # forced load still truncates, "hardCapHit" signals the ceiling was hit.
+        "canForce": truncated and not full,
+        "hardCapHit": hard_cap_hit,
+        "lineCount": line_count,
         "logicsType": _logics_doc_type(normalized),
         "message": "",
     }
@@ -3625,9 +3651,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
         if route == "/api/workspace-preview":
-            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            params = parse_qs(parsed.query)
+            rel_path = params.get("path", [""])[0]
+            full = params.get("full", [""])[0].lower() in {"1", "true", "yes"}
             try:
-                self._send_json({"ok": True, "payload": workspace_preview_payload(self.server.repo_root, rel_path)})
+                self._send_json({"ok": True, "payload": workspace_preview_payload(self.server.repo_root, rel_path, full=full)})
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return

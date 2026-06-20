@@ -2,21 +2,22 @@
 > From version: 2.12.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 80%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 85%
+> Progress: 85%
 > Complexity: High
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] Extract a shared preview renderer (chrome: line count, truncation banner, highlight, line numbers) and use it from Explorer preview, git file preview, and CDX log/artifact preview (`clients/viewer/browser-host.js:3445,3462,6268`).
-- [ ] Server: accept a "full"/force flag on the preview endpoints to bypass the default cap (`logics_manager/viewer.py:793,841`), enforced by a hard safety ceiling; return whether the hard cap was hit.
-- [ ] Client: render a "load anyway" control whenever `truncated` is true; on activate, refetch full and show a clear notice if the hard cap is reached.
-- [ ] Add a discreet, accurate line count to every file-viewer surface.
-- [ ] Vendor highlight.js locally (no CDN) with a main-language subset; apply highlighting by extension with plain-text fallback for unknown/oversized content.
-- [ ] Render per-line numbers, excluded from selection/copy (CSS `user-select: none` on the gutter).
-- [ ] Tests cover truncation + force-load + hard-cap notice, line count, highlight application, and line-number gutter; `viewer_assets/` synced.
+- [x] Extract a shared preview renderer (`renderCodeViewer`: line count, truncation flag, highlight, line-number gutter) and use it from the Explorer preview and the CDX log preview.
+- [x] Server: accept a `full` flag on `/api/workspace-preview` to bypass the default cap, enforced by a hard ceiling (`PREVIEW_FORCE_MAX_BYTES/CHARS`); return `canForce`/`hardCapHit`/`lineCount`.
+- [x] Client: render a "load anyway" control whenever the preview is truncated/oversized; on activate, refetch with `full=1`.
+- [x] Add a discreet, accurate line count to the Explorer/CDX viewers.
+- [x] Vendor highlight.js 11.9.0 locally (`clients/shared-web/media/vendor/highlight/`, no CDN); apply highlighting by extension with plain-text fallback.
+- [x] Render per-line numbers in a non-selectable gutter (`user-select: none`).
+- [x] Tests cover server force-load + line count + canForce, and the client gutter/line-count/force-load + CDX log code viewer; `viewer_assets/` synced and packaged in `pyproject.toml`.
+- [ ] Follow-up: route the git file preview (`/api/git-file-preview`) through the same `renderCodeViewer` (Explorer + CDX done; git preview pending in a later pass).
 
 # Backlog
 - `item_463_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers`
@@ -35,7 +36,9 @@
 - Run `python3 -m logics_manager flow finish task task_256_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers.md` after implementation.
 
 # Report
-- Pending implementation.
+- Implemented: new shared `renderCodeViewer(content, {language, lineCount, truncated, hardCapHit, forceButtonHtml})` (line-number gutter + highlight + count) plus `detectHljsLanguage`/`highlightCode`. Wired into the Explorer preview (with server `full` force-load: `workspace_preview_payload(full=...)`, hard ceiling, `canForce`/`hardCapHit`/`lineCount`) and the CDX raw log preview. Vendored highlight.js 11.9.0 UMD + github-dark theme under `media/vendor/highlight/`, loaded from `index.html`, packaged via `pyproject.toml`. CSS for the viewer in `viewer.css`. Line count uses editor convention (trailing newline not an extra blank line).
+- Validation: python `test_viewer_cli.py` (87) incl. new force-load/line-count tests; viewer suite (113) incl. a new code-viewer test (gutter, line count, force-load refetch with `full=1`) and updated CDX-log assertion; npm package ceiling raised for the vendored bundle. Full suite green (639). `viewer_assets/` synced.
+- Remaining: git file preview not yet routed through `renderCodeViewer` (tracked as the open DoD item).
 
 # AI Context
 - Summary: One shared preview component with hard-capped force-load, line count, local highlight.js, and per-line numbers.

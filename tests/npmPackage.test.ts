@@ -37,7 +37,9 @@ describe("npm package surface", () => {
     try {
       const filePaths = packed.files.map((entry) => entry.path);
 
-      expect(packed.entryCount).toBeLessThan(75);
+      // Bundled vendor assets (xterm, highlight.js) are included on purpose; the
+      // ceiling guards against accidentally shipping the whole repo.
+      expect(packed.entryCount).toBeLessThan(80);
       expect(filePaths).toContain("VERSION");
       expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
       expect(filePaths).toContain("scripts/logics-manager.py");

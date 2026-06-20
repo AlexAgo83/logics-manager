@@ -33,6 +33,7 @@ from logics_manager.viewer import (
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
     cdx_remove_payload,
+    cdx_history_payload,
     cdx_run_report_payload,
     cdx_runs_payload,
     cdx_status_payload,
@@ -1474,6 +1475,35 @@ def test_viewer_cdx_runs_payload_handles_unavailable_and_invalid_json(tmp_path: 
         return subprocess.CompletedProcess(args, 0, "{}", "")
 
     assert cdx_runs_payload(tmp_path, runner=invalid_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+
+def test_viewer_cdx_history_payload_reads_launch_history(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args[-2:] == ["history", "--json"]
+        return subprocess.CompletedProcess(args, 0, json.dumps({
+            "ok": True,
+            "message": "Listed launch history",
+            "history": [
+                {
+                    "session_name": "work",
+                    "provider": "codex",
+                    "status": "success",
+                    "action": "launch",
+                    "duration_ms": 1200,
+                    "usage": {"input_tokens": 30, "output_tokens": 12},
+                }
+            ],
+            "period": {"from": None, "to": None},
+        }), "")
+
+    payload = cdx_history_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload["state"] == "ok"
+    assert payload["message"] == "Listed launch history"
+    assert payload["history"][0]["session_name"] == "work"
+    assert payload["history"][0]["usage"]["inputTokens"] == 30
+    assert payload["history"][0]["usage"]["outputTokens"] == 12
+    assert payload["history"][0]["usage"]["totalTokens"] == 42
 
 
 def test_viewer_cdx_run_report_payload_reads_report(tmp_path: Path) -> None:

@@ -427,6 +427,7 @@
   let latestCdxStatusSignature = "";
   let latestCdxStatusPayload = null;
   let latestCdxRunsPayload = null;
+  let latestCdxHistoryPayload = null;
   let latestCiStatusSignature = "";
   let latestCiScreenMode = "git";
   let currentDocumentItem = null;
@@ -2207,6 +2208,12 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "CDX reports");
   }
 
+  function isCdxHistoryOpen() {
+    const panel = documentPanel();
+    const title = documentTitle();
+    return Boolean(panel && !panel.hidden && title && title.textContent === "CDX history");
+  }
+
   function isCdxMissionsOpen() {
     const panel = documentPanel();
     const title = documentTitle();
@@ -2233,6 +2240,10 @@
       if (changed || options.force) {
         await showCdxRuns({ silent: Boolean(options.silent) });
       }
+    } else if (isCdxHistoryOpen()) {
+      if (changed || options.force) {
+        await showCdxHistory({ silent: Boolean(options.silent) });
+      }
     } else if (method === "POST") {
       await refreshGitBadgeCounters();
     }
@@ -2250,6 +2261,7 @@
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX reports") return showCdxRuns(opts);
+    if (screen === "CDX history") return showCdxHistory(opts);
     if (screen === "Remote") {
       if (latestCiScreenMode === "release") return showReleaseStatus(opts);
       if (latestCiScreenMode === "runs") return showCiStatus(opts);
@@ -5300,6 +5312,7 @@
         <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Status</button>
         <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
         <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
+        <button class="viewer-cdx__mode${active === "history" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="history" aria-selected="${active === "history" ? "true" : "false"}">History</button>
       </div>
     `;
   }
@@ -5514,6 +5527,77 @@
             <table class="viewer-cdx__table">
               <thead><tr>${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
               <tbody>${rows || `<tr><td colspan="${Math.max(activeColumns.length, 1)}" class="viewer-cdx__empty">No assistant runs reported.</td></tr>`}</tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function formatCdxDuration(ms) {
+    const value = Number(ms);
+    if (!Number.isFinite(value) || value < 0) {
+      return "-";
+    }
+    const totalSeconds = Math.round(value / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours}h ${remainingMinutes}m`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
+  }
+
+  function renderCdxHistory(payload) {
+    if (!payload || payload.state !== "ok") {
+      return `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("history")}
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX history is unavailable.")}</div>
+        </div>
+      `;
+    }
+    const history = Array.isArray(payload.history) ? payload.history : [];
+    const rows = history.slice(0, 50).map((entry) => {
+      const session = cdxField(entry, ["session_name", "sessionName", "session", "name"], "-");
+      const provider = cdxField(entry, ["provider"], "-");
+      const action = cdxField(entry, ["action"], "-");
+      const label = cdxField(entry, ["label", "command"], action);
+      const started = formatCdxResetAt(cdxField(entry, ["started_at", "startedAt"], ""));
+      const duration = formatCdxDuration(cdxField(entry, ["duration_ms", "durationMs"], NaN));
+      const tokens = formatCdxTokenUsage(cdxTokenUsage(entry)) || "-";
+      const transcript = cdxField(entry, ["transcript_path", "transcriptPath"], "");
+      const stdout = cdxField(entry, ["stdout_path", "stdoutPath"], "");
+      const artifactButtons = [
+        transcript ? `<button class="viewer-cdx__mode" type="button" data-viewer-cdx-artifact-path="${escapeHtml(transcript)}">Transcript</button>` : "",
+        stdout ? `<button class="viewer-cdx__mode" type="button" data-viewer-cdx-artifact-path="${escapeHtml(stdout)}">Stdout</button>` : ""
+      ].filter(Boolean).join(" ");
+      return `
+        <tr>
+          <td><strong>${escapeHtml(session)}</strong><div class="viewer-cdx__meta">${escapeHtml(provider)}</div></td>
+          <td>${renderCdxBadge(cdxField(entry, ["status", "state"], "unknown"))}</td>
+          <td>${escapeHtml(label)}</td>
+          <td>${escapeHtml(started || "-")}</td>
+          <td>${escapeHtml(duration)}</td>
+          <td>${escapeHtml(tokens)}</td>
+          <td>${artifactButtons || "-"}</td>
+        </tr>
+      `;
+    }).join("");
+    return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("history")}
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>History</h2><span>${escapeHtml(history.length)} entries</span></div>
+          <div class="viewer-cdx__table-wrap">
+            <table class="viewer-cdx__table">
+              <thead><tr><th>SESSION</th><th>STATUS</th><th>ACTION</th><th>STARTED</th><th>DURATION</th><th>TOKENS</th><th>ARTIFACTS</th></tr></thead>
+              <tbody>${rows || '<tr><td colspan="7" class="viewer-cdx__empty">No CDX history entries reported.</td></tr>'}</tbody>
             </table>
           </div>
         </section>
@@ -6073,6 +6157,44 @@
     latestCdxRunsPayload = data.payload;
     setDocument("CDX reports", renderCdxRuns(data.payload));
     setMeta(options.silent ? "CDX reports refreshed." : "CDX reports loaded.");
+  }
+
+  async function showCdxHistory(options = {}) {
+    if (!isCapabilityAvailable("cdx")) {
+      const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      latestCdxHistoryPayload = { state: capability("cdx").state, message };
+      setDocument("CDX history", renderCdxHistory({ state: capability("cdx").state, message }));
+      setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      setMeta("Loading CDX history...");
+    }
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
+    let data = {};
+    try {
+      response = await fetch("/api/cdx-history", { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX history.");
+    }
+    latestCdxHistoryPayload = data.payload;
+    setDocument("CDX history", renderCdxHistory(data.payload));
+    setMeta(options.silent ? "CDX history refreshed." : "CDX history loaded.");
   }
 
   async function showCdxReport(runId, options = {}) {
@@ -7069,6 +7191,8 @@
             withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
           } else if (section === "missions") {
             withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+          } else if (section === "history") {
+            withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
           } else {
             withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
           }
@@ -7203,6 +7327,8 @@
           withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
         } else if (mode === "missions") {
           withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+        } else if (mode === "history") {
+          withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
         } else {
           withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
         }

@@ -1951,6 +1951,43 @@ def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
     return {"state": "ok", "message": "", "runs": normalized_runs}
 
 
+def cdx_history_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"state": "unavailable", "message": "CDX executable is not available on PATH.", "history": []}
+    try:
+        result = _run_read_only_cdx(repo_root, ["history", "--json"], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX history timed out.", "history": []}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX history: {exc}", "history": []}
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "CDX history failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "history": []}
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "message": "CDX history returned invalid JSON.", "history": []}
+    history = parsed.get("history") if isinstance(parsed, dict) else None
+    if not isinstance(history, list):
+        return {"state": "invalid-json", "message": "CDX history JSON must include a history array.", "history": []}
+    normalized_history: list[dict[str, Any]] = []
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        item = dict(entry)
+        usage = _extract_cdx_usage(item)
+        if usage.get("available"):
+            item["usage"] = usage
+        normalized_history.append(item)
+    return {
+        "state": "ok",
+        "message": str(parsed.get("message") or "") if isinstance(parsed, dict) else "",
+        "history": normalized_history,
+        "period": parsed.get("period") if isinstance(parsed, dict) and isinstance(parsed.get("period"), dict) else {},
+    }
+
+
 def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     cdx_which = which or shutil.which
     if not run_id:
@@ -3865,6 +3902,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "release": lambda: release_status_payload(repo_root),
             "cdx": lambda: cdx_status_payload(repo_root),
             "cdxRuns": lambda: cdx_runs_payload(repo_root),
+            "cdxHistory": lambda: cdx_history_payload(repo_root),
         }
         return self.server.status_component(name, producers[name])
 
@@ -4314,6 +4352,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/cdx-runs":
             self._send_status_json("cdx-runs", lambda: self._status_component("cdxRuns"))
+            return
+        if route == "/api/cdx-history":
+            self._send_status_json("cdx-history", lambda: self._status_component("cdxHistory"))
             return
         if route == "/api/status":
             self._send_status_json(

@@ -1119,8 +1119,8 @@ describe("local viewer browser host", () => {
     const pngIcon = dom.window.document.querySelector('link[rel="icon"][type="image/png"]') as HTMLLinkElement | null;
     const svgIcon = dom.window.document.querySelector('link[rel="alternate icon"][type="image/svg+xml"]') as HTMLLinkElement | null;
 
-    expect(pngIcon?.getAttribute("href")).toBe("/media/icon.png");
-    expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
+    expect(pngIcon?.getAttribute("href")).toBe("/media/viewer-icon.png");
+    expect(svgIcon).toBeNull();
   });
 
   it("styles CDX unread badges as informational instead of error toned", () => {

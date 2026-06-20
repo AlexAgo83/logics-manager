@@ -29,7 +29,7 @@ from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 
 from .audit import audit_payload
 from .bootstrap import bootstrap_payload
-from .config import find_repo_root
+from .config import ConfigError, find_repo_root
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
@@ -5093,9 +5093,35 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _resolve_viewer_root(start: Path) -> Path:
+    """Locate the repo root, falling back to a bootstrap root when none exists.
+
+    Normally the viewer requires a `logics/` corpus (find_repo_root). To let the
+    viewer launch in a not-yet-bootstrapped repo and offer the in-app bootstrap
+    onboarding (canBootstrapLogics), fall back to the git toplevel (if any), then
+    the current directory, when no `logics/` directory is found upward.
+    """
+    try:
+        return find_repo_root(start)
+    except ConfigError:
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                cwd=start,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return Path(result.stdout.strip()).resolve()
+        except (OSError, subprocess.SubprocessError):
+            pass
+        return start.resolve()
+
+
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
-    repo_root = find_repo_root(Path.cwd())
+    repo_root = _resolve_viewer_root(Path.cwd())
     refresh_interval_forced = args.refresh_interval is not None
     refresh_interval = args.refresh_interval if args.refresh_interval is not None else 15
     if refresh_interval <= 0:

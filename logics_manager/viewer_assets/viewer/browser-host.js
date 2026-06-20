@@ -624,6 +624,7 @@
       "#viewer-cdx",
       "#viewer-repo-folder",
       "#viewer-document-status",
+      "#viewer-release-reset",
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
@@ -1772,11 +1773,14 @@
 
   function updateScreenActions(titleText) {
     const isGit = titleText === "Remote" && latestCiScreenMode === "git";
+    const isRelease = titleText === "Remote" && latestCiScreenMode === "release";
     const pull = document.getElementById("viewer-git-pull");
     const push = document.getElementById("viewer-git-push");
+    const releaseReset = document.getElementById("viewer-release-reset");
     const status = documentStatusButton();
     if (pull) pull.hidden = !isGit;
     if (push) push.hidden = !isGit;
+    if (releaseReset) releaseReset.hidden = !isRelease;
     if (status instanceof HTMLButtonElement) {
       const options = statusOptionsByStage[currentDocumentItem?.stage] || [];
       const currentStatus = String(currentDocumentItem?.indicators?.Status || currentDocumentItem?.status || "").trim();
@@ -6144,6 +6148,28 @@
     setMeta(options.silent ? "Release workflow refreshed." : `Release workflow state: ${state}.`);
   }
 
+  // Clear the recorded release gate evidence (server-side) so every gate
+  // returns to pending, then reload the Release sub-screen.
+  async function resetReleaseState() {
+    setMeta("Resetting release evidence...");
+    let data = {};
+    try {
+      const response = await fetch("/api/release-reset", { method: "POST", headers: { "Content-Type": "application/json" } });
+      data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to reset release evidence.");
+      }
+    } catch (error) {
+      setMeta(`Release reset failed: ${error?.message || error}`);
+      return;
+    }
+    await showReleaseStatus({ force: true });
+    const cleared = Number(data.payload?.cleared || 0);
+    setMeta(cleared > 0
+      ? `Release evidence reset — cleared ${cleared} entr${cleared === 1 ? "y" : "ies"}; gates are pending.`
+      : "Release evidence already empty; gates are pending.");
+  }
+
   async function showCiStatus(options = {}) {
     latestCiScreenMode = "runs";
     if (!isCapabilityAvailable("ci")) {
@@ -7123,6 +7149,9 @@
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);
+    });
+    document.getElementById("viewer-release-reset")?.addEventListener("click", () => {
+      withPrimaryAction("release-reset", "Resetting release state", resetReleaseState);
     });
     documentStatusButton()?.addEventListener("click", () => {
       withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);

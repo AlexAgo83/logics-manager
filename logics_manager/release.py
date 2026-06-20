@@ -309,6 +309,37 @@ def release_add_evidence_payload(
     }
 
 
+def release_reset_payload(repo_root: Path) -> dict[str, Any]:
+    """Clear the recorded gate evidence so every release gate returns to pending.
+
+    Removes the evidence store file (logics/release/evidence.jsonl by default).
+    The contract itself is left untouched.
+    """
+    context = load_release_context(repo_root)
+    if context.contract is None:
+        payload = _not_configured_payload(repo_root)
+        payload.update({"command": "release-evidence-reset", "reset": False, "cleared": 0})
+        return payload
+    contract = context.contract
+    evidence_path = _evidence_store_path(repo_root, contract)
+    cleared = len(_load_evidence(repo_root, contract)) if evidence_path.is_file() else 0
+    if evidence_path.is_file():
+        evidence_path.unlink()
+    status_payload = release_status_payload(repo_root)
+    return {
+        "ok": True,
+        "configured": True,
+        "command": "release-evidence-reset",
+        "reset": True,
+        "cleared": cleared,
+        "evidence_path": _rel(evidence_path, repo_root),
+        "state": status_payload.get("state"),
+        "next_action": status_payload.get("next_action"),
+        "generated_at": _now_iso(),
+        "repo_root": repo_root.as_posix(),
+    }
+
+
 def _gate_evidence(gate_id: str, evidence: list[dict[str, Any]]) -> dict[str, Any] | None:
     matches = [entry for entry in evidence if entry.get("gate_id") == gate_id or entry.get("gate") == gate_id]
     if not matches:

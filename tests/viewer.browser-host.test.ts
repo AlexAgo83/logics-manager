@@ -118,6 +118,7 @@ function createViewerDom(options: {
     <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option></select>
     <select id="sort-by"><option value="updated-desc">Updated</option></select>
     <button id="viewer-document-close" type="button">Close</button>
+    <button id="viewer-release-reset" type="button" hidden>Reset</button>
     <button id="viewer-document-refresh" type="button">Refresh</button>
     <button id="viewer-document-status" type="button" hidden>Status</button>
     <button data-action="open" type="button">Open</button>
@@ -578,6 +579,12 @@ function createViewerDom(options: {
               evidence: []
             }
           })
+        };
+      }
+      if (url === "/api/release-reset") {
+        return {
+          ok: true,
+          json: async () => ({ ok: true, payload: { ok: true, configured: true, command: "release-evidence-reset", reset: true, cleared: 2, state: "preparing", next_action: "Record gate evidence." } })
         };
       }
       if (String(url).startsWith("/api/cdx-run-report")) {
@@ -2431,6 +2438,55 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("evidence targets a different commit");
     expect(content?.querySelectorAll(".viewer-release__gate")).toHaveLength(2);
     expect(content?.querySelector(".viewer-release__inline-link")?.textContent).toContain("github.com/example/repo");
+  });
+
+  it("exposes a release reset action that clears evidence from the Release sub-screen", async () => {
+    const { dom, calls } = createViewerDom({
+      releaseResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            configured: true,
+            state: "blocked",
+            target_version: "1.2.3",
+            contract_path: "logics/release/contract.json",
+            next_action: "Record gate evidence.",
+            gates: [{ id: "version_metadata", state: "preparing", required: true, status: "pending" }],
+            evidence: []
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const resetButton = dom.window.document.getElementById("viewer-release-reset") as HTMLButtonElement | null;
+    // Hidden until the Release sub-screen is active.
+    expect(resetButton?.hidden).toBe(true);
+
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    // Git is the default sub-screen, so the reset action stays hidden there.
+    expect(resetButton?.hidden).toBe(true);
+
+    dom.window.document.querySelector('[data-viewer-ci-mode="release"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(resetButton?.hidden).toBe(false);
+
+    resetButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    expect(calls).toContain("/api/release-reset");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("cleared 2");
   });
 
   it("shows running CI badge and active HEAD match details", async () => {

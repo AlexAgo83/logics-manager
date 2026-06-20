@@ -31,7 +31,7 @@ from .audit import audit_payload
 from .bootstrap import bootstrap_payload
 from .config import find_repo_root
 from .lint import lint_payload
-from .release import load_release_context, release_status_payload
+from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
 from .update_check import get_update_info
 
@@ -2923,6 +2923,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-export",
         "/api/cdx-toggle",
         "/api/cdx-remove",
+        "/api/release-reset",
         "/api/update-status",
         "/api/lan/devices/revoke",
     }
@@ -4348,6 +4349,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     "payload": self.server.viewer_payload(),
                 }
             )
+            return
+        if parsed.path == "/api/release-reset":
+            try:
+                self._send_json({"ok": True, "payload": release_reset_payload(self.server.repo_root)})
+            except (OSError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to reset release evidence: {exc}")
             return
         if parsed.path == "/api/switch-project":
             try:

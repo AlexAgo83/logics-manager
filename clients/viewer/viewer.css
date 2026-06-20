@@ -215,6 +215,10 @@
 }
 
 .viewer-nav-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   border: 0;
   border-radius: 4px;
   padding: 6px 10px;
@@ -223,6 +227,13 @@
   background: transparent;
   color: var(--vscode-foreground, #d4d4d4);
   cursor: pointer;
+}
+
+.viewer-nav-menu__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
 }
 
 .viewer-nav-menu__item:hover,

@@ -3605,6 +3605,38 @@ describe("local viewer browser host", () => {
     });
   });
 
+  it("launches terminal CDX missions with live progress feedback", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom, calls } = createViewerDom({ terminalCommands });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    dom.window.document.querySelector('[data-viewer-cdx-run]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/cdx-mission-plan");
+    expect(calls).not.toContain("/api/cdx-mission-run");
+    expect(terminalCommands).toHaveLength(1);
+    expect(terminalCommands[0].label).toBe("cdx mission corpus-ready");
+    const command = terminalCommands[0].command;
+    expect(command.slice(0, 4)).toEqual(["/bin/sh", "-c", command[2], "cdx-mission"]);
+    expect(command[2]).toContain("CDX_MISSION_PROGRESS_MODE");
+    expect(command[2]).toContain("heartbeat elapsed=");
+    expect(command[2]).toContain("waiting on command output");
+    expect(command[2]).toContain("mode\" = \"verbose");
+    expect(command[2]).toContain("mode\" = \"watch");
+    expect(command[2]).toContain("final status=");
+    expect(command[2]).toContain("next action: inspect the terminal output");
+    expect(command.slice(7, 10)).toEqual(["cdx", "run", "session-1"]);
+    expect(command).toContain("--json");
+  });
+
   it("keeps navigation available while a CDX mission run is pending", async () => {
     let releaseRun: () => void = () => {};
     const cdxMissionRunGate = new Promise<void>((resolve) => {

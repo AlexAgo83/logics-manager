@@ -6411,6 +6411,74 @@
     setMeta(data.payload?.state === "ok" ? "CDX mission preview ready." : (data.payload?.message || "CDX mission preview failed."));
   }
 
+  function cdxMissionTerminalProgressScript() {
+    return [
+      'mission_id="$1"',
+      'session_id="$2"',
+      'report_hint="$3"',
+      'shift 3',
+      'mode="${CDX_MISSION_PROGRESS_MODE:-compact}"',
+      'start_ts="$(date +%s)"',
+      'last_activity="$start_ts"',
+      'last_total=0',
+      'stdout_file="${TMPDIR:-/tmp}/cdx-mission-stdout-$$.log"',
+      'stderr_file="${TMPDIR:-/tmp}/cdx-mission-stderr-$$.log"',
+      'command_label="$1"',
+      'if [ $# -ge 2 ]; then command_label="$1 $2"; fi',
+      'printf "%s\\n" "[cdx mission] start mission=${mission_id:-unknown} session=${session_id:-unknown}"',
+      'printf "%s\\n" "[cdx mission] report/transcript: ${report_hint:-Reports tab after completion}"',
+      'printf "%s\\n" "[cdx mission] command: ${command_label:-cdx run}"',
+      'printf "%s\\n" "[cdx mission] progress mode: $mode (set CDX_MISSION_PROGRESS_MODE=verbose or watch for more detail)"',
+      'printf "\\n"',
+      '"$@" >"$stdout_file" 2>"$stderr_file" &',
+      'pid="$!"',
+      'printf "%s\\n" "[cdx mission] event: process-started pid=$pid"',
+      'while kill -0 "$pid" 2>/dev/null; do',
+      '  sleep 5',
+      '  now="$(date +%s)"',
+      '  elapsed=$((now - start_ts))',
+      '  stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
+      '  stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
+      '  total_bytes=$((stdout_bytes + stderr_bytes))',
+      '  if [ "$total_bytes" -gt "$last_total" ]; then',
+      '    last_activity="$now"',
+      '    last_total="$total_bytes"',
+      '    activity="output activity"',
+      '  elif [ $((now - last_activity)) -ge 60 ]; then',
+      '    activity="no recent activity"',
+      '  else',
+      '    activity="waiting on command output"',
+      '  fi',
+      '  idle=$((now - last_activity))',
+      '  if [ "$mode" = "watch" ]; then printf "\\033[H\\033[2J"; fi',
+      '  printf "%s\\n" "[cdx mission] heartbeat elapsed=${elapsed}s idle=${idle}s phase=running command=${command_label:-cdx run} active=${elapsed}s state=$activity"',
+      '  if [ "$mode" = "verbose" ]; then',
+      '    if [ "$stdout_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stdout tail:"; tail -n 5 "$stdout_file"; fi',
+      '    if [ "$stderr_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stderr tail:"; tail -n 5 "$stderr_file"; fi',
+      '  fi',
+      'done',
+      'wait "$pid"',
+      'rc="$?"',
+      'end_ts="$(date +%s)"',
+      'elapsed=$((end_ts - start_ts))',
+      'stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
+      'stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
+      'if [ "$rc" -eq 0 ]; then status="success"; else status="failure"; fi',
+      'printf "\\n%s\\n" "[cdx mission] final status=$status exit=$rc elapsed=${elapsed}s stdout_bytes=$stdout_bytes stderr_bytes=$stderr_bytes report/transcript=${report_hint:-Reports tab after completion}"',
+      'if [ "$stdout_bytes" -gt 0 ]; then',
+      '  printf "%s\\n" "[cdx mission] stdout:"',
+      '  cat "$stdout_file"',
+      'fi',
+      'if [ "$stderr_bytes" -gt 0 ]; then',
+      '  printf "%s\\n" "[cdx mission] stderr tail:"',
+      '  tail -n 40 "$stderr_file"',
+      'fi',
+      'if [ "$rc" -ne 0 ]; then printf "%s\\n" "[cdx mission] next action: inspect the terminal output and the Reports tab for the failed run."; fi',
+      'rm -f "$stdout_file" "$stderr_file"',
+      'exit "$rc"'
+    ].join("\\n");
+  }
+
   async function launchCdxMissionInTerminal() {
     setMeta("Preparing CDX mission for a new terminal...");
     const response = await fetch("/api/cdx-mission-plan", {
@@ -6435,14 +6503,16 @@
     if (plan.sessionId) {
       latestCdxMissionState.sessionId = plan.sessionId;
     }
-    // `cdx run` is a one-shot batch command: --json is mandatory (dropping it
-    // makes cdx reject the request) and it only prints its result once the run
-    // finishes, so a bare PTY launch shows a black screen for the whole run.
-    // Keep the plan command intact (incl. --json) but wrap it in a tiny shell
-    // that prints a notice first. `exec "$@"` forwards the original argv
-    // verbatim, preserving the multi-line prompt without any re-quoting.
-    const noticeScript = 'printf "%s\\n\\n" "CDX mission running — one-shot batch run; the JSON result prints here once it completes (timeout-bounded)."; exec "$@"';
-    const terminalCommand = ["/bin/sh", "-c", noticeScript, "cdx-mission", ...plan.command];
+    const terminalCommand = [
+      "/bin/sh",
+      "-c",
+      cdxMissionTerminalProgressScript(),
+      "cdx-mission",
+      String(plan.missionId || latestCdxMissionState.missionId || ""),
+      String(plan.sessionId || latestCdxMissionState.sessionId || ""),
+      "Reports tab after completion",
+      ...plan.command
+    ];
     const terminalId = await spawnWorkshopTerminal({
       command: terminalCommand,
       label: `cdx mission ${plan.missionId || latestCdxMissionState.missionId}`

@@ -61,7 +61,7 @@
 
 .viewer-project-switcher__menu {
   position: absolute;
-  z-index: 20;
+  z-index: 60;
   top: calc(100% + 6px);
   left: 0;
   min-width: 260px;
@@ -198,7 +198,7 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  z-index: 30;
+  z-index: 60;
   display: none;
   flex-direction: column;
   min-width: max(100%, 140px);

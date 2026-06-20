@@ -1,9 +1,9 @@
 ## req_256_modularize_viewer_py_extract_lan_workshop_payload_builders_from_the_http_server - Modularize viewer.py (extract LAN, Workshop, payload builders from the HTTP server)
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 95%
-> Confidence: 90%
+> Status: Done
+> Understanding: 100
+> Confidence: 100
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -29,10 +29,10 @@
 - AC4: Imports stay backward compatible (re-export from `viewer.py` if external code imports these symbols).
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

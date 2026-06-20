@@ -1212,7 +1212,7 @@
       hydrateWorkshopTerminals();
     }
 
-    // Git and CI now share a single "Git / CI" button (Git is the first
+    // Git and CI now share a single "Remote" button (Git is the first
     // section of the merged screen, before CI runs and Release). The button
     // is reachable whenever either capability is available; the git counters
     // and the CI status badge are both rendered onto it.
@@ -1354,7 +1354,7 @@
   }
 
   function updateMainGitBadges() {
-    // Git shares the merged "Git / CI" button with CI; the git counters render
+    // Git shares the merged "Remote" button with CI; the git counters render
     // alongside the CI status badge (each owns its own data-attr container).
     const button = ciButton();
     if (!(button instanceof HTMLElement)) {
@@ -1751,7 +1751,7 @@
     const title = String(titleText || "").trim();
     if (!title) return "";
     const exact = {
-      "Git / CI": "Git status, CI runs, and release gates",
+      "Remote": "Git status, CI runs, and release gates",
       "Workshop": "Terminals, commands, and file explorer",
       "Validation health": "Lint and audit summary",
       "Corpus insights": "Workflow corpus dashboard",
@@ -1771,7 +1771,7 @@
   }
 
   function updateScreenActions(titleText) {
-    const isGit = titleText === "Git / CI" && latestCiScreenMode === "git";
+    const isGit = titleText === "Remote" && latestCiScreenMode === "git";
     const pull = document.getElementById("viewer-git-pull");
     const push = document.getElementById("viewer-git-push");
     const status = documentStatusButton();
@@ -2098,12 +2098,12 @@
     }
   }
 
-  // Git and CI render into a single merged screen titled "Git / CI"; the
+  // Git and CI render into a single merged screen titled "Remote"; the
   // active section (git / runs / release) is tracked by latestCiScreenMode.
   function isGitCiScreenOpen() {
     const panel = documentPanel();
     const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "Git / CI");
+    return Boolean(panel && !panel.hidden && title && title.textContent === "Remote");
   }
 
   function isWorkspaceOpen() {
@@ -2167,7 +2167,7 @@
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX runs") return showCdxRuns(opts);
-    if (screen === "Git / CI") {
+    if (screen === "Remote") {
       if (latestCiScreenMode === "release") return showReleaseStatus(opts);
       if (latestCiScreenMode === "runs") return showCiStatus(opts);
       return showGitStatus({ preserve: true, ...opts });
@@ -6135,7 +6135,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load release workflow state.");
     }
-    setDocument("Git / CI", renderReleaseStatus(data.payload));
+    setDocument("Remote", renderReleaseStatus(data.payload));
     const state = data.payload?.state || "unknown";
     const button = ciButton();
     if (button instanceof HTMLElement) {
@@ -6148,7 +6148,7 @@
     latestCiScreenMode = "runs";
     if (!isCapabilityAvailable("ci")) {
       const message = capabilityMessage("ci", "CI is not available for this project.");
-      setDocument("Git / CI", renderCiStatus({ visible: false, state: capability("ci").state, message }));
+      setDocument("Remote", renderCiStatus({ visible: false, state: capability("ci").state, message }));
       setMeta(message);
       return;
     }
@@ -6175,7 +6175,7 @@
       return;
     }
     if (response.status === 404) {
-      setDocument("Git / CI", renderCiStatus({
+      setDocument("Remote", renderCiStatus({
         visible: true,
         state: "unavailable",
         badgeState: "unavailable",
@@ -6197,7 +6197,7 @@
     }
     latestCiStatusSignature = nextCiSignature;
     updateMainCiBadge(data.payload);
-    setDocument("Git / CI", renderCiStatus(data.payload));
+    setDocument("Remote", renderCiStatus(data.payload));
     setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
   }
 
@@ -6495,7 +6495,7 @@
     )) || null;
   }
 
-  // Entry point for the merged "Git / CI" button. Git is the first section, so
+  // Entry point for the merged "Remote" button. Git is the first section, so
   // open it by default; fall back to CI runs when git isn't available.
   async function showGitCiScreen(options = {}) {
     if (isCapabilityAvailable("git")) {
@@ -6509,7 +6509,7 @@
     const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
     if (!isCapabilityAvailable("git")) {
       const message = capabilityMessage("git", "Git is not available for this project.");
-      setDocument("Git / CI", renderGitStatus({ state: capability("git").state, message }));
+      setDocument("Remote", renderGitStatus({ state: capability("git").state, message }));
       setMeta(message);
       return;
     }
@@ -6536,7 +6536,7 @@
       return;
     }
     if (response.status === 404) {
-      setDocument("Git / CI", renderGitStatus({
+      setDocument("Remote", renderGitStatus({
         state: "unavailable",
         message: "Git status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
       }));
@@ -6558,7 +6558,7 @@
     latestGitStatusSignature = nextGitSignature;
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
     updateMainGitBadges();
-    setDocument("Git / CI", renderGitStatus(data.payload));
+    setDocument("Remote", renderGitStatus(data.payload));
     applyGitDomain(previous.domain || "changes");
     const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
     const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
@@ -6683,7 +6683,7 @@
       withPrimaryAction("workshop", "Opening Workshop", () => showWorkshop());
     });
     ciButton()?.addEventListener("click", () => {
-      withPrimaryAction("git-ci", "Opening Git / CI", showGitCiScreen);
+      withPrimaryAction("git-ci", "Opening Remote", showGitCiScreen);
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);

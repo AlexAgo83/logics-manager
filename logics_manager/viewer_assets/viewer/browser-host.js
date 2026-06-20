@@ -5509,8 +5509,8 @@
             <label class="viewer-cdx__field">
               <span>Run in</span>
               <select data-viewer-cdx-run-mode>
-                <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner (Experimental)</option>
                 <option value="terminal"${runMode === "terminal" ? " selected" : ""}>New terminal</option>
+                <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner (Experimental)</option>
               </select>
             </label>
             <div class="viewer-cdx__actions">

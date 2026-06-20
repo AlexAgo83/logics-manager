@@ -1,10 +1,10 @@
 ## item_450_use_full_permission_for_write_enabled_cdx_missions - Use full permission for write-enabled CDX missions
 > From version: 2.11.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -39,8 +39,8 @@ Operators should not discover the mismatch after a long mission. The viewer shou
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_255_use_full_permission_for_write_enabled_cdx_missions.md`
-- Primary task(s): (none yet)
+- Request: `req_255_use_full_permission_for_write_enabled_cdx_missions`
+- Primary task(s): `task_240_use_full_permission_for_write_enabled_cdx_missions`
 
 # AI Context
 - Summary: Use full permission for write-enabled CDX missions
@@ -56,6 +56,7 @@ Operators should not discover the mismatch after a long mission. The viewer shou
 - Hybrid rationale: Derived from request `req_255_use_full_permission_for_write_enabled_cdx_missions` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_255_use_full_permission_for_write_enabled_cdx_missions.md`.
 - Generated locally by logics-manager.
+- Task `task_240_use_full_permission_for_write_enabled_cdx_missions` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_240_use_full_permission_for_write_enabled_cdx_missions`

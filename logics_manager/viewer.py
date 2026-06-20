@@ -2288,6 +2288,10 @@ def _cdx_mission_timeout(strength: dict[str, Any], *, allow_file_writes: bool = 
     return timeout
 
 
+def _cdx_mission_permission(*, allow_file_writes: bool = False) -> str:
+    return "full" if allow_file_writes else "read-only"
+
+
 def _cdx_mission_command(
     repo_root: Path,
     mission_id: str,
@@ -2323,7 +2327,7 @@ def _cdx_mission_command(
     timeout = _cdx_mission_timeout(strength, allow_file_writes=allow_file_writes, commit_at_end=commit_at_end)
     effective_reasoning_effort = reasoning_effort or str(strength.get("reasoningEffort") or "medium")
     effective_power = power or str(strength.get("power") or "medium")
-    permission = "workspace-write" if allow_file_writes else "read-only"
+    permission = _cdx_mission_permission(allow_file_writes=allow_file_writes)
     command = [
         "run",
         session,
@@ -2578,7 +2582,7 @@ def cdx_mission_plan_payload(
         warnings.append("This mission is plan-first; direct CDX file writes are disabled. Use Apply allowed actions after CDX returns actions.")
     if requested_commit_at_end and not allow_file_writes:
         warnings.append("Commit-at-end was requested but direct file writes are disabled for this mission.")
-    permission = "workspace-write" if allow_file_writes else "read-only"
+    permission = _cdx_mission_permission(allow_file_writes=allow_file_writes)
     prompt_override = _mission_prompt_override(body)
     command = _cdx_mission_command(
         repo_root,

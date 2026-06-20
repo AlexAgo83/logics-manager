@@ -1646,7 +1646,7 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         response = _cdx_test_status_response(args)
         if response is not None:
             return response
-        # full-audit always requires file writes: workspace-write plan and writable minimum timeout.
+        # full-audit always requires file writes: full plan and writable minimum timeout.
         assert kwargs["timeout"] == 690
         assert args[:4] == ["cdx", "run", "work", "--cwd"]
         assert args[4] == str(tmp_path)
@@ -1654,7 +1654,7 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         assert "--mission" not in args
         assert "--scope" not in args
         assert args[args.index("--prompt") + 1].startswith("Run a full repository audit")
-        assert args[args.index("--permission") + 1] == "workspace-write"
+        assert args[args.index("--permission") + 1] == "full"
         assert args[args.index("--timeout-seconds") + 1] == "600"
         return subprocess.CompletedProcess(args, 0, json.dumps({"runId": "run-42", "usage": {"input_tokens": 10, "output_tokens": 5}}), "")
 
@@ -1751,7 +1751,7 @@ def test_viewer_cdx_runs_marks_permission_denials_as_blocked(tmp_path: Path) -> 
     assert payload["runs"][0]["permissionDenials"][0]["tool_name"] == "Bash"
 
 
-def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path: Path) -> None:
+def test_viewer_cdx_mission_plan_allows_full_permission_when_writes_requested(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         response = _cdx_test_status_response(args)
         if response is not None:
@@ -1768,12 +1768,12 @@ def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"directFixes": "false"}
     assert payload["plan"]["allowFileWrites"] is True
-    assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["permission"] == "full"
     assert payload["plan"]["requestedFileWrites"] is True
     assert payload["plan"]["commitAtEnd"] is False
     assert payload["plan"]["supportsFileWrites"] is True
     args = payload["plan"]["arguments"]
-    assert args[args.index("--permission") + 1] == "workspace-write"
+    assert args[args.index("--permission") + 1] == "full"
     prompt = args[args.index("--prompt") + 1]
     assert "File edits are allowed" in prompt
     assert "Always capture the outcome as a bounded Logics request" in prompt
@@ -1856,7 +1856,7 @@ def test_viewer_cdx_mission_full_audit_direct_fix_prompt_skips_corpus(tmp_path: 
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"directFixes": "true"}
     assert payload["plan"]["allowFileWrites"] is True
-    assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["permission"] == "full"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Fix safe, scoped issues directly" in prompt
     assert "capture the completed work as a full Logics workflow chain as proof" in prompt
@@ -1888,7 +1888,7 @@ def test_viewer_cdx_mission_release_review_write_prompt_stays_guarded(tmp_path: 
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"directFixes": "false"}
     assert payload["plan"]["releaseTag"] == "v2.7.0"
-    assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["permission"] == "full"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Always capture the outcome as a bounded Logics request" in prompt
     assert "do not directly modify product/source files" in prompt
@@ -1919,7 +1919,7 @@ def test_viewer_cdx_mission_release_review_direct_fix_prompt_stays_guarded(tmp_p
 
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"directFixes": "true"}
-    assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["permission"] == "full"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Fix safe, scoped release-readiness issues directly" in prompt
     assert "Do not bump versions, tag, push, publish" in prompt
@@ -2007,7 +2007,7 @@ def test_viewer_cdx_mission_plan_builds_wish_to_request_prompt(tmp_path: Path) -
         which=lambda name: f"/usr/bin/{name}",
     )
     assert write_payload["state"] == "ok"
-    assert write_payload["plan"]["permission"] == "workspace-write"
+    assert write_payload["plan"]["permission"] == "full"
     write_prompt = write_payload["plan"]["arguments"][write_payload["plan"]["arguments"].index("--prompt") + 1]
     assert "Create the request draft file under logics/request/" in write_prompt
     assert "next available req_ slug" in write_prompt
@@ -2046,7 +2046,7 @@ def test_viewer_cdx_mission_plan_builds_guarded_pre_release_prompt(tmp_path: Pat
 
     assert payload["state"] == "ok"
     assert payload["plan"]["missionInputs"] == {"releaseVersion": "v2.8.0", "runFullValidation": "true"}
-    assert payload["plan"]["permission"] == "workspace-write"
+    assert payload["plan"]["permission"] == "full"
     prompt = payload["plan"]["arguments"][payload["plan"]["arguments"].index("--prompt") + 1]
     assert prompt == payload["plan"]["prompt"]
     assert payload["plan"]["promptEdited"] is False

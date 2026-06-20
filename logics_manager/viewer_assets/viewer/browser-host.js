@@ -2240,6 +2240,25 @@
     }
   }
 
+  // Open/close a topbar sub-section menu. Opening one closes the others so at
+  // most one nav menu is visible at a time.
+  function setNavMenuOpen(wrapper, open) {
+    document.querySelectorAll(".viewer-nav-menu.is-open").forEach((el) => {
+      if (el === wrapper && open) return;
+      el.classList.remove("is-open");
+      el.querySelector(".btn")?.setAttribute("aria-expanded", "false");
+    });
+    if (!(wrapper instanceof HTMLElement) || !open) {
+      return;
+    }
+    wrapper.classList.add("is-open");
+    wrapper.querySelector(".btn")?.setAttribute("aria-expanded", "true");
+  }
+
+  function closeNavMenus() {
+    setNavMenuOpen(null, false);
+  }
+
   function bindRefreshMenuControls() {
     const button = refreshMenuButton();
     if (button) {
@@ -6522,15 +6541,6 @@
     )) || null;
   }
 
-  // Entry point for the merged "Remote" button. Git is the first section, so
-  // open it by default; fall back to CI runs when git isn't available.
-  async function showGitCiScreen(options = {}) {
-    if (isCapabilityAvailable("git")) {
-      return showGitStatus(options);
-    }
-    return showCiStatus(options);
-  }
-
   async function showGitStatus(options = {}) {
     latestCiScreenMode = "git";
     const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
@@ -6681,6 +6691,7 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         setRefreshMenuOpen(false);
+        closeNavMenus();
       }
     });
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
@@ -6706,14 +6717,20 @@
         setMeta(`Copy failed — long-press to select: ${share}`);
       }
     });
-    document.getElementById("viewer-workshop")?.addEventListener("click", () => {
-      withPrimaryAction("workshop", "Opening Workshop", () => showWorkshop());
-    });
-    ciButton()?.addEventListener("click", () => {
-      withPrimaryAction("git-ci", "Opening Remote", showGitCiScreen);
-    });
-    document.getElementById("viewer-cdx")?.addEventListener("click", () => {
-      withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
+    // The Workshop / Remote / CDX buttons toggle their sub-section menu rather
+    // than navigating directly: a click opens the menu so its items stay
+    // clickable; choosing an item (handled below) performs the navigation.
+    ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+      const button = document.getElementById(id);
+      // Guard against the init block running more than once (the load event can
+      // fire twice), which would otherwise double-bind and cancel the toggle.
+      if (!(button instanceof HTMLElement) || button.dataset.navBound === "1") return;
+      button.dataset.navBound = "1";
+      button.addEventListener("click", () => {
+        const wrapper = button.closest(".viewer-nav-menu");
+        if (!(wrapper instanceof HTMLElement)) return;
+        setNavMenuOpen(wrapper, !wrapper.classList.contains("is-open"));
+      });
     });
     repoPill()?.addEventListener("click", () => {
       const menu = projectMenu();
@@ -6809,6 +6826,10 @@
       window.setTimeout(() => applyLocalViewerChrome(), 0);
       const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config, .viewer-workshop__command-run-menu") : null;
       closeCdxSessionMenus(activeCdxSessionMenu);
+      // Close any open topbar sub-section menu when clicking outside of it.
+      if (!(event.target instanceof Element) || !event.target.closest(".viewer-nav-menu")) {
+        closeNavMenus();
+      }
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;
       const filterTarget = event.target instanceof Element ? event.target.closest("[data-viewer-filter-group][data-viewer-filter-value]") : null;
@@ -6849,9 +6870,8 @@
       if (navTarget instanceof HTMLElement) {
         event.preventDefault();
         const [screen, section] = (navTarget.getAttribute("data-viewer-nav-target") || "").split(":");
-        // Collapse the hover menu after a selection (blur the trigger button).
-        const trigger = navTarget.closest(".viewer-nav-menu")?.querySelector(".btn");
-        if (trigger instanceof HTMLElement) trigger.blur();
+        // Collapse the menu once a sub-section is chosen.
+        closeNavMenus();
         if (screen === "workshop") {
           withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }));
         } else if (screen === "remote") {

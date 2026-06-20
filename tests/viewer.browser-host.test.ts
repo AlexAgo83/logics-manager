@@ -1320,7 +1320,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -1439,7 +1439,7 @@ describe("local viewer browser host", () => {
 
     const workshop = dom.window.document.getElementById("viewer-workshop") as HTMLButtonElement | null;
     expect(workshop?.hidden).toBe(false);
-    workshop?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -1476,7 +1476,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1497,13 +1497,21 @@ describe("local viewer browser host", () => {
     expect(crumbs[crumbs.length - 1].getAttribute("aria-current")).toBe("location");
   });
 
-  it("opens sub-sections directly from the topbar hover menus", async () => {
+  it("opens sub-sections from the topbar click menus", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Clicking the button opens its menu (and does not navigate on its own).
+    const remoteWrapper = dom.window.document.querySelector('[data-viewer-nav="remote"]');
+    expect(remoteWrapper?.classList.contains("is-open")).toBe(false);
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(remoteWrapper?.classList.contains("is-open")).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).not.toBe("Remote");
 
     // Workshop → Explorer jumps straight to the Explorer sub-tab.
     dom.window.document.querySelector('[data-viewer-nav-target="workshop:explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -1536,7 +1544,7 @@ describe("local viewer browser host", () => {
 
     const workshop = dom.window.document.getElementById("viewer-workshop") as HTMLButtonElement | null;
     expect(workshop?.hidden).toBe(false);
-    workshop?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
@@ -1688,7 +1696,7 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
     await flushViewerAsync();
-    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
 
@@ -1728,7 +1736,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1915,7 +1923,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     api.postMessage({ type: "read", id: "req_001_demo" });
     await flushViewerAsync();
@@ -2015,7 +2023,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
     dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
 
     expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
@@ -2166,7 +2174,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2243,7 +2251,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2287,7 +2295,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2330,7 +2338,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const visibleCommitRows = () => Array.from(dom.window.document.querySelectorAll(".viewer-git__commit-row"))
@@ -2383,7 +2391,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const historyDomain = dom.window.document.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
@@ -2398,7 +2406,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
@@ -2468,7 +2476,7 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
     await new Promise((resolve) => setTimeout(resolve, 10));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
     await new Promise((resolve) => setTimeout(resolve, 10));
@@ -2518,7 +2526,7 @@ describe("local viewer browser host", () => {
     // Hidden until the Release sub-screen is active.
     expect(resetButton?.hidden).toBe(true);
 
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await new Promise((resolve) => setTimeout(resolve, 10));
     // Git is the default sub-screen, so the reset action stays hidden there.
@@ -2577,7 +2585,7 @@ describe("local viewer browser host", () => {
     expect(ciButton?.querySelector("[data-viewer-ci-badge]")?.textContent).toBe("run");
     expect(ciButton?.title).toContain("GitHub Actions run is in progress.");
 
-    ciButton?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2628,7 +2636,7 @@ describe("local viewer browser host", () => {
     const ciButton = dom.window.document.getElementById("viewer-ci");
     expect(ciButton?.querySelector("[data-viewer-ci-badge]")?.textContent).toBe("fail");
 
-    ciButton?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2645,7 +2653,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const runsButton = dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]') as HTMLButtonElement | null;
@@ -2689,7 +2697,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2720,7 +2728,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2739,7 +2747,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2774,7 +2782,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2813,7 +2821,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2867,7 +2875,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2905,7 +2913,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2947,7 +2955,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2975,7 +2983,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2997,7 +3005,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3080,7 +3088,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3107,7 +3115,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3137,7 +3145,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3163,7 +3171,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3189,7 +3197,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3215,7 +3223,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3251,7 +3259,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.querySelector('[data-viewer-cdx-mode="missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3273,7 +3281,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("CDX mission is running");
     expect(text).toContain("Still running");
     expect(text).toContain("pending");
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls.filter((call) => call === "/api/cdx-mission-run")).toHaveLength(1);
@@ -3307,7 +3315,7 @@ describe("local viewer browser host", () => {
     }
     expect(calls).toContain("/api/items");
     expect(button?.disabled).toBe(true);
-    button?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls.filter((call) => call === "/api/cdx-status")).toHaveLength(0);
@@ -3323,7 +3331,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3400,7 +3408,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const work2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
@@ -3433,7 +3441,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-1"]')).toBeTruthy();
     expect(terminalCommands[0]).toEqual({ command: ["cdx", "resume", "work2"], label: "cdx resume work2" });
 
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     (dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null)
@@ -3443,7 +3451,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-2"]')).toBeTruthy();
     expect(terminalCommands).toContainEqual({ command: ["cdx", "handoff", "work2", "corvus"], label: "cdx handoff work2 corvus" });
 
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     (dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null)
@@ -3462,7 +3470,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3503,7 +3511,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3518,7 +3526,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3560,7 +3568,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
@@ -3581,7 +3589,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Starting");
 
@@ -3677,7 +3685,7 @@ describe("local viewer browser host", () => {
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
 
-    gitButton?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -3715,7 +3723,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -3764,7 +3772,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     const gitCallsBeforeRefresh = calls.filter((call) => call === "/api/git-status").length;
@@ -3790,7 +3798,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Remote");

@@ -5434,7 +5434,25 @@
     const applyRows = applyResults.map((result) => `
       <li class="viewer-cdx__row"><span>${escapeHtml(cdxLabel(result.type || "action"))}</span><strong>${escapeHtml(result.returnCode === 0 ? "applied" : "failed")}</strong></li>
     `).join("");
+    const planState = planPayload
+      ? (canRun ? "Ready" : cdxLabel(planPayload.state || "Previewed"))
+      : "Not previewed";
+    const runState = runPayload
+      ? (run ? (Number(run.returnCode) === 0 ? "Succeeded" : `Failed (${run.returnCode ?? "unknown"})`) : cdxLabel(runPayload.state || "Reported"))
+      : "Not launched";
+    const cards = [
+      ["Missions", String(missions.length)],
+      ["Sessions", String(sessions.length)],
+      ["Plan", planState],
+      ["Run", runState]
+    ].map(([label, value]) => `
+      <div class="viewer-cdx__card">
+        <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+        <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+      </div>
+    `).join("");
     return `
+      <div class="viewer-cdx__summary">${cards}</div>
       <div class="viewer-cdx__workspace viewer-cdx__workspace--missions">
         <div class="viewer-cdx__stack">
           <section class="viewer-cdx__section">

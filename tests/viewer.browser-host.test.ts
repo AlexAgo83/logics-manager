@@ -2848,6 +2848,40 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Created req_999_address_cdx_code_review_findings");
   });
 
+  it("renders CDX permission denials in run reports", async () => {
+    const { dom } = createViewerDom({
+      cdxReportResponse: {
+        state: "ok",
+        message: "",
+        report: {
+          run: { run_id: "run-42", status: "blocked", kind: "assistant" },
+          task_report: { kind: "assistant", run_id: "run-42", summary: "Mission stopped on permissions.", findings: [] },
+          permissionDenials: [
+            { tool_name: "Bash", tool_input: { command: "logics-manager audit" } },
+            { tool_name: "Write", tool_input: { file_path: "logics/request/req_251.md" } }
+          ]
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Permission denials");
+    expect(text).toContain("Bash");
+    expect(text).toContain("logics-manager audit");
+    expect(text).toContain("Write");
+    expect(text).toContain("logics/request/req_251.md");
+  });
+
   it("renders stale CDX report signals and artifact paths", async () => {
     const { dom } = createViewerDom({
       cdxRunsResponse: {

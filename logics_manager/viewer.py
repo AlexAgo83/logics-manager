@@ -2999,11 +2999,74 @@ def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
 
+def _tree_latest_mtime_ns(root: Path, *, suffixes: tuple[str, ...] = (".md",)) -> int:
+    if not root.is_dir():
+        return 0
+    latest = 0
+    try:
+        for path in root.rglob("*"):
+            if not path.is_file() or (suffixes and path.suffix.lower() not in suffixes):
+                continue
+            try:
+                latest = max(latest, path.stat().st_mtime_ns)
+            except OSError:
+                continue
+    except OSError:
+        return latest
+    return latest
+
+
+def _git_dir(repo_root: Path) -> Path | None:
+    git_path = repo_root / ".git"
+    if git_path.is_dir():
+        return git_path
+    if git_path.is_file():
+        try:
+            content = git_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            return None
+        prefix = "gitdir:"
+        if content.lower().startswith(prefix):
+            candidate = Path(content[len(prefix):].strip())
+            if not candidate.is_absolute():
+                candidate = (repo_root / candidate).resolve()
+            return candidate if candidate.exists() else None
+    return None
+
+
+def _git_event_signature(repo_root: Path) -> dict[str, Any]:
+    git_dir = _git_dir(repo_root)
+    if git_dir is None:
+        return {"available": False}
+    files = [git_dir / "HEAD", git_dir / "packed-refs"]
+    for dirname in ("refs/heads", "refs/remotes", "refs/tags"):
+        ref_root = git_dir / dirname
+        if ref_root.is_dir():
+            try:
+                files.extend(path for path in ref_root.rglob("*") if path.is_file())
+            except OSError:
+                pass
+    signature: list[tuple[str, int, int]] = []
+    for path in files:
+        try:
+            stat = path.stat()
+            signature.append((str(path.relative_to(git_dir)), stat.st_mtime_ns, stat.st_size))
+        except (OSError, ValueError):
+            continue
+    return {"available": True, "refs": sorted(signature)}
+
+
+def _stable_json_signature(value: Any) -> str:
+    return hashlib.sha1(json.dumps(value, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+
+
 # Status endpoints (git/ci/release/cdx) recompute by spawning subprocesses.
 # A short server-side TTL lets back-to-back polls and the several badge
 # fetches that fire on each auto-refresh share a single computation, while
 # the ETag emitted alongside lets the browser revalidate cheaply (304).
 STATUS_CACHE_TTL_SECONDS = 2.0
+VIEWER_EVENT_POLL_SECONDS = 1.0
+VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 
 
 VIEWER_MUTATING_ROUTES = frozenset(
@@ -3068,6 +3131,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         # do not each recompute the same component.
         self.status_components: dict[str, tuple[float, Any]] = {}
         self.status_cache_lock = threading.Lock()
+        self.event_seq = 0
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
             self.socket = tls_context.wrap_socket(self.socket, server_side=True)
@@ -3104,6 +3168,35 @@ class LogicsViewerServer(ThreadingHTTPServer):
         with self.status_cache_lock:
             self.status_components[key] = (time.monotonic(), value)
         return value
+
+    def invalidate_status_components(self, names: set[str] | None = None) -> None:
+        with self.status_cache_lock:
+            if names is None:
+                self.status_cache.clear()
+                self.status_components.clear()
+                return
+            route_names = {
+                "git": {"git-status", "status"},
+                "ci": {"ci-status", "status"},
+                "cdx": {"cdx-status", "cdx-runs", "cdx-history", "status"},
+                "cdxRuns": {"cdx-runs", "status"},
+                "cdxHistory": {"cdx-history"},
+            }
+            component_names = set(names)
+            cache_names: set[str] = set()
+            for name in component_names:
+                cache_names.update(route_names.get(name, {name, "status"}))
+            for key in list(self.status_components):
+                if key.split("::", 1)[0] in component_names:
+                    self.status_components.pop(key, None)
+            for key in list(self.status_cache):
+                if key.split("::", 1)[0] in cache_names:
+                    self.status_cache.pop(key, None)
+
+    def next_event_seq(self) -> int:
+        with self.status_cache_lock:
+            self.event_seq += 1
+            return self.event_seq
 
     def viewer_payload(self, *, selected_id: str | None = None) -> dict[str, Any]:
         payload = viewer_data_payload(
@@ -3424,6 +3517,64 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
+    def _viewer_event_snapshot(self, *, include_remote: bool = False) -> dict[str, Any]:
+        repo_root = self.server.repo_root
+        snapshot: dict[str, Any] = {
+            "corpus": _tree_latest_mtime_ns(repo_root / "logics"),
+            "git": _git_event_signature(repo_root),
+        }
+        if include_remote:
+            snapshot["ci"] = _stable_json_signature(self._status_component("ci"))
+            snapshot["cdx"] = _stable_json_signature({
+                "status": self._status_component("cdx"),
+                "runs": self._status_component("cdxRuns"),
+            })
+        return snapshot
+
+    def _stream_viewer_events(self) -> None:
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        try:
+            baseline = self._viewer_event_snapshot(include_remote=True)
+            payload = json.dumps({"seq": self.server.next_event_seq(), "components": []})
+            self.wfile.write(f"event: ready\ndata: {payload}\n\n".encode("utf-8"))
+            self.wfile.flush()
+            remote_due_at = time.monotonic() + VIEWER_EVENT_REMOTE_POLL_SECONDS
+            idle_ticks = 0
+            while True:
+                now = time.monotonic()
+                include_remote = now >= remote_due_at
+                current = self._viewer_event_snapshot(include_remote=include_remote)
+                if include_remote:
+                    remote_due_at = now + VIEWER_EVENT_REMOTE_POLL_SECONDS
+                else:
+                    for name in ("ci", "cdx"):
+                        if name in baseline:
+                            current[name] = baseline[name]
+                changed = sorted(name for name, value in current.items() if baseline.get(name) != value)
+                if changed:
+                    baseline = current
+                    self.server.invalidate_status_components(set(changed))
+                    payload = json.dumps({"seq": self.server.next_event_seq(), "components": changed})
+                    self.wfile.write(f"event: changed\ndata: {payload}\n\n".encode("utf-8"))
+                    self.wfile.flush()
+                    idle_ticks = 0
+                else:
+                    idle_ticks += 1
+                    if idle_ticks >= 30:
+                        self.wfile.write(b": keep-alive\n\n")
+                        self.wfile.flush()
+                        idle_ticks = 0
+                time.sleep(VIEWER_EVENT_POLL_SECONDS)
+        except (BrokenPipeError, ConnectionResetError):
+            return
+
     def _client_is_loopback(self) -> bool:
         try:
             host = self.client_address[0]
@@ -3614,6 +3765,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/capabilities":
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
+            return
+        if route == "/api/events":
+            self._stream_viewer_events()
             return
         if route == "/api/git-status":
             self._send_status_json("git-status", lambda: self._status_component("git"))

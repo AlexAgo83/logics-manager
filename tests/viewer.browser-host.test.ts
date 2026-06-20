@@ -1510,6 +1510,73 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Checked just now");
   });
 
+  it("subscribes to viewer events and falls back cleanly when SSE errors", async () => {
+    const ciResponse = {
+      ok: true,
+      body: {
+        ok: true,
+        payload: {
+          state: "ok",
+          visible: true,
+          message: "",
+          badgeState: "passing",
+          branch: "main",
+          headSha: "abc123",
+          run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
+          jobs: []
+        }
+      }
+    };
+    const { dom, calls } = createViewerDom({ ciResponse });
+    const sources: Array<{
+      url: string;
+      closed: boolean;
+      onerror: ((event: Event) => void) | null;
+      listeners: Map<string, Array<(event: MessageEvent) => void>>;
+      emit: (name: string, payload: unknown) => void;
+      close: () => void;
+    }> = [];
+    class FakeEventSource {
+      url: string;
+      closed = false;
+      onerror: ((event: Event) => void) | null = null;
+      listeners = new Map<string, Array<(event: MessageEvent) => void>>();
+      constructor(url: string) {
+        this.url = url;
+        sources.push(this);
+      }
+      addEventListener(name: string, handler: (event: MessageEvent) => void) {
+        const list = this.listeners.get(name) || [];
+        list.push(handler);
+        this.listeners.set(name, list);
+      }
+      emit(name: string, payload: unknown) {
+        const event = new dom.window.MessageEvent(name, { data: JSON.stringify(payload) });
+        for (const handler of this.listeners.get(name) || []) handler(event);
+      }
+      close() {
+        this.closed = true;
+      }
+    }
+    (dom.window as unknown as { EventSource: typeof EventSource }).EventSource = FakeEventSource as unknown as typeof EventSource;
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(sources[0]?.url).toBe("/api/events");
+    const before = calls.filter((call) => call === "/api/status").length;
+    ciResponse.body.payload.badgeState = "failing";
+    ciResponse.body.payload.run.badgeState = "failing";
+    sources[0]?.emit("changed", { components: ["ci"] });
+    await flushViewerAsync();
+
+    expect(calls.filter((call) => call === "/api/status").length).toBeGreaterThan(before);
+    sources[0]?.onerror?.(new dom.window.Event("error"));
+    expect(sources[0]?.closed).toBe(true);
+  });
+
   it("switches the active project from the topbar project menu", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

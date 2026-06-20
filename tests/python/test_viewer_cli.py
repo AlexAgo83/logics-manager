@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import tomllib
 from http.client import HTTPConnection
 from pathlib import Path
@@ -2022,6 +2023,59 @@ def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
         conn.getresponse().read()
         assert calls["git"] == 1
     finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_events_stream_reports_corpus_changes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    logics_dir = tmp_path / "logics" / "request"
+    logics_dir.mkdir(parents=True)
+    request_path = logics_dir / "req_001_demo.md"
+    request_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+    monkeypatch.setattr(viewer_module, "ci_status_payload", lambda _repo_root: {"visible": True, "badgeState": "passing"})
+    monkeypatch.setattr(viewer_module, "cdx_status_payload", lambda _repo_root: {"state": "unavailable"})
+    monkeypatch.setattr(viewer_module, "cdx_runs_payload", lambda _repo_root: {"runs": []})
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    conn: HTTPConnection | None = None
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=10)
+        conn.request("GET", "/api/events")
+        response = conn.getresponse()
+        assert response.status == 200
+        assert response.getheader("Content-Type", "").startswith("text/event-stream")
+
+        deadline = time.time() + 5
+        while time.time() < deadline:
+            line = response.readline().decode("utf-8")
+            if line.startswith("event: ready"):
+                break
+        else:
+            raise AssertionError("viewer events stream did not emit ready")
+
+        request_path.write_text("## req_001_demo - Demo\n\nChanged\n", encoding="utf-8")
+        event_name = ""
+        data = ""
+        deadline = time.time() + 8
+        while time.time() < deadline:
+            line = response.readline().decode("utf-8").strip()
+            if line.startswith("event:"):
+                event_name = line.partition(":")[2].strip()
+            elif line.startswith("data:"):
+                data = line.partition(":")[2].strip()
+            elif not line and event_name == "changed" and data:
+                payload = json.loads(data)
+                assert "corpus" in payload["components"]
+                break
+        else:
+            raise AssertionError("viewer events stream did not report corpus change")
+    finally:
+        if conn is not None:
+            conn.close()
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)

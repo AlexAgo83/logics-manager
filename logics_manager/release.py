@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import re
 import subprocess
@@ -13,8 +14,15 @@ from .config import ConfigError, find_repo_root
 from .cli_output import render_payload
 
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - platform fallback
+    fcntl = None  # type: ignore[assignment]
+
+
 CONTRACT_PATH = Path("logics/release/contract.json")
 DISCOVERY_DRAFT_PATH = Path("logics/release/contract.draft.json")
+GIT_COMMAND_TIMEOUT_SECONDS = 15
 DEFAULT_STATE_MACHINE = [
     "planning",
     "preparing",
@@ -127,11 +135,12 @@ def _read_plain_text_value(text: str, selector: str | None) -> str:
 
 def _read_version_source(repo_root: Path, source: dict[str, Any]) -> dict[str, Any]:
     rel_path = source.get("path")
+    required = bool(source.get("required", True))
     if not isinstance(rel_path, str) or not rel_path:
-        return {"ok": False, "path": rel_path, "version": None, "reason": "version source path is missing"}
+        return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": "version source path is missing"}
     path = repo_root / rel_path
     if not path.is_file():
-        return {"ok": False, "path": rel_path, "version": None, "reason": "file is missing"}
+        return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": "file is missing"}
     fmt = source.get("format")
     selector = source.get("selector")
     try:
@@ -143,10 +152,10 @@ def _read_version_source(repo_root: Path, source: dict[str, Any]) -> dict[str, A
         else:
             value = _read_plain_text_value(text, selector if isinstance(selector, str) else None)
     except Exception as exc:
-        return {"ok": False, "path": rel_path, "version": None, "reason": f"could not read version: {exc}"}
+        return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": f"could not read version: {exc}"}
     if not isinstance(value, str) or not value.strip():
-        return {"ok": False, "path": rel_path, "version": None, "reason": "version value is missing"}
-    return {"ok": True, "path": rel_path, "version": value.strip(), "reason": None}
+        return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": "version value is missing"}
+    return {"ok": True, "path": rel_path, "version": value.strip(), "required": required, "reason": None}
 
 
 def _current_version(repo_root: Path, contract: dict[str, Any]) -> tuple[str | None, list[dict[str, Any]]]:
@@ -154,14 +163,49 @@ def _current_version(repo_root: Path, contract: dict[str, Any]) -> tuple[str | N
     if not isinstance(sources, list):
         return None, []
     results = [_read_version_source(repo_root, source) for source in sources if isinstance(source, dict)]
-    versions = [result["version"] for result in results if result.get("ok") and isinstance(result.get("version"), str)]
+    required_results = [result for result in results if result.get("required", True)]
+    versions = [result["version"] for result in required_results if result.get("ok") and isinstance(result.get("version"), str)]
+    unique_versions = sorted(set(versions))
+    if len(unique_versions) > 1:
+        for result in results:
+            if result.get("required", True) and result.get("ok"):
+                result["consistent"] = False
+                result["reason"] = "version does not match other required sources"
+        return None, results
+    if any(not result.get("ok") for result in required_results):
+        return None, results
     return (versions[0] if versions else None), results
+
+
+def _version_source_blocking_reasons(version_sources: list[dict[str, Any]]) -> list[str]:
+    if not version_sources:
+        return ["version_metadata: no version sources configured"]
+    required_sources = [source for source in version_sources if source.get("required", True)]
+    missing = [
+        f"{source.get('path') or '<unknown>'}: {source.get('reason') or 'version source is invalid'}"
+        for source in required_sources
+        if not source.get("ok")
+    ]
+    if missing:
+        return [f"version_metadata: invalid version source ({'; '.join(missing)})"]
+    versions = sorted({str(source.get("version")) for source in required_sources if source.get("ok") and source.get("version")})
+    if len(versions) > 1:
+        return [f"version_metadata: version sources disagree ({', '.join(versions)})"]
+    return []
 
 
 def _git_output(repo_root: Path, args: list[str]) -> str | None:
     try:
-        result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    except OSError:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=GIT_COMMAND_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.TimeoutExpired):
         return None
     if result.returncode != 0:
         return None
@@ -212,7 +256,15 @@ def _write_evidence_entry(repo_root: Path, contract: dict[str, Any], entry: dict
     path = _evidence_store_path(repo_root, contract)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(entry, sort_keys=True, separators=(",", ":")) + "\n")
+        if fcntl is not None:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            handle.write(json.dumps(entry, sort_keys=True, separators=(",", ":")) + "\n")
+            handle.flush()
+        finally:
+            if fcntl is not None:
+                with contextlib.suppress(OSError):
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
     return path
 
 
@@ -351,19 +403,31 @@ def _evidence_is_stale(entry: dict[str, Any], gate: dict[str, Any], target_versi
     freshness = (contract.get("evidence") or {}).get("freshness") if isinstance(contract.get("evidence"), dict) else {}
     if not isinstance(freshness, dict):
         freshness = {}
-    if freshness.get("match_target_version", True) and target_version and entry.get("target_version") not in (None, target_version):
-        return "evidence targets a different version"
+    if freshness.get("match_target_version", True) and target_version:
+        evidence_version = entry.get("target_version")
+        if evidence_version is None:
+            return "evidence target version is missing"
+        if evidence_version != target_version:
+            return "evidence targets a different version"
     evidence_kinds = set(gate.get("evidence_kinds") or [])
-    if freshness.get("match_commit_for_source_gates", True) and commit and evidence_kinds & SOURCE_EVIDENCE_KINDS and entry.get("commit") not in (None, commit):
-        return "evidence targets a different commit"
+    if freshness.get("match_commit_for_source_gates", True) and commit and evidence_kinds & SOURCE_EVIDENCE_KINDS:
+        evidence_commit = entry.get("commit")
+        if evidence_commit is None:
+            return "evidence commit is missing"
+        if evidence_commit != commit:
+            return "evidence targets a different commit"
     tag_policy = (contract.get("git") or {}).get("tag_policy") if isinstance(contract.get("git"), dict) else {}
     expected_tag = None
     if isinstance(tag_policy, dict) and target_version:
         pattern = tag_policy.get("pattern")
         if isinstance(pattern, str):
             expected_tag = pattern.replace("{version}", target_version)
-    if freshness.get("match_tag_for_publication_gates", True) and expected_tag and evidence_kinds & PUBLICATION_EVIDENCE_KINDS and entry.get("tag") not in (None, expected_tag):
-        return "evidence targets a different tag"
+    if freshness.get("match_tag_for_publication_gates", True) and expected_tag and evidence_kinds & PUBLICATION_EVIDENCE_KINDS:
+        evidence_tag = entry.get("tag")
+        if evidence_tag is None:
+            return "evidence tag is missing"
+        if evidence_tag != expected_tag:
+            return "evidence targets a different tag"
     return None
 
 
@@ -429,8 +493,12 @@ def release_status_payload(repo_root: Path) -> dict[str, Any]:
     evidence = _load_evidence(repo_root, contract)
     raw_gates = contract.get("gates") if isinstance(contract.get("gates"), list) else []
     gates = [_gate_payload(gate, evidence, target_version, commit, contract) for gate in raw_gates if isinstance(gate, dict)]
-    state = _state_from_gates(gates)
-    blocking_reasons = [f"{gate['id']}: {gate['blocking_reason']}" for gate in gates if gate.get("required") and gate.get("blocking_reason")]
+    version_blocking_reasons = _version_source_blocking_reasons(version_sources)
+    state = "blocked" if version_blocking_reasons else _state_from_gates(gates)
+    blocking_reasons = [
+        *version_blocking_reasons,
+        *[f"{gate['id']}: {gate['blocking_reason']}" for gate in gates if gate.get("required") and gate.get("blocking_reason")],
+    ]
     next_action = "Release evidence is complete." if state == "ready" else (blocking_reasons[0] if blocking_reasons else "Collect evidence for the next pending gate.")
     return {
         "ok": state == "ready",

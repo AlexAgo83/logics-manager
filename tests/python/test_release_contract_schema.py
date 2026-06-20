@@ -366,6 +366,36 @@ def test_release_status_blocks_stale_version_and_wrong_commit_or_tag(tmp_path: P
     assert gates["github_release"]["status"] == "stale"
 
 
+def test_release_status_blocks_missing_evidence_provenance(tmp_path: Path) -> None:
+    evidence = _passing_evidence()
+    evidence[0] = {key: value for key, value in evidence[0].items() if key not in {"target_version", "commit"}}
+    evidence[1] = {key: value for key, value in evidence[1].items() if key != "commit"}
+    evidence[2] = {key: value for key, value in evidence[2].items() if key != "tag"}
+    repo_root = _write_release_repo(tmp_path, evidence)
+
+    status = release_status_payload(repo_root)
+    gates = {gate["id"]: gate for gate in status["gates"]}
+
+    assert status["state"] == "blocked"
+    assert gates["version_metadata"]["status"] == "stale"
+    assert gates["version_metadata"]["blocking_reason"] == "evidence target version is missing"
+    assert gates["local_validation"]["status"] == "stale"
+    assert gates["local_validation"]["blocking_reason"] == "evidence commit is missing"
+    assert gates["github_release"]["status"] == "stale"
+    assert gates["github_release"]["blocking_reason"] == "evidence tag is missing"
+
+
+def test_release_status_blocks_disagreeing_version_sources(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, _passing_evidence())
+    (repo_root / "README.md").write_text("![Version](https://img.shields.io/badge/version-v9.9.9-4C8BF5)\n", encoding="utf-8")
+
+    status = release_status_payload(repo_root)
+
+    assert status["state"] == "blocked"
+    assert status["target_version"] is None
+    assert status["blocking_reasons"][0] == "version_metadata: version sources disagree (1.2.3, 9.9.9)"
+
+
 def test_release_status_blocks_ci_evidence_from_wrong_commit(tmp_path: Path) -> None:
     repo_root = _write_release_repo(tmp_path, _passing_evidence())
     contract_path = repo_root / "logics" / "release" / "contract.json"

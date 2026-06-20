@@ -23,6 +23,7 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
+from logics_manager.flow_evidence import has_ac_proof, has_validation_evidence
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
@@ -4038,6 +4039,73 @@ def test_audit_structure_autofix_preserves_unrelated_findings(tmp_path: Path) ->
     issue_codes = {issue["code"] for issue in payload["issues"]}
     assert "backlog_orphan_no_request" in issue_codes
     assert "request_dor_unchecked" not in issue_codes
+
+
+def test_validation_evidence_rejects_substring_false_positives() -> None:
+    assert (
+        has_validation_evidence(
+            "\n".join(
+                [
+                    "## task_001_demo - Demo task",
+                    "# Validation",
+                    "- blocked by bypass discussion",
+                    "- broken test command still pending",
+                ]
+            )
+        )
+        is False
+    )
+    assert (
+        has_validation_evidence(
+            "\n".join(
+                [
+                    "## task_001_demo - Demo task",
+                    "# Validation",
+                    "- command: `python3.11 -m pytest -q` | result: passed | date: 2026-06-20",
+                ]
+            )
+        )
+        is True
+    )
+
+
+def test_ac_proof_requires_same_line_for_matching_ac() -> None:
+    assert has_ac_proof("- request-AC1 -> This task. Proof: validated by regression.", "AC1") is True
+    assert has_ac_proof("- AC1 is mentioned here.\n- Proof: validated by unrelated note.", "AC1") is False
+    assert has_ac_proof("- request-AC10 -> This task. Proof: validates AC10.", "AC1") is False
+
+
+def test_audit_accepts_variable_width_workflow_refs(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "request" / "req_1000_demo.md",
+        title="Demo request",
+        kind="request",
+        status="Draft",
+        links=["item_1000_demo_item"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_1000_demo_item.md",
+        title="Demo backlog",
+        kind="backlog",
+        status="Ready",
+        links=["req_1000_demo", "task_1000_demo_task"],
+    )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_1000_demo_task.md",
+        title="Demo task",
+        kind="task",
+        status="Ready",
+        links=["item_1000_demo_item"],
+    )
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
 
 
 def test_audit_reports_early_companion_mermaid_and_link_gaps_as_warnings(tmp_path: Path) -> None:

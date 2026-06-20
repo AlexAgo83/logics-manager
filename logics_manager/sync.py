@@ -123,7 +123,7 @@ def _section_lines(lines: list[str], heading: str) -> list[str]:
 
 
 def _extract_refs(text: str, prefix: str) -> list[str]:
-    pattern = re.compile(rf"\b{re.escape(prefix)}_\d{{3}}_[a-z0-9_]+\b")
+    pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
     return sorted({match.group(0) for match in pattern.finditer(text)})
 
 

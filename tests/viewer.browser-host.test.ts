@@ -2998,6 +2998,53 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
   });
 
+  it("does not mark CDX Missions unread when only volatile telemetry changes", async () => {
+    let remaining = 80;
+    let reset = "2026-06-20T05:00:00Z";
+    const { dom } = createViewerDom({
+      cdxResponseFactory: () => ({
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            message: "",
+            status: {
+              availability: "ready",
+              providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
+              sessions: [
+                {
+                  id: "session-1",
+                  status: "active",
+                  title: "Logics work",
+                  model: "gpt-5-codex",
+                  remaining_pct: remaining,
+                  reset_5h_at: reset,
+                  usage: { input_tokens: 1000 + remaining, output_tokens: 250 }
+                }
+              ],
+              readiness: { auth: "ready", quota: "ok" }
+            }
+          }
+        }
+      })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+
+    // Only usage %, reset countdown, and token counts move — the mission itself
+    // is unchanged, so the unread "(i)" badge must stay hidden.
+    remaining = 60;
+    reset = "2026-06-20T04:30:00Z";
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+  });
+
   it("explains stale CDX runs without blocking report access", async () => {
     const { dom } = createViewerDom({
       cdxRunsResponse: {

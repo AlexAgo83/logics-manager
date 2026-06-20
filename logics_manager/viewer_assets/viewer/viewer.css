@@ -1480,6 +1480,12 @@
   outline: 1px solid var(--vscode-focusBorder, #007fd4);
 }
 
+/* CDX status readiness column hosts the shared usage gauge. */
+.viewer-cdx__ok-cell .viewer-workshop__usage {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .viewer-workshop__usage-fill {
   position: absolute;
   inset-inline: 0;

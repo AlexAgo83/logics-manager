@@ -3913,6 +3913,28 @@ describe("local viewer browser host", () => {
     expect(rightStackText.indexOf("Safe next commands")).toBeLessThan(rightStackText.indexOf("Providers"));
   });
 
+  it("renders the shared usage gauge in the CDX status OK column", async () => {
+    const { dom } = createViewerDom({
+      cdxResponse: cdxRowsStatusPayload()
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // The OK column hosts the same gauge component used by the terminal view,
+    // one per session row, and it stays clickable to refresh that session.
+    const okCells = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__ok-cell"));
+    expect(okCells.length).toBe(2);
+    const gauges = dom.window.document.querySelectorAll('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh]');
+    expect(gauges.length).toBe(2);
+    const targets = Array.from(gauges).map((node) => node.getAttribute("data-viewer-cdx-usage-refresh"));
+    expect(targets).toContain("work2");
+    expect(targets).toContain("corvus");
+  });
+
   it("opens CDX session action menus with resume and handoff choices", async () => {
     const payload = cdxRowsStatusPayload();
     const rows = payload.body.payload.status.rows;

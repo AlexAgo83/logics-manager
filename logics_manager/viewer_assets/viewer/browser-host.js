@@ -400,6 +400,8 @@
   let autoRefreshIntervalTouched = false;
   let applyingLocalChrome = false;
   let autoRefreshStarted = false;
+  let viewerEventsStarted = false;
+  let viewerEventsSource = null;
   let itemsLoadInFlight = false;
   let refreshAfterVisible = false;
   let mermaidInitialized = false;
@@ -1966,6 +1968,74 @@
     } else {
       latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
       updateMainGitBadges();
+    }
+  }
+
+  function activeDocumentTitle() {
+    return documentTitle()?.textContent || "";
+  }
+
+  async function handleViewerEventChange(components) {
+    const changed = new Set(Array.isArray(components) ? components.map(String) : []);
+    if (!changed.size) {
+      return;
+    }
+    if (changed.has("corpus")) {
+      await refreshViewer("POST", { silent: true });
+      return;
+    }
+    if (changed.has("git") && activeDocumentTitle() === "Remote") {
+      await showGitStatus({ silent: true, preserve: true });
+      return;
+    }
+    if (changed.has("ci") && activeDocumentTitle() === "CI runs") {
+      await showCiStatus({ silent: true });
+      return;
+    }
+    if (changed.has("cdx")) {
+      const title = activeDocumentTitle();
+      if (title === "CDX status") {
+        await showCdxStatus({ silent: true });
+        return;
+      }
+      if (title === "CDX reports") {
+        await showCdxRuns({ silent: true });
+        return;
+      }
+      if (title === "CDX history") {
+        await showCdxHistory({ silent: true });
+        return;
+      }
+    }
+    await refreshBadgeCounters();
+  }
+
+  function startViewerEvents() {
+    if (viewerEventsStarted || typeof window.EventSource !== "function") {
+      return;
+    }
+    viewerEventsStarted = true;
+    try {
+      viewerEventsSource = new EventSource("/api/events");
+      viewerEventsSource.addEventListener("changed", (event) => {
+        try {
+          const payload = JSON.parse(event.data || "{}");
+          handleViewerEventChange(payload.components).catch(() => {});
+        } catch {
+          // Ignore malformed event payloads; polling remains active.
+        }
+      });
+      viewerEventsSource.onerror = () => {
+        if (viewerEventsSource && typeof viewerEventsSource.close === "function") {
+          viewerEventsSource.close();
+        }
+        viewerEventsSource = null;
+        viewerEventsStarted = false;
+        scheduleNextAutoRefresh();
+      };
+    } catch {
+      viewerEventsSource = null;
+      viewerEventsStarted = false;
     }
   }
 
@@ -7685,7 +7755,7 @@
           return;
         }
         if (message.type === "ready") {
-          loadItems().catch((error) => setMeta(error.message));
+          loadItems().then(() => startViewerEvents()).catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "refresh") {

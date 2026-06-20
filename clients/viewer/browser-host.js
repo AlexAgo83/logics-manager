@@ -427,7 +427,7 @@
   let latestCdxStatusSignature = "";
   let latestCdxStatusPayload = null;
   let latestCiStatusSignature = "";
-  let latestCiScreenMode = "runs";
+  let latestCiScreenMode = "git";
   let currentDocumentItem = null;
   let primaryActionBusyKey = "";
   let primaryActionController = null;
@@ -620,7 +620,6 @@
       "#viewer-insights",
       "#viewer-health",
       "#viewer-workshop",
-      "#viewer-git",
       "#viewer-ci",
       "#viewer-cdx",
       "#viewer-repo-folder",
@@ -1213,23 +1212,19 @@
       hydrateWorkshopTerminals();
     }
 
-    const gitButton = document.getElementById("viewer-git");
-    if (gitButton instanceof HTMLElement) {
-      gitButton.hidden = !isCapabilityAvailable("git");
-      if (isCapabilityAvailable("git")) {
-        setButtonAvailable(gitButton, "Show Git status");
+    // Git and CI now share a single "Git / CI" button (Git is the first
+    // section of the merged screen, before CI runs and Release). The button
+    // is reachable whenever either capability is available; the git counters
+    // and the CI status badge are both rendered onto it.
+    const gitCi = ciButton();
+    if (gitCi instanceof HTMLElement) {
+      const gitAvailable = isCapabilityAvailable("git");
+      const ciAvailable = isCapabilityAvailable("ci");
+      gitCi.hidden = !(gitAvailable || ciAvailable);
+      if (gitAvailable || ciAvailable) {
+        setButtonAvailable(gitCi, "Show Git status, CI runs, and release state");
       } else {
-        setButtonUnavailable(gitButton, capabilityMessage("git", "Git is not available for this project."));
-      }
-    }
-
-    const ci = ciButton();
-    if (ci instanceof HTMLElement) {
-      ci.hidden = !isCapabilityAvailable("ci");
-      if (isCapabilityAvailable("ci")) {
-        setButtonAvailable(ci, "Show GitHub Actions CI status");
-      } else {
-        setButtonUnavailable(ci, capabilityMessage("ci", "CI is not available for this project."));
+        setButtonUnavailable(gitCi, capabilityMessage("git", "Git and CI are not available for this project."));
       }
     }
 
@@ -1359,14 +1354,22 @@
   }
 
   function updateMainGitBadges() {
-    const button = document.getElementById("viewer-git");
+    // Git shares the merged "Git / CI" button with CI; the git counters render
+    // alongside the CI status badge (each owns its own data-attr container).
+    const button = ciButton();
     if (!(button instanceof HTMLElement)) {
       return;
     }
     button.querySelector('[data-viewer-git-badges="main"]')?.remove();
     const html = gitBadgeHtml("main");
     if (html) {
-      button.insertAdjacentHTML("beforeend", html);
+      // Insert git counters before the CI status badge so order stays stable.
+      const ciBadge = button.querySelector("[data-viewer-ci-badge]");
+      if (ciBadge) {
+        ciBadge.insertAdjacentHTML("beforebegin", html);
+      } else {
+        button.insertAdjacentHTML("beforeend", html);
+      }
     }
   }
 
@@ -1423,13 +1426,15 @@
     if (!(button instanceof HTMLElement)) {
       return;
     }
+    // Only manage the CI status badge here. Button visibility now belongs to
+    // updateCapabilityControls (git OR ci available), since the button is
+    // shared with Git and must stay visible when only git is available.
     button.querySelector("[data-viewer-ci-badge]")?.remove();
     if (!latestCiStatus.visible) {
-      button.hidden = true;
       return;
     }
-    button.hidden = false;
-    button.title = latestCiStatus.message || "Show GitHub Actions CI status";
+    // Surface the latest CI message in the shared button tooltip when CI is live.
+    button.title = latestCiStatus.message || "Show Git status, CI runs, and release state";
     button.insertAdjacentHTML("beforeend", renderCiButtonBadge(latestCiStatus));
   }
 
@@ -1746,6 +1751,7 @@
     const title = String(titleText || "").trim();
     if (!title) return "";
     const exact = {
+      "Git / CI": "Git status, CI runs, and release gates",
       "Workshop": "Terminals, commands, and file explorer",
       "Validation health": "Lint and audit summary",
       "Corpus insights": "Workflow corpus dashboard",
@@ -1765,7 +1771,7 @@
   }
 
   function updateScreenActions(titleText) {
-    const isGit = titleText === "Git status";
+    const isGit = titleText === "Git / CI" && latestCiScreenMode === "git";
     const pull = document.getElementById("viewer-git-pull");
     const push = document.getElementById("viewer-git-push");
     const status = documentStatusButton();
@@ -2092,10 +2098,12 @@
     }
   }
 
-  function isGitStatusOpen() {
+  // Git and CI render into a single merged screen titled "Git / CI"; the
+  // active section (git / runs / release) is tracked by latestCiScreenMode.
+  function isGitCiScreenOpen() {
     const panel = documentPanel();
     const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "Git status");
+    return Boolean(panel && !panel.hidden && title && title.textContent === "Git / CI");
   }
 
   function isWorkspaceOpen() {
@@ -2122,25 +2130,19 @@
     return Boolean(panel && !panel.hidden && title && title.textContent === "CDX missions");
   }
 
-  function isCiStatusOpen() {
-    const panel = documentPanel();
-    const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "CI status");
-  }
-
   async function refreshViewer(method = "POST", options = {}) {
     const changed = await loadItems(method, options);
     if (isWorkspaceOpen()) {
       if (changed || options.force) {
         await showWorkspace({ silent: Boolean(options.silent) });
       }
-    } else if (isGitStatusOpen()) {
-      await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
-    } else if (isCiStatusOpen()) {
+    } else if (isGitCiScreenOpen()) {
       if (latestCiScreenMode === "release") {
         await showReleaseStatus({ silent: Boolean(options.silent), force: Boolean(options.force) });
-      } else {
+      } else if (latestCiScreenMode === "runs") {
         await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
+      } else {
+        await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
       }
     } else if (isCdxStatusOpen()) {
       await showCdxStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
@@ -2165,10 +2167,11 @@
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX runs") return showCdxRuns(opts);
-    if (screen === "CI status") {
-      return latestCiScreenMode === "release" ? showReleaseStatus(opts) : showCiStatus(opts);
+    if (screen === "Git / CI") {
+      if (latestCiScreenMode === "release") return showReleaseStatus(opts);
+      if (latestCiScreenMode === "runs") return showCiStatus(opts);
+      return showGitStatus({ preserve: true, ...opts });
     }
-    if (screen === "Git status") return showGitStatus({ preserve: true, ...opts });
     if (screen === "Workshop") {
       // For mounted terminals, Refresh should redraw in place (SIGWINCH nudge)
       // rather than tear down and replay the whole server buffer.
@@ -5933,8 +5936,9 @@
 
   function renderCiModeSwitcher(active) {
     return `
-      <div class="viewer-cdx__modes viewer-ci__modes" role="tablist" aria-label="CI views">
-        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-ci-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Runs</button>
+      <div class="viewer-cdx__modes viewer-ci__modes" role="tablist" aria-label="Git and CI views">
+        <button class="viewer-cdx__mode${active === "git" ? " is-active" : ""}" type="button" data-viewer-ci-mode="git" aria-selected="${active === "git" ? "true" : "false"}">Git</button>
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-ci-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">CI</button>
         <button class="viewer-cdx__mode${active === "release" ? " is-active" : ""}" type="button" data-viewer-ci-mode="release" aria-selected="${active === "release" ? "true" : "false"}">Release</button>
       </div>
     `;
@@ -6131,7 +6135,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load release workflow state.");
     }
-    setDocument("CI status", renderReleaseStatus(data.payload));
+    setDocument("Git / CI", renderReleaseStatus(data.payload));
     const state = data.payload?.state || "unknown";
     const button = ciButton();
     if (button instanceof HTMLElement) {
@@ -6144,7 +6148,7 @@
     latestCiScreenMode = "runs";
     if (!isCapabilityAvailable("ci")) {
       const message = capabilityMessage("ci", "CI is not available for this project.");
-      setDocument("CI status", renderCiStatus({ visible: false, state: capability("ci").state, message }));
+      setDocument("Git / CI", renderCiStatus({ visible: false, state: capability("ci").state, message }));
       setMeta(message);
       return;
     }
@@ -6171,7 +6175,7 @@
       return;
     }
     if (response.status === 404) {
-      setDocument("CI status", renderCiStatus({
+      setDocument("Git / CI", renderCiStatus({
         visible: true,
         state: "unavailable",
         badgeState: "unavailable",
@@ -6193,7 +6197,7 @@
     }
     latestCiStatusSignature = nextCiSignature;
     updateMainCiBadge(data.payload);
-    setDocument("CI status", renderCiStatus(data.payload));
+    setDocument("Git / CI", renderCiStatus(data.payload));
     setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
   }
 
@@ -6201,6 +6205,7 @@
     if (!payload || payload.state !== "ok") {
       return `
         <div class="viewer-git">
+          ${renderCiModeSwitcher("git")}
           <div class="viewer-git__state">${escapeHtml(payload?.message || "Git status is unavailable.")}</div>
         </div>
       `;
@@ -6316,6 +6321,7 @@
     `;
     return `
       <div class="viewer-git">
+        ${renderCiModeSwitcher("git")}
         <div class="viewer-git__summary">${cards}</div>
         <div class="viewer-git__workspace has-diff-detail">
           <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
@@ -6489,11 +6495,21 @@
     )) || null;
   }
 
+  // Entry point for the merged "Git / CI" button. Git is the first section, so
+  // open it by default; fall back to CI runs when git isn't available.
+  async function showGitCiScreen(options = {}) {
+    if (isCapabilityAvailable("git")) {
+      return showGitStatus(options);
+    }
+    return showCiStatus(options);
+  }
+
   async function showGitStatus(options = {}) {
+    latestCiScreenMode = "git";
     const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
     if (!isCapabilityAvailable("git")) {
       const message = capabilityMessage("git", "Git is not available for this project.");
-      setDocument("Git status", renderGitStatus({ state: capability("git").state, message }));
+      setDocument("Git / CI", renderGitStatus({ state: capability("git").state, message }));
       setMeta(message);
       return;
     }
@@ -6520,7 +6536,7 @@
       return;
     }
     if (response.status === 404) {
-      setDocument("Git status", renderGitStatus({
+      setDocument("Git / CI", renderGitStatus({
         state: "unavailable",
         message: "Git status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
       }));
@@ -6542,7 +6558,7 @@
     latestGitStatusSignature = nextGitSignature;
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
     updateMainGitBadges();
-    setDocument("Git status", renderGitStatus(data.payload));
+    setDocument("Git / CI", renderGitStatus(data.payload));
     applyGitDomain(previous.domain || "changes");
     const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
     const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
@@ -6666,11 +6682,8 @@
     document.getElementById("viewer-workshop")?.addEventListener("click", () => {
       withPrimaryAction("workshop", "Opening Workshop", () => showWorkshop());
     });
-    document.getElementById("viewer-git")?.addEventListener("click", () => {
-      withPrimaryAction("git", "Checking Git status", showGitStatus);
-    });
     ciButton()?.addEventListener("click", () => {
-      withPrimaryAction("ci", "Checking CI status", showCiStatus);
+      withPrimaryAction("git-ci", "Opening Git / CI", showGitCiScreen);
     });
     document.getElementById("viewer-cdx")?.addEventListener("click", () => {
       withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
@@ -6828,11 +6841,13 @@
         return;
       }
       if (ciModeTarget instanceof HTMLElement) {
-        const mode = ciModeTarget.getAttribute("data-viewer-ci-mode") || "runs";
+        const mode = ciModeTarget.getAttribute("data-viewer-ci-mode") || "git";
         if (mode === "release") {
           withPrimaryAction("ci-release", "Checking release workflow", showReleaseStatus);
-        } else {
+        } else if (mode === "runs") {
           withPrimaryAction("ci-runs", "Checking CI status", showCiStatus);
+        } else {
+          withPrimaryAction("ci-git", "Checking Git status", () => showGitStatus());
         }
         return;
       }

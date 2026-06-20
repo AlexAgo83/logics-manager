@@ -63,9 +63,8 @@ function createViewerDom(options: {
       <button id="viewer-lan-banner-pair" type="button" hidden>Pair this device</button>
       <span id="viewer-lan-banner-paired" hidden></span>
     </div>
-    <button id="viewer-git" type="button">Git</button>
     <button id="viewer-workshop" type="button" hidden>Workshop</button>
-    <button id="viewer-ci" type="button" hidden>CI</button>
+    <button id="viewer-ci" type="button">Git / CI</button>
     <button id="viewer-cdx" type="button">CDX</button>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
@@ -1052,7 +1051,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Workshop", "Git", "CI", "CDX", "Settings"]);
+    expect(labels).toEqual(["Workshop", "Git / CI", "CDX", "Settings"]);
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
@@ -1293,7 +1292,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -1398,7 +1397,7 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/switch-project");
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("cdx-manager");
-    expect(dom.window.document.getElementById("viewer-git")?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("viewer-ci")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
@@ -1959,12 +1958,12 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
     dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
 
     expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
     expect(calls.filter((call) => call === "/api/git-status")).toHaveLength(gitCallsBefore);
-    expect((dom.window.document.getElementById("viewer-git") as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect((dom.window.document.getElementById("viewer-ci") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.body.getAttribute("data-viewer-busy-action")).toBe("refresh");
 
     resolveRefresh();
@@ -2110,14 +2109,14 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/git-status");
     expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
     expect(content?.textContent).toContain("Branch");
     expect(content?.textContent).toContain("main");
     expect(content?.textContent).toContain("Ahead / Behind");
@@ -2187,7 +2186,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2231,7 +2230,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -2274,7 +2273,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const visibleCommitRows = () => Array.from(dom.window.document.querySelectorAll(".viewer-git__commit-row"))
@@ -2327,7 +2326,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const historyDomain = dom.window.document.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
@@ -2424,7 +2423,7 @@ describe("local viewer browser host", () => {
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/release-status");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CI status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
     expect(content?.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
     expect(content?.textContent).toContain("blocked");
     expect(content?.textContent).toContain("1.2.3");
@@ -2474,10 +2473,13 @@ describe("local viewer browser host", () => {
 
     ciButton?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(calls).toContain("/api/ci-status");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CI status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
     expect(content).toContain("Current HEAD running");
     expect(content).toContain("in_progress");
     expect(content).toContain("Update release notes");
@@ -2521,6 +2523,9 @@ describe("local viewer browser host", () => {
     expect(ciButton?.querySelector("[data-viewer-ci-badge]")?.textContent).toBe("fail");
 
     ciButton?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
@@ -3162,19 +3167,19 @@ describe("local viewer browser host", () => {
     expect(text).toContain("CDX mission is running");
     expect(text).toContain("Still running");
     expect(text).toContain("pending");
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls.filter((call) => call === "/api/cdx-mission-run")).toHaveLength(1);
     expect(missionRun?.disabled).toBe(true);
-    expect((dom.window.document.getElementById("viewer-git") as HTMLButtonElement | null)?.disabled).toBe(false);
+    expect((dom.window.document.getElementById("viewer-ci") as HTMLButtonElement | null)?.disabled).toBe(false);
     expect(calls).toContain("/api/git-status");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
 
     releaseRun();
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
   });
 
   it("disables CDX status without calling the endpoint when CDX is unavailable", async () => {
@@ -3520,7 +3525,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const gitButton = dom.window.document.getElementById("viewer-git");
+    const gitButton = dom.window.document.getElementById("viewer-ci");
     expect(calls).toContain("/api/git-status");
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
@@ -3562,7 +3567,7 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const gitButton = dom.window.document.getElementById("viewer-git");
+    const gitButton = dom.window.document.getElementById("viewer-ci");
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("2");
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
 
@@ -3604,7 +3609,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -3653,7 +3658,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     const gitCallsBeforeRefresh = calls.filter((call) => call === "/api/git-status").length;
@@ -3666,7 +3671,7 @@ describe("local viewer browser host", () => {
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls.filter((call) => call === "/api/git-status").length).toBeGreaterThan(gitCallsBeforeRefresh);
     expect(calls).toContain("/api/refresh");
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
     expect(content?.textContent).toContain("feature/git-refresh");
     expect(content?.textContent).toContain("Refreshed commit");
   });
@@ -3679,10 +3684,10 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.getElementById("viewer-git")?.dispatchEvent(new dom.window.Event("click"));
+    dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git status");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Git / CI");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Restart the local viewer");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Restart the local viewer");
   });

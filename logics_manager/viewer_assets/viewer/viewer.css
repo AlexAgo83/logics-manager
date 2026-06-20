@@ -2574,6 +2574,18 @@
   font-size: 12px;
 }
 
+.viewer-cdx__field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.viewer-cdx__field-row .viewer-cdx__field {
+  margin-bottom: 0;
+}
+
 .viewer-cdx__field select,
 .viewer-cdx__field input,
 .viewer-cdx__field textarea {
@@ -3543,7 +3555,14 @@
 
 .viewer-cdx__mission-config {
   display: inline-block;
-  margin-bottom: 10px;
+  align-self: end;
+  margin-bottom: 0;
+}
+
+.viewer-cdx__mission-config > summary {
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
 }
 
 .viewer-cdx__mission-config-panel {

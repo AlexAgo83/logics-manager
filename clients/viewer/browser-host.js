@@ -5274,7 +5274,9 @@
     const optionRows = (selected) => levels.map((level) => `<option value="${escapeHtml(level)}"${level === selected ? " selected" : ""}>${escapeHtml(cdxLabel(level))}</option>`).join("");
     return `
       <details class="viewer-cdx__menu viewer-cdx__mission-config">
-        <summary class="viewer-cdx__icon-button" title="Configure CDX model and reasoning">Config</summary>
+        <summary class="viewer-cdx__icon-button" title="Configure CDX model and reasoning" aria-label="Configure CDX model and reasoning">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </summary>
         <div class="viewer-cdx__menu-panel viewer-cdx__menu-panel--wide viewer-cdx__mission-config-panel" role="menu" aria-label="CDX mission configuration">
           <label class="viewer-cdx__field">
             <span>Model</span>
@@ -5461,11 +5463,13 @@
           </section>
           <section class="viewer-cdx__section">
             <h2 class="viewer-cdx__heading">Execution</h2>
-            <label class="viewer-cdx__field">
-              <span>Session</span>
-              <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
-            </label>
-            ${renderCdxMissionConfigMenu(selectedSessionItem, selectedStrength)}
+            <div class="viewer-cdx__field-row viewer-cdx__field-row--session">
+              <label class="viewer-cdx__field">
+                <span>Session</span>
+                <select data-viewer-cdx-session>${sessionOptions || '<option value="">No session reported</option>'}</select>
+              </label>
+              ${renderCdxMissionConfigMenu(selectedSessionItem, selectedStrength)}
+            </div>
             ${fileWriteControl}
             ${renderCdxMissionInputs(selectedMission)}
             <label class="viewer-cdx__field">

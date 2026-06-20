@@ -5753,14 +5753,15 @@
     if (plan.sessionId) {
       latestCdxMissionState.sessionId = plan.sessionId;
     }
-    // `cdx run` is a one-shot batch command: --json is mandatory and it only
-    // prints its result once the run finishes, so a bare PTY launch shows a
-    // black screen for the whole run. Keep the plan command intact (incl.
-    // --json) but wrap it in a tiny shell that prints a notice first. `exec
-    // "$@"` forwards the original argv verbatim, preserving the multi-line
-    // prompt without any re-quoting.
-    const noticeScript = 'printf "%s\\n\\n" "CDX mission running — one-shot batch run; the JSON result prints here once it completes (timeout-bounded)."; exec "$@"';
-    const terminalCommand = ["/bin/sh", "-c", noticeScript, "cdx-mission", ...plan.command];
+    // Run the mission live (non-headless): drop `--json` so `cdx run` streams
+    // its progress into the PTY instead of staying black until it prints a
+    // single final JSON blob. The structured result is still tracked
+    // server-side and surfaced in the Runs tab. `exec "$@"` forwards the
+    // original argv verbatim, preserving the multi-line prompt without any
+    // re-quoting.
+    const liveCommand = plan.command.filter((arg) => arg !== "--json");
+    const noticeScript = 'printf "%s\\n\\n" "CDX mission running live — progress streams here; the final result is tracked in the Runs tab (timeout-bounded)."; exec "$@"';
+    const terminalCommand = ["/bin/sh", "-c", noticeScript, "cdx-mission", ...liveCommand];
     const terminalId = await spawnWorkshopTerminal({
       command: terminalCommand,
       label: `cdx mission ${plan.missionId || latestCdxMissionState.missionId}`
@@ -5769,7 +5770,7 @@
     latestCdxMissionState.runPayload = {
       state: launched ? "terminal" : "error",
       message: launched
-        ? "Mission launched in a Workshop terminal. Track its result and run id from the Runs tab once it completes."
+        ? "Mission launched live in a Workshop terminal. Watch its progress there; the result and run id appear in the Runs tab once it completes."
         : "Unable to start a Workshop terminal for this mission.",
       plan,
       run: null

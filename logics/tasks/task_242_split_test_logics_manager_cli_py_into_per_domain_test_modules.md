@@ -1,18 +1,18 @@
 ## task_242_split_test_logics_manager_cli_py_into_per_domain_test_modules - Split test_logics_manager_cli.py into per-domain test modules
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_452_split_test_logics_manager_cli_py_into_per_domain_test_modules`
@@ -26,9 +26,15 @@
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_242_split_test_logics_manager_cli_py_into_per_domain_test_modules.md` after implementation.
+- command: `python3 -m pytest tests/python/ -q` | result: passed | date: 2026-06-20 | note: 354 passed, same collection after split
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_452_split_test_logics_manager_cli_py_into_per_domain_test_modules`
+- Related request(s): `req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules`
 
 # AI Context
 - Summary: Implement split test_logics_manager_cli.py into per-domain test modules.
@@ -40,3 +46,9 @@
 - Request: `req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: Split into per-domain modules in commit 9479a53; conftest holds shared fixtures; pytest 354 passed before and after
+- request-AC2 -> This task. Proof: Split into per-domain modules in commit 9479a53; conftest holds shared fixtures; pytest 354 passed before and after
+- request-AC3 -> This task. Proof: Split into per-domain modules in commit 9479a53; conftest holds shared fixtures; pytest 354 passed before and after
+- request-AC4 -> This task. Proof: Split into per-domain modules in commit 9479a53; conftest holds shared fixtures; pytest 354 passed before and after

@@ -35,12 +35,18 @@ class UpdateInfo:
         }
 
 
-def _parse_version(value: str | None) -> tuple[int, int, int, str]:
+def _parse_version(value: str | None) -> tuple[tuple[int, ...], tuple[int | str, ...]]:
     raw = (value or "").strip().lstrip("v")
-    parts = raw.split(".", 3)
+    raw = raw.split("+", 1)[0]
+    core, prerelease = raw, ""
+    if "-" in raw:
+        core, prerelease = raw.split("-", 1)
     numeric: list[int] = []
-    suffix = ""
-    for index, part in enumerate(parts[:3]):
+    prerelease_parts: list[int | str] = []
+    for part in core.split("."):
+        if not part:
+            numeric.append(0)
+            continue
         digits = ""
         rest = ""
         for char in part:
@@ -50,17 +56,45 @@ def _parse_version(value: str | None) -> tuple[int, int, int, str]:
                 rest += char
         numeric.append(int(digits or "0"))
         if rest:
-            suffix = ".".join([rest, *parts[index + 1 :]])
-            break
-    while len(numeric) < 3:
-        numeric.append(0)
-    return numeric[0], numeric[1], numeric[2], suffix
+            prerelease = f"{rest}.{prerelease}" if prerelease else rest
+    while numeric and numeric[-1] == 0:
+        numeric.pop()
+    for part in prerelease.split("."):
+        if not part:
+            continue
+        prerelease_parts.append(int(part) if part.isdigit() else part.lower())
+    return tuple(numeric), tuple(prerelease_parts)
+
+
+def _compare_prerelease(left: tuple[int | str, ...], right: tuple[int | str, ...]) -> int:
+    if not left and not right:
+        return 0
+    if not left:
+        return 1
+    if not right:
+        return -1
+    for left_part, right_part in zip(left, right):
+        if left_part == right_part:
+            continue
+        if isinstance(left_part, int) and isinstance(right_part, str):
+            return -1
+        if isinstance(left_part, str) and isinstance(right_part, int):
+            return 1
+        return 1 if left_part > right_part else -1
+    if len(left) == len(right):
+        return 0
+    return 1 if len(left) > len(right) else -1
 
 
 def is_newer_version(latest: str | None, current: str | None) -> bool:
-    latest_tuple = _parse_version(latest)
-    current_tuple = _parse_version(current)
-    return latest_tuple[:3] > current_tuple[:3]
+    latest_numeric, latest_prerelease = _parse_version(latest)
+    current_numeric, current_prerelease = _parse_version(current)
+    width = max(len(latest_numeric), len(current_numeric))
+    latest_padded = latest_numeric + (0,) * (width - len(latest_numeric))
+    current_padded = current_numeric + (0,) * (width - len(current_numeric))
+    if latest_padded != current_padded:
+        return latest_padded > current_padded
+    return _compare_prerelease(latest_prerelease, current_prerelease) > 0
 
 
 def update_cache_path() -> Path:
@@ -115,7 +149,8 @@ def get_update_info(
     latest = str(cached.get("latest_version") or "") if cached else ""
     if not latest:
         latest = (fetch_latest or fetch_latest_npm_version)() or ""
-        _write_cache(path, {"checked_at": now_value, "latest_version": latest})
+        if latest:
+            _write_cache(path, {"checked_at": now_value, "latest_version": latest})
     return UpdateInfo(
         current_version=current_version,
         latest_version=latest or None,

@@ -83,8 +83,8 @@ function createViewerDom(options: {
       <button id="viewer-cdx" type="button">CDX</button>
       <div class="viewer-nav-menu__panel" role="menu">
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:status">Status</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Runs</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Runs</button>
       </div>
     </div>
     <button id="viewer-insights" type="button">Insights</button>

@@ -827,6 +827,36 @@
   gap: 5px;
 }
 
+.viewer-cdx__mission-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  padding: 10px;
+  background: var(--vscode-input-background, #1f1f1f);
+}
+
+.viewer-cdx__mission-summary > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.viewer-cdx__mission-summary strong {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 13px;
+}
+
+.viewer-cdx__mission-summary span,
+.viewer-cdx__mission-summary em {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
 .viewer-git__summary,
 .viewer-cdx__summary,
 .viewer-ci__summary,
@@ -2534,38 +2564,6 @@
   background: var(--vscode-textCodeBlock-background, #111111);
   color: var(--vscode-textPreformat-foreground, #d7ba7d);
   overflow-wrap: anywhere;
-}
-
-.viewer-cdx__missions {
-  display: grid;
-  gap: 8px;
-}
-
-.viewer-cdx__mission {
-  display: grid;
-  gap: 5px;
-  width: 100%;
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 6px;
-  background: var(--vscode-input-background, #1f1f1f);
-  color: var(--vscode-foreground, #d4d4d4);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.viewer-cdx__mission.is-active {
-  border-color: var(--vscode-focusBorder, #4ea1ff);
-  background: color-mix(in srgb, var(--vscode-input-background, #1f1f1f) 72%, var(--vscode-textLink-foreground, #4ea1ff));
-}
-
-.viewer-cdx__mission span,
-.viewer-cdx__mission em {
-  color: var(--vscode-descriptionForeground, #aaaaaa);
-  font-size: 12px;
-  font-style: normal;
 }
 
 .viewer-cdx__field {

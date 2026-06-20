@@ -1125,6 +1125,8 @@ describe("local viewer browser host", () => {
     expect(css).not.toMatch(/\.viewer-code__body/);
     expect(css).toMatch(/\.viewer-code__row\s*\{[^}]*grid-template-columns: max-content minmax\(max-content, 1fr\);/s);
     expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*position: sticky;/s);
+    expect(css).toMatch(/\.viewer-code__line\s*\{[^}]*white-space: pre;/s);
+    expect(css).toMatch(/\.viewer-code__line code\s*\{[^}]*padding: 0;/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
@@ -1632,6 +1634,8 @@ describe("local viewer browser host", () => {
     expect(rows[1]?.querySelector(".viewer-code__line-number")?.textContent).toBe("2");
     expect(rows[1]?.querySelector(".viewer-code__line")?.textContent).toContain("print('two')");
     expect(explorer.querySelector(".viewer-code__gutter")).toBeNull();
+    expect(explorer.querySelector("pre.viewer-code__scroll")).toBeNull();
+    expect(explorer.querySelector("code.hljs")).toBeNull();
     expect(explorer.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
     expect(explorer.querySelector("[data-viewer-workspace-preview-full]")).toBeNull();
 
@@ -2467,6 +2471,8 @@ describe("local viewer browser host", () => {
     expect(rows[1]?.querySelector(".viewer-code__line-number")?.textContent).toBe("2");
     expect(rows[1]?.querySelector(".viewer-code__line")?.textContent).toContain("Preview body");
     expect(content?.querySelector(".viewer-code__gutter")).toBeNull();
+    expect(content?.querySelector("pre.viewer-code__scroll")).toBeNull();
+    expect(content?.querySelector("code.hljs")).toBeNull();
     expect(content?.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
     expect(content?.querySelector(".viewer-code__flag")?.textContent).toContain("truncated");
     content?.querySelector("[data-viewer-git-preview-full]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

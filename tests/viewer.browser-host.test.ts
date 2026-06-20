@@ -1609,7 +1609,8 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(cdxWrapper?.classList.contains("is-open")).toBe(true);
     expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"] [data-viewer-menu-badges]')?.textContent).toContain("1");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-menu-badges]')?.textContent).toContain("1");
+    // The running run now surfaces on the Missions sub-item, not on Reports.
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-menu-badges]')?.textContent).toContain("!");
 
     // Workshop → Explorer jumps straight to the Explorer sub-tab.
     dom.window.document.querySelector('[data-viewer-nav-target="workshop:explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -2936,7 +2937,8 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')).toBeNull();
   });
 
-  it("adds active runs to the CDX topbar badge", async () => {
+  it("counts active sessions on the CDX badge and running runs on the Missions badge", async () => {
+    // Default fixture: 1 active session + 1 running run (run-1).
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -2945,10 +2947,15 @@ describe("local viewer browser host", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
+    // Activity badge now counts sessions only — running runs are no longer
+    // double-counted here.
     const badge = dom.window.document.querySelector("[data-viewer-cdx-badge]");
-    expect(badge?.textContent).toBe("2");
-    expect(badge?.className).toContain("viewer-cdx-button-badge--runs");
-    expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.title).toContain("1 running run");
+    expect(badge?.textContent).toBe("1");
+    expect(badge?.className).not.toContain("viewer-cdx-button-badge--runs");
+    expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.title).toContain("1 active session");
+
+    // The running run surfaces through the Missions gauge instead.
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
   });
 
   it("counts Missions as running runs and Reports/History as new entries since seen", async () => {

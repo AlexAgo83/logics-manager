@@ -3323,9 +3323,13 @@ describe("local viewer browser host", () => {
     expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
     expect(text).toContain("Ready");
+    let outputPanel = dom.window.document.querySelector(".viewer-cdx__output-panel");
+    expect(outputPanel?.textContent).toContain("cdx run session-1 --cwd /workspace/logics-manager");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-mission-output="plan"]')?.classList.contains("is-active")).toBe(true);
 
     // Run defaults to terminal mode now; select the background runner explicitly.
     const corpusRunMode = dom.window.document.querySelector('[data-viewer-cdx-run-mode]') as HTMLSelectElement | null;
+    expect(Array.from(corpusRunMode?.options || []).find((option) => option.value === "background")?.textContent).toBe("Background runner (Experimental)");
     if (corpusRunMode) {
       corpusRunMode.value = "background";
       corpusRunMode.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
@@ -3339,6 +3343,16 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Succeeded");
     expect(text).toContain("140 total");
     expect(text).toContain("Refresh Corpus Context");
+    outputPanel = dom.window.document.querySelector(".viewer-cdx__output-panel");
+    expect(outputPanel?.textContent).toContain("run-42");
+    expect(outputPanel?.textContent).not.toContain("cdx run session-1 --cwd /workspace/logics-manager");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-mission-output="run"]')?.classList.contains("is-active")).toBe(true);
+
+    dom.window.document.querySelector('[data-viewer-cdx-mission-output="plan"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    outputPanel = dom.window.document.querySelector(".viewer-cdx__output-panel");
+    expect(outputPanel?.textContent).toContain("cdx run session-1 --cwd /workspace/logics-manager");
+    expect(outputPanel?.textContent).not.toContain("run-42");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-mission-output="plan"]')?.classList.contains("is-active")).toBe(true);
 
     dom.window.document.querySelector('[data-viewer-cdx-apply-plan]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));

@@ -49,9 +49,30 @@
       <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
     </div>
     <div class="viewer-topbar__actions">
-      <button class="btn" id="viewer-workshop" type="button" title="Show Workshop (terminals, commands, explorer)" hidden>Workshop</button>
-      <button class="btn" id="viewer-ci" type="button" title="Show Git status, CI runs, and release state">Remote</button>
-      <button class="btn" id="viewer-cdx" type="button" title="Show CDX status">CDX</button>
+      <div class="viewer-nav-menu" data-viewer-nav="workshop">
+        <button class="btn" id="viewer-workshop" type="button" title="Show Workshop (terminals, commands, explorer)" aria-haspopup="menu" hidden>Workshop</button>
+        <div class="viewer-nav-menu__panel" role="menu" aria-label="Workshop sections">
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:terminals">Terminals</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:commands">Commands</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:explorer">Explorer</button>
+        </div>
+      </div>
+      <div class="viewer-nav-menu" data-viewer-nav="remote">
+        <button class="btn" id="viewer-ci" type="button" title="Show Git status, CI runs, and release state" aria-haspopup="menu">Remote</button>
+        <div class="viewer-nav-menu__panel" role="menu" aria-label="Remote sections">
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="remote:git">Git</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="remote:runs">CI</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="remote:release">Release</button>
+        </div>
+      </div>
+      <div class="viewer-nav-menu" data-viewer-nav="cdx">
+        <button class="btn" id="viewer-cdx" type="button" title="Show CDX status" aria-haspopup="menu">CDX</button>
+        <div class="viewer-nav-menu__panel" role="menu" aria-label="CDX sections">
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="cdx:status">Status</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="cdx:runs">Runs</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="cdx:missions">Missions</button>
+        </div>
+      </div>
       <div class="viewer-refresh-menu">
         <button class="btn" id="viewer-refresh-menu-button" type="button" title="Viewer settings" aria-haspopup="menu" aria-expanded="false" aria-controls="viewer-refresh-menu">Settings</button>
         <div class="viewer-refresh-menu__panel" id="viewer-refresh-menu" role="menu" aria-label="Viewer settings" hidden>

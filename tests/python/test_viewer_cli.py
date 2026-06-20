@@ -2350,3 +2350,21 @@ def test_viewer_serves_packaged_static_assets_when_source_clients_are_absent(
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+def test_resolve_viewer_root_falls_back_when_no_logics_corpus(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # With a logics/ corpus, it resolves to that repo root.
+    repo = tmp_path / "withlogics"
+    (repo / "logics").mkdir(parents=True)
+    assert viewer_module._resolve_viewer_root(repo) == repo.resolve()
+
+    # Without logics/ and outside any git repo, it falls back to the start dir
+    # (so the viewer can still launch and offer in-app bootstrap).
+    bare = tmp_path / "bare"
+    bare.mkdir()
+    monkeypatch.setattr(
+        viewer_module.subprocess,
+        "run",
+        lambda *a, **k: (_ for _ in ()).throw(OSError("no git")),
+    )
+    assert viewer_module._resolve_viewer_root(bare) == bare.resolve()

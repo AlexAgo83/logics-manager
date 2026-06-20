@@ -63,9 +63,30 @@ function createViewerDom(options: {
       <button id="viewer-lan-banner-pair" type="button" hidden>Pair this device</button>
       <span id="viewer-lan-banner-paired" hidden></span>
     </div>
-    <button id="viewer-workshop" type="button" hidden>Workshop</button>
-    <button id="viewer-ci" type="button">Remote</button>
-    <button id="viewer-cdx" type="button">CDX</button>
+    <div class="viewer-nav-menu" data-viewer-nav="workshop">
+      <button id="viewer-workshop" type="button" hidden>Workshop</button>
+      <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:terminals">Terminals</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:commands">Commands</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:explorer">Explorer</button>
+      </div>
+    </div>
+    <div class="viewer-nav-menu" data-viewer-nav="remote">
+      <button id="viewer-ci" type="button">Remote</button>
+      <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="remote:git">Git</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="remote:runs">CI</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="remote:release">Release</button>
+      </div>
+    </div>
+    <div class="viewer-nav-menu" data-viewer-nav="cdx">
+      <button id="viewer-cdx" type="button">CDX</button>
+      <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:status">Status</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Runs</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
+      </div>
+    </div>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
@@ -1055,7 +1076,7 @@ describe("local viewer browser host", () => {
   it("orders local viewer topbar actions with Settings on the right", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
-    const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
+    const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-nav-menu > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
     expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
@@ -1474,6 +1495,35 @@ describe("local viewer browser host", () => {
     expect(crumbs[0].getAttribute("data-viewer-workspace-tree")).toBe("");
     expect(crumbs[crumbs.length - 1].classList.contains("is-current")).toBe(true);
     expect(crumbs[crumbs.length - 1].getAttribute("aria-current")).toBe("location");
+  });
+
+  it("opens sub-sections directly from the topbar hover menus", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Workshop → Explorer jumps straight to the Explorer sub-tab.
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
+    expect(dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.classList.contains("is-active")).toBe(true);
+
+    // Remote → Release jumps straight to the release sub-screen.
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:release"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Remote");
+    expect(dom.window.document.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
+
+    // CDX → Runs jumps straight to the runs sub-screen.
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX runs");
   });
 
   it("shows the Workshop topbar entry, persists the active sub-tab, and runs commands", async () => {

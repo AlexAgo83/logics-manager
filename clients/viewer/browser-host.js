@@ -628,6 +628,7 @@
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
+      "[data-viewer-nav-target]",
       "[data-viewer-ci-mode]",
       "[data-viewer-cdx-mode]",
       "[data-viewer-cdx-session-action]",
@@ -6844,6 +6845,34 @@
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
+      const navTarget = event.target instanceof Element ? event.target.closest("[data-viewer-nav-target]") : null;
+      if (navTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const [screen, section] = (navTarget.getAttribute("data-viewer-nav-target") || "").split(":");
+        // Collapse the hover menu after a selection (blur the trigger button).
+        const trigger = navTarget.closest(".viewer-nav-menu")?.querySelector(".btn");
+        if (trigger instanceof HTMLElement) trigger.blur();
+        if (screen === "workshop") {
+          withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }));
+        } else if (screen === "remote") {
+          if (section === "release") {
+            withPrimaryAction("remote-release", "Checking release workflow", showReleaseStatus);
+          } else if (section === "runs") {
+            withPrimaryAction("remote-runs", "Checking CI status", showCiStatus);
+          } else {
+            withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus());
+          }
+        } else if (screen === "cdx") {
+          if (section === "runs") {
+            withPrimaryAction("cdx-runs", "Loading CDX runs", showCdxRuns);
+          } else if (section === "missions") {
+            withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+          } else {
+            withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
+          }
+        }
+        return;
+      }
       if (cdxToggleTarget instanceof HTMLButtonElement) {
         event.preventDefault();
         const sessionName = cdxToggleTarget.getAttribute("data-viewer-cdx-toggle") || "";

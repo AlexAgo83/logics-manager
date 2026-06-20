@@ -179,6 +179,59 @@
   gap: 6px;
 }
 
+/* Per-button hover/focus menu to jump straight to a sub-section. */
+.viewer-nav-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Collapse the wrapper when its trigger button is capability-hidden. */
+.viewer-nav-menu:has(> .btn[hidden]) {
+  display: none;
+}
+
+.viewer-nav-menu > .btn {
+  width: 100%;
+}
+
+.viewer-nav-menu__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+  min-width: max(100%, 140px);
+  padding: 4px;
+  gap: 2px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-menu-background, var(--vscode-editorWidget-background, #202020));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.viewer-nav-menu:hover > .viewer-nav-menu__panel,
+.viewer-nav-menu:focus-within > .viewer-nav-menu__panel {
+  display: flex;
+}
+
+.viewer-nav-menu__item {
+  border: 0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  text-align: left;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  cursor: pointer;
+}
+
+.viewer-nav-menu__item:hover,
+.viewer-nav-menu__item:focus-visible {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+}
+
 .viewer-git-badges {
   display: inline-flex;
   align-items: center;

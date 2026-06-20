@@ -3312,6 +3312,30 @@ def _default_workshop_shell() -> list[str]:
     return ["/bin/sh"]
 
 
+def _derive_cdx_session_name(command: list[str]) -> str:
+    """Best-effort CDX session name for a terminal command, computed server-side.
+
+    Mirrors the client heuristic but uses the launch command (authoritative)
+    rather than re-parsing the rendered label, so a terminal's CDX typing is
+    carried on its own payload and never depends on a separately-fetched status
+    payload (which is null right after a refresh, causing the typing to drop).
+    Mission terminals are addressed by mission id, not a CDX session, so they
+    return no session name.
+    """
+    if len(command) < 2 or command[0].strip().lower() != "cdx":
+        return ""
+    verb = command[1].strip().lower()
+    if verb == "mission":
+        return ""
+    positional = [token for token in command[2:] if token and not token.startswith("-")]
+    if not positional:
+        return ""
+    # `cdx handoff <source> <destination>` runs the destination session.
+    if verb == "handoff":
+        return positional[-1]
+    return positional[0]
+
+
 class WorkshopTerminalSession:
     """Interactive PTY-backed terminal session using stdlib `pty`.
 
@@ -3330,6 +3354,7 @@ class WorkshopTerminalSession:
         self.command = list(command)
         self.cwd = cwd
         self.label = label or (command[0] if command else "shell")
+        self.cdx_session = _derive_cdx_session_name(self.command)
         self.started_at = ""
         self.finished_at = ""
         self.exit_code: int | None = None
@@ -3370,6 +3395,7 @@ class WorkshopTerminalSession:
             return {
                 "id": self.session_id,
                 "label": self.label,
+                "cdxSession": self.cdx_session,
                 "command": list(self.command),
                 "state": self.state,
                 "exitCode": self.exit_code,

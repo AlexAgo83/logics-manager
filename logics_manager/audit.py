@@ -398,6 +398,36 @@ def _doc_has_ac_with_proof(doc: DocMeta, ac_id: str) -> bool:
     return _has_ac_with_proof(doc.text, ac_id)
 
 
+def _ac_traceability_issue(code: str, request: DocMeta, ac_id: str, level: str, *, deferred: bool) -> AuditIssue:
+    """Build an AC traceability finding that is lifecycle-aware.
+
+    Proof (test results) cannot exist before the work is done, so while no
+    linked task is Done the finding is surfaced as a non-blocking, deferred
+    warning. Once a linked task is Done (or at closeout, which enforces proof
+    via its own preflight) the same gap is genuinely blocking.
+    """
+    request_ref = request.path.stem
+    repair = f'python3 -m logics_manager flow validate {request_ref} --apply-fixes --proof "<evidence>"'
+    if deferred:
+        return AuditIssue(
+            code=code,
+            path=request.path,
+            message=(
+                f"`{ac_id}` {level}-level traceability proof is deferred — expected at task "
+                f"closeout; no linked task is Done yet (supply proof then)"
+            ),
+            severity="warning",
+            repair_command=repair,
+        )
+    return AuditIssue(
+        code=code,
+        path=request.path,
+        message=f"`{ac_id}` missing {level}-level traceability with proof",
+        severity="blocking",
+        repair_command=repair,
+    )
+
+
 def _upsert_indicator(lines: list[str], key: str, value: str) -> None:
     pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+)\s*$")
     heading_idx = next((idx for idx, line in enumerate(lines) if line.startswith("## ")), None)
@@ -767,20 +797,21 @@ def audit_payload(
                 issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks"))
                 continue
 
+            any_task_done = any(_is_done(task) for task in linked_tasks)
             for ac_id in ac_ids:
                 item_has_mapping = any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items)
                 if not item_has_mapping:
                     if autofix_ac_traceability and linked_items:
                         autofix_targets.setdefault(linked_items[0].path, set()).add(ac_id)
                     else:
-                        issues.append(AuditIssue(code="ac_missing_item_traceability", path=request.path, message=f"`{ac_id}` missing item-level traceability with proof"))
+                        issues.append(_ac_traceability_issue("ac_missing_item_traceability", request, ac_id, "item", deferred=not any_task_done))
 
                 task_has_mapping = any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks)
                 if not task_has_mapping:
                     if autofix_ac_traceability and linked_tasks:
                         autofix_targets.setdefault(linked_tasks[0].path, set()).add(ac_id)
                     else:
-                        issues.append(AuditIssue(code="ac_missing_task_traceability", path=request.path, message=f"`{ac_id}` missing task-level traceability with proof"))
+                        issues.append(_ac_traceability_issue("ac_missing_task_traceability", request, ac_id, "task", deferred=not any_task_done))
 
     if not skip_gates:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
@@ -853,11 +884,12 @@ def audit_payload(
                 linked_tasks: list[DocMeta] = []
                 for item in linked_items:
                     linked_tasks.extend(_linked_tasks_for_item(item, all_docs))
+                any_task_done = any(_is_done(task) for task in linked_tasks)
                 for ac_id in ac_ids:
                     if linked_items and not any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items):
-                        issues.append(AuditIssue(code="ac_missing_item_traceability", path=request.path, message=f"`{ac_id}` missing item-level traceability with proof"))
+                        issues.append(_ac_traceability_issue("ac_missing_item_traceability", request, ac_id, "item", deferred=not any_task_done))
                     if linked_tasks and not any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks):
-                        issues.append(AuditIssue(code="ac_missing_task_traceability", path=request.path, message=f"`{ac_id}` missing task-level traceability with proof"))
+                        issues.append(_ac_traceability_issue("ac_missing_task_traceability", request, ac_id, "task", deferred=not any_task_done))
 
     if autofix_structure:
         for doc in docs.values():

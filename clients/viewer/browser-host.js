@@ -1740,20 +1740,19 @@
     const signature = cdxSectionSignature(section, payload);
     const isOpen = section === "missions" ? isCdxMissionsOpen() : section === "runs" ? isCdxRunsOpen() : isCdxHistoryOpen();
     if (!signature) return;
-    if (!state.signature) {
-      state.signature = signature;
-      state.seenSignature = signature;
-      state.unread = false;
-      updateCdxUnreadBadges();
-      return;
-    }
-    if (signature !== state.signature && !isOpen && !options.markSeen) {
-      state.unread = true;
-    }
     state.signature = signature;
-    if (isOpen || options.markSeen) {
+    if (isOpen || options.markSeen || !state.seenSignature) {
+      // The user is looking at this section (or it is the first snapshot, so we
+      // have no baseline yet): treat the current state as seen and don't flag.
       state.seenSignature = signature;
       state.unread = false;
+    } else {
+      // "Unread" means "differs from what the user last saw", compared against
+      // seenSignature rather than the previous poll. This prevents the badge
+      // from latching on transient changes (a session that appears then
+      // disappears) and lets it clear itself once the state matches what was
+      // already seen.
+      state.unread = signature !== state.seenSignature;
     }
     updateCdxUnreadBadges();
   }
@@ -7595,6 +7594,7 @@
       if (event.key === "Escape") {
         setRefreshMenuOpen(false);
         closeNavMenus();
+        setProjectMenuOpen(false);
       }
     });
     document.querySelectorAll('[data-action="refresh"]').forEach((element) => {
@@ -7770,6 +7770,14 @@
       // Close any open topbar sub-section menu when clicking outside of it.
       if (!(event.target instanceof Element) || !event.target.closest(".viewer-nav-menu")) {
         closeNavMenus();
+      }
+      // Close the project switcher when clicking anywhere outside the menu and
+      // its toggling pill (the pill click below re-opens it as needed). Without
+      // this the menu never lost focus and stayed open until a project was
+      // picked.
+      if (!(event.target instanceof Element)
+        || (!event.target.closest("#viewer-project-menu") && !event.target.closest("#viewer-repo-pill"))) {
+        setProjectMenuOpen(false);
       }
       const target = event.target instanceof Element ? event.target.closest("[data-viewer-doc-path]") : null;
       const healthTarget = event.target instanceof Element ? event.target.closest("[data-viewer-open-health]") : null;

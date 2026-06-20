@@ -1491,6 +1491,34 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
+  it("closes the project menu when clicking outside it or pressing Escape", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("cdx-manager"); attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    switcher?.click();
+    expect(menu?.hidden).toBe(false);
+
+    // Clicking somewhere outside the menu and its pill closes it.
+    dom.window.document.body.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(menu?.hidden).toBe(true);
+    expect(switcher?.getAttribute("aria-expanded")).toBe("false");
+
+    // Escape also closes an open menu.
+    switcher?.click();
+    expect(menu?.hidden).toBe(false);
+    dom.window.document.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(menu?.hidden).toBe(true);
+    expect(switcher?.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("opens the workspace tree as a Workshop sub-tab and previews selected files", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
@@ -3043,6 +3071,48 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
     expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+  });
+
+  it("clears the CDX Missions unread badge when a transient change reverts to the seen state", async () => {
+    let sessions: unknown[] = [{ id: "session-1", status: "active", title: "Logics work", model: "gpt-5-codex" }];
+    const baseline = [...sessions];
+    const { dom } = createViewerDom({
+      cdxResponseFactory: () => ({
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            message: "",
+            status: {
+              availability: "ready",
+              providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
+              sessions,
+              readiness: { auth: "ready", quota: "ok" }
+            }
+          }
+        }
+      })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+
+    // A transient session appears: the badge flags it as unread.
+    sessions = [...baseline, { id: "session-2", status: "active", title: "Transient", model: "gpt-5-codex" }];
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+
+    // The transient session disappears, returning to the exact state the user
+    // last saw — the badge must clear itself instead of latching on the blip.
+    sessions = [...baseline];
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
   });
 
   it("explains stale CDX runs without blocking report access", async () => {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import json
 import threading
@@ -561,6 +562,36 @@ def test_mcp_file_tools_reject_unapproved_paths(tmp_path: Path) -> None:
             repo_root=repo_root,
         )
     assert exc.value.code == "invalid_path"
+
+
+def test_mcp_file_tools_reject_symlink_directory_escape(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    outside_file = outside / "req_001_escape.md"
+    outside_file.write_text("# Outside\n", encoding="utf-8")
+    link = repo_root / "logics" / "request" / "linked"
+    os.symlink(outside, link)
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("delete_logics_file", {"path": "logics/request/linked/req_001_escape.md"}, repo_root=repo_root)
+    assert exc.value.code == "invalid_path"
+    assert outside_file.exists()
+
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    request_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+    with pytest.raises(McpToolError) as exc:
+        call_tool(
+            "rename_logics_file",
+            {
+                "source_path": "logics/request/req_001_demo.md",
+                "destination_path": "logics/request/linked/req_001_escape.md",
+            },
+            repo_root=repo_root,
+        )
+    assert exc.value.code == "invalid_path"
+    assert request_path.exists()
+    assert outside_file.read_text(encoding="utf-8") == "# Outside\n"
 
 
 def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:

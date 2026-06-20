@@ -427,9 +427,17 @@ def _relative_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...]
         resolved.relative_to(repo_root)
     except ValueError as exc:
         raise McpToolError("invalid_path", "Resolved path escapes the repository root.", details={"path": raw_path}) from exc
-    if resolved.is_symlink():
-        raise McpToolError("invalid_path", "Symlink paths are not accepted.", details={"path": raw_path})
+    current = repo_root
+    for part in normalized.parts:
+        current = current / part
+        if current.exists() and current.is_symlink():
+            raise McpToolError("invalid_path", "Symlink paths are not accepted.", details={"path": raw_path})
     return normalized
+
+
+def _resolved_markdown_file_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...] = ALLOWED_WRITE_DIRS) -> tuple[Path, Path]:
+    rel_path = _markdown_file_path(repo_root, raw_path, allowed_dirs)
+    return rel_path, (repo_root / rel_path).resolve(strict=False)
 
 
 def _markdown_file_path(repo_root: Path, raw_path: str, allowed_dirs: tuple[str, ...] = ALLOWED_WRITE_DIRS) -> Path:
@@ -1011,8 +1019,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
         return _show_git_diff(root, paths)
     if name == "delete_logics_file":
-        rel_path = _markdown_file_path(root, str(args.get("path") or ""))
-        target = root / rel_path
+        rel_path, target = _resolved_markdown_file_path(root, str(args.get("path") or ""))
         dry_run = bool(args.get("dry_run", False))
         if not target.exists():
             raise McpToolError("not_found", "Logics file not found.", details={"path": rel_path.as_posix()})
@@ -1033,10 +1040,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             paths=[rel_path.as_posix()],
         )
     if name == "rename_logics_file":
-        source_rel = _markdown_file_path(root, str(args.get("source_path") or ""))
-        destination_rel = _markdown_file_path(root, str(args.get("destination_path") or ""))
-        source = root / source_rel
-        destination = root / destination_rel
+        source_rel, source = _resolved_markdown_file_path(root, str(args.get("source_path") or ""))
+        destination_rel, destination = _resolved_markdown_file_path(root, str(args.get("destination_path") or ""))
         dry_run = bool(args.get("dry_run", False))
         if source_rel == destination_rel:
             raise McpToolError("invalid_path", "Source and destination paths must differ.", details={"source_path": source_rel.as_posix(), "destination_path": destination_rel.as_posix()})

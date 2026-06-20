@@ -1,10 +1,10 @@
 ## item_460_local_pre_commit_hook_guarding_viewer_assets_sync - Local pre-commit hook guarding viewer_assets sync
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -29,6 +29,7 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 - request-AC1 -> This backlog slice. Proof: AC1: A versioned local git hook runs `check:viewer-assets` on pre-commit and blocks the commit when `clients/viewer/` and `logics_manager/viewer_assets/viewer/` are out of sync, printing the exact remediation command (`npm run sync:viewer-assets`).
 - request-AC3 -> This backlog slice. Proof: AC3: Enabling the hook is one frictionless step (documented `npm run setup-hooks` or auto-wired via `prepare`), opt-in-safe for contributors who do not run it, and changes no existing script behavior.
 - request-AC4 -> This backlog slice. Proof: AC4: No regression — `check:viewer-assets` exits non-zero only on real drift; existing build/test scripts are unaffected.
+- request-AC2 -> This backlog slice. Proof: Implemented in commit a938b2a; npm run check:viewer-assets passes (in sync); pre-commit hook blocks on drift; CI uses --check
 
 # Decision framing
 - Product framing: Not needed
@@ -41,8 +42,8 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md`
-- Primary task(s): (none yet)
+- Request: `req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check`
+- Primary task(s): `task_253_local_pre_commit_hook_guarding_viewer_assets_sync`
 
 # AI Context
 - Summary: Local pre-commit hook guarding viewer_assets sync
@@ -58,6 +59,8 @@ This request adds a frictionless local guard plus a fail-loud CI check so drift 
 - Hybrid rationale: Derived from request `req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md`.
 - Generated locally by logics-manager.
+- Task `task_253_local_pre_commit_hook_guarding_viewer_assets_sync` was finished via `logics-manager flow finish task` on 2026-06-20.
+- Task `task_252_orchestrate_viewer_assets_sync_guard_hook_ci` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_252_orchestrate_viewer_assets_sync_guard_hook_ci`

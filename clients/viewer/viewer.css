@@ -356,9 +356,8 @@
   flex: 0 0 auto;
 }
 
-/* Board/List view-mode toggle rendered as a slider beside the search bar. The
-   shared JS keeps flipping it (data-action="toggle-view-mode") and sets
-   data-current-mode; this CSS turns the button into a slider visual. */
+/* Activity/Project section toggle rendered as a slider beside the search bar.
+   Project still uses the separate board/list mode button in the filter group. */
 .toolbar__view {
   display: inline-flex;
   align-items: center;
@@ -399,13 +398,29 @@
   transition: transform 0.15s ease;
 }
 
-.toolbar__view-slider[data-current-mode="list"]::after {
+.toolbar__view-slider[data-current-mode="project"]::after {
   transform: translateX(20px);
 }
 
 .toolbar__view-slider:focus-visible {
   outline: 1px solid var(--vscode-focusBorder, #007fd4);
   outline-offset: 1px;
+}
+
+.toolbar__mode-button {
+  min-width: 32px;
+}
+
+.viewer-screen-activity #filter-toggle,
+.viewer-screen-activity #attention-toggle,
+.viewer-screen-activity .toolbar__mode-button,
+.viewer-screen-activity .toolbar__search,
+.viewer-screen-activity #filter-panel {
+  display: none;
+}
+
+.viewer-screen-project #activity-clear {
+  display: none;
 }
 
 /* Mobile: the search bar drops to its own full-width line; the slider stays
@@ -1460,6 +1475,9 @@
 
 .viewer-code__gutter {
   flex: 0 0 auto;
+  position: sticky;
+  left: 0;
+  z-index: 1;
   padding-inline: 10px;
   text-align: right;
   color: var(--vscode-editorLineNumber-foreground, #6b7280);
@@ -1470,9 +1488,9 @@
 
 .viewer-code__body {
   flex: 1 1 auto;
-  min-width: 0;
+  min-width: max-content;
   padding-inline: 12px;
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .viewer-code__body code {

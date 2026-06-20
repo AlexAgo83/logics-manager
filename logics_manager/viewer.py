@@ -1370,7 +1370,12 @@ def git_file_preview_payload(
     *,
     max_bytes: int = GIT_FILE_PREVIEW_MAX_BYTES,
     max_chars: int = GIT_FILE_PREVIEW_MAX_CHARS,
+    full: bool = False,
 ) -> dict[str, Any]:
+    hard_cap_hit = False
+    if full:
+        max_bytes = PREVIEW_FORCE_MAX_BYTES
+        max_chars = PREVIEW_FORCE_MAX_CHARS
     normalized = _normalize_git_file_path(rel_path)
     if not normalized:
         return {"state": "error", "message": "Unsafe Git path."}
@@ -1394,7 +1399,13 @@ def git_file_preview_payload(
             "state": "oversized",
             "path": normalized,
             "size": size,
-            "message": f"File preview is limited to {max_bytes} bytes; this file is {size} bytes.",
+            "limit": max_bytes,
+            "canForce": (not full) and size <= PREVIEW_FORCE_MAX_BYTES,
+            "message": (
+                f"File is {size} bytes; even a forced load is capped at {PREVIEW_FORCE_MAX_BYTES} bytes."
+                if full or size > PREVIEW_FORCE_MAX_BYTES
+                else f"File preview is limited to {max_bytes} bytes; this file is {size} bytes."
+            ),
         }
     try:
         data = target.read_bytes()
@@ -1415,15 +1426,20 @@ def git_file_preview_payload(
             "message": "Binary or unsupported file encoding cannot be previewed.",
         }
     content = content.replace("\r\n", "\n").replace("\r", "\n")
+    full_line_count = len(content.splitlines()) if content else 0
     truncated = len(content) > max_chars
     if truncated:
         content = content[:max_chars]
+        hard_cap_hit = full
     return {
         "state": "ok",
         "path": normalized,
         "mode": "file-preview",
         "content": content,
         "truncated": truncated,
+        "canForce": (not full) and truncated,
+        "hardCapHit": hard_cap_hit,
+        "lineCount": full_line_count,
         "logicsType": _logics_doc_type(normalized),
         "message": "",
     }
@@ -3641,7 +3657,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/git-file-preview":
             params = parse_qs(parsed.query)
             rel_path = params.get("path", [""])[0]
-            self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path)})
+            full = params.get("full", [""])[0].lower() in {"1", "true", "yes"}
+            self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path, full=full)})
             return
         if route == "/api/workspace-tree":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

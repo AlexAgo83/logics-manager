@@ -946,7 +946,14 @@ def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_
     assert payload["mode"] == "file-preview"
     assert payload["logicsType"] == "request"
     assert payload["truncated"] is True
+    assert payload["canForce"] is True
+    assert payload["hardCapHit"] is False
+    assert payload["lineCount"] == 2
     assert payload["content"] == "## req_001_demo - Demo\nP"
+    full = git_file_preview_payload(tmp_path, "logics/request/req_001_demo.md", max_chars=24, full=True)
+    assert full["truncated"] is False
+    assert full["canForce"] is False
+    assert full["content"] == "## req_001_demo - Demo\nPreview body\n"
     assert git_file_preview_payload(tmp_path, "../outside.md")["state"] == "error"
 
 
@@ -965,6 +972,7 @@ def test_viewer_git_file_preview_payload_reports_missing_binary_and_oversized(tm
     assert unsupported["state"] == "unsupported"
     assert "Binary" in unsupported["message"]
     assert too_large["state"] == "oversized"
+    assert too_large["canForce"] is True
     assert "limited to 10 bytes" in too_large["message"]
 
 

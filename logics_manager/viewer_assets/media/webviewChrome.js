@@ -382,13 +382,17 @@
           : "Show blocked, orphaned, unprocessed, or inconsistent items";
       }
       if (activityToggle) {
-        activityToggle.classList.toggle("btn--active", options.getActivityPanelOpen());
-        activityToggle.setAttribute("aria-pressed", String(options.getActivityPanelOpen()));
+        const activityOpen = options.getActivityPanelOpen();
+        document.body?.classList.toggle("viewer-screen-activity", activityOpen);
+        document.body?.classList.toggle("viewer-screen-project", !activityOpen);
+        activityToggle.classList.toggle("btn--active", activityOpen);
+        activityToggle.dataset.currentMode = activityOpen ? "activity" : "project";
+        activityToggle.setAttribute("aria-pressed", String(activityOpen));
         activityToggle.setAttribute(
           "aria-label",
-          options.getActivityPanelOpen() ? "Hide recent activity" : "Show recent activity"
+          activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity"
         );
-        activityToggle.title = options.getActivityPanelOpen() ? "Hide recent activity" : "Show recent activity";
+        activityToggle.title = activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity";
       }
     }
 

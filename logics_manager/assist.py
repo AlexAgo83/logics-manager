@@ -638,8 +638,9 @@ def _git_changed_paths(repo_root: Path) -> list[str]:
             stderr=subprocess.PIPE,
             text=True,
             check=False,
+            timeout=15,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return []
     if completed.returncode != 0:
         return []

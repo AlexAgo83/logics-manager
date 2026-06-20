@@ -3278,6 +3278,10 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Sessions");
     expect(text).toContain("1");
     expect(text).toContain("Not previewed");
+    const missionConfigButton = dom.window.document.querySelector(".viewer-cdx__mission-config > summary") as HTMLElement | null;
+    expect(missionConfigButton?.textContent?.trim()).toBe("");
+    expect(missionConfigButton?.querySelector("svg")).toBeTruthy();
+    expect(missionConfigButton?.closest(".viewer-cdx__field-row")?.querySelector("[data-viewer-cdx-session]")).toBeTruthy();
 
     await chooseCdxMission(dom, "Prepare dev-ready corpus");
     const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;

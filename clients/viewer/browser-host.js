@@ -429,10 +429,15 @@
   let latestCdxStatusPayload = null;
   let latestCdxRunsPayload = null;
   let latestCdxHistoryPayload = null;
+  // Per-section badge counters. `missions` is a live gauge (number of mission
+  // runs currently in progress) and carries no seen-tracking. `runs`/`history`
+  // are deltas: `seen` is the set of identifiers the user has already looked at,
+  // and `count` is how many current entries are not in that set. `seen: null`
+  // means "not seeded yet" so the very first snapshot doesn't flag everything.
   const cdxUnreadState = {
-    missions: { signature: "", seenSignature: "", unread: false },
-    runs: { signature: "", seenSignature: "", unread: false },
-    history: { signature: "", seenSignature: "", unread: false }
+    missions: { count: 0 },
+    runs: { seen: null, count: 0 },
+    history: { seen: null, count: 0 }
   };
   let latestCiStatusSignature = "";
   let latestCiScreenMode = "git";
@@ -733,53 +738,6 @@
 
   function runtimeStatusSignature(payload) {
     return stableStringify(payload || {});
-  }
-
-  // Per-session telemetry that ticks on every status poll (usage gauges, token
-  // counters, reset countdowns, activity timestamps). These are stripped before
-  // computing the Missions unread signature so the "(i)" badge does not fire on
-  // every poll — only when the mission set or a meaningful field actually changes.
-  const CDX_VOLATILE_KEYS = new Set([
-    "remaining_pct", "remainingpct",
-    "available_pct", "availablepct",
-    "lowest_available_pct", "lowestavailablepct",
-    "reset_5h_at", "reset5hat", "reset_at", "resetat",
-    "usage",
-    "tokens", "input_tokens", "output_tokens", "total_tokens",
-    "elapsed", "elapsed_seconds", "duration", "duration_seconds",
-    "age", "uptime",
-    "last_activity", "lastactivity", "last_seen", "lastseen",
-    "updated_at", "updatedat"
-  ]);
-
-  function stripCdxVolatile(value) {
-    if (Array.isArray(value)) {
-      return value.map((entry) => stripCdxVolatile(entry));
-    }
-    if (value && typeof value === "object") {
-      const next = {};
-      for (const key of Object.keys(value)) {
-        if (CDX_VOLATILE_KEYS.has(key.toLowerCase())) continue;
-        next[key] = stripCdxVolatile(value[key]);
-      }
-      return next;
-    }
-    return value;
-  }
-
-  // Signature for the CDX Missions unread badge. Unlike runtimeStatusSignature,
-  // it hashes the payload with volatile telemetry removed, so the badge tracks
-  // meaningful changes (new/removed missions, status/title/model changes) but
-  // ignores usage %, token counts, and reset countdowns that move every poll.
-  function cdxMissionsSignature(payload) {
-    return stableStringify(stripCdxVolatile(payload || {}));
-  }
-
-  function cdxUnreadSectionTitle(section) {
-    if (section === "missions") return "Missions";
-    if (section === "runs") return "Reports";
-    if (section === "history") return "History";
-    return "CDX";
   }
 
   function primaryActionControls() {
@@ -1690,81 +1648,176 @@
     return payload.runs.filter((run) => ["running", "starting", "pending"].includes(String(cdxField(run, ["status", "state"], "")).toLowerCase())).length;
   }
 
-  function renderCdxUnreadBadge(section, label = "!") {
-    const title = `${cdxUnreadSectionTitle(section)} has unread changes`;
+  function cdxSectionBadgeTitle(section, count) {
+    if (section === "missions") {
+      return count === 1 ? "1 mission run in progress" : `${count} mission runs in progress`;
+    }
+    if (section === "runs") {
+      return count === 1 ? "1 new report" : `${count} new reports`;
+    }
+    return count === 1 ? "1 new history entry" : `${count} new history entries`;
+  }
+
+  function renderCdxUnreadBadge(section, label, count) {
+    const title = cdxSectionBadgeTitle(section, count);
     return `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
   }
 
-  function cdxUnreadSections() {
-    return ["missions", "runs", "history"].filter((section) => cdxUnreadState[section]?.unread);
+  // Shared rule: 0 hides the badge, 1 shows "!", and anything above shows the
+  // number itself.
+  function cdxBadgeLabel(count) {
+    if (!Number.isFinite(count) || count <= 0) return null;
+    return count === 1 ? "!" : String(count);
+  }
+
+  // Identity helpers used to diff "new since last seen" sections. Runs expose a
+  // stable run id; history entries don't, so we synthesise one from the fields
+  // that uniquely pin a launch.
+  function cdxRunIdentity(run) {
+    return String(cdxField(run, ["run_id", "runId", "id"], "")).trim();
+  }
+
+  function cdxHistoryIdentity(entry) {
+    return [
+      cdxField(entry, ["started_at", "startedAt", "created_at", "createdAt"], ""),
+      cdxHistorySessionName(entry),
+      cdxField(entry, ["action"], ""),
+      cdxField(entry, ["provider"], ""),
+      cdxField(entry, ["label"], "")
+    ].map((part) => String(part || "")).join("|");
+  }
+
+  function cdxRunsList(payload) {
+    return payload && payload.state === "ok" && Array.isArray(payload.runs) ? payload.runs : [];
+  }
+
+  function cdxHistoryList(payload) {
+    return payload && payload.state === "ok" && Array.isArray(payload.history) ? payload.history : [];
+  }
+
+  // Apply a badge without repainting when the value is unchanged (honours "si
+  // pas de changement de valeur, pas la peine de le ré-afficher"). Reading the
+  // current DOM also makes us resilient to other code that wipes the nav badges:
+  // when the element is gone we always re-add it.
+  function applyCdxBadge(host, selector, desiredLabel, makeHtml) {
+    if (!(host instanceof HTMLElement)) return;
+    const existing = host.querySelector(selector);
+    const currentLabel = existing ? (existing.textContent || "").trim() : null;
+    if (desiredLabel === null) {
+      existing?.remove();
+      return;
+    }
+    if (currentLabel === desiredLabel) return;
+    existing?.remove();
+    host.insertAdjacentHTML("beforeend", makeHtml(desiredLabel));
   }
 
   function updateCdxUnreadBadges() {
-    const unreadSections = cdxUnreadSections();
-    const unreadCount = unreadSections.length;
+    const counts = {
+      missions: Math.max(0, cdxUnreadState.missions?.count || 0),
+      runs: Math.max(0, cdxUnreadState.runs?.count || 0),
+      history: Math.max(0, cdxUnreadState.history?.count || 0)
+    };
+    const total = counts.missions + counts.runs + counts.history;
+    const aggregateLabel = cdxBadgeLabel(total);
+
     const button = document.getElementById("viewer-cdx");
     if (button instanceof HTMLElement) {
-      button.querySelector("[data-viewer-cdx-unread-badge]")?.remove();
-      button.title = (button.title || "Show CDX status").replace(/\s· Unread CDX changes:.*$/, "");
-      if (unreadCount > 0) {
-        const label = unreadCount === 1 ? "!" : String(unreadCount);
-        const title = unreadSections.map(cdxUnreadSectionTitle).join(", ");
-        button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" data-viewer-cdx-unread-badge title="${escapeHtml(`Unread CDX changes: ${title}`)}" aria-label="${escapeHtml(`Unread CDX changes: ${title}`)}">${escapeHtml(label)}</span>`);
-        button.title = `${button.title || "Show CDX status"} · Unread CDX changes: ${title}`;
+      const parts = [];
+      if (counts.missions) parts.push(cdxSectionBadgeTitle("missions", counts.missions));
+      if (counts.runs) parts.push(cdxSectionBadgeTitle("runs", counts.runs));
+      if (counts.history) parts.push(cdxSectionBadgeTitle("history", counts.history));
+      const summary = parts.join(", ");
+      button.title = (button.title || "Show CDX status").replace(/\s·\sCDX activity:.*$/, "");
+      if (aggregateLabel) {
+        button.title = `${button.title || "Show CDX status"} · CDX activity: ${summary}`;
       }
+      applyCdxBadge(button, "[data-viewer-cdx-unread-badge]", aggregateLabel, (label) =>
+        `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" data-viewer-cdx-unread-badge title="${escapeHtml(`CDX activity: ${summary}`)}" aria-label="${escapeHtml(`CDX activity: ${summary}`)}">${escapeHtml(label)}</span>`);
     }
+
     ["missions", "runs", "history"].forEach((section) => {
-      const target = section === "runs" ? "cdx:runs" : `cdx:${section}`;
-      const item = navMenuItem(target);
+      const item = navMenuItem(`cdx:${section}`);
       if (!(item instanceof HTMLElement)) return;
-      item.querySelector("[data-viewer-cdx-unread-menu-badge]")?.remove();
-      if (cdxUnreadState[section]?.unread) {
-        const container = item.querySelector("[data-viewer-menu-badges]");
-        const badge = renderCdxUnreadBadge(section);
-        if (container) {
-          container.insertAdjacentHTML("beforeend", `<span data-viewer-cdx-unread-menu-badge>${badge}</span>`);
-        } else {
-          item.insertAdjacentHTML("beforeend", `<span class="viewer-nav-menu__badges" data-viewer-menu-badges><span data-viewer-cdx-unread-menu-badge>${badge}</span></span>`);
-        }
+      const label = cdxBadgeLabel(counts[section]);
+      const existing = item.querySelector("[data-viewer-cdx-unread-menu-badge]");
+      const currentLabel = existing ? (existing.textContent || "").trim() : null;
+      if (label === null) {
+        existing?.remove();
+        return;
+      }
+      if (currentLabel === label) return;
+      existing?.remove();
+      const badge = renderCdxUnreadBadge(section, label, counts[section]);
+      const container = item.querySelector("[data-viewer-menu-badges]");
+      if (container) {
+        container.insertAdjacentHTML("beforeend", `<span data-viewer-cdx-unread-menu-badge>${badge}</span>`);
+      } else {
+        item.insertAdjacentHTML("beforeend", `<span class="viewer-nav-menu__badges" data-viewer-menu-badges><span data-viewer-cdx-unread-menu-badge>${badge}</span></span>`);
       }
     });
   }
 
-  function cdxSectionSignature(section, payload) {
-    return section === "missions" ? cdxMissionsSignature(payload) : runtimeStatusSignature(payload);
+  // Missions badge is a live gauge: how many mission runs are running right now.
+  // It does not reset when the user looks — it follows the runs payload.
+  function updateCdxMissionsCount(runsPayload) {
+    const payload = (runsPayload && runsPayload.state === "ok") ? runsPayload : latestCdxRunsPayload;
+    cdxUnreadState.missions.count = activeCdxRunCountFromPayload(payload);
+    updateCdxUnreadBadges();
   }
 
-  function recordCdxUnreadSnapshot(section, payload, options = {}) {
+  // Runs/History badges are "new since the user last looked" deltas. When the
+  // section is open (or seen for the first time) we adopt the current set as the
+  // baseline; otherwise we count how many current ids are not in that baseline.
+  function recordCdxDelta(section, ids, { isOpen, markSeen } = {}) {
     const state = cdxUnreadState[section];
     if (!state) return;
-    const signature = cdxSectionSignature(section, payload);
-    const isOpen = section === "missions" ? isCdxMissionsOpen() : section === "runs" ? isCdxRunsOpen() : isCdxHistoryOpen();
-    if (!signature) return;
-    state.signature = signature;
-    if (isOpen || options.markSeen || !state.seenSignature) {
-      // The user is looking at this section (or it is the first snapshot, so we
-      // have no baseline yet): treat the current state as seen and don't flag.
-      state.seenSignature = signature;
-      state.unread = false;
+    const current = new Set(ids.filter(Boolean));
+    if (state.seen === null || isOpen || markSeen) {
+      state.seen = current;
+      state.count = 0;
     } else {
-      // "Unread" means "differs from what the user last saw", compared against
-      // seenSignature rather than the previous poll. This prevents the badge
-      // from latching on transient changes (a session that appears then
-      // disappears) and lets it clear itself once the state matches what was
-      // already seen.
-      state.unread = signature !== state.seenSignature;
+      let count = 0;
+      current.forEach((id) => {
+        if (!state.seen.has(id)) count += 1;
+      });
+      state.count = count;
     }
     updateCdxUnreadBadges();
   }
 
+  function recordCdxUnreadSnapshot(section, payload, options = {}) {
+    if (section === "missions") {
+      // Missions tracks running runs; the status payload it is sometimes called
+      // with has no runs array, so always source the count from the runs payload.
+      updateCdxMissionsCount();
+      return;
+    }
+    if (section === "runs") {
+      recordCdxDelta("runs", cdxRunsList(payload).map(cdxRunIdentity), {
+        isOpen: isCdxRunsOpen(),
+        markSeen: options.markSeen
+      });
+      return;
+    }
+    recordCdxDelta("history", cdxHistoryList(payload).map(cdxHistoryIdentity), {
+      isOpen: isCdxHistoryOpen(),
+      markSeen: options.markSeen
+    });
+  }
+
   function markCdxSectionSeen(section, payload = null) {
-    const state = cdxUnreadState[section];
-    if (!state) return;
-    const signature = payload ? cdxSectionSignature(section, payload) : state.signature;
-    state.signature = signature || state.signature;
-    state.seenSignature = state.signature;
-    state.unread = false;
-    updateCdxUnreadBadges();
+    if (section === "missions") {
+      // Live gauge — opening the panel doesn't clear it; just keep it fresh
+      // from the latest runs payload (the status payload has no runs array).
+      updateCdxMissionsCount();
+      return;
+    }
+    if (section === "runs") {
+      recordCdxDelta("runs", cdxRunsList(payload || latestCdxRunsPayload).map(cdxRunIdentity), { markSeen: true });
+      return;
+    }
+    recordCdxDelta("history", cdxHistoryList(payload || latestCdxHistoryPayload).map(cdxHistoryIdentity), { markSeen: true });
   }
 
   function updateMainCdxBadge(payload, runsPayload = null) {
@@ -1903,9 +1956,10 @@
         // terminal usage gauge have current data without opening the CDX screen.
         latestCdxStatusPayload = payload.cdx;
         latestCdxStatusSignature = runtimeStatusSignature({ status: payload.cdx, runs: runsPayload });
-        recordCdxUnreadSnapshot("missions", payload.cdx);
         if (runsPayload) {
           latestCdxRunsPayload = runsPayload;
+          // Missions = running runs (live gauge); Reports = new runs since seen.
+          updateCdxMissionsCount(runsPayload);
           recordCdxUnreadSnapshot("runs", runsPayload);
         }
         if (historyPayload) {

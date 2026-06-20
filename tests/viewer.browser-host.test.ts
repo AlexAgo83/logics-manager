@@ -2951,13 +2951,12 @@ describe("local viewer browser host", () => {
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.title).toContain("1 running run");
   });
 
-  it("tracks unread CDX Missions, Reports, and History changes independently", async () => {
-    let cdxVersion = 1;
+  it("counts Missions as running runs and Reports/History as new entries since seen", async () => {
     const runsResponse = {
       state: "ok",
       message: "",
       runs: [
-        { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager" },
+        { run_id: "run-1", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" },
         { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
       ]
     };
@@ -2981,7 +2980,7 @@ describe("local viewer browser host", () => {
             status: {
               availability: "ready",
               providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
-              sessions: [{ id: "session-1", status: "active", title: `Logics work ${cdxVersion}`, model: "gpt-5-codex" }],
+              sessions: [],
               readiness: { auth: "ready", quota: "ok" }
             }
           }
@@ -2989,47 +2988,67 @@ describe("local viewer browser host", () => {
       })
     });
     const api = dom.window.acquireVsCodeApi();
+    const menuBadge = (section: string) =>
+      dom.window.document.querySelector(`[data-viewer-nav-target="cdx:${section}"] [data-viewer-cdx-unread-menu-badge]`);
+    const aggregate = () => dom.window.document.querySelector("[data-viewer-cdx-unread-badge]");
 
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+    // Nothing running, and the first snapshot seeds the seen sets, so no badge.
+    expect(aggregate()).toBeNull();
 
-    cdxVersion = 2;
+    // A new finished report arrives → Reports = 1, Missions still 0.
     runsResponse.runs = [...runsResponse.runs, { run_id: "run-3", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" }];
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+    expect(menuBadge("missions")).toBeNull();
+    expect(menuBadge("runs")?.textContent).toContain("!");
+    expect(aggregate()?.textContent).toBe("!");
+
+    // An already-seen run starts running (Missions = 1, live gauge) and a new
+    // history entry lands (History = 1). Reports delta still 1 → aggregate 3.
+    runsResponse.runs = runsResponse.runs.map((run) => (run.run_id === "run-1" ? { ...run, status: "running" } : run));
     historyResponse.history = [...historyResponse.history, { session_name: "auto", provider: "codex", status: "success", action: "run", label: "cdx run", started_at: "2026-06-20T03:14:27Z" }];
     api.postMessage({ type: "refresh", force: true });
     await flushViewerAsync();
+    expect(menuBadge("missions")?.textContent).toContain("!");
+    expect(menuBadge("runs")?.textContent).toContain("!");
+    expect(menuBadge("history")?.textContent).toContain("!");
+    expect(aggregate()?.textContent).toBe("3");
 
-    expect(dom.window.document.querySelector("[data-viewer-cdx-badge]")?.textContent).toBe("2");
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("3");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-menu-badges]')?.textContent).toContain("1");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
-
-    dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("2");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
-
+    // Opening Reports clears only the Reports delta; the Missions gauge persists.
     dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe("!");
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(menuBadge("runs")).toBeNull();
+    expect(menuBadge("missions")?.textContent).toContain("!");
+    expect(menuBadge("history")?.textContent).toContain("!");
+    expect(aggregate()?.textContent).toBe("2");
 
+    // Opening History clears its delta, leaving only the Missions gauge.
     dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(menuBadge("history")).toBeNull();
+    expect(aggregate()?.textContent).toBe("!");
+
+    // The running run finishes → the Missions gauge clears itself, without the
+    // user having to open the Missions panel.
+    runsResponse.runs = runsResponse.runs.map((run) => (run.run_id === "run-1" ? { ...run, status: "succeeded" } : run));
+    api.postMessage({ type: "refresh", force: true });
+    await flushViewerAsync();
+    expect(menuBadge("missions")).toBeNull();
+    expect(aggregate()).toBeNull();
   });
 
-  it("does not mark CDX Missions unread when only volatile telemetry changes", async () => {
+  it("ties the Missions gauge to running runs and ignores session telemetry churn", async () => {
     let remaining = 80;
-    let reset = "2026-06-20T05:00:00Z";
+    const runsResponse = {
+      state: "ok",
+      message: "",
+      runs: [{ run_id: "run-1", kind: "assistant", status: "running", session: "work", cwd: "/workspace/logics-manager" }]
+    };
     const { dom } = createViewerDom({
+      cdxRunsResponse: runsResponse,
+      cdxHistoryResponse: { state: "ok", message: "", history: [] },
       cdxResponseFactory: () => ({
         ok: true,
         body: {
@@ -3041,15 +3060,7 @@ describe("local viewer browser host", () => {
               availability: "ready",
               providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
               sessions: [
-                {
-                  id: "session-1",
-                  status: "active",
-                  title: "Logics work",
-                  model: "gpt-5-codex",
-                  remaining_pct: remaining,
-                  reset_5h_at: reset,
-                  usage: { input_tokens: 1000 + remaining, output_tokens: 250 }
-                }
+                { id: "session-1", status: "active", title: "Logics work", model: "gpt-5-codex", remaining_pct: remaining, usage: { input_tokens: 1000 + remaining } }
               ],
               readiness: { auth: "ready", quota: "ok" }
             }
@@ -3061,22 +3072,28 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
+    // One run is running → Missions = 1.
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    const before = dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent;
 
-    // Only usage %, reset countdown, and token counts move — the mission itself
-    // is unchanged, so the unread "(i)" badge must stay hidden.
+    // Only session usage telemetry moves; the running-run count is unchanged, so
+    // the gauge must not flicker or change value.
     remaining = 60;
-    reset = "2026-06-20T04:30:00Z";
     api.postMessage({ type: "refresh", force: true });
     await flushViewerAsync();
-    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")?.textContent).toBe(before);
   });
 
-  it("clears the CDX Missions unread badge when a transient change reverts to the seen state", async () => {
-    let sessions: unknown[] = [{ id: "session-1", status: "active", title: "Logics work", model: "gpt-5-codex" }];
-    const baseline = [...sessions];
+  it("clears the Reports badge when a new run disappears before being seen", async () => {
+    const runsResponse = {
+      state: "ok",
+      message: "",
+      runs: [{ run_id: "run-1", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" }]
+    };
     const { dom } = createViewerDom({
+      cdxRunsResponse: runsResponse,
+      cdxHistoryResponse: { state: "ok", message: "", history: [] },
       cdxResponseFactory: () => ({
         ok: true,
         body: {
@@ -3087,7 +3104,7 @@ describe("local viewer browser host", () => {
             status: {
               availability: "ready",
               providers: [{ name: "openai", state: "ready", model: "gpt-5" }],
-              sessions,
+              sessions: [],
               readiness: { auth: "ready", quota: "ok" }
             }
           }
@@ -3095,23 +3112,25 @@ describe("local viewer browser host", () => {
       })
     });
     const api = dom.window.acquireVsCodeApi();
+    const runsBadge = () =>
+      dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-cdx-unread-menu-badge]');
 
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
     expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
 
-    // A transient session appears: the badge flags it as unread.
-    sessions = [...baseline, { id: "session-2", status: "active", title: "Transient", model: "gpt-5-codex" }];
+    // A new report appears → Reports = 1.
+    runsResponse.runs = [...runsResponse.runs, { run_id: "run-2", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" }];
     api.postMessage({ type: "refresh", force: true });
     await flushViewerAsync();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')?.textContent).toContain("!");
+    expect(runsBadge()?.textContent).toContain("!");
 
-    // The transient session disappears, returning to the exact state the user
-    // last saw — the badge must clear itself instead of latching on the blip.
-    sessions = [...baseline];
+    // It is pruned again before the user opens Reports → the badge must clear
+    // itself instead of latching on the transient run id.
+    runsResponse.runs = [{ run_id: "run-1", kind: "assistant", status: "succeeded", session: "work", cwd: "/workspace/logics-manager" }];
     api.postMessage({ type: "refresh", force: true });
     await flushViewerAsync();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"] [data-viewer-cdx-unread-menu-badge]')).toBeNull();
+    expect(runsBadge()).toBeNull();
     expect(dom.window.document.querySelector("[data-viewer-cdx-unread-badge]")).toBeNull();
   });
 

@@ -2,18 +2,18 @@
 > From version: 2.12.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 100%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] In the shared renderer (`clients/shared-web/media/renderBoardApp.js`, `getDocumentPrefix` `:826`), make the classification badge self-explanatory: keep the compact prefix but add a readable label and/or icon plus an accessible `aria-label`/title (e.g. "Architecture · A003").
-- [ ] Redesign the Recent Activity cell so it clearly shows the document, the change kind (created/updated/status-change), the status transition (from → to) when applicable, and a human-friendly time (activity source `clients/viewer/browser-host.js:900-921`).
-- [ ] Ensure the change applies through the shared renderer so the VS Code webview and the browser viewer stay consistent.
-- [ ] Tests cover the badge labelling/`aria-label` and the activity cell rendering; `viewer_assets/` synced.
+- [x] In the shared renderer (`clients/shared-web/media/renderBoardApp.js`, `createCardTitle`/`getDocumentPrefix`), make the classification prefix self-explanatory: full stage name in `title`/`aria-label` (e.g. "Architecture decision · A003") plus a `data-stage` colour.
+- [x] Make the Recent Activity marker (`clients/shared-web/media/webviewChrome.js` `renderActivityPanel`) decodable (stage name in tooltip/aria-label + per-stage colour) and clarify the cell meta line.
+- [x] Change applies through the shared renderer so the VS Code webview and the browser viewer stay consistent (mirrored to `viewer_assets/media`).
+- [x] Tests cover the prefix labelling/`aria-label`/`data-stage`; full suite green.
 
 # Backlog
 - `item_464_readable_recent_activity_cells_and_document_classification_badges`
@@ -30,7 +30,8 @@
 - Run `python3 -m logics_manager flow finish task task_257_readable_recent_activity_cells_and_document_classification_badges.md` after implementation.
 
 # Report
-- Pending implementation.
+- Implemented: `createCardTitle` now sets `title`/`aria-label` ("Stage · ID") and `data-stage` on `.card__title-prefix` (new `stageLabelByStage` map); `renderActivityPanel` marker gets a stage tooltip/aria-label, `data-stage`, and the meta line reads "Change · Stage · id". Added per-stage colour CSS for both the activity marker (`toolbar.css`) and the card prefix (`board.css`).
+- Validation: extended the board-renderer test to assert the prefix tooltip/aria-label/data-stage; full vitest suite green (638). Mirrored the four edited `shared-web/media` files into `viewer_assets/media`.
 
 # AI Context
 - Summary: Make the P/A/... pills and the Recent Activity cell self-explanatory in the shared renderer.

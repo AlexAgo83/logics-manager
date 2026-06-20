@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
@@ -28,6 +28,8 @@ The CDX status screen renders the readiness/OK column with plain badges (`render
 # AC Traceability
 - request-AC5 -> This backlog slice reuses the session usage gauge in the CDX status OK column. Proof: AC1, AC2.
 - request-AC7 -> No regression. Proof: AC3 (tests pass; dual-copy synced).
+- request-AC4 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
+- request-AC6 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
 
 # Decision framing
 - Product framing: Not needed

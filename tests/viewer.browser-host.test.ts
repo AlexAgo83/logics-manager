@@ -1138,8 +1138,8 @@ describe("local viewer browser host", () => {
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", activityOpen)');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", !activityOpen)');
     expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
-    expect(source).toContain("Switch to Project");
-    expect(source).toContain("Switch to Activity");
+    expect(source).toContain("Hide recent activity");
+    expect(source).toContain("Show recent activity");
   });
 
   it("declares the responsive viewer breakpoints and their collapse rules", () => {

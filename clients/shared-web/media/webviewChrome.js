@@ -390,9 +390,9 @@
         activityToggle.setAttribute("aria-pressed", String(activityOpen));
         activityToggle.setAttribute(
           "aria-label",
-          activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity"
+          activityOpen ? "Hide recent activity" : "Show recent activity"
         );
-        activityToggle.title = activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity";
+        activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
       }
     }
 

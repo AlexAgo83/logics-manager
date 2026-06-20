@@ -2,8 +2,8 @@
 > From version: 2.11.6
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -34,6 +34,9 @@
 - request-AC1 -> This task. Evidence needed: Refreshing/auto-polling the viewer no longer resets scroll, focus, selection, or open sections on the active screen when content changes; the "jump" is gone across the main screens (Logics, CDX, CI), matching the state preservation Git already has.
 - request-AC3 -> This task. Evidence needed: A CDX terminal keeps its CDX typing and usage gauge across refresh and close/reopen, with no transient loss; the association is sourced from the server terminal payload rather than re-derived from a possibly-null client status payload.
 - request-AC4 -> This task. Evidence needed: No regression — existing viewer/python tests pass, and the dual-copy `viewer_assets/` stays in sync with `clients/viewer/`.
+- request-AC1 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC3 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
+- request-AC4 -> This task. Proof: Implemented req_260: refresh preservation 839fa03, bootstrap fallback 1d29961, server cdx typing 7d933d8; 356 python + 109 vitest pass
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.

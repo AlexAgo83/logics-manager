@@ -1,9 +1,9 @@
 ## task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge - CDX status OK column uses the shared session usage gauge
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Implementation delivery
@@ -26,10 +26,15 @@
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `npx vitest run` (CDX status tests).
 - Run `python3 -m logics_manager flow finish task task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge.md` after implementation.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implemented: the `ok` cell renderer in `renderCdxStatus` now builds `{percent, reset}` from the row (`cdxRemainingPct` + `formatCdxResetAt`) and renders `renderCdxUsageGauge(usage, name)` inside `.viewer-cdx__ok-cell`; falls back to the legacy remaining pill/percent when the row has no session name or no usable usage. Added centering CSS for the cell.
 - Validation: added a test asserting one gauge per session row in the OK column with the correct `data-viewer-cdx-usage-refresh` targets; `npx vitest run tests/viewer.browser-host.test.ts` → 112 passed; `viewer_assets/` synced.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_466_cdx_status_ok_column_uses_the_shared_session_usage_gauge`
+- Related request(s): `req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge`
 
 # AI Context
 - Summary: Reuse renderCdxUsageGauge in the CDX status OK column with a no-usage fallback.

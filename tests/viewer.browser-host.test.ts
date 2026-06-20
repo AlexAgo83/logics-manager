@@ -1121,6 +1121,7 @@ describe("local viewer browser host", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
     expect(css).toMatch(/\.viewer-screen-activity #filter-toggle/);
+    expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);
     expect(css).toMatch(/\.viewer-code__row\s*\{[^}]*grid-template-columns: max-content minmax\(max-content, 1fr\);/s);
@@ -1132,9 +1133,11 @@ describe("local viewer browser host", () => {
 
   it("syncs Activity/Project slider state from the shared chrome", () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewChrome.js"), "utf8");
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/browser-host.js"), "utf8");
     expect(source).toContain('activityToggle.dataset.currentMode = activityOpen ? "activity" : "project"');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", activityOpen)');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", !activityOpen)');
+    expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
     expect(source).toContain("Switch to Project");
     expect(source).toContain("Switch to Activity");
   });

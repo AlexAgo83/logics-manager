@@ -2296,6 +2296,10 @@
     if (state.scroller) state.scroller.scrollTop = state.scrollTop;
   }
 
+  function setDocumentChromeOpen(open) {
+    document.body?.classList.toggle("viewer-screen-document", Boolean(open));
+  }
+
   function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxCloseTarget = null;
@@ -2328,6 +2332,7 @@
     }
     if (panel) {
       panel.hidden = false;
+      setDocumentChromeOpen(true);
       if (!sameScreenRepaint && typeof panel.scrollIntoView === "function") {
         panel.scrollIntoView({ block: "nearest" });
       }
@@ -2363,6 +2368,7 @@
     if (panel) {
       invalidatePendingViews();
       panel.hidden = true;
+      setDocumentChromeOpen(false);
     }
     updateScreenActions("");
   }

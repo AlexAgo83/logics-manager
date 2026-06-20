@@ -1,9 +1,9 @@
 ## task_260_add_an_icon_to_the_settings_button - Add an icon to the Settings button
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Implementation delivery
@@ -26,10 +26,15 @@
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `npx vitest run` (viewer tests).
 - Run `python3 -m logics_manager flow finish task task_260_add_an_icon_to_the_settings_button.md` after implementation.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implemented: added an inline gear SVG (`.viewer-settings-button__icon`) plus a `<span>Settings</span>` to `#viewer-refresh-menu-button` in `clients/viewer/index.html`, with alignment CSS (`.viewer-settings-button`) in `clients/viewer/viewer.css`. Accessible name and menu behavior unchanged.
 - Validation: `npx vitest run tests/viewer.browser-host.test.ts` → 111 passed; `viewer_assets/` synced via `scripts/dev/sync-viewer-assets.mjs`.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_467_add_an_icon_to_the_settings_button`
+- Related request(s): `req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge`
 
 # AI Context
 - Summary: Add a gear icon to the text-only Settings button while preserving accessibility and behavior.

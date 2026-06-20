@@ -1,9 +1,9 @@
 ## item_464_readable_recent_activity_cells_and_document_classification_badges - Readable Recent Activity cells and document classification badges
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 96%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
@@ -59,6 +59,7 @@ The Recent Activity screen and the board cards show opaque single-letter classif
 # Notes
 - Hybrid rationale: Derived from request `req_263_...` and kept bounded to the activity/badge readability slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
+- Task `task_257_readable_recent_activity_cells_and_document_classification_badges` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_257_readable_recent_activity_cells_and_document_classification_badges`

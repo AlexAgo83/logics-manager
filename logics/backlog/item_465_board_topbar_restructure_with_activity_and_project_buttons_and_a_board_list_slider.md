@@ -1,10 +1,10 @@
 ## item_465_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider - Board topbar restructure with Activity and Project slider plus project display mode
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
-> Confidence: 88%
-> Progress: 90%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -63,6 +63,8 @@ The board chrome mixes navigation and view controls. Recent Activity is a toolba
 # Notes
 - Hybrid rationale: Derived from request `req_263_...` and kept bounded to the topbar/layout slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
+- Implementation note: Activity/Project is now the main slider, Board/List remains the Project display mode, and non-corpus document surfaces hide corpus-only controls via `viewer-screen-document`.
+- Task `task_258_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_258_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider`

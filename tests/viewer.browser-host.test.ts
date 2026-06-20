@@ -2785,6 +2785,9 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX history");
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("History");
+    expect(text).toContain("Entries");
+    expect(text).toContain("Sessions");
+    expect(text).toContain("Attention");
     expect(text).toContain("2 entries");
     expect(text).toContain("work");
     expect(text).toContain("auto");

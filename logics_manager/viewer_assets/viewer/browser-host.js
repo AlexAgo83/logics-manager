@@ -5808,6 +5808,19 @@
     const history = filterCdxHistoryBySession(allHistory, sessionFilter);
     const visibleColumns = cdxHistoryColumnVisibilityPreference();
     const activeColumns = cdxHistoryColumns.filter((column) => visibleColumns[column.id]);
+    const failedCount = allHistory.filter((entry) => ["failed", "error", "blocked"].includes(String(cdxField(entry, ["status", "state"], "")).toLowerCase())).length;
+    const tokenTotal = allHistory.reduce((total, entry) => total + (cdxTokenUsage(entry)?.totalTokens ?? 0), 0);
+    const cards = [
+      ["Entries", String(allHistory.length)],
+      ["Sessions", String(knownSessions.length)],
+      ["Attention", String(failedCount)],
+      ["Tokens", tokenTotal ? String(tokenTotal) : "Not reported"]
+    ].map(([label, value]) => `
+      <div class="viewer-cdx__card">
+        <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+        <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+      </div>
+    `).join("");
     const cellRenderers = {
       session: (entry) => {
         const session = cdxHistorySessionName(entry);
@@ -5841,6 +5854,7 @@
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("history")}
+        <div class="viewer-cdx__summary">${cards}</div>
         ${renderCdxHistoryControls(visibleColumns, knownSessions, sessionFilter)}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>History</h2><span>${escapeHtml(sessionFilter.mode === "subset" ? `${history.length} shown · ${allHistory.length} entries` : `${allHistory.length} entries`)}</span></div>

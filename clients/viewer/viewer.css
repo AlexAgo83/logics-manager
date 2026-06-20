@@ -1224,6 +1224,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.viewer-workshop__panel[data-viewer-workshop-panel="explorer"] {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .viewer-workshop__panel--terminals {
   display: flex;
   align-items: center;

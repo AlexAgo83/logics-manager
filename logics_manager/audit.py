@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import find_repo_root
+from .flow_evidence import has_ac_proof as _has_ac_with_proof
 
 
 CURRENT_WORKFLOW_SCHEMA_VERSION = "1.0"
@@ -23,7 +24,7 @@ DOC_KINDS = {
 
 REF_PREFIXES = ("req", "item", "task", "prod", "adr", "spec")
 STATUS_IN_PROGRESS = {"draft", "ready", "in progress", "blocked"}
-STATUS_DONE = {"done", "archived"}
+STATUS_DONE = {"done", "archived", "obsolete", "validated", "settled", "superseded"}
 
 COMPANION_PLACEHOLDERS: dict[str, tuple[str, ...]] = {
     "product": (
@@ -161,7 +162,7 @@ def _parse_semver(value: str | None) -> tuple[int, int, int] | None:
 
 def _extract_refs(text: str, prefix: str) -> set[str]:
     text = re.sub(r"```mermaid\s*\n.*?\n```", "", text, flags=re.DOTALL)
-    pattern = re.compile(rf"\b{re.escape(prefix)}_\d{{3}}_[a-z0-9_]+\b")
+    pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
     return {match.group(0) for match in pattern.finditer(text)}
 
 
@@ -384,10 +385,6 @@ def _is_strict_scope(doc: DocMeta, cutoff: tuple[int, int, int] | None) -> bool:
     if doc.from_version is None:
         return False
     return doc.from_version >= cutoff
-
-
-def _has_ac_with_proof(text: str, ac_id: str) -> bool:
-    return (ac_id in text.upper()) and ("proof:" in text.lower())
 
 
 def _upsert_indicator(lines: list[str], key: str, value: str) -> None:

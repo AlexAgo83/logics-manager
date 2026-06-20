@@ -4,6 +4,11 @@ from datetime import date
 import re
 
 
+SUCCESS_RESULTS = {"pass", "passed", "ok", "success", "succeeded"}
+SUCCESS_WORD_PATTERN = re.compile(r"\b(pass(?:ed)?|validated|verified|verification|regression)\b")
+OK_WORD_PATTERN = re.compile(r"\bok\b")
+
+
 def section_lines(lines: list[str], heading: str) -> list[str]:
     start_idx = None
     target = heading.strip().lower()
@@ -37,18 +42,23 @@ def has_validation_evidence(text: str) -> bool:
         if "command:" in value and "result:" in value and ("date:" in value or "session:" in value):
             result_match = re.search(r"\bresult:\s*([^|,;]+)", value)
             result = result_match.group(1).strip() if result_match else ""
-            if result in {"pass", "passed", "ok", "success", "succeeded"}:
+            if result in SUCCESS_RESULTS:
                 return True
-        if any(marker in value for marker in ("pass", "validated", "verified", "verification", "regression")):
+        if SUCCESS_WORD_PATTERN.search(value):
             return True
-        if "ok" in value and any(marker in value for marker in concrete_ok_context):
+        if OK_WORD_PATTERN.search(value) and any(marker in value for marker in concrete_ok_context):
             return True
     return False
 
 
 def has_ac_proof(text: str, ac_id: str) -> bool:
-    upper = text.upper()
-    return ac_id.upper() in upper and "proof:" in text.lower()
+    ac_pattern = re.compile(rf"(?<![A-Z0-9]){re.escape(ac_id.upper())}(?![A-Z0-9])")
+    for line in text.splitlines():
+        if "proof:" not in line.lower():
+            continue
+        if ac_pattern.search(line.upper()):
+            return True
+    return False
 
 
 def structured_validation_line(command: str, result: str, note: str | None) -> str:

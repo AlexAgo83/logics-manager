@@ -1,7 +1,7 @@
 ## req_255_use_full_permission_for_write_enabled_cdx_missions - Use full permission for write-enabled CDX missions
 > From version: 2.11.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

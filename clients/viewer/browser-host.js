@@ -3493,6 +3493,9 @@
     if (!label) return "";
     const tokens = label.split(/\s+/).filter(Boolean);
     if (tokens.length < 2 || tokens[0].toLowerCase() !== "cdx") return "";
+    // Mission terminals are labelled `cdx mission <missionId>` — the missionId
+    // is not a cdx session, so don't try to read its (non-existent) usage.
+    if (tokens[1].toLowerCase() === "mission") return "";
     // A handoff terminal runs the destination (new) session it migrates into
     // (`cdx handoff <source> <destination>`), so name it after the last
     // positional argument rather than the source it correlates against first.

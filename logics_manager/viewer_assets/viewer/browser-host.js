@@ -2134,6 +2134,59 @@
     return Boolean(error) && (error.name === "AbortError" || error.code === 20);
   }
 
+  // Find the nearest scrollable ancestor so we can preserve scroll position
+  // across an in-place re-render. Falls back to the page scrolling element.
+  function scrollableAncestor(el) {
+    let node = el;
+    while (node && node !== document.body && node.parentElement) {
+      const overflowY = (window.getComputedStyle(node).overflowY || "");
+      if (/(auto|scroll|overlay)/.test(overflowY) && node.scrollHeight > node.clientHeight) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return document.scrollingElement || document.documentElement || el;
+  }
+
+  // Capture scroll position, open <details> (keyed by summary text), and the
+  // focused element (keyed by id / data-viewer-focus-key) so an auto-refresh
+  // repaint of the same screen does not jump the user back to the top or
+  // collapse what they had open. Mirrors the state-preservation the Git screen
+  // already does, generalized to every screen.
+  function captureDocumentViewState(content) {
+    const scroller = scrollableAncestor(content);
+    const openDetails = Array.from(content.querySelectorAll("details[open]"))
+      .map((node) => (node.querySelector("summary")?.textContent || "").trim())
+      .filter(Boolean);
+    const active = document.activeElement;
+    let focusKey = null;
+    if (active && content.contains(active) && active !== content) {
+      if (active.id) {
+        focusKey = `#${(window.CSS && CSS.escape) ? CSS.escape(active.id) : active.id}`;
+      } else {
+        const key = active.getAttribute("data-viewer-focus-key");
+        if (key) focusKey = `[data-viewer-focus-key="${key}"]`;
+      }
+    }
+    return { scroller, scrollTop: scroller ? scroller.scrollTop : 0, openDetails, focusKey };
+  }
+
+  function restoreDocumentViewState(content, state) {
+    if (!state) return;
+    if (state.openDetails.length) {
+      const wanted = new Set(state.openDetails);
+      content.querySelectorAll("details").forEach((node) => {
+        const summary = (node.querySelector("summary")?.textContent || "").trim();
+        if (summary && wanted.has(summary)) node.open = true;
+      });
+    }
+    if (state.focusKey) {
+      const target = content.querySelector(state.focusKey);
+      if (target && typeof target.focus === "function") target.focus({ preventScroll: true });
+    }
+    if (state.scroller) state.scroller.scrollTop = state.scrollTop;
+  }
+
   function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxCloseTarget = null;
@@ -2142,6 +2195,16 @@
     const title = documentTitle();
     const content = documentContent();
     const eyebrow = document.getElementById("viewer-document-eyebrow");
+    // A same-screen repaint (e.g. an auto-refresh tick re-rendering the screen
+    // already shown) should preserve the user's scroll / open sections / focus
+    // instead of resetting to the top. Navigations to a different screen, or an
+    // explicit options.forceReset, render fresh.
+    const previousTitle = title ? title.textContent : "";
+    const sameScreenRepaint = Boolean(content)
+      && content.childNodes.length > 0
+      && !options.forceReset
+      && previousTitle === (titleText || "Document");
+    const preserved = sameScreenRepaint ? captureDocumentViewState(content) : null;
     if (title) {
       title.textContent = titleText || "Document";
     }
@@ -2156,11 +2219,12 @@
     }
     if (panel) {
       panel.hidden = false;
-      if (typeof panel.scrollIntoView === "function") {
+      if (!sameScreenRepaint && typeof panel.scrollIntoView === "function") {
         panel.scrollIntoView({ block: "nearest" });
       }
     }
     renderMermaidDiagrams();
+    if (preserved) restoreDocumentViewState(content, preserved);
   }
 
   function currentDocumentSnapshot(fallbackTitle = "Document") {

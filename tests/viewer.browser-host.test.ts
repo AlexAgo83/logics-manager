@@ -412,7 +412,7 @@ function createViewerDom(options: {
           })
         };
       }
-      if (url === "/api/file-preview") {
+      if (url === "/api/file-preview" || url === "/api/cdx-artifact-preview") {
         const payload = options.filePreviewResponse ?? { path: "/tmp/run.log", name: "run.log", content: '{"level":"info","message":"first log line","nested":{"count":2}}', truncated: false };
         return {
           ok: true,
@@ -2674,10 +2674,10 @@ describe("local viewer browser host", () => {
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("Assistant runs");
     expect(text).toContain("run-1");
-    expect(text).toContain("code-review");
+    expect(text).not.toContain("code-review");
   });
 
-  it("persists CDX run column visibility", async () => {
+  it("persists CDX run column visibility with Kind and CWD hidden by default", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -2689,20 +2689,47 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     let headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
-    expect(headers).toContain("CWD");
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("/workspace/logics-manager");
+    expect(headers).not.toContain("KIND");
+    expect(headers).not.toContain("CWD");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).not.toContain("/workspace/logics-manager");
 
     const cwd = dom.window.document.querySelector('[data-viewer-cdx-run-column="cwd"]') as HTMLInputElement | null;
-    expect(cwd?.checked).toBe(true);
-    cwd!.checked = false;
+    const kind = dom.window.document.querySelector('[data-viewer-cdx-run-column="kind"]') as HTMLInputElement | null;
+    expect(cwd?.checked).toBe(false);
+    expect(kind?.checked).toBe(false);
+    expect(cwd?.closest(".viewer-cdx__section")).toBeNull();
+    expect(cwd?.closest(".viewer-cdx")?.firstElementChild?.classList.contains("viewer-cdx__modes")).toBe(true);
+    cwd!.checked = true;
     cwd?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
 
     headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
-    expect(headers).not.toContain("CWD");
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).not.toContain("/workspace/logics-manager");
+    expect(headers).toContain("CWD");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("/workspace/logics-manager");
     expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxRunColumns?.visibility).toMatchObject({
-      cwd: false
+      cwd: true
     });
+  });
+
+  it("closes the CDX run column menu when focus or clicks move outside it", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const menu = dom.window.document.querySelector(".viewer-cdx__controls .viewer-cdx__menu") as HTMLDetailsElement | null;
+    expect(menu).toBeTruthy();
+    menu!.open = true;
+    dom.window.document.body.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    expect(menu?.open).toBe(false);
+
+    menu!.open = true;
+    dom.window.document.body.dispatchEvent(new dom.window.FocusEvent("focusin", { bubbles: true }));
+    expect(menu?.open).toBe(false);
   });
 
   it("restores persisted CDX run column visibility", async () => {
@@ -2889,7 +2916,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("Mission output");
+    expect(text).toContain("Details");
     expect(text).toContain("Prepared release metadata.");
     expect(text).toContain("v2.8.0");
     expect(text).toContain("Recommendations");
@@ -2977,7 +3004,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("Run signal");
+    expect(text).toContain("Signal");
     expect(text).toContain("stale_process");
     expect(text).toContain("Run was marked running but no live provider process was found.");
     expect(text).toContain("Artifacts");
@@ -3019,7 +3046,7 @@ describe("local viewer browser host", () => {
     transcript?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/file-preview");
+    expect(calls).toContain("/api/cdx-artifact-preview");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX log · run.log");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Log preview");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("first log line");

@@ -765,7 +765,55 @@ def file_preview_payload(
     max_bytes: int = FILE_PREVIEW_MAX_BYTES,
     max_chars: int = FILE_PREVIEW_MAX_CHARS,
 ) -> dict[str, Any]:
-    absolute = _resolve_openable_file_path(repo_root, file_path)
+    try:
+        absolute = _resolve_openable_file_path(repo_root, file_path)
+    except ValueError:
+        absolute = _resolve_cdx_artifact_path(repo_root, file_path)
+    raw = absolute.read_bytes()
+    truncated = len(raw) > max_bytes
+    if truncated:
+        raw = raw[-max_bytes:]
+    content = raw.decode("utf-8", errors="replace")
+    if len(content) > max_chars:
+        content = content[-max_chars:]
+        truncated = True
+    return {
+        "path": str(absolute),
+        "name": absolute.name,
+        "content": content,
+        "truncated": truncated,
+    }
+
+
+def _resolve_cdx_artifact_path(repo_root: Path, file_path: str) -> Path:
+    raw_value = unquote(file_path).strip()
+    if not raw_value:
+        raise ValueError("Missing CDX artifact path.")
+    expanded = Path(raw_value).expanduser()
+    if not expanded.is_absolute():
+        return _resolve_openable_file_path(repo_root, raw_value)
+
+    candidate = Path(os.path.realpath(expanded))
+    allowed_roots = [Path(os.path.realpath(repo_root)), Path(os.path.realpath(Path.home() / ".cdx"))]
+    try:
+        common_matches = [os.path.commonpath([str(root), str(candidate)]) == str(root) for root in allowed_roots]
+    except ValueError as exc:
+        raise ValueError("CDX artifact path is outside allowed locations.") from exc
+    if not any(common_matches):
+        raise ValueError("CDX artifact path is outside the repository and ~/.cdx.")
+    if not candidate.is_file():
+        raise FileNotFoundError(str(expanded))
+    return candidate
+
+
+def cdx_artifact_preview_payload(
+    repo_root: Path,
+    file_path: str,
+    *,
+    max_bytes: int = FILE_PREVIEW_MAX_BYTES,
+    max_chars: int = FILE_PREVIEW_MAX_CHARS,
+) -> dict[str, Any]:
+    absolute = _resolve_cdx_artifact_path(repo_root, file_path)
     raw = absolute.read_bytes()
     truncated = len(raw) > max_bytes
     if truncated:
@@ -4698,6 +4746,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
                 body = json.loads(raw_body or "{}")
                 self._send_json({"ok": True, "payload": file_preview_payload(self.server.repo_root, str(body.get("path", "")))})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/cdx-artifact-preview":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                self._send_json({"ok": True, "payload": cdx_artifact_preview_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (FileNotFoundError, ValueError) as exc:

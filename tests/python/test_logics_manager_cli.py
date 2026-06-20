@@ -28,6 +28,7 @@ from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
+    cdx_artifact_preview_payload,
     cdx_mission_apply_plan_payload,
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
@@ -451,6 +452,32 @@ def test_viewer_file_preview_reads_repo_files_with_truncation(tmp_path: Path) ->
         file_preview_payload(repo_root, "missing.log")
 
 
+def test_viewer_cdx_artifact_preview_allows_repo_and_cdx_logs_only(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    repo_file = repo_root / "logics.log"
+    repo_file.write_text("repo artifact", encoding="utf-8")
+    home = tmp_path / "home"
+    cdx_file = home / ".cdx" / "profiles" / "work3" / "log" / "cdx-run.log"
+    cdx_file.parent.mkdir(parents=True)
+    cdx_file.write_text("cdx artifact", encoding="utf-8")
+    external_file = tmp_path / "cdx-run.log"
+    external_file.write_text("external log", encoding="utf-8")
+    monkeypatch.setattr(Path, "home", lambda: home)
+
+    repo_payload = cdx_artifact_preview_payload(repo_root, "logics.log")
+    cdx_payload = cdx_artifact_preview_payload(repo_root, str(cdx_file))
+    legacy_payload = file_preview_payload(repo_root, str(cdx_file))
+
+    assert repo_payload["content"] == "repo artifact"
+    assert cdx_payload["content"] == "cdx artifact"
+    assert legacy_payload["content"] == "cdx artifact"
+    with pytest.raises(ValueError):
+        cdx_artifact_preview_payload(repo_root, str(external_file))
+    with pytest.raises(FileNotFoundError):
+        cdx_artifact_preview_payload(repo_root, str(home / ".cdx" / "missing.log"))
+
+
 def test_viewer_file_preview_truncates_to_latest_characters(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
@@ -610,6 +637,7 @@ def test_viewer_post_routes_are_classified_for_lan_gating() -> None:
         "/api/refresh",
         "/api/cdx-mission-plan",
         "/api/file-preview",
+        "/api/cdx-artifact-preview",
     }
     unclassified = post_routes - VIEWER_MUTATING_ROUTES - intentionally_bootstrap_or_readonly
 

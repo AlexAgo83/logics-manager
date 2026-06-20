@@ -1,10 +1,10 @@
 ## item_454_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders - Decompose logicsCorpusInsightsHtml.ts into reusable HTML fragment builders
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,8 +43,8 @@ Goal: decompose into reusable fragment/builder modules so chart and formatting l
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_259_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders.md`
-- Primary task(s): (none yet)
+- Request: `req_259_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders`
+- Primary task(s): `task_244_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders`
 
 # AI Context
 - Summary: Decompose logicsCorpusInsightsHtml.ts into reusable HTML fragment builders
@@ -60,6 +60,7 @@ Goal: decompose into reusable fragment/builder modules so chart and formatting l
 - Hybrid rationale: Derived from request `req_259_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_259_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders.md`.
 - Generated locally by logics-manager.
+- Task `task_244_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_244_decompose_logicscorpusinsightshtml_ts_into_reusable_html_fragment_builders`

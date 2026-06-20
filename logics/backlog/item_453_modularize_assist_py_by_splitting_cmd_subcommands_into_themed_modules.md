@@ -1,10 +1,10 @@
 ## item_453_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules - Modularize assist.py by splitting cmd_* subcommands into themed modules
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,8 +43,8 @@ Goal: split `assist.py` into themed modules so each assist concern is readable a
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_258_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules.md`
-- Primary task(s): (none yet)
+- Request: `req_258_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules`
+- Primary task(s): `task_243_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules`
 
 # AI Context
 - Summary: Modularize assist.py by splitting cmd_* subcommands into themed modules
@@ -60,6 +60,7 @@ Goal: split `assist.py` into themed modules so each assist concern is readable a
 - Hybrid rationale: Derived from request `req_258_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_258_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules.md`.
 - Generated locally by logics-manager.
+- Task `task_243_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_243_modularize_assist_py_by_splitting_cmd_subcommands_into_themed_modules`

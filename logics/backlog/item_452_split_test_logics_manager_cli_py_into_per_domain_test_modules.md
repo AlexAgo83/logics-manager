@@ -1,10 +1,10 @@
 ## item_452_split_test_logics_manager_cli_py_into_per_domain_test_modules - Split test_logics_manager_cli.py into per-domain test modules
 > From version: 2.11.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,8 +43,8 @@ Goal: split into per-domain test modules under `tests/python/` to improve readab
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules.md`
-- Primary task(s): (none yet)
+- Request: `req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules`
+- Primary task(s): `task_242_split_test_logics_manager_cli_py_into_per_domain_test_modules`
 
 # AI Context
 - Summary: Split test_logics_manager_cli.py into per-domain test modules
@@ -60,6 +60,7 @@ Goal: split into per-domain test modules under `tests/python/` to improve readab
 - Hybrid rationale: Derived from request `req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_257_split_test_logics_manager_cli_py_into_per_domain_test_modules.md`.
 - Generated locally by logics-manager.
+- Task `task_242_split_test_logics_manager_cli_py_into_per_domain_test_modules` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_242_split_test_logics_manager_cli_py_into_per_domain_test_modules`

@@ -1,9 +1,9 @@
 ## item_467_add_an_icon_to_the_settings_button - Add an icon to the Settings button
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
@@ -57,6 +57,7 @@ The Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:7
 # Notes
 - Hybrid rationale: Derived from request `req_263_...` and kept bounded to the Settings icon slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
+- Task `task_260_add_an_icon_to_the_settings_button` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_260_add_an_icon_to_the_settings_button`

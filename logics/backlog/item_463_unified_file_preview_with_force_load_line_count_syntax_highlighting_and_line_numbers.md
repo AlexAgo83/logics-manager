@@ -1,10 +1,10 @@
 ## item_463_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers - Unified file preview with force-load, line count, syntax highlighting and line numbers
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -63,6 +63,7 @@ File preview surfaces truncate silently at hard-coded byte limits (`logics_manag
 # Notes
 - Hybrid rationale: Derived from request `req_263_...` and kept bounded to the file-preview slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
+- Task `task_256_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_256_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers`

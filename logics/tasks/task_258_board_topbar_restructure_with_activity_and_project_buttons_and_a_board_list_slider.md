@@ -1,10 +1,10 @@
 ## task_258_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider - Board topbar restructure with Activity and Project slider plus project display mode
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 96%
-> Confidence: 88%
-> Progress: 90%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,7 +15,7 @@
 - [x] Responsive CSS (`clients/viewer/viewer.css`, `@media (max-width: 640px)`): mobile → search bar on its own full-width line, Activity/Project slider right-anchored on the controls line; desktop → single line.
 - [x] Gate project controls while Activity is selected: search, filter, attention, and Board/List controls are hidden; clear-activity remains available. Hide clear-activity while Project is selected.
 - [x] Tests cover Activity/Project slider placement, shared chrome state, conditional controls CSS, and the mobile reflow CSS; `viewer_assets/` synced.
-- [ ] Follow-up: extend conditional left-control gating to non-corpus remote/workshop screens if the floating document surface stops covering the board toolbar.
+- [x] Follow-up: extend conditional left-control gating to non-corpus remote/workshop screens via `viewer-screen-document`, so corpus controls are hidden whenever a document surface is open.
 
 # Backlog
 - `item_465_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider`
@@ -31,11 +31,17 @@
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `npx vitest run`; manually verify desktop and mobile-width layouts.
 - Run `python3 -m logics_manager flow finish task task_258_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider.md` after implementation.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implemented correction: the `.toolbar__view` slider now controls Activity/Project. Activity opens the Recent Activity panel; Project shows the board/list project surface according to the existing selected display mode. The Board/List control moved back to a compact project display button using the shared `data-action="toggle-view-mode"` handler instead of masquerading as the main slider.
 - Conditional controls: `webviewChrome.js` writes `data-current-mode="activity|project"` and body classes (`viewer-screen-activity`/`viewer-screen-project`); CSS hides project search/filter/attention/display controls while Activity is selected and hides clear-activity while Project is selected.
-- Validation: viewer suite (117) covers Activity/Project markup, shared chrome state, conditional controls CSS, mobile reflow, and no regression in the project display-mode control. `viewer_assets/` synced, including packaged `webviewChrome.js`.
+- Follow-up fix: document surfaces now toggle `viewer-screen-document`; CSS hides corpus search/filter/attention/display controls and clear-activity while Remote/Workshop/CDX/document screens are open.
+- Validation: viewer suite (118) covers Activity/Project markup, shared chrome state, document-screen conditional controls CSS, mobile reflow, and no regression in the project display-mode control. `viewer_assets/` synced, including packaged viewer assets.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_465_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider`
+- Related request(s): `req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge`
 
 # AI Context
 - Summary: Split Activity/Project into the main slider, keep Board/List as the Project display mode, and gate controls by selected section.

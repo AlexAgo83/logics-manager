@@ -1,9 +1,9 @@
 ## item_466_cdx_status_ok_column_uses_the_shared_session_usage_gauge - CDX status OK column uses the shared session usage gauge
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 99%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
@@ -58,6 +58,7 @@ The CDX status screen renders the readiness/OK column with plain badges (`render
 # Notes
 - Hybrid rationale: Derived from request `req_263_...` and kept bounded to the CDX status gauge slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
+- Task `task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge`

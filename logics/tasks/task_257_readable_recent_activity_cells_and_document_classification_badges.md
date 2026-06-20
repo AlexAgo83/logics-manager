@@ -1,9 +1,9 @@
 ## task_257_readable_recent_activity_cells_and_document_classification_badges - Readable Recent Activity cells and document classification badges
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 100%
-> Confidence: 96%
+> Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -28,10 +28,15 @@
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `npx vitest run` (board/activity + viewer tests).
 - Run `python3 -m logics_manager flow finish task task_257_readable_recent_activity_cells_and_document_classification_badges.md` after implementation.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implemented: `createCardTitle` now sets `title`/`aria-label` ("Stage · ID") and `data-stage` on `.card__title-prefix` (new `stageLabelByStage` map); `renderActivityPanel` marker gets a stage tooltip/aria-label, `data-stage`, and the meta line reads "Change · Stage · id". Added per-stage colour CSS for both the activity marker (`toolbar.css`) and the card prefix (`board.css`).
 - Validation: extended the board-renderer test to assert the prefix tooltip/aria-label/data-stage; full vitest suite green (638). Mirrored the four edited `shared-web/media` files into `viewer_assets/media`.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_464_readable_recent_activity_cells_and_document_classification_badges`
+- Related request(s): `req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge`
 
 # AI Context
 - Summary: Make the P/A/... pills and the Recent Activity cell self-explanatory in the shared renderer.

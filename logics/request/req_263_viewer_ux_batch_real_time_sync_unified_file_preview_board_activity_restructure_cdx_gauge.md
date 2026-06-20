@@ -1,7 +1,7 @@
 ## req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge - Viewer UX batch: real-time sync, unified file preview, board/activity restructure, CDX gauge
 > From version: 2.12.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 88%
 > Complexity: High

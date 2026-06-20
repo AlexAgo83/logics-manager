@@ -459,9 +459,9 @@
   const cdxRunColumns = [
     { id: "run", label: "RUN" },
     { id: "status", label: "STATUS" },
-    { id: "kind", label: "KIND" },
+    { id: "kind", label: "KIND", defaultVisible: false },
     { id: "session", label: "SESSION" },
-    { id: "cwd", label: "CWD" },
+    { id: "cwd", label: "CWD", defaultVisible: false },
     { id: "report", label: "REPORT" }
   ];
   const statusOptionsByStage = {
@@ -1838,7 +1838,7 @@
       "CDX status": "Configured agents and runtime checks",
       "CDX missions": "Guided missions and plans",
       "CDX runs": "Recent CDX session runs",
-      "CDX run report": "Mission output and findings",
+      "CDX run report": "Run summary and logs",
       "CDX log": "Streaming log output",
     };
     if (exact[title]) return exact[title];
@@ -4484,11 +4484,12 @@
   function renderCdxArtifactRows(value, emptyText) {
     const rows = objectEntries(value).slice(0, 12).map(([key, entry]) => {
       const path = typeof entry === "string" ? entry : "";
+      const filename = path ? path.split(/[\\/]/).filter(Boolean).pop() || path : "";
       return `
         <li class="viewer-cdx__row">
           <span>${escapeHtml(cdxLabel(key))}</span>
           <strong>${path
-            ? `<button class="viewer-cdx__path-link" type="button" data-viewer-cdx-artifact-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
+            ? `<button class="viewer-cdx__path-link" type="button" data-viewer-cdx-artifact-path="${escapeHtml(path)}" title="${escapeHtml(path)}">${escapeHtml(filename)}</button>`
             : escapeHtml(typeof entry === "object" ? JSON.stringify(entry) : entry)}
           </strong>
         </li>
@@ -4869,8 +4870,8 @@
     `;
   }
 
-  function closeCdxSessionMenus(exceptMenu = null) {
-    document.querySelectorAll(".viewer-cdx__session-menu[open], .viewer-cdx__mission-config[open], .viewer-workshop__command-run-menu[open]").forEach((menu) => {
+  function closeCdxMenus(exceptMenu = null) {
+    document.querySelectorAll(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]").forEach((menu) => {
       if (exceptMenu && menu === exceptMenu) {
         return;
       }
@@ -5462,9 +5463,9 @@
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("runs")}
+        ${renderCdxRunControls(visibleColumns)}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runsSummary)}</span></div>
-          ${renderCdxRunControls(visibleColumns)}
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
               <thead><tr>${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
@@ -5511,19 +5512,6 @@
     return ["findings", "recommendations", "requestFiles", "actionableFixes", "releasePlan"].some((key) => cdxCount(missionOutput?.[key]));
   }
 
-  function renderCdxReportCards(cards) {
-    return `
-      <div class="viewer-cdx__summary">
-        ${cards.map(([label, value]) => `
-          <div class="viewer-cdx__card">
-            <div class="viewer-cdx__label">${escapeHtml(label)}</div>
-            <div class="viewer-cdx__value">${escapeHtml(value)}</div>
-          </div>
-        `).join("")}
-      </div>
-    `;
-  }
-
   function renderCdxDetailValue(value) {
     if (Array.isArray(value)) {
       return `
@@ -5550,6 +5538,51 @@
         <div class="viewer-cdx__detail-value">${renderCdxDetailValue(value)}</div>
       </li>
     `;
+  }
+
+  function cdxReportSummary(report, taskReport, missionOutput, runError, permissionDenials) {
+    const direct = taskReport?.summary || missionOutput?.summary || report?.summary || "";
+    if (direct) {
+      return String(direct);
+    }
+    if (permissionDenials.length) {
+      return "Run stopped on permission checks.";
+    }
+    if (runError?.message) {
+      return String(runError.message);
+    }
+    return "No summary was reported for this run.";
+  }
+
+  function cdxReportNextAction(taskReport, missionOutput, runError, permissionDenials, findings) {
+    if (permissionDenials.length) {
+      return "Review denied operations before rerunning or applying work.";
+    }
+    if (findings.length) {
+      return "Review findings and create a Logics request if follow-up is needed.";
+    }
+    if (cdxCount(missionOutput?.recommendations)) {
+      return "Review recommendations in the details below.";
+    }
+    if (runError?.message) {
+      return "Inspect the run signal and logs.";
+    }
+    if (taskReport?.summary || missionOutput?.summary) {
+      return "Inspect the artifacts if you need the full transcript.";
+    }
+    return "Open the transcript or stdout artifact for raw output.";
+  }
+
+  function renderCdxReportKeyList(rows, emptyText = "No details reported.") {
+    const content = rows
+      .filter(([_label, value]) => value !== undefined && value !== null && value !== "" && value !== 0)
+      .map(([label, value]) => `
+        <li class="viewer-cdx__row">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </li>
+      `).join("");
+    return content || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
   }
 
   function parseCdxLogJson(content) {
@@ -5649,7 +5682,7 @@
       .join("");
     return `
       <section class="viewer-cdx__section">
-        <div class="viewer-ci__heading"><h2>Mission output</h2><span>${escapeHtml(rows.length)} signals</span></div>
+        <div class="viewer-ci__heading"><h2>Details</h2><span>${escapeHtml(rows.length)} signals</span></div>
         <ul class="viewer-cdx__list">
           ${rows.map(([label, value]) => renderCdxDetailRow(label, value)).join("") || '<li class="viewer-cdx__empty">No structured mission output was reported.</li>'}
         </ul>
@@ -5679,6 +5712,8 @@
         : [];
     const findings = Array.isArray(taskReport.findings) ? taskReport.findings : [];
     const missionOutput = cdxReportMissionOutput(report, run, taskReport);
+    const summary = cdxReportSummary(report, taskReport, missionOutput, runError, permissionDenials);
+    const nextAction = cdxReportNextAction(taskReport, missionOutput, runError, permissionDenials, findings);
     const findingRows = findings.map((finding, index) => {
       const location = [finding.path || finding.file || "", finding.line || ""].filter(Boolean).join(":") || "-";
       return `<li class="viewer-cdx__entity"><div class="viewer-cdx__entity-main"><div><strong>${escapeHtml(finding.message || finding.title || `Finding ${index + 1}`)}</strong><div class="viewer-cdx__meta">${escapeHtml(location)}</div></div>${renderCdxBadge(finding.severity || "unknown")}</div></li>`;
@@ -5692,16 +5727,18 @@
             <div><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
             <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to runs</button>
           </div>
-          ${renderCdxReportCards([
-            ["Status", run.status || "unknown"],
-            ["Kind", taskReport.kind || run.kind || "assistant"],
-            ["Findings", String(findings.length)],
-            ["Artifacts", String(objectEntries(artifacts).length)]
-          ])}
           <ul class="viewer-cdx__list">
-            <li class="viewer-cdx__row"><span>Run</span><strong>${escapeHtml(run.run_id || taskReport.run_id || "-")}</strong></li>
-            <li class="viewer-cdx__row"><span>Kind</span><strong>${escapeHtml(taskReport.kind || run.kind || "assistant")}</strong></li>
-            ${renderCdxDetailRow("Summary", taskReport.summary || "No summary reported.")}
+            <li class="viewer-cdx__row viewer-cdx__row--block"><span>Summary</span><div class="viewer-cdx__detail-value"><strong>${escapeHtml(summary)}</strong></div></li>
+            <li class="viewer-cdx__row viewer-cdx__row--block"><span>Next</span><div class="viewer-cdx__detail-value"><strong>${escapeHtml(nextAction)}</strong></div></li>
+          </ul>
+          <ul class="viewer-cdx__list">
+            ${renderCdxReportKeyList([
+              ["Status", run.status || "unknown"],
+              ["Run", run.run_id || taskReport.run_id || "-"],
+              ["Session", run.session || taskReport.session || ""],
+              ["Findings", String(findings.length)],
+              ["Artifacts", String(objectEntries(artifacts).length)]
+            ])}
           </ul>
           ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>
@@ -5716,7 +5753,7 @@
         ` : ""}
         ${objectEntries(runError).length ? `
           <section class="viewer-cdx__section">
-            <div class="viewer-ci__heading"><h2>Run signal</h2><span>${escapeHtml(runError.code || "reported")}</span></div>
+            <div class="viewer-ci__heading"><h2>Signal</h2><span>${escapeHtml(runError.code || "reported")}</span></div>
             <ul class="viewer-cdx__list">${renderCdxObjectRows(runError, "No run signal reported.")}</ul>
           </section>
         ` : ""}
@@ -6037,7 +6074,7 @@
       return;
     }
     setMeta("Loading CDX log...");
-    const response = await fetch("/api/file-preview", {
+    const response = await fetch("/api/cdx-artifact-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path })
@@ -6954,8 +6991,8 @@
     });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config, .viewer-workshop__command-run-menu") : null;
-      closeCdxSessionMenus(activeCdxSessionMenu);
+      const activeCdxMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__menu, .viewer-workshop__command-run-menu") : null;
+      closeCdxMenus(activeCdxMenu);
       // Close any open topbar sub-section menu when clicking outside of it.
       if (!(event.target instanceof Element) || !event.target.closest(".viewer-nav-menu")) {
         closeNavMenus();
@@ -7315,12 +7352,12 @@
       }
     });
     document.addEventListener("focusin", (event) => {
-      const activeCdxSessionMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__session-menu, .viewer-cdx__mission-config, .viewer-workshop__command-run-menu") : null;
-      closeCdxSessionMenus(activeCdxSessionMenu);
+      const activeCdxMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__menu, .viewer-workshop__command-run-menu") : null;
+      closeCdxMenus(activeCdxMenu);
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
-        closeCdxSessionMenus();
+        closeCdxMenus();
       }
     });
     document.getElementById("viewer-document-close")?.addEventListener("click", () => {

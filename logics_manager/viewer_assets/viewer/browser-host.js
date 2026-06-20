@@ -1319,12 +1319,35 @@
     return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
   }
 
+  function navMenuItem(target) {
+    return Array.from(document.querySelectorAll("[data-viewer-nav-target]"))
+      .find((item) => item.getAttribute("data-viewer-nav-target") === target) || null;
+  }
+
+  function clearNavMenuBadges(targets) {
+    targets.forEach((target) => {
+      navMenuItem(target)?.querySelector("[data-viewer-menu-badges]")?.remove();
+    });
+  }
+
+  function setNavMenuBadges(target, html) {
+    const item = navMenuItem(target);
+    if (!(item instanceof HTMLElement)) {
+      return;
+    }
+    item.querySelector("[data-viewer-menu-badges]")?.remove();
+    if (html) {
+      item.insertAdjacentHTML("beforeend", `<span class="viewer-nav-menu__badges" data-viewer-menu-badges>${html}</span>`);
+    }
+  }
+
   let workshopBadgeCounts = { terminals: 0, commands: 0 };
 
   function updateWorkshopBadges() {
     const button = document.getElementById("viewer-workshop");
     if (!(button instanceof HTMLElement)) return;
     button.querySelector('[data-viewer-workshop-badges]')?.remove();
+    clearNavMenuBadges(["workshop:terminals", "workshop:commands"]);
     const { terminals, commands } = workshopBadgeCounts;
     if (terminals <= 0 && commands <= 0) return;
     const html = [
@@ -1337,6 +1360,12 @@
     ].filter(Boolean).join("");
     if (html) {
       button.insertAdjacentHTML("beforeend", `<span class="viewer-git-badges" data-viewer-workshop-badges>${html}</span>`);
+    }
+    if (terminals > 0) {
+      setNavMenuBadges("workshop:terminals", renderGitBadge("commits", terminals));
+    }
+    if (commands > 0) {
+      setNavMenuBadges("workshop:commands", renderGitBadge("files", commands));
     }
   }
 
@@ -1373,6 +1402,7 @@
         button.insertAdjacentHTML("beforeend", html);
       }
     }
+    setNavMenuBadges("remote:git", gitBadgeHtml("main"));
   }
 
   function ciBadgeTone(value) {
@@ -1432,12 +1462,15 @@
     // updateCapabilityControls (git OR ci available), since the button is
     // shared with Git and must stay visible when only git is available.
     button.querySelector("[data-viewer-ci-badge]")?.remove();
+    clearNavMenuBadges(["remote:runs"]);
     if (!latestCiStatus.visible) {
       return;
     }
     // Surface the latest CI message in the shared button tooltip when CI is live.
     button.title = latestCiStatus.message || "Show Git status, CI runs, and release state";
-    button.insertAdjacentHTML("beforeend", renderCiButtonBadge(latestCiStatus));
+    const badge = renderCiButtonBadge(latestCiStatus);
+    button.insertAdjacentHTML("beforeend", badge);
+    setNavMenuBadges("remote:runs", badge);
   }
 
   async function refreshCiBadgeCounters() {
@@ -1497,6 +1530,7 @@
       return;
     }
     button.querySelector("[data-viewer-cdx-badge]")?.remove();
+    clearNavMenuBadges(["cdx:status", "cdx:runs"]);
     const activeSessions = activeCdxAssistantCountFromPayload(payload);
     const activeRuns = activeCdxRunCountFromPayload(runsPayload);
     const activeCount = activeSessions + activeRuns;
@@ -1518,6 +1552,16 @@
     button.title = `Show CDX status · ${title}`;
     const tone = activeRuns > 0 ? " viewer-cdx-button-badge--runs" : "";
     button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge${tone}" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
+    if (activeSessions > 0) {
+      const sessionLabel = activeSessions > 9 ? "9+" : String(activeSessions);
+      const sessionTitle = activeSessions === 1 ? "1 active session" : `${activeSessions} active sessions`;
+      setNavMenuBadges("cdx:status", `<span class="viewer-cdx-button-badge" title="${escapeHtml(sessionTitle)}" aria-label="${escapeHtml(sessionTitle)}">${escapeHtml(sessionLabel)}</span>`);
+    }
+    if (activeRuns > 0) {
+      const runLabel = activeRuns > 9 ? "9+" : String(activeRuns);
+      const runTitle = activeRuns === 1 ? "1 running run" : `${activeRuns} running runs`;
+      setNavMenuBadges("cdx:runs", `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--runs" title="${escapeHtml(runTitle)}" aria-label="${escapeHtml(runTitle)}">${escapeHtml(runLabel)}</span>`);
+    }
   }
 
   async function refreshCdxBadgeCounters() {

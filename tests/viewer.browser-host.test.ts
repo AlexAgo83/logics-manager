@@ -1512,6 +1512,15 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(remoteWrapper?.classList.contains("is-open")).toBe(true);
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).not.toBe("Remote");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="remote:git"] [data-viewer-menu-badges]')?.textContent).toContain("1");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="remote:runs"] [data-viewer-menu-badges]')?.textContent).toContain("pass");
+
+    const cdxWrapper = dom.window.document.querySelector('[data-viewer-nav="cdx"]');
+    dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cdxWrapper?.classList.contains("is-open")).toBe(true);
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"] [data-viewer-menu-badges]')?.textContent).toContain("1");
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="cdx:runs"] [data-viewer-menu-badges]')?.textContent).toContain("1");
 
     // Workshop → Explorer jumps straight to the Explorer sub-tab.
     dom.window.document.querySelector('[data-viewer-nav-target="workshop:explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

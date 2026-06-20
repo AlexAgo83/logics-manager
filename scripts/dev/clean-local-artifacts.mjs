@@ -6,7 +6,6 @@ export const DEFAULT_ARTIFACT_TARGETS = Object.freeze([
   "artifacts",
   "build",
   "coverage",
-  ".code-review-graph",
   "logics/.cache"
 ]);
 

@@ -30,20 +30,12 @@ logics/release/evidence.jsonl
 logics/.cache/hybrid_assist_audit.jsonl
 logics/.cache/hybrid_assist_measurements.jsonl
 
-# code-review-graph
-.code-review-graph/
-setup-crg.sh
-setup-crg.ps1
-check-crg.sh
 CLAUDE.md
-crg-cheatsheet.pdf
-CRG-README.md
 .cursorrules
 .opencode.json
 .windsurfrules
 GEMINI.md
 AGENTS.md
-CODE_REVIEW_GRAPH.md
 RTK.md
 LOGICS.md
 

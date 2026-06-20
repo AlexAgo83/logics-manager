@@ -426,6 +426,7 @@
   let latestGitStatusSignature = "";
   let latestCdxStatusSignature = "";
   let latestCdxStatusPayload = null;
+  let latestCdxRunsPayload = null;
   let latestCiStatusSignature = "";
   let latestCiScreenMode = "git";
   let currentDocumentItem = null;
@@ -454,6 +455,14 @@
     { id: "reset5h", label: "RESET 5H" },
     { id: "resetWeek", label: "RESET WEEK" },
     { id: "updated", label: "UPDATED" }
+  ];
+  const cdxRunColumns = [
+    { id: "run", label: "RUN" },
+    { id: "status", label: "STATUS" },
+    { id: "kind", label: "KIND" },
+    { id: "session", label: "SESSION" },
+    { id: "cwd", label: "CWD" },
+    { id: "report", label: "REPORT" }
   ];
   const statusOptionsByStage = {
     request: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
@@ -522,6 +531,31 @@
     }
     updateViewerPreferences({
       cdxStatusColumns: {
+        visibility: { ...current, [columnId]: Boolean(visible) }
+      }
+    });
+  }
+
+  function cdxRunColumnVisibilityPreference() {
+    const stored = viewerPreferences.cdxRunColumns;
+    const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
+    const visibility = {};
+    cdxRunColumns.forEach((column) => {
+      visibility[column.id] = column.defaultVisible !== false;
+      if (storedVisibility && typeof storedVisibility[column.id] === "boolean") {
+        visibility[column.id] = storedVisibility[column.id];
+      }
+    });
+    return visibility;
+  }
+
+  function persistCdxRunColumnVisibility(columnId, visible) {
+    const current = cdxRunColumnVisibilityPreference();
+    if (!cdxRunColumns.some((column) => column.id === columnId)) {
+      return;
+    }
+    updateViewerPreferences({
+      cdxRunColumns: {
         visibility: { ...current, [columnId]: Boolean(visible) }
       }
     });
@@ -4788,6 +4822,25 @@
     `;
   }
 
+  function renderCdxRunControls(visibleColumns) {
+    const columnRows = cdxRunColumns.map((column) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-run-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
+        <span>${escapeHtml(column.label)}</span>
+      </label>
+    `).join("");
+    return `
+      <div class="viewer-cdx__controls" aria-label="CDX runs table controls">
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Configure run columns" aria-label="Configure run columns">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX run columns">${columnRows}</div>
+        </details>
+      </div>
+    `;
+  }
+
   function isCdxSessionEnabled(item) {
     if (item.enabled === false) {
       return false;
@@ -5382,18 +5435,27 @@
       : runningCount
       ? `${runs.length} reported · ${runningCount} running`
       : `${runs.length} reported`;
+    const visibleColumns = cdxRunColumnVisibilityPreference();
+    const activeColumns = cdxRunColumns.filter((column) => visibleColumns[column.id]);
+    const cellRenderers = {
+      run: (run) => {
+        const runId = cdxField(run, ["run_id", "runId", "id"], "");
+        const detail = cdxRunStatusDetail(run);
+        return `<td><code>${escapeHtml(runId || "-")}</code>${detail ? `<div class="viewer-cdx__meta">${escapeHtml(detail)}</div>` : ""}</td>`;
+      },
+      status: (run) => `<td>${renderCdxBadge(cdxField(run, ["status", "state"], "unknown"))}</td>`,
+      kind: (run) => `<td>${escapeHtml(cdxField(run, ["kind"], "assistant"))}</td>`,
+      session: (run) => `<td>${escapeHtml(cdxField(run, ["session", "session_id", "sessionId"], "-"))}</td>`,
+      cwd: (run) => `<td>${escapeHtml(cdxField(run, ["cwd", "workspace", "repo"], "-"))}</td>`,
+      report: (run) => {
+        const runId = cdxField(run, ["run_id", "runId", "id"], "");
+        return `<td>${runId ? `<button class="viewer-cdx__mode" type="button" data-viewer-cdx-report="${escapeHtml(runId)}">Report</button>` : ""}</td>`;
+      }
+    };
     const rows = runs.map((run) => {
-      const runId = cdxField(run, ["run_id", "runId", "id"], "");
-      const status = cdxField(run, ["status", "state"], "unknown");
-      const detail = cdxRunStatusDetail(run);
       return `
         <tr>
-          <td><code>${escapeHtml(runId || "-")}</code>${detail ? `<div class="viewer-cdx__meta">${escapeHtml(detail)}</div>` : ""}</td>
-          <td>${renderCdxBadge(status)}</td>
-          <td>${escapeHtml(cdxField(run, ["kind"], "assistant"))}</td>
-          <td>${escapeHtml(cdxField(run, ["session", "session_id", "sessionId"], "-"))}</td>
-          <td>${escapeHtml(cdxField(run, ["cwd", "workspace", "repo"], "-"))}</td>
-          <td>${runId ? `<button class="viewer-cdx__mode" type="button" data-viewer-cdx-report="${escapeHtml(runId)}">Report</button>` : ""}</td>
+          ${activeColumns.map((column) => cellRenderers[column.id](run)).join("")}
         </tr>
       `;
     }).join("");
@@ -5402,10 +5464,11 @@
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading"><h2>Assistant runs</h2><span>${escapeHtml(runsSummary)}</span></div>
+          ${renderCdxRunControls(visibleColumns)}
           <div class="viewer-cdx__table-wrap">
             <table class="viewer-cdx__table">
-              <thead><tr><th>RUN</th><th>STATUS</th><th>KIND</th><th>SESSION</th><th>CWD</th><th>REPORT</th></tr></thead>
-              <tbody>${rows || '<tr><td colspan="6" class="viewer-cdx__empty">No assistant runs reported.</td></tr>'}</tbody>
+              <thead><tr>${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
+              <tbody>${rows || `<tr><td colspan="${Math.max(activeColumns.length, 1)}" class="viewer-cdx__empty">No assistant runs reported.</td></tr>`}</tbody>
             </table>
           </div>
         </section>
@@ -5906,6 +5969,7 @@
   async function showCdxRuns(options = {}) {
     if (!isCapabilityAvailable("cdx")) {
       const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      latestCdxRunsPayload = { state: capability("cdx").state, message };
       setDocument("CDX runs", renderCdxRuns({ state: capability("cdx").state, message }));
       setMeta(message);
       return;
@@ -5935,6 +5999,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load CDX runs.");
     }
+    latestCdxRunsPayload = data.payload;
     setDocument("CDX runs", renderCdxRuns(data.payload));
     setMeta(options.silent ? "CDX runs refreshed." : "CDX runs loaded.");
   }
@@ -6831,6 +6896,7 @@
       const cdxRunModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run-mode]") : null;
       const cdxPromptTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-prompt]") : null;
       const cdxColumnTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-column]") : null;
+      const cdxRunColumnTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run-column]") : null;
       const cdxProviderTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-provider]") : null;
       if (cdxPromptTarget instanceof HTMLTextAreaElement) {
         // Store the operator-edited prompt without resetting the plan so the
@@ -6865,6 +6931,10 @@
       if (cdxColumnTarget instanceof HTMLInputElement) {
         persistCdxColumnVisibility(cdxColumnTarget.getAttribute("data-viewer-cdx-column") || "", cdxColumnTarget.checked);
         rerenderCdxStatusFromPreferences();
+      }
+      if (cdxRunColumnTarget instanceof HTMLInputElement) {
+        persistCdxRunColumnVisibility(cdxRunColumnTarget.getAttribute("data-viewer-cdx-run-column") || "", cdxRunColumnTarget.checked);
+        setDocument("CDX runs", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
       }
       if (cdxProviderTarget instanceof HTMLInputElement) {
         const provider = cdxProviderTarget.getAttribute("data-viewer-cdx-provider") || "";

@@ -2677,6 +2677,57 @@ describe("local viewer browser host", () => {
     expect(text).toContain("code-review");
   });
 
+  it("persists CDX run column visibility", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).toContain("CWD");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("/workspace/logics-manager");
+
+    const cwd = dom.window.document.querySelector('[data-viewer-cdx-run-column="cwd"]') as HTMLInputElement | null;
+    expect(cwd?.checked).toBe(true);
+    cwd!.checked = false;
+    cwd?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("CWD");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).not.toContain("/workspace/logics-manager");
+    expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxRunColumns?.visibility).toMatchObject({
+      cwd: false
+    });
+  });
+
+  it("restores persisted CDX run column visibility", async () => {
+    const { dom } = createViewerDom({
+      initialPreferences: {
+        version: 1,
+        cdxRunColumns: { visibility: { cwd: false, report: false } }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-cdx-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("CWD");
+    expect(headers).not.toContain("REPORT");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-run-column="cwd"]')).toBeTruthy();
+    expect(dom.window.document.querySelector('[data-viewer-cdx-report="run-1"]')).toBeNull();
+  });
+
   it("adds active runs to the CDX topbar badge", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

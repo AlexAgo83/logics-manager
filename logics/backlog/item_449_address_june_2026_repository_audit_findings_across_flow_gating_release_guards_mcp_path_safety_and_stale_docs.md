@@ -1,10 +1,10 @@
 ## item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs - Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs
 > From version: 2.11.5
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -40,8 +40,8 @@ Keep this as a draft request for later triage; do not promote it as part of the 
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md`
-- Primary task(s): (none yet)
+- Request: `req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs`
+- Primary task(s): `task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs`
 
 # AI Context
 - Summary: Address June 2026 repository audit findings across flow gating, release guards, MCP path safety, and stale docs
@@ -57,6 +57,7 @@ Keep this as a draft request for later triage; do not promote it as part of the 
 - Hybrid rationale: Derived from request `req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_254_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md`.
 - Generated locally by logics-manager.
+- Task `task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs`

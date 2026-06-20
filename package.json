@@ -122,6 +122,8 @@
     "clean:local-artifacts": "node scripts/dev/clean-local-artifacts.mjs",
     "sync:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs",
     "check:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs --check",
+    "setup-hooks": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true",
     "bundle:extension": "node scripts/build/package-extension.mjs",
     "watch:bundle": "node scripts/build/package-extension.mjs --watch",
     "watch:types": "tsc -watch -p ./",

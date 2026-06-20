@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 95%
-> Confidence: 90%
+> Confidence: 92%
 > Progress: 95%
 > Complexity: High
 > Theme: Implementation delivery
@@ -15,7 +15,7 @@
 - [x] Client: render a "load anyway" control whenever the preview is truncated/oversized; on activate, refetch with `full=1`.
 - [x] Add a discreet, accurate line count to the Explorer/CDX viewers.
 - [x] Vendor highlight.js 11.9.0 locally (`clients/shared-web/media/vendor/highlight/`, no CDN); apply highlighting by extension with plain-text fallback.
-- [x] Render per-line numbers in a non-selectable gutter (`user-select: none`).
+- [x] Render per-line numbers inline in each code row (`user-select: none`) so numbers and file contents share one scroll surface.
 - [x] Tests cover server force-load + line count + canForce, and the client gutter/line-count/force-load + CDX log code viewer; `viewer_assets/` synced and packaged in `pyproject.toml`.
 - [x] Git diff preview and git file fallback preview route through the same `renderCodeViewer`; diff lines keep add/delete/hunk/meta decoration, and git file preview supports `full=1`, line count, truncation flags, and the shared "Load anyway" control.
 
@@ -36,8 +36,8 @@
 - Run `python3 -m logics_manager flow finish task task_256_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers.md` after implementation.
 
 # Report
-- Implemented: new shared `renderCodeViewer(content, {language, lineCount, truncated, hardCapHit, forceButtonHtml})` (line-number gutter + highlight + count) plus `detectHljsLanguage`/`highlightCode`. Wired into the Explorer preview (with server `full` force-load: `workspace_preview_payload(full=...)`, hard ceiling, `canForce`/`hardCapHit`/`lineCount`), the CDX raw log preview, Git diff preview, and Git file fallback preview. Git diff lines keep add/delete/hunk/meta decoration inside the shared code viewer; Git file fallback preview supports `full=1`, `canForce`, `hardCapHit`, and `lineCount`.
-- Fix: the code viewer now has a single scroll container for gutter + body; the gutter is sticky and the body no longer owns an independent scroll, so line numbers and content cannot desynchronize.
+- Implemented: new shared `renderCodeViewer(content, {language, lineCount, truncated, hardCapHit, forceButtonHtml})` (inline line numbers + highlight + count) plus `detectHljsLanguage`/`highlightCode`. Wired into the Explorer preview (with server `full` force-load: `workspace_preview_payload(full=...)`, hard ceiling, `canForce`/`hardCapHit`/`lineCount`), the CDX raw log preview, Git diff preview, and Git file fallback preview. Git diff lines keep add/delete/hunk/meta decoration inside the shared code viewer; Git file fallback preview supports `full=1`, `canForce`, `hardCapHit`, and `lineCount`.
+- Fix: the code viewer now renders every visible line as a single row containing both the line number and code. There is no separate gutter/body scroll pair, so line numbers and content cannot desynchronize.
 - Validation: python `test_viewer_cli.py` (87) incl. new force-load/line-count tests; viewer suite (117) incl. code-viewer, Git file preview, Activity/Project chrome, and CDX-log assertions; npm package ceiling raised for the vendored bundle. `viewer_assets/` synced.
 
 # AI Context

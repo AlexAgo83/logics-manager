@@ -1,10 +1,10 @@
 ## item_447_add_unread_change_badges_to_cdx_missions_reports_and_history - Add unread change badges to CDX Missions Reports and History
 > From version: 2.11.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,6 +76,7 @@ Aggregate unread CDX section changes on the top-level `CDX` button so operators 
 - Hybrid rationale: Derived from request `req_252_add_unread_change_badges_to_cdx_missions_reports_and_history` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_252_add_unread_change_badges_to_cdx_missions_reports_and_history.md`.
 - Generated locally by logics-manager.
+- Task `task_237_add_unread_change_badges_to_cdx_missions_reports_and_history` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_237_add_unread_change_badges_to_cdx_missions_reports_and_history`

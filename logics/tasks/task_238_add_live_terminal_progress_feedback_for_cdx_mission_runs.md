@@ -1,18 +1,18 @@
 ## task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs - Add live terminal progress feedback for CDX mission runs
 > From version: 2.11.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs`
@@ -32,11 +32,20 @@
 - AC12: Tests cover heartbeat rendering, event rendering, waiting/stale activity messaging, compact-vs-verbose behavior, and final success/failure summaries.
 
 # Validation
-- Run `python3 -m logics_manager lint --require-status`.
-- Run `python3 -m logics_manager flow finish task task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs.md` after implementation.
+- Passed: `rtk npm exec -- vitest run tests/viewer.browser-host.test.ts` (107 tests).
+- Passed: `rtk python -m pytest tests/python/test_logics_manager_cli.py -k cdx_mission` (19 selected tests).
+- Passed: `logics-manager lint --require-status`.
+- Finish workflow executed on 2026-06-20.
+- Linked backlog/request close verification passed.
 
 # Report
-- Implementation complete.
+- Implemented a terminal progress wrapper for CDX mission runs launched through the viewer.
+- The wrapper prints a start summary, report/transcript hint, process-start event, periodic heartbeat with elapsed/idle/current-command state, compact default waiting/no-activity messages, verbose tail mode, watch refresh mode, and final success/failure summary.
+- Preserved the generated `cdx run ... --json` argv exactly after wrapper metadata arguments.
+- Updated source and packaged viewer assets and added browser-host coverage for heartbeat, waiting state, verbose/watch mode signals, final summaries, and argv preservation.
+- Finished on 2026-06-20.
+- Linked backlog item(s): `item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs`
+- Related request(s): `req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs`
 
 # AI Context
 - Summary: Implement add live terminal progress feedback for cdx mission runs.

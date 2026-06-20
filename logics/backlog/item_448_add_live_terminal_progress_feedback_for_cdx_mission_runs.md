@@ -1,10 +1,10 @@
 ## item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs - Add live terminal progress feedback for CDX mission runs
 > From version: 2.11.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,6 +76,7 @@ Keep the default terminal output compact and readable, with an explicit verbose/
 - Hybrid rationale: Derived from request `req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs.md`.
 - Generated locally by logics-manager.
+- Task `task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs` was finished via `logics-manager flow finish task` on 2026-06-20.
 
 # Tasks
 - `task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs`

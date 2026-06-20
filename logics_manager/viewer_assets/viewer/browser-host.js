@@ -735,6 +735,46 @@
     return stableStringify(payload || {});
   }
 
+  // Per-session telemetry that ticks on every status poll (usage gauges, token
+  // counters, reset countdowns, activity timestamps). These are stripped before
+  // computing the Missions unread signature so the "(i)" badge does not fire on
+  // every poll — only when the mission set or a meaningful field actually changes.
+  const CDX_VOLATILE_KEYS = new Set([
+    "remaining_pct", "remainingpct",
+    "available_pct", "availablepct",
+    "lowest_available_pct", "lowestavailablepct",
+    "reset_5h_at", "reset5hat", "reset_at", "resetat",
+    "usage",
+    "tokens", "input_tokens", "output_tokens", "total_tokens",
+    "elapsed", "elapsed_seconds", "duration", "duration_seconds",
+    "age", "uptime",
+    "last_activity", "lastactivity", "last_seen", "lastseen",
+    "updated_at", "updatedat"
+  ]);
+
+  function stripCdxVolatile(value) {
+    if (Array.isArray(value)) {
+      return value.map((entry) => stripCdxVolatile(entry));
+    }
+    if (value && typeof value === "object") {
+      const next = {};
+      for (const key of Object.keys(value)) {
+        if (CDX_VOLATILE_KEYS.has(key.toLowerCase())) continue;
+        next[key] = stripCdxVolatile(value[key]);
+      }
+      return next;
+    }
+    return value;
+  }
+
+  // Signature for the CDX Missions unread badge. Unlike runtimeStatusSignature,
+  // it hashes the payload with volatile telemetry removed, so the badge tracks
+  // meaningful changes (new/removed missions, status/title/model changes) but
+  // ignores usage %, token counts, and reset countdowns that move every poll.
+  function cdxMissionsSignature(payload) {
+    return stableStringify(stripCdxVolatile(payload || {}));
+  }
+
   function cdxUnreadSectionTitle(section) {
     if (section === "missions") return "Missions";
     if (section === "runs") return "Reports";
@@ -1690,10 +1730,14 @@
     });
   }
 
+  function cdxSectionSignature(section, payload) {
+    return section === "missions" ? cdxMissionsSignature(payload) : runtimeStatusSignature(payload);
+  }
+
   function recordCdxUnreadSnapshot(section, payload, options = {}) {
     const state = cdxUnreadState[section];
     if (!state) return;
-    const signature = runtimeStatusSignature(payload);
+    const signature = cdxSectionSignature(section, payload);
     const isOpen = section === "missions" ? isCdxMissionsOpen() : section === "runs" ? isCdxRunsOpen() : isCdxHistoryOpen();
     if (!signature) return;
     if (!state.signature) {
@@ -1717,7 +1761,7 @@
   function markCdxSectionSeen(section, payload = null) {
     const state = cdxUnreadState[section];
     if (!state) return;
-    const signature = payload ? runtimeStatusSignature(payload) : state.signature;
+    const signature = payload ? cdxSectionSignature(section, payload) : state.signature;
     state.signature = signature || state.signature;
     state.seenSignature = state.signature;
     state.unread = false;

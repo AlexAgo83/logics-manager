@@ -1,9 +1,9 @@
 ## req_252_add_unread_change_badges_to_cdx_missions_reports_and_history - Add unread change badges to CDX Missions Reports and History
-> From version: 2.11.4
+> From version: 2.11.4+dev-ready
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Ready
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -95,3 +95,4 @@ flowchart TD
 
 # Backlog
 - none
+- `item_447_add_unread_change_badges_to_cdx_missions_reports_and_history`

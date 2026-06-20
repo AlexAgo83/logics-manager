@@ -1,9 +1,9 @@
 ## req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs - Add live terminal progress feedback for CDX mission runs
-> From version: 2.11.4
+> From version: 2.11.4+dev-ready
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Ready
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -94,3 +94,4 @@ flowchart TD
 
 # Backlog
 - none
+- `item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs`

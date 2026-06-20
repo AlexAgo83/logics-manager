@@ -800,6 +800,33 @@
   color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
 }
 
+.viewer-cdx__action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border: 1px solid var(--vscode-button-border, color-mix(in srgb, var(--vscode-button-secondaryForeground, #d4d4d4) 22%, transparent));
+  border-radius: 5px;
+  padding: 4px 9px;
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.viewer-cdx__action-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground, #45494e);
+}
+
+.viewer-cdx__action-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
 .viewer-git__summary,
 .viewer-cdx__summary,
 .viewer-ci__summary,
@@ -2430,6 +2457,35 @@
 
 .viewer-cdx__session-name {
   font-weight: 700;
+}
+
+.viewer-cdx__token-cell {
+  display: inline-grid;
+  gap: 2px;
+  min-width: 82px;
+  line-height: 1.2;
+}
+
+.viewer-cdx__token-cell strong {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.viewer-cdx__token-cell span {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.viewer-cdx__token-cell em {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-style: normal;
+  font-weight: 650;
+}
+
+.viewer-cdx__token-empty {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
 }
 
 .viewer-cdx__pill {

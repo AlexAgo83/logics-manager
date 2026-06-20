@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 92%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 25%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,6 +34,7 @@ The viewer polls a full `/api/refresh` every X seconds (default ~15s) and recomp
 # AC Traceability
 - request-AC1 -> This backlog slice delivers the SSE channel, conditional `/api/status`, and the background CI/CDX badge refresh. Proof: AC1, AC2, AC3, AC4.
 - request-AC7 -> No regression. Proof: AC5 (tests pass; dual-copy `viewer_assets/` synced).
+- request-AC6 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
 
 # Decision framing
 - Product framing: Not needed

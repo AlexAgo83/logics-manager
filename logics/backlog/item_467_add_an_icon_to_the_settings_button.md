@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 100%
+> Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
@@ -27,6 +27,8 @@ The Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:7
 # AC Traceability
 - request-AC6 -> This backlog slice adds the Settings button icon. Proof: AC1, AC2.
 - request-AC7 -> No regression. Proof: AC3 (tests pass; dual-copy synced).
+- request-AC4 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
+- request-AC5 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
 
 # Decision framing
 - Product framing: Not needed

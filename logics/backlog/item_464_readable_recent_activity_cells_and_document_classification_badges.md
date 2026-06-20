@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 100%
-> Confidence: 95%
+> Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
@@ -29,6 +29,8 @@ The Recent Activity screen and the board cards show opaque single-letter classif
 # AC Traceability
 - request-AC3 -> This backlog slice delivers readable activity cells and classification badges. Proof: AC1, AC2, AC3.
 - request-AC7 -> No regression. Proof: AC4 (tests pass; dual-copy synced).
+- request-AC5 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
+- request-AC6 -> This backlog slice. Proof: Traceability repair: req_263 is split into backlog items 462-467 and tasks 255-260; current implementation evidence is recorded in the linked task reports and targeted viewer/Python validation.
 
 # Decision framing
 - Product framing: Not needed

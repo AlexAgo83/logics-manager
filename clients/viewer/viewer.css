@@ -179,7 +179,7 @@
   gap: 6px;
 }
 
-/* Per-button hover/focus menu to jump straight to a sub-section. */
+/* Per-button click menu to jump straight to a sub-section. */
 .viewer-nav-menu {
   position: relative;
   display: inline-flex;
@@ -210,8 +210,7 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
-.viewer-nav-menu:hover > .viewer-nav-menu__panel,
-.viewer-nav-menu:focus-within > .viewer-nav-menu__panel {
+.viewer-nav-menu.is-open > .viewer-nav-menu__panel {
   display: flex;
 }
 
@@ -3251,6 +3250,17 @@
   .viewer-refresh-menu > .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  /* Nav-menu wrappers are grid cells; make their trigger button fill the cell. */
+  .viewer-topbar__actions .viewer-nav-menu {
+    width: 100%;
+  }
+
+  .viewer-topbar__actions .viewer-nav-menu > .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
 
   .viewer-refresh-menu__panel {

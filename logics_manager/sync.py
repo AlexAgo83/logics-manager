@@ -643,6 +643,7 @@ def search_logics_docs_payload(
     docs_payload = list_logics_docs_payload(repo_root, kind=kind, status=status, limit=10000)
     docs_by_ref = _load_workflow_docs(repo_root)
     matches: list[dict[str, object]] = []
+    truncated = False
     for item in docs_payload["items"]:
         ref = str(item["ref"])
         doc = docs_by_ref.get(ref)
@@ -663,14 +664,17 @@ def search_logics_docs_payload(
                         "snippet": _snippet_for_line(lines, idx, max_chars=max_snippet_chars),
                     }
                 )
+                if len(matches) > limit:
+                    truncated = True
+                    matches = matches[:limit]
                 break
-        if len(matches) >= limit:
+        if truncated:
             break
     return {
         "query": query,
         "matches": matches,
         "returned_count": len(matches),
-        "truncated": len(matches) >= limit,
+        "truncated": truncated,
         "limit": limit,
     }
 

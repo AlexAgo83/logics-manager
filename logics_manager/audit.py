@@ -861,7 +861,12 @@ def audit_payload(
         if autofix_modified:
             all_docs = _collect_docs(repo_root)
             docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
-            issues = []
+            structure_issue_codes = {
+                "request_missing_dor",
+                "task_missing_dod",
+                "token_hygiene_missing_ai_context",
+            }
+            issues = [issue for issue in issues if issue.code not in structure_issue_codes]
 
     issues.extend(_scan_hybrid_cache_for_credentials(repo_root))
     sorted_issues = _sorted_issues(issues, repo_root)

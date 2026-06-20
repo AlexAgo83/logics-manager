@@ -744,7 +744,7 @@ If the current plugin version is already published, `logics-manager assist next-
 
 `npm run audit:ci` enforces the repository audit policy locally. It runs `npm audit --json` against the configured npm registry, blocks new actionable vulnerabilities, and only allows the explicitly documented temporary exceptions tracked in the backlog. If the registry is unreachable, the command fails as `registry unavailable` rather than reporting a clean advisory state. `npm run package:ci` is local-only package validation and does not require registry access after dependencies are installed.
 
-`npm run clean:local-artifacts` previews the bounded local cleanup set for generated outputs: `artifacts/`, `build/`, `coverage/`, `.code-review-graph/`, and `logics/.cache/`. Add `-- --apply` to remove only those repo-relative paths after inspecting the preview.
+`npm run clean:local-artifacts` previews the bounded local cleanup set for generated outputs: `artifacts/`, `build/`, `coverage/`, and `logics/.cache/`. Add `-- --apply` to remove only those repo-relative paths after inspecting the preview.
 
 `npm run test:viewer-smoke` writes `artifacts/local-viewer-smoke/summary.json`. A localhost socket bind denial is recorded as an explicit skipped result. CI still has non-skipped coverage for the viewer path: Linux/macOS-capable environments exercise Chrome or the JSDOM fallback, while Windows CI runs a server/API smoke that proves the shell and `/api/items` path without launching a browser.
 

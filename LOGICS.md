@@ -152,7 +152,7 @@ Rules that always apply when touching UI:
 
 ### Companion tools (use if available)
 
-These tools are independent of the Logics kit but complement it. Check whether they are installed before starting any session.
+RTK is independent of the Logics kit but complements it. Check whether it is installed before starting any session.
 
 **RTK — token-optimized CLI proxy**
 
@@ -164,17 +164,7 @@ rtk gain        # show token savings so far
 If RTK is installed, all shell commands (git, npm, etc.) are automatically proxied through it — no change to your workflow needed.
 If it is missing, commands still work normally but you will consume more tokens on file-heavy operations.
 
-**code-review-graph MCP — structural knowledge graph**
-
-Check availability: the MCP tools appear in the tool list as `mcp__code-review-graph__*`.
-
-If the graph is available:
-- Use `semantic_search_nodes` or `query_graph` **instead of** Grep/Glob to explore the codebase.
-- Use `get_impact_radius` to understand blast radius before touching shared code.
-- Use `detect_changes` + `get_review_context` for code review instead of reading entire files.
-- Fall back to Grep/Glob/Read only when the graph does not cover what you need.
-
-If neither tool is available, proceed with standard file tools — Grep, Glob, Read.
+If RTK is missing, proceed with standard shell commands.
 
 ### When to use the kit vs. interactive session
 

@@ -6476,7 +6476,7 @@
       'if [ "$rc" -ne 0 ]; then printf "%s\\n" "[cdx mission] next action: inspect the terminal output and the Reports tab for the failed run."; fi',
       'rm -f "$stdout_file" "$stderr_file"',
       'exit "$rc"'
-    ].join("\\n");
+    ].join("\n");
   }
 
   async function launchCdxMissionInTerminal() {

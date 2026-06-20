@@ -3273,6 +3273,11 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Full audit");
     expect(text).toContain("Choose mission");
     expect(text).not.toContain("Guarded pre-release");
+    expect(text).toContain("Missions");
+    expect(text).toContain("5");
+    expect(text).toContain("Sessions");
+    expect(text).toContain("1");
+    expect(text).toContain("Not previewed");
 
     await chooseCdxMission(dom, "Prepare dev-ready corpus");
     const allowWrites = dom.window.document.querySelector('[data-viewer-cdx-input="allowFileWrites"]') as HTMLInputElement | null;
@@ -3313,6 +3318,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("--reasoning-effort xhigh");
     expect(text).toContain("--permission read-only");
     expect(text).toContain("Plan-first mission");
+    expect(text).toContain("Ready");
 
     // Run defaults to terminal mode now; select the background runner explicitly.
     const corpusRunMode = dom.window.document.querySelector('[data-viewer-cdx-run-mode]') as HTMLSelectElement | null;
@@ -3326,6 +3332,7 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/cdx-mission-run");
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("run-42");
+    expect(text).toContain("Succeeded");
     expect(text).toContain("140 total");
     expect(text).toContain("Refresh Corpus Context");
 

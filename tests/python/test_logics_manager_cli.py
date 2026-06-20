@@ -4096,6 +4096,86 @@ def test_ac_proof_requires_same_line_for_matching_ac() -> None:
     assert has_ac_proof("- request-AC10 -> This task. Proof: validates AC10.", "AC1") is False
 
 
+def test_audit_keeps_legacy_ac_proof_compatibility_but_enforces_new_same_line_proof(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    for directory in ["request", "backlog", "tasks"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+
+    def write_chain(ref_suffix: str, from_version: str) -> None:
+        request_ref = f"req_001_{ref_suffix}"
+        item_ref = f"item_001_{ref_suffix}"
+        task_ref = f"task_001_{ref_suffix}"
+        (repo_root / "logics" / "request" / f"{request_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {request_ref} - Demo request",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Schema version: 1.0",
+                    "# Acceptance criteria",
+                    "- AC1: Demo.",
+                    "# Backlog",
+                    f"- `{item_ref}`",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (repo_root / "logics" / "backlog" / f"{item_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {item_ref} - Demo backlog",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Progress: 100%",
+                    "> Schema version: 1.0",
+                    "# Links",
+                    f"- `{request_ref}`",
+                    f"- `{task_ref}`",
+                    "# AC Traceability",
+                    "- AC1 is mentioned here.",
+                    "- Proof: legacy doc-wide proof.",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (repo_root / "logics" / "tasks" / f"{task_ref}.md").write_text(
+            "\n".join(
+                [
+                    f"## {task_ref} - Demo task",
+                    f"> From version: {from_version}",
+                    "> Status: Done",
+                    "> Progress: 100%",
+                    "> Schema version: 1.0",
+                    "# Links",
+                    f"- `{item_ref}`",
+                    "# AC Traceability",
+                    "- AC1 is mentioned here.",
+                    "- Proof: legacy doc-wide proof.",
+                    "# Definition of Done (DoD)",
+                    "- [x] Done.",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    write_chain("legacy", "2.11.5")
+    write_chain("strict", "2.11.6")
+
+    payload = audit_payload(repo_root, legacy_cutoff_version="1.1.0", skip_gates=True)
+    issues_by_path = {}
+    for issue in payload["issues"]:
+        issues_by_path.setdefault(issue["path"], set()).add(issue["code"])
+
+    assert "logics/request/req_001_legacy.md" not in issues_by_path
+    assert issues_by_path["logics/request/req_001_strict.md"] == {
+        "ac_missing_item_traceability",
+        "ac_missing_task_traceability",
+    }
+
+
 def test_audit_accepts_variable_width_workflow_refs(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

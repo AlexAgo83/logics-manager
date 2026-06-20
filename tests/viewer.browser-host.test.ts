@@ -1121,8 +1121,10 @@ describe("local viewer browser host", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
     expect(css).toMatch(/\.viewer-screen-activity #filter-toggle/);
-    expect(css).toMatch(/\.viewer-code__body\s*\{[^}]*overflow: visible;/s);
-    expect(css).toMatch(/\.viewer-code__gutter\s*\{[^}]*position: sticky;/s);
+    expect(css).not.toMatch(/\.viewer-code__gutter/);
+    expect(css).not.toMatch(/\.viewer-code__body/);
+    expect(css).toMatch(/\.viewer-code__row\s*\{[^}]*grid-template-columns: max-content minmax\(max-content, 1fr\);/s);
+    expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*position: sticky;/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
@@ -1600,7 +1602,7 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("print('ok')");
   });
 
-  it("renders the shared code viewer with a line-number gutter, line count, and force-load", async () => {
+  it("renders the shared code viewer with inline line numbers, line count, and force-load", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -1614,7 +1616,7 @@ describe("local viewer browser host", () => {
 
     let explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
 
-    // Non-truncated file: gutter + accurate line count, no force button.
+    // Non-truncated file: inline line numbers + accurate line count, no force button.
     explorer.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1623,8 +1625,13 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
-    const gutter = explorer.querySelector(".viewer-code__gutter");
-    expect(gutter?.textContent).toBe("1\n2");
+    const rows = Array.from(explorer.querySelectorAll(".viewer-code__row"));
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.querySelector(".viewer-code__line-number")?.textContent).toBe("1");
+    expect(rows[0]?.querySelector(".viewer-code__line")?.textContent).toContain("print('ok')");
+    expect(rows[1]?.querySelector(".viewer-code__line-number")?.textContent).toBe("2");
+    expect(rows[1]?.querySelector(".viewer-code__line")?.textContent).toContain("print('two')");
+    expect(explorer.querySelector(".viewer-code__gutter")).toBeNull();
     expect(explorer.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
     expect(explorer.querySelector("[data-viewer-workspace-preview-full]")).toBeNull();
 
@@ -2453,7 +2460,13 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("# New file");
     expect(content?.textContent).toContain("Preview body");
     expect(content?.textContent).toContain("file preview");
-    expect(content?.querySelector(".viewer-code__gutter")?.textContent).toBe("1\n2");
+    const rows = Array.from(content?.querySelectorAll(".viewer-code__row") || []);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.querySelector(".viewer-code__line-number")?.textContent).toBe("1");
+    expect(rows[0]?.querySelector(".viewer-code__line")?.textContent).toContain("# New file");
+    expect(rows[1]?.querySelector(".viewer-code__line-number")?.textContent).toBe("2");
+    expect(rows[1]?.querySelector(".viewer-code__line")?.textContent).toContain("Preview body");
+    expect(content?.querySelector(".viewer-code__gutter")).toBeNull();
     expect(content?.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
     expect(content?.querySelector(".viewer-code__flag")?.textContent).toContain("truncated");
     content?.querySelector("[data-viewer-git-preview-full]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -3557,8 +3570,8 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("JSON document");
     expect(dom.window.document.querySelector(".viewer-cdx__log-structured")).toBeTruthy();
     // Raw log renders through the shared code viewer (line numbers + content).
-    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__body")?.textContent).toContain("first log line");
-    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__gutter")).toBeTruthy();
+    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__line")?.textContent).toContain("first log line");
+    expect(dom.window.document.querySelector(".viewer-cdx__log-raw .viewer-code__line-number")).toBeTruthy();
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Loaded /tmp/run.log");
 
     dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

@@ -3531,22 +3531,24 @@
 
   // Shared file/code viewer: a discreet line count, an optional "load anyway"
   // control when truncated, syntax highlighting, and a non-selectable line-number
-  // gutter. Used by the Explorer, git, and CDX preview surfaces.
+  // label per rendered line. Used by the Explorer, git, and CDX preview surfaces.
   function renderCodeViewer(content, options = {}) {
     const text = String(content || "");
     const language = options.language || "";
     const lineCount = Number.isFinite(options.lineCount)
       ? options.lineCount
       : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
-    const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
-    const body = typeof options.renderLineHtml === "function"
-      ? text
-        .split("\n")
-        .slice(0, text.endsWith("\n") ? -1 : undefined)
-        .map((line, index) => options.renderLineHtml(line, index))
-        .join("\n")
-      : highlightCode(text, language);
+    const visibleLines = text ? text.split("\n").slice(0, text.endsWith("\n") ? -1 : undefined) : [];
     const langClass = language ? ` language-${escapeHtml(language)}` : "";
+    const rows = visibleLines.map((line, index) => {
+      const body = typeof options.renderLineHtml === "function"
+        ? options.renderLineHtml(line, index)
+        : highlightCode(line || " ", language);
+      return `<div class="viewer-code__row">
+        <span class="viewer-code__line-number" aria-hidden="true">${index + 1}</span>
+        <span class="viewer-code__line"><code class="hljs${langClass}">${body}</code></span>
+      </div>`;
+    }).join("");
     const bar = [
       `<span class="viewer-code__lines">${lineCount} line${lineCount === 1 ? "" : "s"}</span>`,
       options.truncated ? `<span class="viewer-code__flag">truncated</span>` : "",
@@ -3555,10 +3557,7 @@
     ].filter(Boolean).join("");
     return `<div class="viewer-code">
       <div class="viewer-code__bar">${bar}</div>
-      <div class="viewer-code__scroll">
-        <pre class="viewer-code__gutter" aria-hidden="true">${gutter}</pre>
-        <pre class="viewer-code__body"><code class="hljs${langClass}">${body}</code></pre>
-      </div>
+      <pre class="viewer-code__scroll"><code class="viewer-code__rows">${rows}</code></pre>
     </div>`;
   }
 

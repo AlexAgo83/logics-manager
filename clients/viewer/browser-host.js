@@ -5387,7 +5387,7 @@
             </label>`;
     const fileWriteControl = requiresFileWrites
       ? `
-            <div class="viewer-cdx__meta">This mission always drafts a Logics request. Enabling "Fix directly" also promotes it into a backlog item and task as proof.</div>
+            <div class="viewer-cdx__meta viewer-cdx__mission-note">This mission always drafts a Logics request. Enabling "Fix directly" also promotes it into a backlog item and task as proof.</div>
             ${commitControl}
         `
       : supportsFileWrites
@@ -5399,7 +5399,7 @@
             ${commitControl}
         `
         : `
-            <div class="viewer-cdx__meta">Corpus updates are applied after CDX returns allowed actions.</div>
+            <div class="viewer-cdx__meta viewer-cdx__mission-note">Corpus updates are applied after CDX returns allowed actions.</div>
         `;
     latestCdxMissionState.sessionId = selectedSession;
     const missionSummary = `

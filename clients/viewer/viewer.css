@@ -3574,6 +3574,10 @@
   margin-bottom: 0;
 }
 
+.viewer-cdx__mission-note {
+  margin-bottom: 10px;
+}
+
 .viewer-cdx__import-form {
   display: flex;
   flex-direction: column;

@@ -2569,7 +2569,10 @@
         await showCdxHistory({ silent: Boolean(options.silent) });
       }
     } else if (method === "POST") {
-      await refreshGitBadgeCounters();
+      // Background tick with no screen open: refresh the unified status badges
+      // (git + CI + CDX) rather than git alone, so the CI/CDX badges no longer
+      // go stale until their screen is opened.
+      await refreshBadgeCounters();
     }
     if (!changed && !options.silent && !options.force) {
       setMeta(`Checked just now · no viewer changes (${new Date().toLocaleTimeString()})`);
@@ -3536,7 +3539,13 @@
       ? options.lineCount
       : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
     const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
-    const body = highlightCode(text, language);
+    const body = typeof options.renderLineHtml === "function"
+      ? text
+        .split("\n")
+        .slice(0, text.endsWith("\n") ? -1 : undefined)
+        .map((line, index) => options.renderLineHtml(line, index))
+        .join("\n")
+      : highlightCode(text, language);
     const langClass = language ? ` language-${escapeHtml(language)}` : "";
     const bar = [
       `<span class="viewer-code__lines">${lineCount} line${lineCount === 1 ? "" : "s"}</span>`,
@@ -7484,10 +7493,10 @@
   }
 
   function renderGitDiffPreview(content) {
-    return String(content)
-      .split("\n")
-      .map((line) => `<span class="viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}">${escapeHtml(line || " ")}</span>`)
-      .join("");
+    return renderCodeViewer(content, {
+      language: "diff",
+      renderLineHtml: (line) => `<span class="viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}">${escapeHtml(line || " ")}</span>`
+    });
   }
 
   async function loadGitDiff(path, cached, button = null) {
@@ -7519,15 +7528,19 @@
       await loadGitFilePreview(path, diffPanel, detailTitle);
       return;
     }
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
   }
 
-  async function loadGitFilePreview(path, diffPanel, detailTitle = null) {
+  async function loadGitFilePreview(path, diffPanel, detailTitle = null, options = {}) {
     if (detailTitle instanceof HTMLElement) {
       detailTitle.textContent = "File preview";
     }
     diffPanel.textContent = "Loading file preview...";
-    const response = await fetch(`/api/git-file-preview?${new URLSearchParams({ path }).toString()}`);
+    const params = new URLSearchParams({ path });
+    if (options.full) {
+      params.set("full", "1");
+    }
+    const response = await fetch(`/api/git-file-preview?${params.toString()}`);
     const data = await response.json();
     const payload = data.payload || {};
     if (!response.ok || !data.ok) {
@@ -7539,7 +7552,17 @@
       return;
     }
     const content = payload.content || "";
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · file preview${payload.truncated ? " · truncated" : ""}</div><pre><code>${renderGitDiffPreview(content)}</code></pre>`;
+    const previewPath = payload.path || path;
+    const forceButtonHtml = payload.canForce
+      ? `<button class="btn viewer-code__force" type="button" data-viewer-git-preview-full="${escapeHtml(previewPath)}">Load anyway</button>`
+      : "";
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(previewPath)} · file preview${payload.truncated ? " · truncated" : ""}</div>${renderCodeViewer(content, {
+      language: detectHljsLanguage(previewPath),
+      lineCount: payload.lineCount,
+      truncated: Boolean(payload.truncated),
+      hardCapHit: Boolean(payload.hardCapHit),
+      forceButtonHtml
+    })}`;
   }
 
   function applyGitDomain(domain) {
@@ -7931,6 +7954,7 @@
       const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
       const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
+      const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
@@ -8212,6 +8236,15 @@
       if (workspaceTreeTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("workspace-tree", "Loading Explorer folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+        return;
+      }
+      if (gitPreviewFullTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const diffPanel = document.querySelector("[data-viewer-git-diff]");
+        const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
+        if (diffPanel instanceof HTMLElement) {
+          withPrimaryAction("git-preview-full", "Loading full Git preview", () => loadGitFilePreview(gitPreviewFullTarget.getAttribute("data-viewer-git-preview-full") || "", diffPanel, detailTitle, { full: true }));
+        }
         return;
       }
       if (workspacePreviewFullTarget instanceof HTMLElement) {

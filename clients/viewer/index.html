@@ -114,23 +114,21 @@
             <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
           </svg>
         </button>
-        <button class="toolbar__filter" id="activity-toggle" aria-label="Toggle activity" aria-pressed="false" title="Toggle activity">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h4l2.2-5 3.6 10 2.2-5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </button>
         <button class="toolbar__filter" id="activity-clear" aria-label="Clear local activity history" title="Clear local activity history">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 10v8m4-8v8m4-8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
         <button class="toolbar__filter" id="attention-toggle" aria-label="Show blocked, orphaned, unprocessed, or inconsistent items" aria-pressed="false" title="Show blocked, orphaned, unprocessed, or inconsistent items">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4l8 14H4z" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="17" r="1" fill="currentColor" /></svg>
         </button>
+        <button class="toolbar__filter toolbar__mode-button" data-action="toggle-view-mode" aria-label="Switch project display mode" title="Switch project display mode"></button>
       </div>
       <div class="toolbar__search">
         <input id="search-input" class="toolbar__search-input" type="search" placeholder="Search docs" aria-label="Search docs" />
       </div>
-      <div class="toolbar__view" role="group" aria-label="Display mode">
-        <span class="toolbar__view-label" aria-hidden="true">Board</span>
-        <button class="toolbar__view-slider" data-action="toggle-view-mode" aria-label="Switch display mode" title="Switch display mode"></button>
-        <span class="toolbar__view-label" aria-hidden="true">List</span>
+      <div class="toolbar__view" role="group" aria-label="Viewer section">
+        <span class="toolbar__view-label" aria-hidden="true">Activity</span>
+        <button class="toolbar__view-slider" id="activity-toggle" aria-label="Show recent activity" aria-pressed="false" title="Show recent activity"></button>
+        <span class="toolbar__view-label" aria-hidden="true">Project</span>
       </div>
     </div>
     <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>

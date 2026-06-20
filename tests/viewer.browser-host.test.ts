@@ -1099,25 +1099,40 @@ describe("local viewer browser host", () => {
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("places the board/list view slider to the right of the search docs bar", () => {
+  it("places the Activity/Project slider to the right of the search docs bar", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
     const search = dom.window.document.querySelector(".toolbar__search");
     const view = dom.window.document.querySelector(".toolbar__view");
-    const slider = dom.window.document.querySelector('.toolbar__view-slider[data-action="toggle-view-mode"]');
+    const slider = dom.window.document.querySelector(".toolbar__view-slider#activity-toggle");
+    const projectMode = dom.window.document.querySelector('.toolbar__filters [data-action="toggle-view-mode"]');
     expect(search).toBeTruthy();
     expect(view).toBeTruthy();
     expect(slider).toBeTruthy();
+    expect(view?.textContent).toContain("Activity");
+    expect(view?.textContent).toContain("Project");
+    expect(projectMode).toBeTruthy();
     // The slider container comes after the search bar in document order.
     expect(search?.compareDocumentPosition(view as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // The slider replaced the old inline filter button (no longer in the filters group).
-    expect(dom.window.document.querySelector('.toolbar__filters [data-action="toggle-view-mode"]')).toBeNull();
+    expect(projectMode?.classList.contains("toolbar__view-slider")).toBe(false);
   });
 
   it("styles the view slider and the mobile search/slider reflow", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
-    expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="list"\]::after/);
+    expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
+    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle/);
+    expect(css).toMatch(/\.viewer-code__body\s*\{[^}]*overflow: visible;/s);
+    expect(css).toMatch(/\.viewer-code__gutter\s*\{[^}]*position: sticky;/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
+  });
+
+  it("syncs Activity/Project slider state from the shared chrome", () => {
+    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewChrome.js"), "utf8");
+    expect(source).toContain('activityToggle.dataset.currentMode = activityOpen ? "activity" : "project"');
+    expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", activityOpen)');
+    expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", !activityOpen)');
+    expect(source).toContain("Switch to Project");
+    expect(source).toContain("Switch to Activity");
   });
 
   it("declares the responsive viewer breakpoints and their collapse rules", () => {
@@ -2416,7 +2431,9 @@ describe("local viewer browser host", () => {
             path: "new-file.md",
             mode: "file-preview",
             content: "# New file\nPreview body",
-            truncated: false
+            truncated: true,
+            canForce: true,
+            lineCount: 2
           }
         }
       }
@@ -2436,6 +2453,13 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("# New file");
     expect(content?.textContent).toContain("Preview body");
     expect(content?.textContent).toContain("file preview");
+    expect(content?.querySelector(".viewer-code__gutter")?.textContent).toBe("1\n2");
+    expect(content?.querySelector(".viewer-code__lines")?.textContent).toBe("2 lines");
+    expect(content?.querySelector(".viewer-code__flag")?.textContent).toContain("truncated");
+    content?.querySelector("[data-viewer-git-preview-full]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(calls).toContain("/api/git-file-preview?path=new-file.md&full=1");
   });
 
   it("shows a bounded file-preview fallback message for unsupported Git files", async () => {
@@ -2965,6 +2989,44 @@ describe("local viewer browser host", () => {
     expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxRunColumns?.visibility).toMatchObject({
       cwd: true
     });
+  });
+
+  it("refreshes the CI badge on the background tick without opening the CI screen", async () => {
+    const ciResponse = {
+      ok: true,
+      body: {
+        ok: true,
+        payload: {
+          state: "ok",
+          visible: true,
+          message: "",
+          badgeState: "passing",
+          branch: "main",
+          headSha: "abc123",
+          run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
+          jobs: []
+        }
+      }
+    };
+    const { dom } = createViewerDom({ ciResponse });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    const badge = dom.window.document.querySelector("[data-viewer-ci-badge]");
+    expect(badge?.className).toContain("viewer-ci-badge--passing");
+    expect(badge?.textContent).toBe("pass");
+
+    // CI status flips server-side; a background refresh (no screen open) must
+    // pick it up via the unified status poll instead of staying stale.
+    ciResponse.body.payload.badgeState = "failing";
+    ciResponse.body.payload.run.badgeState = "failing";
+    ciResponse.body.payload.run.conclusion = "failure";
+    api.postMessage({ type: "refresh" });
+    await flushViewerAsync();
+    const updated = dom.window.document.querySelector("[data-viewer-ci-badge]");
+    expect(updated?.className).toContain("viewer-ci-badge--failing");
+    expect(updated?.textContent).toBe("fail");
   });
 
   it("closes the CDX run column menu when focus or clicks move outside it", async () => {

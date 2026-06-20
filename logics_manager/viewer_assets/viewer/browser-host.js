@@ -1820,45 +1820,31 @@
     recordCdxDelta("history", cdxHistoryList(payload || latestCdxHistoryPayload).map(cdxHistoryIdentity), { markSeen: true });
   }
 
-  function updateMainCdxBadge(payload, runsPayload = null) {
+  // The runsPayload argument is kept for call-site compatibility but is no longer
+  // used here: running runs are surfaced by the Missions badge
+  // (updateCdxMissionsCount), so this badge counts active assistant sessions only
+  // and no longer double-counts runs.
+  function updateMainCdxBadge(payload) {
     const button = document.getElementById("viewer-cdx");
     if (!(button instanceof HTMLElement)) {
       return;
     }
     button.querySelector("[data-viewer-cdx-badge]")?.remove();
-    clearNavMenuBadges(["cdx:status", "cdx:runs"]);
+    clearNavMenuBadges(["cdx:status"]);
     const activeSessions = activeCdxAssistantCountFromPayload(payload);
-    const activeRuns = activeCdxRunCountFromPayload(runsPayload);
-    const activeCount = activeSessions + activeRuns;
-    if (activeCount <= 0) {
+    if (activeSessions <= 0) {
       button.title = isCapabilityAvailable("cdx")
         ? "Show CDX status"
         : capabilityMessage("cdx", "CDX is not available for this project.");
       updateCdxUnreadBadges();
       return;
     }
-    const label = activeCount > 9 ? "9+" : String(activeCount);
-    const titleParts = [];
-    if (activeSessions > 0) {
-      titleParts.push(activeSessions === 1 ? "1 active session" : `${activeSessions} active sessions`);
-    }
-    if (activeRuns > 0) {
-      titleParts.push(activeRuns === 1 ? "1 running run" : `${activeRuns} running runs`);
-    }
-    const title = titleParts.join(" · ");
+    const label = activeSessions > 9 ? "9+" : String(activeSessions);
+    const title = activeSessions === 1 ? "1 active session" : `${activeSessions} active sessions`;
     button.title = `Show CDX status · ${title}`;
-    const tone = activeRuns > 0 ? " viewer-cdx-button-badge--runs" : "";
-    button.insertAdjacentHTML("beforeend", `<span class="viewer-cdx-button-badge${tone}" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
-    if (activeSessions > 0) {
-      const sessionLabel = activeSessions > 9 ? "9+" : String(activeSessions);
-      const sessionTitle = activeSessions === 1 ? "1 active session" : `${activeSessions} active sessions`;
-      setNavMenuBadges("cdx:status", `<span class="viewer-cdx-button-badge" title="${escapeHtml(sessionTitle)}" aria-label="${escapeHtml(sessionTitle)}">${escapeHtml(sessionLabel)}</span>`);
-    }
-    if (activeRuns > 0) {
-      const runLabel = activeRuns > 9 ? "9+" : String(activeRuns);
-      const runTitle = activeRuns === 1 ? "1 running run" : `${activeRuns} running runs`;
-      setNavMenuBadges("cdx:runs", `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--runs" title="${escapeHtml(runTitle)}" aria-label="${escapeHtml(runTitle)}">${escapeHtml(runLabel)}</span>`);
-    }
+    const badge = `<span class="viewer-cdx-button-badge" data-viewer-cdx-badge title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
+    button.insertAdjacentHTML("beforeend", badge);
+    setNavMenuBadges("cdx:status", `<span class="viewer-cdx-button-badge" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`);
     updateCdxUnreadBadges();
   }
 

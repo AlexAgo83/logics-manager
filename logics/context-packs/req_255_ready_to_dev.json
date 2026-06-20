@@ -1,0 +1,211 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [
+    "logics/backlog/item_449_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+    "logics/backlog/item_450_use_full_permission_for_write_enabled_cdx_missions.md",
+    "logics/tasks/task_239_address_june_2026_repository_audit_findings_across_flow_gating_release_guards_mcp_path_safety_and_stale_docs.md",
+    "logics/tasks/task_240_use_full_permission_for_write_enabled_cdx_missions.md"
+  ],
+  "command": "logics-manager sync context-pack req_255_use_full_permission_for_write_enabled_cdx_missions item_450_use_full_permission_for_write_enabled_cdx_missions task_240_use_full_permission_for_write_enabled_cdx_missions --mode diff-first --profile normal",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "cdx-mission, viewer-planner, full-permission, workspace-write, approval-gate, allow-file-writes, mission-preflight, corvus, terminal-command",
+        "skip when": "The work is about unrelated mission prompts, CDX status rendering, or Logics workflow lifecycle rules.",
+        "summary": "Change CDX mission planning so write-enabled viewer missions use full permission or fail preflight clearly instead of running under workspace-write and hitting provider approval gates.",
+        "use when": "Implementing or reviewing permission selection for viewer-launched CDX missions."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_450_use_full_permission_for_write_enabled_cdx_missions"
+        ],
+        "req": [
+          "req_255_use_full_permission_for_write_enabled_cdx_missions"
+        ]
+      },
+      "path": "logics/request/req_255_use_full_permission_for_write_enabled_cdx_missions.md",
+      "ref": "req_255_use_full_permission_for_write_enabled_cdx_missions",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [],
+        "Needs": [
+          "- Write-enabled CDX missions launched from the viewer need to run with enough provider permission to actually create files, run validation, and commit when the selected mission mode asks for it.",
+          "- The current viewer plan maps `allowFileWrites=true` to `--permission workspace-write`, which can still trigger Claude approval gates and leave required artifacts unwritten.",
+          "- Operators should not discover the mismatch after a long mission. The viewer should either launch with `--permission full` for write-enabled mission modes or block early with a clear session-permission preflight."
+        ]
+      },
+      "status": "Draft",
+      "title": "Use full permission for write-enabled CDX missions"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, use full permission for write-enabled cdx missions, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Use full permission for write-enabled CDX missions",
+        "use when": "Use when implementing or reviewing the delivery slice for Use full permission for write-enabled CDX missions."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_450_use_full_permission_for_write_enabled_cdx_missions"
+        ],
+        "req": [
+          "req_255_use_full_permission_for_write_enabled_cdx_missions"
+        ],
+        "task": [
+          "task_240_use_full_permission_for_write_enabled_cdx_missions"
+        ]
+      },
+      "path": "logics/backlog/item_450_use_full_permission_for_write_enabled_cdx_missions.md",
+      "ref": "item_450_use_full_permission_for_write_enabled_cdx_missions",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The backlog slice stays bounded and reviewable.",
+          "- AC2: The backlog slice preserves the request's core acceptance criteria."
+        ],
+        "Problem": [
+          "Write-enabled CDX missions launched from the viewer need to run with enough provider permission to actually create files, run validation, and commit when the selected mission mode asks for it.",
+          "The current viewer plan maps `allowFileWrites=true` to `--permission workspace-write`, which can still trigger Claude approval gates and leave required artifacts unwritten.",
+          "Operators should not discover the mismatch after a long mission. The viewer should either launch with `--permission full` for write-enabled mission modes or block early with a clear session-permission preflight."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use full permission for write-enabled CDX missions"
+    },
+    {
+      "ai_context": {
+        "keywords": "task, implementation, backlog, runtime, python",
+        "skip when": "The work is still at the request or backlog shaping stage.",
+        "summary": "Implement use full permission for write-enabled cdx missions.",
+        "use when": "You need a bounded implementation task for a backlog item."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_450_use_full_permission_for_write_enabled_cdx_missions"
+        ],
+        "req": [
+          "req_255_use_full_permission_for_write_enabled_cdx_missions"
+        ],
+        "task": [
+          "task_240_use_full_permission_for_write_enabled_cdx_missions"
+        ]
+      },
+      "path": "logics/tasks/task_240_use_full_permission_for_write_enabled_cdx_missions.md",
+      "ref": "task_240_use_full_permission_for_write_enabled_cdx_missions",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run `python3 -m logics_manager flow finish task task_240_use_full_permission_for_write_enabled_cdx_missions.md` after implementation."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use full permission for write-enabled CDX missions"
+    }
+  ],
+  "estimates": {
+    "char_count": 4437,
+    "companion_doc_count": 0,
+    "doc_count": 3
+  },
+  "generated_at": "2026-06-20T04:52:00Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": false,
+    "source_refs": [
+      "req_255_use_full_permission_for_write_enabled_cdx_missions",
+      "item_450_use_full_permission_for_write_enabled_cdx_missions",
+      "task_240_use_full_permission_for_write_enabled_cdx_missions"
+    ],
+    "validation_summary_count": 0
+  },
+  "mode": "diff-first",
+  "profile": "normal",
+  "ref": "req_255_use_full_permission_for_write_enabled_cdx_missions,item_450_use_full_permission_for_write_enabled_cdx_missions,task_240_use_full_permission_for_write_enabled_cdx_missions",
+  "refs": [
+    "req_255_use_full_permission_for_write_enabled_cdx_missions",
+    "item_450_use_full_permission_for_write_enabled_cdx_missions",
+    "task_240_use_full_permission_for_write_enabled_cdx_missions"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.11.5"
+  },
+  "validation_summary": []
+}

@@ -18,6 +18,7 @@ function createViewerDom(options: {
   cdxReportResponse?: { state: string; message: string; report: Record<string, unknown> };
   cdxRemoveResponse?: { ok: boolean; status?: number; body?: unknown };
   cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
+  cdxHistoryResponse?: { state: string; message: string; history: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   cdxStatusGate?: Promise<void>;
@@ -85,6 +86,7 @@ function createViewerDom(options: {
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:status">Status</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Reports</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:history">History</button>
       </div>
     </div>
     <button id="viewer-insights" type="button">Insights</button>
@@ -530,6 +532,31 @@ function createViewerDom(options: {
               runs: [
                 { run_id: "run-1", kind: "code-review", status: "running", session: "work", cwd: "/workspace/logics-manager", usage: { input_tokens: 1000, output_tokens: 250 } },
                 { run_id: "run-2", kind: "assistant", status: "succeeded", session: "auto", cwd: "/workspace/cdx-manager" }
+              ]
+            }
+          })
+        };
+      }
+      if (url === "/api/cdx-history") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: options.cdxHistoryResponse ?? {
+              state: "ok",
+              message: "",
+              history: [
+                {
+                  session_name: "work",
+                  provider: "codex",
+                  status: "success",
+                  action: "launch",
+                  label: "codex",
+                  started_at: "2026-06-20T02:14:27.763605Z",
+                  duration_ms: 1332000,
+                  transcript_path: "/tmp/cdx-session.log",
+                  usage: { input_tokens: 300, output_tokens: 80 }
+                }
               ]
             }
           })
@@ -2678,6 +2705,38 @@ describe("local viewer browser host", () => {
     expect(text).toContain("1000 in");
     expect(text).toContain("250 out");
     expect(text).not.toContain("code-review");
+  });
+
+  it("opens CDX history with launch details, artifacts, and token usage", async () => {
+    const { dom, calls } = createViewerDom({
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: false } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "ready", available: true, message: "CDX reports available." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:history"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/cdx-history");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX history");
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("History");
+    expect(text).toContain("work");
+    expect(text).toContain("codex");
+    expect(text).toContain("380 total");
+    expect(text).toContain("300 in");
+    expect(text).toContain("80 out");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-artifact-path="/tmp/cdx-session.log"]')).toBeTruthy();
   });
 
   it("persists CDX run column visibility with Kind and CWD hidden by default", async () => {

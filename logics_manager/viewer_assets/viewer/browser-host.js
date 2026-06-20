@@ -5406,7 +5406,22 @@
         }
         return `<td>${escapeHtml(displayAuth)}</td>`;
       },
-      ok: (item) => `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`,
+      ok: (item) => {
+        // Reuse the shared session usage gauge (same component as the terminal
+        // view) for the readiness column. Fall back to the legacy pill/percent
+        // when the row has no session name or no usable usage value.
+        const name = String(cdxField(item, ["session_name", "name", "id", "value"], "")).trim();
+        const pct = cdxRemainingPct(item);
+        const hasUsage = pct !== null && pct !== undefined && !Number.isNaN(Number(pct));
+        if (name && name !== "-" && hasUsage) {
+          const usage = {
+            percent: pct,
+            reset: formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
+          };
+          return `<td class="viewer-cdx__ok-cell">${renderCdxUsageGauge(usage, name)}</td>`;
+        }
+        return `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`;
+      },
       remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
       remainingWeek: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>`,
       block: (item) => `<td>${escapeHtml(cdxSessionBlock(item))}</td>`,

@@ -1123,6 +1123,17 @@ describe("local viewer browser host", () => {
     expect(svgIcon?.getAttribute("href")).toBe("/media/logics.svg");
   });
 
+  it("styles CDX unread badges as informational instead of error toned", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const match = css.match(/\.viewer-cdx-button-badge--unread\s*\{[^}]+\}/);
+    const rule = match?.[0] || "";
+
+    expect(rule).toContain("rgba(167, 139, 250, 0.18)");
+    expect(rule).toContain("#c4b5fd");
+    expect(rule).not.toContain("#ef4444");
+    expect(rule).not.toContain("rgba(239, 68, 68");
+  });
+
   it("orders local viewer topbar actions with Settings on the right", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
@@ -3626,6 +3637,8 @@ describe("local viewer browser host", () => {
     expect(terminalCommands[0].label).toBe("cdx mission corpus-ready");
     const command = terminalCommands[0].command;
     expect(command.slice(0, 4)).toEqual(["/bin/sh", "-c", command[2], "cdx-mission"]);
+    expect(command[2]).toContain("\nif [ $# -ge 2 ]; then");
+    expect(command[2]).not.toContain("\\nif [ $# -ge 2 ]; then");
     expect(command[2]).toContain("CDX_MISSION_PROGRESS_MODE");
     expect(command[2]).toContain("heartbeat elapsed=");
     expect(command[2]).toContain("waiting on command output");

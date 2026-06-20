@@ -315,6 +315,8 @@
 | [req_249_improve_logics_workflow_scaffolding_validation_agent_docs](request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md) | Improve Logics workflow scaffolding and validation for agent-authored docs | Done |  | request/req_249_improve_logics_workflow_scaffolding_validation_agent_docs.md |
 | [req_250_address_project_audit_follow_up_actions](request/req_250_address_project_audit_follow_up_actions.md) | Address project audit follow-up actions | Done |  | request/req_250_address_project_audit_follow_up_actions.md |
 | [req_251_fix_mission_execution_and_repo_audit_findings](request/req_251_fix_mission_execution_and_repo_audit_findings.md) | Fix mission execution and repository audit findings | Done |  | request/req_251_fix_mission_execution_and_repo_audit_findings.md |
+| [req_252_add_unread_change_badges_to_cdx_missions_reports_and_history](request/req_252_add_unread_change_badges_to_cdx_missions_reports_and_history.md) | Add unread change badges to CDX Missions Reports and History | Done |  | request/req_252_add_unread_change_badges_to_cdx_missions_reports_and_history.md |
+| [req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs](request/req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs.md) | Add live terminal progress feedback for CDX mission runs | Done |  | request/req_253_add_live_terminal_progress_feedback_for_cdx_mission_runs.md |
 
 ## Backlog
 
@@ -766,6 +768,8 @@
 | [item_444_document_lifecycle_test_prerequisites_and_execution_path](backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md) | Document lifecycle test prerequisites and execution path | Done | 100% | backlog/item_444_document_lifecycle_test_prerequisites_and_execution_path.md |
 | [item_445_fix_repository_audit_findings](backlog/item_445_fix_repository_audit_findings.md) | Fix repository audit findings | Done | 100% | backlog/item_445_fix_repository_audit_findings.md |
 | [item_446_fix_cdx_mission_execution_reporting_and_update_alias](backlog/item_446_fix_cdx_mission_execution_reporting_and_update_alias.md) | Fix CDX mission execution reporting and update alias | Done | 100% | backlog/item_446_fix_cdx_mission_execution_reporting_and_update_alias.md |
+| [item_447_add_unread_change_badges_to_cdx_missions_reports_and_history](backlog/item_447_add_unread_change_badges_to_cdx_missions_reports_and_history.md) | Add unread change badges to CDX Missions Reports and History | Done | 100% | backlog/item_447_add_unread_change_badges_to_cdx_missions_reports_and_history.md |
+| [item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs](backlog/item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs.md) | Add live terminal progress feedback for CDX mission runs | Done | 100% | backlog/item_448_add_live_terminal_progress_feedback_for_cdx_mission_runs.md |
 
 ## Tasks
 
@@ -1001,3 +1005,5 @@
 | [task_234_orchestrate_mission_execution_and_audit_finding_fixes](tasks/task_234_orchestrate_mission_execution_and_audit_finding_fixes.md) | Orchestrate mission execution and audit finding fixes | Done | 100% | tasks/task_234_orchestrate_mission_execution_and_audit_finding_fixes.md |
 | [task_235_fix_repository_audit_findings](tasks/task_235_fix_repository_audit_findings.md) | Fix repository audit findings | Done | 100% | tasks/task_235_fix_repository_audit_findings.md |
 | [task_236_fix_cdx_mission_execution_reporting_and_update_alias](tasks/task_236_fix_cdx_mission_execution_reporting_and_update_alias.md) | Fix CDX mission execution reporting and update alias | Done | 100% | tasks/task_236_fix_cdx_mission_execution_reporting_and_update_alias.md |
+| [task_237_add_unread_change_badges_to_cdx_missions_reports_and_history](tasks/task_237_add_unread_change_badges_to_cdx_missions_reports_and_history.md) | Add unread change badges to CDX Missions Reports and History | Done | 100% | tasks/task_237_add_unread_change_badges_to_cdx_missions_reports_and_history.md |
+| [task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs](tasks/task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs.md) | Add live terminal progress feedback for CDX mission runs | Done | 100% | tasks/task_238_add_live_terminal_progress_feedback_for_cdx_mission_runs.md |

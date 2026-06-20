@@ -47,6 +47,7 @@ ROOT_COMMANDS = (
     "release",
     "mcp",
     "self-update",
+    "update",
     "search",
 )
 
@@ -85,7 +86,7 @@ def _build_root_help() -> str:
         "",
         "Workflow authoring:",
         "  flow       Create, promote, split, close, and finish workflow docs.",
-        "             Subcommands: new, list, show, companion, deliver, scaffold, validate-closeout, repair, closeout, promote, split, close, finish",
+        "             Subcommands: new, list, show, companion, deliver, scaffold, validate, validate-closeout, repair, closeout, promote, split, close, finish",
         "  sync       Maintain generated workflow state and doc metadata.",
         "             Subcommands: close-eligible-requests, refresh-mermaid-signatures,",
         "                          schema-status, read-doc, list-docs, search-docs,",
@@ -115,7 +116,8 @@ def _build_root_help() -> str:
         "",
         "Maintenance:",
         "  bootstrap  Prepare or check the workflow tree and generated instructions.",
-        "  self-update Update the installed Python or npm package.",
+        "  update      Update the installed Python or npm package.",
+        "  self-update Alias-compatible legacy name for update.",
     ]
     return "\n".join(sections)
 
@@ -238,7 +240,7 @@ def _print_externally_managed_update_guidance(package_name: str) -> None:
                 f"  npm install -g {DEFAULT_SELF_UPDATE_PACKAGE}@latest",
                 "",
                 "Advanced override, at your own risk:",
-                f"  logics-manager self-update --manager pip --break-system-packages",
+                f"  logics-manager update --manager pip --break-system-packages",
             ]
         )
     )
@@ -249,7 +251,7 @@ def _is_json_mode(argv: list[str]) -> bool:
 
 
 def _maybe_print_update_notice(command: str, argv: list[str]) -> None:
-    if command in {"self-update", "mcp", "view"} or _is_json_mode(argv) or not sys.stdout.isatty():
+    if command in {"self-update", "update", "mcp", "view"} or _is_json_mode(argv) or not sys.stdout.isatty():
         return
     notice = get_update_notice(get_cli_version())
     if notice:
@@ -318,8 +320,8 @@ def main(argv: list[str] | None = None) -> int:
         payload = bootstrap_payload(repo_root, check=parsed.check)
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
-    if command == "self-update":
-        parser = argparse.ArgumentParser(prog="logics-manager self-update", add_help=False)
+    if command in {"self-update", "update"}:
+        parser = argparse.ArgumentParser(prog=f"logics-manager {command}", add_help=False)
         parser.add_argument("--manager", choices=("auto", "pip", "pipx", "npm"), default="auto")
         parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)

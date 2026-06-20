@@ -1659,6 +1659,34 @@ def test_viewer_cdx_runs_normalizes_unended_stale_runs_as_running(tmp_path: Path
     assert payload["runs"][1]["status"] == "stale"
 
 
+def test_viewer_cdx_runs_marks_permission_denials_as_blocked(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args == ["cdx", "runs", "--json"]
+        return subprocess.CompletedProcess(
+            args,
+            0,
+            json.dumps(
+                {
+                    "runs": [
+                        {
+                            "run_id": "blocked-run",
+                            "status": "succeeded",
+                            "permission_denials": [{"tool_name": "Bash", "tool_input": {"command": "logics-manager audit"}}],
+                        }
+                    ]
+                }
+            ),
+            "",
+        )
+
+    payload = cdx_runs_payload(tmp_path, runner=cdx_runner, which=lambda name: f"/usr/bin/{name}")
+
+    assert payload["state"] == "ok"
+    assert payload["runs"][0]["status"] == "blocked"
+    assert payload["runs"][0]["raw_status"] == "succeeded"
+    assert payload["runs"][0]["permissionDenials"][0]["tool_name"] == "Bash"
+
+
 def test_viewer_cdx_mission_plan_allows_workspace_writes_when_requested(tmp_path: Path) -> None:
     def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         response = _cdx_test_status_response(args)
@@ -2101,6 +2129,35 @@ def test_viewer_cdx_mission_run_extracts_actions_from_stdout_path(tmp_path: Path
     assert payload["state"] == "ok"
     assert payload["run"]["parsed"]["actions"] == [{"type": "refresh-corpus-context", "target": ""}]
     assert payload["run"]["parsed"]["missionOutput"]["summary"] == "Ready"
+
+
+def test_viewer_cdx_mission_run_reports_permission_denials_as_blocked(tmp_path: Path) -> None:
+    def cdx_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args == ["cdx", "status", "--json"]:
+            return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": [{"id": "work"}]}), "")
+        return subprocess.CompletedProcess(
+            args,
+            0,
+            json.dumps(
+                {
+                    "run_id": "run-42",
+                    "permission_denials": [{"tool_name": "Write", "tool_input": {"file_path": "logics/request/req_251.md"}}],
+                    "usage": {"total_tokens": 12},
+                }
+            ),
+            "",
+        )
+
+    payload = cdx_mission_run_payload(
+        tmp_path,
+        {"missionId": "full-audit", "sessionId": "work", "strengthId": "standard"},
+        cdx_runner=cdx_runner,
+        which=lambda name: f"/usr/bin/{name}",
+    )
+
+    assert payload["state"] == "blocked"
+    assert payload["run"]["permissionDenials"][0]["tool_name"] == "Write"
+    assert payload["run"]["runId"] == "run-42"
 
 
 def test_viewer_cdx_mission_apply_plan_runs_only_allowlisted_logics_actions(tmp_path: Path) -> None:
@@ -3183,6 +3240,7 @@ def test_main_product_consistency_strict_fails_on_issues(
         (["assist", "closure-summary"], None, None),
         (["assist", "context", "request-draft"], None, None),
         (["self-update", "--dry-run"], None, None),
+        (["update", "--dry-run"], None, None),
         (["doctor", "--format", "json"], None, None),
         (["audit", "--format", "json"], None, None),
         (["index", "--format", "json"], None, None),
@@ -3304,7 +3362,7 @@ def test_main_dispatches_to_expected_underlying_script(
                 "complexity": "Medium",
             },
         )
-    if argv[:1] == ["self-update"]:
+    if argv[:1] in (["self-update"], ["update"]):
         monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
         monkeypatch.setattr(
             "logics_manager.cli.metadata.version",
@@ -3347,6 +3405,33 @@ def test_main_runs_self_update_with_npm(
     monkeypatch.setattr(subprocess, "run", fake_run)
 
     exit_code = main(["self-update"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Updated @grifhinz/logics-manager via npm." in captured.out
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["check"] is False
+
+
+def test_main_runs_update_alias_with_npm(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recorded: dict[str, object] = {}
+
+    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+        recorded["command"] = command
+        recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
+    monkeypatch.setattr(
+        "logics_manager.cli.metadata.version",
+        lambda _name: (_ for _ in ()).throw(importlib_metadata.PackageNotFoundError()),
+    )
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    exit_code = main(["update"])
     captured = capsys.readouterr()
 
     assert exit_code == 0

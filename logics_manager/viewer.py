@@ -1884,6 +1884,13 @@ def cdx_runs_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
         if not isinstance(run, dict):
             continue
         item = dict(run)
+        denials = _extract_cdx_permission_denials(item)
+        if denials:
+            item["permissionDenials"] = denials
+            if str(item.get("status") or item.get("state") or "").strip().lower() == "succeeded":
+                item["raw_status"] = item.get("status") or item.get("state")
+                item["status"] = "blocked"
+                item["status_detail"] = "Run reported permission denials; review the report before treating it as successful."
         status = str(item.get("status") or item.get("state") or "").strip().lower()
         if status == "stale" and not item.get("ended_at") and not item.get("endedAt"):
             item["status"] = "running"
@@ -1918,6 +1925,15 @@ def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None =
     merged_report = _merge_cdx_mission_output(report)
     if merged_report:
         report = merged_report
+    denials = _extract_cdx_permission_denials(report)
+    if denials:
+        report["permissionDenials"] = denials
+        report["missionBlocked"] = True
+        report["status_detail"] = "Run reported permission denials; generated output may be incomplete or unapplied."
+        run = report.get("run") if isinstance(report.get("run"), dict) else None
+        if run is not None and str(run.get("status") or "").strip().lower() == "succeeded":
+            run["raw_status"] = run.get("status")
+            run["status"] = "blocked"
     return {"state": "ok", "message": "", "report": report}
 
 
@@ -2273,6 +2289,11 @@ def _parse_json_from_text(text: str) -> dict[str, Any] | None:
         try:
             parsed = json.loads(candidate)
             if isinstance(parsed, dict):
+                result_text = parsed.get("result")
+                if isinstance(result_text, str) and result_text.strip():
+                    nested = _parse_json_from_text(result_text)
+                    if nested:
+                        return nested
                 if any(key in parsed for key in ("actions", "summary", "findings", "recommendations")):
                     return parsed
                 fallback = fallback or parsed
@@ -2336,6 +2357,29 @@ def _merge_cdx_mission_output(parsed: Any) -> dict[str, Any] | None:
         if "summary" in embedded and "summary" not in merged:
             merged["summary"] = embedded["summary"]
     return merged
+
+
+def _extract_cdx_permission_denials(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, dict):
+        return []
+    candidates: list[Any] = [value.get("permission_denials"), value.get("permissionDenials")]
+    final_payload = value.get("final_payload") if isinstance(value.get("final_payload"), dict) else None
+    if final_payload is not None:
+        candidates.extend([final_payload.get("permission_denials"), final_payload.get("permissionDenials")])
+    parsed = value.get("parsed") if isinstance(value.get("parsed"), dict) else None
+    if parsed is not None:
+        candidates.extend([parsed.get("permission_denials"), parsed.get("permissionDenials")])
+    report = value.get("report") if isinstance(value.get("report"), dict) else None
+    if report is not None:
+        candidates.extend([report.get("permission_denials"), report.get("permissionDenials")])
+    denials: list[dict[str, Any]] = []
+    for candidate in candidates:
+        if not isinstance(candidate, list):
+            continue
+        for item in candidate:
+            if isinstance(item, dict):
+                denials.append(dict(item))
+    return denials
 
 
 def _extract_cdx_usage(parsed: Any) -> dict[str, Any]:
@@ -2543,6 +2587,10 @@ def cdx_mission_run_payload(
         "parsed": parsed if isinstance(parsed, dict) else None,
         "usage": usage,
     }
+    denials = _extract_cdx_permission_denials(parsed)
+    if denials:
+        run_payload["permissionDenials"] = denials
+        return {"state": "blocked", "message": "CDX mission reported permission denials; no applied work should be inferred from this run.", "plan": plan, "run": run_payload}
     if result.returncode != 0:
         message = (result.stderr or result.stdout or "CDX mission failed.").strip().splitlines()[0]
         return {"state": "error", "message": message, "plan": plan, "run": run_payload}

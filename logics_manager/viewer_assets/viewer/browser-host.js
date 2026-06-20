@@ -5565,6 +5565,11 @@
     const taskReport = report.task_report || {};
     const runError = report.error || run.error || {};
     const artifacts = report.artifacts || run.artifacts || {};
+    const permissionDenials = Array.isArray(report.permissionDenials)
+      ? report.permissionDenials
+      : Array.isArray(report.permission_denials)
+        ? report.permission_denials
+        : [];
     const findings = Array.isArray(taskReport.findings) ? taskReport.findings : [];
     const missionOutput = cdxReportMissionOutput(report, run, taskReport);
     const findingRows = findings.map((finding, index) => {
@@ -5594,6 +5599,14 @@
           ${canCreate ? `<button class="btn" type="button" data-viewer-cdx-create-request="${escapeHtml(run.run_id || taskReport.run_id || "")}">Create Logics request</button>` : ""}
         </section>
         ${renderCdxMissionOutput(missionOutput)}
+        ${permissionDenials.length ? `
+          <section class="viewer-cdx__section">
+            <div class="viewer-ci__heading"><h2>Permission denials</h2><span>${escapeHtml(permissionDenials.length)} reported</span></div>
+            <ul class="viewer-cdx__list">
+              ${permissionDenials.map((denial, index) => renderCdxDetailRow(`Denial ${index + 1}`, denial)).join("")}
+            </ul>
+          </section>
+        ` : ""}
         ${objectEntries(runError).length ? `
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading"><h2>Run signal</h2><span>${escapeHtml(runError.code || "reported")}</span></div>

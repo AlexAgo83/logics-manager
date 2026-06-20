@@ -347,8 +347,11 @@ Multi-file workflow mutations such as `flow promote`, `flow split`, and `flow fi
 To update the installed CLI later:
 
 ```bash
-logics-manager self-update
+logics-manager update
 ```
+
+`logics-manager self-update` remains available as the legacy alias for the same
+update workflow.
 
 For npm installs (recommended), update with:
 

@@ -55,6 +55,8 @@ function createViewerDom(options: {
   lanMode?: boolean;
   lanRwMode?: boolean;
   canBootstrapLogics?: boolean;
+  shouldPromptBootstrapLogics?: boolean;
+  bootstrapWarning?: unknown;
   initialUrlToken?: string;
   pairStartResponse?: { ok: boolean; status?: number; body?: unknown };
   pairCompleteResponse?: { ok: boolean; status?: number; body?: unknown };
@@ -272,8 +274,10 @@ function createViewerDom(options: {
               lanMode: Boolean(options.lanMode),
               lanRwMode: Boolean(options.lanRwMode),
               lanShareUrl: options.lanMode ? "http://192.168.1.42:8765/?t=secret-lan-token" : "",
-              canBootstrapLogics: Boolean(options.canBootstrapLogics),
-              bootstrapLogicsTitle: options.canBootstrapLogics ? "Bootstrap Logics in this project." : "Logics is already bootstrapped.",
+              canBootstrapLogics: options.canBootstrapLogics ?? true,
+              shouldPromptBootstrapLogics: Boolean(options.shouldPromptBootstrapLogics),
+              bootstrapLogicsTitle: options.canBootstrapLogics === false ? "Bootstrap unavailable." : "Refresh Logics bootstrap files.",
+              bootstrapWarning: options.bootstrapWarning ?? null,
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -442,8 +446,9 @@ function createViewerDom(options: {
                 cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
               },
               projects: [{ id: `project-${selectedName}`, name: selectedName, root: `/workspace/${selectedName}`, active: true, available: true, hasLogics: selectedName !== "plain-folder", message: selectedName === "plain-folder" ? "No Logics corpus found." : "Logics corpus found." }],
-              canBootstrapLogics: selectedName === "plain-folder",
-              bootstrapLogicsTitle: selectedName === "plain-folder" ? "Bootstrap Logics in this project." : "Logics is already bootstrapped.",
+              canBootstrapLogics: true,
+              shouldPromptBootstrapLogics: selectedName === "plain-folder",
+              bootstrapLogicsTitle: selectedName === "plain-folder" ? "Bootstrap Logics in this project." : "Refresh Logics bootstrap files.",
               autoRefreshIntervalSeconds: 15,
               autoRefreshIntervalForced: false,
               items: [],
@@ -476,8 +481,9 @@ function createViewerDom(options: {
               projects: [
                 { id: "project-new", name: "new-project", root: "/workspace/new-project", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
               ],
-              canBootstrapLogics: false,
-              bootstrapLogicsTitle: "Logics is already bootstrapped.",
+              canBootstrapLogics: true,
+              shouldPromptBootstrapLogics: false,
+              bootstrapLogicsTitle: "Refresh Logics bootstrap files.",
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
               items: [],
@@ -2414,7 +2420,7 @@ describe("local viewer browser host", () => {
   });
 
   it("prompts to bootstrap automatically for an unbootstrapped project", async () => {
-    const { dom, calls } = createViewerDom({ canBootstrapLogics: true });
+    const { dom, calls } = createViewerDom({ canBootstrapLogics: true, shouldPromptBootstrapLogics: true });
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
@@ -2435,7 +2441,7 @@ describe("local viewer browser host", () => {
   });
 
   it("reopens the bootstrap prompt from Settings after the automatic prompt is dismissed", async () => {
-    const { dom, calls } = createViewerDom({ canBootstrapLogics: true });
+    const { dom, calls } = createViewerDom({ canBootstrapLogics: true, shouldPromptBootstrapLogics: true });
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
@@ -2457,6 +2463,28 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
 
     expect(calls).toContain("/api/bootstrap-logics");
+  });
+
+  it("keeps bootstrap refresh available without prompting for bootstrapped projects", async () => {
+    const { dom, calls } = createViewerDom({ canBootstrapLogics: true, shouldPromptBootstrapLogics: false });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
+    const button = dom.window.document.getElementById("viewer-bootstrap-logics") as HTMLButtonElement | null;
+    expect(button?.hidden).toBe(false);
+    expect(button?.disabled).toBe(false);
+    expect(button?.title).toContain("Refresh Logics bootstrap files");
+
+    button?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Bootstrap Logics");
+    expect(modal?.textContent).toContain("Refresh generated Logics bootstrap files");
+    expect(calls.filter((call) => call === "/api/bootstrap-logics")).toHaveLength(0);
   });
 
   it("opens refresh options and configures the interval from the payload", async () => {

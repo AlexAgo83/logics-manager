@@ -2300,7 +2300,34 @@ def test_viewer_payload_exposes_bootstrap_state_for_new_projects(tmp_path: Path)
 
     assert payload["capabilities"]["logics"]["state"] == "missing"
     assert payload["canBootstrapLogics"] is True
+    assert payload["shouldPromptBootstrapLogics"] is True
     assert "Bootstrap Logics" in payload["bootstrapLogicsTitle"]
+
+
+def test_viewer_payload_keeps_bootstrap_refresh_available_for_ready_projects(tmp_path: Path) -> None:
+    bootstrap_payload(tmp_path, check=False)
+
+    payload = viewer_module.viewer_data_payload(tmp_path)
+
+    assert payload["capabilities"]["logics"]["state"] == "ready"
+    assert payload["canBootstrapLogics"] is True
+    assert payload["shouldPromptBootstrapLogics"] is False
+    assert "Refresh Logics bootstrap files" in payload["bootstrapLogicsTitle"]
+    assert payload["bootstrapWarning"] is None
+
+
+def test_viewer_payload_warns_when_bootstrap_instructions_are_stale(tmp_path: Path) -> None:
+    bootstrap_payload(tmp_path, check=False)
+    (tmp_path / "LOGICS.md").write_text("# Old local instructions\n", encoding="utf-8")
+
+    payload = viewer_module.viewer_data_payload(tmp_path)
+
+    assert payload["capabilities"]["logics"]["state"] == "ready"
+    assert payload["canBootstrapLogics"] is True
+    assert payload["shouldPromptBootstrapLogics"] is False
+    assert payload["bootstrapWarning"]["title"] == "Logics bootstrap refresh recommended"
+    assert "LOGICS.md" in payload["bootstrapWarning"]["paths"]
+    assert "logics-manager bootstrap" in payload["bootstrapWarning"]["message"]
 
 
 def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: Path) -> None:
@@ -2393,7 +2420,8 @@ def test_viewer_bootstrap_logics_endpoint_creates_workflow_skeleton(tmp_path: Pa
         assert response.status == 200
         assert payload["ok"] is True
         assert (tmp_path / "logics" / "instructions.md").is_file()
-        assert payload["payload"]["canBootstrapLogics"] is False
+        assert payload["payload"]["canBootstrapLogics"] is True
+        assert payload["payload"]["shouldPromptBootstrapLogics"] is False
         assert payload["payload"]["capabilities"]["logics"]["state"] == "ready"
         assert "logics/" in payload["bootstrap"]["created_paths"]
     finally:

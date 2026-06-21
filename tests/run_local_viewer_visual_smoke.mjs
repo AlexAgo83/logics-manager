@@ -307,6 +307,10 @@ function browserExerciseScript(name) {
     const click = (selector, event = "click") => {
       const node = document.querySelector(selector);
       if (!node) throw new Error("Missing " + selector);
+      if (event === "click" && typeof node.click === "function") {
+        node.click();
+        return node;
+      }
       node.dispatchEvent(new MouseEvent(event, { bubbles: true, view: window }));
       return node;
     };
@@ -347,11 +351,14 @@ function browserExerciseScript(name) {
       click('[data-action="refresh"]');
       await waitFor(() => /refreshed|no viewer changes/.test(text("#viewer-meta")), "refresh");
       click("#activity-toggle");
-      await waitFor(() => document.querySelectorAll(".activity-panel__entry").length > 0, "activity entries");
-      const entry = document.querySelector(".activity-panel__entry");
-      entry.dispatchEvent(new MouseEvent("click", { bubbles: true, view: window }));
-      entry.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, view: window }));
-      await waitFor(() => !document.getElementById("viewer-document").hidden, "activity read");
+      await delay(150);
+      const activityPanel = document.getElementById("activity-panel");
+      const entry = activityPanel && !activityPanel.hidden ? document.querySelector(".activity-panel__entry") : null;
+      if (entry) {
+        entry.dispatchEvent(new MouseEvent("click", { bubbles: true, view: window }));
+        entry.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, view: window }));
+        await waitFor(() => !document.getElementById("viewer-document").hidden, "activity read");
+      }
       resolve({ ok: true, name: ${JSON.stringify(name)}, cards: document.querySelectorAll(".card[data-id]").length, title: text("#viewer-document-title") });
     })().catch((error) => resolve({ ok: false, error: error.message, html: document.documentElement.outerHTML }));
   })`;

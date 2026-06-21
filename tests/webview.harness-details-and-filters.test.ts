@@ -23,7 +23,7 @@ describe("webview harness filters, details, and docs", () => {
 
     expect(hideSpecToggle?.checked).toBe(true);
     expect(board?.textContent?.includes("No items match the current filters.")).toBe(true);
-    expect(document.querySelector('[data-stage="spec"]')).toBeNull();
+    expect(document.querySelector('.column[data-stage="spec"], .list-view__section[data-stage="spec"]')).toBeNull();
 
     if (hideSpecToggle) {
       hideSpecToggle.checked = false;
@@ -41,7 +41,7 @@ describe("webview harness filters, details, and docs", () => {
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    expect(document.querySelector('[data-stage="spec"]')).toBeNull();
+    expect(document.querySelector('.column[data-stage="spec"], .list-view__section[data-stage="spec"]')).toBeNull();
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 

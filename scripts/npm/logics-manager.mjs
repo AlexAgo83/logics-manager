@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -61,27 +61,66 @@ export function resolvePythonLauncher(candidate, spawn = spawnSync) {
   return candidate;
 }
 
-export function runLogicsManager(argv = process.argv.slice(2), platform = process.platform, spawn = spawnSync) {
+function childExitCode(code, signal) {
+  if (typeof code === "number") {
+    return code;
+  }
+  if (signal === "SIGINT") {
+    return 130;
+  }
+  if (signal === "SIGTERM") {
+    return 143;
+  }
+  return 1;
+}
+
+export function runChildProcess(command, args, spawnCommand = spawn) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const child = spawnCommand(command, args, { stdio: "inherit" });
+    const finish = (code) => {
+      if (settled) return;
+      settled = true;
+      process.off("SIGINT", forwardSigint);
+      process.off("SIGTERM", forwardSigterm);
+      resolve(code);
+    };
+    const forward = (signal) => {
+      try {
+        child.kill(signal);
+      } catch {
+        // Child may already be gone.
+      }
+    };
+    const forwardSigint = () => forward("SIGINT");
+    const forwardSigterm = () => forward("SIGTERM");
+    process.on("SIGINT", forwardSigint);
+    process.on("SIGTERM", forwardSigterm);
+    child.on("error", (error) => {
+      finish(isMissingCommandError(error) ? null : 1);
+    });
+    child.on("close", (code, signal) => {
+      finish(childExitCode(code, signal));
+    });
+  });
+}
+
+export async function runLogicsManager(argv = process.argv.slice(2), platform = process.platform, spawnVersion = spawnSync, spawnCommand = spawn) {
   const candidates = buildCandidates(platform);
   const wrapperDir = dirname(fileURLToPath(import.meta.url));
   const packageRoot = resolve(wrapperDir, "..", "..");
   const scriptPath = resolve(packageRoot, "scripts", "logics-manager.py");
   for (const candidate of candidates) {
-    const launcher = resolvePythonLauncher(candidate, spawn);
+    const launcher = resolvePythonLauncher(candidate, spawnVersion);
     if (!launcher) {
       continue;
     }
 
-    const result = spawn(launcher.command, [...launcher.argsPrefix, scriptPath, ...argv], {
-      stdio: "inherit"
-    });
-    if (result.status === 0) {
-      return 0;
-    }
-    if (isMissingCommandError(result.error)) {
+    const status = await runChildProcess(launcher.command, [...launcher.argsPrefix, scriptPath, ...argv], spawnCommand);
+    if (status === null) {
       continue;
     }
-    return result.status ?? 1;
+    return status;
   }
 
   console.error(
@@ -104,5 +143,10 @@ export function isDirectInvocation(importUrl = import.meta.url, argvPath = proce
 }
 
 if (isDirectInvocation()) {
-  process.exit(runLogicsManager());
+  runLogicsManager()
+    .then((code) => process.exit(code))
+    .catch((error) => {
+      console.error(error?.message || error);
+      process.exit(1);
+    });
 }

@@ -1,6 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
+import { EventEmitter } from "node:events";
 import { spawnSync } from "node:child_process";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -17,6 +18,13 @@ const root = process.cwd();
 
 describe("logics-manager npm wrapper", () => {
   const expectedScriptPath = path.resolve(root, "scripts", "logics-manager.py");
+
+  function successfulChild() {
+    const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
+    child.kill = vi.fn();
+    queueMicrotask(() => child.emit("close", 0, null));
+    return child;
+  }
 
   it("builds platform-specific candidate launchers", () => {
     expect(buildCandidates("linux")).toEqual([
@@ -52,17 +60,21 @@ describe("logics-manager npm wrapper", () => {
     expect(isDirectInvocation(new URL(`file://${realPath}`).href, symlinkPath)).toBe(true);
   });
 
-  it("runs the first supported python launcher", () => {
+  it("runs the first supported python launcher", async () => {
     const calls: Array<{ command: string; args: string[] }> = [];
-    const spawn = vi.fn((command: string, args: string[]) => {
+    const spawnVersion = vi.fn((command: string, args: string[]) => {
       calls.push({ command, args });
       if (args.includes("--version")) {
         return { status: 0, stdout: "", stderr: "Python 3.11.0\n" };
       }
       return { status: 0, stdout: "", stderr: "" };
     });
+    const spawnCommand = vi.fn((command: string, args: string[]) => {
+      calls.push({ command, args });
+      return successfulChild();
+    });
 
-    const exitCode = runLogicsManager(["--help"], "linux", spawn as never);
+    const exitCode = await runLogicsManager(["--help"], "linux", spawnVersion as never, spawnCommand as never);
 
     expect(exitCode).toBe(0);
     expect(calls).toEqual([
@@ -71,9 +83,9 @@ describe("logics-manager npm wrapper", () => {
     ]);
   });
 
-  it("falls back to the next launcher when the first command is missing", () => {
+  it("falls back to the next launcher when the first command is missing", async () => {
     const calls: Array<{ command: string; args: string[] }> = [];
-    const spawn = vi.fn((command: string, args: string[]) => {
+    const spawnVersion = vi.fn((command: string, args: string[]) => {
       calls.push({ command, args });
       if (command === "python3") {
         return { status: null, stdout: "", stderr: "", error: new Error("spawn python3 ENOENT") };
@@ -83,8 +95,12 @@ describe("logics-manager npm wrapper", () => {
       }
       return { status: 0, stdout: "", stderr: "" };
     });
+    const spawnCommand = vi.fn((command: string, args: string[]) => {
+      calls.push({ command, args });
+      return successfulChild();
+    });
 
-    const exitCode = runLogicsManager(["--help"], "linux", spawn as never);
+    const exitCode = await runLogicsManager(["--help"], "linux", spawnVersion as never, spawnCommand as never);
 
     expect(exitCode).toBe(0);
     expect(calls).toEqual([
@@ -92,6 +108,23 @@ describe("logics-manager npm wrapper", () => {
       { command: "python", args: ["--version"] },
       { command: "python", args: [expectedScriptPath, "--help"] }
     ]);
+  });
+
+  it("forwards SIGINT to the spawned python command", async () => {
+    const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
+    child.kill = vi.fn((signal: string) => {
+      queueMicrotask(() => child.emit("close", null, signal));
+      return true;
+    });
+    const spawnVersion = vi.fn(() => ({ status: 0, stdout: "Python 3.11.0\n", stderr: "" }));
+    const spawnCommand = vi.fn(() => child);
+
+    const running = runLogicsManager(["view", "--port", "0"], "linux", spawnVersion as never, spawnCommand as never);
+    process.emit("SIGINT");
+    const exitCode = await running;
+
+    expect(child.kill).toHaveBeenCalledWith("SIGINT");
+    expect(exitCode).toBe(130);
   });
 
   it("runs the real npm wrapper against a temporary repo", () => {

@@ -494,6 +494,7 @@
 .activity-panel__marker[data-stage="product"] { background: #7c3aed; border-color: #7c3aed; }
 .activity-panel__marker[data-stage="architecture"] { background: #be123c; border-color: #be123c; }
 .activity-panel__marker[data-stage="spec"] { background: #15803d; border-color: #15803d; }
+.activity-panel__marker[data-activity-kind="git"] { background: #52525b; border-color: #71717a; }
 
 .activity-panel__marker {
   cursor: help;
@@ -509,6 +510,15 @@
 
 .activity-panel__entry:hover {
   background: var(--vscode-list-hoverBackground, #2a2d2e);
+}
+
+.activity-panel__entry:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.activity-panel__entry:disabled:hover {
+  background: transparent;
 }
 
 .activity-panel__entry:focus-visible {

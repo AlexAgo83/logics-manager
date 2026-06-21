@@ -893,6 +893,61 @@
     writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
   }
 
+  function activityEventsFromStoredState(state = readStoredState()) {
+    const baseState = state && typeof state === "object" ? state : {};
+    return (Array.isArray(baseState.activityHistory) ? baseState.activityHistory : [])
+      .filter((entry) => entry && typeof entry === "object" && entry.type === "git-action")
+      .map((entry, index) => ({
+        id: String(entry.id || `git-action-${index}`),
+        kind: "git",
+        category: "git",
+        stage: "git",
+        marker: "G",
+        action: String(entry.action || "Git"),
+        title: String(entry.title || `Git ${entry.action || "action"}`),
+        label: String(entry.label || entry.action || "Git action"),
+        meta: String(entry.meta || entry.message || "Git action"),
+        at: entry.at || entry.updatedAt || "",
+        updatedAt: entry.updatedAt || entry.at || ""
+      }));
+  }
+
+  function dispatchViewerActivityUpdate() {
+    const storedState = readStoredState();
+    const payload = {
+      root: latestRepoRoot,
+      items: latestItems,
+      selectedId: storedState?.selectedId || "",
+      activityEvents: activityEventsFromStoredState(storedState)
+    };
+    window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
+    applyLocalViewerChrome();
+  }
+
+  function recordGitActivity(action, meta = "") {
+    const storedState = readStoredState();
+    const baseState = storedState && typeof storedState === "object" ? storedState : {};
+    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const now = new Date().toISOString();
+    const safeAction = String(action || "Git").trim() || "Git";
+    history.unshift({
+      id: `git-action-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+      type: "git-action",
+      action: safeAction,
+      title: `Git ${safeAction}`,
+      label: safeAction,
+      meta: meta || `Git ${safeAction.toLowerCase()} started`,
+      at: now,
+      updatedAt: now
+    });
+    writeStoredState({
+      ...baseState,
+      viewerFilterState: { ...viewerFilterState },
+      activityHistory: history.slice(0, activityStorageLimit)
+    });
+    dispatchViewerActivityUpdate();
+  }
+
   function updateStoredActivity(nextItems) {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
@@ -2503,7 +2558,7 @@
     latestCapabilities = normalizeCapabilities(payload);
     applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
     updateCapabilityControls();
-    const payloadWithActivity = { ...payload, items: latestItems };
+    const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState() };
     const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
@@ -8481,9 +8536,11 @@
       withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
     });
     document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
+      recordGitActivity("Pull", "Git pull started in a Workshop terminal");
       spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });
     });
     document.getElementById("viewer-git-push")?.addEventListener("click", () => {
+      recordGitActivity("Push", "Git push started in a Workshop terminal");
       spawnWorkshopTerminal({ command: ["git", "push"], label: "git push" });
     });
     startAutoRefresh();

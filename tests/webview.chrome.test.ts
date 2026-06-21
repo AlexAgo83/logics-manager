@@ -285,7 +285,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(helpBanner?.hidden).toBe(true);
   });
 
-  it("toggles activity panel and reflects the button's pressed state", () => {
+  it("opens activity by default and toggles back to project", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -297,15 +297,17 @@ describe("webview chrome toolbar and filter behavior", () => {
     const activityPanel = dom.window.document.getElementById("activity-panel");
     const board = dom.window.document.getElementById("board");
 
-    expect(activityPanel?.hidden).toBe(true);
-    expect(activityToggle?.getAttribute("aria-pressed")).toBe("false");
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
     expect(activityPanel?.hidden).toBe(false);
     expect(board?.hidden).toBe(true);
     expect(activityToggle?.getAttribute("aria-pressed")).toBe("true");
     expect(activityToggle?.getAttribute("aria-label")).toContain("Hide");
+
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(activityPanel?.hidden).toBe(true);
+    expect(board?.hidden).toBe(false);
+    expect(activityToggle?.getAttribute("aria-pressed")).toBe("false");
+    expect(activityToggle?.getAttribute("aria-label")).toContain("Show");
   });
 
   it("posts assist actions in non-harness mode", () => {

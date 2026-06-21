@@ -133,7 +133,7 @@
       state.searchQuery = "";
       state.groupMode = "stage";
       state.sortMode = "updated-desc";
-      state.activityPanelOpen = false;
+      state.activityPanelOpen = true;
       state.attentionOnly = false;
       state.helpDismissed = false;
       state.collapsedListStages = new Set();
@@ -466,6 +466,7 @@
           state.shouldRecommendCheckEnvironment = payload.shouldRecommendCheckEnvironment;
         }
         state.changedPaths = Array.isArray(payload && payload.changedPaths) ? payload.changedPaths : [];
+        state.activityEvents = Array.isArray(payload && payload.activityEvents) ? payload.activityEvents : [];
         state.activeAgent = payload && payload.activeAgent ? payload.activeAgent : null;
         if (payload && payload.error) {
           renderBoardErrorState(payload.error);

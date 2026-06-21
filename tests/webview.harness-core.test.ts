@@ -752,11 +752,8 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    const activityToggle = document.getElementById("activity-toggle");
     const activityPanel = document.getElementById("activity-panel");
     const board = document.getElementById("board");
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
     expect(activityPanel?.hidden).toBe(false);
@@ -794,12 +791,39 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
     const entries = Array.from(document.querySelectorAll(".activity-panel__entry"));
     const entryIds = entries.map((entry) => entry.getAttribute("data-id"));
     expect(entryIds).toContain("req_010_activity_visible");
     expect(entryIds).not.toContain("task_010_activity_obsolete");
+  });
+
+  it("renders git action notifications in recent activity", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem],
+      activityEvents: [
+        {
+          id: "git-push-1",
+          kind: "git",
+          category: "git",
+          stage: "git",
+          marker: "G",
+          title: "Git Push",
+          label: "Push",
+          meta: "Git push started in a Workshop terminal",
+          updatedAt: "2024-06-01T00:00:00.000Z"
+        }
+      ]
+    });
+
+    const entry = Array.from(dom.window.document.querySelectorAll(".activity-panel__entry")).find((button) =>
+      button.textContent?.includes("Git Push")
+    ) as HTMLButtonElement | undefined;
+    expect(entry).toBeTruthy();
+    expect(entry?.disabled).toBe(true);
+    expect(entry?.textContent).toContain("Git push started");
+    expect(entry?.querySelector(".activity-panel__marker")?.getAttribute("data-activity-kind")).toBe("git");
   });
 
   it("shows more precise Updated values for recently changed cards", () => {
@@ -841,15 +865,12 @@ describe("webview harness core behaviors", () => {
 
     const document = dom.window.document;
     const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
-    const activityToggle = document.getElementById("activity-toggle");
     const detailsTitle = document.getElementById("details-title");
 
     if (searchInput) {
       searchInput.value = "kickoff only";
       searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
     }
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Hidden from board but visible in activity")
@@ -873,10 +894,6 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    const activityToggle = document.getElementById("activity-toggle");
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity read target")
     );
@@ -899,8 +916,6 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity updated target")
     );
@@ -921,8 +936,6 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity unknown timestamp")
     );

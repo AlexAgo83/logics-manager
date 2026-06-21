@@ -2082,6 +2082,31 @@ def test_viewer_events_stream_reports_corpus_changes(
         thread.join(timeout=5)
 
 
+def test_viewer_server_close_does_not_wait_for_open_event_stream(tmp_path: Path) -> None:
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+    close_thread: threading.Thread | None = None
+    try:
+        conn.request("GET", "/api/events")
+        response = conn.getresponse()
+        assert response.status == 200
+        assert response.readline().startswith(b"event: ready")
+
+        server.shutdown()
+        close_thread = threading.Thread(target=server.server_close, daemon=True)
+        close_thread.start()
+        close_thread.join(timeout=1)
+
+        assert close_thread.is_alive() is False
+    finally:
+        conn.close()
+        if close_thread is not None:
+            close_thread.join(timeout=5)
+        thread.join(timeout=5)
+
+
 def test_viewer_update_status_accepts_absolute_repo_path(tmp_path: Path) -> None:
     request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
     request_path.parent.mkdir(parents=True)

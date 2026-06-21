@@ -393,6 +393,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
         "/api/switch-project",
+        "/api/select-project-root",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",
@@ -2223,6 +2224,27 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+def test_viewer_server_switch_project_root_adds_selected_project(tmp_path: Path) -> None:
+    active = tmp_path / "logics-manager"
+    selected = tmp_path / "selected-project"
+    active_request = active / "logics" / "request"
+    selected_request = selected / "logics" / "request"
+    active_request.mkdir(parents=True)
+    selected_request.mkdir(parents=True)
+    (active_request / "req_001_active.md").write_text("## req_001_active - Active\n> Status: Ready\n", encoding="utf-8")
+    (selected_request / "req_001_selected.md").write_text("## req_001_selected - Selected\n> Status: Ready\n", encoding="utf-8")
+
+    server = create_viewer_server_or_skip(active)
+    try:
+        payload = server.switch_project_root(selected)
+
+        assert payload["repoName"] == "selected-project"
+        assert [item["id"] for item in payload["items"]] == ["req_001_selected"]
+        assert next(entry for entry in payload["projects"] if entry["name"] == "selected-project")["active"] is True
+    finally:
+        server.server_close()
 
 
 def test_viewer_bootstrap_logics_endpoint_creates_workflow_skeleton(tmp_path: Path) -> None:

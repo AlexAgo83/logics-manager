@@ -1181,7 +1181,7 @@
       }
       pill.title = latestRepoRoot || repoName;
       if ("disabled" in pill) {
-        pill.disabled = latestProjects.length <= 1;
+        pill.disabled = false;
       }
       pill.onclick = () => {
         const menu = projectMenu();
@@ -1211,13 +1211,21 @@
       return;
     }
     const projects = latestProjects.filter((project) => project && typeof project === "object");
-    menu.innerHTML = projects.map((project) => `
+    const projectRows = projects.map((project) => `
       <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
         <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
         <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
         <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
       </button>
     `).join("");
+    const pickerRow = `
+      <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-project-pick>
+        <span class="viewer-project-switcher__item-name">Choose folder...</span>
+        <span class="viewer-project-switcher__item-state">browse</span>
+        <span class="viewer-project-switcher__item-path">Select another project location</span>
+      </button>
+    `;
+    menu.innerHTML = `${projectRows}${pickerRow}`;
   }
 
   function setProjectMenuOpen(open) {
@@ -1226,7 +1234,7 @@
     if (!(button instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
       return;
     }
-    const nextOpen = Boolean(open) && latestProjects.length > 1;
+    const nextOpen = Boolean(open);
     menu.hidden = !nextOpen;
     button.setAttribute("aria-expanded", nextOpen ? "true" : "false");
   }
@@ -1261,6 +1269,31 @@
       panel.hidden = true;
     }
     postToApp(data.payload);
+  }
+
+  async function pickViewerProjectRoot() {
+    setProjectMenuOpen(false);
+    setMeta("Opening project folder picker...");
+    const response = await fetch("/api/select-project-root", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}"
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to select project folder.");
+    }
+    latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+    latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    updateMainGitBadges();
+    updateMainCiBadge(latestCiStatus);
+    updateMainCdxBadge(null);
+    const panel = documentPanel();
+    if (panel) {
+      panel.hidden = true;
+    }
+    postToApp(data.payload, { force: true });
+    setMeta(`Switched to ${data.payload?.repoName || "selected project"}.`);
   }
 
   async function bootstrapLogicsProject() {
@@ -8143,9 +8176,11 @@
       const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
+      const workshopTerminalRenameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
       const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
+      const projectPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-pick]") : null;
       const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
       const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
@@ -8357,6 +8392,13 @@
         if (id) clearWorkshopTerminal(id);
         return;
       }
+      if (workshopTerminalRenameTarget instanceof HTMLElement && event.detail >= 2) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = workshopTerminalRenameTarget.getAttribute("data-viewer-workshop-terminal-rename") || "";
+        if (id) renameWorkshopTerminal(id);
+        return;
+      }
       if (workshopCdxUsageTarget instanceof HTMLElement) {
         event.preventDefault();
         event.stopPropagation();
@@ -8438,6 +8480,11 @@
         setProjectMenuOpen(Boolean(menu?.hidden));
         return;
       }
+      if (projectPickTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("select-project-root", "Selecting project folder", pickViewerProjectRoot);
+        return;
+      }
       if (projectTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("switch-project", "Switching project", () => switchViewerProject(projectTarget.getAttribute("data-viewer-project-id") || ""));
@@ -8503,15 +8550,6 @@
       const path = target instanceof HTMLElement ? target.getAttribute("data-viewer-doc-path") : "";
       if (path) {
         withPrimaryAction("read-document", "Loading document", () => showDocumentByPath(path));
-      }
-    });
-    document.addEventListener("dblclick", (event) => {
-      const renameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
-      if (renameTarget instanceof HTMLElement) {
-        event.preventDefault();
-        event.stopPropagation();
-        const id = renameTarget.getAttribute("data-viewer-workshop-terminal-rename") || "";
-        if (id) renameWorkshopTerminal(id);
       }
     });
     document.addEventListener("focusin", (event) => {

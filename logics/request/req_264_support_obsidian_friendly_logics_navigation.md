@@ -1,7 +1,7 @@
 ## req_264_support_obsidian_friendly_logics_navigation - Support Obsidian-friendly Logics navigation
 > From version: 2.12.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

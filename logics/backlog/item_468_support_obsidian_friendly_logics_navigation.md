@@ -1,10 +1,10 @@
 ## item_468_support_obsidian_friendly_logics_navigation - Support Obsidian-friendly Logics navigation
 > From version: 2.12.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,8 +49,8 @@ Avoid building or depending on an Obsidian plugin for this phase.
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_264_support_obsidian_friendly_logics_navigation.md`
-- Primary task(s): (none yet)
+- Request: `req_264_support_obsidian_friendly_logics_navigation`
+- Primary task(s): `task_261_support_obsidian_friendly_logics_navigation`
 
 # AI Context
 - Summary: Support Obsidian-friendly Logics navigation
@@ -66,6 +66,7 @@ Avoid building or depending on an Obsidian plugin for this phase.
 - Hybrid rationale: Derived from request `req_264_support_obsidian_friendly_logics_navigation` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_264_support_obsidian_friendly_logics_navigation.md`.
 - Generated locally by logics-manager.
+- Task `task_261_support_obsidian_friendly_logics_navigation` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_261_support_obsidian_friendly_logics_navigation`

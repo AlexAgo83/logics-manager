@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Needs
 - Let the operator open the local viewer to other devices on their LAN (typically a phone or tablet) on demand, without having to manually pass low-level bind arguments.
@@ -85,8 +86,8 @@ flowchart TD
 - `clients/viewer/index.html`
 - `clients/shared-web/media/css/toolbar.css`
 - `clients/viewer/viewer.css`
-- `req_244` (Workshop terminals and command runner — mutating surface to be disabled in LAN mode)
-- `req_246` (Responsive pass — prerequisite for usable phone experience)
+- `logics/request/req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner.md` (Workshop terminals and command runner — mutating surface to be disabled in LAN mode)
+- `logics/request/req_246_make_the_viewer_responsive_on_tablet_and_phone_breakpoints.md` (Responsive pass — prerequisite for usable phone experience)
 
 # AI Context
 - Summary: Add a safe-by-default LAN exposure mode to the local viewer with a per-session token, a QR code at launch, an always-visible banner, and HTTP-layer read-only enforcement of mutating actions.

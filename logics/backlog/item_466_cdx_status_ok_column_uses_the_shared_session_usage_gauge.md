@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 The CDX status screen renders the readiness/OK column with plain badges (`renderCdxStatus`, badge helper `clients/viewer/browser-host.js:5047`), while the terminal view already shows a richer session usage gauge (`renderCdxUsageGauge(usage, sessionName)`, `:3957`) that operators are used to reading. The two surfaces are visually inconsistent and the status screen conveys less at a glance.
@@ -56,7 +57,7 @@ The CDX status screen renders the readiness/OK column with plain badges (`render
 - Urgency: Low.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the CDX status gauge slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the CDX status gauge slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Task `task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge` was finished via `logics-manager flow finish task` on 2026-06-20.
 

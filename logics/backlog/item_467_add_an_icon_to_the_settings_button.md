@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 The Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:77`) is text-only, which is visually inconsistent with the rest of the chrome and slower to spot. It should carry an icon (gear).
@@ -55,7 +56,7 @@ The Settings button (`#viewer-refresh-menu-button`, `clients/viewer/index.html:7
 - Urgency: Low.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the Settings icon slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the Settings icon slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Task `task_260_add_an_icon_to_the_settings_button` was finished via `logics-manager flow finish task` on 2026-06-20.
 

@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 The viewer polls a full `/api/refresh` every X seconds (default ~15s) and recomputes even when nothing changed. Worse, when no screen is open the background tick only refreshes the git badge (`refreshViewer` -> `refreshGitBadgeCounters()`, `clients/viewer/browser-host.js:2547`); the unified `/api/status` poll `refreshBadgeCounters()` (`:1910`) that carries CI and CDX is never scheduled on the timer, so the CI badge stays stale until the operator opens the CI screen. There is no real-time push even though SSE infrastructure already exists for Workshop terminals (`logics_manager/viewer.py:3284,3334`). The result is laggy, sometimes-inconsistent badges and unnecessary recompute when idle.
@@ -61,7 +62,7 @@ The viewer polls a full `/api/refresh` every X seconds (default ~15s) and recomp
 - Urgency: Medium — depends on the rest of the batch landing first for a stable base.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the sync/transport slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the sync/transport slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Implementation note: `/api/events` now streams component-tagged changes for corpus/git/ci/cdx, `/api/status` supports cached ETag revalidation, and the browser viewer uses EventSource with polling fallback.
 - Task `task_255_real_time_viewer_sync_via_sse_plus_fix_for_stale_ci_and_cdx_badges` was finished via `logics-manager flow finish task` on 2026-06-20.

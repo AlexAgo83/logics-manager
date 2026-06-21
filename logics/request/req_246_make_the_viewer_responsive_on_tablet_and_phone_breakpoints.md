@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Needs
 - Make every viewer screen readable and usable on tablet portrait (~600px) and phone portrait (~360–420px) viewports, instead of forcing horizontal scroll, crushed columns, or unreadable diff text.
@@ -90,8 +91,8 @@ flowchart TD
 - `clients/shared-web/media/css/details.css`
 - `tests/viewer.browser-host.test.ts`
 - `tests/webview.harness-details-and-filters.test.ts`
-- `req_244` (Explorer restyle and Workshop screen — overlaps the same CSS surface)
-- `req_245` (LAN access — depends on this responsive pass for phone usability)
+- `logics/request/req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner.md` (Explorer restyle and Workshop screen — overlaps the same CSS surface)
+- `logics/request/req_245_expose_the_viewer_on_the_local_network_with_token_authentication_and_read_only_safety.md` (LAN access — depends on this responsive pass for phone usability)
 
 # AI Context
 - Summary: Add tablet (600px) and phone (420px) breakpoints across the viewer to fix the Git screen and all other multi-column screens that currently force horizontal scroll on small viewports, without changing desktop layout.

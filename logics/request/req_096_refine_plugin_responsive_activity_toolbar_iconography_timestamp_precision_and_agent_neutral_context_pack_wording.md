@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: Plugin UX polish, responsive behavior, and agent-neutral wording
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Needs
 - Refine several plugin UX details that now feel inconsistent or overly Codex-specific after the broader hybrid-assist work landed.
@@ -97,8 +98,8 @@ flowchart TD
 - Skip when: Skip when the work is about shared runtime contracts, local-model selection, or kit-side model support.
 
 # References
-- `logics/request/req_054_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
-- `logics/request/req_056_context_pack_attention_explain_and_dependency_map.md`
+- `logics/request/req_049_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls.md`
+- `logics/request/req_056_add_codex_context_pack_attention_explain_and_dependency_map.md`
 - `logics/request/req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging.md`
 - `src/logicsWebviewHtml.ts`
 - `src/logicsViewProvider.ts`

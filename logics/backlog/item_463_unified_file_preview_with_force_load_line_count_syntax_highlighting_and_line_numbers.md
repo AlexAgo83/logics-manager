@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 File preview surfaces truncate silently at hard-coded byte limits (`logics_manager/viewer.py:191-197`: `FILE_PREVIEW_MAX_BYTES=300000`, `WORKSPACE_PREVIEW_MAX_BYTES=30000`, `GIT_FILE_PREVIEW_MAX_BYTES=30000`). The payload already flags `truncated: true` and the client shows a static "truncated" placeholder (`clients/viewer/browser-host.js:3445,3462,6268`), but there is no way to load the rest, no line count, and the content renders as flat text — no syntax highlighting and no line numbers. Operators hit the limit often and lose context, and reading code in the Explorer is uncomfortable.
@@ -61,7 +62,7 @@ File preview surfaces truncate silently at hard-coded byte limits (`logics_manag
 - Urgency: Medium.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the file-preview slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the file-preview slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Task `task_256_unified_file_preview_with_force_load_line_count_syntax_highlighting_and_line_numbers` was finished via `logics-manager flow finish task` on 2026-06-20.
 

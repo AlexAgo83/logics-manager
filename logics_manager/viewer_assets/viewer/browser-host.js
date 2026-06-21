@@ -896,7 +896,7 @@
   function activityEventsFromStoredState(state = readStoredState()) {
     const baseState = state && typeof state === "object" ? state : {};
     return (Array.isArray(baseState.activityHistory) ? baseState.activityHistory : [])
-      .filter((entry) => entry && typeof entry === "object" && entry.type === "git-action")
+      .filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type))
       .map((entry, index) => ({
         id: String(entry.id || `git-action-${index}`),
         kind: "git",
@@ -924,6 +924,11 @@
     applyLocalViewerChrome();
   }
 
+  function activityPanelIsOpen() {
+    const panel = document.getElementById("activity-panel");
+    return panel instanceof HTMLElement && !panel.hidden;
+  }
+
   function recordGitActivity(action, meta = "") {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
@@ -946,6 +951,47 @@
       activityHistory: history.slice(0, activityStorageLimit)
     });
     dispatchViewerActivityUpdate();
+  }
+
+  function syncGitCommitActivity(payload) {
+    const commits = Array.isArray(payload?.recentCommits) ? payload.recentCommits : [];
+    if (!commits.length) {
+      return;
+    }
+    const storedState = readStoredState();
+    const baseState = storedState && typeof storedState === "object" ? storedState : {};
+    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
+    const newEntries = commits
+      .filter((commit) => commit && typeof commit === "object" && commit.hash)
+      .map((commit) => {
+        const hash = String(commit.hash || "").trim();
+        const subject = String(commit.subject || "Untitled commit").trim() || "Untitled commit";
+        const author = String(commit.author || "").trim();
+        const date = String(commit.date || "").trim();
+        return {
+          id: `git-commit-${hash}`,
+          type: "git-commit",
+          action: "Commit",
+          title: subject,
+          label: "Commit",
+          meta: [hash, author, date].filter(Boolean).join(" · "),
+          at: date,
+          updatedAt: date
+        };
+      })
+      .filter((entry) => entry.id && !knownIds.has(entry.id));
+    if (!newEntries.length) {
+      return;
+    }
+    writeStoredState({
+      ...baseState,
+      viewerFilterState: { ...viewerFilterState },
+      activityHistory: [...newEntries, ...history].slice(0, activityStorageLimit)
+    });
+    if (activityPanelIsOpen()) {
+      dispatchViewerActivityUpdate();
+    }
   }
 
   function updateStoredActivity(nextItems) {
@@ -1985,6 +2031,7 @@
       const data = await response.json();
       if (response.ok && data.ok && data.payload?.state === "ok") {
         latestGitStatusSignature = gitStatusSignature(data.payload);
+        syncGitCommitActivity(data.payload);
         setGitBadgeCountsFromPayload(data.payload);
       }
     } catch {
@@ -2051,6 +2098,7 @@
     if (isCapabilityAvailable("git")) {
       if (payload.git && payload.git.state === "ok") {
         latestGitStatusSignature = gitStatusSignature(payload.git);
+        syncGitCommitActivity(payload.git);
         setGitBadgeCountsFromPayload(payload.git);
       }
     } else {
@@ -7862,6 +7910,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load Git status.");
     }
+    syncGitCommitActivity(data.payload);
     const nextGitSignature = gitStatusSignature(data.payload);
     if (options.skipUnchanged && !options.force && latestGitStatusSignature && nextGitSignature === latestGitStatusSignature) {
       setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
@@ -8021,6 +8070,13 @@
     });
     activityClearControl()?.addEventListener("click", () => {
       clearActivityHistory();
+    });
+    document.getElementById("activity-toggle")?.addEventListener("click", () => {
+      setTimeout(() => {
+        if (activityPanelIsOpen()) {
+          dispatchViewerActivityUpdate();
+        }
+      }, 0);
     });
     document.querySelectorAll("[data-viewer-filter-group]").forEach((element) => {
       if (element instanceof HTMLSelectElement) {

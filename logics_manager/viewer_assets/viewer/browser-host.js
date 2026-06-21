@@ -750,6 +750,7 @@
     return Array.from(document.querySelectorAll([
       "#viewer-insights",
       "#viewer-health",
+      "#viewer-getting-started",
       "#viewer-workshop",
       "#viewer-ci",
       "#viewer-cdx",
@@ -2302,6 +2303,7 @@
     const title = String(titleText || "").trim();
     if (!title) return "";
     const exact = {
+      "Getting Started": "Logics workflow guide",
       "Remote": "Git status, CI runs, and release gates",
       "Workshop": "Terminals, commands, and file explorer",
       "Validation health": "Lint and audit summary",
@@ -2319,6 +2321,148 @@
     if (title.startsWith("logics/backlog")) return "Logics backlog";
     if (title.endsWith(".md")) return "Logics document";
     return "";
+  }
+
+  const onboardingStages = [
+    {
+      label: "Need",
+      tagline: "Capture what matters",
+      description: "Start by writing down what you need: a goal, a problem, or an idea. Logics keeps this as a request so you can refine it and track where it goes.",
+      prompts: [
+        "Draft a new request for this problem: <describe the need or pain point>.",
+        "Ask me any clarifying questions and suggest options that would make the request stronger."
+      ],
+      mapping: "Maps to a Logics request document in logics/request/.",
+      actions: [{ label: "New Request", action: "new-request" }]
+    },
+    {
+      label: "Framing",
+      tagline: "Understand before you act",
+      description: "Shape the need into something actionable. Add context, scope, and acceptance criteria so a human or assistant can pick it up without re-explaining the whole problem.",
+      prompts: [
+        "Split the new request into backlog items and separate delivery slices.",
+        "Ask me any questions that would improve confidence or understanding before finalizing the backlog."
+      ],
+      mapping: "Maps to a Logics backlog document in logics/backlog/.",
+      actions: [{ label: "Triage Item", action: "assist-triage" }]
+    },
+    {
+      label: "Orchestration Tasks",
+      tagline: "Create the task plan before execution",
+      description: "Turn backlog work into explicit tasks. Preserve dependencies and keep the delivery sequence visible so execution stays focused.",
+      prompts: [
+        "Create orchestration tasks from this backlog item and split the work into the smallest useful delivery slices.",
+        "List the tasks needed to execute this backlog item in order, with brief context for each one."
+      ],
+      mapping: "Maps to orchestration task planning in logics/tasks/.",
+      actions: []
+    },
+    {
+      label: "Execution",
+      tagline: "Deliver with context",
+      description: "Use the task document to carry the full history of decisions while work is delivered, validated, and closed out.",
+      prompts: [
+        "Execute task <task id or title>. Commit after each wave and keep going until the work is done.",
+        "If needed, make brief assumptions and keep moving."
+      ],
+      mapping: "Maps to a Logics task document in logics/tasks/.",
+      actions: [{ label: "CDX Missions", action: "cdx-missions" }]
+    }
+  ];
+
+  const onboardingDocGuide = [
+    ["If you think \"here is the problem and context...\"", "-> request"],
+    ["If you think \"this needs a scoped delivery slice...\"", "-> item"],
+    ["If you think \"we want...\"", "-> product brief"],
+    ["If you think \"we decided...\"", "-> ADR"],
+    ["If you think \"the system should...\"", "-> spec"],
+    ["If you think \"let's do...\"", "-> task"]
+  ];
+
+  function renderViewerOnboarding() {
+    const stages = onboardingStages.map((stage, index) => {
+      const prompts = stage.prompts.map((prompt) => `
+        <div class="viewer-onboarding__prompt">
+          <div class="viewer-onboarding__prompt-label">Example prompt</div>
+          <div class="viewer-onboarding__prompt-text">${escapeHtml(prompt)}</div>
+        </div>
+      `).join("");
+      const actions = stage.actions.map((action) => `
+        <button class="btn viewer-onboarding__action" type="button" data-viewer-onboarding-action="${escapeHtml(action.action)}">${escapeHtml(action.label)}</button>
+      `).join("");
+      return `
+        <section class="viewer-onboarding__stage">
+          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1}</div>
+          <div class="viewer-onboarding__stage-body">
+            <h2>${escapeHtml(stage.label)}</h2>
+            <p class="viewer-onboarding__tagline">${escapeHtml(stage.tagline)}</p>
+            <p>${escapeHtml(stage.description)}</p>
+            <div class="viewer-onboarding__prompts">${prompts}</div>
+            <p class="viewer-onboarding__mapping">${escapeHtml(stage.mapping)}</p>
+            ${actions ? `<div class="viewer-onboarding__actions">${actions}</div>` : ""}
+          </div>
+        </section>
+      `;
+    }).join("");
+    const docs = onboardingDocGuide.map(([cue, destination]) => `
+      <div class="viewer-onboarding__doc-card">
+        <div>${escapeHtml(cue)}</div>
+        <strong>${escapeHtml(destination)}</strong>
+      </div>
+    `).join("");
+    return `
+      <div class="viewer-onboarding">
+        <header class="viewer-onboarding__header">
+          <h1>Logics in four steps</h1>
+          <p>Logics is a lightweight delivery workflow that keeps project context in plain Markdown: readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.</p>
+        </header>
+        <div class="viewer-onboarding__stages">${stages}</div>
+        <section class="viewer-onboarding__doc-guide">
+          <h2>What each document is for</h2>
+          <p>A quick rule of thumb for choosing the right artifact before writing.</p>
+          <div class="viewer-onboarding__doc-grid">${docs}</div>
+        </section>
+        <footer class="viewer-onboarding__footer">
+          <button class="btn primary" type="button" data-viewer-onboarding-action="open-logics-insights">Open Insights</button>
+          <button class="btn" type="button" data-viewer-onboarding-action="health">Open Health</button>
+          <button class="btn" type="button" data-viewer-onboarding-action="workshop-explorer">Open Explorer</button>
+        </footer>
+      </div>
+    `;
+  }
+
+  function showGettingStarted() {
+    setDocument("Getting Started", renderViewerOnboarding());
+    setMeta("Getting Started opened.");
+  }
+
+  function runOnboardingAction(action) {
+    const key = String(action || "");
+    if (key === "open-logics-insights") {
+      withPrimaryAction("insights", "Loading insights", showCorpusInsights);
+      return;
+    }
+    if (key === "health") {
+      withPrimaryAction("health", "Checking health", showHealth);
+      return;
+    }
+    if (key === "workshop-explorer") {
+      withPrimaryAction("workshop-explorer", "Opening Explorer", () => showWorkshop({ tab: "explorer" }));
+      return;
+    }
+    if (key === "cdx-missions") {
+      withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+      return;
+    }
+    if (key === "new-request") {
+      setMeta("Create requests with `logics-manager flow new request --title ...`.");
+      return;
+    }
+    if (key === "assist-triage") {
+      setMeta("Triage assistance is available from the VS Code extension tools.");
+      return;
+    }
+    setMeta("This onboarding action is not available in the local viewer.");
   }
 
   function updateScreenActions(titleText) {
@@ -3755,6 +3899,7 @@
       ? options.lineCount
       : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
     const visibleLines = text ? text.split("\n").slice(0, text.endsWith("\n") ? -1 : undefined) : [];
+    const lineNumberDigits = Math.max(2, String(Math.max(lineCount, visibleLines.length, 1)).length);
     const rows = visibleLines.map((line, index) => {
       const body = typeof options.renderLineHtml === "function"
         ? options.renderLineHtml(line, index)
@@ -3774,7 +3919,7 @@
       options.hardCapHit ? `<span class="viewer-code__flag">hard cap reached</span>` : "",
       options.forceButtonHtml || ""
     ].filter(Boolean).join("");
-    return `<div class="viewer-code">
+    return `<div class="viewer-code" style="--viewer-code-line-number-width: ${lineNumberDigits}ch;">
       <div class="viewer-code__bar">${bar}</div>
       <div class="viewer-code__scroll"><div class="viewer-code__rows">${rows}</div></div>
     </div>`;
@@ -7989,6 +8134,10 @@
         withPrimaryAction("insights", "Loading insights", showCorpusInsights);
       });
     });
+    document.getElementById("viewer-getting-started")?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
+      showGettingStarted();
+    });
     const autoControl = autoRefreshControl();
     if (autoControl instanceof HTMLInputElement) {
       autoControl.addEventListener("change", () => {
@@ -8257,6 +8406,12 @@
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
       const navTarget = event.target instanceof Element ? event.target.closest("[data-viewer-nav-target]") : null;
+      const onboardingActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-onboarding-action]") : null;
+      if (onboardingActionTarget instanceof HTMLElement) {
+        event.preventDefault();
+        runOnboardingAction(onboardingActionTarget.getAttribute("data-viewer-onboarding-action") || "");
+        return;
+      }
       if (navTarget instanceof HTMLElement) {
         event.preventDefault();
         const [screen, section] = (navTarget.getAttribute("data-viewer-nav-target") || "").split(":");

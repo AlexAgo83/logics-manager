@@ -1,18 +1,18 @@
 ## task_261_support_obsidian_friendly_logics_navigation - Support Obsidian-friendly Logics navigation
 > From version: 2.12.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
 
 # Backlog
 - `item_468_support_obsidian_friendly_logics_navigation`
@@ -29,9 +29,15 @@
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run `python3 -m logics_manager flow finish task task_261_support_obsidian_friendly_logics_navigation.md` after implementation.
+- Implemented Obsidian-friendly Markdown usage documentation in README, .obsidian/ is ignored, no Obsidian plugin or generated metadata was introduced, and validation passed: logics-manager lint --require-status OK; logics-manager audit --group-by-doc OK; broken workflow refs Insights count recalculated as 0 after reference normalization.
+- Finish workflow executed on 2026-06-22.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-06-22.
+- Linked backlog item(s): `item_468_support_obsidian_friendly_logics_navigation`
+- Related request(s): `req_264_support_obsidian_friendly_logics_navigation`
 
 # AI Context
 - Summary: Implement support obsidian-friendly logics navigation.
@@ -43,3 +49,12 @@
 - Request: `req_264_support_obsidian_friendly_logics_navigation`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC2 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC3 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC4 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC5 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC6 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`
+- request-AC7 -> This task. Proof: AC proof: .obsidian/ is ignored in .gitignore; README documents opening the repo or logics/ as an Obsidian vault, safe edit boundaries, canonical flow commands, and lint/audit validation; no Obsidian plugin was added; no generated frontmatter, tags, aliases, or wikilinks were introduced, preserving canonical Logics refs, indicators, lineage links, Mermaid signatures, and repo-relative paths. Source: `README.md`

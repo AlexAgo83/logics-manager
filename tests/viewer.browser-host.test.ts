@@ -434,6 +434,8 @@ function createViewerDom(options: {
                 cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
               },
               projects: [{ id: `project-${selectedName}`, name: selectedName, root: `/workspace/${selectedName}`, active: true, available: true, hasLogics: selectedName !== "plain-folder", message: selectedName === "plain-folder" ? "No Logics corpus found." : "Logics corpus found." }],
+              canBootstrapLogics: selectedName === "plain-folder",
+              bootstrapLogicsTitle: selectedName === "plain-folder" ? "Bootstrap Logics in this project." : "Logics is already bootstrapped.",
               autoRefreshIntervalSeconds: 15,
               autoRefreshIntervalForced: false,
               items: [],
@@ -1866,7 +1868,15 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/select-project-root-path");
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("plain-folder");
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Bootstrap Logics");
+    expect(modal?.textContent).toContain("Not now");
+
+    (modal?.querySelector(".viewer-themed-modal__cancel") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+
     expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
+    expect(calls.filter((call) => call === "/api/bootstrap-logics")).toHaveLength(0);
   });
 
   it("closes the project menu when clicking outside it or pressing Escape", async () => {

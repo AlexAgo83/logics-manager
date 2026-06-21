@@ -45,6 +45,7 @@ from logics_manager.viewer import (
     create_viewer_server,
     edit_doc_payload,
     file_preview_payload,
+    gitlab_repo_url,
     github_repo_url,
     git_diff_payload,
     git_file_preview_payload,
@@ -498,13 +499,14 @@ def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Pa
     assert launched[0][-1] == str(tmp_path.resolve())
 
 
-def test_viewer_repository_shortcuts_hide_non_github_remotes(tmp_path: Path) -> None:
+def test_viewer_repository_shortcuts_resolve_gitlab_remotes(tmp_path: Path) -> None:
     def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args[1:] == ["remote", "-v"]:
             return subprocess.CompletedProcess(args, 0, "origin\tgit@gitlab.com:example/repo.git (fetch)\n", "")
         raise AssertionError(args)
 
     assert github_repo_url(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git") == ""
+    assert gitlab_repo_url(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git") == "https://gitlab.com/example/repo"
     assert github_repo_url(tmp_path, which=lambda _name: None) == ""
 
 
@@ -537,6 +539,24 @@ def test_viewer_ci_status_payload_reports_unavailable_without_gh(tmp_path: Path)
     assert payload["visible"] is True
     assert payload["badgeState"] == "unavailable"
     assert payload["repositoryUrl"] == "https://github.com/Example/repo"
+
+
+def test_viewer_ci_status_payload_reports_unavailable_without_glab(tmp_path: Path) -> None:
+    (tmp_path / ".gitlab-ci.yml").write_text("test:\n  script: echo test\n", encoding="utf-8")
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@gitlab.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    payload = ci_status_payload(tmp_path, git_runner=runner, which=lambda name: "/usr/bin/git" if name == "git" else None)
+
+    assert payload["state"] == "unavailable"
+    assert payload["visible"] is True
+    assert payload["provider"] == "gitlab"
+    assert payload["message"] == "GitLab CLI is not available on PATH."
+    assert payload["badgeState"] == "unavailable"
+    assert payload["repositoryUrl"] == "https://gitlab.com/Example/repo"
 
 
 def test_viewer_ci_status_payload_reads_github_actions_runs(tmp_path: Path) -> None:
@@ -611,6 +631,76 @@ def test_viewer_ci_status_payload_reads_github_actions_runs(tmp_path: Path) -> N
     assert payload["run"]["commitMessage"] == "Implement CI view"
     assert payload["jobs"] == [{"name": "test", "status": "completed", "conclusion": "failure", "htmlUrl": "https://github.com/Example/repo/actions/runs/42/job/1", "startedAt": "", "completedAt": ""}]
     assert ["gh", "api", "repos/Example/repo/actions/runs?per_page=30&branch=feature%2Fdemo"] in gh_calls
+
+
+def test_viewer_ci_status_payload_reads_gitlab_pipelines(tmp_path: Path) -> None:
+    (tmp_path / ".gitlab-ci.yml").write_text("test:\n  script: echo test\n", encoding="utf-8")
+    glab_calls: list[list[str]] = []
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@gitlab.com:Example/team/repo.git (fetch)\n", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "feature/demo\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "abc123\n", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%s"]:
+            return subprocess.CompletedProcess(args, 0, "Implement GitLab CI view", "")
+        if args[1:] == ["log", "-1", "--pretty=format:%an"]:
+            return subprocess.CompletedProcess(args, 0, "Alex", "")
+        raise AssertionError(args)
+
+    def glab_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        glab_calls.append(args)
+        if args[:2] == ["glab", "api"] and args[2] == "projects/Example%2Fteam%2Frepo/pipelines?per_page=30&ref=feature%2Fdemo":
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    [
+                        {
+                            "id": 42,
+                            "name": "Pipeline",
+                            "status": "failed",
+                            "ref": "feature/demo",
+                            "sha": "abc123",
+                            "source": "push",
+                            "web_url": "https://gitlab.com/Example/team/repo/-/pipelines/42",
+                            "created_at": "2026-06-11T10:00:00Z",
+                            "updated_at": "2026-06-11T10:03:00Z",
+                            "user": {"name": "Alex"},
+                        }
+                    ]
+                ),
+                "",
+            )
+        if args[:2] == ["glab", "api"] and args[2] == "projects/Example%2Fteam%2Frepo/pipelines/42/jobs?per_page=100":
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps([{"name": "test", "status": "failed", "web_url": "https://gitlab.com/Example/team/repo/-/jobs/1", "started_at": "2026-06-11T10:01:00Z", "finished_at": "2026-06-11T10:03:00Z"}]),
+                "",
+            )
+        raise AssertionError(args)
+
+    payload = ci_status_payload(
+        tmp_path,
+        git_runner=git_runner,
+        glab_runner=glab_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "glab"} else None,
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["visible"] is True
+    assert payload["provider"] == "gitlab"
+    assert payload["branch"] == "feature/demo"
+    assert payload["headSha"] == "abc123"
+    assert payload["badgeState"] == "failing"
+    assert payload["run"]["workflowName"] == "Pipeline"
+    assert payload["run"]["matchSource"] == "head-failing"
+    assert payload["run"]["commitMessage"] == "Implement GitLab CI view"
+    assert payload["jobs"] == [{"name": "test", "status": "failed", "conclusion": "", "htmlUrl": "https://gitlab.com/Example/team/repo/-/jobs/1", "startedAt": "2026-06-11T10:01:00Z", "completedAt": "2026-06-11T10:03:00Z"}]
+    assert ["glab", "api", "projects/Example%2Fteam%2Frepo/pipelines?per_page=30&ref=feature%2Fdemo"] in glab_calls
 
 
 def test_viewer_ci_status_payload_prioritizes_active_head_runs(tmp_path: Path) -> None:

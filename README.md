@@ -185,6 +185,11 @@ The topbar includes focused operational views:
 | CDX | Guarded assistant workflows for audits, release reviews, corpus planning, and pre-release preparation. |
 | Settings | Viewer preferences, display controls, refresh behavior, and local UI state. |
 
+For remote status, the viewer detects GitHub and GitLab remotes from
+`git remote -v`. GitHub Actions status uses `gh`; GitLab CI status uses `glab`
+against the configured GitLab host when a `.gitlab-ci.yml` or
+`.gitlab-ci.yaml` file is present.
+
 Viewer preferences are stored locally in the browser profile. Auto-refresh
 restores the interval chosen in the viewer unless the launch command explicitly
 sets `--refresh-interval`, in which case that launch value controls only the

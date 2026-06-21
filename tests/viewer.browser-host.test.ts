@@ -50,6 +50,7 @@ function createViewerDom(options: {
   initialPreferences?: unknown;
   lanMode?: boolean;
   lanRwMode?: boolean;
+  canBootstrapLogics?: boolean;
   initialUrlToken?: string;
   pairStartResponse?: { ok: boolean; status?: number; body?: unknown };
   pairCompleteResponse?: { ok: boolean; status?: number; body?: unknown };
@@ -105,6 +106,7 @@ function createViewerDom(options: {
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
     <button id="viewer-getting-started" type="button">Getting Started</button>
+    <button id="viewer-bootstrap-logics" type="button" hidden>Bootstrap Logics</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <div class="viewer-refresh-menu">
@@ -260,6 +262,8 @@ function createViewerDom(options: {
               lanMode: Boolean(options.lanMode),
               lanRwMode: Boolean(options.lanRwMode),
               lanShareUrl: options.lanMode ? "http://192.168.1.42:8765/?t=secret-lan-token" : "",
+              canBootstrapLogics: Boolean(options.canBootstrapLogics),
+              bootstrapLogicsTitle: options.canBootstrapLogics ? "Bootstrap Logics in this project." : "Logics is already bootstrapped.",
               items: [
                 { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
@@ -2209,6 +2213,52 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/bootstrap-logics");
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("new-project");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Logics bootstrapped");
+  });
+
+  it("prompts to bootstrap automatically for an unbootstrapped project", async () => {
+    const { dom, calls } = createViewerDom({ canBootstrapLogics: true });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Bootstrap Logics");
+    expect(modal?.textContent).toContain("does not have a Logics workflow");
+    expect((dom.window.document.getElementById("viewer-bootstrap-logics") as HTMLButtonElement | null)?.hidden).toBe(false);
+
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/bootstrap-logics");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("new-project");
+  });
+
+  it("reopens the bootstrap prompt from Settings after the automatic prompt is dismissed", async () => {
+    const { dom, calls } = createViewerDom({ canBootstrapLogics: true });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    let modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    (modal?.querySelector(".viewer-themed-modal__cancel") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
+
+    dom.window.document.getElementById("viewer-bootstrap-logics")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Bootstrap Logics");
+
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/bootstrap-logics");
   });
 
   it("opens refresh options and configures the interval from the payload", async () => {

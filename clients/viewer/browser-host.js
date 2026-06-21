@@ -377,6 +377,7 @@
   const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
   const refreshMenuPanel = () => document.getElementById("viewer-refresh-menu");
   const versionLink = () => document.getElementById("viewer-version-link");
+  const bootstrapLogicsButton = () => document.getElementById("viewer-bootstrap-logics");
   const activityClearControl = () => document.getElementById("activity-clear");
   const activityStorageLimit = 80;
   const gitHistoryPageSize = 10;
@@ -396,6 +397,10 @@
   let latestRepository = { root: "", githubUrl: "" };
   let latestCapabilities = {};
   let latestProjects = [];
+  let latestCanBootstrapLogics = false;
+  let latestBootstrapLogicsTitle = "Bootstrap Logics in this project";
+  let bootstrapPromptOpen = false;
+  const promptedBootstrapRoots = new Set();
   let latestMetaText = "Read-only local viewer";
   let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
   let nextAutoRefreshAt = 0;
@@ -751,6 +756,7 @@
       "#viewer-insights",
       "#viewer-health",
       "#viewer-getting-started",
+      "#viewer-bootstrap-logics",
       "#viewer-workshop",
       "#viewer-ci",
       "#viewer-cdx",
@@ -1359,6 +1365,41 @@
     setMeta(created > 0 ? `Logics bootstrapped · ${created} paths created.` : "Logics bootstrap checked.");
   }
 
+  async function confirmBootstrapLogics({ automatic = false } = {}) {
+    if (!latestCanBootstrapLogics || bootstrapPromptOpen) {
+      return false;
+    }
+    bootstrapPromptOpen = true;
+    try {
+      const confirmed = await showThemedConfirmModal({
+        title: "Bootstrap Logics",
+        message: "This project does not have a Logics workflow yet. Bootstrap it now to create the local workflow structure and enable the viewer.",
+        submitLabel: "Bootstrap",
+        cancelLabel: automatic ? "Not now" : "Cancel"
+      });
+      if (!confirmed) {
+        return false;
+      }
+      await bootstrapLogicsProject();
+      return true;
+    } finally {
+      bootstrapPromptOpen = false;
+    }
+  }
+
+  function maybePromptBootstrapLogics() {
+    if (!latestCanBootstrapLogics || !latestRepoRoot || bootstrapPromptOpen) {
+      return;
+    }
+    if (promptedBootstrapRoots.has(latestRepoRoot)) {
+      return;
+    }
+    promptedBootstrapRoots.add(latestRepoRoot);
+    window.setTimeout(() => {
+      confirmBootstrapLogics({ automatic: true }).catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
+    }, 0);
+  }
+
   let latestLanShareUrl = "";
 
   async function copyTextToClipboard(text) {
@@ -1461,6 +1502,13 @@
   }
 
   function updateCapabilityControls() {
+    const bootstrapButton = bootstrapLogicsButton();
+    if (bootstrapButton instanceof HTMLButtonElement) {
+      bootstrapButton.hidden = !latestCanBootstrapLogics;
+      bootstrapButton.disabled = !latestCanBootstrapLogics;
+      bootstrapButton.title = latestBootstrapLogicsTitle || "Bootstrap Logics in this project";
+    }
+
     const workshop = workshopButton();
     if (workshop instanceof HTMLElement) {
       // The Explorer screen now lives as a Workshop sub-tab (alongside
@@ -2785,6 +2833,8 @@
     }
     updateRepositoryIdentity(payload);
     latestCapabilities = normalizeCapabilities(payload);
+    latestCanBootstrapLogics = Boolean(payload?.canBootstrapLogics);
+    latestBootstrapLogicsTitle = String(payload?.bootstrapLogicsTitle || "Bootstrap Logics in this project");
     applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
     updateCapabilityControls();
     const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState() };
@@ -2799,6 +2849,7 @@
     renderUpdateNotice(payload.updateInfo);
     renderEnvironmentWarning(payload.environmentWarning);
     refreshBadgeCounters();
+    maybePromptBootstrapLogics();
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
@@ -8137,6 +8188,10 @@
     document.getElementById("viewer-getting-started")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
       showGettingStarted();
+    });
+    bootstrapLogicsButton()?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
+      confirmBootstrapLogics().catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
     });
     const autoControl = autoRefreshControl();
     if (autoControl instanceof HTMLInputElement) {

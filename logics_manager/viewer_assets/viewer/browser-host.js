@@ -905,9 +905,44 @@
     writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
   }
 
-  function activityEventsFromStoredState(state = readStoredState()) {
+  function activityRootKey(root = latestRepoRoot) {
+    return String(root || "default").trim() || "default";
+  }
+
+  function activityStateForRoot(state = readStoredState(), root = latestRepoRoot) {
     const baseState = state && typeof state === "object" ? state : {};
-    return (Array.isArray(baseState.activityHistory) ? baseState.activityHistory : [])
+    const byRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
+    const scoped = byRoot[activityRootKey(root)];
+    if (scoped && typeof scoped === "object") {
+      return {
+        activitySnapshot: scoped.activitySnapshot && typeof scoped.activitySnapshot === "object" ? scoped.activitySnapshot : {},
+        activityHistory: Array.isArray(scoped.activityHistory) ? scoped.activityHistory : []
+      };
+    }
+    return {
+      activitySnapshot: baseState.activitySnapshot && typeof baseState.activitySnapshot === "object" ? baseState.activitySnapshot : {},
+      activityHistory: Array.isArray(baseState.activityHistory) ? baseState.activityHistory : []
+    };
+  }
+
+  function writeActivityStateForRoot(baseState, root, activityState) {
+    const key = activityRootKey(root);
+    const previousByRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
+    return {
+      ...baseState,
+      activityByRoot: {
+        ...previousByRoot,
+        [key]: {
+          activitySnapshot: activityState.activitySnapshot && typeof activityState.activitySnapshot === "object" ? activityState.activitySnapshot : {},
+          activityHistory: Array.isArray(activityState.activityHistory) ? activityState.activityHistory.slice(0, activityStorageLimit) : []
+        }
+      }
+    };
+  }
+
+  function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot) {
+    const scopedState = activityStateForRoot(state, root);
+    return (Array.isArray(scopedState.activityHistory) ? scopedState.activityHistory : [])
       .filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type))
       .map((entry, index) => ({
         id: String(entry.id || `git-action-${index}`),
@@ -930,7 +965,7 @@
       root: latestRepoRoot,
       items: latestItems,
       selectedId: storedState?.selectedId || "",
-      activityEvents: activityEventsFromStoredState(storedState)
+      activityEvents: activityEventsFromStoredState(storedState, latestRepoRoot)
     };
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
     applyLocalViewerChrome();
@@ -944,7 +979,8 @@
   function recordGitActivity(action, meta = "") {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const scopedState = activityStateForRoot(baseState, latestRepoRoot);
+    const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
     const now = new Date().toISOString();
     const safeAction = String(action || "Git").trim() || "Git";
     history.unshift({
@@ -957,11 +993,10 @@
       at: now,
       updatedAt: now
     });
-    writeStoredState({
+    writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...viewerFilterState },
-      activityHistory: history.slice(0, activityStorageLimit)
-    });
+      viewerFilterState: { ...viewerFilterState }
+    }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
     dispatchViewerActivityUpdate();
   }
 
@@ -972,7 +1007,8 @@
     }
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const scopedState = activityStateForRoot(baseState, latestRepoRoot);
+    const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
     const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
     const newEntries = commits
       .filter((commit) => commit && typeof commit === "object" && commit.hash)
@@ -996,23 +1032,21 @@
     if (!newEntries.length) {
       return;
     }
-    writeStoredState({
+    writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...viewerFilterState },
-      activityHistory: [...newEntries, ...history].slice(0, activityStorageLimit)
-    });
+      viewerFilterState: { ...viewerFilterState }
+    }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
     if (activityPanelIsOpen()) {
       dispatchViewerActivityUpdate();
     }
   }
 
-  function updateStoredActivity(nextItems) {
+  function updateStoredActivity(nextItems, root = latestRepoRoot) {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const previousSnapshot = baseState.activitySnapshot && typeof baseState.activitySnapshot === "object"
-      ? baseState.activitySnapshot
-      : {};
-    const history = Array.isArray(baseState.activityHistory) ? [...baseState.activityHistory] : [];
+    const scopedState = activityStateForRoot(baseState, root);
+    const previousSnapshot = scopedState.activitySnapshot && typeof scopedState.activitySnapshot === "object" ? scopedState.activitySnapshot : {};
+    const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
     const nextSnapshot = {};
     const now = new Date().toISOString();
     const decorated = nextItems.map((item) => {
@@ -1029,20 +1063,19 @@
       }
       return statusChanged ? { ...item, activityType: "status-change" } : item;
     });
-    writeStoredState({
+    writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...viewerFilterState },
-      activitySnapshot: nextSnapshot,
-      activityHistory: history.slice(0, activityStorageLimit)
-    });
+      viewerFilterState: { ...viewerFilterState }
+    }, root, { activitySnapshot: nextSnapshot, activityHistory: history }));
     return decorated;
   }
 
   function clearActivityHistory() {
     const storedState = readStoredState();
     const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
-    delete nextState.activitySnapshot;
-    delete nextState.activityHistory;
+    const byRoot = nextState.activityByRoot && typeof nextState.activityByRoot === "object" ? { ...nextState.activityByRoot } : {};
+    delete byRoot[activityRootKey(latestRepoRoot)];
+    nextState.activityByRoot = byRoot;
     writeStoredState(nextState);
     latestItems = latestItems.map((item) => {
       const clone = { ...item };
@@ -2967,7 +3000,8 @@
       return false;
     }
     latestViewerStateSignature = nextSignature;
-    latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : []);
+    const payloadRoot = String(payload?.root || latestRepoRoot || "");
+    latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : [], payloadRoot);
     if (!autoRefreshIntervalTouched) {
       const launchSeconds = Number(payload.autoRefreshIntervalSeconds);
       const preferredSeconds = preferredAutoRefreshIntervalSeconds();
@@ -2984,7 +3018,7 @@
     latestBootstrapLogicsTitle = String(payload?.bootstrapLogicsTitle || "Bootstrap Logics in this project");
     applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
     updateCapabilityControls();
-    const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState() };
+    const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState(readStoredState(), payloadRoot) };
     const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
     window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
     const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
@@ -3000,6 +3034,9 @@
     updateFilterSummary();
     applyLocalViewerChrome();
     bindRefreshMenuControls();
+    if (activityPanelIsOpen()) {
+      dispatchViewerActivityUpdate();
+    }
     return true;
   }
 

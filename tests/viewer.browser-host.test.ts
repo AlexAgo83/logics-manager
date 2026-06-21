@@ -108,6 +108,7 @@ function createViewerDom(options: {
     <button id="viewer-health" type="button">Health</button>
     <button id="viewer-getting-started" type="button">Getting Started</button>
     <button id="viewer-bootstrap-logics" type="button" hidden>Bootstrap Logics</button>
+    <button id="viewer-restart-server" type="button">Restart server</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <div class="viewer-refresh-menu">
@@ -458,6 +459,12 @@ function createViewerDom(options: {
               updateInfo: {}
             }
           })
+        };
+      }
+      if (url === "/api/restart-viewer") {
+        return {
+          ok: true,
+          json: async () => ({ ok: true, message: "Viewer server restarting." })
         };
       }
       if (String(url).startsWith("/api/doc")) {
@@ -1366,6 +1373,26 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Logics in four steps");
     expect(content?.textContent).toContain("Need");
     expect(content?.textContent).toContain("What each document is for");
+  });
+
+  it("offers a restart server action from Settings", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-restart-server")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Restart viewer server");
+
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/restart-viewer");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer server restarting");
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {

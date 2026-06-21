@@ -757,6 +757,7 @@
       "#viewer-health",
       "#viewer-getting-started",
       "#viewer-bootstrap-logics",
+      "#viewer-restart-server",
       "#viewer-workshop",
       "#viewer-ci",
       "#viewer-cdx",
@@ -1464,6 +1465,51 @@
     postToApp(data.payload);
     const created = Array.isArray(data.bootstrap?.created_paths) ? data.bootstrap.created_paths.length : 0;
     setMeta(created > 0 ? `Logics bootstrapped · ${created} paths created.` : "Logics bootstrap checked.");
+  }
+
+  function scheduleReloadAfterServerRestart() {
+    let attempts = 0;
+    const maxAttempts = 24;
+    const probe = async () => {
+      attempts += 1;
+      try {
+        const response = await fetch(`/api/items?restart=${Date.now()}`, { cache: "no-store" });
+        if (response.ok) {
+          window.location.reload();
+          return;
+        }
+      } catch {
+        // The server is expected to be briefly unavailable during restart.
+      }
+      if (attempts < maxAttempts) {
+        window.setTimeout(probe, 800);
+        return;
+      }
+      setMeta("Viewer server restarted. Reload this page if it did not reconnect automatically.");
+    };
+    window.setTimeout(probe, 1200);
+  }
+
+  async function restartViewerServer() {
+    const confirmed = await showThemedConfirmModal({
+      title: "Restart viewer server",
+      message: "The local viewer server will restart with the same command. This page will reconnect automatically when it is back.",
+      submitLabel: "Restart server"
+    });
+    if (!confirmed) return;
+    setMeta("Restarting viewer server...");
+    const response = await fetch("/api/restart-viewer", { method: "POST" });
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to restart the viewer server.");
+    }
+    setMeta("Viewer server restarting...");
+    scheduleReloadAfterServerRestart();
   }
 
   async function confirmBootstrapLogics({ automatic = false } = {}) {
@@ -8289,6 +8335,10 @@
     document.getElementById("viewer-getting-started")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
       showGettingStarted();
+    });
+    document.getElementById("viewer-restart-server")?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
+      withPrimaryAction("restart-viewer", "Restarting server", restartViewerServer);
     });
     bootstrapLogicsButton()?.addEventListener("click", () => {
       setRefreshMenuOpen(false);

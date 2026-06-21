@@ -5,6 +5,7 @@ dist/
 artifacts/
 *.tgz
 .vscode-test/
+.obsidian/
 *.vsix
 .DS_Store
 .env

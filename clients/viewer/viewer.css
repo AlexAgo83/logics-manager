@@ -1790,6 +1790,11 @@
   padding: 2px 8px;
 }
 
+.viewer-workshop__terminal-new.is-loading {
+  opacity: 0.72;
+  cursor: progress;
+}
+
 .viewer-workshop__terminal-actions {
   display: flex;
   gap: 4px;

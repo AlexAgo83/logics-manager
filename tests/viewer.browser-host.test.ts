@@ -2369,7 +2369,11 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const customButton = dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]") as HTMLButtonElement | null;
+    customButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(customButton?.disabled).toBe(true);
+    expect(customButton?.getAttribute("aria-busy")).toBe("true");
+    expect(customButton?.textContent).toBe("Loading...");
     await flushViewerAsync();
     await flushViewerAsync();
 
@@ -2384,6 +2388,9 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
 
     expect(terminalCommands).toContainEqual({ command: ["cdx", "session-1"], label: "cdx session-1" });
+    expect(customButton?.disabled).toBe(false);
+    expect(customButton?.getAttribute("aria-busy")).toBe("false");
+    expect(customButton?.textContent).toBe("+ Custom");
   });
 
   it("keeps a CDX terminal usage gauge after renaming its display label", async () => {

@@ -4895,7 +4895,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const storedState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
-    const commitEntry = storedState?.activityHistory?.find((entry: { id?: string }) => entry.id === "git-commit-abc1234");
+    const commitEntry = storedState?.activityByRoot?.["/workspace/logics-manager"]?.activityHistory?.find((entry: { id?: string }) => entry.id === "git-commit-abc1234");
     expect(commitEntry).toMatchObject({
       type: "git-commit",
       title: "Demo commit",
@@ -5222,8 +5222,9 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     const firstState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
-    expect(firstState?.activitySnapshot?.["logics/request/req_001_demo.md"]?.status).toBe("Ready");
-    expect(firstState?.activityHistory?.some((entry: { type?: string }) => entry.type === "updated")).toBe(true);
+    const firstActivity = firstState?.activityByRoot?.["/workspace/logics-manager"];
+    expect(firstActivity?.activitySnapshot?.["logics/request/req_001_demo.md"]?.status).toBe("Ready");
+    expect(firstActivity?.activityHistory?.some((entry: { type?: string }) => entry.type === "updated")).toBe(true);
 
     const originalFetch = dom.window.fetch;
     Object.defineProperty(dom.window, "fetch", {
@@ -5253,12 +5254,45 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "refresh" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     const secondState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
-    expect(secondState?.activityHistory?.[0]?.type).toBe("status-change");
-    expect(secondState?.activityHistory?.length).toBeLessThanOrEqual(80);
+    const secondActivity = secondState?.activityByRoot?.["/workspace/logics-manager"];
+    expect(secondActivity?.activityHistory?.[0]?.type).toBe("status-change");
+    expect(secondActivity?.activityHistory?.length).toBeLessThanOrEqual(80);
 
     dom.window.document.getElementById("activity-clear")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     const cleared = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
-    expect(cleared?.activityHistory).toBeUndefined();
+    expect(cleared?.activityByRoot?.["/workspace/logics-manager"]).toBeUndefined();
     expect(cleared?.viewerFilterState).toBeDefined();
+  });
+
+  it("scopes recent activity to the active project when switching projects", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const payloads: Array<any> = [];
+    dom.window.addEventListener("message", (event: MessageEvent) => {
+      if (event.data?.type === "data") {
+        payloads.push(event.data.payload);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("cdx-manager"); attempt += 1) {
+      await flushViewerAsync();
+    }
+    switcher?.click();
+    const cdxProject = menu?.querySelector('[data-viewer-project-id="project-cdx"]') as HTMLButtonElement | null;
+    cdxProject?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const state = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(state?.activityByRoot?.["/workspace/logics-manager"]?.activityHistory?.some((entry: { path?: string }) => entry.path === "logics/request/req_001_demo.md")).toBe(true);
+    expect(state?.activityByRoot?.["/workspace/cdx-manager"]?.activityHistory?.some((entry: { path?: string }) => entry.path === "logics/request/req_002_cdx.md")).toBe(true);
+    const latestPayload = payloads[payloads.length - 1];
+    expect(latestPayload?.root).toBe("/workspace/cdx-manager");
+    expect(latestPayload?.activityEvents || []).toEqual([]);
   });
 });

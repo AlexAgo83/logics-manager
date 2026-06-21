@@ -47,6 +47,8 @@ function createViewerDom(options: {
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponses?: Array<{ ok: boolean; status?: number; body?: unknown; rawBody?: string }>;
   githubUrl?: string;
+  gitlabUrl?: string;
+  repositoryProvider?: string;
   hidden?: boolean;
   initialState?: unknown;
   initialPreferences?: unknown;
@@ -247,7 +249,10 @@ function createViewerDom(options: {
               repoName: "logics-manager",
               repository: {
                 root: "/workspace/logics-manager",
-                githubUrl: options.githubUrl ?? "https://github.com/AlexAgo83/logics-manager"
+                provider: options.repositoryProvider ?? (options.gitlabUrl ? "gitlab" : "github"),
+                webUrl: options.gitlabUrl || (options.githubUrl ?? "https://github.com/AlexAgo83/logics-manager"),
+                githubUrl: options.githubUrl ?? (options.gitlabUrl ? "" : "https://github.com/AlexAgo83/logics-manager"),
+                gitlabUrl: options.gitlabUrl || ""
               },
               capabilities: options.capabilities ?? {
                 logics: { state: "ready", available: true, message: "Logics corpus found." },
@@ -2813,7 +2818,7 @@ describe("local viewer browser host", () => {
     expect(modal?.textContent).toContain("Local folder cannot be opened from this client.");
   });
 
-  it("hides the GitHub shortcut when the repository has no GitHub remote", async () => {
+  it("hides the remote shortcut when the repository has no supported remote", async () => {
     const { dom } = createViewerDom({ githubUrl: "" });
     const api = dom.window.acquireVsCodeApi();
 
@@ -2826,6 +2831,19 @@ describe("local viewer browser host", () => {
     expect(github?.hidden).toBe(true);
     expect(github?.hasAttribute("href")).toBe(false);
     expect(folder?.hidden).toBe(false);
+  });
+
+  it("points the repository shortcut at GitLab remotes", async () => {
+    const { dom } = createViewerDom({ gitlabUrl: "https://gitlab.com/example/repo" });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const remote = dom.window.document.getElementById("viewer-repo-github") as HTMLAnchorElement | null;
+    expect(remote?.hidden).toBe(false);
+    expect(remote?.getAttribute("href")).toBe("https://gitlab.com/example/repo");
+    expect(remote?.getAttribute("aria-label")).toBe("Open GitLab repository");
   });
 
   it("renders local corpus insights from loaded items", async () => {
@@ -3322,6 +3340,56 @@ describe("local viewer browser host", () => {
     expect(content).toContain("Current HEAD running");
     expect(content).toContain("in_progress");
     expect(content).toContain("Update release notes");
+  });
+
+  it("renders GitLab CI runs with GitLab-specific links", async () => {
+    const { dom, calls } = createViewerDom({
+      gitlabUrl: "https://gitlab.com/example/repo",
+      ciResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            provider: "gitlab",
+            state: "ok",
+            visible: true,
+            message: "",
+            badgeState: "failing",
+            branch: "main",
+            headSha: "abc123",
+            run: {
+              id: 42,
+              workflowName: "GitLab pipeline",
+              status: "failed",
+              conclusion: "",
+              badgeState: "failing",
+              branch: "main",
+              headSha: "abc123",
+              matchSource: "head-failing",
+              htmlUrl: "https://gitlab.com/example/repo/-/pipelines/42",
+              commitMessage: "Update pipeline"
+            },
+            jobs: [{ name: "test", status: "failed", conclusion: "", htmlUrl: "https://gitlab.com/example/repo/-/jobs/1" }]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/ci-status");
+    expect(content?.textContent).toContain("GitLab pipeline");
+    expect(content?.textContent).toContain("Open in GitLab");
+    expect((content?.querySelector(".viewer-ci__link") as HTMLAnchorElement | null)?.href).toBe("https://gitlab.com/example/repo/-/pipelines/42");
   });
 
   it("shows failing CI badge when the current HEAD has a failed workflow", async () => {

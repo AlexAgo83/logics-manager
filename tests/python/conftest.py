@@ -44,6 +44,7 @@ from logics_manager.viewer import (
     create_viewer_server,
     edit_doc_payload,
     file_preview_payload,
+    gitlab_repo_url,
     github_repo_url,
     git_diff_payload,
     git_file_preview_payload,

@@ -534,6 +534,7 @@ def viewer_data_payload(
         "repository": {
             "root": str(active_root),
             "githubUrl": github_repo_url(repo_root),
+            **repository_provider_payload(repo_root),
         },
         "capabilities": capabilities,
         "projects": projects if projects is not None else viewer_project_registry(repo_root),
@@ -651,38 +652,47 @@ def viewer_project_capabilities(
     else:
         logics = _viewer_capability("missing", available=False, message="No Logics corpus found.")
 
+    repository_provider: dict[str, str] = {}
     if not git_path:
         git = _viewer_capability("unavailable", available=False, message="Git executable is not available.")
-        github_url = ""
-        has_workflows = False
     else:
         is_repo = _git_is_repository(repo_root, runner=git_runner)
         if is_repo is True:
             git = _viewer_capability("ready", available=True, message="Git repository detected.")
-            github_url = github_repo_url(repo_root, runner=git_runner, which=which_command)
-            has_workflows = _has_github_actions_workflows(repo_root)
+            repository_provider = repository_provider_payload(repo_root, runner=git_runner, which=which_command)
         elif is_repo is False:
             git = _viewer_capability("missing", available=False, message="Project is not a Git repository.")
-            github_url = ""
-            has_workflows = False
         else:
             git = _viewer_capability("error", available=False, message="Unable to inspect Git repository state.")
-            github_url = ""
-            has_workflows = False
 
-    if not github_url:
-        ci = _viewer_capability("hidden", available=False, message="No GitHub remote detected for this project.")
-    elif not has_workflows:
-        ci = _viewer_capability("hidden", available=False, message="No GitHub Actions workflows detected for this project.")
-    elif not which_command("gh"):
-        ci = _viewer_capability("unavailable", available=False, message="GitHub CLI is not available.")
+    provider = repository_provider.get("provider", "")
+    web_url = repository_provider.get("webUrl", "")
+    if provider == "github":
+        if not _has_github_actions_workflows(repo_root):
+            ci = _viewer_capability("hidden", available=False, message="No GitHub Actions workflows detected for this project.")
+        elif not which_command("gh"):
+            ci = _viewer_capability("unavailable", available=False, message="GitHub CLI is not available.")
+        else:
+            ci = _viewer_capability(
+                "ready",
+                available=True,
+                message="GitHub Actions can be inspected.",
+                detail={"provider": "github", "repositoryUrl": web_url, "githubUrl": web_url},
+            )
+    elif provider == "gitlab":
+        if not _has_gitlab_ci_config(repo_root):
+            ci = _viewer_capability("hidden", available=False, message="No GitLab CI config detected for this project.")
+        elif not which_command("glab"):
+            ci = _viewer_capability("unavailable", available=False, message="GitLab CLI is not available.")
+        else:
+            ci = _viewer_capability(
+                "ready",
+                available=True,
+                message="GitLab CI can be inspected.",
+                detail={"provider": "gitlab", "repositoryUrl": web_url, "gitlabUrl": web_url},
+            )
     else:
-        ci = _viewer_capability(
-            "ready",
-            available=True,
-            message="GitHub Actions can be inspected.",
-            detail={"githubUrl": github_url},
-        )
+        ci = _viewer_capability("hidden", available=False, message="No GitHub or GitLab remote detected for this project.")
 
     if cdx_path:
         cdx = _viewer_capability("ready", available=True, message="CDX executable detected.")
@@ -1027,6 +1037,12 @@ def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = 
     return gh_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 8))
 
 
+def _run_read_only_glab(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["glab", *args]
+    glab_runner = runner or subprocess.run
+    return glab_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 8))
+
+
 def _logics_doc_type(rel_path: str) -> str:
     normalized = rel_path.replace("\\", "/").lstrip("/")
     for family in DOC_FAMILIES:
@@ -1058,6 +1074,28 @@ def _github_web_url_from_remote(value: str) -> str:
     return f"https://github.com/{owner}/{repo}"
 
 
+def _gitlab_web_url_from_remote(value: str) -> str:
+    remote = value.strip()
+    if not remote:
+        return ""
+    remote = re.sub(r"^git\+", "", remote)
+    host = ""
+    path = ""
+    match = re.match(r"^(?:https://|http://)(?:[^/@\s]+@)?([^:/\s]+)[:/]+(.+?)(?:\.git)?/?$", remote)
+    if match:
+        host, path = match.groups()
+    else:
+        match = re.match(r"^(?:ssh://)?git@([^:/\s]+)[:/]+(.+?)(?:\.git)?/?$", remote)
+        if match:
+            host, path = match.groups()
+    if not host or not path or "gitlab" not in host.lower():
+        return ""
+    path = path.strip("/")
+    if not path or "/" not in path:
+        return ""
+    return f"https://{host}/{path}"
+
+
 def _github_owner_repo_from_web_url(value: str) -> tuple[str, str] | None:
     match = re.match(r"^https://github\.com/([^/\s]+)/([^/\s]+?)/?$", value.strip())
     if not match:
@@ -1066,29 +1104,83 @@ def _github_owner_repo_from_web_url(value: str) -> tuple[str, str] | None:
     return owner, repo
 
 
-def github_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
+def _gitlab_project_path_from_web_url(value: str) -> str:
+    match = re.match(r"^https://[^/\s]+/(.+?)/?$", value.strip())
+    if not match:
+        return ""
+    return match.group(1).removesuffix(".git").strip("/")
+
+
+def _remote_provider_candidates(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> list[tuple[int, dict[str, str]]]:
     git_which = which or shutil.which
     if not git_which("git"):
-        return ""
+        return []
     try:
         remotes = _run_read_only_git(repo_root, ["remote", "-v"], runner=runner)
     except (OSError, subprocess.SubprocessError):
-        return ""
+        return []
     if remotes.returncode != 0:
-        return ""
+        return []
 
-    candidates: list[tuple[int, str]] = []
+    candidates: list[tuple[int, dict[str, str]]] = []
+    seen: set[tuple[str, str]] = set()
     for line in remotes.stdout.splitlines():
         parts = line.split()
         if len(parts) < 2:
             continue
-        name, url = parts[0], parts[1]
-        web_url = _github_web_url_from_remote(url)
-        if web_url:
-            candidates.append((0 if name == "origin" else 1, web_url))
+        remote_name, remote_url = parts[0], parts[1]
+        web_url = _github_web_url_from_remote(remote_url)
+        provider = "github" if web_url else ""
+        if not web_url:
+            web_url = _gitlab_web_url_from_remote(remote_url)
+            provider = "gitlab" if web_url else ""
+        if not web_url or not provider:
+            continue
+        key = (provider, web_url)
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(
+            (
+                0 if remote_name == "origin" else 1,
+                {
+                    "provider": provider,
+                    "webUrl": web_url,
+                    "remoteName": remote_name,
+                    "githubUrl": web_url if provider == "github" else "",
+                    "gitlabUrl": web_url if provider == "gitlab" else "",
+                },
+            )
+        )
+    return sorted(candidates, key=lambda entry: entry[0])
+
+
+def repository_provider_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, str]:
+    candidates = _remote_provider_candidates(repo_root, runner=runner, which=which)
     if not candidates:
-        return ""
-    return sorted(candidates, key=lambda entry: entry[0])[0][1]
+        return {"provider": "", "webUrl": "", "remoteName": "", "githubUrl": "", "gitlabUrl": ""}
+    return candidates[0][1]
+
+
+def github_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
+    candidates = _remote_provider_candidates(repo_root, runner=runner, which=which)
+    for _priority, candidate in candidates:
+        if candidate.get("provider") == "github":
+            return candidate.get("webUrl", "")
+    return ""
+
+
+def gitlab_repo_url(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> str:
+    candidates = _remote_provider_candidates(repo_root, runner=runner, which=which)
+    for _priority, candidate in candidates:
+        if candidate.get("provider") == "gitlab":
+            return candidate.get("webUrl", "")
+    return ""
+
+
+def _has_gitlab_ci_config(repo_root: Path) -> bool:
+    return (repo_root / ".gitlab-ci.yml").is_file() or (repo_root / ".gitlab-ci.yaml").is_file()
+
 
 
 def _has_github_actions_workflows(repo_root: Path) -> bool:
@@ -1702,6 +1794,21 @@ def _ci_badge_state(status: str, conclusion: str) -> str:
     return "unknown"
 
 
+def _gitlab_ci_badge_state(status: str) -> str:
+    normalized = status.strip().lower()
+    if normalized == "success":
+        return "passing"
+    if normalized == "failed":
+        return "failing"
+    if normalized in {"canceled", "cancelled"}:
+        return "cancelled"
+    if normalized in {"running"}:
+        return "running"
+    if normalized in {"created", "waiting_for_resource", "preparing", "pending", "scheduled", "manual"}:
+        return "queued"
+    return "unknown"
+
+
 def _is_active_ci_status(run: dict[str, Any]) -> bool:
     return str(run.get("status") or "").strip().lower() in {"queued", "in_progress", "waiting", "requested", "pending"}
 
@@ -1777,24 +1884,72 @@ def _parse_github_actions_jobs(output: str) -> list[dict[str, str]]:
     return rows
 
 
-def ci_status_payload(repo_root: Path, *, git_runner: Any | None = None, gh_runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
-    git_which = which or shutil.which
-    github_url = github_repo_url(repo_root, runner=git_runner, which=git_which)
-    if not github_url:
-        return {"state": "hidden", "visible": False, "message": "No GitHub remote detected."}
+def _select_gitlab_pipeline(pipelines: list[dict[str, Any]], head_sha: str) -> tuple[dict[str, Any], str]:
+    head_pipelines = [pipeline for pipeline in pipelines if head_sha and str(pipeline.get("sha") or "") == head_sha]
+    active_head = next((pipeline for pipeline in head_pipelines if _gitlab_ci_badge_state(str(pipeline.get("status") or "")) in {"running", "queued"}), None)
+    if active_head is not None:
+        return active_head, "head-active"
+    if head_pipelines:
+        head_state = _gitlab_ci_badge_state(str(head_pipelines[0].get("status") or ""))
+        if head_state in {"failing", "cancelled", "unknown"}:
+            return head_pipelines[0], f"head-{head_state}"
+        return head_pipelines[0], "head"
+    active_branch = next((pipeline for pipeline in pipelines if _gitlab_ci_badge_state(str(pipeline.get("status") or "")) in {"running", "queued"}), None)
+    if active_branch is not None:
+        return active_branch, "branch-active"
+    return pipelines[0], "branch-latest"
+
+
+def _parse_gitlab_pipeline_run(pipeline: dict[str, Any], *, match_source: str, context: dict[str, str]) -> dict[str, Any]:
+    status = str(pipeline.get("status") or "")
+    user = pipeline.get("user") if isinstance(pipeline.get("user"), dict) else {}
+    return {
+        "id": pipeline.get("id"),
+        "name": str(pipeline.get("name") or "GitLab pipeline"),
+        "workflowName": str(pipeline.get("name") or "GitLab pipeline"),
+        "status": status,
+        "conclusion": "",
+        "badgeState": _gitlab_ci_badge_state(status),
+        "branch": str(pipeline.get("ref") or context.get("branch", "")),
+        "headSha": str(pipeline.get("sha") or ""),
+        "event": str(pipeline.get("source") or ""),
+        "htmlUrl": str(pipeline.get("web_url") or ""),
+        "createdAt": str(pipeline.get("created_at") or ""),
+        "updatedAt": str(pipeline.get("updated_at") or ""),
+        "runStartedAt": str(pipeline.get("created_at") or ""),
+        "commitMessage": context.get("subject", ""),
+        "author": str(user.get("name") or context.get("author", "")),
+        "matchSource": match_source,
+    }
+
+
+def _parse_gitlab_jobs(output: str) -> list[dict[str, str]]:
+    try:
+        parsed = json.loads(output or "[]")
+    except json.JSONDecodeError:
+        return []
+    jobs = parsed if isinstance(parsed, list) else []
+    rows: list[dict[str, str]] = []
+    for job in jobs[:30]:
+        if not isinstance(job, dict):
+            continue
+        rows.append(
+            {
+                "name": str(job.get("name") or "Job"),
+                "status": str(job.get("status") or ""),
+                "conclusion": "",
+                "htmlUrl": str(job.get("web_url") or ""),
+                "startedAt": str(job.get("started_at") or ""),
+                "completedAt": str(job.get("finished_at") or ""),
+            }
+        )
+    return rows
+
+
+def _github_ci_status_payload(repo_root: Path, github_url: str, *, git_runner: Any | None = None, gh_runner: Any | None = None) -> dict[str, Any]:
     owner_repo = _github_owner_repo_from_web_url(github_url)
     if not owner_repo:
         return {"state": "hidden", "visible": False, "message": "GitHub remote could not be parsed."}
-    if not _has_github_actions_workflows(repo_root):
-        return {"state": "hidden", "visible": False, "message": "No GitHub Actions workflows detected."}
-    if not git_which("gh"):
-        return {
-            "state": "unavailable",
-            "visible": True,
-            "message": "GitHub CLI is not available on PATH.",
-            "repositoryUrl": github_url,
-            "badgeState": "unavailable",
-        }
 
     owner, repo = owner_repo
     context = _current_git_ci_context(repo_root, runner=git_runner)
@@ -1844,6 +1999,102 @@ def ci_status_payload(repo_root: Path, *, git_runner: Any | None = None, gh_runn
         "run": run_payload,
         "jobs": jobs,
     }
+
+
+def _gitlab_ci_status_payload(repo_root: Path, gitlab_url: str, *, git_runner: Any | None = None, glab_runner: Any | None = None) -> dict[str, Any]:
+    project_path = _gitlab_project_path_from_web_url(gitlab_url)
+    if not project_path:
+        return {"state": "hidden", "visible": False, "message": "GitLab remote could not be parsed."}
+    context = _current_git_ci_context(repo_root, runner=git_runner)
+    branch = context.get("branch", "")
+    project_id = quote(project_path, safe="")
+    endpoint = f"projects/{project_id}/pipelines?per_page=30"
+    if branch:
+        endpoint = f"{endpoint}&ref={quote(branch, safe='')}"
+    try:
+        pipelines_result = _run_read_only_glab(repo_root, ["api", endpoint], runner=glab_runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "visible": True, "message": "GitLab CI status timed out.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "visible": True, "message": f"Unable to collect GitLab CI status: {exc}", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+    if pipelines_result.returncode != 0:
+        message = (pipelines_result.stderr or pipelines_result.stdout or "GitLab CI status failed.").strip().splitlines()[0]
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+
+    try:
+        parsed = json.loads(pipelines_result.stdout or "[]")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "visible": True, "message": "GitLab CI status returned invalid JSON.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+    pipelines = [pipeline for pipeline in parsed if isinstance(pipeline, dict)] if isinstance(parsed, list) else []
+    if not pipelines:
+        return {"state": "ok", "visible": True, "message": "No GitLab pipelines found for the current branch.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unknown", "run": None, "jobs": []}
+
+    selected, match_source = _select_gitlab_pipeline(pipelines, context.get("headSha", ""))
+    run_payload = _parse_gitlab_pipeline_run(selected, match_source=match_source, context=context)
+    jobs: list[dict[str, str]] = []
+    pipeline_id = run_payload.get("id")
+    if pipeline_id:
+        try:
+            jobs_result = _run_read_only_glab(repo_root, ["api", f"projects/{project_id}/pipelines/{pipeline_id}/jobs?per_page=100"], runner=glab_runner)
+        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+            jobs_result = None
+        if jobs_result is not None and jobs_result.returncode == 0:
+            jobs = _parse_gitlab_jobs(jobs_result.stdout)
+
+    return {
+        "state": "ok",
+        "visible": True,
+        "message": "",
+        "repositoryUrl": gitlab_url,
+        "provider": "gitlab",
+        **context,
+        "badgeState": run_payload["badgeState"],
+        "run": run_payload,
+        "jobs": jobs,
+    }
+
+
+def ci_status_payload(
+    repo_root: Path,
+    *,
+    git_runner: Any | None = None,
+    gh_runner: Any | None = None,
+    glab_runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    git_which = which or shutil.which
+    provider = repository_provider_payload(repo_root, runner=git_runner, which=git_which)
+    if provider.get("provider") == "github":
+        github_url = provider.get("webUrl", "")
+        if not _has_github_actions_workflows(repo_root):
+            return {"state": "hidden", "visible": False, "message": "No GitHub Actions workflows detected.", "provider": "github", "repositoryUrl": github_url}
+        if not git_which("gh"):
+            return {
+                "state": "unavailable",
+                "visible": True,
+                "message": "GitHub CLI is not available on PATH.",
+                "provider": "github",
+                "repositoryUrl": github_url,
+                "badgeState": "unavailable",
+            }
+        payload = _github_ci_status_payload(repo_root, github_url, git_runner=git_runner, gh_runner=gh_runner)
+        payload.setdefault("provider", "github")
+        return payload
+    if provider.get("provider") == "gitlab":
+        gitlab_url = provider.get("webUrl", "")
+        if not _has_gitlab_ci_config(repo_root):
+            return {"state": "hidden", "visible": False, "message": "No GitLab CI config detected.", "provider": "gitlab", "repositoryUrl": gitlab_url}
+        if not git_which("glab"):
+            return {
+                "state": "unavailable",
+                "visible": True,
+                "message": "GitLab CLI is not available on PATH.",
+                "provider": "gitlab",
+                "repositoryUrl": gitlab_url,
+                "badgeState": "unavailable",
+            }
+        return _gitlab_ci_status_payload(repo_root, gitlab_url, git_runner=git_runner, glab_runner=glab_runner)
+    return {"state": "hidden", "visible": False, "message": "No GitHub or GitLab remote detected.", "provider": ""}
 
 
 def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:

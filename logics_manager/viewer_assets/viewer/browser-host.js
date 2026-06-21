@@ -1260,7 +1260,10 @@
     const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
     latestRepository = {
       root: String(repository.root || latestRepoRoot || ""),
-      githubUrl: String(repository.githubUrl || "")
+      provider: String(repository.provider || ""),
+      webUrl: String(repository.webUrl || repository.githubUrl || repository.gitlabUrl || ""),
+      githubUrl: String(repository.githubUrl || ""),
+      gitlabUrl: String(repository.gitlabUrl || "")
     };
     const pill = repoPill();
     if (pill) {
@@ -1738,9 +1741,12 @@
     const github = repoGithubLink();
     const folder = repoFolderButton();
     if (github instanceof HTMLAnchorElement) {
-      if (latestRepository.githubUrl) {
+      if (latestRepository.webUrl) {
         github.hidden = false;
-        github.href = latestRepository.githubUrl;
+        github.href = latestRepository.webUrl;
+        const providerLabel = latestRepository.provider === "gitlab" ? "GitLab" : latestRepository.provider === "github" ? "GitHub" : "remote";
+        github.title = `Open ${providerLabel} repository`;
+        github.setAttribute("aria-label", `Open ${providerLabel} repository`);
       } else {
         github.hidden = true;
         github.removeAttribute("href");
@@ -1759,8 +1765,8 @@
     }
     const currentVersion = String(latestUpdateInfo.currentVersion || "").trim();
     link.textContent = currentVersion ? `v${currentVersion.replace(/^v/i, "")}` : "v0.0.0";
-    link.href = latestRepository.githubUrl || "https://github.com/AlexAgo83/logics-manager";
-    link.title = "Open Logics Manager on GitHub";
+    link.href = latestRepository.webUrl || "https://github.com/AlexAgo83/logics-manager";
+    link.title = latestRepository.webUrl ? "Open repository" : "Open Logics Manager on GitHub";
   }
 
   async function openRepositoryFolder() {
@@ -7712,11 +7718,12 @@
   }
 
   function renderCiStatus(payload) {
+    const providerLabel = payload?.provider === "gitlab" ? "GitLab CI" : "GitHub Actions";
     if (!payload || !payload.visible) {
       return `
         <div class="viewer-ci">
           ${renderCiModeSwitcher("runs")}
-          <div class="viewer-ci__state">${escapeHtml(payload?.message || "GitHub Actions CI is not configured for this repository.")}</div>
+          <div class="viewer-ci__state">${escapeHtml(payload?.message || `${providerLabel} is not configured for this repository.`)}</div>
         </div>
       `;
     }
@@ -7744,9 +7751,9 @@
       ["Commit", (run?.headSha || payload.headSha || "").slice(0, 7) || "Unknown"],
       ["Match", matchLabel]
     ]);
-    const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in GitHub</a>` : "";
+    const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in ${escapeHtml(payload?.provider === "gitlab" ? "GitLab" : "GitHub")}</a>` : "";
     const runRows = run ? [
-      ["Workflow", run.workflowName || run.name || "GitHub Actions"],
+      ["Workflow", run.workflowName || run.name || providerLabel],
       ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || payload.subject || "Unknown"],
@@ -7755,7 +7762,7 @@
       ["Updated", formatCiDate(run.updatedAt) || "Unknown"]
     ].map(([label, value]) => `
       <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
-    `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || "No GitHub Actions run found for this branch.")}</li>`;
+    `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || `No ${providerLabel} run found for this branch.`)}</li>`;
     const jobRows = jobs.length ? jobs.map((job) => {
       const jobState = ciBadgeTone(job.conclusion || job.status);
       const content = `

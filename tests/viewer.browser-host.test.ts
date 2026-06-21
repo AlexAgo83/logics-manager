@@ -80,6 +80,10 @@ function createViewerDom(options: {
     <a id="viewer-repo-github" href="#" hidden>GitHub</a>
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
     <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
+    <div id="viewer-environment-warning" hidden>
+      <strong id="viewer-environment-warning-title"></strong>
+      <span id="viewer-environment-warning-copy"></span>
+    </div>
     <div id="viewer-lan-banner" hidden>
       <span id="viewer-lan-banner-url" hidden></span>
       <button id="viewer-lan-banner-copy" type="button" hidden>Copy URL</button>
@@ -2485,6 +2489,26 @@ describe("local viewer browser host", () => {
     expect(modal?.textContent).toContain("Bootstrap Logics");
     expect(modal?.textContent).toContain("Refresh generated Logics bootstrap files");
     expect(calls.filter((call) => call === "/api/bootstrap-logics")).toHaveLength(0);
+  });
+
+  it("shows a bootstrap refresh warning when local instructions are stale", async () => {
+    const { dom } = createViewerDom({
+      canBootstrapLogics: true,
+      shouldPromptBootstrapLogics: false,
+      bootstrapWarning: {
+        title: "Logics bootstrap refresh recommended",
+        message: "Refresh generated Logics assistant instructions with Bootstrap Logics or `logics-manager bootstrap` (LOGICS.md)."
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const banner = dom.window.document.getElementById("viewer-environment-warning") as HTMLElement | null;
+    expect(banner?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-environment-warning-title")?.textContent).toContain("Logics bootstrap refresh recommended");
+    expect(dom.window.document.getElementById("viewer-environment-warning-copy")?.textContent).toContain("logics-manager bootstrap");
   });
 
   it("opens refresh options and configures the interval from the payload", async () => {

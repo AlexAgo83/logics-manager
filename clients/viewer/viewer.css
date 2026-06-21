@@ -2361,7 +2361,9 @@
 }
 
 .viewer-themed-modal__panel {
-  width: min(440px, 100%);
+  width: min(680px, 100%);
+  max-width: calc(100vw - 36px);
+  min-width: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 8px;
   background: var(--vscode-editorWidget-background, #202020);
@@ -2374,8 +2376,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
+  min-width: 0;
   padding: 18px 18px 12px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
+}
+
+.viewer-themed-modal__header > div {
+  min-width: 0;
 }
 
 .viewer-themed-modal__title {
@@ -2383,6 +2390,7 @@
   font-size: 17px;
   line-height: 1.25;
   font-weight: 650;
+  overflow-wrap: anywhere;
 }
 
 .viewer-themed-modal__copy {
@@ -2390,6 +2398,7 @@
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 12px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .viewer-themed-modal__close {
@@ -2415,12 +2424,19 @@
 .viewer-themed-modal__body {
   display: grid;
   gap: 12px;
+  min-width: 0;
   padding: 16px 18px;
+}
+
+.viewer-themed-modal__body > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .viewer-themed-modal__input,
 .viewer-themed-modal__select {
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--vscode-input-border, var(--vscode-panel-border, #333333));
   border-radius: 4px;

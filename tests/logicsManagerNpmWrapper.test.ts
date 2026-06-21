@@ -110,18 +110,20 @@ describe("logics-manager npm wrapper", () => {
     ]);
   });
 
-  it("does not double-forward SIGINT on POSIX terminals", async () => {
+  it("forwards SIGINT to the spawned python command on POSIX terminals", async () => {
     const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
-    child.kill = vi.fn(() => true);
+    child.kill = vi.fn((signal: string) => {
+      queueMicrotask(() => child.emit("close", null, signal));
+      return true;
+    });
     const spawnVersion = vi.fn(() => ({ status: 0, stdout: "Python 3.11.0\n", stderr: "" }));
     const spawnCommand = vi.fn(() => child);
 
     const running = runLogicsManager(["view", "--port", "0"], "linux", spawnVersion as never, spawnCommand as never);
     process.emit("SIGINT");
-    queueMicrotask(() => child.emit("close", null, "SIGINT"));
     const exitCode = await running;
 
-    expect(child.kill).not.toHaveBeenCalled();
+    expect(child.kill).toHaveBeenCalledWith("SIGINT");
     expect(exitCode).toBe(130);
   });
 

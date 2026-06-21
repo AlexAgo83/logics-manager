@@ -2274,6 +2274,23 @@ def test_viewer_server_switch_project_root_adds_selected_project(tmp_path: Path)
         server.server_close()
 
 
+def test_viewer_server_switch_project_root_accepts_plain_folder(tmp_path: Path) -> None:
+    active = tmp_path / "logics-manager"
+    selected = tmp_path / "plain-folder"
+    (active / "logics" / "request").mkdir(parents=True)
+    selected.mkdir()
+
+    server = create_viewer_server_or_skip(active)
+    try:
+        payload = server.switch_project_root(selected)
+
+        assert payload["repoName"] == "plain-folder"
+        assert payload["capabilities"]["logics"]["state"] == "missing"
+        assert next(entry for entry in payload["projects"] if entry["name"] == "plain-folder")["active"] is True
+    finally:
+        server.server_close()
+
+
 def test_viewer_bootstrap_logics_endpoint_creates_workflow_skeleton(tmp_path: Path) -> None:
     server = create_viewer_server_or_skip(tmp_path)
     thread = threading.Thread(target=server.serve_forever, daemon=True)

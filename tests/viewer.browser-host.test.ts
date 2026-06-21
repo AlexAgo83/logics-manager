@@ -386,6 +386,16 @@ function createViewerDom(options: {
                     entries: [],
                     truncated: false
                   }
+              : relPath === "workspace/plain-folder"
+                ? {
+                    state: "ok",
+                    root: "/",
+                    path: "workspace/plain-folder",
+                    selectedPath: "/workspace/plain-folder",
+                    parentPath: "workspace",
+                    entries: [],
+                    truncated: false
+                  }
               : {
                   state: "ok",
                   root: "/",
@@ -401,24 +411,29 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/select-project-root-path") {
+        const body = typeof fetchOptions?.body === "string" ? JSON.parse(fetchOptions.body || "{}") : {};
+        const selectedPath = String(body.path || "workspace/selected-project");
+        const selectedName = selectedPath.endsWith("plain-folder") ? "plain-folder" : "selected-project";
         return {
           ok: true,
           status: 200,
           json: async () => ({
             ok: true,
             payload: {
-              root: "/workspace/selected-project",
-              repoName: "selected-project",
-              repository: { root: "/workspace/selected-project", githubUrl: "" },
+              root: `/workspace/${selectedName}`,
+              repoName: selectedName,
+              repository: { root: `/workspace/${selectedName}`, githubUrl: "" },
               capabilities: {
-                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                logics: selectedName === "plain-folder"
+                  ? { state: "missing", available: false, message: "No Logics corpus found." }
+                  : { state: "ready", available: true, message: "Logics corpus found." },
                 workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
                 git: { state: "missing", available: false, message: "Project is not a Git repository." },
                 ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
                 cdx: { state: "missing", available: false, message: "CDX executable is not available." },
                 cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
               },
-              projects: [{ id: "project-selected", name: "selected-project", root: "/workspace/selected-project", active: true, available: true, hasLogics: true, message: "Logics corpus found." }],
+              projects: [{ id: `project-${selectedName}`, name: selectedName, root: `/workspace/${selectedName}`, active: true, available: true, hasLogics: selectedName !== "plain-folder", message: selectedName === "plain-folder" ? "No Logics corpus found." : "Logics corpus found." }],
               autoRefreshIntervalSeconds: 15,
               autoRefreshIntervalForced: false,
               items: [],
@@ -1839,18 +1854,18 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    const selected = dom.window.document.querySelector('[data-viewer-project-picker-open="workspace/selected-project"]') as HTMLButtonElement | null;
+    const selected = dom.window.document.querySelector('[data-viewer-project-picker-open="workspace/plain-folder"]') as HTMLButtonElement | null;
     selected?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
 
-    const selectCurrent = dom.window.document.querySelector('[data-viewer-project-picker-select="workspace/selected-project"]') as HTMLButtonElement | null;
+    const selectCurrent = dom.window.document.querySelector('[data-viewer-project-picker-select="workspace/plain-folder"]') as HTMLButtonElement | null;
     selectCurrent?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
 
     expect(calls).toContain("/api/select-project-root-path");
-    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("selected-project");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("plain-folder");
     expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
   });
 

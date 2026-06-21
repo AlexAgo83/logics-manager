@@ -19,6 +19,10 @@
       const url = new URL(window.location.href);
       const queryToken = url.searchParams.get("t");
       if (queryToken) {
+        const previousToken = window.sessionStorage.getItem(lanTokenKey) || "";
+        if (previousToken !== queryToken) {
+          clearDeviceCredentials();
+        }
         window.sessionStorage.setItem(lanTokenKey, queryToken);
         url.searchParams.delete("t");
         const cleaned = `${url.pathname}${url.search}${url.hash}`;

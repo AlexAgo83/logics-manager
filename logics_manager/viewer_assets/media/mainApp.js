@@ -252,9 +252,9 @@
     if (nextState && typeof nextState.sortMode === "string") {
       sortMode = nextState.sortMode;
     }
-    if (nextState && typeof nextState.activityPanelOpen === "boolean") {
-      activityPanelOpen = nextState.activityPanelOpen;
-    }
+    // Activity is the entry screen for a fresh viewer load. Keep filters and
+    // selection persistent, but do not let an older Project toggle override
+    // the default first screen on the next launch.
     if (nextState && typeof nextState.attentionOnly === "boolean") {
       attentionOnly = nextState.attentionOnly;
     }

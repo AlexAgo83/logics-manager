@@ -1207,7 +1207,8 @@
   display: grid;
   grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
   gap: 12px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 100%;
 }
 
 .viewer-workspace__tree,
@@ -1220,7 +1221,8 @@
 
 .viewer-workspace__preview {
   display: grid;
-  align-content: start;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
   gap: 10px;
   padding: 12px;
 }
@@ -1469,6 +1471,15 @@
   font-size: 12px;
   line-height: 1.5;
   font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.viewer-workspace__preview .viewer-code,
+.viewer-workspace__preview .viewer-code__scroll {
+  max-height: none;
+}
+
+.viewer-workspace__preview .viewer-code__scroll {
+  overflow: visible;
 }
 
 .viewer-code__rows {

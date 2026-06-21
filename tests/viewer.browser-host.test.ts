@@ -104,6 +104,7 @@ function createViewerDom(options: {
     </div>
     <button id="viewer-insights" type="button">Insights</button>
     <button id="viewer-health" type="button">Health</button>
+    <button id="viewer-getting-started" type="button">Getting Started</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <div class="viewer-refresh-menu">
@@ -1173,8 +1174,10 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);
-    expect(css).toMatch(/\.viewer-code__row\s*\{[^}]*grid-template-columns: max-content minmax\(max-content, 1fr\);/s);
+    expect(css).toMatch(/\.viewer-code__row\s*\{[^}]*grid-template-columns: calc\(var\(--viewer-code-line-number-width, 3ch\) \+ 20px\) minmax\(max-content, 1fr\);/s);
     expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*position: sticky;/s);
+    expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*width: calc\(var\(--viewer-code-line-number-width, 3ch\) \+ 20px\);/s);
+    expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*text-align: right;/s);
     expect(css).toMatch(/\.viewer-code__line\s*\{[^}]*white-space: pre;/s);
     expect(css).toMatch(/\.viewer-code__line code\s*\{[^}]*padding: 0;/s);
     expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow: visible;/s);
@@ -1239,6 +1242,7 @@ describe("local viewer browser host", () => {
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
     expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
+    expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
@@ -1260,6 +1264,24 @@ describe("local viewer browser host", () => {
     const version = dom.window.document.getElementById("viewer-version-link") as HTMLAnchorElement | null;
     expect(version?.textContent).toBe("v2.2.0");
     expect(version?.getAttribute("href")).toBe("https://github.com/AlexAgo83/logics-manager");
+  });
+
+  it("opens the getting started guide from Settings inside the local viewer", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.querySelector(".viewer-onboarding")).not.toBeNull();
+    expect(content?.textContent).toContain("Logics in four steps");
+    expect(content?.textContent).toContain("Need");
+    expect(content?.textContent).toContain("What each document is for");
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {
@@ -1773,6 +1795,7 @@ describe("local viewer browser host", () => {
     explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
     const rows = Array.from(explorer.querySelectorAll(".viewer-code__row"));
     expect(rows).toHaveLength(2);
+    expect((explorer.querySelector(".viewer-code") as HTMLElement | null)?.getAttribute("style")).toContain("--viewer-code-line-number-width: 2ch");
     expect(rows[0]?.querySelector(".viewer-code__line-number")?.textContent).toBe("1");
     expect(rows[0]?.querySelector(".viewer-code__line")?.textContent).toContain("print('ok')");
     expect(rows[1]?.querySelector(".viewer-code__line-number")?.textContent).toBe("2");

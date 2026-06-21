@@ -790,7 +790,7 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
             return subprocess.CompletedProcess(args, 0, "5\t0\tmodified.md\n0\t4\tdeleted.md\n", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "abc1234 latest commit", "")
-        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(
                 args,
                 0,
@@ -830,7 +830,7 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["recentCommitsHasMore"] is False
     assert ["git", "status", "--porcelain=v1", "-b"] in calls
     assert ["git", "rev-list", "--count", "@{u}..HEAD"] in calls
-    assert ["git", "log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
+    assert ["git", "log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
 
@@ -858,7 +858,7 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "", "")
-        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")
@@ -892,7 +892,7 @@ def test_viewer_git_status_payload_marks_history_as_open_ended_after_display_lim
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["log", "-1", "--pretty=format:%h %s"]:
             return subprocess.CompletedProcess(args, 0, "c01 Commit 1", "")
-        if args[1:] == ["log", "-51", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
+        if args[1:] == ["log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"]:
             return subprocess.CompletedProcess(args, 0, commit_lines, "")
         if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 128, "", "fatal: no upstream configured")

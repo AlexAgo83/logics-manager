@@ -1256,7 +1256,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         commit = _run_read_only_git(repo_root, ["log", "-1", "--pretty=format:%h %s"], runner=runner)
         recent_commits = _run_read_only_git(
             repo_root,
-            ["log", f"-{GIT_HISTORY_FETCH_LIMIT}", "--date=short", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
+            ["log", f"-{GIT_HISTORY_FETCH_LIMIT}", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
             runner=runner,
         )
         unpushed = _git_unpushed_commit_count(repo_root, runner=runner)

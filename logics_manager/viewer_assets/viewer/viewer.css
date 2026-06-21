@@ -1634,6 +1634,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  border-bottom: 1px solid transparent;
+  cursor: text;
+}
+
+.viewer-workshop__terminal-row:hover .viewer-workshop__terminal-row-label {
+  border-bottom-color: currentColor;
 }
 
 .viewer-workshop__usage {

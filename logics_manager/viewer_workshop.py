@@ -511,6 +511,14 @@ class WorkshopTerminalSession:
         except OSError as exc:
             self.error = f"Write failed: {exc}"
 
+    def rename(self, label: str) -> None:
+        next_label = str(label or "").strip()[:64]
+        if not next_label:
+            raise ValueError("Terminal label cannot be empty.")
+        with self._lock:
+            self.label = next_label
+            self._last_activity = self._now()
+
     def resize(self, rows: int, cols: int) -> None:
         if self._master_fd is None or rows <= 0 or cols <= 0:
             return

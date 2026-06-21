@@ -4053,6 +4053,8 @@
         workshopTerminalState.sessions.set(id, {
           id,
           label: String(remote?.label || "shell"),
+          command: Array.isArray(remote?.command) ? remote.command.map(String) : [],
+          cdxSession: String(remote?.cdxSession || ""),
           state,
           bufferedOutput: "",
         });
@@ -4183,8 +4185,8 @@
     const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
       <span class="viewer-workshop__terminal-actions">
-        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new title="Spawn a shell session">+ Shell</button>
-        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-custom title="Spawn a session with a custom command">+ Custom</button>
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-new>+ Shell</button>
+        <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-custom>+ Custom</button>
       </span>
     </div>`;
     if (entries.length === 0) {
@@ -4196,23 +4198,25 @@
       const stateBadge = entry.state ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(entry.state)}">${escapeHtml(entry.state)}</span>` : "";
       const closing = Boolean(entry.closing);
       const closeAttrs = closing
-        ? `aria-busy="true" aria-label="Closing session" title="Closing session..."`
-        : `data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Close session" aria-label="Close session"`;
+        ? `aria-busy="true" aria-label="Closing session"`
+        : `data-viewer-workshop-terminal-close="${escapeHtml(entry.id)}" role="button" tabindex="0" aria-label="Close session"`;
       const closeGlyph = closing
         ? `<span class="viewer-workshop__spinner" aria-hidden="true"></span>`
         : `×`;
       const clearSpan = closing
         ? ""
-        : `<span class="viewer-workshop__terminal-row-clear" data-viewer-workshop-terminal-clear="${escapeHtml(entry.id)}" role="button" tabindex="0" title="Clear screen (Ctrl+L)" aria-label="Clear screen">⎚</span>`;
+        : `<span class="viewer-workshop__terminal-row-clear" data-viewer-workshop-terminal-clear="${escapeHtml(entry.id)}" role="button" tabindex="0" aria-label="Clear screen">⎚</span>`;
       // When the terminal runs a cdx session, show the session name instead of
       // the raw command and a discreet usage gauge next to it.
       const cdxSession = cdxSessionForTerminal(entry);
-      const displayLabel = cdxSession || entry.label || entry.id;
+      const rawCommandLabel = Array.isArray(entry.command) ? entry.command.join(" ") : "";
+      const isRawCdxLabel = cdxSession && (!entry.label || entry.label === rawCommandLabel || /^cdx\s+/.test(String(entry.label)));
+      const displayLabel = isRawCdxLabel ? cdxSession : (entry.label || cdxSession || entry.id);
       const gauge = cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : "";
-      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}" title="${escapeHtml(entry.label || entry.id)}">
+      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}">
         <span class="viewer-workshop__terminal-row-main">
           ${gauge}
-          <span class="viewer-workshop__terminal-row-label">${escapeHtml(displayLabel)}</span>
+          <span class="viewer-workshop__terminal-row-label" data-viewer-workshop-terminal-rename="${escapeHtml(entry.id)}">${escapeHtml(displayLabel)}</span>
         </span>
         ${stateBadge}
         <span class="viewer-workshop__terminal-row-controls">
@@ -4487,6 +4491,42 @@
     setMeta("Sent clear (Ctrl+L) to terminal.");
   }
 
+  async function renameWorkshopTerminal(sessionId) {
+    const entry = workshopTerminalState.sessions.get(sessionId);
+    if (!entry || entry.closing) return;
+    const current = String(entry.label || "").trim();
+    const next = await showThemedInputModal({
+      title: "Rename terminal",
+      message: "Edit the label shown in the terminal list.",
+      defaultValue: current,
+      placeholder: "Terminal label",
+      submitLabel: "Rename",
+      maxLength: 64
+    });
+    if (next === null) return;
+    const label = String(next || "").trim();
+    if (!label || label === current) return;
+    try {
+      const response = await fetch("/api/workshop-terminal-rename", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, label }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to rename terminal.");
+      }
+      const payload = data.payload || {};
+      entry.label = String(payload.label || label);
+      entry.command = Array.isArray(payload.command) ? payload.command.map(String) : entry.command;
+      entry.cdxSession = String(payload.cdxSession || entry.cdxSession || "");
+      renderWorkshopTerminalList();
+      setMeta(`Renamed terminal to ${entry.label}.`);
+    } catch (error) {
+      setMeta(`Terminal rename: ${error?.message || error}`);
+    }
+  }
+
   function releaseWorkshopTerminalObserver(entry) {
     if (entry?.resizeObserver) {
       try { entry.resizeObserver.disconnect(); } catch { /* noop */ }
@@ -4567,6 +4607,8 @@
       workshopTerminalState.sessions.set(session.id, {
         id: session.id,
         label: session.label || "shell",
+        command: Array.isArray(session.command) ? session.command.map(String) : [],
+        cdxSession: String(session.cdxSession || ""),
         state: session.state,
         bufferedOutput: "",
       });
@@ -8406,6 +8448,15 @@
       const path = target instanceof HTMLElement ? target.getAttribute("data-viewer-doc-path") : "";
       if (path) {
         withPrimaryAction("read-document", "Loading document", () => showDocumentByPath(path));
+      }
+    });
+    document.addEventListener("dblclick", (event) => {
+      const renameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
+      if (renameTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = renameTarget.getAttribute("data-viewer-workshop-terminal-rename") || "";
+        if (id) renameWorkshopTerminal(id);
       }
     });
     document.addEventListener("focusin", (event) => {

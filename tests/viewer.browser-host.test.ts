@@ -2396,6 +2396,61 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]")?.textContent).toBe("Remote tests");
   });
 
+  it("reorders Workshop terminals with drag and drop", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom } = createViewerDom({
+      terminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const rowsBefore = Array.from(dom.window.document.querySelectorAll("[data-viewer-workshop-terminal-drag]")) as HTMLElement[];
+    expect(rowsBefore.map((row) => row.getAttribute("data-viewer-workshop-terminal-drag")).slice(0, 2)).toEqual(["terminal-1", "terminal-2"]);
+    const dataTransfer = {
+      effectAllowed: "",
+      dropEffect: "",
+      value: "",
+      setData(_type: string, value: string) { this.value = value; },
+      getData() { return this.value; }
+    };
+    const dragStart = new dom.window.Event("dragstart", { bubbles: true, cancelable: true }) as Event & { dataTransfer?: typeof dataTransfer };
+    dragStart.dataTransfer = dataTransfer;
+    rowsBefore[1]!.dispatchEvent(dragStart);
+    const dragOver = new dom.window.Event("dragover", { bubbles: true, cancelable: true }) as Event & { dataTransfer?: typeof dataTransfer };
+    dragOver.dataTransfer = dataTransfer;
+    rowsBefore[0]!.dispatchEvent(dragOver);
+    const drop = new dom.window.Event("drop", { bubbles: true, cancelable: true }) as Event & { dataTransfer?: typeof dataTransfer };
+    drop.dataTransfer = dataTransfer;
+    rowsBefore[0]!.dispatchEvent(drop);
+
+    const rowsAfter = Array.from(dom.window.document.querySelectorAll("[data-viewer-workshop-terminal-drag]")) as HTMLElement[];
+    expect(rowsAfter.map((row) => row.getAttribute("data-viewer-workshop-terminal-drag")).slice(0, 2)).toEqual(["terminal-2", "terminal-1"]);
+    const preferences = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(preferences.workshopTerminalOrderByRoot?.["/workspace/logics-manager"].slice(0, 2)).toEqual(["terminal-2", "terminal-1"]);
+  });
+
   it("hides the LAN banner when lanMode is false", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

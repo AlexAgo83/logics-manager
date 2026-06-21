@@ -4569,8 +4569,76 @@
     sessions: new Map(),
     activeId: "",
     streams: new Map(),
+    order: [],
+    draggingId: "",
+    suppressSelectUntil: 0,
     hydrated: false,
   };
+
+  function workshopTerminalOrderRootKey() {
+    return latestRepoRoot || latestRepository?.root || "default";
+  }
+
+  function storedWorkshopTerminalOrder() {
+    const byRoot = viewerPreferences.workshopTerminalOrderByRoot;
+    const rootKey = workshopTerminalOrderRootKey();
+    const value = byRoot && typeof byRoot === "object" ? byRoot[rootKey] : null;
+    return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
+  }
+
+  function persistWorkshopTerminalOrder() {
+    const rootKey = workshopTerminalOrderRootKey();
+    const byRoot = viewerPreferences.workshopTerminalOrderByRoot && typeof viewerPreferences.workshopTerminalOrderByRoot === "object"
+      ? viewerPreferences.workshopTerminalOrderByRoot
+      : {};
+    updateViewerPreferences({
+      workshopTerminalOrderByRoot: {
+        ...byRoot,
+        [rootKey]: [...workshopTerminalState.order]
+      }
+    });
+  }
+
+  function reconcileWorkshopTerminalOrder({ persist = false } = {}) {
+    const ids = [...workshopTerminalState.sessions.keys()];
+    const live = new Set(ids);
+    const preferred = workshopTerminalState.order.length ? workshopTerminalState.order : storedWorkshopTerminalOrder();
+    const next = preferred.filter((id) => live.has(id));
+    for (const id of ids) {
+      if (!next.includes(id)) next.push(id);
+    }
+    workshopTerminalState.order = next;
+    if (persist) persistWorkshopTerminalOrder();
+  }
+
+  function orderedWorkshopTerminalEntries() {
+    reconcileWorkshopTerminalOrder();
+    return workshopTerminalState.order
+      .map((id) => workshopTerminalState.sessions.get(id))
+      .filter(Boolean);
+  }
+
+  function moveWorkshopTerminalBefore(sourceId, targetId) {
+    if (!sourceId || !targetId || sourceId === targetId) return false;
+    reconcileWorkshopTerminalOrder();
+    const next = workshopTerminalState.order.filter((id) => id !== sourceId);
+    const targetIndex = next.indexOf(targetId);
+    if (targetIndex < 0) return false;
+    next.splice(targetIndex, 0, sourceId);
+    workshopTerminalState.order = next;
+    persistWorkshopTerminalOrder();
+    renderWorkshopTerminalList();
+    setMeta("Terminal order updated.");
+    return true;
+  }
+
+  function clearWorkshopTerminalDragState() {
+    workshopTerminalState.draggingId = "";
+    document.querySelectorAll(".viewer-workshop__terminal-row.is-dragging, .viewer-workshop__terminal-row.is-drop-target").forEach((node) => {
+      node.classList.remove("is-dragging", "is-drop-target");
+      node.removeAttribute("aria-grabbed");
+    });
+  }
 
   async function hydrateWorkshopTerminals() {
     if (workshopTerminalState.hydrated) return;
@@ -4598,9 +4666,10 @@
         });
       }
       if (!workshopTerminalState.activeId) {
-        const next = workshopTerminalState.sessions.keys().next();
-        workshopTerminalState.activeId = next.done ? "" : next.value;
+        reconcileWorkshopTerminalOrder();
+        workshopTerminalState.activeId = workshopTerminalState.order[0] || "";
       }
+      reconcileWorkshopTerminalOrder({ persist: true });
       recomputeWorkshopBadges();
     } catch {
       workshopTerminalState.hydrated = false;
@@ -4719,7 +4788,7 @@
   function renderWorkshopTerminalList() {
     const node = workshopTerminalListNode();
     if (!(node instanceof HTMLElement)) return;
-    const entries = [...workshopTerminalState.sessions.values()];
+    const entries = orderedWorkshopTerminalEntries();
     const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
       <span class="viewer-workshop__terminal-actions">
@@ -4751,7 +4820,7 @@
       const isRawCdxLabel = cdxSession && (!entry.label || entry.label === rawCommandLabel || /^cdx\s+/.test(String(entry.label)));
       const displayLabel = isRawCdxLabel ? cdxSession : (entry.label || cdxSession || entry.id);
       const gauge = cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : "";
-      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}">
+      return `<button class="viewer-workshop__terminal-row${isActive ? " is-active" : ""}${closing ? " is-closing" : ""}" type="button" draggable="true" data-viewer-workshop-terminal-drag="${escapeHtml(entry.id)}" data-viewer-workshop-terminal-select="${escapeHtml(entry.id)}">
         <span class="viewer-workshop__terminal-row-main">
           ${gauge}
           <span class="viewer-workshop__terminal-row-label" data-viewer-workshop-terminal-rename="${escapeHtml(entry.id)}">${escapeHtml(displayLabel)}</span>
@@ -5150,6 +5219,7 @@
         state: session.state,
         bufferedOutput: "",
       });
+      reconcileWorkshopTerminalOrder({ persist: true });
       recomputeWorkshopBadges();
       // Ensure the Workshop view is mounted before activating.
       if (preferredWorkshopTab() !== "terminals") {
@@ -5252,9 +5322,9 @@
       try { entry.terminal.dispose(); } catch { /* noop */ }
     }
     workshopTerminalState.sessions.delete(sessionId);
+    reconcileWorkshopTerminalOrder({ persist: true });
     if (workshopTerminalState.activeId === sessionId) {
-      const next = workshopTerminalState.sessions.keys().next();
-      setActiveWorkshopTerminal(next.done ? "" : next.value);
+      setActiveWorkshopTerminal(workshopTerminalState.order[0] || "");
     } else {
       renderWorkshopTerminalList();
     }
@@ -8789,6 +8859,54 @@
         rerenderCdxStatusFromPreferences();
       }
     });
+    document.addEventListener("dragstart", (event) => {
+      const row = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-drag]") : null;
+      if (!(row instanceof HTMLElement)) return;
+      if (event.target instanceof Element && event.target.closest("[data-viewer-workshop-terminal-close], [data-viewer-workshop-terminal-clear], [data-viewer-workshop-terminal-rename], [data-viewer-cdx-usage-refresh]")) {
+        event.preventDefault();
+        return;
+      }
+      const id = row.getAttribute("data-viewer-workshop-terminal-drag") || "";
+      if (!id) return;
+      workshopTerminalState.draggingId = id;
+      row.classList.add("is-dragging");
+      row.setAttribute("aria-grabbed", "true");
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", id);
+      }
+    });
+    document.addEventListener("dragover", (event) => {
+      const row = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-drag]") : null;
+      if (!(row instanceof HTMLElement) || !workshopTerminalState.draggingId) return;
+      const targetId = row.getAttribute("data-viewer-workshop-terminal-drag") || "";
+      if (!targetId || targetId === workshopTerminalState.draggingId) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+      document.querySelectorAll(".viewer-workshop__terminal-row.is-drop-target").forEach((node) => {
+        if (node !== row) node.classList.remove("is-drop-target");
+      });
+      row.classList.add("is-drop-target");
+    });
+    document.addEventListener("drop", (event) => {
+      const row = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-drag]") : null;
+      if (!(row instanceof HTMLElement)) {
+        clearWorkshopTerminalDragState();
+        return;
+      }
+      const sourceId = workshopTerminalState.draggingId || event.dataTransfer?.getData("text/plain") || "";
+      const targetId = row.getAttribute("data-viewer-workshop-terminal-drag") || "";
+      if (sourceId && targetId && sourceId !== targetId) {
+        event.preventDefault();
+        moveWorkshopTerminalBefore(sourceId, targetId);
+        workshopTerminalState.suppressSelectUntil = Date.now() + 250;
+      }
+      clearWorkshopTerminalDragState();
+    });
+    document.addEventListener("dragend", () => {
+      workshopTerminalState.suppressSelectUntil = Date.now() + 250;
+      clearWorkshopTerminalDragState();
+    });
     document.addEventListener("click", (event) => {
       window.setTimeout(() => applyLocalViewerChrome(), 0);
       const activeCdxMenu = event.target instanceof Element ? event.target.closest(".viewer-cdx__menu, .viewer-workshop__command-run-menu") : null;
@@ -9077,6 +9195,7 @@
       }
       if (workshopTerminalSelectTarget instanceof HTMLElement) {
         event.preventDefault();
+        if (Date.now() < workshopTerminalState.suppressSelectUntil) return;
         const id = workshopTerminalSelectTarget.getAttribute("data-viewer-workshop-terminal-select") || "";
         if (id) setActiveWorkshopTerminal(id);
         return;

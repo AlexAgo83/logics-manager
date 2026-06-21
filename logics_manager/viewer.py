@@ -3099,6 +3099,9 @@ VIEWER_MUTATING_ROUTES = frozenset(
 
 
 class LogicsViewerServer(ThreadingHTTPServer):
+    daemon_threads = True
+    block_on_close = False
+
     def __init__(
         self,
         server_address: tuple[str, int],

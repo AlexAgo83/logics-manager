@@ -3114,6 +3114,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
+        "/api/restart-viewer",
         "/api/switch-project",
         "/api/select-project-root",
         "/api/select-project-root-path",
@@ -3168,6 +3169,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.pairing_broker = LanPairingBroker() if self.lan_rw_mode else None
         self.workshop_sessions = WorkshopSessionRegistry()
         self.workshop_terminals = WorkshopTerminalRegistry()
+        self.restart_requested = False
         # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
         self.status_cache: dict[str, tuple[float, str, bytes]] = {}
         # Cache of (monotonic_ts, payload) keyed by "<component>::<repo_root>",
@@ -3285,6 +3287,20 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.project_roots.append(target)
             self.project_root_by_id[project_id] = target
         return self.switch_project(project_id)
+
+    def request_restart(self) -> None:
+        if self.restart_requested:
+            return
+        self.restart_requested = True
+        command = [sys.executable, *sys.argv]
+
+        def restart() -> None:
+            time.sleep(0.2)
+            self.shutdown()
+            time.sleep(0.2)
+            os.execv(command[0], command)
+
+        threading.Thread(target=restart, daemon=True).start()
 
 
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
@@ -4171,6 +4187,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/restart-viewer":
+            self.server.request_restart()
+            self._send_json({"ok": True, "message": "Viewer server restarting."})
             return
         if parsed.path == "/api/cdx-report-request":
             try:

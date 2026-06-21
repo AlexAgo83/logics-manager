@@ -392,6 +392,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
+        "/api/restart-viewer",
         "/api/switch-project",
         "/api/select-project-root",
         "/api/select-project-root-path",

@@ -54,6 +54,7 @@ function createViewerDom(options: {
   initialUrlToken?: string;
   pairStartResponse?: { ok: boolean; status?: number; body?: unknown };
   pairCompleteResponse?: { ok: boolean; status?: number; body?: unknown };
+  selectProjectRootResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
@@ -313,6 +314,13 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/select-project-root") {
+        if (options.selectProjectRootResponse) {
+          return {
+            ok: options.selectProjectRootResponse.ok,
+            status: options.selectProjectRootResponse.status ?? (options.selectProjectRootResponse.ok ? 200 : 500),
+            json: async () => options.selectProjectRootResponse?.body || {}
+          };
+        }
         return {
           ok: true,
           json: async () => ({
@@ -341,6 +349,78 @@ function createViewerDom(options: {
               items: [
                 { id: "req_003_selected", title: "Selected", stage: "request", relPath: "logics/request/req_003_selected.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-04T10:00:00" }
               ],
+              updateInfo: {}
+            }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/project-picker-tree")) {
+        const query = new URL(`http://viewer.test${url}`).searchParams;
+        const relPath = query.get("path") || "";
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: relPath === "workspace"
+              ? {
+                  state: "ok",
+                  root: "/",
+                  path: "workspace",
+                  selectedPath: "/workspace",
+                  parentPath: "",
+                  entries: [
+                    { name: "selected-project", path: "workspace/selected-project", hasLogics: true },
+                    { name: "plain-folder", path: "workspace/plain-folder", hasLogics: false }
+                  ],
+                  truncated: false
+                }
+              : relPath === "workspace/selected-project"
+                ? {
+                    state: "ok",
+                    root: "/",
+                    path: "workspace/selected-project",
+                    selectedPath: "/workspace/selected-project",
+                    parentPath: "workspace",
+                    entries: [],
+                    truncated: false
+                  }
+              : {
+                  state: "ok",
+                  root: "/",
+                  path: "",
+                  selectedPath: "/",
+                  parentPath: "",
+                  entries: [
+                    { name: "workspace", path: "workspace", hasLogics: false }
+                  ],
+                  truncated: false
+                }
+          })
+        };
+      }
+      if (url === "/api/select-project-root-path") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: {
+              root: "/workspace/selected-project",
+              repoName: "selected-project",
+              repository: { root: "/workspace/selected-project", githubUrl: "" },
+              capabilities: {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+                git: { state: "missing", available: false, message: "Project is not a Git repository." },
+                ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
+                cdx: { state: "missing", available: false, message: "CDX executable is not available." },
+                cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
+              },
+              projects: [{ id: "project-selected", name: "selected-project", root: "/workspace/selected-project", active: true, available: true, hasLogics: true, message: "Logics corpus found." }],
+              autoRefreshIntervalSeconds: 15,
+              autoRefreshIntervalForced: false,
+              items: [],
               updateInfo: {}
             }
           })
@@ -1704,6 +1784,47 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/select-project-root");
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("selected-project");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
+  it("falls back to the embedded folder picker when the native picker is unavailable", async () => {
+    const { dom, calls } = createViewerDom({
+      selectProjectRootResponse: { ok: false, status: 500, body: { ok: false, error: "Native picker unavailable." } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("Choose folder..."); attempt += 1) {
+      await flushViewerAsync();
+    }
+    switcher?.click();
+    const picker = menu?.querySelector("[data-viewer-project-pick]") as HTMLButtonElement | null;
+    picker?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/select-project-root");
+    expect(dom.window.document.querySelector(".viewer-themed-modal")?.textContent).toContain("Native picker unavailable.");
+    const workspace = dom.window.document.querySelector('[data-viewer-project-picker-open="workspace"]') as HTMLButtonElement | null;
+    workspace?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const selected = dom.window.document.querySelector('[data-viewer-project-picker-open="workspace/selected-project"]') as HTMLButtonElement | null;
+    selected?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const selectCurrent = dom.window.document.querySelector('[data-viewer-project-picker-select="workspace/selected-project"]') as HTMLButtonElement | null;
+    selectCurrent?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/select-project-root-path");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("selected-project");
+    expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
   });
 
   it("closes the project menu when clicking outside it or pressing Escape", async () => {

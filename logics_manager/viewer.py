@@ -1520,6 +1520,45 @@ def workspace_tree_payload(
     }
 
 
+def project_picker_tree_payload(base_root: Path, rel_path: str = "", *, max_entries: int = WORKSPACE_TREE_MAX_ENTRIES) -> dict[str, Any]:
+    base = base_root.expanduser().resolve()
+    normalized = _normalize_workspace_path(rel_path)
+    target = (base / normalized).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError as exc:
+        raise ValueError("Project picker path escapes root.") from exc
+    if not target.exists():
+        return {"state": "missing", "path": normalized, "root": str(base), "message": "Folder does not exist."}
+    if not target.is_dir():
+        return {"state": "not-directory", "path": normalized, "root": str(base), "message": "Path is not a folder."}
+    entries: list[dict[str, Any]] = []
+    truncated = False
+    try:
+        children = sorted((child for child in target.iterdir() if child.is_dir()), key=lambda path: path.name.lower())
+    except OSError as exc:
+        return {"state": "error", "path": normalized, "root": str(base), "message": f"Unable to list folders: {exc}"}
+    for child in children:
+        if len(entries) >= max_entries:
+            truncated = True
+            break
+        rel = child.relative_to(base).as_posix()
+        entries.append({
+            "name": child.name,
+            "path": rel,
+            "hasLogics": (child / "logics").is_dir(),
+        })
+    return {
+        "state": "ok",
+        "root": str(base),
+        "path": normalized,
+        "selectedPath": str(target),
+        "parentPath": "/".join(normalized.split("/")[:-1]) if normalized else "",
+        "entries": entries,
+        "truncated": truncated,
+    }
+
+
 def workspace_preview_payload(
     repo_root: Path,
     rel_path: str,
@@ -3077,6 +3116,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/bootstrap-logics",
         "/api/switch-project",
         "/api/select-project-root",
+        "/api/select-project-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",
@@ -3847,6 +3887,13 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
+        if route == "/api/project-picker-tree":
+            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            try:
+                self._send_json({"ok": True, "payload": project_picker_tree_payload(self.server.launch_repo_root.parent, rel_path)})
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
         if route == "/api/workshop-commands":
             try:
                 self._send_json({"ok": True, "payload": workshop_commands_payload(self.server.repo_root)})
@@ -3973,6 +4020,27 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": self.server.switch_project_root(selected)})
             except RuntimeError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            except FileNotFoundError as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if parsed.path == "/api/select-project-root-path":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                rel_path = str(body.get("path") or "")
+                normalized = _normalize_workspace_path(rel_path)
+                base = self.server.launch_repo_root.parent.resolve()
+                selected = (base / normalized).resolve()
+                try:
+                    selected.relative_to(base)
+                except ValueError as exc:
+                    raise ValueError("Selected project path escapes root.") from exc
+                self._send_json({"ok": True, "payload": self.server.switch_project_root(selected)})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             except FileNotFoundError as exc:

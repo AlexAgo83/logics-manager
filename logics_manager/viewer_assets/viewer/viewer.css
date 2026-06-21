@@ -1814,11 +1814,24 @@
   text-align: left;
   padding: 4px 6px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: grab;
 }
 
 .viewer-workshop__terminal-row:hover {
   background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workshop__terminal-row:active {
+  cursor: grabbing;
+}
+
+.viewer-workshop__terminal-row.is-dragging {
+  opacity: 0.58;
+}
+
+.viewer-workshop__terminal-row.is-drop-target {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  background: color-mix(in srgb, var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%)) 70%, var(--vscode-focusBorder, #007fd4));
 }
 
 .viewer-workshop__terminal-row.is-active {

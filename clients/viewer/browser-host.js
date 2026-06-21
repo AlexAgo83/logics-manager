@@ -5267,6 +5267,7 @@
   });
 
   let workshopTerminalResizeTimer = null;
+  let customTerminalBusy = false;
   window.addEventListener("resize", () => {
     if (workshopTerminalResizeTimer) clearTimeout(workshopTerminalResizeTimer);
     workshopTerminalResizeTimer = setTimeout(() => {
@@ -5274,6 +5275,27 @@
       refitAllWorkshopTerminals();
     }, 80);
   });
+
+  function setCustomTerminalBusy(trigger, busy) {
+    customTerminalBusy = Boolean(busy);
+    const controls = trigger instanceof HTMLElement
+      ? [trigger]
+      : Array.from(document.querySelectorAll("[data-viewer-workshop-terminal-custom]")).filter((node) => node instanceof HTMLElement);
+    controls.forEach((control) => {
+      if (!control.dataset.viewerOriginalLabel) {
+        control.dataset.viewerOriginalLabel = control.textContent || "+ Custom";
+      }
+      if ("disabled" in control) {
+        control.disabled = customTerminalBusy;
+      }
+      control.setAttribute("aria-busy", customTerminalBusy ? "true" : "false");
+      control.classList.toggle("is-loading", customTerminalBusy);
+      control.textContent = customTerminalBusy ? "Loading..." : (control.dataset.viewerOriginalLabel || "+ Custom");
+    });
+    if (customTerminalBusy) {
+      setMeta("Loading CDX sessions...");
+    }
+  }
 
   async function spawnWorkshopTerminal(options = {}) {
     try {
@@ -5318,10 +5340,16 @@
     }
   }
 
-  async function spawnCustomWorkshopTerminal() {
-    const result = await showCustomTerminalModal();
-    if (!result || !Array.isArray(result.command) || !result.command.length) return;
-    spawnWorkshopTerminal({ command: result.command, label: result.label });
+  async function spawnCustomWorkshopTerminal(trigger = null) {
+    if (customTerminalBusy) return;
+    setCustomTerminalBusy(trigger, true);
+    try {
+      const result = await showCustomTerminalModal();
+      if (!result || !Array.isArray(result.command) || !result.command.length) return;
+      spawnWorkshopTerminal({ command: result.command, label: result.label });
+    } finally {
+      setCustomTerminalBusy(trigger, false);
+    }
   }
 
   // Public API for CDX / handoff launchers and other callers that want to
@@ -9265,7 +9293,7 @@
       }
       if (workshopTerminalCustomTarget instanceof HTMLElement) {
         event.preventDefault();
-        spawnCustomWorkshopTerminal();
+        spawnCustomWorkshopTerminal(workshopTerminalCustomTarget);
         return;
       }
       if (workshopTerminalSelectTarget instanceof HTMLElement) {

@@ -1859,6 +1859,19 @@
   border-bottom-color: currentColor;
 }
 
+.viewer-workshop__terminal-row .viewer-workshop__state {
+  justify-self: end;
+  max-width: 48px;
+  padding: 1px 4px;
+  border-radius: 6px;
+  font-size: 8px;
+  line-height: 1.15;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .viewer-workshop__usage {
   position: relative;
   flex: 0 0 auto;

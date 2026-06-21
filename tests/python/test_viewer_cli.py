@@ -47,6 +47,7 @@ from logics_manager.viewer import (
     file_preview_payload,
     gitlab_repo_url,
     github_repo_url,
+    git_commit_payload,
     git_diff_payload,
     git_file_preview_payload,
     git_status_payload,
@@ -965,6 +966,87 @@ def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> Non
     assert payload["badgeCounts"]["uncommittedFiles"] == 3
     assert payload["badgeAvailability"]["unpushedCommits"] is False
     assert payload["badgeMessages"]["unpushedCommits"] == "No upstream branch detected."
+
+
+def test_viewer_git_commit_payload_stages_selected_files_and_commits(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                "\n".join(
+                    [
+                        "## main...origin/main",
+                        " M clients/viewer/browser-host.js",
+                        "R  old.md -> renamed.md",
+                        "?? new-file.md",
+                    ]
+                ),
+                "",
+            )
+        if args[1:] in (
+            ["diff", "--no-ext-diff", "--numstat", "--cached"],
+            ["diff", "--no-ext-diff", "--numstat"],
+            ["log", "-1", "--pretty=format:%h %s"],
+            ["log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
+            ["rev-list", "--count", "@{u}..HEAD"],
+        ):
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
+        if args[1:] == ["add", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"]:
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["commit", "-m", "Add Git commit modal", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"]:
+            return subprocess.CompletedProcess(args, 0, "[main abc1234] Add Git commit modal\n", "")
+        if args[1:] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "abc123456789\n", "")
+        raise AssertionError(args)
+
+    payload = git_commit_payload(
+        tmp_path,
+        ["clients/viewer/browser-host.js", "renamed.md"],
+        " Add Git commit modal ",
+        runner=runner,
+        which=lambda _name: "/usr/bin/git",
+    )
+
+    assert payload == {
+        "state": "ok",
+        "message": "Commit created.",
+        "hash": "abc123456789",
+        "shortHash": "abc1234",
+        "files": ["clients/viewer/browser-host.js", "renamed.md"],
+    }
+    assert ["git", "add", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"] in calls
+    assert ["git", "commit", "-m", "Add Git commit modal", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"] in calls
+
+
+def test_viewer_git_commit_payload_rejects_unknown_paths(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(args, 0, "## main\n M changed.md\n", "")
+        if args[1:] in (
+            ["diff", "--no-ext-diff", "--numstat", "--cached"],
+            ["diff", "--no-ext-diff", "--numstat"],
+            ["log", "-1", "--pretty=format:%h %s"],
+            ["log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"],
+        ):
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 1, "", "no upstream")
+        raise AssertionError(args)
+
+    payload = git_commit_payload(tmp_path, ["other.md"], "Message", runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "error"
+    assert payload["message"] == "No pending Git change found for other.md."
 
 
 def test_viewer_git_status_payload_marks_history_as_open_ended_after_display_limit(tmp_path: Path) -> None:

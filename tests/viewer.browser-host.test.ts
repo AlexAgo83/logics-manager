@@ -42,6 +42,7 @@ function createViewerDom(options: {
   filePreviewResponse?: { path: string; name: string; content: string; truncated?: boolean };
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  gitCommitResponse?: { ok: boolean; status?: number; body?: unknown };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -170,6 +171,9 @@ function createViewerDom(options: {
     <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option></select>
     <select id="sort-by"><option value="updated-desc">Updated</option></select>
     <button id="viewer-document-close" type="button">Close</button>
+    <button id="viewer-git-pull" type="button" hidden>Pull</button>
+    <button id="viewer-git-commit" type="button" hidden>Commit</button>
+    <button id="viewer-git-push" type="button" hidden>Push</button>
     <button id="viewer-release-reset" type="button" hidden>Reset</button>
     <button id="viewer-document-refresh" type="button">Refresh</button>
     <button id="viewer-document-status" type="button" hidden>Status</button>
@@ -678,6 +682,23 @@ function createViewerDom(options: {
                 untracked: [{ path: "new-file.md" }]
               }
             }
+          })
+        };
+      }
+      if (url === "/api/git-commit") {
+        if (options.gitCommitResponse) {
+          return {
+            ok: options.gitCommitResponse.ok,
+            status: options.gitCommitResponse.status ?? (options.gitCommitResponse.ok ? 200 : 400),
+            json: async () => options.gitCommitResponse?.body || {}
+          };
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { state: "ok", shortHash: "fedcba9", files: ["clients/viewer/browser-host.js"] }
           })
         };
       }
@@ -2993,6 +3014,69 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector(".viewer-git__workspace")?.classList.contains("has-diff-detail")).toBe(false);
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
+  });
+
+  it("opens a Git commit modal and submits selected files with a message", async () => {
+    const { dom, fetchCalls } = createViewerDom({
+      gitResponseFactory: () => ({
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 0,
+            behind: 0,
+            clean: false,
+            dirty: true,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [{ hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+            counts: { staged: 0, modified: 1, deleted: 0, renamed: 0, untracked: 1 },
+            groups: {
+              staged: [],
+              modified: [{ path: "clients/viewer/browser-host.js", additions: 8, deletions: 2 }],
+              deleted: [],
+              renamed: [],
+              untracked: [{ path: "new-file.md" }]
+            }
+          }
+        }
+      })
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const commitButton = dom.window.document.getElementById("viewer-git-commit") as HTMLButtonElement | null;
+    expect(commitButton?.hidden).toBe(false);
+    commitButton?.click();
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("clients/viewer/browser-host.js");
+    expect(modal?.textContent).toContain("new-file.md");
+    const checkboxes = Array.from(modal?.querySelectorAll("input[type='checkbox']") || []) as HTMLInputElement[];
+    expect(checkboxes).toHaveLength(2);
+    checkboxes[1]!.checked = false;
+    checkboxes[1]!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    const message = modal?.querySelector("textarea") as HTMLTextAreaElement | null;
+    message!.value = "Add Git commit modal";
+    message!.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const commitCall = fetchCalls.find((call) => call.url === "/api/git-commit");
+    expect(commitCall).toBeTruthy();
+    expect(JSON.parse(String(commitCall?.options?.body || "{}"))).toEqual({
+      files: ["clients/viewer/browser-host.js"],
+      message: "Add Git commit modal"
+    });
   });
 
   it("falls back to a file preview when a selected Git file has no useful diff", async () => {

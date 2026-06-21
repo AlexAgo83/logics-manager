@@ -287,7 +287,21 @@ function createViewerDom(options: {
               bootstrapLogicsTitle: options.canBootstrapLogics === false ? "Bootstrap unavailable." : "Refresh Logics bootstrap files.",
               bootstrapWarning: options.bootstrapWarning ?? null,
               items: [
-                { id: "req_001_demo", title: "Demo", stage: "request", relPath: "logics/request/req_001_demo.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00" },
+                {
+                  id: "req_001_demo",
+                  title: "Demo",
+                  stage: "request",
+                  relPath: "logics/request/req_001_demo.md",
+                  references: [
+                    { kind: "manual", label: "Reference", path: "README.md" },
+                    { kind: "manual", label: "Reference", path: "clients/viewer/browser-host.js" },
+                    { kind: "manual", label: "Reference", path: "logics/request/req_missing.md" }
+                  ],
+                  usedBy: [],
+                  indicators: { Status: "Ready" },
+                  isPromoted: false,
+                  updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00"
+                },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
               ],
               updateInfo: {
@@ -1188,7 +1202,13 @@ function createViewerDom(options: {
           ok: true,
           json: async () => ({
             ok: true,
-            payload: { ok: false, issue_count: 1, warning_count: 0, issues: [{ path: "logics/request/req_001_demo.md", message: "Missing backlog link", severity: "blocking" }] }
+            payload: {
+              ok: false,
+              issue_count: 1,
+              warning_count: 0,
+              issues: [{ path: "logics/request/req_001_demo.md", message: "Missing backlog link", severity: "blocking" }],
+              findings: [{ path: "logics/request/req_001_demo.md", message: "Missing backlog link", severity: "blocking" }]
+            }
           })
         };
       }
@@ -1197,7 +1217,13 @@ function createViewerDom(options: {
           ok: true,
           json: async () => ({
             ok: true,
-            payload: { release_ready: true, issue_count: 0, warning_count: 1, warnings: [{ path: "logics/request/req_001_demo.md", message: "Review wording", severity: "warning" }] }
+            payload: {
+              release_ready: true,
+              issue_count: 0,
+              warning_count: 1,
+              warnings: [{ path: "logics/request/req_001_demo.md", message: "Review wording", severity: "warning" }],
+              findings: [{ path: "logics/request/req_001_demo.md", message: "Review wording", severity: "warning" }]
+            }
           })
         };
       }
@@ -3093,6 +3119,7 @@ describe("local viewer browser host", () => {
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Overview");
+    expect(content?.textContent).toContain("5 signals need attention");
     expect(content?.textContent).toContain("Needs attention");
     expect(content?.textContent).toContain("Operator actions");
     expect(content?.textContent).toContain("Corpus shape");
@@ -3102,10 +3129,16 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Quality signals");
     expect(content?.textContent).toContain("Blocked");
     expect(content?.textContent).toContain("Incomplete workflow chains");
+    expect(content?.textContent).toContain("req_001_demo -> logics/request/req_missing.md");
+    expect(content?.textContent).not.toContain("req_001_demo -> README.md");
+    expect(content?.textContent).not.toContain("req_001_demo -> clients/viewer/browser-host.js");
     expect(content?.querySelector(".viewer-insights__hero")).not.toBeNull();
     expect(content?.querySelector(".viewer-insights__workspace")).not.toBeNull();
     expect(content?.querySelector(".viewer-insights__bar-track")).not.toBeNull();
     expect(content?.querySelector("[data-viewer-open-health]")).not.toBeNull();
+    const qualityCard = Array.from(content?.querySelectorAll(".viewer-insights__card") || [])
+      .find((node) => node.textContent?.includes("Quality findings"));
+    expect(qualityCard?.textContent).toContain("2");
     expect((content?.textContent || "").indexOf("Operator actions")).toBeLessThan((content?.textContent || "").indexOf("Corpus shape"));
     expect(content?.querySelector("[data-viewer-filter-group]")).not.toBeNull();
     expect(content?.querySelector("[data-viewer-doc-path]")).not.toBeNull();

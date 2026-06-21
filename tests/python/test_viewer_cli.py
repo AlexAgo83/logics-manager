@@ -83,6 +83,7 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "request").mkdir(parents=True)
     (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
     _write_minimal_workflow_doc(
         repo_root / "logics" / "request" / "req_001_demo.md",
         title="Demo request",
@@ -102,14 +103,30 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
         backlog_path.read_text(encoding="utf-8") + "\nPromoted from `logics/request/req_001_demo.md`\n",
         encoding="utf-8",
     )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "tasks" / "task_001_demo.md",
+        title="Demo task",
+        kind="task",
+        status="Ready",
+        links=[],
+    )
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_path.write_text(
+        task_path.read_text(encoding="utf-8") + "\n# Backlog\n- `item_001_demo`\n",
+        encoding="utf-8",
+    )
 
     items = collect_viewer_items(repo_root)
 
     request = next(item for item in items if item["id"] == "req_001_demo")
     backlog = next(item for item in items if item["id"] == "item_001_demo")
+    task = next(item for item in items if item["id"] == "task_001_demo")
     assert request["isPromoted"] is True
     assert request["usedBy"][0]["id"] == "item_001_demo"
+    assert backlog["isPromoted"] is True
+    assert backlog["usedBy"][0]["id"] == "task_001_demo"
     assert backlog["references"][0]["path"] == "logics/request/req_001_demo.md"
+    assert task["references"][0]["path"] == "logics/backlog/item_001_demo.md"
 
 
 def test_viewer_current_version_falls_back_to_installed_metadata(

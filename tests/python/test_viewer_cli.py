@@ -2542,6 +2542,30 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
     assert fake_server.closed is True
 
 
+def test_viewer_main_ignores_repeated_keyboard_interrupt_during_close(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    class FakeViewerServer:
+        server_address = ("127.0.0.1", 8765)
+        tls_enabled = False
+        url_scheme = "http"
+        lan_token = ""
+        lan_rw_mode = False
+        restart_requested = False
+
+        def serve_forever(self) -> None:
+            raise KeyboardInterrupt
+
+        def server_close(self) -> None:
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port, **_kwargs: FakeViewerServer())
+
+    assert viewer_module.main(["--host", "127.0.0.1", "--port", "8765"]) == 0
+
+
 def test_viewer_main_execs_after_restart_request(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
